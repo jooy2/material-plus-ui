@@ -1,0 +1,85 @@
+/**
+ * Keeping the documentation's typography off the components.
+ *
+ * A preview is rendered *inside* the rendered Markdown, so VitePress is already
+ * styling the elements Material UI puts on the page — and MUI builds a form out
+ * of exactly the tags an article is made of. A `FormHelperText` is a `<p>`, so
+ * `.vp-doc p` gives an error message a 16px margin and article line height; a
+ * `Link` is an `<a>`, so `.vp-doc a` repaints it in the brand colour.
+ *
+ * Everything here is scoped to `.mp-scope`, the element every preview mounts
+ * into, and prefixed with `.vp-doc` — a `.vp-doc p` cannot be outranked by
+ * anything with fewer than two classes.
+ *
+ * There is no Preflight here, scoped or otherwise. The components are MUI
+ * components styled by Emotion; the reset they want is `ScopedCssBaseline`,
+ * which `theme/react/DemoRoot.tsx` puts around every preview.
+ */
+
+.vp-doc .mp-scope :is(p, h1, h2, h3, h4, h5, h6, ul, ol, li, blockquote, figure, dl, dd) {
+  margin: 0;
+  line-height: inherit;
+  letter-spacing: inherit;
+}
+
+/*
+ * Padding is reset separately, and only on the tags something actually pads —
+ * `.vp-doc ul` / `.vp-doc ol` add `padding-left: 1.25rem` and
+ * `.vp-doc blockquote` adds `padding-left: 16px`. Nothing pads a `p` or an
+ * `li`, and naming a tag here means a component can no longer set its padding:
+ * `.vp-doc .mp-scope` is two classes and a padding utility is one.
+ *
+ * `[role="list"]` and `[role="menu"]` are the exception, because that is what
+ * MUI's `List` and `Menu` put on their root — there the padding belongs to the
+ * component rather than to the page's typography.
+ */
+.vp-doc .mp-scope :is(ul, ol):not([role='list'], [role='menu'], [role='listbox']),
+.vp-doc .mp-scope blockquote {
+  padding: 0;
+}
+
+.vp-doc .mp-scope :is(ul, ol) {
+  list-style: none;
+}
+
+/*
+ * `.vp-doc a` gives every link the brand colour, a weight and an underline, and
+ * a link inside a component is almost never a link in an article — it is a
+ * card's footer, a breadcrumb, a menu row. Those take the component's own
+ * typography, which for MUI means whatever `ThemeProvider` decided.
+ */
+.vp-doc .mp-scope a {
+  color: inherit;
+  font-weight: inherit;
+  text-decoration: none;
+  text-underline-offset: unset;
+}
+
+.vp-doc .mp-scope blockquote {
+  border: 0 solid;
+  color: inherit;
+}
+
+.vp-doc .mp-scope :is(table, tr, th, td) {
+  display: revert;
+  margin: 0;
+  border: 0 solid;
+  background-color: transparent;
+}
+
+.vp-doc .mp-scope :not(pre) > code {
+  padding: 0;
+  border-radius: 0;
+  background-color: transparent;
+  font-size: inherit;
+  color: inherit;
+}
+
+/*
+ * MUI renders a Menu, a Dialog, a Tooltip and a Select's popup through a portal
+ * at the end of `<body>` — outside `.mp-scope`, and therefore outside every
+ * rule above. Nothing in `.vp-doc` reaches them either, which is why there is
+ * no portal rule here: a portalled surface is already clear of the article's
+ * typography. It is noted rather than omitted silently, because the first
+ * component that looks wrong *only* in a popup will send someone looking here.
+ */

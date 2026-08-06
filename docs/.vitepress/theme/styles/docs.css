@@ -1,0 +1,288 @@
+/**
+ * Docs chrome: the frame around a live preview, and the props table. None of
+ * this is library styling — it is the furniture the documentation puts the
+ * components on.
+ */
+
+/* ---------------------------------------------------------------------------
+ * Demo
+ * ------------------------------------------------------------------------- */
+
+.vp-doc .mp-demo {
+  margin: 20px 0 28px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: var(--vp-c-bg);
+}
+
+/*
+ * The canvas is the one part of the frame that can be in a different theme from
+ * the page — the switch in its corner makes it so — which is why its two
+ * colours are written out rather than taken from `--vp-c-bg-soft`. A VitePress
+ * variable would stay on whatever the site switch says, and a preview flipped
+ * to dark would end up with dark components on a light page.
+ *
+ * The values are MUI's own default surfaces: `grey.50` under a light theme and
+ * `background.paper`'s dark counterpart, so a preview reads as a slice of an
+ * application rather than as a swatch.
+ */
+.mp-demo-canvas {
+  position: relative;
+  padding: 32px 24px;
+  background-color: #fafafa;
+  /* Only the chrome the docs draw over the preview — the theme switch — reads
+     this. What the components inside are is MUI's decision, via `DemoRoot`. */
+  color: #1a1a1a;
+  color-scheme: light;
+}
+
+.mp-demo-canvas[data-theme='dark'] {
+  background-color: #191919;
+  color: #e8e8e8;
+  color-scheme: dark;
+}
+
+/* The per-preview theme switch, in the canvas's top corner rather than in the
+   frame: it belongs to what it changes, and the frame stays on the page theme.
+   `currentColor` throughout, so it flips with the canvas it sits in. */
+.mp-demo-theme {
+  position: absolute;
+  z-index: 2;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+  border-radius: 9px;
+  background-color: transparent;
+  color: color-mix(in srgb, currentColor 55%, transparent);
+  cursor: pointer;
+  transition:
+    color 0.16s,
+    border-color 0.16s;
+}
+
+.mp-demo-theme:hover {
+  border-color: color-mix(in srgb, currentColor 45%, transparent);
+  color: currentColor;
+}
+
+.mp-demo-theme:focus-visible {
+  outline: 2px solid var(--vp-c-brand-1);
+  outline-offset: 2px;
+}
+
+.mp-demo-canvas[data-align='center'] .mp-demo-mount {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* The mount point is where the component tree lands. It sets no type of its
+   own: MUI's `ScopedCssBaseline` inside the preview is what applies the theme's
+   typography, which is the same thing that would apply it in an application. */
+.mp-demo-mount {
+  position: relative;
+}
+
+/* The height a preview holds while it is empty is `Demo.vue`'s `minHeight`, set
+   inline — it has to be per-preview, and it stays applied once the components
+   are there so that reserving the space does not itself become a second jump. */
+
+.mp-demo--plain .mp-demo-canvas {
+  padding: 0;
+  background: none;
+}
+
+.vp-doc .mp-demo--plain {
+  border: 0;
+  border-radius: 0;
+  background: none;
+  overflow: visible;
+}
+
+.mp-demo-source {
+  border-top: 1px solid var(--vp-c-divider);
+  background-color: var(--vp-c-bg);
+}
+
+.mp-demo-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 14px;
+  border: 0;
+  background: transparent;
+  color: var(--vp-c-text-2);
+  font-size: 12px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.mp-demo-toggle:hover {
+  color: var(--vp-c-brand-1);
+}
+
+.mp-demo-toggle-icon {
+  display: inline-block;
+  transition: transform 0.2s;
+}
+
+.mp-demo-toggle-icon.is-open {
+  transform: rotate(90deg);
+}
+
+/* VitePress pulls code blocks out to the full page width and rounds them; in
+   here they are one panel of a card that is already rounded and inset. */
+.vp-doc .mp-demo-code div[class*='language-'] {
+  margin: 0;
+  border-radius: 0;
+}
+
+/* ---------------------------------------------------------------------------
+ * Props table
+ * ------------------------------------------------------------------------- */
+
+.vp-doc .mp-props {
+  display: block;
+  overflow-x: auto;
+  margin: 16px 0 24px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 10px;
+}
+
+.vp-doc .mp-props table {
+  display: table;
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.vp-doc .mp-props :is(th, td) {
+  padding: 9px 14px;
+  border: 0;
+  border-bottom: 1px solid var(--vp-c-divider);
+  text-align: left;
+  vertical-align: top;
+  background: none;
+}
+
+.vp-doc .mp-props th {
+  background-color: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-2);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.vp-doc .mp-props tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+
+.vp-doc .mp-props tbody tr:hover {
+  background-color: var(--vp-c-bg-soft);
+}
+
+.mp-props-name {
+  display: inline-block;
+  font-family: var(--vp-font-family-mono);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--vp-c-text-1);
+  white-space: nowrap;
+}
+
+.mp-props-required {
+  color: var(--vp-c-danger-1, #e5484d);
+}
+
+/* Unions wrap at the pipes because those are spaces. No `word-break` — it would
+   split `'password'` down the middle, which is worse than a taller row. */
+.vp-doc .mp-props .mp-props-type {
+  min-width: 9rem;
+  font-family: var(--vp-font-family-mono);
+  font-size: 12px;
+  color: var(--vp-c-brand-1);
+}
+
+.vp-doc .mp-props .mp-props-default {
+  font-family: var(--vp-font-family-mono);
+  font-size: 12px;
+  color: var(--vp-c-text-2);
+  white-space: nowrap;
+}
+
+.vp-doc .mp-props .mp-props-desc {
+  min-width: 14rem;
+  color: var(--vp-c-text-1);
+  line-height: 1.6;
+}
+
+/* ---------------------------------------------------------------------------
+ * Page furniture
+ * ------------------------------------------------------------------------- */
+
+/*
+ * The one-line summary under a component's title.
+ *
+ * VitePress gives `h1` no bottom margin of its own, so without a top margin
+ * here the summary sits directly on the title's descenders. The gap is set on
+ * the lede rather than on the heading so it only applies where a summary
+ * actually follows one.
+ */
+.vp-doc .mp-lede {
+  margin: 18px 0 28px;
+  color: var(--vp-c-text-2);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+/* ---------------------------------------------------------------------------
+ * Home
+ *
+ * The prose section below the hero's feature grid. VitePress styles that grid
+ * for it and nothing else, so a second row of cards has to bring its own.
+ * ------------------------------------------------------------------------- */
+
+.mp-why {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  margin: 24px 0;
+}
+
+.vp-doc .mp-why-card {
+  padding: 20px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 12px;
+  background-color: var(--vp-c-bg-soft);
+}
+
+/* `h3` inside a card is a card title, not an outline entry — VitePress would
+   otherwise give it the section spacing and the anchor offset. */
+.vp-doc .mp-why-card h3 {
+  margin: 0 0 8px;
+  padding: 0;
+  border: 0;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: normal;
+}
+
+.vp-doc .mp-why-card p {
+  margin: 0;
+  color: var(--vp-c-text-2);
+  font-size: 14px;
+  line-height: 1.65;
+}

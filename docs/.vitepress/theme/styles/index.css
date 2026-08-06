@@ -1,0 +1,34 @@
+/**
+ * The docs' style entry point.
+ *
+ * Order matters here, and it is not the order you would write for an app:
+ *
+ * 1. `scope.css` — the rules that keep VitePress's documentation typography off
+ *    the components inside a preview. It goes first so that a utility of equal
+ *    specificity beats it on order.
+ * 2. Tailwind's theme, in a layer, and Tailwind's utilities *unlayered*.
+ *    Unlayered is the point — every layered rule loses to every unlayered one,
+ *    and VitePress ships its entire theme unlayered, so utilities inside a
+ *    `utilities` layer would never win against `.vp-doc p`.
+ * 3. The library's own tokens, then the docs chrome.
+ *
+ * Tailwind's Preflight is deliberately absent, exactly as it is from the
+ * package's own standalone stylesheet: it would flatten the headings, lists and
+ * links the documentation is made of, and MUI's `ScopedCssBaseline` inside each
+ * preview is already the reset the components want.
+ */
+
+@import './scope.css';
+
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css';
+
+@import '../../../../src/styles.css';
+
+@import './docs.css';
+
+/* Tailwind only emits classes it can see spelled out. `src/` is not listed:
+   `src/styles.css` registers its own directory, exactly as it does for a
+   consumer who installed the package. These two are the docs' own classes. */
+@source '../../demos';
+@source '../components';

@@ -1,0 +1,68 @@
+name: run-test
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    paths:
+      - src/**
+      - test/**
+      - package.json
+      - package-lock.json
+      - tsconfig.json
+      - tsconfig.prod.json
+      - vitest.config.ts
+      - .github/workflows/run-test.yml
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    name: Lint and typecheck
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        name: Setup Node.js
+        with:
+          node-version: '26'
+          cache: npm
+          cache-dependency-path: '**/package-lock.json'
+      - run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Check formatting
+        run: npx prettier . --check
+      - name: Typecheck
+        run: npm run typecheck
+
+  run-test:
+    runs-on: ${{ matrix.os }}
+    name: Test Node.js ${{ matrix.node_version }} on ${{ matrix.os }} (${{ matrix.browser }})
+    strategy:
+      fail-fast: false
+      matrix:
+        node_version: ['26']
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        browser: [chromium, firefox, webkit]
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        name: Setup Node.js ${{ matrix.node_version }}
+        with:
+          node-version: ${{ matrix.node_version }}
+          cache: npm
+          cache-dependency-path: '**/package-lock.json'
+      - run: npm ci
+      - name: Install Playwright browser (${{ matrix.browser }})
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Test module script
+        run: npm run test
+        env:
+          VITEST_BROWSER: ${{ matrix.browser }}

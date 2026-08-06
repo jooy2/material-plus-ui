@@ -1,0 +1,63 @@
+/**
+ * Material Plus design tokens, and the source declaration the components need.
+ *
+ * This file ships as `material-plus/tailwind.css`, for a project that runs
+ * Tailwind itself and wants the components' utilities generated in the same
+ * pass as its own:
+ *
+ *   @import 'tailwindcss';
+ *   @import 'material-plus/tailwind.css';
+ *
+ * A project with no Tailwind imports `material-plus/styles.css` instead, which
+ * is this file plus the compiled utilities, built by `scripts/build-styles.mjs`
+ * from `src/standalone.css`. The tokens below are the same in both.
+ *
+ * ## What is deliberately not here
+ *
+ * **Colour, typography and dark mode.** Material UI owns all three. A component
+ * in this library takes its palette from the surrounding `ThemeProvider`, the
+ * same as the `@mui/material` component beside it, so a token family here would
+ * be a second theme that could disagree with the first. Anything a component
+ * needs from the theme it reads through MUI, not from a custom property.
+ *
+ * **A reset.** MUI's `CssBaseline` is one, and every application using this
+ * library already has it. See `src/standalone.css`.
+ *
+ * What Tailwind is for here is layout and the handful of structural utilities a
+ * component needs that `sx` would express less clearly — so the tokens below
+ * stay to that job, and the file is short on purpose.
+ */
+
+/*
+ * The components' classes are Tailwind utilities, so Tailwind has to see the
+ * files that spell them out — otherwise a component renders with none of them.
+ *
+ * `@source` resolves relative to the file it is written in, not to whatever
+ * imported it. In a consumer's install that is `node_modules/material-plus/dist/`,
+ * next to the compiled components; in this repository it is `src/`, next to the
+ * `.tsx`. One line covers both, and an explicitly registered source is scanned
+ * even inside `node_modules`, which automatic detection skips.
+ *
+ * This is why consumers do not write an `@source '../node_modules/material-plus'`
+ * of their own — a path that would depend on where their CSS file happens to sit.
+ *
+ * The same line is what the standalone build scans: `src/standalone.css` pulls
+ * this file in from `src/`, so `.` means the components' `.tsx` there. One
+ * declaration, three contexts.
+ */
+@source '.';
+
+/* ---------------------------------------------------------------------------
+ * Tokens
+ *
+ * Only what a component actually reads. A token nobody uses is a promise to
+ * keep supporting a name, so they are added here as components need them
+ * rather than in anticipation.
+ * ------------------------------------------------------------------------- */
+
+:root {
+  /* How long a Material Plus transition runs. Matches MUI's own `short`
+     duration so a control from this library and one from `@mui/material`
+     settle together rather than a frame apart. */
+  --mp-duration: 250ms;
+}

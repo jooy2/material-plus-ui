@@ -1,0 +1,33 @@
+/**
+ * The default theme's shell, retuned.
+ *
+ * VitePress sizes its article column for prose. These pages hold a four-column
+ * props table and a live preview of a component that a consumer will render at
+ * the full width of their own page, so the article takes a little more room and
+ * the layout is allowed to grow further before it stops.
+ *
+ * Every rule below overrides a scoped style from the default theme, which is
+ * why the selectors carry one class more than they look like they need. A
+ * scoped rule is compiled with a `[data-v-…]` attribute selector on it, so the
+ * theme's own `.content-container` and a plain one here weigh the same and the
+ * winner would come down to which stylesheet Vite happened to emit last.
+ */
+
+:root {
+  --vp-sidebar-width: 280px;
+  /* Where the whole layout stops growing. Raised alongside the article below —
+     without it the extra width would come out of the page's own margins. */
+  --vp-layout-max-width: 1560px;
+}
+
+/*
+ * 688px is a comfortable measure for prose and too narrow for what these pages
+ * actually hold. From 1280px up, which is where the aside appears — below that
+ * the cap is the only thing keeping the line length sane on a tablet, and there
+ * is no spare width to hand over anyway.
+ */
+@media (min-width: 1280px) {
+  .VPContent .VPDoc.has-aside .content-container {
+    max-width: 880px;
+  }
+}

@@ -1,0 +1,35 @@
+# System files
+.DS_Store
+Thumbs.db
+*.log
+
+# IDEs
+.idea/
+.vscode/
+.claude/
+
+# Project files
+src/
+test/
+docs/
+docs-dist/
+CHANGELOG.md
+CLAUDE.md
+CODE_OF_CONDUCT.md
+SECURITY.md
+CONTRIBUTING.md
+
+# For development
+scripts/
+.git*
+.eslintignore
+eslint.config.ts
+.prettierignore
+.prettierrc
+.editorconfig
+terser.config.json
+tsconfig.json
+tsconfig.prod.json
+vitest.config.ts
+postcss.config.mjs
+pnpm-workspace.yaml
