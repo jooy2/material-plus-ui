@@ -1,7 +1,7 @@
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { MPIcon } from 'material-plus';
-import type { MPIconGlyphProps } from 'material-plus';
+import { MPIcon } from 'material-plus-ui';
+import type { MPIconGlyphProps } from 'material-plus-ui';
 
 /** A drawing of your own, as a component: it is handed the size and the colour. */
 function SpiralIcon({ size, color, strokeWidth }: MPIconGlyphProps) {

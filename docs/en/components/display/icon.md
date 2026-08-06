@@ -10,7 +10,7 @@ order: 1
 <Demo src="icon/hero" />
 
 ```tsx
-import { MPIcon, ICONS } from 'material-plus';
+import { MPIcon, ICONS } from 'material-plus-ui';
 
 <MPIcon icon={ICONS.success} size={24} color="green" label="Deployed" />;
 ```
@@ -102,7 +102,7 @@ With a `label` the box becomes `role="img"` with that name.
 `lucide-react` is a dependency of this package, and every glyph the library's own components draw is named in one file — `src/constants/icons.ts`. There are two ways to reach it.
 
 ```tsx
-import { ICONS, SearchIcon } from 'material-plus';
+import { ICONS, SearchIcon } from 'material-plus-ui';
 
 <MPIcon icon={ICONS.search} />     // by role name
 <MPIcon icon={SearchIcon} />       // as a named import

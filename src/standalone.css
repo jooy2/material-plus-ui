@@ -1,6 +1,6 @@
 /**
  * The standalone stylesheet's entry point — the source of
- * `material-plus/styles.css`.
+ * `material-plus-ui/styles.css`.
  *
  * This file is never shipped. `scripts/build-styles.mjs` runs Tailwind over it
  * at build time and writes the result to `dist/styles.css`, so what a consumer

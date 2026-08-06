@@ -10,7 +10,7 @@ order: 1
 <Demo src="icon/hero" />
 
 ```tsx
-import { MPIcon, ICONS } from 'material-plus';
+import { MPIcon, ICONS } from 'material-plus-ui';
 
 <MPIcon icon={ICONS.success} size={24} color="green" label="배포됨" />;
 ```
@@ -102,7 +102,7 @@ import { MPIcon, ICONS } from 'material-plus';
 `lucide-react`는 이 패키지의 dependency이고, 라이브러리 자체 컴포넌트가 그리는 모든 글리프는 `src/constants/icons.ts` 한 파일에 이름이 붙어 있습니다. 꺼내 쓰는 방법은 두 가지입니다.
 
 ```tsx
-import { ICONS, SearchIcon } from 'material-plus';
+import { ICONS, SearchIcon } from 'material-plus-ui';
 
 <MPIcon icon={ICONS.search} />     // 역할 이름으로
 <MPIcon icon={SearchIcon} />       // named import로

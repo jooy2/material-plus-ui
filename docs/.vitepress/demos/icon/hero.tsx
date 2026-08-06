@@ -1,6 +1,6 @@
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { MPIcon, ICONS } from 'material-plus';
+import { MPIcon, ICONS } from 'material-plus-ui';
 
 export default function IconHero() {
   return (

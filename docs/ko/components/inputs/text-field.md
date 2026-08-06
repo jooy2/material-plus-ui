@@ -10,7 +10,7 @@ order: 1
 <Demo src="text-field/hero" :minHeight="72" />
 
 ```tsx
-import { MPTextField } from 'material-plus';
+import { MPTextField } from 'material-plus-ui';
 
 const [email, setEmail] = useState('');
 

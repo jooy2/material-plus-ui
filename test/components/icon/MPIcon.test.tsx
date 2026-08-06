@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { MPIcon, ICONS } from 'material-plus';
-import type { MPIconGlyphProps } from 'material-plus';
+import { MPIcon, ICONS } from 'material-plus-ui';
+import type { MPIconGlyphProps } from 'material-plus-ui';
 
 /** A stand-in for whatever an icon set hands back: a component taking a size. */
 function Glyph({ size, color, strokeWidth }: MPIconGlyphProps) {

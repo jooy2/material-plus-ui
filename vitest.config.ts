@@ -42,8 +42,8 @@ export default defineConfig({
   plugins: [ReactPlugin()],
   resolve: {
     alias: {
-      // Tests import from 'material-plus' exactly as a consumer would.
-      'material-plus': resolve(rootDir, 'src/index.ts')
+      // Tests import from 'material-plus-ui' exactly as a consumer would.
+      'material-plus-ui': resolve(rootDir, 'src/index.ts')
     }
   },
   test: {

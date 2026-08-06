@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Stack from '@mui/material/Stack';
-import { MPTextField, MPIcon, ICONS } from 'material-plus';
+import { MPTextField, MPIcon, ICONS } from 'material-plus-ui';
 
 export default function TextFieldHero() {
   const [email, setEmail] = useState('');

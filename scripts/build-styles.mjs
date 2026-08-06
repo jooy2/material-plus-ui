@@ -5,17 +5,17 @@
  * reaches `dist/` on its own. This runs last in `npm run build` and writes the
  * two files the package exports:
  *
- *   src/standalone.css  --(Tailwind)-->  dist/styles.css     `material-plus/styles.css`
- *   src/styles.css      --(copy)------>  dist/tailwind.css   `material-plus/tailwind.css`
+ *   src/standalone.css  --(Tailwind)-->  dist/styles.css     `material-plus-ui/styles.css`
+ *   src/styles.css      --(copy)------>  dist/tailwind.css   `material-plus-ui/tailwind.css`
  *
- * The names cross over, and deliberately so. `material-plus/styles.css` is the
+ * The names cross over, and deliberately so. `material-plus-ui/styles.css` is the
  * one line a project with no build-side Tailwind imports, so it has to be the
  * obvious name; `src/styles.css` is the token sheet, which is only *part* of it.
  *
  * Compiling here rather than in the consumer's build is what removes Tailwind
  * from their install entirely: `tailwindcss` is a devDependency of this package
  * and stays one. The scan is driven by the `@source '.'` inside `src/styles.css`
- * — the same line that, in the copied file, means `node_modules/material-plus/dist/`
+ * — the same line that, in the copied file, means `node_modules/material-plus-ui/dist/`
  * for a consumer who does run Tailwind. One declaration serves both outputs.
  */
 import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';

@@ -12,11 +12,11 @@ MUI로 해결되지 않는 스타일은 [Tailwind CSS](https://tailwindcss.com) 
 ## 설치
 
 ```bash
-npm install material-plus
+npm install material-plus-ui
 ```
 
 ```bash
-pnpm add material-plus
+pnpm add material-plus-ui
 ```
 
 ### Peer dependency
@@ -38,13 +38,13 @@ CI에서 실제로 돌려보는 것은 MUI 9뿐입니다. 컴포넌트가 쓰는
 앱의 CSS 진입점에 한 줄을 추가합니다.
 
 ```css
-@import 'material-plus/styles.css';
+@import 'material-plus-ui/styles.css';
 ```
 
 번들러가 CSS를 처리한다면 진입 모듈에서 import해도 똑같이 동작합니다.
 
 ```ts
-import 'material-plus/styles.css';
+import 'material-plus-ui/styles.css';
 ```
 
 이 파일은 **완성된 CSS**입니다. 디자인 토큰과, 컴포넌트가 쓰는 모든 유틸리티 클래스의 실제 규칙이 들어 있습니다. 빌드 쪽 설정도, PostCSS 플러그인도, `@source`도 필요 없습니다.
@@ -61,15 +61,15 @@ Tailwind 기반 컴포넌트 라이브러리가 보통 만들어지는 방식과
 
 ```css
 @import 'tailwindcss';
-@import 'material-plus/tailwind.css';
+@import 'material-plus-ui/tailwind.css';
 ```
 
-| 줄                                     | 역할                                       |
-| -------------------------------------- | ------------------------------------------ |
-| `@import 'tailwindcss'`                | Tailwind 자체                              |
-| `@import 'material-plus/tailwind.css'` | 디자인 토큰과, 패키지를 등록하는 `@source` |
+| 줄                                        | 역할                                       |
+| ----------------------------------------- | ------------------------------------------ |
+| `@import 'tailwindcss'`                   | Tailwind 자체                              |
+| `@import 'material-plus-ui/tailwind.css'` | 디자인 토큰과, 패키지를 등록하는 `@source` |
 
-`@source`를 직접 쓸 필요는 없습니다. 컴포넌트가 쓰는 클래스는 Tailwind 유틸리티이므로 Tailwind가 패키지의 컴파일된 파일을 읽어야 찾을 수 있는데, `material-plus/tailwind.css`가 자기 안에 `@source '.'`를 선언해 그 일을 대신합니다. `@source`는 그것이 쓰인 파일 기준으로 경로를 풉니다. 여기서는 `node_modules/material-plus/dist/`, 바로 그 파일들 옆입니다. 명시적으로 등록된 source는 자동 감지가 건너뛰는 `node_modules` 안에서도 스캔됩니다.
+`@source`를 직접 쓸 필요는 없습니다. 컴포넌트가 쓰는 클래스는 Tailwind 유틸리티이므로 Tailwind가 패키지의 컴파일된 파일을 읽어야 찾을 수 있는데, `material-plus-ui/tailwind.css`가 자기 안에 `@source '.'`를 선언해 그 일을 대신합니다. `@source`는 그것이 쓰인 파일 기준으로 경로를 풉니다. 여기서는 `node_modules/material-plus-ui/dist/`, 바로 그 파일들 옆입니다. 명시적으로 등록된 source는 자동 감지가 건너뛰는 `node_modules` 안에서도 스캔됩니다.
 
 덕분에 여러분의 CSS 파일이 어디 있든 상관이 없습니다.
 
@@ -81,7 +81,7 @@ Material Plus 컴포넌트는 MUI 컴포넌트가 들어가는 곳이면 어디�
 import { useState } from 'react';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { MPTextField } from 'material-plus';
+import { MPTextField } from 'material-plus-ui';
 
 const theme = createTheme({ palette: { mode: 'light' } });
 
@@ -103,13 +103,13 @@ export default function App() {
 
 ## 패키지에 들어 있는 것
 
-| Export                          | 내용                                             |
-| ------------------------------- | ------------------------------------------------ |
-| `material-plus`                 | 모든 컴포넌트와 타입                             |
-| `material-plus/types`           | 공유 prop 어휘만 따로                            |
-| `material-plus/constants/icons` | 아이콘 세트. named export와 조회 테이블 양쪽으로 |
-| `material-plus/styles.css`      | 완성된 CSS. Tailwind가 없는 프로젝트용           |
-| `material-plus/tailwind.css`    | 토큰과 `@source`. Tailwind가 있는 프로젝트용     |
+| Export                             | 내용                                             |
+| ---------------------------------- | ------------------------------------------------ |
+| `material-plus-ui`                 | 모든 컴포넌트와 타입                             |
+| `material-plus-ui/types`           | 공유 prop 어휘만 따로                            |
+| `material-plus-ui/constants/icons` | 아이콘 세트. named export와 조회 테이블 양쪽으로 |
+| `material-plus-ui/styles.css`      | 완성된 CSS. Tailwind가 없는 프로젝트용           |
+| `material-plus-ui/tailwind.css`    | 토큰과 `@source`. Tailwind가 있는 프로젝트용     |
 
 ## 다음
 

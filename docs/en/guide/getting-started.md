@@ -12,11 +12,11 @@ Styling that MUI has no answer for comes from [Tailwind CSS](https://tailwindcss
 ## Install
 
 ```bash
-npm install material-plus
+npm install material-plus-ui
 ```
 
 ```bash
-pnpm add material-plus
+pnpm add material-plus-ui
 ```
 
 ### Peer dependencies
@@ -38,13 +38,13 @@ Only MUI 9 is exercised in CI. The components use APIs that have been stable sin
 Add one line to your app's CSS entry point.
 
 ```css
-@import 'material-plus/styles.css';
+@import 'material-plus-ui/styles.css';
 ```
 
 If your bundler handles CSS, importing it from your entry module works just as well.
 
 ```ts
-import 'material-plus/styles.css';
+import 'material-plus-ui/styles.css';
 ```
 
 This is **finished CSS**: the design tokens and the real rules behind every utility class the components use. There is no build-side configuration, no PostCSS plugin and no `@source`.
@@ -61,15 +61,15 @@ When Tailwind v4 is already in your project, import the token sheet instead of t
 
 ```css
 @import 'tailwindcss';
-@import 'material-plus/tailwind.css';
+@import 'material-plus-ui/tailwind.css';
 ```
 
 | Line | What it does |
 | --- | --- |
 | `@import 'tailwindcss'` | Tailwind itself |
-| `@import 'material-plus/tailwind.css'` | The design tokens, and the `@source` that registers the package |
+| `@import 'material-plus-ui/tailwind.css'` | The design tokens, and the `@source` that registers the package |
 
-You do not write an `@source` of your own. The classes the components use are Tailwind utilities, so Tailwind has to read the package's compiled files to find them; `material-plus/tailwind.css` takes care of that by declaring `@source '.'` inside itself. `@source` resolves relative to the file it is written in, which here is `node_modules/material-plus/dist/`, right next to those files. An explicitly registered source is scanned even inside `node_modules`, which automatic detection skips.
+You do not write an `@source` of your own. The classes the components use are Tailwind utilities, so Tailwind has to read the package's compiled files to find them; `material-plus-ui/tailwind.css` takes care of that by declaring `@source '.'` inside itself. `@source` resolves relative to the file it is written in, which here is `node_modules/material-plus-ui/dist/`, right next to those files. An explicitly registered source is scanned even inside `node_modules`, which automatic detection skips.
 
 The upshot is that nothing depends on where your own CSS file sits.
 
@@ -81,7 +81,7 @@ Material Plus components go anywhere an MUI component goes, inside the same prov
 import { useState } from 'react';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { MPTextField } from 'material-plus';
+import { MPTextField } from 'material-plus-ui';
 
 const theme = createTheme({ palette: { mode: 'light' } });
 
@@ -103,13 +103,13 @@ There is nothing to configure. The components read the palette from the surround
 
 ## What is in the package
 
-| Export                          | What it is                                           |
-| ------------------------------- | ---------------------------------------------------- |
-| `material-plus`                 | Every component and type                             |
-| `material-plus/types`           | The shared prop vocabulary on its own                |
-| `material-plus/constants/icons` | The icon set, as named exports and as a lookup table |
-| `material-plus/styles.css`      | Finished CSS, for a project with no Tailwind         |
-| `material-plus/tailwind.css`    | Tokens and `@source`, for a project that has it      |
+| Export                             | What it is                                           |
+| ---------------------------------- | ---------------------------------------------------- |
+| `material-plus-ui`                 | Every component and type                             |
+| `material-plus-ui/types`           | The shared prop vocabulary on its own                |
+| `material-plus-ui/constants/icons` | The icon set, as named exports and as a lookup table |
+| `material-plus-ui/styles.css`      | Finished CSS, for a project with no Tailwind         |
+| `material-plus-ui/tailwind.css`    | Tokens and `@source`, for a project that has it      |
 
 ## Next
 

@@ -1,14 +1,14 @@
 /**
  * Material Plus design tokens, and the source declaration the components need.
  *
- * This file ships as `material-plus/tailwind.css`, for a project that runs
+ * This file ships as `material-plus-ui/tailwind.css`, for a project that runs
  * Tailwind itself and wants the components' utilities generated in the same
  * pass as its own:
  *
  *   @import 'tailwindcss';
- *   @import 'material-plus/tailwind.css';
+ *   @import 'material-plus-ui/tailwind.css';
  *
- * A project with no Tailwind imports `material-plus/styles.css` instead, which
+ * A project with no Tailwind imports `material-plus-ui/styles.css` instead, which
  * is this file plus the compiled utilities, built by `scripts/build-styles.mjs`
  * from `src/standalone.css`. The tokens below are the same in both.
  *
@@ -33,12 +33,12 @@
  * files that spell them out — otherwise a component renders with none of them.
  *
  * `@source` resolves relative to the file it is written in, not to whatever
- * imported it. In a consumer's install that is `node_modules/material-plus/dist/`,
+ * imported it. In a consumer's install that is `node_modules/material-plus-ui/dist/`,
  * next to the compiled components; in this repository it is `src/`, next to the
  * `.tsx`. One line covers both, and an explicitly registered source is scanned
  * even inside `node_modules`, which automatic detection skips.
  *
- * This is why consumers do not write an `@source '../node_modules/material-plus'`
+ * This is why consumers do not write an `@source '../node_modules/material-plus-ui'`
  * of their own — a path that would depend on where their CSS file happens to sit.
  *
  * The same line is what the standalone build scans: `src/standalone.css` pulls

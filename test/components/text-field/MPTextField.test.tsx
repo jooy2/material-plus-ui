@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { MPIcon, MPTextField, ICONS } from 'material-plus';
+import { MPIcon, MPTextField, ICONS } from 'material-plus-ui';
 
 /**
  * Types into the element the way the browser does, rather than the way React

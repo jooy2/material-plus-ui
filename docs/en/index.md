@@ -58,13 +58,13 @@ Material Plus is that pile, extracted and tested.
 ## Install
 
 ```bash
-npm install material-plus
+npm install material-plus-ui
 ```
 
 `@mui/material`, `@emotion/react`, `@emotion/styled`, `react` and `react-dom` are peer dependencies — you already have all five.
 
 ```tsx
-import { MPTextField } from 'material-plus';
+import { MPTextField } from 'material-plus-ui';
 
 export default function SignIn() {
   const [email, setEmail] = useState('');

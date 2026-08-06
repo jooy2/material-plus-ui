@@ -1,6 +1,6 @@
 # Material Plus
 
-[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/jooy2/material-plus/blob/main/LICENSE) ![Programming Language Usage](https://img.shields.io/github/languages/top/jooy2/material-plus) [![npm downloads](https://img.shields.io/npm/dm/material-plus.svg)](https://www.npmjs.com/package/material-plus) [![npm latest package](https://img.shields.io/npm/v/material-plus/latest.svg)](https://www.npmjs.com/package/material-plus) ![npm bundle size](https://img.shields.io/bundlephobia/min/material-plus)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/jooy2/material-plus/blob/main/LICENSE) ![Programming Language Usage](https://img.shields.io/github/languages/top/jooy2/material-plus) [![npm downloads](https://img.shields.io/npm/dm/material-plus-ui.svg)](https://www.npmjs.com/package/material-plus-ui) [![npm latest package](https://img.shields.io/npm/v/material-plus-ui/latest.svg)](https://www.npmjs.com/package/material-plus-ui) ![npm bundle size](https://img.shields.io/bundlephobia/min/material-plus-ui)
 
 ### 📘 [**material-plus.cdget.com**](https://material-plus.cdget.com)
 
@@ -33,11 +33,11 @@ Also available in Korean / 한국어 문서: **[material-plus.cdget.com/ko/](htt
 ## Installation
 
 ```bash
-npm install material-plus
+npm install material-plus-ui
 ```
 
 ```bash
-pnpm add material-plus
+pnpm add material-plus-ui
 ```
 
 ### Peer dependencies
@@ -57,7 +57,7 @@ Only MUI 9 is exercised in CI, though the components use APIs stable since MUI 5
 Add one line to your app's CSS entry point:
 
 ```css
-@import 'material-plus/styles.css';
+@import 'material-plus-ui/styles.css';
 ```
 
 This is finished CSS — no PostCSS plugin, no `@source`, no build-side configuration. It deliberately contains **no reset**: `CssBaseline` from `@mui/material` is already one, and Tailwind's Preflight would restyle every MUI component on your page rather than only the ones from here.
@@ -66,7 +66,7 @@ If Tailwind v4 is already in your project, import the token sheet instead:
 
 ```css
 @import 'tailwindcss';
-@import 'material-plus/tailwind.css';
+@import 'material-plus-ui/tailwind.css';
 ```
 
 ## Usage
@@ -77,7 +77,7 @@ Material Plus components go anywhere an MUI component goes, inside the same prov
 import { useState } from 'react';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { MPTextField, MPIcon, ICONS } from 'material-plus';
+import { MPTextField, MPIcon, ICONS } from 'material-plus-ui';
 
 const theme = createTheme({ palette: { mode: 'light' } });
 

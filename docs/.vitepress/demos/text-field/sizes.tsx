@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { MPTextField } from 'material-plus';
+import { MPTextField } from 'material-plus-ui';
 
 /**
  * Beside the `@mui/material` field it extends, at both sizes — the point being

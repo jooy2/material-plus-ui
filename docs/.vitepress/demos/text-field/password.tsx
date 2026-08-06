@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Stack from '@mui/material/Stack';
-import { MPTextField } from 'material-plus';
+import { MPTextField } from 'material-plus-ui';
 
 export default function TextFieldPassword() {
   const [password, setPassword] = useState('correct horse battery staple');

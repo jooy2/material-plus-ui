@@ -17,12 +17,12 @@ The first release. Two components, and the scaffolding the rest will be built on
 - `@mui/material` 6 through 9, `@emotion/react`, `@emotion/styled`, `react` and `react-dom` 18 or 19 are peer dependencies — the copy already in your project is the copy that is used, so there is never a second MUI in the bundle or a second theme in the tree. Only MUI 9 is exercised in CI.
 - `lucide-react` is the one runtime dependency.
 - ESM only, TypeScript declarations included. Every component compiles to its own module, so what is not imported is not shipped.
-- Four entry points besides the barrel: `material-plus/types`, `material-plus/constants/icons`, `material-plus/styles.css` and `material-plus/tailwind.css`.
+- Four entry points besides the barrel: `material-plus-ui/types`, `material-plus-ui/constants/icons`, `material-plus-ui/styles.css` and `material-plus-ui/tailwind.css`.
 
 ### Styles
 
 - **The stylesheet carries no reset, on either path.** Tailwind's Preflight is a page reset and every project using this library already has one in `CssBaseline` — and the two disagree visibly, since Preflight flattens the heading sizes, list markers and link colours MUI's typography sets up, and its `border: 0 solid` restyles every `@mui/material` component on the page rather than only the ones from here. Nothing in this library depends on Preflight.
-- `material-plus/styles.css` is finished CSS for a project with no Tailwind of its own; `material-plus/tailwind.css` is the token sheet for a project that has it. Both carry the `@source '.'` that registers the package's compiled files, so a consumer never writes an `@source` whose correctness would depend on where their own CSS file sits.
+- `material-plus-ui/styles.css` is finished CSS for a project with no Tailwind of its own; `material-plus-ui/tailwind.css` is the token sheet for a project that has it. Both carry the `@source '.'` that registers the package's compiled files, so a consumer never writes an `@source` whose correctness would depend on where their own CSS file sits.
 
 ### Documentation
 

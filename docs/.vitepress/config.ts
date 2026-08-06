@@ -16,10 +16,18 @@ const srcDir = resolve(rootDir, 'docs');
 
 const defaultLocale: string = 'en';
 const supportLocales: string[] = [defaultLocale, 'ko'];
-const editLinkPattern = `${packageJson.repository.url}/edit/main/docs/:path`;
-
 const siteUrl = packageJson.homepage.replace(/\/+$/, '');
-const repoUrl = packageJson.repository.url.replace(/\.git$/, '');
+/**
+ * The browsable repository URL, from the one npm accepts.
+ *
+ * `repository.url` has to be a git URL or npm rewrites it on publish and warns
+ * every time — which means it carries a `git+` prefix and a `.git` suffix that
+ * a browser has no use for. Both are stripped here rather than a second, plain
+ * copy of the URL being kept in this file, because two spellings of one address
+ * is exactly how an edit link ends up pointing somewhere that no longer exists.
+ */
+const repoUrl = packageJson.repository.url.replace(/^git\+/, '').replace(/\.git$/, '');
+const editLinkPattern = `${repoUrl}/edit/main/docs/:path`;
 const npmUrl = `https://www.npmjs.com/package/${packageJson.name}`;
 
 /** A glob Vite can read on either platform — `resolve` gives Windows backslashes. */
@@ -368,7 +376,7 @@ const vitePressConfig: UserConfig = {
    * live preview is a React island mounted by `theme/components/Demo.vue`, so
    * the site's Vite pipeline needs three things Vue alone does not give it: the
    * React plugin for the `.tsx` demos, an alias so those demos can
-   * `import { MPTextField } from 'material-plus'` exactly as a consumer would,
+   * `import { MPTextField } from 'material-plus-ui'` exactly as a consumer would,
    * and the repository's PostCSS config so Tailwind compiles the classes the
    * library ships.
    */
@@ -380,10 +388,10 @@ const vitePressConfig: UserConfig = {
     plugins: [ReactPlugin() as never],
     resolve: {
       alias: [
-        // Anchored, so `material-plus/styles.css` is not rewritten into the
+        // Anchored, so `material-plus-ui/styles.css` is not rewritten into the
         // barrel too. Pointing at the source rather than `dist/` is what lets a
         // component edit show up in the docs without a rebuild.
-        { find: /^material-plus$/, replacement: resolve(rootDir, 'src/index.ts') }
+        { find: /^material-plus-ui$/, replacement: resolve(rootDir, 'src/index.ts') }
       ]
     },
     css: {

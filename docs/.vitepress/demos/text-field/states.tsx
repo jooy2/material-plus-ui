@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Stack from '@mui/material/Stack';
-import { MPTextField } from 'material-plus';
+import { MPTextField } from 'material-plus-ui';
 
 export default function TextFieldStates() {
   const [email, setEmail] = useState('not-an-address');

@@ -138,7 +138,7 @@ async function mount() {
   const load = demos[key];
 
   if (!load) {
-    console.warn(`[material-plus docs] no demo at ${key}`);
+    console.warn(`[material-plus-ui docs] no demo at ${key}`);
     return;
   }
 

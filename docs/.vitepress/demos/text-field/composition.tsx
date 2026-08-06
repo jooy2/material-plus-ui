@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { MPTextField } from 'material-plus';
+import { MPTextField } from 'material-plus-ui';
 
 /**
  * The parent that breaks a naively controlled input: it upper-cases everything

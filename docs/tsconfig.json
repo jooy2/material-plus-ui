@@ -14,7 +14,7 @@
     "resolveJsonModule": true,
     "types": ["vite/client"],
     "paths": {
-      "material-plus": ["../src/index.ts"]
+      "material-plus-ui": ["../src/index.ts"]
     }
   },
   "include": [".vitepress/**/*.ts", ".vitepress/**/*.tsx"]

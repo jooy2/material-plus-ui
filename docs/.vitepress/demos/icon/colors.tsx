@@ -2,7 +2,7 @@ import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { useTheme } from '@mui/material/styles';
-import { MPIcon, ICONS } from 'material-plus';
+import { MPIcon, ICONS } from 'material-plus-ui';
 
 export default function IconColors() {
   const theme = useTheme();

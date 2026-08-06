@@ -58,13 +58,13 @@ Material Plus는 그렇게 쌓인 것들을 꺼내어 테스트까지 붙여 둔
 ## 설치
 
 ```bash
-npm install material-plus
+npm install material-plus-ui
 ```
 
 `@mui/material`, `@emotion/react`, `@emotion/styled`, `react`, `react-dom`은 peer dependency입니다. 다섯 개 모두 이미 가지고 계실 겁니다.
 
 ```tsx
-import { MPTextField } from 'material-plus';
+import { MPTextField } from 'material-plus-ui';
 
 export default function SignIn() {
   const [email, setEmail] = useState('');
