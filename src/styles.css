@@ -108,10 +108,25 @@
      * single seed that the tonal palettes — and therefore every role below —
      * are generated from.
      *
-     * The default is MD3's own baseline primary, so a project that sets nothing
-     * gets the reference Material palette rather than something invented here.
+     * ## Why this blue rather than MD3's baseline purple
+     *
+     * The specification's own baseline source is `#6750a4`, and a library that
+     * defaults to it is making a louder statement than it looks: purple is the
+     * one hue nobody arrives at by accident, so an application that has not
+     * chosen a colour yet ends up looking like it chose that one.
+     *
+     * A deep azure is the quieter default. It is also picked for its *chroma*
+     * rather than only its hue — 0.118, close to the baseline's 0.130 — because
+     * every role derives its saturation from here. A more vivid blue (Google's
+     * `#0b57d0` sits at 0.199) pulls the whole scheme brighter than any
+     * reference Material palette, which reads as a brand rather than as
+     * Material.
+     *
+     * The one thing a source colour must not be is near-grey. At a chroma below
+     * roughly 0.05 the derived `primary` stops being distinguishable from
+     * `outline`, and a focus ring then reads as no change at all.
      */
-    --mp-source-color: #6750a4;
+    --mp-source-color: #00639b;
 
     /*
      * Tone stops.
@@ -133,9 +148,13 @@
      * Read off MD3's own baseline ref palette, converted to OKLCh, rather than
      * chosen by eye: light is (primary40, neutral10, neutral-variant30,
      * neutral-variant50, error40) and dark is (primary80, neutral90,
-     * neutral-variant80, neutral-variant60, error80). With the default source
-     * colour the derived roles land on the reference scheme to within a rounding
-     * step.
+     * neutral-variant80, neutral-variant60, error80).
+     *
+     * The check that fixed these numbers is therefore run against `#6750a4`, not
+     * against the default above: fed the baseline source, the derivation lands on
+     * the baseline scheme — `primary` and `error` on its exact hex in both
+     * schemes, the near-grey roles within a ΔE of 0.008. What the default source
+     * changes is the hue and chroma the ramp is applied *to*, never the ramp.
      *
      * The lightnesses are OKLCh L, not MD3 tone numbers — tone is CIE L*, which
      * OKLCh's L does not equal. Chroma is absolute for the near-grey roles, which
@@ -293,6 +312,11 @@
     --text-mp-body-large--letter-spacing: var(--mp-sys-typescale-body-large-tracking);
     --text-mp-body-large--font-weight: var(--mp-sys-typescale-body-large-weight);
 
+    --text-mp-body-medium: var(--mp-sys-typescale-body-medium-size);
+    --text-mp-body-medium--line-height: var(--mp-sys-typescale-body-medium-line-height);
+    --text-mp-body-medium--letter-spacing: var(--mp-sys-typescale-body-medium-tracking);
+    --text-mp-body-medium--font-weight: var(--mp-sys-typescale-body-medium-weight);
+
     --text-mp-body-small: var(--mp-sys-typescale-body-small-size);
     --text-mp-body-small--line-height: var(--mp-sys-typescale-body-small-line-height);
     --text-mp-body-small--letter-spacing: var(--mp-sys-typescale-body-small-tracking);
@@ -310,9 +334,14 @@
      */
 
     /*
-     * Typescale. Two roles, for the same reason as the five colours — a text
-     * field's input and resting label are `body-large`, and its floated label
-     * and supporting text are `body-small`.
+     * Typescale. Three roles, and each one is read by something: a text field's
+     * input is `body-large` at `md` and above and `body-medium` at `sm` and `xs`,
+     * its notched label and supporting text are `body-small`.
+     *
+     * All three values are the spec's. The size ladder is ours — see `MPSize` in
+     * `src/types.ts` — but what it selects between is not: a smaller control
+     * moves *down the Material type scale* rather than to some interpolated size
+     * of the library's own invention.
      *
      * `--mp-sys-typescale-*-font` is left pointing at whatever the page uses
      * rather than naming a typeface. Shipping a font stack would be a page-level
@@ -323,6 +352,12 @@
     --mp-sys-typescale-body-large-line-height: 1.5rem;
     --mp-sys-typescale-body-large-tracking: 0.03125rem;
     --mp-sys-typescale-body-large-weight: 400;
+
+    --mp-sys-typescale-body-medium-font: inherit;
+    --mp-sys-typescale-body-medium-size: 0.875rem;
+    --mp-sys-typescale-body-medium-line-height: 1.25rem;
+    --mp-sys-typescale-body-medium-tracking: 0.015625rem;
+    --mp-sys-typescale-body-medium-weight: 400;
 
     --mp-sys-typescale-body-small-font: inherit;
     --mp-sys-typescale-body-small-size: 0.75rem;
@@ -375,6 +410,11 @@
   --text-mp-body-large--line-height: var(--mp-sys-typescale-body-large-line-height);
   --text-mp-body-large--letter-spacing: var(--mp-sys-typescale-body-large-tracking);
   --text-mp-body-large--font-weight: var(--mp-sys-typescale-body-large-weight);
+
+  --text-mp-body-medium: var(--mp-sys-typescale-body-medium-size);
+  --text-mp-body-medium--line-height: var(--mp-sys-typescale-body-medium-line-height);
+  --text-mp-body-medium--letter-spacing: var(--mp-sys-typescale-body-medium-tracking);
+  --text-mp-body-medium--font-weight: var(--mp-sys-typescale-body-medium-weight);
 
   --text-mp-body-small: var(--mp-sys-typescale-body-small-size);
   --text-mp-body-small--line-height: var(--mp-sys-typescale-body-small-line-height);

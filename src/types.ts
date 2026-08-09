@@ -17,14 +17,27 @@
 import type * as React from 'react';
 
 /**
- * The two heights a control is drawn at.
+ * The size ladder every control is drawn at.
  *
- * Material specifies one size for a text field — the 56px `medium` — and the
- * compact 40px alternative is a concession to dense forms rather than something
- * the spec names. Components expose it as a `large` boolean instead of a `size`
- * prop, so this is the vocabulary for the concept, not yet a prop's type.
+ * **This is the one place the library goes beyond the specification, knowingly.**
+ * Material defines a single size per component — a text field is 56dp, full
+ * stop — because it is describing a design system for whole products, where one
+ * height per control is the point. A component library gets used in places a
+ * design system does not plan for: a filter bar, a table's inline editor, a
+ * dense settings page, a marketing hero. Those need a ladder, and a consumer
+ * who cannot get one from the library builds it out of `!important`.
+ *
+ * So `md` **is** the spec's size, and the other four are ours. That is the whole
+ * rule, and it is why the ladder is centred rather than starting at the spec's
+ * value: `md` is what you get by saying nothing, and nobody has to know the
+ * scale exists to be given the Material size.
+ *
+ * `xs` and `xl` are deliberately at the edges of usable rather than merely
+ * smaller and larger — below `xs` a control stops meeting a 24px touch target,
+ * and there is no sixth step because a ladder long enough to need one is a sign
+ * the caller wants a custom control instead.
  */
-export type MPSize = 'small' | 'medium';
+export type MPSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 /**
  * An accent colour role.
@@ -34,6 +47,24 @@ export type MPSize = 'small' | 'medium';
  * token sheet has no way to derive.
  */
 export type MPColor = 'primary' | 'secondary' | 'tertiary' | 'error';
+
+/**
+ * The axes most components share.
+ *
+ * A component extends this and adds only what is genuinely its own, which is what
+ * keeps `size="md"` meaning the same thing on every one of them. The rule for
+ * adding to this interface is the same as the rule for adding a token: an axis
+ * arrives when a second component needs it, not in anticipation of one.
+ */
+export interface MPStyleProps {
+  /**
+   * The control's height and type scale.
+   * @default 'md'
+   */
+  size?: MPSize;
+  /** Stretches the control to the width of its container. */
+  fullWidth?: boolean;
+}
 
 /**
  * The props a glyph component is handed when Material Plus renders one.

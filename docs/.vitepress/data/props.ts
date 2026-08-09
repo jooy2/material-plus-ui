@@ -182,12 +182,12 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
-      name: 'large',
-      type: 'boolean',
-      default: 'false',
+      name: 'size',
+      type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'",
+      default: "'md'",
       description: {
-        ko: '머터리얼 본래의 56px 높이로 그립니다. 기본값은 촘촘한 40px입니다',
-        en: "Draws the field at Material's own 56px height instead of the compact 40px"
+        ko: '컨트롤의 높이와 타입 스케일. `md`가 머터리얼 본래의 56px이고, 나머지 네 단계는 이 라이브러리의 것입니다',
+        en: "The control's height and type scale. `md` is Material's own 56px; the other four steps are this library's"
       }
     },
     {

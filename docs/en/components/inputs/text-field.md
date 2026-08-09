@@ -63,7 +63,11 @@ There is no separate `error` boolean. A message is what puts the field into its 
 
 </Demo>
 
-::: warning A note if you are porting from `PageTextField` In the original the error colour reached the helper text only, leaving the outline in its resting state. Here `errorMessage` turns the whole control over — outline, label and message together — which is what the specification asks for. :::
+::: warning A note if you are porting from `PageTextField`
+
+In the original the error colour reached the helper text only, leaving the outline in its resting state. Here `errorMessage` turns the whole control over — outline, label and message together — which is what the specification asks for.
+
+:::
 
 `readOnly` shows a value without allowing edits, and unlike `disabled` the text stays selectable and the field stays in the tab order. That is what you want for a value the reader may need to copy.
 
@@ -79,9 +83,11 @@ Any `rows` renders a `<textarea>` instead of an `<input>`. Everything else stays
 
 `resizable` lets the reader drag the field taller — vertically only, since a field that can be widened breaks the column of the form it is in.
 
-### large
+### size
 
-Material specifies one size for a text field: the 56px one, which is what `large` draws. The 40px default is a concession to dense forms — a settings page or a filter bar where a column of 56px controls is taller than the content it collects — and it is the default here because that is the shape most of these fields turn out to be.
+Five rungs, and `md` is the specification's: Material defines one size for a text field, the 56px one, so that is what you get by saying nothing. The other four exist because a component library is used in places a design system does not plan for — a filter bar, a table's inline editor, a dense settings page. See [Prop conventions](../../design/prop-conventions#size) for the rule this follows.
+
+The heights are a Material type scale plus padding rather than a number anybody sets, which is what lets a multiline field grow past its own size.
 
 <Demo src="text-field/sizes" :minHeight="220">
 

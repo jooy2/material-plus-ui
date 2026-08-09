@@ -287,3 +287,134 @@
   font-size: 14px;
   line-height: 1.65;
 }
+
+/* ---------------------------------------------------------------------------
+ * Palette table
+ *
+ * The colour page's own table. It is inside a preview rather than written in
+ * Markdown — the values are read back from the browser — so `scope.css` has
+ * already stripped VitePress's table styling off it and it needs its own.
+ * ------------------------------------------------------------------------- */
+
+.vp-doc .mp-scope .mp-palette {
+  display: table;
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.vp-doc .mp-scope .mp-palette :is(th, td) {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--vp-c-divider);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.vp-doc .mp-scope .mp-palette th {
+  color: var(--vp-c-text-2);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.vp-doc .mp-scope .mp-palette tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+
+/* Which scheme a swatch was measured in. The table shows both at once, so each
+   one has to say which it is — the page is only ever in one of them. */
+.vp-doc .mp-scope .mp-scheme-tag {
+  padding: 1px 6px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 999px;
+  color: var(--vp-c-text-3);
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------------------
+ * Component gallery
+ *
+ * The cards on `components/index.md`. Each one holds a real component, so the
+ * card's own colours come from VitePress's variables rather than from the
+ * library's — the frame is the documentation, and only what is inside it is the
+ * thing being shown.
+ * ------------------------------------------------------------------------- */
+
+.vp-doc .mp-scope .mp-gallery-group {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.vp-doc .mp-scope .mp-gallery-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.vp-doc .mp-scope .mp-gallery-title {
+  color: var(--vp-c-text-1);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.vp-doc .mp-scope .mp-gallery-note {
+  color: var(--vp-c-text-2);
+  font-size: 13px;
+}
+
+.vp-doc .mp-scope .mp-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  gap: 16px;
+}
+
+.vp-doc .mp-scope .mp-gallery-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 12px;
+  transition: border-color 0.25s;
+}
+
+.vp-doc .mp-scope .mp-gallery-card:hover {
+  border-color: var(--vp-c-brand-1);
+}
+
+/* The preview sits on the same soft surface a `Demo` canvas uses, so a card and
+   a full preview frame read as the same kind of thing. */
+.vp-doc .mp-scope .mp-gallery-preview {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  min-height: 130px;
+  padding: 22px 20px;
+  background-color: var(--vp-c-bg-soft);
+}
+
+.vp-doc .mp-scope .mp-gallery-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--vp-c-divider);
+  background-color: var(--vp-c-bg);
+}
+
+.vp-doc .mp-scope .mp-gallery-name {
+  color: var(--vp-c-text-1);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.vp-doc .mp-scope .mp-gallery-summary {
+  color: var(--vp-c-text-2);
+  font-size: 12px;
+}

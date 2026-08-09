@@ -1,0 +1,136 @@
+---
+title: Prop conventions
+order: 2
+---
+
+# Prop conventions
+
+`size="md"` has to mean the same thing on a text field, a button and a dialog. The shared vocabulary lives in [`src/types.ts`](https://github.com/jooy2/material-plus/blob/main/src/types.ts), and each component takes only the axes it needs.
+
+Two rules govern everything below.
+
+1. **Where the specification has a word, use the specification's word.** A colour role is `primary` or `on-surface-variant`, a corner is `extra-small`, a type role is `body-large`. They are not `main`/`light`/`dark`/`contrastText` — that is Material UI's palette model, a different and earlier colour system, and borrowing its names would describe something this library does not implement.
+2. **Do not invent a second spelling for an idea that already has one.** If a component needs an axis another component already has, it takes that one.
+
+## The shared types
+
+```ts
+type MPSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+type MPColor = 'primary' | 'secondary' | 'tertiary' | 'error';
+
+interface MPStyleProps {
+  size?: MPSize; // default 'md'
+  fullWidth?: boolean;
+}
+```
+
+A component extends the bundle and adds only what is genuinely its own:
+
+```ts
+export interface MPTextFieldProps extends MPStyleProps {
+  value: string;
+  // …the props only a text field has
+}
+```
+
+`MPStyleProps` is deliberately short. An axis joins it when a **second** component needs it, not in anticipation of one — the same rule the design tokens follow. `variant`, `density` and `elevation` are all likely to arrive, and none of them is here yet because nothing reads them.
+
+## `size`
+
+This is the one place the library knowingly goes beyond the specification.
+
+Material defines a **single size** per component — a text field is 56dp, full stop — because it describes a design system for whole products, where one height per control is the point. A component library gets used in places a design system does not plan for: a filter bar, a table's inline editor, a dense settings page, a marketing hero. Those need a ladder, and a consumer who cannot get one from the library builds it out of `!important`.
+
+So the rule is: **`md` is the specification's size, and the other four are ours.**
+
+| `size`   | Height   | Input type role  |
+| -------- | -------- | ---------------- |
+| `xs`     | 32px     | `body-medium`    |
+| `sm`     | 40px     | `body-medium`    |
+| **`md`** | **56px** | **`body-large`** |
+| `lg`     | 64px     | `body-large`     |
+| `xl`     | 72px     | `body-large`     |
+
+<Demo src="text-field/sizes">
+
+<<< @/.vitepress/demos/text-field/sizes.tsx
+
+</Demo>
+
+Three things follow from that table, and they are the constraints on adding a component to the ladder.
+
+- **The ladder is centred, not extended upward.** `md` is what you get by saying nothing, so nobody has to know the scale exists to be handed the Material size.
+- **A smaller control moves down the Material type scale**, rather than to some interpolated size of the library's own. `body-medium` is the specification's 14px role; it is not `body-large` scaled by 0.875.
+- **The height is the type scale plus padding, never a `height`.** A fixed height would stop a multiline field growing past its own size.
+
+`xs` and `xl` are at the edges of usable rather than merely smaller and larger — below `xs` a control stops being a comfortable pointer target — and there is no sixth step, because a ladder long enough to need one is a sign the caller wants a custom control instead.
+
+### The one exception: `MPIcon`
+
+`MPIcon` takes `size` as a **length** — a number of pixels or any CSS length — not a rung of the ladder. It is the only component that does, and it does not extend `MPStyleProps`.
+
+An icon is not a control. It has no height of its own to pick from a scale: it is sized to the text beside it or the box it is laid into, which is why `size="1em"` is the single most useful value it takes and why no ladder could express it. Every icon set in the world calls this axis `size` too, so renaming it here would cost more than the collision does.
+
+The rule that survives is the one that matters: **within the size ladder, a rung means the same thing everywhere.** A component that is not on the ladder says so by not extending the bundle.
+
+## `color`
+
+Four roles, which is Material's accent set: `primary`, `secondary`, `tertiary`, `error`.
+
+Not Material UI's six. The specification's colour system has no `info`, `success` or `warning`, and offering them would promise roles [the token sheet](./color) has no way to derive.
+
+Arbitrary colour values are not accepted as a prop. To change what a role _is_, set the token — that way one change reaches every component at once instead of every call site.
+
+## Naming
+
+- **Icon slots are `startIcon` / `endIcon`.** `leftIcon` and `rightIcon` invert their meaning under RTL.
+- **Booleans are positive.** `disabled` yes, `notDisabled` no.
+- **Filling the container is `fullWidth`.**
+- **Event handlers keep their native names** and are passed straight through — except where the native event cannot be trusted, which so far is exactly one case: `MPTextField`'s `onChange` hands over a string, because mid-composition an event's `target.value` is the provisional text that must not be read.
+
+## State props
+
+| Prop | Meaning |
+| --- | --- |
+| `disabled` | Unavailable. Uses the native `disabled` attribute, and the Material disabled treatment: content at 38%, an outline at 12% |
+| `readOnly` | It exists, but not here. Stays selectable and **stays in the tab order** |
+
+`readOnly` deliberately does not use native `disabled`: dropping out of the focus order costs keyboard users their sense of the page, and a value someone may need to copy has to be reachable.
+
+## Where state lives in the DOM
+
+State is published as `data-*` attributes rather than kept in JavaScript, which is what lets it be styled with no runtime at all. Those attributes come from Base UI, so they are the same on every component:
+
+| Attribute                     | Present when                          |
+| ----------------------------- | ------------------------------------- |
+| `data-focused`                | The control has focus                 |
+| `data-invalid` / `data-valid` | The field's validity                  |
+| `data-disabled`               | The field is disabled                 |
+| `data-filled`                 | The field has a value                 |
+| `data-touched` / `data-dirty` | It has been interacted with / changed |
+
+The library also publishes `data-mp-size` on a component's root, so a consumer can style against the rung in use.
+
+```html
+<!-- Tailwind, if you have it -->
+<div class="group-data-invalid:border-mp-error">…</div>
+```
+
+## Checklist for a new component
+
+1. `src/components/{lowercase-name}/` with `{PascalCase}.tsx` and an `index.ts` barrel
+2. Named exports only, never `export default`
+3. Re-export the barrel from `src/index.ts`
+4. Delegate behaviour and accessibility to a Base UI primitive
+5. Take the axes you need from `MPStyleProps`; define only what genuinely has no name yet
+6. Read the colour, type, shape and motion it needs from the tokens — and **add a token only if the component reads it**
+7. `test/components/{name}/{Name}.test.tsx`, in the same commit
+8. `docs/{locale}/components/{group}/{name}.md`, one page per locale
+9. Its rows in `docs/.vitepress/data/props.ts` and its demos in `docs/.vitepress/demos/{name}/`
+10. A card in `demos/gallery/all.tsx` so it appears on [All components](../components/)
+11. `npm run typecheck && npm test && npm run lint` all pass
+
+## Next
+
+- [Colour](./color) — the roles, and how to change them.
+- [All components](../components/) — every component, running.

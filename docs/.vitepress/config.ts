@@ -57,9 +57,9 @@ const commonSidebarConfig: VitePressSidebarOptions = {
  * index cannot both be a heading and a row under it. Left to the generator the
  * changelog would sit at the root with no heading over it at all.
  */
-const groupLabels: Record<string, { overview: string; more: string }> = {
-  en: { overview: 'All components', more: 'Discover more' },
-  ko: { overview: '모든 컴포넌트', more: '더 알아보기' }
+const groupLabels: Record<string, { overview: string; more: string; design: string }> = {
+  en: { overview: 'All components', more: 'Discover more', design: 'Design' },
+  ko: { overview: '모든 컴포넌트', more: '더 알아보기', design: '디자인' }
 };
 
 const vitePressSidebarConfig = [
@@ -74,9 +74,10 @@ const vitePressSidebarConfig = [
 ];
 
 /** The same two destinations in every locale, prefixed with its base. */
-const navFor = (lang: string, labels: [string, string]) => [
+const navFor = (lang: string, labels: [string, string, string]) => [
   { text: labels[0], link: `${localeBase(lang)}guide/getting-started` },
-  { text: labels[1], link: `${localeBase(lang)}components/` }
+  { text: labels[1], link: `${localeBase(lang)}design/color` },
+  { text: labels[2], link: `${localeBase(lang)}components/` }
 ];
 
 const vitePressI18nConfig: VitePressI18nOptions = {
@@ -89,8 +90,8 @@ const vitePressI18nConfig: VitePressI18nOptions = {
     en: 'A React component library implementing Material Design 3 — the components other Material libraries do not ship, and wider versions of the ones they do. Built on Base UI and Tailwind CSS v4, themed with CSS custom properties so it can coexist with an existing Material setup. ESM only, types included.'
   },
   themeConfig: {
-    ko: { nav: navFor('ko', ['가이드', '컴포넌트']) },
-    en: { nav: navFor('en', ['Guide', 'Components']) }
+    ko: { nav: navFor('ko', ['가이드', '디자인', '컴포넌트']) },
+    en: { nav: navFor('en', ['Guide', 'Design', 'Components']) }
   }
 };
 
@@ -526,8 +527,16 @@ function arrangeSidebar<T extends GeneratedSidebarItem>(items: T[], lang: string
   const labels = groupLabels[lang] ?? groupLabels[defaultLocale];
 
   const guide = items.find(startsWith('guide/'));
+  const design = items.find(startsWith('design/'));
   const components = items.find(startsWith('components/'));
   const changelog = items.find(startsWith('changelog'));
+
+  // The folder is `design/` in every locale, so the generator can only ever
+  // capitalise it into the English word. The label is named here instead, the
+  // same way the two groups below are.
+  if (design) {
+    design.text = labels.design;
+  }
 
   if (components) {
     // A child with children of its own is a group folder; a child with only a
@@ -553,10 +562,10 @@ function arrangeSidebar<T extends GeneratedSidebarItem>(items: T[], lang: string
   // anything that is neither a guide nor a component ends up.
   const more = changelog ? ({ text: labels.more, items: [changelog] } as unknown as T) : undefined;
 
-  const moved = new Set([guide, components, changelog].filter(Boolean));
+  const moved = new Set([guide, design, components, changelog].filter(Boolean));
 
   return [
-    ...([guide, components, more].filter(Boolean) as T[]),
+    ...([guide, design, components, more].filter(Boolean) as T[]),
     ...items.filter((item) => !moved.has(item))
   ];
 }

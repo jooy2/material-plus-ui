@@ -29,6 +29,23 @@ function tick() {
 }
 
 /**
+ * Waits out the longest transition a component runs.
+ *
+ * Read from the token rather than hardcoded, so shortening the duration does not
+ * quietly turn this into a race. `getComputedStyle` on a transitioning colour
+ * returns an interpolated `oklab()` with no hue component, which is what makes
+ * this necessary at all.
+ */
+function settled() {
+  const declared = getComputedStyle(document.documentElement).getPropertyValue(
+    '--mp-sys-motion-duration-short4'
+  );
+  const ms = Number.parseFloat(declared) * (declared.trim().endsWith('ms') ? 1 : 1000);
+
+  return new Promise((resolve) => setTimeout(resolve, (Number.isFinite(ms) ? ms : 200) + 60));
+}
+
+/**
  * A field whose parent rejects everything outside ASCII.
  *
  * This is the shape of parent that breaks a naively controlled input: every
@@ -146,17 +163,38 @@ describe('MPTextField', () => {
       ).toBeTruthy();
     });
 
-    it('draws at the small size, and at the medium size when large', async () => {
+    it('draws at Material\u2019s own size by default', async () => {
       const screen = await render(<MPTextField value="" label="Email" />);
       const root = () => screen.getByRole('textbox').element().closest('.mp-text-field');
 
-      // Which of the two heights is in use, published on the root so a consumer
+      // Which rung of the ladder is in use, published on the root so a consumer
       // can style against it as well.
-      expect(root()).toHaveAttribute('data-mp-size', 'small');
+      expect(root()).toHaveAttribute('data-mp-size', 'md');
 
-      await screen.rerender(<MPTextField value="" label="Email" large />);
+      await screen.rerender(<MPTextField value="" label="Email" size="xs" />);
 
-      expect(root()).toHaveAttribute('data-mp-size', 'medium');
+      expect(root()).toHaveAttribute('data-mp-size', 'xs');
+    });
+
+    it('grows monotonically across the size ladder', async () => {
+      // The heights are made of a type scale plus padding rather than set
+      // outright, so this is the assertion that catches a row of the table being
+      // edited into the wrong order.
+      const screen = await render(<MPTextField value="" label="Email" size="xs" />);
+      const heightOf = () =>
+        screen.getByRole('textbox').element().closest('.mp-text-field')!.getBoundingClientRect()
+          .height;
+
+      let previous = heightOf();
+
+      for (const size of ['sm', 'md', 'lg', 'xl'] as const) {
+        await screen.rerender(<MPTextField value="" label="Email" size={size} />);
+
+        const next = heightOf();
+
+        expect(next, `${size} should be taller than the step below it`).toBeGreaterThan(previous);
+        previous = next;
+      }
     });
   });
 
@@ -504,17 +542,19 @@ describe('MPTextField', () => {
       return Number(hue);
     }
 
-    const BASELINE_HUE = 293.72;
     const TEAL_HUE = 199.391;
 
-    it('derives every role from the source colour', async () => {
+    it('derives every role from one source colour', async () => {
       await render(<MPTextField value="" label="Email" />);
 
-      expect(hueOf(document.querySelector('label')!, 'color')).toBeCloseTo(BASELINE_HUE, 1);
-      expect(hueOf(document.querySelector('fieldset')!, 'borderColor')).toBeCloseTo(
-        BASELINE_HUE,
-        1
-      );
+      // Asserted as a relationship rather than against the default's own hue:
+      // what matters is that the label and the outline came out of the *same*
+      // seed, which stays true when the default colour is changed. A magic
+      // number here would only ever fail for that reason.
+      const label = hueOf(document.querySelector('label')!, 'color');
+      const outline = hueOf(document.querySelector('fieldset')!, 'borderColor');
+
+      expect(label).toBeCloseTo(outline, 1);
     });
 
     it('follows a source colour set on an ancestor, not only on the root', async () => {
@@ -571,8 +611,7 @@ describe('MPTextField', () => {
       // Same hue, and a lighter tone: the dark scheme is the same tonal palette
       // read further up, not a second set of colours.
       const dark = getComputedStyle(document.querySelector('label')!).color;
-
-      expect(hueOf(document.querySelector('label')!, 'color')).toBeCloseTo(BASELINE_HUE, 1);
+      const darkHue = hueOf(document.querySelector('label')!, 'color');
 
       await screen.rerender(
         <div data-mp-scheme="light">
@@ -580,10 +619,17 @@ describe('MPTextField', () => {
         </div>
       );
 
+      // The label's colour is transitioned, and a colour mid-transition comes
+      // back as an interpolated `oklab()` with no hue component at all. So the
+      // read waits for it to settle rather than racing it.
+      await settled();
+
       const light = getComputedStyle(document.querySelector('label')!).color;
-      const lightnessOf = (value: string) => Number(/oklch\(([\d.]+)/.exec(value)![1]);
+      const lightnessOf = (value: string) => Number(/okl(?:ch|ab)\(([\d.]+)/.exec(value)![1]);
 
       expect(lightnessOf(dark)).toBeGreaterThan(lightnessOf(light));
+      // The hue does not move with the scheme — only the tone does.
+      expect(hueOf(document.querySelector('label')!, 'color')).toBeCloseTo(darkHue, 1);
     });
   });
 });

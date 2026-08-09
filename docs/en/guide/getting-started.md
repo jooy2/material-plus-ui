@@ -103,59 +103,11 @@ Material generates a whole scheme from a single **source colour**. Set yours and
 
 Write it in a plain `:root`, not inside `@theme`. The library's own defaults are declared in a cascade layer, and a layered rule loses to every unlayered one — so your override wins whether it sits before or after the `@import`, and you never have to reason about order.
 
-The default is Material's own baseline source colour, so a project that sets nothing gets the reference palette rather than something invented here.
+The default is a deep azure, `#00639b`. [Colour](../design/color#the-default) has the reasoning, along with the one constraint on a source colour worth knowing: it must not be near-grey.
 
-### Overriding a single role
+### Everything else about colour
 
-When the generated value for one role is not what you want, set that role. These are the spec's names, prefixed:
-
-```css
-:root {
-  --mp-sys-color-outline: #d0d0d8;
-}
-```
-
-The roles that exist today are the ones the components actually read:
-
-| Role                                | Where it is used                                    |
-| ----------------------------------- | --------------------------------------------------- |
-| `--mp-sys-color-primary`            | A focused outline, the caret, a focused label       |
-| `--mp-sys-color-on-surface`         | Input text, a hovered outline, the disabled base    |
-| `--mp-sys-color-on-surface-variant` | Labels, supporting text, leading and trailing icons |
-| `--mp-sys-color-outline`            | An outline at rest                                  |
-| `--mp-sys-color-error`              | Everything in the error state                       |
-
-Material defines around fifty colour roles; an outlined text field reads five of them. The rest are absent on purpose — a token nobody reads is a promise to keep supporting a name — and each one arrives when a component needs it.
-
-### Reading a role back
-
-To colour your own markup with one of these, read the Tailwind-facing name or use the utility:
-
-```css
-.my-hint {
-  color: var(--color-mp-on-surface-variant);
-}
-```
-
-```html
-<p class="text-mp-on-surface-variant">…</p>
-```
-
-Note the asymmetry: you **write** `--mp-sys-color-*` and **read** `--color-mp-*`. The write name is an override slot that is unset by default, so reading it would give you nothing; the read name is where the resolved value lands.
-
-### If your project already defines Material tokens
-
-A project running [Material Web](https://material-web.dev) already has `--md-sys-color-*` on the page. Material Plus reads those and never writes them, so it picks up your existing scheme with no configuration at all.
-
-The full order, most specific first:
-
-| What you set                             | Effect                           |
-| ---------------------------------------- | -------------------------------- |
-| `--mp-sys-color-primary`                 | Wins outright                    |
-| `--md-sys-color-primary` already present | Picked up as-is                  |
-| Neither                                  | Derived from `--mp-source-color` |
-
-Mixing is fine and expected: pin the roles you have, let the rest derive.
+Overriding a single role, reading a role back in your own markup, coexisting with a page that already defines `--md-sys-color-*`, and how the derivation is calibrated against Material's reference palette are all on the [Colour](../design/color) page.
 
 ### Dark mode
 
@@ -221,6 +173,16 @@ The derivation uses CSS relative colour syntax, so `--mp-source-color` has to be
   --mp-source-color: hsl(var(--brand)); /* ✓ */
 }
 ```
+
+## Sizes
+
+Every control takes a `size` from one ladder — `xs`, `sm`, `md`, `lg`, `xl` — and `md` is Material's own size, so you get it by saying nothing.
+
+```tsx
+<MPTextField label="Search" size="sm" value={query} onChange={setQuery} />
+```
+
+The ladder is the one place the library knowingly goes beyond the specification. Why, and what each rung is, is in [Prop conventions](../design/prop-conventions#size).
 
 ## What is in the package
 

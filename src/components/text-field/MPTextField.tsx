@@ -2,11 +2,49 @@ import * as React from 'react';
 import { Field } from '@base-ui/react/field';
 import { MPIcon } from '../icon/MPIcon';
 import { VisibilityIcon, VisibilityOffIcon } from '../../constants/icons';
+import type { MPSize, MPStyleProps } from '../../types';
 
 /** The input modes this field is built for. */
 export type MPTextFieldType = 'email' | 'password' | 'text';
 
-export interface MPTextFieldProps {
+/**
+ * What each rung of the ladder is, in one table.
+ *
+ * Written out rather than computed. Five rows is small enough to read, and the
+ * classes have to be literal strings for Tailwind to find them at all — an
+ * interpolated `py-${n}` generates nothing.
+ *
+ * The heights come out of the type scale plus the padding, so they are the
+ * numbers in the comments rather than a `height` anybody sets: a `<textarea>`
+ * has to be able to grow past them, which a fixed height would prevent.
+ */
+const SIZES: Record<
+  MPSize,
+  {
+    /** Inline padding on the container. */
+    padding: string;
+    /** Block padding on the control, which is what makes the height. */
+    control: string;
+    /** Which Material body role the input text is set in. */
+    text: string;
+    /** The reveal toggle's glyph, in CSS pixels. */
+    icon: number;
+  }
+> = {
+  // 32px: 20 line-height + 12 padding. The floor — below this the control stops
+  // being a comfortable pointer target.
+  xs: { padding: 'px-2', control: 'py-1.5', text: 'text-mp-body-medium', icon: 16 },
+  // 40px: 20 + 20.
+  sm: { padding: 'px-3', control: 'py-2.5', text: 'text-mp-body-medium', icon: 18 },
+  // 56px: 24 + 32. Material's own size, and the default.
+  md: { padding: 'px-4', control: 'py-4', text: 'text-mp-body-large', icon: 20 },
+  // 64px: 24 + 40.
+  lg: { padding: 'px-4', control: 'py-5', text: 'text-mp-body-large', icon: 22 },
+  // 72px: 24 + 48.
+  xl: { padding: 'px-5', control: 'py-6', text: 'text-mp-body-large', icon: 24 }
+};
+
+export interface MPTextFieldProps extends MPStyleProps {
   /**
    * The field's text. This is a controlled component: what is shown is what is
    * passed, except during composition — see `onChange`.
@@ -35,18 +73,11 @@ export interface MPTextFieldProps {
   /** Greys the field out and stops it taking input. */
   disabled?: boolean;
   /**
-   * Draws the field at Material's full 56px height instead of the compact 40px.
-   * @default false
-   */
-  large?: boolean;
-  /**
    * Focuses the field on mount — except on a small screen, where it would
    * summon the on-screen keyboard over the page the reader has just arrived at.
    * @default false
    */
   autoFocus?: boolean;
-  /** Stretches the field to the width of its container. */
-  fullWidth?: boolean;
   /**
    * Shows the value without allowing edits. Unlike `disabled` the text stays
    * selectable and the field stays in the tab order, which is what you want for
@@ -167,7 +198,7 @@ export const MPTextField = React.forwardRef<
     fullWidth = false,
     readOnly = false,
     autoFocus = false,
-    large = false,
+    size = 'md',
     disabled = false,
     disableEnterKey = false,
     rows,
@@ -186,6 +217,7 @@ export const MPTextField = React.forwardRef<
   const fieldId = id ?? `mp-text-field-${name ?? generatedId}`;
   const multiline = !!rows;
   const invalid = errorMessage.length > 0;
+  const scale = SIZES[size];
 
   const setInputRef = React.useCallback(
     (node: HTMLInputElement | HTMLTextAreaElement | null) => {
@@ -293,12 +325,12 @@ export const MPTextField = React.forwardRef<
       ].join(' ')}
       disabled={disabled}
       invalid={invalid}
-      data-mp-size={large ? 'medium' : 'small'}
+      data-mp-size={size}
     >
       <div
         className={[
           'relative flex w-full items-center gap-2',
-          large ? 'px-4' : 'px-3',
+          scale.padding,
           // The control carries the height rather than the container, so a
           // `<textarea>` can grow past it while an `<input>` stays put.
           multiline ? 'py-2' : ''
@@ -316,7 +348,18 @@ export const MPTextField = React.forwardRef<
           className={[
             'pointer-events-none absolute inset-0 -top-[5px] m-0 min-w-0 px-2 pt-0',
             'rounded-mp-xs border border-mp-outline',
-            'transition-[border-color,border-width] duration-(--mp-sys-motion-duration-short4)',
+            /*
+             * The colour eases; the width does not, and must not.
+             *
+             * `border-width` was in this list once, and it made focus feel
+             * broken. A 1px-to-2px interpolation is rounded to whole device
+             * pixels at paint, so the outline renders as 1px for almost the
+             * entire duration and then jumps — measured at 197ms of nothing
+             * followed by a single step. The ring appeared to arrive a fifth of
+             * a second after the click, even though the focus state itself
+             * landed in 4ms. Anything sub-pixel in extent should snap.
+             */
+            'transition-[border-color] duration-(--mp-sys-motion-duration-short4)',
             // MD3 raises the outline to `on-surface` on hover, and to `primary`
             // at two pixels on focus. Focus wins, so it is written second.
             'group-hover:border-mp-on-surface',
@@ -355,15 +398,17 @@ export const MPTextField = React.forwardRef<
           value={isComposing ? innerValue : value}
           ref={setInputRef as React.Ref<HTMLElement>}
           className={[
-            'text-mp-body-large text-mp-on-surface w-full min-w-0 flex-1',
+            `${scale.text} text-mp-on-surface w-full min-w-0 flex-1`,
             // A native control does not inherit the page's font, and with no
             // reset on the page nothing else will hand it one. The typescale
             // token is what says which — it is `inherit` by default, so the
             // field speaks in the application's own typeface.
             'font-[family-name:var(--mp-sys-typescale-body-large-font)]',
+            // The row's own class is what sets the size; this only fixes the
+            // family, which is the same `inherit` at every step.
             'appearance-none border-0 bg-transparent px-0 outline-none',
             'caret-mp-primary',
-            large ? 'py-4' : 'py-2',
+            scale.control,
             multiline ? 'py-0' : '',
             multiline && resizable ? 'resize-y' : 'resize-none',
             // The spec's disabled content opacity, on the text and on the
@@ -411,10 +456,7 @@ export const MPTextField = React.forwardRef<
               'disabled:text-mp-on-surface/38 disabled:cursor-default'
             ].join(' ')}
           >
-            <MPIcon
-              icon={showPassword ? VisibilityIcon : VisibilityOffIcon}
-              size={large ? 22 : 20}
-            />
+            <MPIcon icon={showPassword ? VisibilityIcon : VisibilityOffIcon} size={scale.icon} />
           </button>
         ) : null}
       </div>
@@ -424,11 +466,23 @@ export const MPTextField = React.forwardRef<
           htmlFor={fieldId}
           className={[
             'text-mp-body-small text-mp-on-surface-variant',
+            // Eased on the same curve and duration as the outline it sits in, so
+            // the label and the ring arrive together rather than one snapping
+            // ahead of the other.
+            'transition-[color] duration-(--mp-sys-motion-duration-short4)',
             // Sat on the top border, where the legend cut the gap. `left` tracks
             // the container's own inline padding so the two line up at either
             // size.
             'pointer-events-auto absolute top-0 -translate-y-1/2 px-1 leading-none',
-            large ? 'left-3' : 'left-2',
+            // Tracks the container's inline padding, one step less so the
+            // label's own `px-1` lands the text over where the border was cut.
+            size === 'xs'
+              ? 'left-1'
+              : size === 'sm'
+                ? 'left-2'
+                : size === 'xl'
+                  ? 'left-4'
+                  : 'left-3',
             'group-data-focused:text-mp-primary',
             'group-data-invalid:text-mp-error',
             'group-data-disabled:text-mp-on-surface/38'
@@ -443,7 +497,7 @@ export const MPTextField = React.forwardRef<
           match={true}
           className={[
             'mp-text-field__support text-mp-body-small text-mp-error mt-1 block',
-            large ? 'px-4' : 'px-3',
+            scale.padding,
             'group-data-disabled:text-mp-on-surface/38'
           ].join(' ')}
         >

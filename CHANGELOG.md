@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+### Fixed
+
+- **A focus ring that arrived a fifth of a second late.** The text field's outline was transitioning its `border-width` from 1px to 2px, and an interpolated width is rounded to whole device pixels at paint — so the ring rendered as 1px for the whole animation and then jumped. Measured: the focus state itself landed in 4ms, `data-focused`, the label colour and the outline colour all changed at 4ms, and the width did not move until **197ms**. The width now snaps and only the colour eases, which puts the ring on screen at 5ms. Anything sub-pixel in extent should not be transitioned; that is the general lesson and it is written next to the rule.
+
+### Changed
+
+- **The default source colour is a deep azure, `#00639b`, rather than Material's baseline purple.** A library defaulting to `#6750a4` makes a louder statement than it looks — purple is the one hue nobody arrives at by accident, so an application that has not chosen a colour ends up looking like it chose that one. The azure was picked for its chroma as much as its hue (0.118, against the baseline's 0.130), because every role takes its saturation from the seed and a more vivid blue pulls the whole scheme brighter than any reference Material palette. The tone table itself is unchanged and is still calibrated against the baseline palette.
+- **`MPTextField`'s `large` boolean is now `size`,** taking `xs | sm | md | lg | xl` at 32/40/56/64/72px. `md` is Material's own 56px and the default, so the ladder is centred rather than extended upward — nobody has to know the scale exists to be handed the specification's size.
+
+### Added
+
+- **A size ladder, as the shared vocabulary.** `MPSize` and a new `MPStyleProps` bundle in `src/types.ts`. This is the one place the library knowingly goes beyond the specification: Material defines a single size per component because it describes a design system for whole products, and a component library gets used in places a design system does not plan for. A smaller control moves _down the Material type scale_ rather than to an interpolated size of the library's own, which is why `body-medium` joined the token sheet.
+- **A `design/` section in the documentation, in both locales.** [Colour](https://material-plus.cdget.com/design/color) — the roles, the derivation, the ΔE against Material's reference palette, and the three levels of override — and [Prop conventions](https://material-plus.cdget.com/design/prop-conventions), which defines the shared vocabulary and the rule each axis follows.
+- **The colour page's palette table reads its values back out of the browser.** Both schemes at once, from two off-screen probes. Half of what it documents is an `oklch(from …)` expression whose declared value tells a reader nothing, and a hardcoded table would go stale the first time `src/styles.css` was touched.
+- **[All components](https://material-plus.cdget.com/components/) is a gallery of running previews** rather than a table of links. Each card holds the real component, in whichever scheme the frame's switch is set to.
+- `--mp-sys-typescale-body-medium-*`, read by the field at `xs` and `sm`.
+
+---
+
 **Material UI is gone.** The library now implements Material Design 3 directly instead of building on `@mui/material`, which changes what it is: an implementation of the specification rather than an extension of somebody else's. Everything about how a component is used stays the same — no prop was renamed or removed — but the install, the theming and the styling model are all different.
 
 ### Breaking
@@ -14,7 +33,7 @@
 
 ### Added
 
-- **Theming from a single source colour.** `--mp-source-color` generates every colour role the way Material generates a scheme from a source colour. The tone stops are read off MD3's own baseline ref palette rather than chosen by eye, so with the default source colour the derived roles land on the reference scheme: `primary` and `error` match its hex exactly in both schemes, and the near-grey roles are within a ΔE of 0.008 — below anything visible.
+- **Theming from a single source colour.** `--mp-source-color` generates every colour role the way Material generates a scheme from a source colour. The tone stops are read off MD3's own baseline ref palette rather than chosen by eye: fed the baseline source, the derivation lands on the baseline scheme — `primary` and `error` on its exact hex in both schemes, the near-grey roles within a ΔE of 0.008, below anything visible. What the default source colour changes is the hue and chroma the ramp is applied to, never the ramp.
 - **Coexistence with an existing Material setup.** Each role reads `--md-sys-color-*` before falling back to its own derivation, and the library never writes that namespace. A project running Material Web is picked up with no configuration. The full order is `--mp-sys-color-*` (an explicit override) → `--md-sys-color-*` (the page's own) → derived.
 - **Dark mode with nothing to configure.** `prefers-color-scheme` is followed by default, and `data-mp-scheme="dark"` or `.dark` on any element drives it explicitly. Both schemes are the same tonal palettes read at different tones, which is how MD3 defines them — so a source colour moves light and dark together and there is no second set of values to keep in sync.
 - **Scoped and runtime theming.** Every token is an ordinary inherited custom property, and the derived roles are declared on `*` rather than on `:root` so each element re-resolves them against whatever is in scope where it sits. A section with its own source colour works, a `.dark` on `<body>` works, and a colour a reader picks at runtime is an inline style with no re-render.
@@ -23,7 +42,6 @@
 
 - `MPTextField` is Base UI's `Field` plus the notch, the adornments and the password toggle. The notched outline is a `<legend>` interrupting a `<fieldset>`'s top border, which is a native behaviour, so the gap is sized to the label with no measuring in JavaScript. State styling reads the `data-focused`, `data-invalid` and `data-disabled` attributes Base UI emits, which keeps it in CSS.
 - The IME composition handling — the reason the component exists — is unchanged.
-- `large` is Material's own 56px size and the default is a 40px compact variant. The spec defines one size for a text field; the smaller one is a concession to dense forms rather than something MD3 names.
 - Token names follow MD3 (`primary`, `on-surface-variant`, `corner-extra-small`, `body-large`) rather than Material UI's palette model (`main`/`light`/`dark`/`contrastText`), which is a different and earlier colour system.
 - Only the tokens a component actually reads exist. MD3 defines around fifty colour roles; an outlined text field reads five, and the rest are absent until something needs them.
 

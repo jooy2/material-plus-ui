@@ -110,6 +110,10 @@ import { ICONS, SearchIcon } from 'material-plus-ui';
 
 키는 컴포넌트가 요구하는 역할(`visibility`)이지, lucide가 마침 제공하는 그림 이름(`Eye`)이 아닙니다. 컴포넌트는 개념을 요구하므로, 그 뒤의 그림은 컴포넌트를 건드리지 않고 바꿀 수 있습니다.
 
-::: tip 어느 쪽을 쓸지 `ICONS`는 객체 리터럴이라 번들러가 속성 단위로 tree-shaking할 수 없습니다. 즉, 이것을 import하면 테이블의 모든 글리프가 딸려 옵니다. 한두 개만 필요하면 named import를, 이름으로 조회하는 레지스트리가 필요하면 `ICONS`를 쓰세요. :::
+::: tip 어느 쪽을 쓸지
+
+`ICONS`는 객체 리터럴이라 번들러가 속성 단위로 tree-shaking할 수 없습니다. 즉, 이것을 import하면 테이블의 모든 글리프가 딸려 옵니다. 한두 개만 필요하면 named import를, 이름으로 조회하는 레지스트리가 필요하면 `ICONS`를 쓰세요.
+
+:::
 
 이 세트에만 묶여 있는 것은 아닙니다. `MPIcon`은 아이콘 컴포넌트 모양을 한 것이면 무엇이든 받으므로 `react-icons`, `@material-symbols`, 다른 머터리얼 아이콘 패키지, 직접 만든 SVG 모두 wrapper 없이 그대로 동작합니다.

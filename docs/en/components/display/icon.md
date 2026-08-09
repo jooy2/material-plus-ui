@@ -110,6 +110,10 @@ import { ICONS, SearchIcon } from 'material-plus-ui';
 
 The keys are the roles the components ask for (`visibility`), not the drawings lucide happens to ship (`Eye`). A component asks for the idea, so the drawing behind it can be swapped without touching a component.
 
-::: tip Which one to use `ICONS` is an object literal, so a bundler cannot tree-shake it property by property — importing it pulls in every glyph in the table. Reach for the named imports when you only need one or two, and for `ICONS` when you want a name-keyed registry. :::
+::: tip Which one to use
+
+`ICONS` is an object literal, so a bundler cannot tree-shake it property by property — importing it pulls in every glyph in the table. Reach for the named imports when you only need one or two, and for `ICONS` when you want a name-keyed registry.
+
+:::
 
 You are not limited to this set. `MPIcon` takes anything shaped like an icon component, so `react-icons`, `@material-symbols`, another Material icon package or your own SVGs all work without a wrapper.
