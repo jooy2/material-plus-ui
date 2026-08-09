@@ -9,6 +9,9 @@ hero:
   name: Material Plus
   text: 매번 직접 만들게 되는 머터리얼 컴포넌트들
   tagline: 'Material Design 3를 스펙에서 직접 따랐습니다. 테마가 CSS 커스텀 프로퍼티라, 이미 머터리얼을 쓰는 프로젝트에 두 번째 디자인 시스템을 들이지 않고 들어갑니다.'
+  image:
+    src: /logo-large.png
+    alt: Material Plus
   actions:
     - theme: brand
       text: 시작하기

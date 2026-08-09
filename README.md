@@ -1,3 +1,9 @@
+<!-- An absolute URL, not `docs/public/logo-large.png`: this file is the package
+     page on npm as well as the front page on GitHub, `.npmignore` keeps `docs/`
+     out of the tarball, and npm resolves a relative image against the published
+     package before it falls back to anything else. -->
+<img src="https://raw.githubusercontent.com/jooy2/material-plus/main/docs/public/logo-large.png" alt="Material Plus" width="96" height="96">
+
 # Material Plus
 
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/jooy2/material-plus/blob/main/LICENSE) ![Programming Language Usage](https://img.shields.io/github/languages/top/jooy2/material-plus) [![npm downloads](https://img.shields.io/npm/dm/material-plus-ui.svg)](https://www.npmjs.com/package/material-plus-ui) [![npm latest package](https://img.shields.io/npm/v/material-plus-ui/latest.svg)](https://www.npmjs.com/package/material-plus-ui) ![npm bundle size](https://img.shields.io/bundlephobia/min/material-plus-ui)

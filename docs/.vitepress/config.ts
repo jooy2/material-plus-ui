@@ -217,6 +217,7 @@ function structuredData(description: string, url: string) {
     name: 'Material Plus',
     description,
     url,
+    image: `${siteUrl}/logo-large.png`,
     codeRepository: repoUrl,
     programmingLanguage: 'TypeScript',
     runtimePlatform: 'React',
@@ -321,25 +322,37 @@ const vitePressConfig: UserConfig = {
     // Material's baseline primary, as a literal: a `<meta>` cannot read a theme
     // object, and this is the one place in the site that has to repeat one.
     ['meta', { name: 'theme-color', content: '#1976d2' }],
+    /*
+     * Two icons, both with their real size declared.
+     *
+     * The `.ico` is 16×16 and nothing more, which is the one size a browser can
+     * always fall back to and the wrong one for a tab on a hidpi screen or for
+     * a bookmark tile. Declaring that size honestly is what lets the browser
+     * reach past it to the 72×72 PNG when it wants something bigger; a bare
+     * `sizes="any"` on the `.ico` would tell it the opposite.
+     */
+    ['link', { rel: 'icon', href: '/favicon.ico', sizes: '16x16' }],
+    ['link', { rel: 'icon', type: 'image/png', href: '/logo.png', sizes: '72x72' }],
     // The half of the metadata that is the same on every page. The other half —
     // the canonical URL, the title, the description, the locale alternates — is
     // per page and lives in `transformHead`.
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:site_name', content: 'Material Plus' }],
-    ['meta', { name: 'twitter:card', content: 'summary' }]
     /*
-     * No `og:image`, no `twitter:image` and no favicon yet — there is no mark to
-     * point them at, and a card tag naming a file that 404s is worse than no
-     * card tag at all. Once a logo lands in `docs/public/`, add:
-     *
-     *   ['link', { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/logo-32.png' }],
-     *   ['meta', { property: 'og:image', content: `${siteUrl}/256x256.png` }],
-     *   ['meta', { property: 'og:image:alt', content: 'Material Plus' }],
-     *   ['meta', { name: 'twitter:image', content: `${siteUrl}/256x256.png` }]
-     *
-     * `summary` above rather than `summary_large_image` assumes a square mark;
-     * change it if the artwork turns out to be wide.
+     * The share card is the mark itself, so the card is the small square kind.
+     * `summary_large_image` would letterbox a 256×256 logo into a 2:1 banner
+     * with two wide bars of nothing beside it — that layout wants artwork drawn
+     * for it, not a mark stretched to fit. The dimensions are declared so a
+     * crawler can lay the card out before the image has finished downloading.
      */
+    ['meta', { name: 'twitter:card', content: 'summary' }],
+    ['meta', { property: 'og:image', content: `${siteUrl}/logo-large.png` }],
+    ['meta', { property: 'og:image:type', content: 'image/png' }],
+    ['meta', { property: 'og:image:width', content: '256' }],
+    ['meta', { property: 'og:image:height', content: '256' }],
+    ['meta', { property: 'og:image:alt', content: 'Material Plus' }],
+    ['meta', { name: 'twitter:image', content: `${siteUrl}/logo-large.png` }],
+    ['meta', { name: 'twitter:image:alt', content: 'Material Plus' }]
   ],
   sitemap: {
     hostname: packageJson.homepage
@@ -424,6 +437,16 @@ const vitePressConfig: UserConfig = {
     }
   },
   themeConfig: {
+    /**
+     * The navigation bar mark, beside the site title rather than instead of it.
+     *
+     * Rendered by the default theme as an `<img>` at `--vp-nav-logo-height`,
+     * 24px — so the 72×72 file is a 3× source and stays sharp on any screen it
+     * lands on. It is an `<img>` and not an inline SVG, which is why there is
+     * no dark variant: `currentColor` cannot reach inside one, and the mark
+     * reads on both themes on its own.
+     */
+    logo: '/logo.png',
     /**
      * `h2` and `h3`, nested.
      *
@@ -573,6 +596,33 @@ function arrangeSidebar<T extends GeneratedSidebarItem>(items: T[], lang: string
 }
 
 const config = withSidebar(withI18n(vitePressConfig, vitePressI18nConfig), vitePressSidebarConfig);
+
+/**
+ * The site's `head`, un-copied out of every locale.
+ *
+ * `vitepress-i18n` appends the whole site `head` to each locale's own, and
+ * VitePress then merges site and locale heads back together — but its merge
+ * only deduplicates `meta`, matching on the tag's first attribute. A `meta`
+ * therefore survives the round trip once and a `link` survives it twice, which
+ * is two `rel="icon"` tags on every page of the site.
+ *
+ * Nothing in `head` above is per locale, so the copies are what goes rather
+ * than the merge being worked around. Anything a locale genuinely added for
+ * itself is left where it is.
+ */
+const siteHeadTags = new Set((vitePressConfig.head ?? []).map((tag) => JSON.stringify(tag)));
+
+for (const locale of Object.values(config.locales ?? {})) {
+  if (!locale?.head) {
+    continue;
+  }
+
+  locale.head = locale.head.filter((tag) => !siteHeadTags.has(JSON.stringify(tag)));
+
+  if (locale.head.length === 0) {
+    delete locale.head;
+  }
+}
 
 const sidebar = config.themeConfig?.sidebar as
   Record<string, { items?: GeneratedSidebarItem[] } | GeneratedSidebarItem[]> | undefined;

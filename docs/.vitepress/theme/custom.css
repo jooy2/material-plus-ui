@@ -31,3 +31,18 @@
     max-width: 880px;
   }
 }
+
+/*
+ * The hero mark, drawn smaller than the theme would draw it.
+ *
+ * The default caps the image at 320px on a wide screen, and the file is 256px
+ * square — so on the hidpi screens most readers are on, the theme's own size
+ * would be asking a 256px source to fill more than 256px of device pixels, and
+ * every curve in the mark would soften. 160px is the largest that still leaves
+ * headroom on a 2× display. Raise it — or drop this rule entirely — if the
+ * artwork is ever re-exported at 512px.
+ */
+.VPHero .image-container .image-src {
+  max-width: 160px;
+  max-height: 160px;
+}

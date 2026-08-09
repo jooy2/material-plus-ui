@@ -9,6 +9,9 @@ hero:
   name: Material Plus
   text: The Material components you keep writing yourself
   tagline: Material Design 3, followed from the specification. Themed in CSS custom properties, so it drops into a project that already has Material without a second design system to reconcile.
+  image:
+    src: /logo-large.png
+    alt: Material Plus
   actions:
     - theme: brand
       text: Get started
