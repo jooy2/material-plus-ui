@@ -17,6 +17,8 @@ Two rules govern everything below.
 ```ts
 type MPSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 type MPColor = 'primary' | 'secondary' | 'tertiary' | 'error';
+type MPVariant = 'filled' | 'tonal' | 'elevated' | 'outlined' | 'text';
+type MPOrientation = 'horizontal' | 'vertical';
 
 interface MPStyleProps {
   size?: MPSize; // default 'md'
@@ -33,7 +35,15 @@ export interface MPTextFieldProps extends MPStyleProps {
 }
 ```
 
-`MPStyleProps` is deliberately short. An axis joins it when a **second** component needs it, not in anticipation of one — the same rule the design tokens follow. `variant`, `density` and `elevation` are all likely to arrive, and none of them is here yet because nothing reads them.
+`MPStyleProps` is deliberately short. An axis joins it when a **second** component needs it, not in anticipation of one — the same rule the design tokens follow.
+
+`variant` and `color` are shared _vocabulary_ rather than members of the bundle: a component that has meaningful variants takes `variant`, and one that reads an accent family takes `color`, but neither is on every component and neither would mean anything on `MPTextField`. `density` and `elevation` are likely to arrive one day, and are not here yet because nothing reads them.
+
+## `variant`
+
+Material's five button styles, in the order they get quieter: `filled`, `tonal`, `elevated`, `outlined`, `text`.
+
+The vocabulary is shared with components that are not buttons on purpose — a `filled` segmented button and a `filled` button are the same statement about emphasis, made by two different controls. `elevated` is the odd one out and stays separate from `filled` because MD3 keeps it separate: it is a _neutral_ surface that also casts a shadow, which is a different way of solving the same problem. A component with no meaningful raised state simply does not offer it.
 
 ## `size`
 

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Field } from '@base-ui/react/field';
 import { MPIcon } from '../icon/MPIcon';
+import { MPFieldLabel, MPFieldOutline } from '../../internal/FieldOutline';
 import { VisibilityIcon, VisibilityOffIcon } from '../../constants/icons';
 import type { MPSize, MPStyleProps } from '../../types';
 
@@ -291,28 +292,6 @@ export const MPTextField = React.forwardRef<
     }
   }, []);
 
-  /*
-   * The label is drawn twice, and both copies are load-bearing.
-   *
-   * The `<legend>` is the one that shapes the outline: a legend inside a
-   * `<fieldset>` natively interrupts the top border, which is exactly the notch
-   * an outlined text field has, sized to the text with no measuring in
-   * JavaScript. It is hidden with `invisible` rather than removed, because a
-   * legend with no content reserves no gap.
-   *
-   * The `Field.Label` is the one a reader gets: a real `<label>`, associated
-   * with the control by Base UI, sitting on the border line where the legend
-   * cut it away. It cannot be the legend itself — the outline is
-   * `pointer-events-none` so that clicks land on the input underneath, and a
-   * label inside it would stop being clickable.
-   */
-  const labelText = label ? (
-    <>
-      {label}
-      {required ? <span aria-hidden="true"> *</span> : null}
-    </>
-  ) : null;
-
   return (
     <Field.Root
       className={[
@@ -338,43 +317,7 @@ export const MPTextField = React.forwardRef<
           .filter(Boolean)
           .join(' ')}
       >
-        {/*
-         * Decorative: the accessible name comes from `Field.Label`, and this is
-         * only the box that name sits in. Announcing a `<fieldset>` as a group
-         * around a single control is noise a screen reader does not need.
-         */}
-        <fieldset
-          aria-hidden="true"
-          className={[
-            'pointer-events-none absolute inset-0 -top-[5px] m-0 min-w-0 px-2 pt-0',
-            'rounded-mp-xs border border-mp-outline',
-            /*
-             * The colour eases; the width does not, and must not.
-             *
-             * `border-width` was in this list once, and it made focus feel
-             * broken. A 1px-to-2px interpolation is rounded to whole device
-             * pixels at paint, so the outline renders as 1px for almost the
-             * entire duration and then jumps — measured at 197ms of nothing
-             * followed by a single step. The ring appeared to arrive a fifth of
-             * a second after the click, even though the focus state itself
-             * landed in 4ms. Anything sub-pixel in extent should snap.
-             */
-            'transition-[border-color] duration-(--mp-sys-motion-duration-short4)',
-            // MD3 raises the outline to `on-surface` on hover, and to `primary`
-            // at two pixels on focus. Focus wins, so it is written second.
-            'group-hover:border-mp-on-surface',
-            'group-data-focused:border-2 group-data-focused:border-mp-primary',
-            'group-data-invalid:border-mp-error',
-            // The spec's disabled outline: `on-surface` at 12%.
-            'group-data-disabled:border-mp-on-surface/12'
-          ].join(' ')}
-        >
-          {label ? (
-            <legend className="text-mp-body-small invisible float-none block h-[11px] w-auto p-0 px-1 leading-none">
-              {labelText}
-            </legend>
-          ) : null}
-        </fieldset>
+        <MPFieldOutline label={label} required={required} />
 
         {startIcon ? (
           <span className="text-mp-on-surface-variant group-data-disabled:text-mp-on-surface/38 flex shrink-0 items-center">
@@ -462,34 +405,7 @@ export const MPTextField = React.forwardRef<
       </div>
 
       {label ? (
-        <Field.Label
-          htmlFor={fieldId}
-          className={[
-            'text-mp-body-small text-mp-on-surface-variant',
-            // Eased on the same curve and duration as the outline it sits in, so
-            // the label and the ring arrive together rather than one snapping
-            // ahead of the other.
-            'transition-[color] duration-(--mp-sys-motion-duration-short4)',
-            // Sat on the top border, where the legend cut the gap. `left` tracks
-            // the container's own inline padding so the two line up at either
-            // size.
-            'pointer-events-auto absolute top-0 -translate-y-1/2 px-1 leading-none',
-            // Tracks the container's inline padding, one step less so the
-            // label's own `px-1` lands the text over where the border was cut.
-            size === 'xs'
-              ? 'left-1'
-              : size === 'sm'
-                ? 'left-2'
-                : size === 'xl'
-                  ? 'left-4'
-                  : 'left-3',
-            'group-data-focused:text-mp-primary',
-            'group-data-invalid:text-mp-error',
-            'group-data-disabled:text-mp-on-surface/38'
-          ].join(' ')}
-        >
-          {labelText}
-        </Field.Label>
+        <MPFieldLabel size={size} label={label} required={required} htmlFor={fieldId} />
       ) : null}
 
       {invalid ? (

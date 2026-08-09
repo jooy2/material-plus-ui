@@ -26,7 +26,7 @@ describe('dist/styles.css', () => {
     // them — a variable referenced only from inside another custom property's
     // value has no utility pointing at it, and would be a removal candidate if
     // it were declared in `@theme`.
-    for (const token of ['--mp-source-color', '--_mp-tone-primary', '--_mp-chroma-outline']) {
+    for (const token of ['--mp-source-color', '--_mp-tone-accent', '--_mp-chroma-outline']) {
       expect(styles).toContain(token);
     }
   });

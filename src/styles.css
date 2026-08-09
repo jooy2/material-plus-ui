@@ -23,9 +23,10 @@
  * ## Only what a component reads
  *
  * A token nobody uses is a promise to keep supporting a name, so the roles below
- * are exactly the ones `MPTextField` and `MPIcon` actually resolve, and nothing
- * else. MD3 defines around fifty colour roles; an outlined text field reads five
- * of them. The rest are absent on purpose and get added as components need them.
+ * are exactly the ones the components actually resolve, and nothing else. MD3
+ * defines around fifty colour roles; an outlined text field reads five of them,
+ * and the twelve components in this library between them read twenty-three. The
+ * rest are absent on purpose and get added as components need them.
  *
  * This is also why the library does not try to reproduce MD3 completely. It has
  * to *coexist* with whatever Material implementation a page already runs, not
@@ -166,21 +167,77 @@
      * of 0.01–0.02 that is a difference of a couple of thousandths in a/b — below
      * anything visible, and chasing it would be fitting to noise, since hue is
      * barely determined at all that close to grey.
+     *
+     * ## The accent tones are shared, the chroma is not
+     *
+     * `primary`, `secondary` and `tertiary` are one palette generation read three
+     * times: MD3 takes all three at the *same* tones and differs only in how much
+     * chroma the palette carries and, for `tertiary`, in its hue. So there is one
+     * `--_mp-tone-accent` rather than three, and a `--_mp-chroma-*` per family.
      */
-    --_mp-tone-primary: 0.496;
+    --_mp-tone-accent: 0.496;
+    --_mp-tone-on-accent: 1;
+    --_mp-tone-accent-container: 0.918;
+    --_mp-tone-on-accent-container: 0.242;
+
     --_mp-chroma-primary: 1;
+    --_mp-chroma-secondary: 0.274;
+    --_mp-chroma-tertiary: 0.464;
+    /* MD3 puts `tertiary` 60° round the wheel in HCT, which lands at about 65°
+       in OKLCh near the default source. Measured rather than converted, because
+       the two spaces do not agree on where a hue is by a constant. */
+    --_mp-hue-tertiary: 64.7;
+
     --_mp-tone-on-surface: 0.227;
     --_mp-chroma-on-surface: 0.01;
     --_mp-tone-on-surface-variant: 0.398;
     --_mp-chroma-on-surface-variant: 0.0174;
     --_mp-tone-outline: 0.567;
     --_mp-chroma-outline: 0.0163;
+    --_mp-tone-outline-variant: 0.829;
+    --_mp-chroma-outline-variant: 0.0178;
+
+    /* The three surface containers, which are one neutral palette read at three
+       tones. MD3 has five; a menu (`surface-container`), an elevated button
+       (`-low`) and a switch's track (`-highest`) are the three anything here
+       actually asks for. */
+    --_mp-tone-surface-container-low: 0.967;
+    --_mp-chroma-surface-container-low: 0.0118;
+    --_mp-tone-surface-container: 0.954;
+    --_mp-chroma-surface-container: 0.0147;
+    --_mp-tone-surface-container-highest: 0.914;
+    --_mp-chroma-surface-container-highest: 0.0137;
 
     /* `error` carries its own hue as well, because it is not derived from the
        source colour at all — see the role below. */
     --_mp-tone-error: 0.501;
     --_mp-chroma-error: 0.1783;
     --_mp-hue-error: 28.7;
+
+    /*
+     * The chroma a whole palette carries, as opposed to the chroma one role of it
+     * came out at. Deliberately *not* reassigned for the dark scheme below, and
+     * the only stops here that are not.
+     *
+     * MD3 holds a palette's chroma constant across its tones and lets the sRGB
+     * boundary take back whatever will not fit — which is why `primary` at tone 40
+     * is vivid and `primary-container` at tone 90 is a pale wash, from one number.
+     * The container and `on-` roles are written the same way: the palette's chroma
+     * goes in unmodified and the browser's own gamut mapping does the clipping, at
+     * constant lightness and hue, exactly as HCT's does.
+     *
+     * Fed the baseline source, that lands the twelve container and `on-` roles
+     * within 0.01 of MD3's own — bar the two `error` containers, which come out up
+     * to 0.025 more chromatic because sRGB's boundary is a blunter clip than HCT's
+     * and the error palette is the only one saturated enough to notice.
+     *
+     * `error` is an absolute chroma rather than a multiplier, because it is not
+     * derived from the source colour at all.
+     */
+    --_mp-palette-primary: 1;
+    --_mp-palette-secondary: 0.274;
+    --_mp-palette-tertiary: 0.464;
+    --_mp-palette-error: 0.1783;
   }
 
   /* The dark scheme, by tone reassignment. Two ways in: the page's own signal
@@ -193,14 +250,28 @@
      anyway. */
   @media (prefers-color-scheme: dark) {
     :root:not([data-mp-scheme='light']) {
-      --_mp-tone-primary: 0.835;
+      --_mp-tone-accent: 0.835;
+      --_mp-tone-on-accent: 0.325;
+      --_mp-tone-accent-container: 0.41;
+      --_mp-tone-on-accent-container: 0.918;
       --_mp-chroma-primary: 0.725;
+      --_mp-chroma-secondary: 0.287;
+      --_mp-chroma-tertiary: 0.51;
+      --_mp-hue-tertiary: 65.7;
       --_mp-tone-on-surface: 0.914;
       --_mp-chroma-on-surface: 0.0137;
       --_mp-tone-on-surface-variant: 0.829;
       --_mp-chroma-on-surface-variant: 0.0178;
       --_mp-tone-outline: 0.657;
       --_mp-chroma-outline: 0.0153;
+      --_mp-tone-outline-variant: 0.398;
+      --_mp-chroma-outline-variant: 0.0174;
+      --_mp-tone-surface-container-low: 0.227;
+      --_mp-chroma-surface-container-low: 0.01;
+      --_mp-tone-surface-container: 0.245;
+      --_mp-chroma-surface-container: 0.0134;
+      --_mp-tone-surface-container-highest: 0.33;
+      --_mp-chroma-surface-container-highest: 0.0125;
       --_mp-tone-error: 0.834;
       --_mp-chroma-error: 0.0677;
       --_mp-hue-error: 22;
@@ -209,14 +280,28 @@
 
   [data-mp-scheme='dark'],
   .dark {
-    --_mp-tone-primary: 0.835;
+    --_mp-tone-accent: 0.835;
+    --_mp-tone-on-accent: 0.325;
+    --_mp-tone-accent-container: 0.41;
+    --_mp-tone-on-accent-container: 0.918;
     --_mp-chroma-primary: 0.725;
+    --_mp-chroma-secondary: 0.287;
+    --_mp-chroma-tertiary: 0.51;
+    --_mp-hue-tertiary: 65.7;
     --_mp-tone-on-surface: 0.914;
     --_mp-chroma-on-surface: 0.0137;
     --_mp-tone-on-surface-variant: 0.829;
     --_mp-chroma-on-surface-variant: 0.0178;
     --_mp-tone-outline: 0.657;
     --_mp-chroma-outline: 0.0153;
+    --_mp-tone-outline-variant: 0.398;
+    --_mp-chroma-outline-variant: 0.0174;
+    --_mp-tone-surface-container-low: 0.227;
+    --_mp-chroma-surface-container-low: 0.01;
+    --_mp-tone-surface-container: 0.245;
+    --_mp-chroma-surface-container: 0.0134;
+    --_mp-tone-surface-container-highest: 0.33;
+    --_mp-chroma-surface-container-highest: 0.0125;
     --_mp-tone-error: 0.834;
     --_mp-chroma-error: 0.0677;
     --_mp-hue-error: 22;
@@ -225,10 +310,15 @@
   /*
    * Colour roles.
    *
-   * Five, because an MD3 outlined text field reads five: the outline, the text,
-   * the label and supporting text, the focused outline and caret, and the error
-   * state. Verified against the spec's own component token map rather than
-   * assumed.
+   * Twenty-three, and every one of them is resolved by a component in this
+   * library. Checked against the spec's own component token maps rather than
+   * assumed — an outlined text field reads five, a filled button four, a switch
+   * six.
+   *
+   * The three source-derived families are written out rather than generated. CSS
+   * has no way to build a custom property's *name* from another one, so a family
+   * is four declarations wherever it appears; what is shared between them lives
+   * in the tone stops above, which is the part that would otherwise drift.
    *
    * `oklch(from … h)` keeps the source colour's hue and replaces lightness and
    * chroma. See the note above for why this is on `*` rather than `:root`.
@@ -242,10 +332,154 @@
       var(
         --md-sys-color-primary,
         oklch(
-          from var(--mp-source-color) var(--_mp-tone-primary) calc(c * var(--_mp-chroma-primary)) h
+          from var(--mp-source-color) var(--_mp-tone-accent) calc(c * var(--_mp-chroma-primary)) h
         )
       )
     );
+    --_mp-color-on-primary: var(
+      --mp-sys-color-on-primary,
+      var(
+        --md-sys-color-on-primary,
+        oklch(
+          from var(--mp-source-color) var(--_mp-tone-on-accent) calc(c * var(--_mp-palette-primary))
+            h
+        )
+      )
+    );
+    --_mp-color-primary-container: var(
+      --mp-sys-color-primary-container,
+      var(
+        --md-sys-color-primary-container,
+        oklch(
+          from var(--mp-source-color) var(--_mp-tone-accent-container)
+            calc(c * var(--_mp-palette-primary)) h
+        )
+      )
+    );
+    --_mp-color-on-primary-container: var(
+      --mp-sys-color-on-primary-container,
+      var(
+        --md-sys-color-on-primary-container,
+        oklch(
+          from var(--mp-source-color) var(--_mp-tone-on-accent-container)
+            calc(c * var(--_mp-palette-primary)) h
+        )
+      )
+    );
+
+    --_mp-color-secondary: var(
+      --mp-sys-color-secondary,
+      var(
+        --md-sys-color-secondary,
+        oklch(
+          from var(--mp-source-color) var(--_mp-tone-accent) calc(c * var(--_mp-chroma-secondary)) h
+        )
+      )
+    );
+    --_mp-color-on-secondary: var(
+      --mp-sys-color-on-secondary,
+      var(
+        --md-sys-color-on-secondary,
+        oklch(
+          from var(--mp-source-color) var(--_mp-tone-on-accent)
+            calc(c * var(--_mp-palette-secondary)) h
+        )
+      )
+    );
+    --_mp-color-secondary-container: var(
+      --mp-sys-color-secondary-container,
+      var(
+        --md-sys-color-secondary-container,
+        oklch(
+          from var(--mp-source-color) var(--_mp-tone-accent-container)
+            calc(c * var(--_mp-palette-secondary)) h
+        )
+      )
+    );
+    --_mp-color-on-secondary-container: var(
+      --mp-sys-color-on-secondary-container,
+      var(
+        --md-sys-color-on-secondary-container,
+        oklch(
+          from var(--mp-source-color) var(--_mp-tone-on-accent-container)
+            calc(c * var(--_mp-palette-secondary)) h
+        )
+      )
+    );
+
+    /* The one family that moves off the source colour's hue. */
+    --_mp-color-tertiary: var(
+      --mp-sys-color-tertiary,
+      var(
+        --md-sys-color-tertiary,
+        oklch(
+          from var(--mp-source-color) var(--_mp-tone-accent) calc(c * var(--_mp-chroma-tertiary))
+            calc(h + var(--_mp-hue-tertiary))
+        )
+      )
+    );
+    --_mp-color-on-tertiary: var(
+      --mp-sys-color-on-tertiary,
+      var(
+        --md-sys-color-on-tertiary,
+        oklch(
+          from var(--mp-source-color) var(--_mp-tone-on-accent)
+            calc(c * var(--_mp-palette-tertiary)) calc(h + var(--_mp-hue-tertiary))
+        )
+      )
+    );
+    --_mp-color-tertiary-container: var(
+      --mp-sys-color-tertiary-container,
+      var(
+        --md-sys-color-tertiary-container,
+        oklch(
+          from var(--mp-source-color) var(--_mp-tone-accent-container)
+            calc(c * var(--_mp-palette-tertiary)) calc(h + var(--_mp-hue-tertiary))
+        )
+      )
+    );
+    --_mp-color-on-tertiary-container: var(
+      --mp-sys-color-on-tertiary-container,
+      var(
+        --md-sys-color-on-tertiary-container,
+        oklch(
+          from var(--mp-source-color) var(--_mp-tone-on-accent-container)
+            calc(c * var(--_mp-palette-tertiary)) calc(h + var(--_mp-hue-tertiary))
+        )
+      )
+    );
+
+    --_mp-color-surface-container-low: var(
+      --mp-sys-color-surface-container-low,
+      var(
+        --md-sys-color-surface-container-low,
+        oklch(
+          from var(--mp-source-color) var(--_mp-tone-surface-container-low)
+            var(--_mp-chroma-surface-container-low) h
+        )
+      )
+    );
+    --_mp-color-surface-container: var(
+      --mp-sys-color-surface-container,
+      var(
+        --md-sys-color-surface-container,
+        oklch(
+          from var(--mp-source-color) var(--_mp-tone-surface-container)
+            var(--_mp-chroma-surface-container) h
+        )
+      )
+    );
+    --_mp-color-surface-container-highest: var(
+      --mp-sys-color-surface-container-highest,
+      var(
+        --md-sys-color-surface-container-highest,
+        oklch(
+          from var(--mp-source-color) var(--_mp-tone-surface-container-highest)
+            var(--_mp-chroma-surface-container-highest) h
+        )
+      )
+    );
+
     --_mp-color-on-surface: var(
       --mp-sys-color-on-surface,
       var(
@@ -270,6 +504,19 @@
         oklch(from var(--mp-source-color) var(--_mp-tone-outline) var(--_mp-chroma-outline) h)
       )
     );
+    /* The quieter of the two outlines: a divider, or a line that is not the edge
+       of a control. A slider's inactive track and a dropzone's dashed rectangle
+       are both this rather than `outline`. */
+    --_mp-color-outline-variant: var(
+      --mp-sys-color-outline-variant,
+      var(
+        --md-sys-color-outline-variant,
+        oklch(
+          from var(--mp-source-color) var(--_mp-tone-outline-variant)
+            var(--_mp-chroma-outline-variant) h
+        )
+      )
+    );
 
     /* Not derived from the source colour. MD3's error palette is a fixed red
        regardless of the seed — an error that shifted hue with the brand would
@@ -280,6 +527,27 @@
       var(
         --md-sys-color-error,
         oklch(var(--_mp-tone-error) var(--_mp-chroma-error) var(--_mp-hue-error))
+      )
+    );
+    --_mp-color-on-error: var(
+      --mp-sys-color-on-error,
+      var(
+        --md-sys-color-on-error,
+        oklch(var(--_mp-tone-on-accent) var(--_mp-palette-error) var(--_mp-hue-error))
+      )
+    );
+    --_mp-color-error-container: var(
+      --mp-sys-color-error-container,
+      var(
+        --md-sys-color-error-container,
+        oklch(var(--_mp-tone-accent-container) var(--_mp-palette-error) var(--_mp-hue-error))
+      )
+    );
+    --_mp-color-on-error-container: var(
+      --mp-sys-color-on-error-container,
+      var(
+        --md-sys-color-on-error-container,
+        oklch(var(--_mp-tone-on-accent-container) var(--_mp-palette-error) var(--_mp-hue-error))
       )
     );
 
@@ -299,10 +567,28 @@
      * Only the alias is duplicated: the derivation above it lives in one place.
      */
     --color-mp-primary: var(--_mp-color-primary);
+    --color-mp-on-primary: var(--_mp-color-on-primary);
+    --color-mp-primary-container: var(--_mp-color-primary-container);
+    --color-mp-on-primary-container: var(--_mp-color-on-primary-container);
+    --color-mp-secondary: var(--_mp-color-secondary);
+    --color-mp-on-secondary: var(--_mp-color-on-secondary);
+    --color-mp-secondary-container: var(--_mp-color-secondary-container);
+    --color-mp-on-secondary-container: var(--_mp-color-on-secondary-container);
+    --color-mp-tertiary: var(--_mp-color-tertiary);
+    --color-mp-on-tertiary: var(--_mp-color-on-tertiary);
+    --color-mp-tertiary-container: var(--_mp-color-tertiary-container);
+    --color-mp-on-tertiary-container: var(--_mp-color-on-tertiary-container);
+    --color-mp-surface-container-low: var(--_mp-color-surface-container-low);
+    --color-mp-surface-container: var(--_mp-color-surface-container);
+    --color-mp-surface-container-highest: var(--_mp-color-surface-container-highest);
     --color-mp-on-surface: var(--_mp-color-on-surface);
     --color-mp-on-surface-variant: var(--_mp-color-on-surface-variant);
     --color-mp-outline: var(--_mp-color-outline);
+    --color-mp-outline-variant: var(--_mp-color-outline-variant);
     --color-mp-error: var(--_mp-color-error);
+    --color-mp-on-error: var(--_mp-color-on-error);
+    --color-mp-error-container: var(--_mp-color-error-container);
+    --color-mp-on-error-container: var(--_mp-color-on-error-container);
 
     /* Literals rather than derivations, but resolved through a variable all the
        same, so they freeze at `:root` in exactly the same way. A consumer setting
@@ -322,7 +608,25 @@
     --text-mp-body-small--letter-spacing: var(--mp-sys-typescale-body-small-tracking);
     --text-mp-body-small--font-weight: var(--mp-sys-typescale-body-small-weight);
 
+    --text-mp-label-large: var(--mp-sys-typescale-label-large-size);
+    --text-mp-label-large--line-height: var(--mp-sys-typescale-label-large-line-height);
+    --text-mp-label-large--letter-spacing: var(--mp-sys-typescale-label-large-tracking);
+    --text-mp-label-large--font-weight: var(--mp-sys-typescale-label-large-weight);
+
+    --text-mp-title-medium: var(--mp-sys-typescale-title-medium-size);
+    --text-mp-title-medium--line-height: var(--mp-sys-typescale-title-medium-line-height);
+    --text-mp-title-medium--letter-spacing: var(--mp-sys-typescale-title-medium-tracking);
+    --text-mp-title-medium--font-weight: var(--mp-sys-typescale-title-medium-weight);
+
     --radius-mp-xs: var(--mp-sys-shape-corner-extra-small);
+    --radius-mp-sm: var(--mp-sys-shape-corner-small);
+    --radius-mp-md: var(--mp-sys-shape-corner-medium);
+    --radius-mp-full: var(--mp-sys-shape-corner-full);
+
+    --shadow-mp-1: var(--mp-sys-elevation-level1);
+    --shadow-mp-2: var(--mp-sys-elevation-level2);
+
+    --ease-mp-standard: var(--mp-sys-motion-easing-standard);
   }
 
   :root {
@@ -334,9 +638,11 @@
      */
 
     /*
-     * Typescale. Three roles, and each one is read by something: a text field's
+     * Typescale. Five roles, and each one is read by something: a text field's
      * input is `body-large` at `md` and above and `body-medium` at `sm` and `xs`,
-     * its notched label and supporting text are `body-small`.
+     * its notched label and supporting text are `body-small`. A button's label is
+     * `label-large` at `xs` and `sm` and `title-medium` from `md` up, which is
+     * what MD3 sets its own small and medium buttons in.
      *
      * All three values are the spec's. The size ladder is ours — see `MPSize` in
      * `src/types.ts` — but what it selects between is not: a smaller control
@@ -365,15 +671,56 @@
     --mp-sys-typescale-body-small-tracking: 0.025rem;
     --mp-sys-typescale-body-small-weight: 400;
 
-    /* Shape. One corner size, because a text field is `corner-extra-small` and
-       nothing here is anything else yet. */
+    /* The two label roles. Both are 500 rather than 400: MD3 sets a control's
+       own text one weight up from prose, which is what keeps a button's label
+       from reading as a paragraph that happens to be inside a box. */
+    --mp-sys-typescale-label-large-font: inherit;
+    --mp-sys-typescale-label-large-size: 0.875rem;
+    --mp-sys-typescale-label-large-line-height: 1.25rem;
+    --mp-sys-typescale-label-large-tracking: 0.00625rem;
+    --mp-sys-typescale-label-large-weight: 500;
+
+    --mp-sys-typescale-title-medium-font: inherit;
+    --mp-sys-typescale-title-medium-size: 1rem;
+    --mp-sys-typescale-title-medium-line-height: 1.5rem;
+    --mp-sys-typescale-title-medium-tracking: 0.009375rem;
+    --mp-sys-typescale-title-medium-weight: 500;
+
+    /*
+     * Shape. Four corner sizes, and which one a component takes is a statement
+     * about what kind of object it is rather than a size to taste: a text field
+     * is a well (`extra-small`), a button is a pill (`full`), a dropzone is a
+     * sheet (`medium`), and the tiles inside one are `small`.
+     *
+     * `full` is a length rather than `50%` deliberately. A percentage radius on a
+     * box whose width and height differ draws an ellipse, so a wide button would
+     * bow along its top edge instead of ending in two half-circles.
+     */
     --mp-sys-shape-corner-extra-small: 4px;
+    --mp-sys-shape-corner-small: 8px;
+    --mp-sys-shape-corner-medium: 12px;
+    --mp-sys-shape-corner-full: 9999px;
+
+    /*
+     * Elevation. Two of MD3's six levels, because two are what gets read: a menu
+     * floats at level 2, and an elevated button rests at level 1 and rises to 2
+     * under the pointer.
+     *
+     * Both are the spec's own two-shadow recipe — a tight key shadow plus a wider
+     * ambient one — rather than one blurred box shadow. The pair is what makes a
+     * raised surface read as lit from above instead of as a sticker with a halo.
+     */
+    --mp-sys-elevation-level1: 0 1px 2px 0 rgb(0 0 0 / 0.3), 0 1px 3px 1px rgb(0 0 0 / 0.15);
+    --mp-sys-elevation-level2: 0 1px 2px 0 rgb(0 0 0 / 0.3), 0 2px 6px 2px rgb(0 0 0 / 0.15);
 
     /* Motion. MD3's `short4`, which is what a text field's label and outline
        transition on. Worth knowing if these controls sit beside another
        library's: 250ms is a common default elsewhere, and a field from here
        will settle slightly sooner unless this is set to match. */
     --mp-sys-motion-duration-short4: 200ms;
+    /* The spec's `standard` curve: quick to leave, slow to arrive. Read by the
+       one thing in the library that actually travels, a switch's thumb. */
+    --mp-sys-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
   }
 }
 
@@ -401,10 +748,28 @@
 
 @theme {
   --color-mp-primary: var(--_mp-color-primary);
+  --color-mp-on-primary: var(--_mp-color-on-primary);
+  --color-mp-primary-container: var(--_mp-color-primary-container);
+  --color-mp-on-primary-container: var(--_mp-color-on-primary-container);
+  --color-mp-secondary: var(--_mp-color-secondary);
+  --color-mp-on-secondary: var(--_mp-color-on-secondary);
+  --color-mp-secondary-container: var(--_mp-color-secondary-container);
+  --color-mp-on-secondary-container: var(--_mp-color-on-secondary-container);
+  --color-mp-tertiary: var(--_mp-color-tertiary);
+  --color-mp-on-tertiary: var(--_mp-color-on-tertiary);
+  --color-mp-tertiary-container: var(--_mp-color-tertiary-container);
+  --color-mp-on-tertiary-container: var(--_mp-color-on-tertiary-container);
+  --color-mp-surface-container-low: var(--_mp-color-surface-container-low);
+  --color-mp-surface-container: var(--_mp-color-surface-container);
+  --color-mp-surface-container-highest: var(--_mp-color-surface-container-highest);
   --color-mp-on-surface: var(--_mp-color-on-surface);
   --color-mp-on-surface-variant: var(--_mp-color-on-surface-variant);
   --color-mp-outline: var(--_mp-color-outline);
+  --color-mp-outline-variant: var(--_mp-color-outline-variant);
   --color-mp-error: var(--_mp-color-error);
+  --color-mp-on-error: var(--_mp-color-on-error);
+  --color-mp-error-container: var(--_mp-color-error-container);
+  --color-mp-on-error-container: var(--_mp-color-on-error-container);
 
   --text-mp-body-large: var(--mp-sys-typescale-body-large-size);
   --text-mp-body-large--line-height: var(--mp-sys-typescale-body-large-line-height);
@@ -421,5 +786,23 @@
   --text-mp-body-small--letter-spacing: var(--mp-sys-typescale-body-small-tracking);
   --text-mp-body-small--font-weight: var(--mp-sys-typescale-body-small-weight);
 
+  --text-mp-label-large: var(--mp-sys-typescale-label-large-size);
+  --text-mp-label-large--line-height: var(--mp-sys-typescale-label-large-line-height);
+  --text-mp-label-large--letter-spacing: var(--mp-sys-typescale-label-large-tracking);
+  --text-mp-label-large--font-weight: var(--mp-sys-typescale-label-large-weight);
+
+  --text-mp-title-medium: var(--mp-sys-typescale-title-medium-size);
+  --text-mp-title-medium--line-height: var(--mp-sys-typescale-title-medium-line-height);
+  --text-mp-title-medium--letter-spacing: var(--mp-sys-typescale-title-medium-tracking);
+  --text-mp-title-medium--font-weight: var(--mp-sys-typescale-title-medium-weight);
+
   --radius-mp-xs: var(--mp-sys-shape-corner-extra-small);
+  --radius-mp-sm: var(--mp-sys-shape-corner-small);
+  --radius-mp-md: var(--mp-sys-shape-corner-medium);
+  --radius-mp-full: var(--mp-sys-shape-corner-full);
+
+  --shadow-mp-1: var(--mp-sys-elevation-level1);
+  --shadow-mp-2: var(--mp-sys-elevation-level2);
+
+  --ease-mp-standard: var(--mp-sys-motion-easing-standard);
 }

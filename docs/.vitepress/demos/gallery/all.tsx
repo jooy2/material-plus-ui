@@ -1,5 +1,21 @@
 import { useState, type ReactNode } from 'react';
-import { MPIcon, MPTextField, ICONS } from 'material-plus-ui';
+import {
+  ICONS,
+  MPButton,
+  MPButtonGroup,
+  MPCheckbox,
+  MPFilePicker,
+  MPIcon,
+  MPNumberField,
+  MPRadio,
+  MPRadioGroup,
+  MPSegmentedButton,
+  MPSelect,
+  MPSlider,
+  MPSwitch,
+  MPTextField
+} from 'material-plus-ui';
+import type { MPSelectValue } from 'material-plus-ui';
 import { DEFAULT_LOCALE, type Locale } from '../../data/i18n';
 
 /**
@@ -34,7 +50,11 @@ interface Group {
   entries: Entry[];
 }
 
-/** The field is controlled, so its card is a component rather than an element. */
+/** Holds a card's preview at the width the card gives it. */
+function Fit({ children, width = 260 }: { children: ReactNode; width?: number }) {
+  return <div style={{ width: '100%', maxWidth: width }}>{children}</div>;
+}
+
 function TextFieldPreview() {
   const [value, setValue] = useState('');
 
@@ -51,7 +71,160 @@ function TextFieldPreview() {
   );
 }
 
+function SelectPreview() {
+  const [city, setCity] = useState<MPSelectValue | null>('kr-11');
+
+  return (
+    <MPSelect
+      label="City"
+      items={[
+        { value: 'kr-11', label: 'Seoul' },
+        { value: 'jp-13', label: 'Tokyo' },
+        { value: 'fr-75', label: 'Paris' }
+      ]}
+      value={city}
+      onValueChange={setCity}
+      fullWidth
+    />
+  );
+}
+
+function NumberFieldPreview() {
+  const [quantity, setQuantity] = useState<number | null>(2);
+
+  return (
+    <MPNumberField
+      label="Quantity"
+      value={quantity}
+      onValueChange={setQuantity}
+      min={0}
+      max={99}
+      fullWidth
+    />
+  );
+}
+
+function CheckboxPreview() {
+  const [checked, setChecked] = useState(true);
+
+  return (
+    <div style={{ display: 'grid', gap: 8 }}>
+      <MPCheckbox label="Remember me" checked={checked} onCheckedChange={setChecked} />
+      <MPCheckbox label="Some of these" indeterminate />
+    </div>
+  );
+}
+
+function RadioGroupPreview() {
+  const [value, setValue] = useState('express');
+
+  return (
+    <MPRadioGroup label="Delivery" size="sm" value={value} onValueChange={setValue}>
+      <MPRadio value="standard" label="Standard" />
+      <MPRadio value="express" label="Express" />
+    </MPRadioGroup>
+  );
+}
+
+function SwitchPreview() {
+  const [on, setOn] = useState(true);
+
+  return <MPSwitch label="Wi-Fi" icons checked={on} onCheckedChange={setOn} />;
+}
+
+function SliderPreview() {
+  const [volume, setVolume] = useState<number | number[]>(45);
+
+  return <MPSlider label="Volume" showValue value={volume} onValueChange={setVolume} />;
+}
+
+function SegmentedButtonPreview() {
+  const [view, setView] = useState<string[]>(['list']);
+
+  // Two segments rather than three: a gallery card is narrow, and a segmented
+  // button whose labels have truncated is showing the reader the one thing it is
+  // not for.
+  return (
+    <MPSegmentedButton
+      aria-label="View"
+      size="sm"
+      value={view}
+      onValueChange={setView}
+      items={[
+        { value: 'list', label: 'List' },
+        { value: 'grid', label: 'Grid' }
+      ]}
+    />
+  );
+}
+
+function FilePickerPreview() {
+  const [files, setFiles] = useState<File[]>([]);
+
+  return (
+    <MPFilePicker
+      size="xs"
+      title="Drop a file"
+      hint="or click to browse"
+      value={files}
+      onFilesChange={setFiles}
+    />
+  );
+}
+
 const GROUPS: Group[] = [
+  {
+    title: { ko: '동작', en: 'Actions' },
+    note: {
+      ko: '사람이 눌러서 무언가를 일으키는 컨트롤.',
+      en: 'Controls a reader presses to make something happen.'
+    },
+    entries: [
+      {
+        name: 'MPButton',
+        summary: {
+          ko: '머터리얼의 다섯 가지 버튼',
+          en: "Material's five buttons"
+        },
+        path: '/components/actions/button',
+        preview: (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center' }}>
+            <MPButton size="sm">Save</MPButton>
+            <MPButton size="sm" variant="tonal">
+              Preview
+            </MPButton>
+            <MPButton size="sm" variant="outlined">
+              Cancel
+            </MPButton>
+          </div>
+        )
+      },
+      {
+        name: 'MPButtonGroup',
+        summary: {
+          ko: '함께 묶이는 버튼들, 설정은 한 번만',
+          en: 'Buttons that belong together, configured once'
+        },
+        path: '/components/actions/button-group',
+        preview: (
+          <MPButtonGroup variant="outlined" size="sm">
+            <MPButton>Copy</MPButton>
+            <MPButton>Share</MPButton>
+            <MPButton>Delete</MPButton>
+          </MPButtonGroup>
+        )
+      },
+      {
+        name: 'MPSegmentedButton',
+        summary: {
+          ko: '하나의 알약 안에 담긴 두세 가지 선택',
+          en: 'Two to five choices in one pill'
+        },
+        path: '/components/actions/segmented-button',
+        preview: <SegmentedButtonPreview />
+      }
+    ]
+  },
   {
     title: { ko: '입력', en: 'Inputs' },
     note: {
@@ -67,9 +240,88 @@ const GROUPS: Group[] = [
         },
         path: '/components/inputs/text-field',
         preview: (
-          <div style={{ width: '100%', maxWidth: 260 }}>
+          <Fit>
             <TextFieldPreview />
-          </div>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPSelect',
+        summary: {
+          ko: '텍스트 필드의 껍데기를 쓴 드롭다운',
+          en: "A dropdown wearing the text field's shell"
+        },
+        path: '/components/inputs/select',
+        preview: (
+          <Fit>
+            <SelectPreview />
+          </Fit>
+        )
+      },
+      {
+        name: 'MPNumberField',
+        summary: {
+          ko: '숫자만 담는 필드. 서식과 범위 제한까지',
+          en: 'A field that only holds a number, formatting and all'
+        },
+        path: '/components/inputs/number-field',
+        preview: (
+          <Fit>
+            <NumberFieldPreview />
+          </Fit>
+        )
+      },
+      {
+        name: 'MPCheckbox',
+        summary: {
+          ko: '예/아니오 하나, 또는 그 묶음 중 하나',
+          en: 'A single yes or no, or one of a set'
+        },
+        path: '/components/inputs/checkbox',
+        preview: <CheckboxPreview />
+      },
+      {
+        name: 'MPRadioGroup',
+        summary: {
+          ko: '정확히 하나만 고르는 선택지 묶음',
+          en: 'A set of options where exactly one is chosen'
+        },
+        path: '/components/inputs/radio-group',
+        preview: <RadioGroupPreview />
+      },
+      {
+        name: 'MPSwitch',
+        summary: {
+          ko: '누르는 즉시 적용되는 켜짐/꺼짐',
+          en: 'An on and off that takes effect immediately'
+        },
+        path: '/components/inputs/switch',
+        preview: <SwitchPreview />
+      },
+      {
+        name: 'MPSlider',
+        summary: {
+          ko: '범위 위에서 고르는 값',
+          en: 'A value chosen along a range'
+        },
+        path: '/components/inputs/slider',
+        preview: (
+          <Fit>
+            <SliderPreview />
+          </Fit>
+        )
+      },
+      {
+        name: 'MPFilePicker',
+        summary: {
+          ko: '파일을 떨어뜨리거나 눌러서 고르는 상자',
+          en: 'A box you drop files on, or click to browse'
+        },
+        path: '/components/inputs/file-picker',
+        preview: (
+          <Fit width={280}>
+            <FilePickerPreview />
+          </Fit>
         )
       }
     ]

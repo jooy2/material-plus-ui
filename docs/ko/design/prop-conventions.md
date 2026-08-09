@@ -17,6 +17,8 @@ order: 2
 ```ts
 type MPSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 type MPColor = 'primary' | 'secondary' | 'tertiary' | 'error';
+type MPVariant = 'filled' | 'tonal' | 'elevated' | 'outlined' | 'text';
+type MPOrientation = 'horizontal' | 'vertical';
 
 interface MPStyleProps {
   size?: MPSize; // 기본값 'md'
@@ -33,7 +35,15 @@ export interface MPTextFieldProps extends MPStyleProps {
 }
 ```
 
-`MPStyleProps`는 의도적으로 짧습니다. 축은 **두 번째** 컴포넌트가 필요해질 때 합류하고, 필요해질 것을 예상해서 미리 들어오지 않습니다 — 디자인 토큰과 같은 규칙입니다. `variant`, `density`, `elevation`은 모두 도착할 가능성이 높고, 아직 아무것도 읽지 않기 때문에 여기 없습니다.
+`MPStyleProps`는 의도적으로 짧습니다. 축은 **두 번째** 컴포넌트가 필요해질 때 합류하고, 필요해질 것을 예상해서 미리 들어오지 않습니다 — 디자인 토큰과 같은 규칙입니다.
+
+`variant`와 `color`는 묶음의 구성원이 아니라 공유되는 *어휘*입니다. 의미 있는 변형을 가진 컴포넌트가 `variant`를 받고 강조 색 계열을 읽는 컴포넌트가 `color`를 받지만, 둘 다 모든 컴포넌트에 있는 것은 아니고 `MPTextField`에서는 어느 쪽도 의미가 없습니다. `density`와 `elevation`은 언젠가 도착할 가능성이 높고, 아직 아무것도 읽지 않기 때문에 여기 없습니다.
+
+## `variant`
+
+머터리얼의 다섯 가지 버튼 스타일이고, 목소리가 작아지는 순서입니다 — `filled`, `tonal`, `elevated`, `outlined`, `text`.
+
+버튼이 아닌 컴포넌트와 이 어휘를 공유하는 것은 의도입니다. `filled` 세그먼티드 버튼과 `filled` 버튼은 서로 다른 컨트롤이 하는 같은 강조 선언입니다. `elevated`는 예외적인 하나이고 `filled`와 분리되어 있는데, MD3가 분리해 두기 때문입니다. 그림자도 함께 드리우는 _중립_ 면이고, 같은 문제를 다른 방식으로 푸는 것입니다. 의미 있는 떠오름 상태가 없는 컴포넌트는 이 값을 아예 제공하지 않습니다.
 
 ## `size`
 

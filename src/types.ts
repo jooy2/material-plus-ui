@@ -49,6 +49,24 @@ export type MPSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 export type MPColor = 'primary' | 'secondary' | 'tertiary' | 'error';
 
 /**
+ * How much of a surface a component paints.
+ *
+ * These are Material's own five button styles, in the order they get louder, and
+ * the vocabulary is deliberately shared with the components that are not buttons
+ * — a `filled` segmented button and a `filled` button are the same statement
+ * about emphasis, made by two different controls.
+ *
+ * `elevated` is the odd one: it is a *tonal* surface that also casts a shadow,
+ * and MD3 keeps it separate from `filled` precisely because a raised surface and
+ * a saturated one solve the same problem two different ways. A component that has
+ * no meaningful raised state simply does not offer it.
+ */
+export type MPVariant = 'filled' | 'tonal' | 'elevated' | 'outlined' | 'text';
+
+/** Which way a set of controls runs. */
+export type MPOrientation = 'horizontal' | 'vertical';
+
+/**
  * The axes most components share.
  *
  * A component extends this and adds only what is genuinely its own, which is what

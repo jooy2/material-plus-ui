@@ -42,8 +42,12 @@ import {
   Eye,
   EyeOff,
   Info,
+  LoaderCircle,
+  Minus,
+  Plus,
   Search,
   TriangleAlert,
+  Upload,
   X
 } from 'lucide-react';
 
@@ -75,6 +79,14 @@ export const SuccessIcon = CircleCheck;
 export const WarningIcon = TriangleAlert;
 /** Severity: it did not work. */
 export const ErrorIcon = CircleAlert;
+/** One step up: a number field's increment. */
+export const AddIcon = Plus;
+/** One step down: a number field's decrement, and a half-ticked checkbox. */
+export const RemoveIcon = Minus;
+/** Send a file the other way. A file picker's dropzone. */
+export const UploadIcon = Upload;
+/** Work in progress, spun by whatever is waiting on it. */
+export const SpinnerIcon = LoaderCircle;
 
 /**
  * The same glyphs, keyed by role.
@@ -99,7 +111,11 @@ export const ICONS = {
   info: InfoIcon,
   success: SuccessIcon,
   warning: WarningIcon,
-  error: ErrorIcon
+  error: ErrorIcon,
+  add: AddIcon,
+  remove: RemoveIcon,
+  upload: UploadIcon,
+  spinner: SpinnerIcon
 } as const;
 
 /** Every role name `ICONS` answers to. */

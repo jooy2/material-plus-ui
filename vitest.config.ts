@@ -53,7 +53,23 @@ export default defineConfig({
     dedupe: ['react', 'react-dom']
   },
   optimizeDeps: {
-    include: ['@base-ui/react/field']
+    // Every Base UI entry point a component imports, named up front. Vite
+    // pre-bundles CommonJS on discovery, and a discovery that happens *during* a
+    // test run reloads the page mid-test — which Vitest reports as a fetch
+    // failure for the test file rather than as anything to do with dependencies.
+    include: [
+      '@base-ui/react/button',
+      '@base-ui/react/checkbox',
+      '@base-ui/react/field',
+      '@base-ui/react/number-field',
+      '@base-ui/react/radio',
+      '@base-ui/react/radio-group',
+      '@base-ui/react/select',
+      '@base-ui/react/slider',
+      '@base-ui/react/switch',
+      '@base-ui/react/toggle',
+      '@base-ui/react/toggle-group'
+    ]
   },
   test: {
     include: ['test/**/*.test.{ts,tsx}'],
