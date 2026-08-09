@@ -1,14 +1,12 @@
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
 import { MPIcon, ICONS } from 'material-plus-ui';
 
 export default function IconHero() {
   return (
-    <Stack direction="row" spacing={3} useFlexGap sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
+    <div style={{ display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap' }}>
       <MPIcon icon={ICONS.success} size={28} color="#2e7d32" label="Deployed" />
-      <Typography variant="body2">
+      <span className="text-mp-body-large text-mp-on-surface">
         Deploys finish in <MPIcon icon={ICONS.check} size="1em" /> under a minute.
-      </Typography>
-    </Stack>
+      </span>
+    </div>
   );
 }

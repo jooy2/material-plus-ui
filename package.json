@@ -1,7 +1,7 @@
 {
   "name": "material-plus-ui",
   "version": "0.0.1",
-  "description": "A React component library that extends Material UI — the components MUI does not ship, and wider versions of the ones it does. Built on @mui/material, Base UI and Tailwind CSS v4. ESM only, types included.",
+  "description": "A React component library implementing Material Design 3 — the components other Material libraries do not ship, and wider versions of the ones they do. Built on Base UI and Tailwind CSS v4, themed with CSS custom properties so it can coexist with an existing Material setup. ESM only, types included.",
   "type": "module",
   "types": "dist/index.d.ts",
   "author": "CDGet <jooy2.contact@gmail.com>",
@@ -63,9 +63,9 @@
   "keywords": [
     "material-plus-ui",
     "material-plus",
-    "material-ui",
-    "mui",
-    "mui-extensions",
+    "material-design",
+    "material-design-3",
+    "md3",
     "react",
     "reactjs",
     "react-components",
@@ -100,10 +100,7 @@
   ],
   "devDependencies": {
     "@base-ui/react": "^1.7.0",
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.1",
     "@eslint/js": "^9.39.1",
-    "@mui/material": "^9.3.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^26.1.2",
     "@types/react": "^19.2.18",
@@ -139,9 +136,7 @@
     "lucide-react": "^1.28.0"
   },
   "peerDependencies": {
-    "@emotion/react": "^11.0.0",
-    "@emotion/styled": "^11.0.0",
-    "@mui/material": "^6.0.0 || ^7.0.0 || ^8.0.0 || ^9.0.0",
+    "@base-ui/react": "^1.7.0",
     "@types/react": "^18.0.0 || ^19.0.0",
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0"

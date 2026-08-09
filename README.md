@@ -8,11 +8,12 @@ Live previews and full props for every component. This README is just the quick 
 
 ---
 
-**Material Plus is a React component library that extends Material UI.** It is the pile of components you end up writing in every MUI project — the field that handles IME composition properly, the icon wrapper that agrees with your set — extracted, documented and tested.
+**Material Plus is a React component library implementing Material Design 3.** It is the pile of components you end up writing in every Material project — the field that handles IME composition properly, the icon wrapper that agrees with your set — extracted, documented and tested.
 
-It is not a replacement for `@mui/material` and does not try to be one. Every component is built out of MUI, reads your `ThemeProvider`, and sits at the same height as the MUI control next to it in the same form.
+It follows the specification directly rather than wrapping somebody's implementation of it, so its colour roles, type scale and shapes are the ones the spec names.
 
-- **MUI is a peer, not a copy.** `@mui/material` and Emotion stay your dependencies, so there is never a second MUI in the bundle or a second theme in the tree.
+- **Themed in one line.** Set `--mp-source-color` and every colour role follows, the way Material generates a scheme from a source colour. No provider, no theme object, no re-render.
+- **It coexists.** Nothing here is page-level — no reset, no provider, no global styling — and it reads the `--md-sys-color-*` tokens your page already has if they are there. A project already running Material keeps its own setup.
 - **IME-safe by construction.** Korean, Japanese and Chinese composition survives whatever your `onChange` does with the value.
 - **Bring your own icons.** `MPIcon` takes a component or an element from any set. `lucide-react` ships with the package, gathered in one readable constants file.
 - **ESM only**, TypeScript declarations included, tree-shakeable — every component compiles to its own module.
@@ -42,15 +43,12 @@ pnpm add material-plus-ui
 
 ### Peer dependencies
 
-You already have all of these in an MUI project:
+| Package              | Versions |
+| -------------------- | -------- |
+| `@base-ui/react`     | 1        |
+| `react`, `react-dom` | 18 or 19 |
 
-| Package                             | Versions     |
-| ----------------------------------- | ------------ |
-| `@mui/material`                     | 6, 7, 8 or 9 |
-| `@emotion/react`, `@emotion/styled` | 11           |
-| `react`, `react-dom`                | 18 or 19     |
-
-Only MUI 9 is exercised in CI, though the components use APIs stable since MUI 5.
+`@base-ui/react` is a peer rather than a dependency because it carries React context: a `Form` of yours has to be able to see a field of ours, and that only works with one copy in the tree.
 
 ### Setup
 
@@ -60,7 +58,7 @@ Add one line to your app's CSS entry point:
 @import 'material-plus-ui/styles.css';
 ```
 
-This is finished CSS — no PostCSS plugin, no `@source`, no build-side configuration. It deliberately contains **no reset**: `CssBaseline` from `@mui/material` is already one, and Tailwind's Preflight would restyle every MUI component on your page rather than only the ones from here.
+This is finished CSS — no PostCSS plugin, no `@source`, no build-side configuration. It deliberately contains **no reset**, and no page-level styling of any kind: a component resets what it owns on the element it owns, so whatever your page already does stays in charge.
 
 If Tailwind v4 is already in your project, import the token sheet instead:
 
@@ -71,39 +69,46 @@ If Tailwind v4 is already in your project, import the token sheet instead:
 
 ## Usage
 
-Material Plus components go anywhere an MUI component goes, inside the same provider.
+There is no provider. Import a component and render it.
 
 ```tsx
 import { useState } from 'react';
-import CssBaseline from '@mui/material/CssBaseline';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { MPTextField, MPIcon, ICONS } from 'material-plus-ui';
-
-const theme = createTheme({ palette: { mode: 'light' } });
 
 export default function App() {
   const [email, setEmail] = useState('');
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <MPTextField
-        label="Email"
-        type="email"
-        value={email}
-        onChange={setEmail}
-        startIcon={<MPIcon icon={ICONS.search} size={18} />}
-      />
-    </ThemeProvider>
+    <MPTextField
+      label="Email"
+      type="email"
+      value={email}
+      onChange={setEmail}
+      startIcon={<MPIcon icon={ICONS.search} size={18} />}
+    />
   );
 }
 ```
+
+## Theming
+
+Material generates a whole scheme from one source colour, and so does this.
+
+```css
+:root {
+  --mp-source-color: #7c3aed;
+}
+```
+
+Dark mode follows `prefers-color-scheme` on its own; `data-mp-scheme="dark"` or `.dark` on any element drives it yourself. To disagree with one generated colour, set that role — `--mp-sys-color-outline` — and to follow tokens your page already defines, do nothing: `--md-sys-color-*` is read where it is present.
+
+Full details, including scoped and runtime theming, are in [the theming guide](https://material-plus.cdget.com/guide/getting-started#theming).
 
 ## Components
 
 | Component | What it is |
 | --- | --- |
-| [`MPTextField`](https://material-plus.cdget.com/components/inputs/text-field) | A text field that survives an IME, with the label, helper text, adornments and password toggle already assembled. |
+| [`MPTextField`](https://material-plus.cdget.com/components/inputs/text-field) | An outlined text field that survives an IME, with the label, supporting text, adornments and password toggle already assembled. |
 | [`MPIcon`](https://material-plus.cdget.com/components/display/icon) | A glyph at a known size in a known colour, from whichever icon set you use. |
 
 ### Why `MPTextField` exists

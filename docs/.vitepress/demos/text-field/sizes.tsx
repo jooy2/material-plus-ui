@@ -1,49 +1,30 @@
 import { useState } from 'react';
-import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
 import { MPTextField } from 'material-plus-ui';
 
 /**
- * Beside the `@mui/material` field it extends, at both sizes — the point being
- * that they line up. `MPTextField` draws MUI's own `OutlinedInput`, so a form
- * mixing the two has one baseline rather than two.
+ * The two heights, and the reason there are two.
+ *
+ * Material specifies one size for a text field: the 56px one, which is what
+ * `large` draws. The 40px default is a concession to dense forms — a settings
+ * page or a filter bar where a column of 56px controls is taller than the
+ * content it collects — and it is the default here because that is the shape
+ * most of these fields turn out to be.
  */
 export default function TextFieldSizes() {
-  const [small, setSmall] = useState('');
-  const [large, setLarge] = useState('');
+  const [compact, setCompact] = useState('');
+  const [full, setFull] = useState('');
 
   return (
-    <Stack spacing={3} sx={{ maxWidth: 420 }}>
-      <Stack spacing={1}>
-        <Typography variant="caption" color="text.secondary">
-          default — MUI’s small
-        </Typography>
-        <Stack direction="row" spacing={2}>
-          <MPTextField label="MPTextField" value={small} onChange={setSmall} fullWidth />
-          <TextField
-            label="TextField"
-            size="small"
-            slotProps={{ inputLabel: { shrink: true } }}
-            fullWidth
-          />
-        </Stack>
-      </Stack>
+    <div style={{ display: 'grid', gap: 24, maxWidth: 360 }}>
+      <div style={{ display: 'grid', gap: 8 }}>
+        <small className="text-mp-on-surface-variant">default — 40px</small>
+        <MPTextField label="Search" value={compact} onChange={setCompact} fullWidth />
+      </div>
 
-      <Stack spacing={1}>
-        <Typography variant="caption" color="text.secondary">
-          large — MUI’s medium
-        </Typography>
-        <Stack direction="row" spacing={2}>
-          <MPTextField label="MPTextField" value={large} onChange={setLarge} large fullWidth />
-          <TextField
-            label="TextField"
-            size="medium"
-            slotProps={{ inputLabel: { shrink: true } }}
-            fullWidth
-          />
-        </Stack>
-      </Stack>
-    </Stack>
+      <div style={{ display: 'grid', gap: 8 }}>
+        <small className="text-mp-on-surface-variant">large — 56px, Material’s own size</small>
+        <MPTextField label="Search" value={full} onChange={setFull} large fullWidth />
+      </div>
+    </div>
   );
 }

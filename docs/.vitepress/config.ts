@@ -85,8 +85,8 @@ const vitePressI18nConfig: VitePressI18nOptions = {
   rootLocale: defaultLocale,
   searchProvider: 'local',
   description: {
-    ko: 'Material UI를 확장하는 React 컴포넌트 라이브러리입니다. MUI가 제공하지 않는 컴포넌트와, 제공하더라도 기능을 더 넓힌 컴포넌트를 모았습니다. @mui/material, Base UI, Tailwind CSS v4 기반이며 ESM 전용이고 타입 정의가 포함되어 있습니다.',
-    en: 'A React component library that extends Material UI — the components MUI does not ship, and wider versions of the ones it does. Built on @mui/material, Base UI and Tailwind CSS v4. ESM only, types included.'
+    ko: 'Material Design 3를 구현한 React 컴포넌트 라이브러리입니다. 다른 머터리얼 라이브러리가 제공하지 않는 컴포넌트와, 제공하더라도 기능을 더 넓힌 컴포넌트를 모았습니다. Base UI와 Tailwind CSS v4 기반이고, 테마를 CSS 커스텀 프로퍼티로 다루기 때문에 이미 머터리얼을 쓰는 프로젝트와 공존할 수 있습니다. ESM 전용이며 타입 정의가 포함되어 있습니다.',
+    en: 'A React component library implementing Material Design 3 — the components other Material libraries do not ship, and wider versions of the ones they do. Built on Base UI and Tailwind CSS v4, themed with CSS custom properties so it can coexist with an existing Material setup. ESM only, types included.'
   },
   themeConfig: {
     ko: { nav: navFor('ko', ['가이드', '컴포넌트']) },
@@ -317,7 +317,7 @@ const vitePressConfig: UserConfig = {
     [`${defaultLocale}/:rest*`]: ':rest*'
   },
   head: [
-    // MUI's default primary, as a literal: a `<meta>` cannot read a theme
+    // Material's baseline primary, as a literal: a `<meta>` cannot read a theme
     // object, and this is the one place in the site that has to repeat one.
     ['meta', { name: 'theme-color', content: '#1976d2' }],
     // The half of the metadata that is the same on every page. The other half —
@@ -408,10 +408,7 @@ const vitePressConfig: UserConfig = {
         'react-dom/client',
         'react/jsx-runtime',
         'react/jsx-dev-runtime',
-        '@mui/material',
-        '@mui/material/styles',
-        '@emotion/react',
-        '@emotion/styled',
+        '@base-ui/react/field',
         'lucide-react'
       ]
     },

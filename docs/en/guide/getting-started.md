@@ -5,9 +5,9 @@ order: 1
 
 # Getting started
 
-Material Plus is a React component library that extends [Material UI](https://mui.com). Its components are built out of `@mui/material` rather than beside it, so they read the same `ThemeProvider`, take the same palette and sit at the same heights as the MUI components already in your app.
+Material Plus is a React component library that implements [Material Design 3](https://m3.material.io). It follows the specification directly rather than wrapping somebody's implementation of it, so its colour roles, type scale and shapes are the ones the spec names.
 
-Styling that MUI has no answer for comes from [Tailwind CSS](https://tailwindcss.com) v4, and behaviour that neither covers comes from [Base UI](https://base-ui.com). Neither has to be installed in your project.
+Behaviour comes from [Base UI](https://base-ui.com) — the labelling, the validity plumbing, the accessibility. Styling comes from [Tailwind CSS](https://tailwindcss.com) v4, and theming from plain CSS custom properties, which is what lets the library sit inside a project that already has its own Material setup without either one fighting the other.
 
 ## Install
 
@@ -23,13 +23,12 @@ pnpm add material-plus-ui
 
 These are the packages Material Plus expects to find in your project rather than bringing its own copy of:
 
-| Package                             | Versions     |
-| ----------------------------------- | ------------ |
-| `@mui/material`                     | 6, 7, 8 or 9 |
-| `@emotion/react`, `@emotion/styled` | 11           |
-| `react`, `react-dom`                | 18 or 19     |
+| Package              | Versions |
+| -------------------- | -------- |
+| `@base-ui/react`     | 1        |
+| `react`, `react-dom` | 18 or 19 |
 
-Only MUI 9 is exercised in CI. The components use APIs that have been stable since MUI 5, so the older majors are supported rather than merely tolerated — but if you hit a version-specific problem, [open an issue](https://github.com/jooy2/material-plus/issues) and it will be treated as a bug.
+`@base-ui/react` is a peer rather than a dependency on purpose: it carries React context, so a `Form` of yours has to be able to see a field of ours, and that only works if there is one copy in the tree.
 
 `lucide-react` is a real dependency and comes with the package. It is what the components' own glyphs are drawn from — see [MPIcon](../components/display/icon).
 
@@ -51,9 +50,9 @@ This is **finished CSS**: the design tokens and the real rules behind every util
 
 ### It contains no reset
 
-This is the one place Material Plus departs from how a Tailwind-based component library is usually built, and it is deliberate. Tailwind's Preflight is a page reset, and your project already has one: `CssBaseline` from `@mui/material`. The two disagree in ways that show — Preflight flattens the heading sizes, list markers and link colours MUI's typography sets up, and its `border: 0 solid` restyles every MUI component on the page rather than only the ones from here.
+Material Plus adds no page-level styling of any kind — no Preflight, no baseline, nothing that reaches an element it did not render. A component resets what it owns on the element it owns: a `<button>`'s browser-default grey background, a control's font, which a native form control does not inherit.
 
-Nothing in this library depends on Preflight. Keep using `CssBaseline`.
+That means whatever reset your page already has stays in charge, and nothing here will restyle the rest of it.
 
 ### If you already use Tailwind
 
@@ -69,37 +68,159 @@ When Tailwind v4 is already in your project, import the token sheet instead of t
 | `@import 'tailwindcss'` | Tailwind itself |
 | `@import 'material-plus-ui/tailwind.css'` | The design tokens, and the `@source` that registers the package |
 
-You do not write an `@source` of your own. The classes the components use are Tailwind utilities, so Tailwind has to read the package's compiled files to find them; `material-plus-ui/tailwind.css` takes care of that by declaring `@source '.'` inside itself. `@source` resolves relative to the file it is written in, which here is `node_modules/material-plus-ui/dist/`, right next to those files. An explicitly registered source is scanned even inside `node_modules`, which automatic detection skips.
+You do not write an `@source` of your own. The classes the components use are Tailwind utilities, so Tailwind has to read the package's compiled files to find them; `material-plus-ui/tailwind.css` takes care of that by declaring `@source '.'` inside itself. `@source` resolves relative to the file it is written in, which here is `node_modules/material-plus-ui/dist/`, right next to those files.
 
 The upshot is that nothing depends on where your own CSS file sits.
 
 ## Use
 
-Material Plus components go anywhere an MUI component goes, inside the same provider.
+There is no provider. Import a component and render it.
 
 ```tsx
 import { useState } from 'react';
-import CssBaseline from '@mui/material/CssBaseline';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { MPTextField } from 'material-plus-ui';
-
-const theme = createTheme({ palette: { mode: 'light' } });
 
 export default function App() {
   const [email, setEmail] = useState('');
 
-  return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <MPTextField label="Email" type="email" value={email} onChange={setEmail} />
-    </ThemeProvider>
-  );
+  return <MPTextField label="Email" type="email" value={email} onChange={setEmail} />;
 }
 ```
 
-## Dark mode
+## Theming
 
-There is nothing to configure. The components read the palette from the surrounding `ThemeProvider`, so whatever you already do for dark mode in MUI — a `mode` on the theme, `useColorScheme`, `CssVarsProvider` — governs these components too.
+Everything the components draw comes from CSS custom properties, so theming is CSS. No provider, no theme object, no re-render when a colour changes — and it works the same whether or not you run Tailwind.
+
+### One line, for most projects
+
+Material generates a whole scheme from a single **source colour**. Set yours and every role follows.
+
+```css
+:root {
+  --mp-source-color: #7c3aed;
+}
+```
+
+Write it in a plain `:root`, not inside `@theme`. The library's own defaults are declared in a cascade layer, and a layered rule loses to every unlayered one — so your override wins whether it sits before or after the `@import`, and you never have to reason about order.
+
+The default is Material's own baseline source colour, so a project that sets nothing gets the reference palette rather than something invented here.
+
+### Overriding a single role
+
+When the generated value for one role is not what you want, set that role. These are the spec's names, prefixed:
+
+```css
+:root {
+  --mp-sys-color-outline: #d0d0d8;
+}
+```
+
+The roles that exist today are the ones the components actually read:
+
+| Role                                | Where it is used                                    |
+| ----------------------------------- | --------------------------------------------------- |
+| `--mp-sys-color-primary`            | A focused outline, the caret, a focused label       |
+| `--mp-sys-color-on-surface`         | Input text, a hovered outline, the disabled base    |
+| `--mp-sys-color-on-surface-variant` | Labels, supporting text, leading and trailing icons |
+| `--mp-sys-color-outline`            | An outline at rest                                  |
+| `--mp-sys-color-error`              | Everything in the error state                       |
+
+Material defines around fifty colour roles; an outlined text field reads five of them. The rest are absent on purpose — a token nobody reads is a promise to keep supporting a name — and each one arrives when a component needs it.
+
+### Reading a role back
+
+To colour your own markup with one of these, read the Tailwind-facing name or use the utility:
+
+```css
+.my-hint {
+  color: var(--color-mp-on-surface-variant);
+}
+```
+
+```html
+<p class="text-mp-on-surface-variant">…</p>
+```
+
+Note the asymmetry: you **write** `--mp-sys-color-*` and **read** `--color-mp-*`. The write name is an override slot that is unset by default, so reading it would give you nothing; the read name is where the resolved value lands.
+
+### If your project already defines Material tokens
+
+A project running [Material Web](https://material-web.dev) already has `--md-sys-color-*` on the page. Material Plus reads those and never writes them, so it picks up your existing scheme with no configuration at all.
+
+The full order, most specific first:
+
+| What you set                             | Effect                           |
+| ---------------------------------------- | -------------------------------- |
+| `--mp-sys-color-primary`                 | Wins outright                    |
+| `--md-sys-color-primary` already present | Picked up as-is                  |
+| Neither                                  | Derived from `--mp-source-color` |
+
+Mixing is fine and expected: pin the roles you have, let the rest derive.
+
+### Dark mode
+
+Nothing to configure. The components follow `prefers-color-scheme` on their own.
+
+To drive it yourself, put an attribute or a class on any element:
+
+```html
+<html data-mp-scheme="dark">
+  <!-- … -->
+</html>
+```
+
+`.dark` works too, since that is what Tailwind's own `dark:` variant keys on. `[data-mp-scheme='light']` forces light back on a subtree, including inside a page whose system preference is dark.
+
+Both schemes come from the same tonal palettes read at different tones, which is how Material defines them — so a source colour you set moves light and dark together, and there is no second set of values to keep in sync.
+
+### Scoped and runtime theming
+
+Every token above is a normal inherited custom property, so any of them can be set on any element rather than on the root. A section with its own branding is one attribute:
+
+```html
+<section style="--mp-source-color: #00696d">…</section>
+```
+
+And a colour a reader picks at runtime is a style object — no re-render of the tree, no theme rebuild:
+
+```tsx
+<div style={{ '--mp-source-color': userColour } as React.CSSProperties}>
+  <MPTextField … />
+</div>
+```
+
+### The other tokens
+
+Type, shape and motion work the same way. As with the colour roles, only what a component reads is here:
+
+```css
+:root {
+  /* Type. `*-font` is `inherit`, so the fields speak in your application's own
+     typeface unless you say otherwise. */
+  --mp-sys-typescale-body-large-font: inherit;
+  --mp-sys-typescale-body-large-size: 1rem;
+  --mp-sys-typescale-body-large-line-height: 1.5rem;
+  --mp-sys-typescale-body-large-tracking: 0.03125rem;
+  --mp-sys-typescale-body-large-weight: 400;
+  /* …and the same five for `body-small`. */
+
+  --mp-sys-shape-corner-extra-small: 4px;
+  --mp-sys-motion-duration-short4: 200ms;
+}
+```
+
+### One caveat on the source colour
+
+The derivation uses CSS relative colour syntax, so `--mp-source-color` has to be a **complete colour value** — `#7c3aed`, `oklch(0.49 0.24 292)`, `rgb(124 58 237)`. A design token holding bare channels will not work:
+
+```css
+:root {
+  --brand: 262 83% 58%; /* channels only */
+
+  --mp-source-color: var(--brand); /* ✗ not a colour */
+  --mp-source-color: hsl(var(--brand)); /* ✓ */
+}
+```
 
 ## What is in the package
 

@@ -20,20 +20,20 @@
  *
  * Tailwind's base reset is deliberately absent, and this is the one place
  * Material Plus departs from how a Tailwind component library is usually built.
- * Every project using this one has `CssBaseline` from `@mui/material`, which is
- * already a page reset — and the two disagree in ways that show. Preflight
- * flattens the heading sizes, list markers and link colours that MUI's
- * typography sets up, and its `border: 0 solid` restyles every `@mui/material`
- * component on the page, not only the ones from here.
+ * Preflight is a *page* reset, and this library does not style pages: it would
+ * flatten the heading sizes, list markers and link colours of the application
+ * around it, and its `border: 0 solid` would reach every element on the page
+ * rather than only the ones rendered from here.
  *
- * Nothing in this library depends on Preflight: the components are MUI
- * components, styled by Emotion, and the utilities they add are layout ones
- * that stand on their own.
+ * Nothing in this library depends on it. A component resets what it owns on the
+ * element it owns — a native `<button>`'s browser-default background, a form
+ * control's font, which is not inherited — and the utilities it adds beyond that
+ * are layout ones that stand on their own.
  *
- * Tailwind's theme goes in a layer and its utilities stay *unlayered*. A
- * layered rule loses to every unlayered one, and both a consumer's page and
- * Emotion's injected styles are unlayered — utilities inside a `utilities`
- * layer would lose to rules they have to be able to beat.
+ * Tailwind's theme goes in a layer and its utilities stay *unlayered*. A layered
+ * rule loses to every unlayered one, and a consumer's own page styling is
+ * unlayered — utilities inside a `utilities` layer would lose to rules they have
+ * to be able to beat.
  *
  * `source(none)` turns off Tailwind's automatic content detection, which is
  * rooted at the working directory and would otherwise sweep `docs/` and `test/`

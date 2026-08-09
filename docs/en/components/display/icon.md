@@ -48,7 +48,7 @@ Two forms are accepted, because icon sets hand back two different things.
 <MPIcon icon={ICONS.close} size={20} />
 ```
 
-**An element** is a drawing of your own, an `@mui/icons-material` glyph already constructed, or an `<img>`. It is scaled by the box it is laid into.
+**An element** is a drawing of your own, a glyph already constructed by some other set, or an `<img>`. It is scaled by the box it is laid into.
 
 ```tsx
 <MPIcon icon={<svg viewBox="0 0 24 24">…</svg>} size={20} />
@@ -112,4 +112,4 @@ The keys are the roles the components ask for (`visibility`), not the drawings l
 
 ::: tip Which one to use `ICONS` is an object literal, so a bundler cannot tree-shake it property by property — importing it pulls in every glyph in the table. Reach for the named imports when you only need one or two, and for `ICONS` when you want a name-keyed registry. :::
 
-You are not limited to this set. `MPIcon` takes anything shaped like an icon component, so `@mui/icons-material`, `react-icons` or your own SVGs all work without a wrapper.
+You are not limited to this set. `MPIcon` takes anything shaped like an icon component, so `react-icons`, `@material-symbols`, another Material icon package or your own SVGs all work without a wrapper.

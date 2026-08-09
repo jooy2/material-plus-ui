@@ -1,5 +1,3 @@
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
 import { MPIcon } from 'material-plus-ui';
 import type { MPIconGlyphProps } from 'material-plus-ui';
 
@@ -19,15 +17,16 @@ function SpiralIcon({ size, color, strokeWidth }: MPIconGlyphProps) {
 
 export default function IconCustom() {
   return (
-    <Stack direction="row" spacing={4} useFlexGap sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
-      <Stack spacing={1} sx={{ alignItems: 'center' }}>
+    <div
+      className="text-mp-on-surface"
+      style={{ display: 'flex', gap: 32, alignItems: 'center', flexWrap: 'wrap' }}
+    >
+      <div style={{ display: 'grid', gap: 8, justifyItems: 'center' }}>
         <MPIcon icon={SpiralIcon} size={28} label="Spiral" />
-        <Typography variant="caption" color="text.secondary">
-          component
-        </Typography>
-      </Stack>
+        <small className="text-mp-on-surface-variant">component</small>
+      </div>
 
-      <Stack spacing={1} sx={{ alignItems: 'center' }}>
+      <div style={{ display: 'grid', gap: 8, justifyItems: 'center' }}>
         {/* Already drawn, so nothing is passed into it — the box scales it. */}
         <MPIcon
           icon={
@@ -52,10 +51,8 @@ export default function IconCustom() {
           size={28}
           label="Add"
         />
-        <Typography variant="caption" color="text.secondary">
-          element
-        </Typography>
-      </Stack>
-    </Stack>
+        <small className="text-mp-on-surface-variant">element</small>
+      </div>
+    </div>
   );
 }

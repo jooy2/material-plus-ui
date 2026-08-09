@@ -44,10 +44,20 @@ export default defineConfig({
     alias: {
       // Tests import from 'material-plus-ui' exactly as a consumer would.
       'material-plus-ui': resolve(rootDir, 'src/index.ts')
-    }
+    },
+    // Base UI is CommonJS, so Vite pre-bundles it — and a pre-bundled chunk that
+    // resolves its own copy of React ends up with a second renderer whose hook
+    // dispatcher is null, which surfaces as `Cannot read properties of null
+    // (reading 'useId')` the moment a Field mounts. Pinning both to one instance
+    // is what keeps the components and the test renderer sharing a React.
+    dedupe: ['react', 'react-dom']
+  },
+  optimizeDeps: {
+    include: ['@base-ui/react/field']
   },
   test: {
     include: ['test/**/*.test.{ts,tsx}'],
+    setupFiles: ['test/setup.ts'],
     // One file at a time. Test files run as frames of one browser, and a
     // browser has a single focus to hand out: a click in one file takes it from
     // whichever file was holding it. Focus is half of what a form control does
@@ -55,10 +65,9 @@ export default defineConfig({
     // assertion is meaningless if another file stole the focus first — so the
     // suite runs serially and stops lying.
     fileParallelism: false,
-    // The components are Material UI, which measures real layout (media
-    // queries, adornment widths, the notched outline) and composes text through
-    // real IME events. Run them in a real browser rather than polyfilling a DOM
-    // emulator.
+    // The components measure real layout (media queries, adornment widths, the
+    // notched outline) and compose text through real IME events. Run them in a
+    // real browser rather than polyfilling a DOM emulator.
     browser: {
       enabled: true,
       provider: playwright(),

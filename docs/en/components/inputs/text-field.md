@@ -5,7 +5,7 @@ order: 1
 
 # MPTextField
 
-<p class="mp-lede">A Material UI text field that survives an IME, with the label, helper text, adornments and password toggle already assembled. It draws MUI's own <code>OutlinedInput</code>, so it lines up with the fields already in your form.</p>
+<p class="mp-lede">A Material Design outlined text field that survives an IME, with the label, supporting text, adornments and password toggle already assembled. Every colour, size and duration comes from Material Design 3's own component tokens.</p>
 
 <Demo src="text-field/hero" :minHeight="72" />
 
@@ -35,7 +35,7 @@ Anything the parent does to the value in its `onChange` is enough to trigger it 
 
 </Demo>
 
-The demo's parent upper-cases everything it is handed. Type a Korean word: the syllable being built stays intact, and the rule only applies once the syllable is committed. The same field with a plain `@mui/material` `TextField` loses a character on every keystroke.
+The demo's parent upper-cases everything it is handed. Type a Korean word: the syllable being built stays intact, and the rule only applies once the syllable is committed. A plainly controlled `<input>` loses a character on every keystroke.
 
 This is also why `value` and `onChange` are a plain string rather than an event. An event's `target` is the element mid-composition, which is precisely the value that must not be trusted.
 
@@ -63,7 +63,7 @@ There is no separate `error` boolean. A message is what puts the field into its 
 
 </Demo>
 
-::: warning A note if you are porting from `PageTextField` In the original the error colour reached the helper text only, leaving the outline in its resting state. Here `errorMessage` turns the whole control over — outline, label and message together — which is what MUI does for its own fields. :::
+::: warning A note if you are porting from `PageTextField` In the original the error colour reached the helper text only, leaving the outline in its resting state. Here `errorMessage` turns the whole control over — outline, label and message together — which is what the specification asks for. :::
 
 `readOnly` shows a value without allowing edits, and unlike `disabled` the text stays selectable and the field stays in the tab order. That is what you want for a value the reader may need to copy.
 
@@ -81,7 +81,7 @@ Any `rows` renders a `<textarea>` instead of an `<input>`. Everything else stays
 
 ### large
 
-The field is MUI's `small` by default, and `large` is MUI's `medium`. Two sizes rather than a ladder, because those are the two heights `@mui/material` has and a third would not line up with anything.
+Material specifies one size for a text field: the 56px one, which is what `large` draws. The 40px default is a concession to dense forms — a settings page or a filter bar where a column of 56px controls is taller than the content it collects — and it is the default here because that is the shape most of these fields turn out to be.
 
 <Demo src="text-field/sizes" :minHeight="220">
 
@@ -91,7 +91,7 @@ The field is MUI's `small` by default, and `large` is MUI's `medium`. Two sizes 
 
 ### startIcon
 
-Content placed before the text, usually an [MPIcon](../display/icon). It is rendered into MUI's `InputAdornment`, so it is positioned and spaced the way an adornment on any MUI field is.
+Content placed before the text, usually an [MPIcon](../display/icon). It takes the `on-surface-variant` role and the field's own spacing, so a glyph put here sits where the specification puts a leading icon.
 
 ```tsx
 <MPTextField
@@ -140,4 +140,5 @@ Focuses the field on mount — except on a small screen, where it would summon t
 ## See also
 
 - [MPIcon](../display/icon) — for `startIcon`.
-- [`OutlinedInput`](https://mui.com/material-ui/api/outlined-input/) — the MUI component underneath, whose theming and overrides all apply.
+- [Theming](../../guide/getting-started#theming) — the colour roles this field reads, and how to change them.
+- [Base UI Field](https://base-ui.com/react/components/field) — the behaviour underneath: the label association, the validity state, the `data-*` attributes the styling keys on.

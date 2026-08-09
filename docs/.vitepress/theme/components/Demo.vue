@@ -11,7 +11,8 @@ const demos = import.meta.glob('../../demos/**/*.tsx');
 
 let runtime = null;
 
-/** React, its DOM renderer and the MUI provider, fetched once and shared. */
+/** React, its DOM renderer and the preview's scheme wrapper, fetched once and
+    shared. */
 function reactRuntime() {
   runtime ??= Promise.all([
     import('react'),

@@ -1,5 +1,36 @@
 # Changelog
 
+## Unreleased
+
+**Material UI is gone.** The library now implements Material Design 3 directly instead of building on `@mui/material`, which changes what it is: an implementation of the specification rather than an extension of somebody else's. Everything about how a component is used stays the same — no prop was renamed or removed — but the install, the theming and the styling model are all different.
+
+### Breaking
+
+- **Peer dependencies are one instead of three.** `@mui/material`, `@emotion/react` and `@emotion/styled` are no longer peers; `@base-ui/react` 1 is. It is a peer rather than a dependency because it carries React context — a consumer's `Form` has to be able to see a field from here, and that only works with one copy in the tree.
+- **There is no provider, and no MUI theme is read.** A `ThemeProvider` around these components no longer does anything to them. Colours, type, shape and motion come from CSS custom properties instead, so theming moved from JavaScript to CSS.
+- **`CssBaseline` is no longer assumed.** The library adds no page-level styling of any kind and no longer expects the page to have a reset: each component resets what it owns on the element it owns — a `<button>`'s browser-default background, a control's font, which a native form control does not inherit.
+- `MPColor` is MD3's four accent roles (`primary`, `secondary`, `tertiary`, `error`) rather than Material UI's six. The specification's colour system has no `info`, `success` or `warning`, and offering them would promise roles the token sheet cannot derive.
+- `--mp-duration` became `--mp-sys-motion-duration-short4`, and is 200ms rather than 250ms — MD3's `short4`, which is what a text field's label and outline transition on.
+
+### Added
+
+- **Theming from a single source colour.** `--mp-source-color` generates every colour role the way Material generates a scheme from a source colour. The tone stops are read off MD3's own baseline ref palette rather than chosen by eye, so with the default source colour the derived roles land on the reference scheme: `primary` and `error` match its hex exactly in both schemes, and the near-grey roles are within a ΔE of 0.008 — below anything visible.
+- **Coexistence with an existing Material setup.** Each role reads `--md-sys-color-*` before falling back to its own derivation, and the library never writes that namespace. A project running Material Web is picked up with no configuration. The full order is `--mp-sys-color-*` (an explicit override) → `--md-sys-color-*` (the page's own) → derived.
+- **Dark mode with nothing to configure.** `prefers-color-scheme` is followed by default, and `data-mp-scheme="dark"` or `.dark` on any element drives it explicitly. Both schemes are the same tonal palettes read at different tones, which is how MD3 defines them — so a source colour moves light and dark together and there is no second set of values to keep in sync.
+- **Scoped and runtime theming.** Every token is an ordinary inherited custom property, and the derived roles are declared on `*` rather than on `:root` so each element re-resolves them against whatever is in scope where it sits. A section with its own source colour works, a `.dark` on `<body>` works, and a colour a reader picks at runtime is an inline style with no re-render.
+
+### Changed
+
+- `MPTextField` is Base UI's `Field` plus the notch, the adornments and the password toggle. The notched outline is a `<legend>` interrupting a `<fieldset>`'s top border, which is a native behaviour, so the gap is sized to the label with no measuring in JavaScript. State styling reads the `data-focused`, `data-invalid` and `data-disabled` attributes Base UI emits, which keeps it in CSS.
+- The IME composition handling — the reason the component exists — is unchanged.
+- `large` is Material's own 56px size and the default is a 40px compact variant. The spec defines one size for a text field; the smaller one is a concession to dense forms rather than something MD3 names.
+- Token names follow MD3 (`primary`, `on-surface-variant`, `corner-extra-small`, `body-large`) rather than Material UI's palette model (`main`/`light`/`dark`/`contrastText`), which is a different and earlier colour system.
+- Only the tokens a component actually reads exist. MD3 defines around fifty colour roles; an outlined text field reads five, and the rest are absent until something needs them.
+
+### Removed
+
+- No CSS-in-JS runtime. Styling is a stylesheet, so there is nothing to inject on render and no hydration pass for theme styles.
+
 ## 0.0.1 (2026-08-06)
 
 The first release. Two components, and the scaffolding the rest will be built on.

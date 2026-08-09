@@ -1,12 +1,11 @@
 import { useState } from 'react';
-import Stack from '@mui/material/Stack';
 import { MPTextField } from 'material-plus-ui';
 
 export default function TextFieldPassword() {
   const [password, setPassword] = useState('correct horse battery staple');
 
   return (
-    <Stack spacing={2} sx={{ maxWidth: 360 }}>
+    <div style={{ maxWidth: 360 }}>
       <MPTextField
         label="Password"
         name="password"
@@ -16,6 +15,6 @@ export default function TextFieldPassword() {
         onChange={setPassword}
         fullWidth
       />
-    </Stack>
+    </div>
   );
 }

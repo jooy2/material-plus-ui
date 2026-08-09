@@ -1,12 +1,5 @@
 import * as React from 'react';
-import FormControl from '@mui/material/FormControl';
-import FormHelperText from '@mui/material/FormHelperText';
-import IconButton from '@mui/material/IconButton';
-import InputAdornment from '@mui/material/InputAdornment';
-import InputLabel from '@mui/material/InputLabel';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { useTheme } from '@mui/material/styles';
+import { Field } from '@base-ui/react/field';
 import { MPIcon } from '../icon/MPIcon';
 import { VisibilityIcon, VisibilityOffIcon } from '../../constants/icons';
 
@@ -32,9 +25,9 @@ export interface MPTextFieldProps {
   /** Native `autocomplete` token — `'email'`, `'current-password'`, `'off'`. */
   autoComplete?: string;
   /**
-   * Label above the field. Always drawn shrunk and notched rather than floating
-   * over the placeholder, so a field with a label and a field without one sit
-   * at the same height in a form.
+   * Label above the field. Always drawn in the outline's notch rather than
+   * floating over the placeholder, so a field with a label and a field without
+   * one sit at the same height in a form.
    */
   label?: string;
   /** Marks the field required, both to assistive technology and to the label. */
@@ -42,7 +35,7 @@ export interface MPTextFieldProps {
   /** Greys the field out and stops it taking input. */
   disabled?: boolean;
   /**
-   * Draws the field at MUI's `medium` size instead of `small`.
+   * Draws the field at Material's full 56px height instead of the compact 40px.
    * @default false
    */
   large?: boolean;
@@ -110,14 +103,29 @@ export interface MPTextFieldProps {
 }
 
 /**
- * A Material UI text field that survives an IME.
+ * Material's compact breakpoint, below which an automatic focus is suppressed.
  *
- * The field is `@mui/material`'s `OutlinedInput`, and everything MUI decides
- * about how a field looks — the notched outline, the sizes, the palette, the
- * error colour — it still decides here. What this component adds is the
- * handling around a controlled input that a language with an input method
- * exposes, plus the parts of a field that are always assembled by hand
- * anyway: the label, the helper text, the adornments and the password toggle.
+ * Read at the moment it is needed rather than tracked in state. `autoFocus`
+ * describes how the field arrives, so the only reading that matters is the one
+ * taken on mount — and a `useState` seeded to `false` would focus on a phone
+ * anyway, in the render before its effect could correct it.
+ */
+const COMPACT_SCREEN = '(max-width: 599.95px)';
+
+/**
+ * A Material Design text field that survives an IME.
+ *
+ * The control is an outlined text field, drawn from Material Design 3's own
+ * component tokens: `outline` at rest, `primary` and a 2px stroke on focus,
+ * `error` when there is a message, and the spec's disabled opacities. Behaviour
+ * that a field needs but has nothing to do with looks — the label association,
+ * the validity plumbing, the `aria-describedby` onto the supporting text —
+ * comes from Base UI's `Field`.
+ *
+ * What this component adds is the handling around a controlled input that a
+ * language with an input method exposes, plus the parts of a field that are
+ * always assembled by hand anyway: the notch, the adornments and the password
+ * toggle.
  *
  * ## The composition problem
  *
@@ -171,14 +179,13 @@ export const MPTextField = React.forwardRef<
   ref
 ) {
   const inputRef = React.useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
-  const theme = useTheme();
-  const mobileDevice = useMediaQuery(theme.breakpoints.down('sm'));
   const [showPassword, setShowPassword] = React.useState(false);
   const [isComposing, setIsComposing] = React.useState(false);
   const [innerValue, setInnerValue] = React.useState(value);
   const generatedId = React.useId();
   const fieldId = id ?? `mp-text-field-${name ?? generatedId}`;
   const multiline = !!rows;
+  const invalid = errorMessage.length > 0;
 
   const setInputRef = React.useCallback(
     (node: HTMLInputElement | HTMLTextAreaElement | null) => {
@@ -219,10 +226,8 @@ export const MPTextField = React.forwardRef<
     setInnerValue(value);
   };
 
-  // Typed against the element MUI attaches them to — `OutlinedInput` puts its
-  // handlers on the root `<div>`, and the events reach here having bubbled up
-  // from the control inside it. `target` is what was actually composed into,
-  // which is why the value is read from there rather than from `currentTarget`.
+  // `target` is what was actually composed into, which is why the value is read
+  // from there rather than from `currentTarget`.
   const handleCompositionUpdate = (event: React.CompositionEvent<HTMLElement>) => {
     setInnerValue((event.target as HTMLInputElement | HTMLTextAreaElement).value);
   };
@@ -249,76 +254,202 @@ export const MPTextField = React.forwardRef<
   // Mount only, and deliberately empty deps: `autoFocus` describes how the
   // field arrives, not something to reapply whenever the prop changes later.
   React.useEffect(() => {
-    if (autoFocus && !mobileDevice) {
+    if (autoFocus && !window.matchMedia(COMPACT_SCREEN).matches) {
       inputRef.current?.focus();
     }
   }, []);
 
-  return (
-    <FormControl required={required} fullWidth={fullWidth} error={errorMessage.length > 0}>
-      {label && (
-        <InputLabel size="small" color="secondary" shrink={true} htmlFor={fieldId}>
-          {label}
-        </InputLabel>
-      )}
-      <OutlinedInput
-        id={fieldId}
-        autoComplete={autoComplete}
-        inputRef={setInputRef}
-        type={showPassword ? 'text' : type}
-        label={label}
-        notched={!!label}
-        rows={rows}
-        multiline={multiline}
-        color={readOnly ? 'secondary' : undefined}
-        readOnly={readOnly}
-        placeholder={placeholder}
-        startAdornment={
-          startIcon ? <InputAdornment position="start">{startIcon}</InputAdornment> : null
-        }
-        inputProps={maxLength ? { maxLength } : undefined}
-        endAdornment={
-          type === 'password' ? (
-            <InputAdornment position="end">
-              <IconButton
-                aria-label={showPassword ? 'hide the password' : 'display the password'}
-                onClick={handleClickShowPassword}
-                onMouseDown={handleMouseEventPassword}
-                onMouseUp={handleMouseEventPassword}
-                edge="end"
-                disabled={disabled}
-              >
-                <MPIcon
-                  icon={showPassword ? VisibilityIcon : VisibilityOffIcon}
-                  size={large ? 22 : 20}
-                />
-              </IconButton>
-            </InputAdornment>
-          ) : null
-        }
-        size={large ? 'medium' : 'small'}
-        sx={resizable && multiline ? { '& textarea': { resize: 'vertical' } } : undefined}
-        name={name}
-        disabled={disabled}
-        value={isComposing ? innerValue : value}
-        onChange={handleInputChange}
-        onCompositionStart={handleCompositionStart}
-        onCompositionUpdate={handleCompositionUpdate}
-        onCompositionEnd={handleCompositionEnd}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter') {
-            onSubmit?.();
+  /*
+   * The label is drawn twice, and both copies are load-bearing.
+   *
+   * The `<legend>` is the one that shapes the outline: a legend inside a
+   * `<fieldset>` natively interrupts the top border, which is exactly the notch
+   * an outlined text field has, sized to the text with no measuring in
+   * JavaScript. It is hidden with `invisible` rather than removed, because a
+   * legend with no content reserves no gap.
+   *
+   * The `Field.Label` is the one a reader gets: a real `<label>`, associated
+   * with the control by Base UI, sitting on the border line where the legend
+   * cut it away. It cannot be the legend itself — the outline is
+   * `pointer-events-none` so that clicks land on the input underneath, and a
+   * label inside it would stop being clickable.
+   */
+  const labelText = label ? (
+    <>
+      {label}
+      {required ? <span aria-hidden="true"> *</span> : null}
+    </>
+  ) : null;
 
-            // A single-line field has no newline to insert, so Enter is
-            // always swallowed there — leaving it through would submit a
-            // surrounding form on top of whatever `onSubmit` just did.
-            if (!multiline || disableEnterKey) {
-              event.preventDefault();
+  return (
+    <Field.Root
+      className={[
+        'mp-text-field group relative',
+        fullWidth ? 'w-full' : 'inline-block',
+        // `font-size: 0` on the wrapper keeps the label's own `1rem` from
+        // inheriting into the absolutely positioned copies unpredictably; each
+        // text part sets its own scale from a typescale token.
+        'align-top'
+      ].join(' ')}
+      disabled={disabled}
+      invalid={invalid}
+      data-mp-size={large ? 'medium' : 'small'}
+    >
+      <div
+        className={[
+          'relative flex w-full items-center gap-2',
+          large ? 'px-4' : 'px-3',
+          // The control carries the height rather than the container, so a
+          // `<textarea>` can grow past it while an `<input>` stays put.
+          multiline ? 'py-2' : ''
+        ]
+          .filter(Boolean)
+          .join(' ')}
+      >
+        {/*
+         * Decorative: the accessible name comes from `Field.Label`, and this is
+         * only the box that name sits in. Announcing a `<fieldset>` as a group
+         * around a single control is noise a screen reader does not need.
+         */}
+        <fieldset
+          aria-hidden="true"
+          className={[
+            'pointer-events-none absolute inset-0 -top-[5px] m-0 min-w-0 px-2 pt-0',
+            'rounded-mp-xs border border-mp-outline',
+            'transition-[border-color,border-width] duration-(--mp-sys-motion-duration-short4)',
+            // MD3 raises the outline to `on-surface` on hover, and to `primary`
+            // at two pixels on focus. Focus wins, so it is written second.
+            'group-hover:border-mp-on-surface',
+            'group-data-focused:border-2 group-data-focused:border-mp-primary',
+            'group-data-invalid:border-mp-error',
+            // The spec's disabled outline: `on-surface` at 12%.
+            'group-data-disabled:border-mp-on-surface/12'
+          ].join(' ')}
+        >
+          {label ? (
+            <legend className="text-mp-body-small invisible float-none block h-[11px] w-auto p-0 px-1 leading-none">
+              {labelText}
+            </legend>
+          ) : null}
+        </fieldset>
+
+        {startIcon ? (
+          <span className="text-mp-on-surface-variant group-data-disabled:text-mp-on-surface/38 flex shrink-0 items-center">
+            {startIcon}
+          </span>
+        ) : null}
+
+        <Field.Control
+          /* `rows` goes on the element rather than on `Field.Control`, whose
+             props are typed against an `<input>` and have no such thing. */
+          render={multiline ? <textarea rows={rows} /> : <input />}
+          id={fieldId}
+          name={name}
+          type={multiline ? undefined : showPassword ? 'text' : type}
+          required={required}
+          readOnly={readOnly}
+          disabled={disabled}
+          autoComplete={autoComplete}
+          placeholder={placeholder}
+          maxLength={maxLength}
+          value={isComposing ? innerValue : value}
+          ref={setInputRef as React.Ref<HTMLElement>}
+          className={[
+            'text-mp-body-large text-mp-on-surface w-full min-w-0 flex-1',
+            // A native control does not inherit the page's font, and with no
+            // reset on the page nothing else will hand it one. The typescale
+            // token is what says which — it is `inherit` by default, so the
+            // field speaks in the application's own typeface.
+            'font-[family-name:var(--mp-sys-typescale-body-large-font)]',
+            'appearance-none border-0 bg-transparent px-0 outline-none',
+            'caret-mp-primary',
+            large ? 'py-4' : 'py-2',
+            multiline ? 'py-0' : '',
+            multiline && resizable ? 'resize-y' : 'resize-none',
+            // The spec's disabled content opacity, on the text and on the
+            // placeholder alike.
+            'group-data-disabled:text-mp-on-surface/38',
+            'placeholder:text-mp-on-surface-variant group-data-disabled:placeholder:text-mp-on-surface/38'
+          ]
+            .filter(Boolean)
+            .join(' ')}
+          onChange={handleInputChange}
+          onCompositionStart={handleCompositionStart}
+          onCompositionUpdate={handleCompositionUpdate}
+          onCompositionEnd={handleCompositionEnd}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              onSubmit?.();
+
+              // A single-line field has no newline to insert, so Enter is
+              // always swallowed there — leaving it through would submit a
+              // surrounding form on top of whatever `onSubmit` just did.
+              if (!multiline || disableEnterKey) {
+                event.preventDefault();
+              }
             }
-          }
-        }}
-      />
-      {errorMessage.length > 0 && <FormHelperText error>{errorMessage}</FormHelperText>}
-    </FormControl>
+          }}
+        />
+
+        {type === 'password' && !multiline ? (
+          <button
+            type="button"
+            aria-label={showPassword ? 'hide the password' : 'display the password'}
+            onClick={handleClickShowPassword}
+            onMouseDown={handleMouseEventPassword}
+            onMouseUp={handleMouseEventPassword}
+            disabled={disabled}
+            className={[
+              'text-mp-on-surface-variant -mr-1 flex shrink-0 items-center justify-center',
+              // Reset explicitly. This library ships no page reset — no
+              // Preflight, no `CssBaseline` — so a native `<button>` arrives
+              // with the browser's own grey background, border and font, and
+              // nothing else is going to take them off.
+              'cursor-pointer appearance-none border-0 bg-transparent p-1 font-[inherit]',
+              'rounded-full outline-none',
+              'hover:text-mp-on-surface focus-visible:text-mp-primary',
+              'disabled:text-mp-on-surface/38 disabled:cursor-default'
+            ].join(' ')}
+          >
+            <MPIcon
+              icon={showPassword ? VisibilityIcon : VisibilityOffIcon}
+              size={large ? 22 : 20}
+            />
+          </button>
+        ) : null}
+      </div>
+
+      {label ? (
+        <Field.Label
+          htmlFor={fieldId}
+          className={[
+            'text-mp-body-small text-mp-on-surface-variant',
+            // Sat on the top border, where the legend cut the gap. `left` tracks
+            // the container's own inline padding so the two line up at either
+            // size.
+            'pointer-events-auto absolute top-0 -translate-y-1/2 px-1 leading-none',
+            large ? 'left-3' : 'left-2',
+            'group-data-focused:text-mp-primary',
+            'group-data-invalid:text-mp-error',
+            'group-data-disabled:text-mp-on-surface/38'
+          ].join(' ')}
+        >
+          {labelText}
+        </Field.Label>
+      ) : null}
+
+      {invalid ? (
+        <Field.Error
+          match={true}
+          className={[
+            'mp-text-field__support text-mp-body-small text-mp-error mt-1 block',
+            large ? 'px-4' : 'px-3',
+            'group-data-disabled:text-mp-on-surface/38'
+          ].join(' ')}
+        >
+          {errorMessage}
+        </Field.Error>
+      ) : null}
+    </Field.Root>
   );
 });

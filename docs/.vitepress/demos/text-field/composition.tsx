@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
 import { MPTextField } from 'material-plus-ui';
 
 /**
@@ -15,7 +13,7 @@ export default function TextFieldComposition() {
   const [value, setValue] = useState('');
 
   return (
-    <Stack spacing={2} sx={{ maxWidth: 360 }}>
+    <div style={{ display: 'grid', gap: 12, maxWidth: 360 }}>
       <MPTextField
         label="이름 / Name"
         value={value}
@@ -23,9 +21,9 @@ export default function TextFieldComposition() {
         placeholder="한글을 입력해 보세요"
         fullWidth
       />
-      <Typography variant="caption" color="text.secondary">
+      <small className="text-mp-on-surface-variant">
         Parent state: <code>{value || '(empty)'}</code>
-      </Typography>
-    </Stack>
+      </small>
+    </div>
   );
 }

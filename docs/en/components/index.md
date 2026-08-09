@@ -5,7 +5,7 @@ order: 2
 
 # All components
 
-<p class="mp-lede">Everything released so far. Each one is built out of <code>@mui/material</code> and reads the same theme, so it lines up with the MUI components already in your app.</p>
+<p class="mp-lede">Everything released so far. Each one is drawn from Material Design 3's own component tokens and reads its colours from CSS custom properties, so it follows whatever scheme your page already sets.</p>
 
 ## Inputs
 

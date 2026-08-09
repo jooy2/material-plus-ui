@@ -14,8 +14,8 @@
  *
  * Tailwind's Preflight is deliberately absent, exactly as it is from the
  * package's own standalone stylesheet: it would flatten the headings, lists and
- * links the documentation is made of, and MUI's `ScopedCssBaseline` inside each
- * preview is already the reset the components want.
+ * links the documentation is made of. Nothing replaces it — the components reset
+ * the individual elements they own rather than asking the page for a baseline.
  */
 
 @import './scope.css';

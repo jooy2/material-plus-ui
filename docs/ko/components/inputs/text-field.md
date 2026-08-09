@@ -5,7 +5,7 @@ order: 1
 
 # MPTextField
 
-<p class="mp-lede">IME를 견디는 Material UI 텍스트 필드입니다. 라벨, helper 텍스트, adornment, 비밀번호 토글이 이미 조립되어 있습니다. MUI의 <code>OutlinedInput</code>을 그대로 그리므로 폼에 이미 있는 필드들과 어긋나지 않습니다.</p>
+<p class="mp-lede">IME를 견디는 머터리얼 outlined 텍스트 필드입니다. 라벨, 보조 텍스트, adornment, 비밀번호 토글이 이미 조립되어 있습니다. 색·크기·지속시간이 모두 Material Design 3의 컴포넌트 토큰에서 옵니다.</p>
 
 <Demo src="text-field/hero" :minHeight="72" />
 
@@ -35,7 +35,7 @@ controlled `<input>`은 `value` prop으로부터 그려집니다. 그런데 입�
 
 </Demo>
 
-이 예시의 부모는 받은 값을 전부 대문자로 바꿉니다. 한글 단어를 입력해 보세요. 만들어지는 중인 음절은 그대로 유지되고, 그 음절이 확정된 뒤에야 규칙이 적용됩니다. 같은 필드를 `@mui/material`의 `TextField`로 만들면 키를 누를 때마다 글자가 하나씩 사라집니다.
+이 예시의 부모는 받은 값을 전부 대문자로 바꿉니다. 한글 단어를 입력해 보세요. 만들어지는 중인 음절은 그대로 유지되고, 그 음절이 확정된 뒤에야 규칙이 적용됩니다. 평범하게 제어되는 `<input>`이라면 키를 누를 때마다 글자가 하나씩 사라집니다.
 
 `value`와 `onChange`가 이벤트가 아니라 문자열인 이유이기도 합니다. 이벤트의 `target`은 조합 중인 엘리먼트이고, 그것이 바로 믿으면 안 되는 값입니다.
 
@@ -63,7 +63,7 @@ controlled `<input>`은 `value` prop으로부터 그려집니다. 그런데 입�
 
 </Demo>
 
-::: warning `PageTextField`에서 옮겨 오신다면 원본에서는 오류 색이 helper 텍스트에만 닿고 외곽선은 평상시 상태 그대로였습니다. 여기서는 `errorMessage`가 컨트롤 전체 — 외곽선, 라벨, 메시지 — 를 함께 뒤집습니다. MUI가 자기 필드에 대해 하는 동작과 같습니다. :::
+::: warning `PageTextField`에서 옮겨 오신다면 원본에서는 오류 색이 helper 텍스트에만 닿고 외곽선은 평상시 상태 그대로였습니다. 여기서는 `errorMessage`가 컨트롤 전체 — 외곽선, 라벨, 메시지 — 를 함께 뒤집습니다. 스펙이 요구하는 동작입니다. :::
 
 `readOnly`는 값을 보여 주되 수정을 막습니다. `disabled`와 달리 텍스트를 선택할 수 있고 탭 순서에도 남아 있으므로, 읽는 사람이 복사해야 할 값에 적합합니다.
 
@@ -81,7 +81,7 @@ controlled `<input>`은 `value` prop으로부터 그려집니다. 그런데 입�
 
 ### large
 
-기본값은 MUI의 `small`이고 `large`가 MUI의 `medium`입니다. 사다리가 아니라 두 단계인 이유는 `@mui/material`이 가진 높이가 그 둘이고, 세 번째를 만들면 아무것과도 맞지 않기 때문입니다.
+머터리얼이 텍스트 필드에 대해 규정하는 크기는 하나, 56px이고 그것이 `large`가 그리는 것입니다. 기본값인 40px는 촘촘한 폼을 위한 양보입니다. 설정 페이지나 필터 바처럼 56px 컨트롤을 세로로 쌓으면 담는 내용보다 더 높아지는 곳을 위한 것이고, 이 필드가 실제로 그런 모양으로 쓰이는 경우가 많아서 기본값이 되었습니다.
 
 <Demo src="text-field/sizes" :minHeight="220">
 
@@ -91,7 +91,7 @@ controlled `<input>`은 `value` prop으로부터 그려집니다. 그런데 입�
 
 ### startIcon
 
-텍스트 앞에 놓이는 내용이고 보통 [MPIcon](../display/icon)입니다. MUI의 `InputAdornment` 안에 렌더링되므로 다른 MUI 필드의 adornment와 같은 방식으로 배치되고 같은 간격을 갖습니다.
+텍스트 앞에 놓이는 내용이고 보통 [MPIcon](../display/icon)입니다. `on-surface-variant` 롤과 필드 자체의 간격을 따르므로, 여기에 놓인 글리프는 스펙이 leading icon을 두는 자리에 놓입니다.
 
 ```tsx
 <MPTextField
@@ -140,4 +140,5 @@ Enter를 눌렀을 때 호출됩니다.
 ## 함께 보기
 
 - [MPIcon](../display/icon) — `startIcon`에 쓰입니다.
-- [`OutlinedInput`](https://mui.com/material-ui/api/outlined-input/) — 아래에 깔린 MUI 컴포넌트. 그쪽의 테마 설정과 override가 모두 적용됩니다.
+- [테마](../../guide/getting-started#테마) — 이 필드가 읽는 색상 롤과 바꾸는 방법.
+- [Base UI Field](https://base-ui.com/react/components/field) — 아래에 깔린 동작. 라벨 연결, 유효성 상태, 스타일링이 기준으로 삼는 `data-*` 속성.

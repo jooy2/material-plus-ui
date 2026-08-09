@@ -2,13 +2,13 @@
 layout: home
 
 title: Material Plus
-titleTemplate: Extra components for Material UI
-description: A React component library that extends Material UI — the components MUI does not ship, and wider versions of the ones it does. TypeScript types included, ESM only.
+titleTemplate: Material Design 3 components for React
+description: A React component library implementing Material Design 3 — the components other Material libraries do not ship, and wider versions of the ones they do. Themed with CSS custom properties. TypeScript types included, ESM only.
 
 hero:
   name: Material Plus
-  text: The Material UI components you keep writing yourself
-  tagline: Built on @mui/material rather than beside it. Same theme, same prop vocabulary, no second design system to reconcile.
+  text: The Material components you keep writing yourself
+  tagline: Material Design 3, followed from the specification. Themed in CSS custom properties, so it drops into a project that already has Material without a second design system to reconcile.
   actions:
     - theme: brand
       text: Get started
@@ -18,8 +18,8 @@ hero:
       link: /components/
 
 features:
-  - title: Not a replacement
-    details: Every component is built out of @mui/material. Your ThemeProvider, your palette, your typography — a Material Plus control reads all of it and lines up with the MUI control next to it.
+  - title: Themed in one line
+    details: Set --mp-source-color and every colour role follows, exactly as Material generates a scheme from a source colour. No provider, no theme object, no re-render — and it can read the --md-sys-color-* tokens your page already has.
     link: /components/
     linkText: Browse
   - title: IME-safe by construction
@@ -36,14 +36,14 @@ features:
 
 ## Why Material Plus
 
-Material UI is a large library, and it still leaves you writing the same four or five components in every project — the field that handles composition properly, the icon wrapper that agrees with your set, the form row that assembles a label, a helper and two adornments the same way every time.
+Every Material library leaves you writing the same four or five components in every project — the field that handles composition properly, the icon wrapper that agrees with your set, the form row that assembles a label, supporting text and two adornments the same way every time.
 
 Material Plus is that pile, extracted and tested.
 
 <div class="mp-why">
   <div class="mp-why-card">
-    <h3>MUI is a peer, not a copy</h3>
-    <p><code>@mui/material</code> and Emotion are peer dependencies. Material Plus uses the copy your project already has, so there is never a second MUI in the bundle or a second theme in the tree.</p>
+    <h3>It coexists</h3>
+    <p>Nothing here is page-level: no reset, no provider, no global styling. Theming is CSS custom properties in a cascade layer, so a project already running Material keeps its own setup and this one follows along.</p>
   </div>
   <div class="mp-why-card">
     <h3>Tested in real browsers</h3>
@@ -51,7 +51,7 @@ Material Plus is that pile, extracted and tested.
   </div>
   <div class="mp-why-card">
     <h3>Small on purpose</h3>
-    <p>One runtime dependency. Every component compiles to its own module, so what you do not import is not shipped.</p>
+    <p>One runtime dependency, one peer. No CSS-in-JS runtime — the styling is a stylesheet. Every component compiles to its own module, so what you do not import is not shipped.</p>
   </div>
 </div>
 
@@ -61,7 +61,11 @@ Material Plus is that pile, extracted and tested.
 npm install material-plus-ui
 ```
 
-`@mui/material`, `@emotion/react`, `@emotion/styled`, `react` and `react-dom` are peer dependencies — you already have all five.
+`@base-ui/react`, `react` and `react-dom` are peer dependencies. One line of CSS wires up the stylesheet:
+
+```css
+@import 'material-plus-ui/styles.css';
+```
 
 ```tsx
 import { MPTextField } from 'material-plus-ui';

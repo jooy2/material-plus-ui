@@ -186,8 +186,8 @@ export const propTables: Record<string, PropRow[]> = {
       type: 'boolean',
       default: 'false',
       description: {
-        ko: 'MUI의 `small` 대신 `medium` 크기로 그립니다',
-        en: "Draws the field at MUI's `medium` size instead of `small`"
+        ko: '머터리얼 본래의 56px 높이로 그립니다. 기본값은 촘촘한 40px입니다',
+        en: "Draws the field at Material's own 56px height instead of the compact 40px"
       }
     },
     {

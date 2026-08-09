@@ -129,24 +129,34 @@ describe('MPTextField', () => {
     });
 
     it('renders a leading adornment', async () => {
-      await render(
+      const screen = await render(
         <MPTextField value="" label="Search" startIcon={<MPIcon icon={ICONS.search} size={18} />} />
       );
 
-      expect(document.querySelector('.MuiInputAdornment-positionStart')).not.toBeNull();
+      // The glyph sits before the control in the DOM, which is what puts it
+      // before the text visually — there is no adornment wrapper class to look
+      // for, only the order.
+      const field = document.querySelector('.mp-text-field')!;
+      const icon = field.querySelector('.mp-icon')!;
+
+      expect(icon).not.toBeNull();
+      expect(
+        icon.compareDocumentPosition(screen.getByRole('textbox').element()) &
+          Node.DOCUMENT_POSITION_FOLLOWING
+      ).toBeTruthy();
     });
 
     it('draws at the small size, and at the medium size when large', async () => {
       const screen = await render(<MPTextField value="" label="Email" />);
-      const root = () => screen.getByRole('textbox').element().closest('.MuiInputBase-root');
+      const root = () => screen.getByRole('textbox').element().closest('.mp-text-field');
 
-      // MUI's own marker for which of its two control heights is in use. It
-      // sits on the root rather than on the control inside it.
-      expect(root()).toHaveClass('MuiInputBase-sizeSmall');
+      // Which of the two heights is in use, published on the root so a consumer
+      // can style against it as well.
+      expect(root()).toHaveAttribute('data-mp-size', 'small');
 
       await screen.rerender(<MPTextField value="" label="Email" large />);
 
-      expect(root()).not.toHaveClass('MuiInputBase-sizeSmall');
+      expect(root()).toHaveAttribute('data-mp-size', 'medium');
     });
   });
 
@@ -407,15 +417,17 @@ describe('MPTextField', () => {
       );
 
       await expect.element(screen.getByText('Not a valid address.')).toBeInTheDocument();
-      // The whole control turns over, not only the message underneath it.
-      expect(document.querySelector('.Mui-error')).not.toBeNull();
+      // The whole control turns over, not only the message underneath it. The
+      // state lives on the root as a data attribute, which is what the outline
+      // and the label are styled from.
+      expect(document.querySelector('.mp-text-field')).toHaveAttribute('data-invalid');
     });
 
     it('shows no helper text without an error', async () => {
       await render(<MPTextField value="" label="Email" />);
 
-      expect(document.querySelector('.MuiFormHelperText-root')).toBeNull();
-      expect(document.querySelector('.Mui-error')).toBeNull();
+      expect(document.querySelector('.mp-text-field')).not.toHaveAttribute('data-invalid');
+      expect(document.querySelector('.mp-text-field__support')).toBeNull();
     });
 
     it('disables the control', async () => {
@@ -440,9 +452,15 @@ describe('MPTextField', () => {
 
     it('stretches to the container when fullWidth', async () => {
       const screen = await render(<MPTextField value="" label="Email" fullWidth />);
-      const root = screen.getByRole('textbox').element().closest('.MuiFormControl-root');
+      const root = () => screen.getByRole('textbox').element().closest('.mp-text-field')!;
 
-      expect(root).toHaveClass('MuiFormControl-fullWidth');
+      // Asserted on the resolved width rather than on a class, so it holds
+      // whichever utility ends up expressing it.
+      expect(getComputedStyle(root()).display).toBe('block');
+
+      await screen.rerender(<MPTextField value="" label="Email" />);
+
+      expect(getComputedStyle(root()).display).toBe('inline-block');
     });
   });
 
@@ -462,6 +480,110 @@ describe('MPTextField', () => {
 
       expect(node).not.toBeNull();
       expect(node!.tagName).toBe('INPUT');
+    });
+  });
+
+  /**
+   * The theming chain, asserted through a rendered field rather than on the
+   * stylesheet.
+   *
+   * Both bugs these cover failed *silently*: the field rendered, the tests
+   * passed, and the colour was simply the default one. The cause each time was a
+   * `var()` frozen at `:root` — first for the derived roles, then again for the
+   * `--color-mp-*` names Tailwind emits from `@theme` — and the only way to
+   * catch it is to resolve a colour on an element that is not the root.
+   */
+  describe('theming', () => {
+    /** The hue of whatever colour an element actually resolved. */
+    function hueOf(element: Element, property: 'color' | 'borderColor') {
+      const resolved = getComputedStyle(element)[property];
+      const hue = /oklch\([^)]*\s([\d.]+)\)/.exec(resolved)?.[1];
+
+      expect(hue, `expected an oklch colour, got ${resolved}`).toBeDefined();
+
+      return Number(hue);
+    }
+
+    const BASELINE_HUE = 293.72;
+    const TEAL_HUE = 199.391;
+
+    it('derives every role from the source colour', async () => {
+      await render(<MPTextField value="" label="Email" />);
+
+      expect(hueOf(document.querySelector('label')!, 'color')).toBeCloseTo(BASELINE_HUE, 1);
+      expect(hueOf(document.querySelector('fieldset')!, 'borderColor')).toBeCloseTo(
+        BASELINE_HUE,
+        1
+      );
+    });
+
+    it('follows a source colour set on an ancestor, not only on the root', async () => {
+      await render(
+        <div style={{ '--mp-source-color': '#00696d' } as React.CSSProperties}>
+          <MPTextField value="" label="Email" />
+        </div>
+      );
+
+      expect(hueOf(document.querySelector('label')!, 'color')).toBeCloseTo(TEAL_HUE, 1);
+      expect(hueOf(document.querySelector('fieldset')!, 'borderColor')).toBeCloseTo(TEAL_HUE, 1);
+    });
+
+    it("picks up the page's own MD3 tokens", async () => {
+      await render(
+        <div style={{ '--md-sys-color-outline': 'rgb(1, 2, 3)' } as React.CSSProperties}>
+          <MPTextField value="" label="Email" />
+        </div>
+      );
+
+      // Taken as given, not derived — so it does not come back as an oklch().
+      expect(getComputedStyle(document.querySelector('fieldset')!).borderColor).toBe(
+        'rgb(1, 2, 3)'
+      );
+    });
+
+    it('lets an explicit role beat both', async () => {
+      await render(
+        <div
+          style={
+            {
+              '--mp-source-color': '#00696d',
+              '--md-sys-color-outline': 'rgb(1, 2, 3)',
+              '--mp-sys-color-outline': 'rgb(4, 5, 6)'
+            } as React.CSSProperties
+          }
+        >
+          <MPTextField value="" label="Email" />
+        </div>
+      );
+
+      expect(getComputedStyle(document.querySelector('fieldset')!).borderColor).toBe(
+        'rgb(4, 5, 6)'
+      );
+    });
+
+    it('reassigns tones for the dark scheme on a subtree', async () => {
+      const screen = await render(
+        <div data-mp-scheme="dark">
+          <MPTextField value="" label="Email" />
+        </div>
+      );
+
+      // Same hue, and a lighter tone: the dark scheme is the same tonal palette
+      // read further up, not a second set of colours.
+      const dark = getComputedStyle(document.querySelector('label')!).color;
+
+      expect(hueOf(document.querySelector('label')!, 'color')).toBeCloseTo(BASELINE_HUE, 1);
+
+      await screen.rerender(
+        <div data-mp-scheme="light">
+          <MPTextField value="" label="Email" />
+        </div>
+      );
+
+      const light = getComputedStyle(document.querySelector('label')!).color;
+      const lightnessOf = (value: string) => Number(/oklch\(([\d.]+)/.exec(value)![1]);
+
+      expect(lightnessOf(dark)).toBeGreaterThan(lightnessOf(light));
     });
   });
 });

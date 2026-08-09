@@ -12,20 +12,30 @@
  * is this file plus the compiled utilities, built by `scripts/build-styles.mjs`
  * from `src/standalone.css`. The tokens below are the same in both.
  *
+ * ## The vocabulary is Material Design 3's, not Material UI's
+ *
+ * This library implements the Material Design specification rather than wrapping
+ * an implementation of it, so the token names here are the ones the spec uses —
+ * `primary`, `on-surface-variant`, `outline`, `corner-extra-small`,
+ * `body-large`. They are not `main`/`light`/`dark`/`contrastText`, which is
+ * Material UI's own palette model and a different (earlier) colour system.
+ *
+ * ## Only what a component reads
+ *
+ * A token nobody uses is a promise to keep supporting a name, so the roles below
+ * are exactly the ones `MPTextField` and `MPIcon` actually resolve, and nothing
+ * else. MD3 defines around fifty colour roles; an outlined text field reads five
+ * of them. The rest are absent on purpose and get added as components need them.
+ *
+ * This is also why the library does not try to reproduce MD3 completely. It has
+ * to *coexist* with whatever Material implementation a page already runs, not
+ * replace it — so the surface it claims stays as small as the components make
+ * necessary.
+ *
  * ## What is deliberately not here
  *
- * **Colour, typography and dark mode.** Material UI owns all three. A component
- * in this library takes its palette from the surrounding `ThemeProvider`, the
- * same as the `@mui/material` component beside it, so a token family here would
- * be a second theme that could disagree with the first. Anything a component
- * needs from the theme it reads through MUI, not from a custom property.
- *
- * **A reset.** MUI's `CssBaseline` is one, and every application using this
- * library already has it. See `src/standalone.css`.
- *
- * What Tailwind is for here is layout and the handful of structural utilities a
- * component needs that `sx` would express less clearly — so the tokens below
- * stay to that job, and the file is short on purpose.
+ * **A reset.** Material Plus adds no page-level styling of any kind. See
+ * `src/standalone.css` for why Tailwind's Preflight is left out too.
  */
 
 /*
@@ -48,16 +58,328 @@
 @source '.';
 
 /* ---------------------------------------------------------------------------
- * Tokens
+ * System tokens
  *
- * Only what a component actually reads. A token nobody uses is a promise to
- * keep supporting a name, so they are added here as components need them
- * rather than in anticipation.
+ * Everything in this block is layered. A cascade layer loses to every unlayered
+ * rule, so a consumer's plain `:root { --mp-source-color: … }` wins over these
+ * defaults *regardless of source order* — they do not have to reason about
+ * whether their override sits before or after the `@import`.
+ *
+ * Note that the *public* names are `--mp-sys-*`, not `--md-sys-*`. The spec's
+ * names are what a role is *called*, but the `--md-sys-*` namespace belongs to
+ * the page: a project running Material Web Components already defines those, and
+ * writing to them would overwrite a theme this library has no business touching.
+ * So each role *reads* `--md-sys-color-*` and falls back to its own derivation,
+ * which gives three levels of control without a single conflict:
+ *
+ *   --mp-sys-color-primary set by the consumer   →  wins outright
+ *   --md-sys-color-primary already on the page   →  picked up, zero config
+ *   neither                                      →  derived from the source colour
+ *
+ * ## Why the derived colours are declared on `*` and not on `:root`
+ *
+ * A custom property's value is not *parsed* until it is used, but its `var()`
+ * references are substituted at the element the property is **declared on**, and
+ * descendants inherit the already-substituted result. A role declared once on
+ * `:root` therefore freezes there: setting `--mp-source-color` further down the
+ * tree — on a section, on a wrapper, from an inline style at runtime — could not
+ * reach back and change it, and neither could a `.dark` on `<body>` rather than
+ * on `<html>`.
+ *
+ * Declaring them on every element instead makes each one re-substitute against
+ * whatever is in scope where it sits, which is what actually makes scoped and
+ * runtime theming work. This is the same technique Tailwind uses for its own
+ * composed variables.
+ *
+ * Only the *derived* colours need it. Everything else here is a literal value
+ * with no `var()` to freeze, so plain inheritance from `:root` is enough.
+ *
+ * The computed results are `--_mp-*`: private, read by the components, and not
+ * a name to set. Material Web marks its own internal tokens the same way. The
+ * indirection is load-bearing — it is what keeps a consumer's
+ * `--mp-sys-color-primary` on a wrapper from being clobbered by the `*` rule on
+ * the wrapper's own children.
  * ------------------------------------------------------------------------- */
 
-:root {
-  /* How long a Material Plus transition runs. Matches MUI's own `short`
-     duration so a control from this library and one from `@mui/material`
-     settle together rather than a frame apart. */
-  --mp-duration: 250ms;
+@layer theme {
+  :root {
+    /*
+     * The one value most consumers ever set. MD3 calls it the source colour: a
+     * single seed that the tonal palettes — and therefore every role below —
+     * are generated from.
+     *
+     * The default is MD3's own baseline primary, so a project that sets nothing
+     * gets the reference Material palette rather than something invented here.
+     */
+    --mp-source-color: #6750a4;
+
+    /*
+     * Tone stops.
+     *
+     * MD3's light and dark schemes are not two palettes. They are the *same*
+     * tonal palettes read at different tones — light `primary` is tone 40, dark
+     * `primary` is tone 80, light `outline` is neutral-variant 50, dark is 60.
+     * Keeping them in variables is what lets the dark scheme below be a
+     * reassignment rather than a second copy of every colour, and it is why
+     * overriding `--mp-source-color` moves both schemes at once.
+     *
+     * These are private. The supported way to disagree with a colour is to set
+     * the role — `--mp-sys-color-outline` — not to retune the ramp. They are also
+     * specific to *this* approximation of MD3's palette generation, and would go
+     * away if that were ever replaced with real HCT.
+     *
+     * ## Where the numbers come from
+     *
+     * Read off MD3's own baseline ref palette, converted to OKLCh, rather than
+     * chosen by eye: light is (primary40, neutral10, neutral-variant30,
+     * neutral-variant50, error40) and dark is (primary80, neutral90,
+     * neutral-variant80, neutral-variant60, error80). With the default source
+     * colour the derived roles land on the reference scheme to within a rounding
+     * step.
+     *
+     * The lightnesses are OKLCh L, not MD3 tone numbers — tone is CIE L*, which
+     * OKLCh's L does not equal. Chroma is absolute for the near-grey roles, which
+     * are near-grey whatever the source is, and a multiplier of the source's own
+     * chroma for `primary`, so a deliberately muted brand colour stays muted.
+     *
+     * One known and accepted divergence: every derived role keeps the source
+     * colour's hue, while MD3's neutral palettes sit 10–20° off it. At a chroma
+     * of 0.01–0.02 that is a difference of a couple of thousandths in a/b — below
+     * anything visible, and chasing it would be fitting to noise, since hue is
+     * barely determined at all that close to grey.
+     */
+    --_mp-tone-primary: 0.496;
+    --_mp-chroma-primary: 1;
+    --_mp-tone-on-surface: 0.227;
+    --_mp-chroma-on-surface: 0.01;
+    --_mp-tone-on-surface-variant: 0.398;
+    --_mp-chroma-on-surface-variant: 0.0174;
+    --_mp-tone-outline: 0.567;
+    --_mp-chroma-outline: 0.0163;
+
+    /* `error` carries its own hue as well, because it is not derived from the
+       source colour at all — see the role below. */
+    --_mp-tone-error: 0.501;
+    --_mp-chroma-error: 0.1783;
+    --_mp-hue-error: 28.7;
+  }
+
+  /* The dark scheme, by tone reassignment. Two ways in: the page's own signal
+     (`prefers-color-scheme`), and an explicit attribute or class for a project
+     that switches schemes itself. `.dark` is included because it is what
+     Tailwind's own `dark:` variant keys on by default.
+     Declared twice rather than pulled into a shared rule: a media query and a
+     selector cannot be combined without either nesting the selector list twice
+     over or inventing a third indirection for values that are read off a table
+     anyway. */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-mp-scheme='light']) {
+      --_mp-tone-primary: 0.835;
+      --_mp-chroma-primary: 0.725;
+      --_mp-tone-on-surface: 0.914;
+      --_mp-chroma-on-surface: 0.0137;
+      --_mp-tone-on-surface-variant: 0.829;
+      --_mp-chroma-on-surface-variant: 0.0178;
+      --_mp-tone-outline: 0.657;
+      --_mp-chroma-outline: 0.0153;
+      --_mp-tone-error: 0.834;
+      --_mp-chroma-error: 0.0677;
+      --_mp-hue-error: 22;
+    }
+  }
+
+  [data-mp-scheme='dark'],
+  .dark {
+    --_mp-tone-primary: 0.835;
+    --_mp-chroma-primary: 0.725;
+    --_mp-tone-on-surface: 0.914;
+    --_mp-chroma-on-surface: 0.0137;
+    --_mp-tone-on-surface-variant: 0.829;
+    --_mp-chroma-on-surface-variant: 0.0178;
+    --_mp-tone-outline: 0.657;
+    --_mp-chroma-outline: 0.0153;
+    --_mp-tone-error: 0.834;
+    --_mp-chroma-error: 0.0677;
+    --_mp-hue-error: 22;
+  }
+
+  /*
+   * Colour roles.
+   *
+   * Five, because an MD3 outlined text field reads five: the outline, the text,
+   * the label and supporting text, the focused outline and caret, and the error
+   * state. Verified against the spec's own component token map rather than
+   * assumed.
+   *
+   * `oklch(from … h)` keeps the source colour's hue and replaces lightness and
+   * chroma. See the note above for why this is on `*` rather than `:root`.
+   */
+  *,
+  ::before,
+  ::after,
+  ::backdrop {
+    --_mp-color-primary: var(
+      --mp-sys-color-primary,
+      var(
+        --md-sys-color-primary,
+        oklch(
+          from var(--mp-source-color) var(--_mp-tone-primary) calc(c * var(--_mp-chroma-primary)) h
+        )
+      )
+    );
+    --_mp-color-on-surface: var(
+      --mp-sys-color-on-surface,
+      var(
+        --md-sys-color-on-surface,
+        oklch(from var(--mp-source-color) var(--_mp-tone-on-surface) var(--_mp-chroma-on-surface) h)
+      )
+    );
+    --_mp-color-on-surface-variant: var(
+      --mp-sys-color-on-surface-variant,
+      var(
+        --md-sys-color-on-surface-variant,
+        oklch(
+          from var(--mp-source-color) var(--_mp-tone-on-surface-variant)
+            var(--_mp-chroma-on-surface-variant) h
+        )
+      )
+    );
+    --_mp-color-outline: var(
+      --mp-sys-color-outline,
+      var(
+        --md-sys-color-outline,
+        oklch(from var(--mp-source-color) var(--_mp-tone-outline) var(--_mp-chroma-outline) h)
+      )
+    );
+
+    /* Not derived from the source colour. MD3's error palette is a fixed red
+       regardless of the seed — an error that shifted hue with the brand would
+       stop reading as an error. It still tracks the scheme, so it belongs here
+       rather than with the literals below. */
+    --_mp-color-error: var(
+      --mp-sys-color-error,
+      var(
+        --md-sys-color-error,
+        oklch(var(--_mp-tone-error) var(--_mp-chroma-error) var(--_mp-hue-error))
+      )
+    );
+
+    /*
+     * The names Tailwind's utilities actually read, aliased here as well as in
+     * the `@theme` block at the end of the file.
+     *
+     * Both are needed, and for different reasons. `@theme` is the *registration*:
+     * Tailwind only emits `border-mp-outline` for a name declared there. But what
+     * it emits alongside is a `:root` declaration, and a `:root` declaration
+     * freezes its `var()` references at the document root — which would put the
+     * whole cascade back where it started, one level up. A field inside a section
+     * with its own source colour would read the root's colour and quietly ignore
+     * its own.
+     *
+     * So the aliases are repeated here, where `*` re-resolves them per element.
+     * Only the alias is duplicated: the derivation above it lives in one place.
+     */
+    --color-mp-primary: var(--_mp-color-primary);
+    --color-mp-on-surface: var(--_mp-color-on-surface);
+    --color-mp-on-surface-variant: var(--_mp-color-on-surface-variant);
+    --color-mp-outline: var(--_mp-color-outline);
+    --color-mp-error: var(--_mp-color-error);
+
+    /* Literals rather than derivations, but resolved through a variable all the
+       same, so they freeze at `:root` in exactly the same way. A consumer setting
+       a typescale on a wrapper should see it apply inside that wrapper. */
+    --text-mp-body-large: var(--mp-sys-typescale-body-large-size);
+    --text-mp-body-large--line-height: var(--mp-sys-typescale-body-large-line-height);
+    --text-mp-body-large--letter-spacing: var(--mp-sys-typescale-body-large-tracking);
+    --text-mp-body-large--font-weight: var(--mp-sys-typescale-body-large-weight);
+
+    --text-mp-body-small: var(--mp-sys-typescale-body-small-size);
+    --text-mp-body-small--line-height: var(--mp-sys-typescale-body-small-line-height);
+    --text-mp-body-small--letter-spacing: var(--mp-sys-typescale-body-small-tracking);
+    --text-mp-body-small--font-weight: var(--mp-sys-typescale-body-small-weight);
+
+    --radius-mp-xs: var(--mp-sys-shape-corner-extra-small);
+  }
+
+  :root {
+    /*
+     * No state opacities here. The spec's disabled treatment — content at 38%,
+     * an outline at 12% — is expressed where it is used, as `/38` and `/12` on
+     * the colour a component was already naming. A token would be a third name
+     * for a number nothing would read.
+     */
+
+    /*
+     * Typescale. Two roles, for the same reason as the five colours — a text
+     * field's input and resting label are `body-large`, and its floated label
+     * and supporting text are `body-small`.
+     *
+     * `--mp-sys-typescale-*-font` is left pointing at whatever the page uses
+     * rather than naming a typeface. Shipping a font stack would be a page-level
+     * decision, and this library does not make those.
+     */
+    --mp-sys-typescale-body-large-font: inherit;
+    --mp-sys-typescale-body-large-size: 1rem;
+    --mp-sys-typescale-body-large-line-height: 1.5rem;
+    --mp-sys-typescale-body-large-tracking: 0.03125rem;
+    --mp-sys-typescale-body-large-weight: 400;
+
+    --mp-sys-typescale-body-small-font: inherit;
+    --mp-sys-typescale-body-small-size: 0.75rem;
+    --mp-sys-typescale-body-small-line-height: 1rem;
+    --mp-sys-typescale-body-small-tracking: 0.025rem;
+    --mp-sys-typescale-body-small-weight: 400;
+
+    /* Shape. One corner size, because a text field is `corner-extra-small` and
+       nothing here is anything else yet. */
+    --mp-sys-shape-corner-extra-small: 4px;
+
+    /* Motion. MD3's `short4`, which is what a text field's label and outline
+       transition on. Worth knowing if these controls sit beside another
+       library's: 250ms is a common default elsewhere, and a field from here
+       will settle slightly sooner unless this is set to match. */
+    --mp-sys-motion-duration-short4: 200ms;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Utility generation
+ *
+ * The block above is the input side: values a consumer sets, in a plain `:root`,
+ * where Tailwind will not touch them. This block is the output side — Tailwind
+ * only generates `bg-mp-primary`, `text-mp-body-large` and friends for names
+ * declared in `@theme`, and it prunes the ones no utility ends up using.
+ *
+ * The split is what keeps the input side safe from that pruning: a variable only
+ * ever referenced from inside another custom property's value has no utility
+ * pointing at it, and would be a candidate for removal if it lived here.
+ *
+ * Every name is prefixed. `@theme` registers globally, so an unprefixed
+ * `--color-primary` would generate a `bg-primary` that collides with the
+ * consumer's own.
+ *
+ * What this block does *not* do is supply the values the utilities end up using.
+ * It registers the names; the `*` rule above resolves them, and has to, because a
+ * `:root` declaration would freeze the cascade at the document root. Every name
+ * here is therefore also declared there — deliberately, not by oversight.
+ * ------------------------------------------------------------------------- */
+
+@theme {
+  --color-mp-primary: var(--_mp-color-primary);
+  --color-mp-on-surface: var(--_mp-color-on-surface);
+  --color-mp-on-surface-variant: var(--_mp-color-on-surface-variant);
+  --color-mp-outline: var(--_mp-color-outline);
+  --color-mp-error: var(--_mp-color-error);
+
+  --text-mp-body-large: var(--mp-sys-typescale-body-large-size);
+  --text-mp-body-large--line-height: var(--mp-sys-typescale-body-large-line-height);
+  --text-mp-body-large--letter-spacing: var(--mp-sys-typescale-body-large-tracking);
+  --text-mp-body-large--font-weight: var(--mp-sys-typescale-body-large-weight);
+
+  --text-mp-body-small: var(--mp-sys-typescale-body-small-size);
+  --text-mp-body-small--line-height: var(--mp-sys-typescale-body-small-line-height);
+  --text-mp-body-small--letter-spacing: var(--mp-sys-typescale-body-small-tracking);
+  --text-mp-body-small--font-weight: var(--mp-sys-typescale-body-small-weight);
+
+  --radius-mp-xs: var(--mp-sys-shape-corner-extra-small);
 }

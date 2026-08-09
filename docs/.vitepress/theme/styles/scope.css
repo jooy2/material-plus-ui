@@ -2,18 +2,21 @@
  * Keeping the documentation's typography off the components.
  *
  * A preview is rendered *inside* the rendered Markdown, so VitePress is already
- * styling the elements Material UI puts on the page — and MUI builds a form out
- * of exactly the tags an article is made of. A `FormHelperText` is a `<p>`, so
- * `.vp-doc p` gives an error message a 16px margin and article line height; a
- * `Link` is an `<a>`, so `.vp-doc a` repaints it in the brand colour.
+ * styling the elements a component puts on the page — and a form is built out of
+ * exactly the tags an article is made of. Supporting text under a field is a
+ * `<p>`, so `.vp-doc p` gives an error message a 16px margin and article line
+ * height; a link inside a component is an `<a>`, so `.vp-doc a` repaints it in
+ * the brand colour.
  *
  * Everything here is scoped to `.mp-scope`, the element every preview mounts
  * into, and prefixed with `.vp-doc` — a `.vp-doc p` cannot be outranked by
  * anything with fewer than two classes.
  *
- * There is no Preflight here, scoped or otherwise. The components are MUI
- * components styled by Emotion; the reset they want is `ScopedCssBaseline`,
- * which `theme/react/DemoRoot.tsx` puts around every preview.
+ * There is no Preflight here, scoped or otherwise, and nothing else resets the
+ * page either: the components reset the elements they own — a `<button>`'s grey
+ * background, a control's non-inherited font — on those elements. What is left
+ * for this file is the one thing a component cannot reach, which is the article
+ * styling coming down from outside it.
  */
 
 .vp-doc .mp-scope :is(p, h1, h2, h3, h4, h5, h6, ul, ol, li, blockquote, figure, dl, dd) {
@@ -29,8 +32,8 @@
  * `li`, and naming a tag here means a component can no longer set its padding:
  * `.vp-doc .mp-scope` is two classes and a padding utility is one.
  *
- * `[role="list"]` and `[role="menu"]` are the exception, because that is what
- * MUI's `List` and `Menu` put on their root — there the padding belongs to the
+ * `[role="list"]` and `[role="menu"]` are the exception, because that is what a
+ * list or menu component puts on its root — there the padding belongs to the
  * component rather than to the page's typography.
  */
 .vp-doc .mp-scope :is(ul, ol):not([role='list'], [role='menu'], [role='listbox']),
@@ -46,7 +49,7 @@
  * `.vp-doc a` gives every link the brand colour, a weight and an underline, and
  * a link inside a component is almost never a link in an article — it is a
  * card's footer, a breadcrumb, a menu row. Those take the component's own
- * typography, which for MUI means whatever `ThemeProvider` decided.
+ * typography, which here means whatever typescale token it reads.
  */
 .vp-doc .mp-scope a {
   color: inherit;
@@ -76,7 +79,7 @@
 }
 
 /*
- * MUI renders a Menu, a Dialog, a Tooltip and a Select's popup through a portal
+ * A menu, a dialog, a tooltip and a select's popup are rendered through a portal
  * at the end of `<body>` — outside `.mp-scope`, and therefore outside every
  * rule above. Nothing in `.vp-doc` reaches them either, which is why there is
  * no portal rule here: a portalled surface is already clear of the article's

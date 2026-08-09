@@ -1,32 +1,24 @@
 import * as React from 'react';
-import ScopedCssBaseline from '@mui/material/ScopedCssBaseline';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 /**
- * The Material UI context every preview is rendered inside.
+ * The scheme context every preview is rendered inside.
  *
- * A consumer's application has a `ThemeProvider` at its root, and the
- * components in this library read the palette, the typography and the density
- * from it. A preview with no provider would fall back to MUI's default theme
- * and stop matching the page around it the moment the site's dark switch is
- * touched — so the docs supply one, in whichever mode the preview is showing.
+ * There is no provider. The components take their colours from CSS custom
+ * properties, so telling a preview which scheme to draw is a `data-mp-scheme`
+ * attribute on the element around it — the same one line an application writes,
+ * and the reason a preview can be in a different scheme from the page it sits
+ * on without a second React tree or a second theme object.
  *
- * `ScopedCssBaseline` rather than `CssBaseline`: the baseline is MUI's page
- * reset, and this page is VitePress's. Scoped, it applies the background,
- * colour and typography defaults to the preview alone and leaves the
- * documentation's own prose alone.
+ * This used to be an `@mui/material` `ThemeProvider` with a `createTheme` per
+ * mode, plus a `ScopedCssBaseline` for the reset. None of it is needed now: the
+ * scheme is an attribute, and the components carry their own resets on the
+ * elements that need them rather than relying on a page-level one.
  *
- * Both themes are built once at module scope. `createTheme` is not cheap and a
- * component page holds a dozen previews, each of which would otherwise build
- * its own copy on every render — and two previews holding different theme
- * objects means Emotion generating the same class twice.
+ * What still has to be dealt with is the opposite problem — VitePress styling
+ * the components, since a preview is rendered inside rendered Markdown and a
+ * form is built from the same tags an article is. That is `styles/scope.css`.
  */
-const themes = {
-  light: createTheme({ palette: { mode: 'light' } }),
-  dark: createTheme({ palette: { mode: 'dark' } })
-} as const;
-
-export type DemoMode = keyof typeof themes;
+export type DemoMode = 'light' | 'dark';
 
 export default function DemoRoot({
   mode,
@@ -35,11 +27,5 @@ export default function DemoRoot({
   mode: DemoMode;
   children: React.ReactNode;
 }) {
-  return (
-    <ThemeProvider theme={themes[mode]}>
-      {/* The canvas behind it already carries the colour, and a second opaque
-          background here would cover the grid the frame draws. */}
-      <ScopedCssBaseline sx={{ backgroundColor: 'transparent' }}>{children}</ScopedCssBaseline>
-    </ThemeProvider>
-  );
+  return <div data-mp-scheme={mode}>{children}</div>;
 }

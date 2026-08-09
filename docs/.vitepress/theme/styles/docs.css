@@ -23,16 +23,17 @@
  * variable would stay on whatever the site switch says, and a preview flipped
  * to dark would end up with dark components on a light page.
  *
- * The values are MUI's own default surfaces: `grey.50` under a light theme and
- * `background.paper`'s dark counterpart, so a preview reads as a slice of an
- * application rather than as a swatch.
+ * The values are Material's own default surfaces — the light and dark `surface`
+ * roles of the baseline scheme — so a preview reads as a slice of an application
+ * rather than as a swatch.
  */
 .mp-demo-canvas {
   position: relative;
   padding: 32px 24px;
   background-color: #fafafa;
   /* Only the chrome the docs draw over the preview — the theme switch — reads
-     this. What the components inside are is MUI's decision, via `DemoRoot`. */
+     this. Which scheme the components inside draw is set by `DemoRoot`, as a
+     `data-mp-scheme` on the element around them. */
   color: #1a1a1a;
   color-scheme: light;
 }
@@ -84,8 +85,8 @@
 }
 
 /* The mount point is where the component tree lands. It sets no type of its
-   own: MUI's `ScopedCssBaseline` inside the preview is what applies the theme's
-   typography, which is the same thing that would apply it in an application. */
+   own, and nothing else does either: a component carries its own typescale, so
+   what a preview shows is what an application would show at the same place. */
 .mp-demo-mount {
   position: relative;
 }
