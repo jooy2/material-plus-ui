@@ -58,6 +58,7 @@ export default defineConfig({
     // test run reloads the page mid-test — which Vitest reports as a fetch
     // failure for the test file rather than as anything to do with dependencies.
     include: [
+      '@base-ui/react/avatar',
       '@base-ui/react/button',
       '@base-ui/react/checkbox',
       '@base-ui/react/field',
@@ -65,10 +66,13 @@ export default defineConfig({
       '@base-ui/react/radio',
       '@base-ui/react/radio-group',
       '@base-ui/react/select',
+      '@base-ui/react/separator',
       '@base-ui/react/slider',
       '@base-ui/react/switch',
       '@base-ui/react/toggle',
-      '@base-ui/react/toggle-group'
+      '@base-ui/react/toggle-group',
+      '@base-ui/react/tooltip',
+      '@base-ui/react/use-render'
     ]
   },
   test: {

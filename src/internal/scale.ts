@@ -131,6 +131,70 @@ export const PROSE_TEXT: Record<MPSize, string> = {
  */
 export const META_TEXT = 'text-mp-body-small';
 
+/* ---------------------------------------------------------------------------
+ * Sheets
+ *
+ * A control holds one line of text at a fixed height. A *sheet* — a quote, an
+ * empty state, a list row, a table cell — holds a heading, a paragraph and a
+ * footer, all of which wrap. That is a different problem, and the four tables
+ * below are its answer.
+ *
+ * They arrived with the display components and are shared from the start, for
+ * the reason the top of this file gives: `md` has to mean 16px of padding on
+ * every sheet in the library, and four copies of that number is four chances to
+ * disagree about it.
+ * ------------------------------------------------------------------------- */
+
+/**
+ * The room inside a sheet.
+ *
+ * `md` is 16px, which is MD3's own card padding, and the ladder is centred on it
+ * the same way the control heights are centred on 56. The steps are 4px apart at
+ * the bottom and widen at the top, because the difference between 20 and 24 is
+ * the difference between "roomy" and "spacious" while 8 and 10 are both "tight".
+ */
+export const SHEET_PAD: Record<MPSize, string> = {
+  xs: 'p-2.5',
+  sm: 'p-3',
+  md: 'p-4',
+  lg: 'p-5',
+  xl: 'p-6'
+};
+
+/** The same track sideways only, for a sheet that sets its own vertical room. */
+export const SHEET_PAD_X: Record<MPSize, string> = {
+  xs: 'px-2.5',
+  sm: 'px-3',
+  md: 'px-4',
+  lg: 'px-5',
+  xl: 'px-6'
+};
+
+/**
+ * A sheet's heading.
+ *
+ * The `title` roles rather than the `headline` ones: a headline is what a page
+ * is about, and a list row's first line is not. `md` lands on `title-medium`,
+ * which is `body-large` at weight 500 — exactly the relationship MD3 draws
+ * between a list item's headline and its supporting text.
+ */
+export const SHEET_TITLE: Record<MPSize, string> = {
+  xs: 'text-mp-title-small',
+  sm: 'text-mp-title-small',
+  md: 'text-mp-title-medium',
+  lg: 'text-mp-title-large',
+  xl: 'text-mp-headline-small'
+};
+
+/** Between a sheet's stacked parts — a heading and the paragraph under it. */
+export const SHEET_GAP: Record<MPSize, string> = {
+  xs: 'gap-1.5',
+  sm: 'gap-2',
+  md: 'gap-3',
+  lg: 'gap-3.5',
+  xl: 'gap-4'
+};
+
 /** The gap between a control and the text stacked above or below it. */
 export const STACK_GAP: Record<MPSize, string> = {
   xs: 'gap-0.5',

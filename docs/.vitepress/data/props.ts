@@ -27,6 +27,7 @@ export interface PropRow {
 const NODE = 'ReactNode';
 const SIZE = "'xs' | 'sm' | 'md' | 'lg' | 'xl'";
 const COLOR = "'primary' | 'secondary' | 'tertiary' | 'error'";
+const VARIANT = "'filled' | 'tonal' | 'elevated' | 'outlined' | 'text'";
 
 /**
  * The rows that are genuinely the same prop on more than one component.
@@ -1214,6 +1215,1129 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'id',
       type: 'string',
       description: { ko: '브라우즈 버튼에 붙는 id', en: 'The id put on the browse button' }
+    }
+  ],
+
+  MPTypography: [
+    {
+      name: 'level',
+      type: "'h1'–'h6' | 'body' | 'lead' | 'caption' | 'overline'",
+      default: "'body'",
+      description: {
+        ko: '타입 스케일과 그것을 담는 엘리먼트. 각 단계는 MD3의 타입 역할 하나에 그대로 대응합니다',
+        en: 'The type scale and the element that carries it. Every level is one of MD3’s own type roles'
+      }
+    },
+    {
+      ...color,
+      default: undefined,
+      description: {
+        ko: '읽어들일 강조 색 계열. **기본값이 없습니다** — 지정하지 않으면 주변 글과 같은 색입니다',
+        en: 'Which accent family to read. **No default** — left unset the text is the ink of what surrounds it'
+      }
+    },
+    {
+      name: 'weight',
+      type: "'regular' | 'medium' | 'semibold' | 'bold'",
+      description: {
+        ko: 'level이 정한 굵기를 덮어씁니다. 머터리얼의 제목은 굵지 않다는 점을 기억하세요',
+        en: 'Overrides the weight the level would pick. Remember that Material headings are not bold'
+      }
+    },
+    {
+      name: 'align',
+      type: "'start' | 'center' | 'end' | 'justify'",
+      description: { ko: '글의 정렬', en: 'How the text is set against its measure' }
+    },
+    {
+      name: 'lines',
+      type: 'number',
+      description: {
+        ko: '이 줄 수로 잘라내고 말줄임표를 붙입니다. `1`은 한 줄 자르기입니다',
+        en: 'Clamps the text to this many lines with an ellipsis. `1` is a single-line truncation'
+      }
+    },
+    {
+      name: 'gutter',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '본문 흐름이 기대하는 아래 여백을 더합니다',
+        en: 'Adds the space below that a run of prose expects'
+      }
+    },
+    {
+      name: 'render',
+      type: 'RenderProp',
+      description: {
+        ko: '타입 스케일은 그대로 두고 다른 엘리먼트로 렌더링합니다',
+        en: 'Renders a different element without changing the type scale'
+      }
+    }
+  ],
+
+  MPDivider: [
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+      description: {
+        ko: '선이 놓이는 방향. 세로 구분선은 자기 높이가 없고 flex 부모에 맞춰 늘어납니다',
+        en: 'Which way the line runs. A vertical divider stretches to its flex parent'
+      }
+    },
+    {
+      ...color,
+      default: undefined,
+      description: {
+        ko: '선을 칠할 강조 색 계열. **기본값이 없습니다** — 지정하지 않으면 머터리얼의 `outline-variant`입니다',
+        en: 'Which accent family the rule is drawn in. **No default** — left unset it is Material’s `outline-variant`'
+      }
+    },
+    { ...size, description: { ko: '라벨의 타입 스케일', en: 'Type scale of the label' } },
+    {
+      name: 'length',
+      type: 'number | string',
+      description: {
+        ko: '선이 뻗는 길이. 숫자는 픽셀이고 문자열은 임의의 CSS 길이입니다',
+        en: 'How far the rule runs. A number is pixels; a string is any CSS length'
+      }
+    },
+    {
+      name: 'thickness',
+      type: 'number | string',
+      default: '1',
+      description: { ko: '선의 두께', en: 'How thick the rule is' }
+    },
+    {
+      name: 'textAlign',
+      type: "'start' | 'center' | 'end'",
+      default: "'center'",
+      description: {
+        ko: '라벨이 놓이는 자리. 라벨이 없으면 아무 일도 하지 않습니다',
+        en: 'Where the label sits. Ignored without a label'
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '선 안에 끼워 넣는 라벨 — 두 로그인 방법 사이의 "또는"',
+        en: 'A label set into the line — "OR" between two sign-in options'
+      }
+    }
+  ],
+
+  MPTextLink: [
+    {
+      name: 'href',
+      type: 'string',
+      required: true,
+      description: { ko: '링크가 가리키는 곳', en: 'Where the link goes' }
+    },
+    {
+      name: 'underline',
+      type: "'always' | 'hover' | 'none'",
+      default: "'always'",
+      description: {
+        ko: '밑줄이 그어지는 시점',
+        en: 'When the underline is drawn'
+      }
+    },
+    {
+      ...color,
+      default: undefined,
+      description: {
+        ko: '읽어들일 강조 색 계열. **기본값이 없습니다** — 문장 속 링크는 보통 문장과 같은 색입니다',
+        en: 'Which accent family to read. **No default** — a link in a paragraph is usually the paragraph’s own colour'
+      }
+    },
+    {
+      ...size,
+      default: undefined,
+      description: {
+        ko: '타입 스케일. 역시 기본값이 없습니다 — 문장 안의 링크는 문장의 크기입니다',
+        en: 'The type scale. Also no default: a link inside a sentence is the size of the sentence'
+      }
+    },
+    {
+      name: 'newTab',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '새 탭에서 엽니다. `rel`과 스크린 리더용 안내, 그리고 `icon`까지 함께 켜집니다',
+        en: 'Opens in a new tab, with the `rel`, the note for a screen reader and `icon` all turned on'
+      }
+    },
+    {
+      name: 'icon',
+      type: `${NODE} | boolean`,
+      description: {
+        ko: '라벨 뒤의 표시. 생략하면 `newTab`을 따릅니다',
+        en: 'The mark after the label. Left out, it follows `newTab`'
+      }
+    },
+    {
+      name: 'newTabLabel',
+      type: 'string',
+      default: "'Opens in a new tab'",
+      description: {
+        ko: '`newTab`일 때 스크린 리더가 라벨 뒤에 읽는 문장',
+        en: 'What a screen reader hears after the label when `newTab` is on'
+      }
+    },
+    {
+      name: 'render',
+      type: 'RenderProp',
+      description: {
+        ko: '`<a>` 대신 라우터의 `Link` 같은 것으로 렌더링합니다',
+        en: 'Renders something other than an `<a>` — a router’s own `Link`, most of the time'
+      }
+    }
+  ],
+
+  MPBlockquote: [
+    {
+      name: 'variant',
+      type: VARIANT,
+      default: "'text'",
+      description: {
+        ko: '인용문 뒤에 칠하는 면의 양. `elevated`와 `outlined`는 면을 물들이지 않습니다',
+        en: 'How much surface the quote paints. `elevated` and `outlined` leave the sheet neutral'
+      }
+    },
+    size,
+    {
+      ...color,
+      description: {
+        ko: '앞쪽 세로선의 색 계열. `filled`와 `tonal`에서는 배경까지 물들입니다',
+        en: 'Which family the leading rule is drawn in — and, on `filled` and `tonal`, the surface behind the words'
+      }
+    },
+    {
+      name: 'author',
+      type: NODE,
+      description: {
+        ko: '말한 사람. 이 값이 있으면 `<figure>` + `<figcaption>` 구조가 됩니다',
+        en: 'Who said it. Its presence is what turns the quote into a `<figure>` with a `<figcaption>`'
+      }
+    },
+    {
+      name: 'source',
+      type: NODE,
+      description: {
+        ko: '출처가 된 작품. `<cite>` 안에 들어갑니다 — 사람 이름은 여기가 아니라 `author`입니다',
+        en: 'Where it is from. Rendered inside a `<cite>`, which is never for the name of a person'
+      }
+    },
+    {
+      name: 'cite',
+      type: 'string',
+      description: {
+        ko: '인용 출처 URL. `<blockquote>`의 `cite` 속성에 실리고 화면에는 보이지 않습니다',
+        en: 'URL of the source document. Lands on the `<blockquote>`’s own `cite` attribute and is shown to nobody'
+      }
+    },
+    {
+      name: 'icon',
+      type: `${NODE} | false`,
+      description: {
+        ko: '인용 부호. 생략하면 기본 표시, `false`면 없음, 노드를 주면 교체됩니다',
+        en: 'The mark before the quote. Omit for the house glyph, `false` to drop it, a node to replace it'
+      }
+    }
+  ],
+
+  MPAvatar: [
+    { name: 'src', type: 'string', description: { ko: '사진', en: 'The picture' } },
+    {
+      name: 'srcSet',
+      type: 'string',
+      description: { ko: '다른 해상도 후보들', en: 'Candidate images at other resolutions' }
+    },
+    {
+      name: 'alt',
+      type: 'string',
+      description: {
+        ko: '사진이 말하는 것. 기본값은 `name`이고, 이름도 없으면 빈 문자열입니다',
+        en: 'What the picture says. Defaults to `name`, and to an empty string when there is none'
+      }
+    },
+    {
+      name: 'name',
+      type: 'string',
+      description: {
+        ko: '누구인지. 사진의 이름이 되고, 이니셜이 여기서 파생되며, 스크린 리더가 읽는 문장이 됩니다',
+        en: 'Who or what this is. One prop naming the picture, deriving the initials and speaking for them'
+      }
+    },
+    {
+      name: 'initials',
+      type: 'string',
+      description: {
+        ko: '이니셜을 직접 씁니다. 파생 규칙이 틀렸을 때',
+        en: 'The initials, written out, for when the rule derived the wrong ones'
+      }
+    },
+    {
+      name: 'shape',
+      type: "'circle' | 'square'",
+      default: "'circle'",
+      description: { ko: '잘라내는 모양', en: 'The crop' }
+    },
+    {
+      name: 'variant',
+      type: VARIANT,
+      default: "'tonal'",
+      description: {
+        ko: '대체 표시 뒤에 칠하는 면의 양. `tonal`이 머터리얼이 모노그램을 올리는 면입니다',
+        en: 'How much surface is painted behind the fallback. `tonal` is what MD3 draws a monogram on'
+      }
+    },
+    size,
+    color,
+    {
+      name: 'delay',
+      type: 'number',
+      description: {
+        ko: '대체 표시를 그리기까지 기다리는 밀리초',
+        en: 'How long to wait before drawing the fallback, in milliseconds'
+      }
+    },
+    {
+      name: 'imageProps',
+      type: "Omit<ImgHTMLAttributes, 'src' | 'srcSet' | 'alt'>",
+      description: {
+        ko: '`<img>`에 필요한 나머지 — `loading`, `crossOrigin` 등',
+        en: 'Anything else the `<img>` needs — `loading`, `crossOrigin`, `referrerPolicy`'
+      }
+    },
+    {
+      name: 'onLoadingStatusChange',
+      type: '(status: MPAvatarLoadingStatus) => void',
+      description: {
+        ko: '사진이 `idle`·`loading`·`loaded`·`error` 사이를 오갈 때 호출됩니다',
+        en: 'Called as the picture moves between `idle`, `loading`, `loaded` and `error`'
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '이니셜 대신 그릴 대체 표시 — 아이콘, 로고, 이모지 하나',
+        en: 'The fallback, drawn instead of the initials — an icon, a logo, a single emoji'
+      }
+    }
+  ],
+
+  MPBadge: [
+    {
+      name: 'content',
+      type: NODE,
+      description: {
+        ko: '배지가 말하는 것. 생략하면 점을 그립니다',
+        en: 'What the badge says. Omit it and the badge draws a dot instead'
+      }
+    },
+    {
+      name: 'max',
+      type: 'number',
+      default: '99',
+      description: {
+        ko: '숫자 `content`의 상한. 넘으면 `+`가 붙습니다',
+        en: 'Caps a numeric `content` and adds a `+`'
+      }
+    },
+    {
+      name: 'dot',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '내용이 있어도 점으로 그립니다. 내용은 스크린 리더용으로 남습니다',
+        en: 'Draws a dot even when there is content, keeping the content for screen readers'
+      }
+    },
+    {
+      name: 'showZero',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '`content`가 `0`일 때도 보여줍니다',
+        en: 'Whether a `content` of `0` is shown'
+      }
+    },
+    {
+      name: 'invisible',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '자리는 그대로 두고 표시만 감춥니다',
+        en: 'Hides the marker without unmounting the anchor'
+      }
+    },
+    {
+      name: 'placement',
+      type: "'top-start' | 'top-end' | 'bottom-start' | 'bottom-end'",
+      default: "'top-end'",
+      description: { ko: '붙는 모서리', en: 'Which corner of the anchor it sits on' }
+    },
+    {
+      name: 'overlap',
+      type: "'square' | 'circle'",
+      default: "'square'",
+      description: {
+        ko: '밑에 깔린 것의 모양. 얼마나 안쪽으로 파고들지를 정합니다',
+        en: 'The shape of the thing underneath, which decides how far the marker tucks in'
+      }
+    },
+    {
+      name: 'variant',
+      type: VARIANT,
+      default: "'filled'",
+      description: { ko: '표시가 칠하는 면의 양', en: 'How much surface the marker paints' }
+    },
+    size,
+    {
+      ...color,
+      default: "'error'",
+      description: {
+        ko: '읽어들일 강조 색 계열. 라이브러리에서 유일하게 `error`가 기본값입니다 — MD3의 배지가 그렇습니다',
+        en: 'Which accent family to read. The one component that defaults to `error`, because MD3’s badge does'
+      }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: {
+        ko: '스크린 리더가 숫자 대신 듣는 문장',
+        en: 'What a screen reader hears instead of the raw content'
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '배지가 붙는 대상. 없으면 인라인으로 놓이는 독립 표시가 됩니다',
+        en: 'What the badge is pinned to. Without it the badge lays out inline'
+      }
+    }
+  ],
+
+  MPChip: [
+    {
+      name: 'variant',
+      type: VARIANT,
+      default: "'outlined'",
+      description: {
+        ko: '칩이 칠하는 면의 양. MD3의 칩은 기본이 outlined입니다',
+        en: 'How much surface the chip paints. MD3’s chip is outlined at rest'
+      }
+    },
+    size,
+    color,
+    {
+      name: 'startIcon',
+      type: NODE,
+      description: { ko: '라벨 앞의 내용', en: 'Content placed before the label' }
+    },
+    {
+      name: 'endIcon',
+      type: NODE,
+      description: { ko: '라벨 뒤의 내용', en: 'Content placed after the label' }
+    },
+    {
+      name: 'count',
+      type: NODE,
+      description: {
+        ko: '칩 끝에 얹히는 숫자. 자기 작은 판 위에 그려집니다',
+        en: 'A number set into the end of the chip, on its own small plate'
+      }
+    },
+    {
+      name: 'onDelete',
+      type: '(event: MouseEvent) => void',
+      description: {
+        ko: '삭제 버튼이 눌렸을 때. 이 prop을 주는 것이 버튼을 만드는 방법입니다',
+        en: 'Called when the delete affordance is pressed. Passing it is what makes it appear'
+      }
+    },
+    {
+      name: 'deleteLabel',
+      type: 'string',
+      default: "'Remove'",
+      description: { ko: '삭제 버튼이 읽히는 이름', en: 'Accessible name of the delete button' }
+    },
+    {
+      name: 'selected',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '고른 상태. 색 계열을 바꾸는 대신 그 계열의 container 색으로 채웁니다',
+        en: 'Marks the chip as chosen. Fills with the family’s container tone rather than changing family'
+      }
+    },
+    disabled,
+    { name: 'children', type: NODE, description: { ko: '라벨', en: 'The label' } }
+  ],
+
+  MPSkeleton: [
+    {
+      name: 'shape',
+      type: "'line' | 'rect' | 'circle'",
+      default: "'line'",
+      description: { ko: '무엇을 대신하고 있는지', en: 'What the placeholder is standing in for' }
+    },
+    {
+      name: 'lines',
+      type: 'number',
+      default: '1',
+      description: {
+        ko: '`shape="line"`일 때 그릴 줄 수. 마지막 줄은 짧게 그려집니다',
+        en: 'How many lines to draw for `shape="line"`. The last one is drawn short'
+      }
+    },
+    size,
+    {
+      ...color,
+      default: undefined,
+      description: {
+        ko: '대체 표시를 물들일 계열. **기본값이 없습니다** — 지정하지 않으면 `surface-container-highest`입니다',
+        en: 'Which family tints the placeholder. **No default** — left unset it is `surface-container-highest`'
+      }
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      description: { ko: '너비. 숫자는 픽셀입니다', en: 'An explicit width. Numbers are pixels' }
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      description: { ko: '높이. 숫자는 픽셀입니다', en: 'An explicit height. Numbers are pixels' }
+    },
+    {
+      name: 'animated',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '맥동 애니메이션. 모션 감소 설정은 이것과 무관하게 이미 존중됩니다',
+        en: 'The pulse. A reduced-motion preference already stops it without being asked'
+      }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: {
+        ko: '스크린 리더에게 알릴 문장. 없으면 `aria-hidden`이고, 있으면 살아 있는 `status`가 됩니다',
+        en: 'What a screen reader is told. Without it the placeholder is `aria-hidden`; with it, a live `status`'
+      }
+    },
+    {
+      name: 'render',
+      type: 'RenderProp',
+      description: {
+        ko: '`<div>` 아닌 것으로 렌더링합니다',
+        en: 'Renders something other than a `<div>`'
+      }
+    }
+  ],
+
+  MPEmpty: [
+    {
+      name: 'title',
+      type: `${NODE} | false`,
+      default: "'Nothing here'",
+      description: {
+        ko: '제목. `false`를 주면 제목 없이 글리프와 문장만 남습니다',
+        en: 'The headline. Pass `false` for a state that is a glyph and a sentence with no heading'
+      }
+    },
+    {
+      name: 'icon',
+      type: `${NODE} | false`,
+      description: {
+        ko: '제목 위의 글리프. 생략하면 빈 쟁반, `false`면 없음, 노드를 주면 교체됩니다',
+        en: 'The glyph above the headline. Omit for the empty tray, `false` to drop it, a node to replace it'
+      }
+    },
+    {
+      name: 'action',
+      type: NODE,
+      description: {
+        ko: '글 아래에서 할 수 있는 일 — "첫 항목 만들기" 버튼, "필터 지우기" 링크',
+        en: 'What to do about it: a "Create the first one" button, a "Clear filters" link'
+      }
+    },
+    {
+      name: 'variant',
+      type: VARIANT,
+      default: "'text'",
+      description: {
+        ko: '칠하는 면의 양. 어떤 값이든 면은 중립 색으로 남습니다',
+        en: 'How much surface the state paints. The sheet stays neutral whichever it is'
+      }
+    },
+    size,
+    {
+      name: 'render',
+      type: 'RenderProp',
+      description: {
+        ko: '`<div>` 아닌 것으로 렌더링합니다: `render={<td colSpan={5} />}`',
+        en: 'Renders something other than a `<div>`: `render={<td colSpan={5} />}`'
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '제목 아래 문장 — 왜 비어 있는지, 다음에 무엇을 할지',
+        en: 'The sentence under the headline: why it is empty, or what to do next'
+      }
+    }
+  ],
+
+  MPList: [
+    {
+      name: 'variant',
+      type: VARIANT,
+      default: "'outlined'",
+      description: {
+        ko: '행 뒤의 면이 칠해지는 양. 어떤 값이든 면은 중립 색으로 남습니다',
+        en: 'How much surface the sheet paints behind the rows. It stays neutral whichever it is'
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '행의 높이와 타입 스케일. 한 줄짜리 행은 같은 이름의 컨트롤 높이에 정확히 맞습니다',
+        en: 'The row height and type scale. A one-line row lands on the control height of the same name'
+      }
+    },
+    {
+      ...color,
+      description: {
+        ko: '고르거나 가리킨 행이 읽어들일 계열. 면 자체는 물들지 않습니다',
+        en: 'Which family a selected or hovered row reads. The sheet itself stays neutral'
+      }
+    },
+    {
+      name: 'dividers',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '행 사이를 여백 대신 실선으로 나눕니다. 안쪽 여백과 행의 둥근 모서리가 함께 사라집니다',
+        en: 'Separates the rows with a hairline instead of with space, giving up the padding and the rounded rows'
+      }
+    },
+    {
+      name: 'render',
+      type: 'RenderProp',
+      description: {
+        ko: '`<ul>` 아닌 것으로 — 순서가 중요하면 `render={<ol />}`',
+        en: 'Renders something other than a `<ul>` — `render={<ol />}` where the order is the point'
+      }
+    }
+  ],
+
+  MPListItem: [
+    {
+      name: 'onClick',
+      type: '(event: MouseEvent) => void',
+      description: {
+        ko: '이 값을 주면 행이 진짜 `<button>`이 됩니다',
+        en: 'Passing it is what turns the row into a real `<button>`'
+      }
+    },
+    {
+      name: 'href',
+      type: 'string',
+      description: { ko: '행을 링크로 렌더링합니다', en: 'Renders the row as a link' }
+    },
+    {
+      name: 'startIcon',
+      type: NODE,
+      description: { ko: '라벨 앞의 내용', en: 'Content before the label' }
+    },
+    {
+      name: 'endIcon',
+      type: NODE,
+      description: {
+        ko: '라벨 뒤, 누를 수 있는 영역 안쪽의 내용',
+        en: 'Content after the label, inside the pressable area'
+      }
+    },
+    {
+      name: 'description',
+      type: NODE,
+      description: {
+        ko: '라벨 아래 두 번째 줄. MD3가 supporting text라 부르는 것입니다',
+        en: 'A second line under the label — what MD3 calls the supporting text'
+      }
+    },
+    {
+      name: 'action',
+      type: NODE,
+      description: {
+        ko: '행 끝에 고정되는 컨트롤. 누를 수 있는 영역 **바깥**입니다',
+        en: 'A control pinned to the end of the row, deliberately outside the pressable area'
+      }
+    },
+    {
+      name: 'selected',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '고른 행 — 열려 있는 페이지, 지금 걸린 필터',
+        en: 'Marks the row as the chosen one — the open page, the current filter'
+      }
+    },
+    disabled,
+    { name: 'children', type: NODE, description: { ko: '라벨', en: 'The label' } }
+  ],
+
+  MPTable: [
+    {
+      name: 'headers',
+      type: 'MPTableColumn<Row>[]',
+      required: true,
+      description: {
+        ko: '열 정의. 나타나는 순서대로입니다',
+        en: 'The columns, in the order they appear'
+      }
+    },
+    { name: 'items', type: 'Row[]', required: true, description: { ko: '행', en: 'The rows' } },
+    {
+      name: 'getRowKey',
+      type: '(row: Row, index: number) => Key',
+      description: {
+        ko: '행마다 안정적인 key. 기본값은 인덱스이며, 정렬하거나 거르는 표에서는 틀립니다',
+        en: 'A stable key per row. Defaults to the index, which is wrong for a table that sorts or filters'
+      }
+    },
+    {
+      name: 'caption',
+      type: NODE,
+      description: {
+        ko: '표 위에 놓이고, 표의 접근성 이름이 됩니다',
+        en: 'Shown above the table, and read out as its accessible name'
+      }
+    },
+    {
+      name: 'empty',
+      type: NODE,
+      default: "'No data'",
+      description: {
+        ko: '`items`가 비었을 때 행 대신 보여줄 것',
+        en: 'What to show instead of rows when `items` is empty'
+      }
+    },
+    {
+      name: 'striped',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '한 줄 걸러 색을 입힙니다', en: 'Tints every other row' }
+    },
+    {
+      name: 'hoverable',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '포인터가 놓인 행을 밝힙니다', en: 'Lights the row under the pointer' }
+    },
+    {
+      name: 'stickyHeader',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '본문이 스크롤되는 동안 헤더를 고정합니다',
+        en: 'Pins the header while the body scrolls'
+      }
+    },
+    {
+      name: 'onRowClick',
+      type: '(row: Row, index: number) => void',
+      description: {
+        ko: '행을 누를 수 있게 만듭니다. hover 처리도 함께 켜집니다',
+        en: 'Makes rows activatable. Also turns on the hover treatment'
+      }
+    },
+    {
+      name: 'variant',
+      type: VARIANT,
+      default: "'outlined'",
+      description: {
+        ko: '표를 감싼 면이 칠해지는 양. 셀은 중립 색으로 남습니다',
+        en: 'How much surface the sheet around the table paints. The cells stay neutral'
+      }
+    },
+    size,
+    {
+      ...color,
+      description: {
+        ko: '행이 반응할 때 읽어들일 계열',
+        en: 'Which family a hovered or pressed row reads'
+      }
+    }
+  ],
+
+  MPTableColumn: [
+    {
+      name: 'key',
+      type: 'string',
+      required: true,
+      description: {
+        ko: '열을 식별하고, `render`가 없으면 각 행에서 읽을 속성 이름이 됩니다',
+        en: 'Identifies the column and — unless `render` says otherwise — names the property to read'
+      }
+    },
+    {
+      name: 'label',
+      type: NODE,
+      description: { ko: '열 제목. 기본값은 `key`입니다', en: 'The heading. Defaults to the `key`' }
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      description: {
+        ko: '열의 기본 너비. 표는 여전히 폭을 맞추므로 시작 비율에 가깝습니다',
+        en: 'The column’s default width. The table still balances columns, so this is a starting proportion'
+      }
+    },
+    {
+      name: 'align',
+      type: "'start' | 'center' | 'end'",
+      default: "'start'",
+      description: {
+        ko: '글의 정렬. 숫자 열은 보통 `end`입니다',
+        en: 'Text alignment. Numbers usually want `end`'
+      }
+    },
+    {
+      name: 'render',
+      type: '(row: Row, index: number) => ReactNode',
+      description: {
+        ko: '셀을 직접 그립니다. 없으면 `row[key]`를 그대로 씁니다',
+        en: 'Renders the cell. Without it the cell is `row[key]` rendered as-is'
+      }
+    }
+  ],
+
+  MPTimeline: [
+    {
+      name: 'active',
+      type: 'number',
+      description: {
+        ko: '지금 진행 중인 항목의 인덱스. 그 앞은 완료, 뒤는 예정입니다',
+        en: 'The index of the item being worked on now. Before it is complete, after it is upcoming'
+      }
+    },
+    size,
+    color,
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'vertical'",
+      description: {
+        ko: '진행 방향. `horizontal`은 라벨이 짧을 때만 정직합니다',
+        en: 'Which way the sequence runs. `horizontal` is only honest while every label is short'
+      }
+    },
+    {
+      name: 'render',
+      type: 'RenderProp',
+      description: {
+        ko: '`<ol>` 아닌 것으로 렌더링합니다',
+        en: 'Renders something other than an `<ol>`'
+      }
+    }
+  ],
+
+  MPTimelineItem: [
+    {
+      name: 'title',
+      type: NODE,
+      description: { ko: '이 단계의 제목', en: 'The heading of this step' }
+    },
+    {
+      name: 'meta',
+      type: NODE,
+      description: {
+        ko: '언제 있었는지 — 날짜, 기간, 이름',
+        en: 'When it happened — a date, a duration, a name'
+      }
+    },
+    {
+      name: 'bullet',
+      type: NODE,
+      description: {
+        ko: '동그라미 안에 들어갈 것 — 숫자, 아이콘, 아바타',
+        en: 'What goes inside the bullet: a number, an icon, an avatar'
+      }
+    },
+    {
+      name: 'status',
+      type: "'complete' | 'current' | 'upcoming'",
+      description: {
+        ko: '`active`가 계산한 상태를 덮어씁니다 — 실패한 단계, 건너뛴 단계',
+        en: 'Overrides what `active` would have computed — a step that failed, a step that was skipped'
+      }
+    },
+    {
+      ...color,
+      default: undefined,
+      description: {
+        ko: '이 항목만 타임라인의 계열을 덮어씁니다',
+        en: 'Overrides the timeline’s accent family for this item alone'
+      }
+    },
+    {
+      name: 'connector',
+      type: "'solid' | 'dashed' | 'dotted' | 'none'",
+      default: "'solid'",
+      description: {
+        ko: '다음 항목까지 이어지는 선',
+        en: 'How the line to the next item is drawn'
+      }
+    },
+    { name: 'children', type: NODE, description: { ko: '단계의 본문', en: 'The body of the step' } }
+  ],
+
+  MPBreadcrumb: [
+    size,
+    {
+      ...color,
+      description: {
+        ko: '단계에 포인터가 놓였을 때 읽어들일 계열',
+        en: 'The accent family a step picks up when it is hovered'
+      }
+    },
+    {
+      name: 'separator',
+      type: `'chevron' | 'arrow' | 'slash' | 'dot' | ${NODE}`,
+      default: "'chevron'",
+      description: {
+        ko: '두 단계 사이의 표시. 네 이름 중 하나이거나 임의의 노드입니다',
+        en: 'The mark between two steps. One of the four names, or any node'
+      }
+    },
+    {
+      name: 'maxItems',
+      type: 'number',
+      description: {
+        ko: '가운데를 `…`로 접기 전에 보여줄 단계 수. 생략하면 접지 않습니다',
+        en: 'How many steps to show before the middle is folded away. Left out, nothing folds'
+      }
+    },
+    {
+      name: 'itemsBeforeCollapse',
+      type: 'number',
+      default: '1',
+      description: { ko: '접힌 길 앞쪽에 남을 단계 수', en: 'How many steps stay at the front' }
+    },
+    {
+      name: 'itemsAfterCollapse',
+      type: 'number',
+      default: '1',
+      description: { ko: '뒤쪽에 남을 단계 수', en: 'How many stay at the end' }
+    },
+    {
+      name: 'expandable',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '`…`를 누르면 그 자리에서 펼칩니다',
+        en: 'Whether pressing the `…` unfolds the trail in place'
+      }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      default: "'Breadcrumb'",
+      description: { ko: '길이 읽히는 이름', en: 'The name the trail is announced by' }
+    },
+    {
+      name: 'expandLabel',
+      type: 'string',
+      default: "'Show hidden steps'",
+      description: { ko: '`…`가 읽히는 이름', en: 'What the `…` is announced as' }
+    }
+  ],
+
+  MPBreadcrumbItem: [
+    {
+      name: 'href',
+      type: 'string',
+      description: { ko: '단계를 링크로 렌더링합니다', en: 'Renders the step as a link' }
+    },
+    {
+      name: 'onClick',
+      type: '(event: MouseEvent) => void',
+      description: {
+        ko: '눌렸을 때. `href`가 없으면 버튼으로 렌더링됩니다',
+        en: 'Fires when the step is pressed. Renders it as a button when there is no `href`'
+      }
+    },
+    {
+      name: 'startIcon',
+      type: NODE,
+      description: { ko: '라벨 앞의 내용', en: 'Content before the label' }
+    },
+    {
+      name: 'endIcon',
+      type: NODE,
+      description: { ko: '라벨 뒤의 내용', en: 'Content after the label' }
+    },
+    {
+      name: 'current',
+      type: 'boolean',
+      description: {
+        ko: '이 단계가 지금 보고 있는 페이지임을 표시합니다. 마지막 단계는 기본적으로 그렇습니다',
+        en: 'Marks this step as the page you are on. The last step is that on its own'
+      }
+    },
+    disabled,
+    { name: 'children', type: NODE, description: { ko: '단계의 라벨', en: 'The step’s label' } }
+  ],
+
+  MPShortcut: [
+    {
+      name: 'keys',
+      type: 'string | string[]',
+      required: true,
+      description: {
+        ko: '키들. 문자열은 `+`로 나뉩니다 — `Mod+Shift+P`. 키 자체가 `+`이면 배열로 주세요',
+        en: 'The keys. A string is split on `+` — `Mod+Shift+P`. Use the array form for a key that *is* a plus'
+      }
+    },
+    {
+      name: 'os',
+      type: "'auto' | 'mac' | 'windows' | 'linux'",
+      default: "'auto'",
+      description: {
+        ko: '어느 키보드 기준으로 이름 붙일지. `auto`는 브라우저에 물어봅니다',
+        en: 'Which keyboard to name the modifiers for. `auto` asks the browser'
+      }
+    },
+    {
+      name: 'separator',
+      type: NODE,
+      description: {
+        ko: '키 사이에 들어갈 것. 생략하면 플랫폼 관례 — 윈도우·리눅스는 `+`, 맥은 아무것도 없음',
+        en: 'What goes between two keys. Omit it for the platform’s own convention'
+      }
+    },
+    {
+      name: 'variant',
+      type: VARIANT,
+      default: "'outlined'",
+      description: { ko: '키 캡이 칠하는 면의 양', en: 'How much surface a key cap paints' }
+    },
+    size,
+    { ...color, default: "'secondary'" }
+  ],
+
+  MPTooltip: [
+    {
+      name: 'content',
+      type: NODE,
+      required: true,
+      description: {
+        ko: '툴팁이 말하는 것. 짧은 구절입니다 — 툴팁은 컨테이너가 아닙니다',
+        en: 'What the tooltip says. A short phrase — a tooltip is not a container'
+      }
+    },
+    {
+      name: 'children',
+      type: 'ReactElement',
+      required: true,
+      description: {
+        ko: '툴팁이 매달리는 엘리먼트. 정확히 하나여야 합니다',
+        en: 'The element the tooltip hangs off. Exactly one element'
+      }
+    },
+    {
+      name: 'side',
+      type: "'top' | 'right' | 'bottom' | 'left'",
+      default: "'top'",
+      description: {
+        ko: '어느 변에 나타날지. 자리가 없으면 반대쪽으로 넘어갑니다',
+        en: 'Which edge of the trigger it appears on. May flip when there is no room'
+      }
+    },
+    {
+      name: 'align',
+      type: "'start' | 'center' | 'end'",
+      default: "'center'",
+      description: { ko: '그 변에서의 위치', en: 'Where it sits along that edge' }
+    },
+    {
+      name: 'sideOffset',
+      type: 'number',
+      default: '6',
+      description: { ko: '트리거와의 거리(px)', en: 'Distance from the trigger, in pixels' }
+    },
+    {
+      name: 'delay',
+      type: 'number',
+      description: {
+        ko: '열리기까지 포인터가 머물러야 하는 시간(ms)',
+        en: 'How long the pointer has to rest before it opens, in milliseconds'
+      }
+    },
+    {
+      name: 'closeDelay',
+      type: 'number',
+      description: {
+        ko: '포인터가 떠난 뒤 닫히기까지의 시간(ms)',
+        en: 'How long it waits before closing once the pointer leaves'
+      }
+    },
+    {
+      name: 'arrow',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '트리거를 가리키는 작은 쐐기',
+        en: 'Draws the little wedge pointing at the trigger'
+      }
+    },
+    {
+      name: 'open',
+      type: 'boolean',
+      description: {
+        ko: '열림 여부. controlled로 쓸 때',
+        en: 'Whether the tooltip is open, for a controlled one'
+      }
+    },
+    {
+      name: 'defaultOpen',
+      type: 'boolean',
+      description: {
+        ko: '처음에 열려 있을지',
+        en: 'Whether it starts open, for an uncontrolled one'
+      }
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: { ko: '열림 상태가 바뀔 때', en: 'Called as the open state changes' }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '트리거는 그대로 두고 툴팁만 열리지 않게 합니다',
+        en: 'Stops the tooltip from opening at all, without disabling the trigger'
+      }
+    },
+    size,
+    {
+      ...color,
+      default: undefined,
+      description: {
+        ko: '판을 칠할 계열. **기본값이 없습니다** — 지정하지 않으면 MD3의 `inverse-surface`입니다',
+        en: 'Which family the plate is painted in. **No default** — left unset it is MD3’s `inverse-surface`'
+      }
     }
   ]
 };

@@ -410,6 +410,8 @@ const vitePressConfig: UserConfig = {
         'react/jsx-runtime',
         'react/jsx-dev-runtime',
         '@base-ui/react/field',
+        '@base-ui/react/tooltip',
+        '@base-ui/react/use-render',
         'lucide-react'
       ]
     },

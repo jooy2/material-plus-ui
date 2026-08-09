@@ -1,19 +1,37 @@
 import { useState, type ReactNode } from 'react';
 import {
   ICONS,
+  MPAvatar,
+  MPBadge,
+  MPBlockquote,
+  MPBreadcrumb,
+  MPBreadcrumbItem,
   MPButton,
   MPButtonGroup,
   MPCheckbox,
+  MPChip,
+  MPDivider,
+  MPEmpty,
   MPFilePicker,
   MPIcon,
+  MPList,
+  MPListItem,
   MPNumberField,
   MPRadio,
   MPRadioGroup,
   MPSegmentedButton,
   MPSelect,
+  MPShortcut,
+  MPSkeleton,
   MPSlider,
   MPSwitch,
-  MPTextField
+  MPTable,
+  MPTextField,
+  MPTextLink,
+  MPTimeline,
+  MPTimelineItem,
+  MPTooltip,
+  MPTypography
 } from 'material-plus-ui';
 import type { MPSelectValue } from 'material-plus-ui';
 import { DEFAULT_LOCALE, type Locale } from '../../data/i18n';
@@ -168,6 +186,50 @@ function FilePickerPreview() {
       hint="or click to browse"
       value={files}
       onFilesChange={setFiles}
+    />
+  );
+}
+
+function ChipPreview() {
+  const [on, setOn] = useState(true);
+
+  return (
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
+      <MPChip size="sm" selected={on} onClick={() => setOn((value) => !value)}>
+        Open
+      </MPChip>
+      <MPChip size="sm" variant="tonal" onDelete={() => {}}>
+        design
+      </MPChip>
+    </div>
+  );
+}
+
+function ListPreview() {
+  return (
+    <MPList size="xs" variant="text" dividers>
+      <MPListItem description="Design" selected>
+        Jane Doe
+      </MPListItem>
+      <MPListItem description="Engineering">Ada Lovelace</MPListItem>
+    </MPList>
+  );
+}
+
+function TablePreview() {
+  return (
+    <MPTable
+      size="xs"
+      variant="text"
+      striped
+      headers={[
+        { key: 'branch', label: 'Branch' },
+        { key: 'time', label: 'Time', align: 'end' }
+      ]}
+      items={[
+        { branch: 'main', time: '184s' },
+        { branch: 'feat/chip', time: '41s' }
+      ]}
     />
   );
 }
@@ -346,6 +408,238 @@ const GROUPS: Group[] = [
             <MPIcon icon={ICONS.info} size={26} color="var(--color-mp-on-surface)" label="Info" />
             <MPIcon icon={ICONS.error} size={30} color="var(--color-mp-error)" label="Failed" />
           </div>
+        )
+      },
+      {
+        name: 'MPTypography',
+        summary: {
+          ko: '머터리얼의 타입 역할로 조판된 글',
+          en: "Text at one of Material's type roles"
+        },
+        path: '/components/display/typography',
+        preview: (
+          <Fit>
+            <MPTypography level="h4">Headline</MPTypography>
+            <MPTypography level="caption">body-small, on-surface-variant</MPTypography>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPDivider',
+        summary: { ko: '두 가지 사이를 가르는 선', en: 'A rule between two things' },
+        path: '/components/display/divider',
+        preview: (
+          <Fit width={200}>
+            <MPDivider size="sm">OR</MPDivider>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPAvatar',
+        summary: {
+          ko: '절대 빈 상자가 되지 않는 사진',
+          en: 'A picture that is never an empty box'
+        },
+        path: '/components/display/avatar',
+        preview: (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <MPAvatar size="sm" name="Jane Doe" />
+            <MPAvatar size="sm" name="홍길동" color="tertiary" />
+            <MPAvatar size="sm" variant="outlined" />
+          </div>
+        )
+      },
+      {
+        name: 'MPBadge',
+        summary: {
+          ko: '다른 것의 모서리에 붙는 작은 표시',
+          en: 'A small mark in the corner of something else'
+        },
+        path: '/components/display/badge',
+        preview: (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 22 }}>
+            <MPBadge content={3} label="3 unread" overlap="circle">
+              <MPAvatar size="sm" name="Jane Doe" />
+            </MPBadge>
+            <MPBadge content={128} label="128 notifications">
+              <MPButton size="sm" variant="tonal">
+                Inbox
+              </MPButton>
+            </MPBadge>
+          </div>
+        )
+      },
+      {
+        name: 'MPChip',
+        summary: {
+          ko: '태그, 필터, 상태를 담는 작은 토큰',
+          en: 'A compact token: a tag, a filter, a status'
+        },
+        path: '/components/display/chip',
+        preview: <ChipPreview />
+      },
+      {
+        name: 'MPList',
+        summary: {
+          ko: '행을 쌓은 것. 설정은 묶음에 한 번만',
+          en: 'A stack of rows, configured once'
+        },
+        path: '/components/display/list',
+        preview: (
+          <Fit>
+            <ListPreview />
+          </Fit>
+        )
+      },
+      {
+        name: 'MPTable',
+        summary: {
+          ko: '열로 서술하는 데이터 격자',
+          en: 'A grid of data, described by its columns'
+        },
+        path: '/components/display/table',
+        preview: (
+          <Fit>
+            <TablePreview />
+          </Fit>
+        )
+      },
+      {
+        name: 'MPTimeline',
+        summary: { ko: '벌어진 순서대로 놓인 단계들', en: 'Steps, in the order they happen in' },
+        path: '/components/display/timeline',
+        preview: (
+          <Fit width={200}>
+            <MPTimeline size="xs" active={1}>
+              <MPTimelineItem title="Ordered" bullet="1" />
+              <MPTimelineItem title="Packed" bullet="2" />
+              <MPTimelineItem title="Delivered" bullet="3" />
+            </MPTimeline>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPBlockquote',
+        summary: {
+          ko: '내 글과 구분해 놓은 남의 말',
+          en: "Somebody else's words, set apart from yours"
+        },
+        path: '/components/display/blockquote',
+        preview: (
+          <Fit>
+            <MPBlockquote size="xs" icon={false} author="Ada Lovelace">
+              The Analytical Engine has no pretensions whatever.
+            </MPBlockquote>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPShortcut',
+        summary: {
+          ko: '플랫폼에 맞게 이름이 붙는 키보드 키',
+          en: 'A keyboard key, named for the platform'
+        },
+        path: '/components/display/shortcut',
+        preview: (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center' }}>
+            <MPShortcut keys="Mod+K" size="sm" />
+            <MPShortcut keys="Shift+Enter" size="sm" />
+          </div>
+        )
+      }
+    ]
+  },
+  {
+    title: { ko: '내비게이션', en: 'Navigation' },
+    note: {
+      ko: '독자를 다른 곳으로 데려가는 것들.',
+      en: 'The things that take a reader somewhere else.'
+    },
+    entries: [
+      {
+        name: 'MPTextLink',
+        summary: { ko: '문장 안에 있거나 홀로 선 링크', en: 'A link, in a sentence or on its own' },
+        path: '/components/navigation/text-link',
+        preview: (
+          <Fit>
+            <span style={{ lineHeight: 1.8 }}>
+              The roles are on <MPTextLink href="#">the colour page</MPTextLink>, and the spec is at{' '}
+              <MPTextLink href="https://m3.material.io" newTab>
+                m3.material.io
+              </MPTextLink>
+              .
+            </span>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPBreadcrumb',
+        summary: { ko: '지금 페이지 위쪽의 경로', en: 'The trail of pages above this one' },
+        path: '/components/navigation/breadcrumb',
+        preview: (
+          <MPBreadcrumb size="sm">
+            <MPBreadcrumbItem href="#">Home</MPBreadcrumbItem>
+            <MPBreadcrumbItem href="#">Docs</MPBreadcrumbItem>
+            <MPBreadcrumbItem>Breadcrumb</MPBreadcrumbItem>
+          </MPBreadcrumb>
+        )
+      }
+    ]
+  },
+  {
+    title: { ko: '피드백', en: 'Feedback' },
+    note: {
+      ko: '기다리는 중이거나, 아무것도 없거나, 한마디 덧붙일 때.',
+      en: 'For a wait, for nothing at all, and for one more word.'
+    },
+    entries: [
+      {
+        name: 'MPSkeleton',
+        summary: {
+          ko: '아직 도착하지 않은 것의 모양',
+          en: 'The shape of something not loaded yet'
+        },
+        path: '/components/feedback/skeleton',
+        preview: (
+          <Fit>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <MPSkeleton shape="circle" size="sm" />
+              <div style={{ display: 'grid', gap: 6, flex: 1 }}>
+                <MPSkeleton size="sm" width="70%" />
+                <MPSkeleton size="xs" width="45%" />
+              </div>
+            </div>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPEmpty',
+        summary: {
+          ko: '내용이 있었어야 할 자리에 서는 것',
+          en: 'What stands where content would have been'
+        },
+        path: '/components/feedback/empty',
+        preview: (
+          <Fit>
+            <MPEmpty size="xs" title="No results">
+              Try a shorter term.
+            </MPEmpty>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPTooltip',
+        summary: {
+          ko: '포인터가 머물면 나타나는 짧은 라벨',
+          en: 'A short label, when the pointer rests'
+        },
+        path: '/components/feedback/tooltip',
+        preview: (
+          <MPTooltip content="Copy to clipboard" defaultOpen={false}>
+            <MPButton size="sm" variant="tonal">
+              Hover me
+            </MPButton>
+          </MPTooltip>
         )
       }
     ]

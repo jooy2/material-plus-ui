@@ -25,8 +25,8 @@
  * A token nobody uses is a promise to keep supporting a name, so the roles below
  * are exactly the ones the components actually resolve, and nothing else. MD3
  * defines around fifty colour roles; an outlined text field reads five of them,
- * and the twelve components in this library between them read twenty-three. The
- * rest are absent on purpose and get added as components need them.
+ * and the components in this library between them read twenty-five. The rest
+ * are absent on purpose and get added as components need them.
  *
  * This is also why the library does not try to reproduce MD3 completely. It has
  * to *coexist* with whatever Material implementation a page already runs, not
@@ -208,6 +208,17 @@
     --_mp-tone-surface-container-highest: 0.914;
     --_mp-chroma-surface-container-highest: 0.0137;
 
+    /* The inverted pair, which is the same neutral palette read at the *other*
+       end: neutral 20 under neutral 95 in the light scheme, and the two swapped
+       in the dark one. MD3 gives it to exactly one thing, and so does this
+       library — a plain tooltip, whose whole job is to be legible over content
+       it was not designed against. A surface that inverts with the scheme is
+       readable on either. */
+    --_mp-tone-inverse-surface: 0.313;
+    --_mp-chroma-inverse-surface: 0.0118;
+    --_mp-tone-inverse-on-surface: 0.96;
+    --_mp-chroma-inverse-on-surface: 0.0118;
+
     /* `error` carries its own hue as well, because it is not derived from the
        source colour at all — see the role below. */
     --_mp-tone-error: 0.501;
@@ -272,6 +283,10 @@
       --_mp-chroma-surface-container: 0.0134;
       --_mp-tone-surface-container-highest: 0.33;
       --_mp-chroma-surface-container-highest: 0.0125;
+      --_mp-tone-inverse-surface: 0.914;
+      --_mp-chroma-inverse-surface: 0.0137;
+      --_mp-tone-inverse-on-surface: 0.313;
+      --_mp-chroma-inverse-on-surface: 0.0118;
       --_mp-tone-error: 0.834;
       --_mp-chroma-error: 0.0677;
       --_mp-hue-error: 22;
@@ -302,6 +317,10 @@
     --_mp-chroma-surface-container: 0.0134;
     --_mp-tone-surface-container-highest: 0.33;
     --_mp-chroma-surface-container-highest: 0.0125;
+    --_mp-tone-inverse-surface: 0.914;
+    --_mp-chroma-inverse-surface: 0.0137;
+    --_mp-tone-inverse-on-surface: 0.313;
+    --_mp-chroma-inverse-on-surface: 0.0118;
     --_mp-tone-error: 0.834;
     --_mp-chroma-error: 0.0677;
     --_mp-hue-error: 22;
@@ -310,10 +329,10 @@
   /*
    * Colour roles.
    *
-   * Twenty-three, and every one of them is resolved by a component in this
+   * Twenty-five, and every one of them is resolved by a component in this
    * library. Checked against the spec's own component token maps rather than
    * assumed — an outlined text field reads five, a filled button four, a switch
-   * six.
+   * six, a plain tooltip two nothing else touches.
    *
    * The three source-derived families are written out rather than generated. CSS
    * has no way to build a custom property's *name* from another one, so a family
@@ -480,6 +499,28 @@
       )
     );
 
+    /* The two inverted roles, read by a plain tooltip and by nothing else. */
+    --_mp-color-inverse-surface: var(
+      --mp-sys-color-inverse-surface,
+      var(
+        --md-sys-color-inverse-surface,
+        oklch(
+          from var(--mp-source-color) var(--_mp-tone-inverse-surface)
+            var(--_mp-chroma-inverse-surface) h
+        )
+      )
+    );
+    --_mp-color-inverse-on-surface: var(
+      --mp-sys-color-inverse-on-surface,
+      var(
+        --md-sys-color-inverse-on-surface,
+        oklch(
+          from var(--mp-source-color) var(--_mp-tone-inverse-on-surface)
+            var(--_mp-chroma-inverse-on-surface) h
+        )
+      )
+    );
+
     --_mp-color-on-surface: var(
       --mp-sys-color-on-surface,
       var(
@@ -581,6 +622,8 @@
     --color-mp-surface-container-low: var(--_mp-color-surface-container-low);
     --color-mp-surface-container: var(--_mp-color-surface-container);
     --color-mp-surface-container-highest: var(--_mp-color-surface-container-highest);
+    --color-mp-inverse-surface: var(--_mp-color-inverse-surface);
+    --color-mp-inverse-on-surface: var(--_mp-color-inverse-on-surface);
     --color-mp-on-surface: var(--_mp-color-on-surface);
     --color-mp-on-surface-variant: var(--_mp-color-on-surface-variant);
     --color-mp-outline: var(--_mp-color-outline);
@@ -593,6 +636,46 @@
     /* Literals rather than derivations, but resolved through a variable all the
        same, so they freeze at `:root` in exactly the same way. A consumer setting
        a typescale on a wrapper should see it apply inside that wrapper. */
+    --text-mp-display-small: var(--mp-sys-typescale-display-small-size);
+    --text-mp-display-small--line-height: var(--mp-sys-typescale-display-small-line-height);
+    --text-mp-display-small--letter-spacing: var(--mp-sys-typescale-display-small-tracking);
+    --text-mp-display-small--font-weight: var(--mp-sys-typescale-display-small-weight);
+
+    --text-mp-headline-large: var(--mp-sys-typescale-headline-large-size);
+    --text-mp-headline-large--line-height: var(--mp-sys-typescale-headline-large-line-height);
+    --text-mp-headline-large--letter-spacing: var(--mp-sys-typescale-headline-large-tracking);
+    --text-mp-headline-large--font-weight: var(--mp-sys-typescale-headline-large-weight);
+
+    --text-mp-headline-medium: var(--mp-sys-typescale-headline-medium-size);
+    --text-mp-headline-medium--line-height: var(--mp-sys-typescale-headline-medium-line-height);
+    --text-mp-headline-medium--letter-spacing: var(--mp-sys-typescale-headline-medium-tracking);
+    --text-mp-headline-medium--font-weight: var(--mp-sys-typescale-headline-medium-weight);
+
+    --text-mp-headline-small: var(--mp-sys-typescale-headline-small-size);
+    --text-mp-headline-small--line-height: var(--mp-sys-typescale-headline-small-line-height);
+    --text-mp-headline-small--letter-spacing: var(--mp-sys-typescale-headline-small-tracking);
+    --text-mp-headline-small--font-weight: var(--mp-sys-typescale-headline-small-weight);
+
+    --text-mp-title-large: var(--mp-sys-typescale-title-large-size);
+    --text-mp-title-large--line-height: var(--mp-sys-typescale-title-large-line-height);
+    --text-mp-title-large--letter-spacing: var(--mp-sys-typescale-title-large-tracking);
+    --text-mp-title-large--font-weight: var(--mp-sys-typescale-title-large-weight);
+
+    --text-mp-title-small: var(--mp-sys-typescale-title-small-size);
+    --text-mp-title-small--line-height: var(--mp-sys-typescale-title-small-line-height);
+    --text-mp-title-small--letter-spacing: var(--mp-sys-typescale-title-small-tracking);
+    --text-mp-title-small--font-weight: var(--mp-sys-typescale-title-small-weight);
+
+    --text-mp-label-medium: var(--mp-sys-typescale-label-medium-size);
+    --text-mp-label-medium--line-height: var(--mp-sys-typescale-label-medium-line-height);
+    --text-mp-label-medium--letter-spacing: var(--mp-sys-typescale-label-medium-tracking);
+    --text-mp-label-medium--font-weight: var(--mp-sys-typescale-label-medium-weight);
+
+    --text-mp-label-small: var(--mp-sys-typescale-label-small-size);
+    --text-mp-label-small--line-height: var(--mp-sys-typescale-label-small-line-height);
+    --text-mp-label-small--letter-spacing: var(--mp-sys-typescale-label-small-tracking);
+    --text-mp-label-small--font-weight: var(--mp-sys-typescale-label-small-weight);
+
     --text-mp-body-large: var(--mp-sys-typescale-body-large-size);
     --text-mp-body-large--line-height: var(--mp-sys-typescale-body-large-line-height);
     --text-mp-body-large--letter-spacing: var(--mp-sys-typescale-body-large-tracking);
@@ -638,11 +721,18 @@
      */
 
     /*
-     * Typescale. Five roles, and each one is read by something: a text field's
-     * input is `body-large` at `md` and above and `body-medium` at `sm` and `xs`,
-     * its notched label and supporting text are `body-small`. A button's label is
-     * `label-large` at `xs` and `sm` and `title-medium` from `md` up, which is
-     * what MD3 sets its own small and medium buttons in.
+     * Typescale. Thirteen of MD3's fifteen roles, and each one is read by
+     * something: a text field's input is `body-large` at `md` and above and
+     * `body-medium` at `sm` and `xs`, its notched label and supporting text are
+     * `body-small`. A button's label is `label-large` at `xs` and `sm` and
+     * `title-medium` from `md` up, which is what MD3 sets its own small and
+     * medium buttons in.
+     *
+     * The display and headline half of the scale arrived with `MPTypography`,
+     * which is the component whose whole subject is the ladder — before it, a
+     * heading role was a token nothing read. `display-large` and
+     * `display-medium` are still absent for exactly that reason: at 57px and
+     * 45px they are hero type, and nothing in the library sets any.
      *
      * All three values are the spec's. The size ladder is ours — see `MPSize` in
      * `src/types.ts` — but what it selects between is not: a smaller control
@@ -653,6 +743,41 @@
      * rather than naming a typeface. Shipping a font stack would be a page-level
      * decision, and this library does not make those.
      */
+    /* The five roles above body, at MD3's own sizes and — this is the part that
+       looks like a mistake and is not — at MD3's own **weight 400**. Material
+       headings are not bold. A 32px line at regular weight is what the
+       specification draws, and the single fastest way to make a Material page
+       look like a Bootstrap one is to set its headings in 600. */
+    --mp-sys-typescale-display-small-font: inherit;
+    --mp-sys-typescale-display-small-size: 2.25rem;
+    --mp-sys-typescale-display-small-line-height: 2.75rem;
+    --mp-sys-typescale-display-small-tracking: 0rem;
+    --mp-sys-typescale-display-small-weight: 400;
+
+    --mp-sys-typescale-headline-large-font: inherit;
+    --mp-sys-typescale-headline-large-size: 2rem;
+    --mp-sys-typescale-headline-large-line-height: 2.5rem;
+    --mp-sys-typescale-headline-large-tracking: 0rem;
+    --mp-sys-typescale-headline-large-weight: 400;
+
+    --mp-sys-typescale-headline-medium-font: inherit;
+    --mp-sys-typescale-headline-medium-size: 1.75rem;
+    --mp-sys-typescale-headline-medium-line-height: 2.25rem;
+    --mp-sys-typescale-headline-medium-tracking: 0rem;
+    --mp-sys-typescale-headline-medium-weight: 400;
+
+    --mp-sys-typescale-headline-small-font: inherit;
+    --mp-sys-typescale-headline-small-size: 1.5rem;
+    --mp-sys-typescale-headline-small-line-height: 2rem;
+    --mp-sys-typescale-headline-small-tracking: 0rem;
+    --mp-sys-typescale-headline-small-weight: 400;
+
+    --mp-sys-typescale-title-large-font: inherit;
+    --mp-sys-typescale-title-large-size: 1.375rem;
+    --mp-sys-typescale-title-large-line-height: 1.75rem;
+    --mp-sys-typescale-title-large-tracking: 0rem;
+    --mp-sys-typescale-title-large-weight: 400;
+
     --mp-sys-typescale-body-large-font: inherit;
     --mp-sys-typescale-body-large-size: 1rem;
     --mp-sys-typescale-body-large-line-height: 1.5rem;
@@ -671,14 +796,34 @@
     --mp-sys-typescale-body-small-tracking: 0.025rem;
     --mp-sys-typescale-body-small-weight: 400;
 
-    /* The two label roles. Both are 500 rather than 400: MD3 sets a control's
-       own text one weight up from prose, which is what keeps a button's label
-       from reading as a paragraph that happens to be inside a box. */
+    /* The label and small-title roles. All of them are 500 rather than 400: MD3
+       sets a control's own text one weight up from prose, which is what keeps a
+       button's label from reading as a paragraph that happens to be inside a
+       box. `label-small` at 11px is the smallest type in the specification and
+       is why a badge's count is legible at all. */
     --mp-sys-typescale-label-large-font: inherit;
     --mp-sys-typescale-label-large-size: 0.875rem;
     --mp-sys-typescale-label-large-line-height: 1.25rem;
     --mp-sys-typescale-label-large-tracking: 0.00625rem;
     --mp-sys-typescale-label-large-weight: 500;
+
+    --mp-sys-typescale-label-medium-font: inherit;
+    --mp-sys-typescale-label-medium-size: 0.75rem;
+    --mp-sys-typescale-label-medium-line-height: 1rem;
+    --mp-sys-typescale-label-medium-tracking: 0.03125rem;
+    --mp-sys-typescale-label-medium-weight: 500;
+
+    --mp-sys-typescale-label-small-font: inherit;
+    --mp-sys-typescale-label-small-size: 0.6875rem;
+    --mp-sys-typescale-label-small-line-height: 1rem;
+    --mp-sys-typescale-label-small-tracking: 0.03125rem;
+    --mp-sys-typescale-label-small-weight: 500;
+
+    --mp-sys-typescale-title-small-font: inherit;
+    --mp-sys-typescale-title-small-size: 0.875rem;
+    --mp-sys-typescale-title-small-line-height: 1.25rem;
+    --mp-sys-typescale-title-small-tracking: 0.00625rem;
+    --mp-sys-typescale-title-small-weight: 500;
 
     --mp-sys-typescale-title-medium-font: inherit;
     --mp-sys-typescale-title-medium-size: 1rem;
@@ -762,6 +907,8 @@
   --color-mp-surface-container-low: var(--_mp-color-surface-container-low);
   --color-mp-surface-container: var(--_mp-color-surface-container);
   --color-mp-surface-container-highest: var(--_mp-color-surface-container-highest);
+  --color-mp-inverse-surface: var(--_mp-color-inverse-surface);
+  --color-mp-inverse-on-surface: var(--_mp-color-inverse-on-surface);
   --color-mp-on-surface: var(--_mp-color-on-surface);
   --color-mp-on-surface-variant: var(--_mp-color-on-surface-variant);
   --color-mp-outline: var(--_mp-color-outline);
@@ -770,6 +917,46 @@
   --color-mp-on-error: var(--_mp-color-on-error);
   --color-mp-error-container: var(--_mp-color-error-container);
   --color-mp-on-error-container: var(--_mp-color-on-error-container);
+
+  --text-mp-display-small: var(--mp-sys-typescale-display-small-size);
+  --text-mp-display-small--line-height: var(--mp-sys-typescale-display-small-line-height);
+  --text-mp-display-small--letter-spacing: var(--mp-sys-typescale-display-small-tracking);
+  --text-mp-display-small--font-weight: var(--mp-sys-typescale-display-small-weight);
+
+  --text-mp-headline-large: var(--mp-sys-typescale-headline-large-size);
+  --text-mp-headline-large--line-height: var(--mp-sys-typescale-headline-large-line-height);
+  --text-mp-headline-large--letter-spacing: var(--mp-sys-typescale-headline-large-tracking);
+  --text-mp-headline-large--font-weight: var(--mp-sys-typescale-headline-large-weight);
+
+  --text-mp-headline-medium: var(--mp-sys-typescale-headline-medium-size);
+  --text-mp-headline-medium--line-height: var(--mp-sys-typescale-headline-medium-line-height);
+  --text-mp-headline-medium--letter-spacing: var(--mp-sys-typescale-headline-medium-tracking);
+  --text-mp-headline-medium--font-weight: var(--mp-sys-typescale-headline-medium-weight);
+
+  --text-mp-headline-small: var(--mp-sys-typescale-headline-small-size);
+  --text-mp-headline-small--line-height: var(--mp-sys-typescale-headline-small-line-height);
+  --text-mp-headline-small--letter-spacing: var(--mp-sys-typescale-headline-small-tracking);
+  --text-mp-headline-small--font-weight: var(--mp-sys-typescale-headline-small-weight);
+
+  --text-mp-title-large: var(--mp-sys-typescale-title-large-size);
+  --text-mp-title-large--line-height: var(--mp-sys-typescale-title-large-line-height);
+  --text-mp-title-large--letter-spacing: var(--mp-sys-typescale-title-large-tracking);
+  --text-mp-title-large--font-weight: var(--mp-sys-typescale-title-large-weight);
+
+  --text-mp-title-small: var(--mp-sys-typescale-title-small-size);
+  --text-mp-title-small--line-height: var(--mp-sys-typescale-title-small-line-height);
+  --text-mp-title-small--letter-spacing: var(--mp-sys-typescale-title-small-tracking);
+  --text-mp-title-small--font-weight: var(--mp-sys-typescale-title-small-weight);
+
+  --text-mp-label-medium: var(--mp-sys-typescale-label-medium-size);
+  --text-mp-label-medium--line-height: var(--mp-sys-typescale-label-medium-line-height);
+  --text-mp-label-medium--letter-spacing: var(--mp-sys-typescale-label-medium-tracking);
+  --text-mp-label-medium--font-weight: var(--mp-sys-typescale-label-medium-weight);
+
+  --text-mp-label-small: var(--mp-sys-typescale-label-small-size);
+  --text-mp-label-small--line-height: var(--mp-sys-typescale-label-small-line-height);
+  --text-mp-label-small--letter-spacing: var(--mp-sys-typescale-label-small-tracking);
+  --text-mp-label-small--font-weight: var(--mp-sys-typescale-label-small-weight);
 
   --text-mp-body-large: var(--mp-sys-typescale-body-large-size);
   --text-mp-body-large--line-height: var(--mp-sys-typescale-body-large-line-height);

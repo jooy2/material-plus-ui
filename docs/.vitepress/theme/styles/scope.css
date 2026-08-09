@@ -19,10 +19,36 @@
  * styling coming down from outside it.
  */
 
-.vp-doc .mp-scope :is(p, h1, h2, h3, h4, h5, h6, ul, ol, li, blockquote, figure, dl, dd) {
+/*
+ * The exemptions are the components that bring a type scale of their own.
+ *
+ * `MPTypography` *is* the type scale, and `MPBlockquote` sets one on its wrapper
+ * for the quote inside it to inherit. Both write their utilities through their
+ * own doubled class, which is two classes — and `.vp-doc .mp-scope h2` is two
+ * classes plus a type, so without the `:not()` this rule would win and a
+ * headline would come out at body leading. Everything else in the list has no
+ * typography of its own and should take the reset.
+ */
+.vp-doc
+  .mp-scope
+  :is(p, h1, h2, h3, h4, h5, h6, ul, ol, li, blockquote, figure, dl, dd):not(
+    .mp-typography,
+    .mp-blockquote
+  ) {
   margin: 0;
   line-height: inherit;
   letter-spacing: inherit;
+}
+
+/*
+ * What VitePress puts on a heading that is *not* type: `.vp-doc h2` carries a
+ * `border-top` and a `padding-top`, which is a section rule rather than a
+ * typeface. `MPTypography` owns neither, so nothing in the component can undo
+ * them and they are stripped here instead.
+ */
+.vp-doc .mp-scope .mp-typography {
+  border: 0 solid;
+  padding: 0;
 }
 
 /*
@@ -50,8 +76,13 @@
  * a link inside a component is almost never a link in an article — it is a
  * card's footer, a breadcrumb, a menu row. Those take the component's own
  * typography, which here means whatever typescale token it reads.
+ *
+ * `MPTextLink` is the exception, and the only one: it *is* a link in an article,
+ * and the colour and the line are the two things it exists to draw. It writes
+ * both through its own doubled class, which this rule would otherwise outrank —
+ * leaving a link with no line and no colour, which is a link nobody can see.
  */
-.vp-doc .mp-scope a {
+.vp-doc .mp-scope a:not(.mp-link) {
   color: inherit;
   font-weight: inherit;
   text-decoration: none;

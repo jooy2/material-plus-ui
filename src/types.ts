@@ -67,6 +67,31 @@ export type MPVariant = 'filled' | 'tonal' | 'elevated' | 'outlined' | 'text';
 export type MPOrientation = 'horizontal' | 'vertical';
 
 /**
+ * Where something sits along an axis.
+ *
+ * `start` and `end` rather than `left` and `right`, for the same reason the icon
+ * slots are `startIcon` and `endIcon`: the two words that name a physical side
+ * swap meaning under RTL, and a divider whose label was pinned `left` would move
+ * to the other end of the rule in Arabic without anybody asking it to.
+ */
+export type MPAlign = 'start' | 'center' | 'end';
+
+/**
+ * Which side of an anchor something is drawn on.
+ *
+ * These *are* physical sides, and deliberately so — this is the axis a popup
+ * travels along, and Base UI's positioner takes the same four words. A tooltip
+ * above its trigger is above it in every writing direction.
+ */
+export type MPSide = 'top' | 'right' | 'bottom' | 'left';
+
+/**
+ * Which corner of a box something is pinned to. Logical again: a badge sits at
+ * the reading-end corner, which is the left one under RTL.
+ */
+export type MPCorner = 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end';
+
+/**
  * The axes most components share.
  *
  * A component extends this and adds only what is genuinely its own, which is what

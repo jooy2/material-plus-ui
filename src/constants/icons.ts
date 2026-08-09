@@ -31,6 +31,9 @@
  * imports `ICONS`, and an icon nobody renders is bytes nobody asked for.
  */
 import {
+  ArrowDown,
+  ArrowRight,
+  ArrowUp,
   Check,
   ChevronDown,
   ChevronLeft,
@@ -39,9 +42,12 @@ import {
   CircleAlert,
   CircleCheck,
   Copy,
+  Ellipsis,
+  ExternalLink,
   Eye,
   EyeOff,
   Info,
+  Link,
   LoaderCircle,
   Minus,
   Plus,
@@ -69,6 +75,18 @@ export const ChevronLeftIcon = ChevronLeft;
 export const ChevronRightIcon = ChevronRight;
 /** Search, for a field's leading adornment. */
 export const SearchIcon = Search;
+/** Sorted ascending: the arrow a table's sorted column carries. */
+export const ArrowUpIcon = ArrowUp;
+/** Sorted descending. */
+export const ArrowDownIcon = ArrowDown;
+/** And then: the mark a breadcrumb can put between two steps. */
+export const ArrowRightIcon = ArrowRight;
+/** The trail a breadcrumb hides behind, and any other "there is more here". */
+export const MoreIcon = Ellipsis;
+/** A link that goes somewhere on this site. */
+export const LinkIcon = Link;
+/** A link that takes over the window. */
+export const ExternalLinkIcon = ExternalLink;
 /** Copy to clipboard. */
 export const CopyIcon = Copy;
 /** Severity: something worth knowing. */
@@ -107,6 +125,12 @@ export const ICONS = {
   'chevron-left': ChevronLeftIcon,
   'chevron-right': ChevronRightIcon,
   search: SearchIcon,
+  'arrow-up': ArrowUpIcon,
+  'arrow-down': ArrowDownIcon,
+  'arrow-right': ArrowRightIcon,
+  more: MoreIcon,
+  link: LinkIcon,
+  'external-link': ExternalLinkIcon,
   copy: CopyIcon,
   info: InfoIcon,
   success: SuccessIcon,
