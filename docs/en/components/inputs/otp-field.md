@@ -63,6 +63,12 @@ Every rung is the control height of the same name, so a code sits at the same he
 
 The type scale goes well above the control ladder for the same reason. A verification code is read out loud off a phone and typed with the other hand; it is the one piece of text in a form that should be larger than the label above it.
 
+<Demo src="otp-field/sizes" :minHeight="460">
+
+<<< @/.vitepress/demos/otp-field/sizes.tsx
+
+</Demo>
+
 ## Accessibility
 
 - Base UI owns the hidden value behind the slots, paste spread across them from wherever the caret was, backspace stepping back a box, a click landing on the first empty slot rather than the one under the pointer, and the autofill hook that lets a phone offer the code straight from the message.

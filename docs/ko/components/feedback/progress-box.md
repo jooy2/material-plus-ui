@@ -49,6 +49,12 @@ MD3에는 바와 링이 있고 거기서 끝납니다. 이것은 라이브러리
 
 조각 하나의 크기이고, 자기만의 사다리를 씁니다. 표시기는 컨트롤이 아니므로 컨트롤 높이 위에 있지 않습니다.
 
+<Demo src="progress-box/sizes" :minHeight="220">
+
+<<< @/.vitepress/demos/progress-box/sizes.tsx
+
+</Demo>
+
 ## 접근성
 
 - `progressbar` role과 값은 Base UI가 가집니다. 조각들은 그것의 그림입니다.

@@ -66,6 +66,14 @@ On a painted quote the corners on the ruled edge stay square. A 2px rule that cu
 
 `md` is `title-large` — 22px at weight 400, MD3's own largest role that is not a heading, and exactly what a pull quote is. The leading is the role's, so a quote that runs to four lines gets the air a paragraph needs rather than a title's tight 1.27.
 
+<Demo src="blockquote/sizes" :minHeight="320">
+
+<<< @/.vitepress/demos/blockquote/sizes.tsx
+
+</Demo>
+
+Every rung is one of Material's own roles rather than an interpolated size, so a quote set at `lg` is the same text as a `headline-small` heading elsewhere on the page.
+
 ### icon
 
 The quotation mark is drawn rather than typed. A real `“` would be set in whatever face the page uses and would change shape, weight and baseline with it — and at 2em it is the largest single glyph in the component, so it changing is the most visible thing that could.

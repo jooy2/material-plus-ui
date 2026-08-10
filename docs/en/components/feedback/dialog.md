@@ -73,10 +73,11 @@ Only the body scrolls; the header and the actions stay put. Turn `dividers` on t
 
 `width` is the escape hatch for the dialog whose _content_ decides its width: a wide table, a narrow confirmation.
 
-```tsx
-<MPDialog size="sm" title="Rename" />
-<MPDialog width={880} title="Pick a file" />
-```
+<Demo src="dialog/sizes" :minHeight="80">
+
+<<< @/.vitepress/demos/dialog/sizes.tsx
+
+</Demo>
 
 ### fullWidth
 

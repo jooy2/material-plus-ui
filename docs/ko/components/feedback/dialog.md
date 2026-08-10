@@ -73,10 +73,11 @@ hero icon이 있으면 헤더가 가운데 정렬됩니다. MD3의 규칙이고,
 
 `width`는 *내용*이 너비를 정하는 대화상자를 위한 탈출구입니다. 넓은 표, 좁은 확인 창.
 
-```tsx
-<MPDialog size="sm" title="이름 바꾸기" />
-<MPDialog width={880} title="파일 고르기" />
-```
+<Demo src="dialog/sizes" :minHeight="80">
+
+<<< @/.vitepress/demos/dialog/sizes.tsx
+
+</Demo>
 
 ### fullWidth
 

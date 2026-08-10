@@ -63,6 +63,12 @@ import { MPOtpField } from 'material-plus-ui';
 
 타입 스케일이 컨트롤 사다리보다 훨씬 위인 것도 같은 이유입니다. 인증 코드는 휴대폰에서 소리 내어 읽으며 다른 손으로 입력하는 것이고, 폼에서 위의 라벨보다 커야 하는 유일한 텍스트입니다.
 
+<Demo src="otp-field/sizes" :minHeight="460">
+
+<<< @/.vitepress/demos/otp-field/sizes.tsx
+
+</Demo>
+
 ## 접근성
 
 - 칸들 뒤의 감춰진 값, 캐럿이 있던 자리에서부터 퍼지는 붙여넣기, 한 칸 뒤로 물러나는 backspace, 포인터 아래가 아니라 첫 빈 칸에 떨어지는 클릭, 휴대폰이 메시지에서 바로 코드를 제안하게 하는 autofill 훅은 Base UI가 가집니다.

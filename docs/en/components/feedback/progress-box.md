@@ -49,6 +49,12 @@ A row of no segments is not an indicator, and a fractional count is a caller who
 
 The size of one segment, on a ladder of its own. An indicator is not a control, so it is not on the control heights.
 
+<Demo src="progress-box/sizes" :minHeight="220">
+
+<<< @/.vitepress/demos/progress-box/sizes.tsx
+
+</Demo>
+
 ## Accessibility
 
 - Base UI owns the `progressbar` role and the value; the segments are the picture of it.

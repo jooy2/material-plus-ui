@@ -57,6 +57,12 @@ Shows the state without allowing a change, and unlike `disabled` the box stays i
 
 Five rungs, and the halo grows with the box rather than staying at 40dp: what the ladder keeps is the _relationship_ between the two, which is what makes an `xs` checkbox still hittable.
 
+<Demo src="checkbox/sizes" :minHeight="260">
+
+<<< @/.vitepress/demos/checkbox/sizes.tsx
+
+</Demo>
+
 `color` picks the accent family the ticked box is filled with. It is overridden while the checkbox is invalid, because an error that kept the brand colour would not read as an error.
 
 ## There is no `children`

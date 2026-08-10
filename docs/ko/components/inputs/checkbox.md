@@ -57,6 +57,12 @@ const [agreed, setAgreed] = useState(false);
 
 다섯 단계이고, 후광은 40dp에 머무는 대신 상자와 함께 커집니다. 사다리가 지키는 것은 그 둘 사이의 *관계*이고, 그것이 `xs` 체크박스도 여전히 누를 수 있게 만듭니다.
 
+<Demo src="checkbox/sizes" :minHeight="260">
+
+<<< @/.vitepress/demos/checkbox/sizes.tsx
+
+</Demo>
+
 `color`는 체크된 상자를 채울 강조 계열을 고릅니다. 오류 상태에서는 무시되는데, 브랜드 색을 유지한 오류는 오류로 읽히지 않기 때문입니다.
 
 ## `children`은 없습니다

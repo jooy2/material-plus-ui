@@ -66,6 +66,14 @@ import { MPBlockquote } from 'material-plus-ui';
 
 `md`는 `title-large`입니다 — 굵기 400의 22px, MD3 자신의 제목이 아닌 역할 중 가장 크고, pull quote가 정확히 그것입니다. 행간은 그 역할의 것이므로 네 줄까지 가는 인용문도 제목의 빡빡한 1.27이 아니라 문단에 필요한 공기를 갖습니다.
 
+<Demo src="blockquote/sizes" :minHeight="320">
+
+<<< @/.vitepress/demos/blockquote/sizes.tsx
+
+</Demo>
+
+모든 단계가 보간된 크기가 아니라 머터리얼 자신의 역할입니다. 그래서 `lg`로 놓인 인용문은 같은 페이지 다른 곳의 `headline-small` 제목과 같은 텍스트입니다.
+
 ### icon
 
 인용 부호는 타이핑한 것이 아니라 그린 것입니다. 진짜 `“`는 페이지가 쓰는 서체로 조판되어 모양·굵기·베이스라인이 함께 바뀌고 — 2em에서 컴포넌트 안 가장 큰 단일 글리프이므로 — 그것이 바뀌는 것이 가장 눈에 띄는 일이 됩니다.

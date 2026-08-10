@@ -74,6 +74,12 @@ items={[
 
 다섯 단계이고 텍스트 필드가 그려지는 것과 같은 단계입니다. 같은 `size`의 필드 옆에 놓인 셀렉트는 픽셀 단위로 맞춰집니다. 껍데기를 공유하는 이유가 그것입니다.
 
+<Demo src="select/sizes" :minHeight="440">
+
+<<< @/.vitepress/demos/select/sizes.tsx
+
+</Demo>
+
 ## 팝업
 
 `surface-container`에 elevation 2 — 이 라이브러리에서 정말로 떠 있는 유일한 면이고, 기본으로 그림자를 갖는 유일한 면입니다.

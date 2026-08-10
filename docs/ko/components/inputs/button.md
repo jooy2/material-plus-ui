@@ -81,6 +81,14 @@ import { MPButton } from 'material-plus-ui';
 
 다섯 단계이고 라이브러리의 컨트롤 사다리를 그대로 씁니다 — 32, 40, 56, 64, 72픽셀. 앞의 세 단계는 머터리얼 자신의 extra-small, small, medium 버튼 높이입니다. `lg`와 `xl`은 이 라이브러리의 것인데, 스펙의 값이 96과 136이고 64px 필드 옆의 96px 버튼은 한 줄이 아니기 때문입니다. [Prop 규약](../../design/prop-conventions#size)을 참고하세요.
 
+<Demo src="button/sizes" :minHeight="330">
+
+<<< @/.vitepress/demos/button/sizes.tsx
+
+</Demo>
+
+라벨의 타입 스케일과 그 주위의 여백도 같은 단계에서 나옵니다. 더 큰 버튼이 그저 더 큰 알약이 아닌 이유가 그것입니다.
+
 ## 이 컴포넌트에 없는 것
 
 **`href`가 없습니다.** 이동하는 버튼은 링크이고, 그 차이는 겉모습이 아닙니다. 링크는 링크로 읽히고, 가운데 버튼으로 새 탭에서 열리고, 상태 표시줄에 목적지를 보여 줍니다. 버튼에게 자기가 무엇인지 거짓말하도록 가르치는 대신 Base UI의 탈출구인 `render={<a href="…" />}`를 쓰세요.

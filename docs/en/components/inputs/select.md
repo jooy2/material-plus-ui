@@ -74,6 +74,12 @@ Listed rather than removed, on purpose: "this exists but not for you" and "this 
 
 Five rungs, the same ones a text field is drawn at. A select beside a field at the same `size` lines up to the pixel, which is the whole reason the shell is shared.
 
+<Demo src="select/sizes" :minHeight="440">
+
+<<< @/.vitepress/demos/select/sizes.tsx
+
+</Demo>
+
 ## The popup
 
 `surface-container` at elevation 2 — the one surface in this library that genuinely floats, and the only one that carries a shadow by default.

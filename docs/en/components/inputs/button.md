@@ -81,6 +81,14 @@ With no `children` at all the button goes square and becomes an icon button. Giv
 
 Five rungs, sharing the library's control ladder: 32, 40, 56, 64 and 72 pixels. The first three are Material's own extra-small, small and medium button heights; `lg` and `xl` are this library's, because the spec's are 96 and 136 and a 96px button beside a 64px field is not a row. See [Prop conventions](../../design/prop-conventions#size).
 
+<Demo src="button/sizes" :minHeight="330">
+
+<<< @/.vitepress/demos/button/sizes.tsx
+
+</Demo>
+
+The label's type scale and the padding around it come off the same rung, which is why a taller button is not simply a taller pill.
+
 ## What this does not have
 
 **No `href`.** A button that navigates is a link, and the difference is not cosmetic: a link is announced as one, opens in a new tab on the middle button, and shows its destination in the status bar. Pass `render={<a href="…" />}` — Base UI's own escape hatch — rather than teaching a button to lie about what it is.
