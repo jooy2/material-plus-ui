@@ -92,9 +92,9 @@ So the colour and the underline are written through the component's own class, d
 
 ## This is not a button with an `href`
 
-[MPButton](../actions/button) deliberately has no `href`, and this is the other half of that decision. A link is announced as a link, opens in a new tab on the middle mouse button, and shows its destination in the status bar; a button does none of those and should not pretend to.
+[MPButton](../inputs/button) deliberately has no `href`, and this is the other half of that decision. A link is announced as a link, opens in a new tab on the middle mouse button, and shows its destination in the status bar; a button does none of those and should not pretend to.
 
 ## See also
 
-- [MPButton](../actions/button) — when it is an action rather than a destination.
+- [MPButton](../inputs/button) — when it is an action rather than a destination.
 - [MPBreadcrumb](./breadcrumb) — a whole trail of them.

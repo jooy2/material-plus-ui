@@ -92,9 +92,9 @@ import Link from 'next/link';
 
 ## `href`를 가진 버튼이 아닙니다
 
-[MPButton](../actions/button)에는 일부러 `href`가 없고, 이것이 그 결정의 나머지 절반입니다. 링크는 링크로 읽히고, 가운데 버튼으로 새 탭에서 열리고, 상태 표시줄에 목적지를 보여줍니다. 버튼은 그중 어느 것도 하지 않고, 하는 척해서도 안 됩니다.
+[MPButton](../inputs/button)에는 일부러 `href`가 없고, 이것이 그 결정의 나머지 절반입니다. 링크는 링크로 읽히고, 가운데 버튼으로 새 탭에서 열리고, 상태 표시줄에 목적지를 보여줍니다. 버튼은 그중 어느 것도 하지 않고, 하는 척해서도 안 됩니다.
 
 ## 함께 보기
 
-- [MPButton](../actions/button) — 목적지가 아니라 동작일 때.
+- [MPButton](../inputs/button) — 목적지가 아니라 동작일 때.
 - [MPBreadcrumb](./breadcrumb) — 그런 링크들의 한 줄.

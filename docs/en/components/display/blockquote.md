@@ -79,4 +79,4 @@ The quotation mark is drawn rather than typed. A real `“` would be set in what
 ## See also
 
 - [MPTypography](./typography) — the type roles this is built out of.
-- [MPTextLink](../navigation/text-link) — for a link inside the quote.
+- [MPTextLink](./text-link) — for a link inside the quote.

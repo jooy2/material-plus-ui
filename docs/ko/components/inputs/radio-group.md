@@ -73,5 +73,5 @@ const [delivery, setDelivery] = useState('standard');
 ## 함께 보기
 
 - [MPSelect](./select) — 한꺼번에 보여 주기에는 옵션이 많을 때.
-- [MPSegmentedButton](../actions/segmented-button) — 같은 질문이지만 폼을 채우는 것이 아니라 화면을 바꾸는 것일 때.
+- [MPSegmentedButton](./segmented-button) — 같은 질문이지만 폼을 채우는 것이 아니라 화면을 바꾸는 것일 때.
 - [Base UI Radio](https://base-ui.com/react/components/radio) — 아래에 깔린 동작.

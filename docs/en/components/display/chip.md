@@ -73,5 +73,5 @@ A disabled chip stops being pressable and its delete button is disabled with it.
 
 ## See also
 
-- [MPSegmentedButton](../actions/segmented-button) — when the row is one choice rather than several independent filters.
+- [MPSegmentedButton](../inputs/segmented-button) — when the row is one choice rather than several independent filters.
 - [MPBadge](./badge) — a mark rather than a token.

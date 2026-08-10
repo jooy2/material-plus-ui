@@ -73,5 +73,5 @@ import { MPChip } from 'material-plus-ui';
 
 ## 함께 보기
 
-- [MPSegmentedButton](../actions/segmented-button) — 줄이 여러 독립 필터가 아니라 하나의 선택일 때.
+- [MPSegmentedButton](../inputs/segmented-button) — 줄이 여러 독립 필터가 아니라 하나의 선택일 때.
 - [MPBadge](./badge) — 토큰이 아니라 표시일 때.

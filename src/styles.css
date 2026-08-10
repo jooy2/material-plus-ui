@@ -25,7 +25,7 @@
  * A token nobody uses is a promise to keep supporting a name, so the roles below
  * are exactly the ones the components actually resolve, and nothing else. MD3
  * defines around fifty colour roles; an outlined text field reads five of them,
- * and the components in this library between them read twenty-five. The rest
+ * and the components in this library between them read twenty-nine. The rest
  * are absent on purpose and get added as components need them.
  *
  * This is also why the library does not try to reproduce MD3 completely. It has
@@ -197,16 +197,33 @@
     --_mp-tone-outline-variant: 0.829;
     --_mp-chroma-outline-variant: 0.0178;
 
-    /* The three surface containers, which are one neutral palette read at three
+    /* The page's own surface — neutral 98 in the light scheme and neutral 6 in
+       the dark one. Read by exactly one thing, `MPOverlay`'s `solid` tone,
+       whose job is to put the page's own background over the page. */
+    --_mp-tone-surface: 0.984;
+    --_mp-chroma-surface: 0.0128;
+
+    /* The four surface containers, which are one neutral palette read at four
        tones. MD3 has five; a menu (`surface-container`), an elevated button
-       (`-low`) and a switch's track (`-highest`) are the three anything here
-       actually asks for. */
+       (`-low`), a dialog (`-high`) and a switch's track (`-highest`) are the
+       four anything here actually asks for. */
     --_mp-tone-surface-container-low: 0.967;
     --_mp-chroma-surface-container-low: 0.0118;
     --_mp-tone-surface-container: 0.954;
     --_mp-chroma-surface-container: 0.0147;
+    --_mp-tone-surface-container-high: 0.933;
+    --_mp-chroma-surface-container-high: 0.0148;
     --_mp-tone-surface-container-highest: 0.914;
     --_mp-chroma-surface-container-highest: 0.0137;
+
+    /* `inverse-primary`, which is the accent palette read at the *other*
+       scheme's tone — light takes the dark scheme's stop and vice versa. That
+       is not an approximation of MD3's role, it is the definition of it, which
+       is why these two numbers are the accent stops above and below swapped.
+       One thing reads it: a snackbar's action label, which sits on the inverse
+       surface and would be unreadable in the accent proper. */
+    --_mp-tone-inverse-accent: 0.835;
+    --_mp-chroma-inverse-primary: 0.725;
 
     /* The inverted pair, which is the same neutral palette read at the *other*
        end: neutral 20 under neutral 95 in the light scheme, and the two swapped
@@ -277,12 +294,18 @@
       --_mp-chroma-outline: 0.0153;
       --_mp-tone-outline-variant: 0.398;
       --_mp-chroma-outline-variant: 0.0174;
+      --_mp-tone-surface: 0.187;
+      --_mp-chroma-surface: 0.0124;
       --_mp-tone-surface-container-low: 0.227;
       --_mp-chroma-surface-container-low: 0.01;
       --_mp-tone-surface-container: 0.245;
       --_mp-chroma-surface-container: 0.0134;
+      --_mp-tone-surface-container-high: 0.286;
+      --_mp-chroma-surface-container-high: 0.0129;
       --_mp-tone-surface-container-highest: 0.33;
       --_mp-chroma-surface-container-highest: 0.0125;
+      --_mp-tone-inverse-accent: 0.496;
+      --_mp-chroma-inverse-primary: 1;
       --_mp-tone-inverse-surface: 0.914;
       --_mp-chroma-inverse-surface: 0.0137;
       --_mp-tone-inverse-on-surface: 0.313;
@@ -311,12 +334,18 @@
     --_mp-chroma-outline: 0.0153;
     --_mp-tone-outline-variant: 0.398;
     --_mp-chroma-outline-variant: 0.0174;
+    --_mp-tone-surface: 0.187;
+    --_mp-chroma-surface: 0.0124;
     --_mp-tone-surface-container-low: 0.227;
     --_mp-chroma-surface-container-low: 0.01;
     --_mp-tone-surface-container: 0.245;
     --_mp-chroma-surface-container: 0.0134;
+    --_mp-tone-surface-container-high: 0.286;
+    --_mp-chroma-surface-container-high: 0.0129;
     --_mp-tone-surface-container-highest: 0.33;
     --_mp-chroma-surface-container-highest: 0.0125;
+    --_mp-tone-inverse-accent: 0.496;
+    --_mp-chroma-inverse-primary: 1;
     --_mp-tone-inverse-surface: 0.914;
     --_mp-chroma-inverse-surface: 0.0137;
     --_mp-tone-inverse-on-surface: 0.313;
@@ -468,6 +497,16 @@
       )
     );
 
+    /* The page's own surface. Only `MPOverlay`'s `solid` tone reads it — a sheet
+       that hides the page by being the page. */
+    --_mp-color-surface: var(
+      --mp-sys-color-surface,
+      var(
+        --md-sys-color-surface,
+        oklch(from var(--mp-source-color) var(--_mp-tone-surface) var(--_mp-chroma-surface) h)
+      )
+    );
+
     --_mp-color-surface-container-low: var(
       --mp-sys-color-surface-container-low,
       var(
@@ -485,6 +524,18 @@
         oklch(
           from var(--mp-source-color) var(--_mp-tone-surface-container)
             var(--_mp-chroma-surface-container) h
+        )
+      )
+    );
+    /* One step above `surface-container`, and the tone MD3 puts a dialog on: a
+       sheet that has taken the page has to sit above the menus that did not. */
+    --_mp-color-surface-container-high: var(
+      --mp-sys-color-surface-container-high,
+      var(
+        --md-sys-color-surface-container-high,
+        oklch(
+          from var(--mp-source-color) var(--_mp-tone-surface-container-high)
+            var(--_mp-chroma-surface-container-high) h
         )
       )
     );
@@ -517,6 +568,20 @@
         oklch(
           from var(--mp-source-color) var(--_mp-tone-inverse-on-surface)
             var(--_mp-chroma-inverse-on-surface) h
+        )
+      )
+    );
+    /* The accent read at the other scheme's tone, for the one label that sits on
+       the inverse surface: a snackbar's action. `primary` proper is derived to
+       contrast with the *page*, so on a plate that inverts the page it is the
+       one colour guaranteed not to read. */
+    --_mp-color-inverse-primary: var(
+      --mp-sys-color-inverse-primary,
+      var(
+        --md-sys-color-inverse-primary,
+        oklch(
+          from var(--mp-source-color) var(--_mp-tone-inverse-accent)
+            calc(c * var(--_mp-chroma-inverse-primary)) h
         )
       )
     );
@@ -558,6 +623,18 @@
         )
       )
     );
+
+    /*
+     * The scrim, and the one colour in the sheet that is the same in both
+     * schemes.
+     *
+     * MD3 puts it at neutral tone 0 — black — and it stays black in the dark
+     * scheme, because a scrim is not a surface that has to be legible against
+     * the page: it is the absence of the page. A scrim that lightened with the
+     * scheme would fail to dim anything on the theme that needs dimming most.
+     * The alpha is the component's, not the token's: MD3 draws it at 32%.
+     */
+    --_mp-color-scrim: var(--mp-sys-color-scrim, var(--md-sys-color-scrim, #000000));
 
     /* Not derived from the source colour. MD3's error palette is a fixed red
        regardless of the seed — an error that shifted hue with the brand would
@@ -619,11 +696,15 @@
     --color-mp-on-tertiary: var(--_mp-color-on-tertiary);
     --color-mp-tertiary-container: var(--_mp-color-tertiary-container);
     --color-mp-on-tertiary-container: var(--_mp-color-on-tertiary-container);
+    --color-mp-surface: var(--_mp-color-surface);
     --color-mp-surface-container-low: var(--_mp-color-surface-container-low);
     --color-mp-surface-container: var(--_mp-color-surface-container);
+    --color-mp-surface-container-high: var(--_mp-color-surface-container-high);
     --color-mp-surface-container-highest: var(--_mp-color-surface-container-highest);
     --color-mp-inverse-surface: var(--_mp-color-inverse-surface);
     --color-mp-inverse-on-surface: var(--_mp-color-inverse-on-surface);
+    --color-mp-inverse-primary: var(--_mp-color-inverse-primary);
+    --color-mp-scrim: var(--_mp-color-scrim);
     --color-mp-on-surface: var(--_mp-color-on-surface);
     --color-mp-on-surface-variant: var(--_mp-color-on-surface-variant);
     --color-mp-outline: var(--_mp-color-outline);
@@ -704,10 +785,12 @@
     --radius-mp-xs: var(--mp-sys-shape-corner-extra-small);
     --radius-mp-sm: var(--mp-sys-shape-corner-small);
     --radius-mp-md: var(--mp-sys-shape-corner-medium);
+    --radius-mp-xl: var(--mp-sys-shape-corner-extra-large);
     --radius-mp-full: var(--mp-sys-shape-corner-full);
 
     --shadow-mp-1: var(--mp-sys-elevation-level1);
     --shadow-mp-2: var(--mp-sys-elevation-level2);
+    --shadow-mp-3: var(--mp-sys-elevation-level3);
 
     --ease-mp-standard: var(--mp-sys-motion-easing-standard);
   }
@@ -844,12 +927,18 @@
     --mp-sys-shape-corner-extra-small: 4px;
     --mp-sys-shape-corner-small: 8px;
     --mp-sys-shape-corner-medium: 12px;
+    /* There is no `large` between this and `medium`, because nothing reads one.
+       `extra-large` is here for the dialog, which is the spec's own corner for
+       it and the loudest radius in the system: a sheet that has taken the page
+       is allowed to look like an object rather than like a panel. */
+    --mp-sys-shape-corner-extra-large: 28px;
     --mp-sys-shape-corner-full: 9999px;
 
     /*
-     * Elevation. Two of MD3's six levels, because two are what gets read: a menu
-     * floats at level 2, and an elevated button rests at level 1 and rises to 2
-     * under the pointer.
+     * Elevation. Three of MD3's six levels, because three are what gets read: an
+     * elevated button rests at level 1 and rises to 2 under the pointer, a menu
+     * floats at level 2, and a dialog — which has taken the page rather than
+     * merely covered part of it — sits at level 3.
      *
      * Both are the spec's own two-shadow recipe — a tight key shadow plus a wider
      * ambient one — rather than one blurred box shadow. The pair is what makes a
@@ -857,6 +946,7 @@
      */
     --mp-sys-elevation-level1: 0 1px 2px 0 rgb(0 0 0 / 0.3), 0 1px 3px 1px rgb(0 0 0 / 0.15);
     --mp-sys-elevation-level2: 0 1px 2px 0 rgb(0 0 0 / 0.3), 0 2px 6px 2px rgb(0 0 0 / 0.15);
+    --mp-sys-elevation-level3: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 4px 8px 3px rgb(0 0 0 / 0.15);
 
     /* Motion. MD3's `short4`, which is what a text field's label and outline
        transition on. Worth knowing if these controls sit beside another
@@ -904,11 +994,15 @@
   --color-mp-on-tertiary: var(--_mp-color-on-tertiary);
   --color-mp-tertiary-container: var(--_mp-color-tertiary-container);
   --color-mp-on-tertiary-container: var(--_mp-color-on-tertiary-container);
+  --color-mp-surface: var(--_mp-color-surface);
   --color-mp-surface-container-low: var(--_mp-color-surface-container-low);
   --color-mp-surface-container: var(--_mp-color-surface-container);
+  --color-mp-surface-container-high: var(--_mp-color-surface-container-high);
   --color-mp-surface-container-highest: var(--_mp-color-surface-container-highest);
   --color-mp-inverse-surface: var(--_mp-color-inverse-surface);
   --color-mp-inverse-on-surface: var(--_mp-color-inverse-on-surface);
+  --color-mp-inverse-primary: var(--_mp-color-inverse-primary);
+  --color-mp-scrim: var(--_mp-color-scrim);
   --color-mp-on-surface: var(--_mp-color-on-surface);
   --color-mp-on-surface-variant: var(--_mp-color-on-surface-variant);
   --color-mp-outline: var(--_mp-color-outline);
@@ -986,10 +1080,184 @@
   --radius-mp-xs: var(--mp-sys-shape-corner-extra-small);
   --radius-mp-sm: var(--mp-sys-shape-corner-small);
   --radius-mp-md: var(--mp-sys-shape-corner-medium);
+  --radius-mp-xl: var(--mp-sys-shape-corner-extra-large);
   --radius-mp-full: var(--mp-sys-shape-corner-full);
 
   --shadow-mp-1: var(--mp-sys-elevation-level1);
   --shadow-mp-2: var(--mp-sys-elevation-level2);
+  --shadow-mp-3: var(--mp-sys-elevation-level3);
 
   --ease-mp-standard: var(--mp-sys-motion-easing-standard);
+}
+
+/* ---------------------------------------------------------------------------
+ * Keyframes
+ *
+ * The one part of the library that cannot be written as a utility, and the only
+ * CSS here that draws rather than declares.
+ *
+ * All four belong to the progress indicators, and they exist for a reason
+ * Tailwind cannot answer: an indeterminate indicator is a *loop*, and a loop is
+ * a `@keyframes` rule. Everything else about the three components — their
+ * colours, their ladders, their shapes — is classes and inline slots, exactly
+ * as it is everywhere else.
+ *
+ * Unlayered on purpose. `@keyframes` does not take part in the cascade, but the
+ * two classes below do, and a layered class would lose to any unlayered rule a
+ * consumer's own stylesheet happens to have.
+ *
+ * `prefers-reduced-motion` stops all four. An indeterminate indicator that has
+ * stopped moving still says "something is happening" — it is on screen, and it
+ * was not before — and for a reader who asked for less motion that is the whole
+ * of the message. The determinate transitions are left alone: they are a value
+ * changing, not decoration.
+ * ------------------------------------------------------------------------- */
+
+/*
+ * The linear indicator, which is two bars rather than one.
+ *
+ * MD3's indeterminate bar is a long sweep followed by a short one that catches
+ * up — the second is what keeps the track from being empty for most of the
+ * cycle. Both are written as `inset-inline-*` rather than as a translate so
+ * that the whole thing runs the other way under RTL without a second rule.
+ */
+@keyframes mp-progress-linear-lead {
+  0% {
+    inset-inline-start: -35%;
+    inset-inline-end: 100%;
+  }
+
+  60% {
+    inset-inline-start: 100%;
+    inset-inline-end: -90%;
+  }
+
+  100% {
+    inset-inline-start: 100%;
+    inset-inline-end: -90%;
+  }
+}
+
+@keyframes mp-progress-linear-trail {
+  0% {
+    inset-inline-start: -200%;
+    inset-inline-end: 100%;
+  }
+
+  60% {
+    inset-inline-start: 107%;
+    inset-inline-end: -8%;
+  }
+
+  100% {
+    inset-inline-start: 107%;
+    inset-inline-end: -8%;
+  }
+}
+
+/*
+ * The circular indicator: the ring turns while the arc it draws grows and
+ * shrinks. Two animations rather than one, on two elements, because the turn is
+ * linear and the arc is eased — a single timing function cannot be both, and a
+ * spinner whose arc pulses on the same curve it rotates on reads as a stutter.
+ *
+ * The dash values are in the circle's own `pathLength` units, which the
+ * component pins to 100. That is what lets one keyframe rule serve every
+ * diameter on the size ladder: without it each rung would need its own
+ * arithmetic in a stylesheet that cannot do arithmetic.
+ */
+@keyframes mp-progress-circular-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes mp-progress-circular-arc {
+  0% {
+    stroke-dasharray: 1 100;
+    stroke-dashoffset: 0;
+  }
+
+  50% {
+    stroke-dasharray: 70 100;
+    stroke-dashoffset: -8;
+  }
+
+  100% {
+    stroke-dasharray: 1 100;
+    stroke-dashoffset: -70;
+  }
+}
+
+/*
+ * The segmented indicator: a wave of light running along the row.
+ *
+ * Opacity rather than colour, so one rule covers all four accent families, and
+ * each segment reads its own index out of `--_mp-index` for its delay — which
+ * is what makes the row one class and one custom property instead of N
+ * generated keyframe names.
+ */
+@keyframes mp-progress-segment-wave {
+  0%,
+  100% {
+    opacity: 0.24;
+  }
+
+  40% {
+    opacity: 1;
+  }
+}
+
+.mp-progress-linear-lead {
+  animation: mp-progress-linear-lead 2.1s cubic-bezier(0.65, 0.815, 0.735, 0.395) infinite;
+}
+
+.mp-progress-linear-trail {
+  animation: mp-progress-linear-trail 2.1s cubic-bezier(0.165, 0.84, 0.44, 1) infinite;
+  animation-delay: 1.15s;
+}
+
+.mp-progress-circular-turn {
+  animation: mp-progress-circular-turn 1.4s linear infinite;
+}
+
+.mp-progress-circular-arc {
+  animation: mp-progress-circular-arc 1.4s ease-in-out infinite;
+}
+
+.mp-progress-segment-wave {
+  animation: mp-progress-segment-wave 1.2s ease-in-out infinite;
+  animation-delay: calc(var(--_mp-index, 0) * 120ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mp-progress-linear-lead,
+  .mp-progress-linear-trail,
+  .mp-progress-circular-turn,
+  .mp-progress-circular-arc,
+  .mp-progress-segment-wave {
+    animation: none;
+  }
+
+  /* Stopping the animation is not enough on its own: three of the five draw
+     nothing at all outside a keyframe, so each is given the frame it should
+     rest on. A partial bar and a partial arc, never a full one — an indicator
+     that has stopped must not read as an indicator that has finished. */
+  .mp-progress-linear-lead {
+    inset-inline-start: 0;
+    inset-inline-end: 65%;
+  }
+
+  .mp-progress-linear-trail {
+    display: none;
+  }
+
+  .mp-progress-circular-arc {
+    stroke-dasharray: 25 100;
+    stroke-dashoffset: 0;
+  }
+
+  .mp-progress-segment-wave {
+    opacity: 0.6;
+  }
 }

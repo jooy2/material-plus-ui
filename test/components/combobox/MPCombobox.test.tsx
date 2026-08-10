@@ -1,0 +1,260 @@
+import { useState } from 'react';
+import { describe, expect, it, vi } from 'vitest';
+import { render } from 'vitest-browser-react';
+import { MPCombobox } from 'material-plus-ui';
+import type { MPComboboxValue } from 'material-plus-ui';
+
+const FRUIT = [
+  { value: 'apple', label: 'Apple' },
+  { value: 'banana', label: 'Banana' },
+  { value: 'cherry', label: 'Cherry', disabled: true }
+];
+
+function Single({
+  initial = null,
+  ...props
+}: { initial?: MPComboboxValue | null } & Record<string, unknown>) {
+  const [value, setValue] = useState<MPComboboxValue | null>(initial);
+
+  return (
+    <>
+      <MPCombobox items={FRUIT} label="Fruit" value={value} onValueChange={setValue} {...props} />
+      <output data-testid="model">{String(value)}</output>
+    </>
+  );
+}
+
+function Multi({
+  initial = [],
+  ...props
+}: { initial?: MPComboboxValue[] } & Record<string, unknown>) {
+  const [value, setValue] = useState<MPComboboxValue[]>(initial);
+
+  return (
+    <>
+      <MPCombobox
+        items={FRUIT}
+        label="Fruit"
+        multiple
+        value={value}
+        onValueChange={setValue}
+        {...props}
+      />
+      <output data-testid="model">{value.join(',')}</output>
+    </>
+  );
+}
+
+describe('MPCombobox', () => {
+  describe('rendering', () => {
+    it('renders a combobox named by its label', async () => {
+      const screen = await render(<Single />);
+
+      await expect.element(screen.getByRole('combobox', { name: 'Fruit' })).toBeInTheDocument();
+    });
+
+    it('draws the notched outline the text field wears', async () => {
+      // The same internal component, so a form's fields and its comboboxes are
+      // the same object.
+      await render(<Single />);
+
+      expect(document.querySelector('.mp-combobox fieldset legend')?.textContent).toContain(
+        'Fruit'
+      );
+    });
+
+    it('shows the placeholder while nothing is chosen', async () => {
+      const screen = await render(<Single placeholder="Search fruit" />);
+
+      expect(screen.getByRole('combobox').element()).toHaveAttribute('placeholder', 'Search fruit');
+    });
+
+    it('shows the chosen option’s label rather than its raw value', async () => {
+      const screen = await render(<Single initial="apple" />);
+
+      expect((screen.getByRole('combobox').element() as HTMLInputElement).value).toBe('Apple');
+    });
+  });
+
+  describe('choosing', () => {
+    it('names the chevron after the field it opens', async () => {
+      // Base UI wires `aria-labelledby` on the trigger to the field's own label,
+      // which outranks an `aria-label` — a button called "Fruit" beside a field
+      // called "Fruit" is the button that opens that field.
+      const screen = await render(<Single />);
+
+      await expect.element(screen.getByRole('button', { name: 'Fruit' })).toBeInTheDocument();
+    });
+
+    it('falls back to openLabel when there is no field label', async () => {
+      const screen = await render(<MPCombobox items={FRUIT} />);
+
+      await expect.element(screen.getByRole('button', { name: 'Open' })).toBeInTheDocument();
+    });
+
+    it('opens from its chevron and lists every option', async () => {
+      const screen = await render(<Single />);
+
+      await screen.getByRole('button', { name: 'Fruit' }).click();
+
+      await expect.element(screen.getByRole('option', { name: 'Apple' })).toBeInTheDocument();
+      expect(screen.getByRole('option').all()).toHaveLength(3);
+    });
+
+    it('hands the parent the chosen value rather than an event', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <MPCombobox items={FRUIT} label="Fruit" onValueChange={onValueChange} />
+      );
+
+      await screen.getByRole('button', { name: 'Fruit' }).click();
+      await screen.getByRole('option', { name: 'Banana' }).click();
+
+      expect(onValueChange).toHaveBeenCalledWith('banana');
+    });
+
+    it('chooses end to end through a controlled parent', async () => {
+      const screen = await render(<Single />);
+
+      await screen.getByRole('button', { name: 'Fruit' }).click();
+      await screen.getByRole('option', { name: 'Apple' }).click();
+
+      expect(screen.getByTestId('model').element().textContent).toBe('apple');
+    });
+
+    it('lists a disabled option without letting it be taken', async () => {
+      const screen = await render(<Single />);
+
+      await screen.getByRole('button', { name: 'Fruit' }).click();
+
+      expect(screen.getByRole('option', { name: 'Cherry' }).element()).toHaveAttribute(
+        'aria-disabled',
+        'true'
+      );
+    });
+  });
+
+  describe('filtering', () => {
+    it('narrows the list to what was typed', async () => {
+      const screen = await render(<Single />);
+
+      await screen.getByRole('combobox').fill('ban');
+
+      await expect.element(screen.getByRole('option', { name: 'Banana' })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: 'Apple' }).query()).toBeNull();
+    });
+
+    it('reports the query as it is typed', async () => {
+      const onInputValueChange = vi.fn();
+      const screen = await render(<Single onInputValueChange={onInputValueChange} />);
+
+      await screen.getByRole('combobox').fill('ban');
+
+      expect(onInputValueChange).toHaveBeenCalledWith('ban');
+    });
+  });
+
+  describe('a value the list does not have', () => {
+    it('is offered as its own row rather than committed on blur', async () => {
+      const screen = await render(<Single />);
+
+      await screen.getByRole('combobox').fill('durian');
+
+      await expect.element(screen.getByRole('option', { name: /durian/ })).toBeInTheDocument();
+    });
+
+    it('commits only when the row is taken', async () => {
+      const screen = await render(<Single />);
+
+      await screen.getByRole('combobox').fill('durian');
+      expect(screen.getByTestId('model').element().textContent).toBe('null');
+
+      await screen.getByRole('option', { name: /durian/ }).click();
+
+      expect(screen.getByTestId('model').element().textContent).toBe('durian');
+    });
+
+    it('takes a label of the caller’s own', async () => {
+      const screen = await render(<Single customLabel={(query: string) => `Create ${query}`} />);
+
+      await screen.getByRole('combobox').fill('durian');
+
+      await expect
+        .element(screen.getByRole('option', { name: 'Create durian' }))
+        .toBeInTheDocument();
+    });
+
+    it('is not offered at all once allowCustom is off', async () => {
+      const screen = await render(<Single allowCustom={false} emptyMessage="Nothing here" />);
+
+      await screen.getByRole('combobox').fill('durian');
+
+      await expect.element(screen.getByText('Nothing here')).toBeInTheDocument();
+      expect(screen.getByRole('option').query()).toBeNull();
+    });
+
+    it('is not offered for something the list already has', async () => {
+      const screen = await render(<Single />);
+
+      await screen.getByRole('combobox').fill('Apple');
+
+      expect(screen.getByRole('option').all()).toHaveLength(1);
+    });
+  });
+
+  describe('multiple', () => {
+    it('turns each chosen value into a chip and keeps filtering', async () => {
+      const screen = await render(<Multi />);
+
+      await screen.getByRole('button', { name: 'Fruit' }).click();
+      await screen.getByRole('option', { name: 'Apple' }).click();
+
+      expect(screen.getByTestId('model').element().textContent).toBe('apple');
+      await expect
+        .element(screen.getByRole('button', { name: 'Remove Apple' }))
+        .toBeInTheDocument();
+    });
+
+    it('removes a value from its chip', async () => {
+      const screen = await render(<Multi initial={['apple', 'banana']} />);
+
+      await screen.getByRole('button', { name: 'Remove Apple' }).click();
+
+      expect(screen.getByTestId('model').element().textContent).toBe('banana');
+    });
+  });
+
+  describe('states', () => {
+    it('shows an error message and marks the combobox invalid', async () => {
+      const screen = await render(<Single errorMessage="Pick a fruit." />);
+
+      await expect.element(screen.getByText('Pick a fruit.')).toBeInTheDocument();
+      expect(document.querySelector('.mp-combobox')).toHaveAttribute('data-invalid');
+    });
+
+    it('lets the error replace the description', async () => {
+      const screen = await render(
+        <Single description="Whatever is in season." errorMessage="Pick a fruit." />
+      );
+
+      await expect.element(screen.getByText('Pick a fruit.')).toBeInTheDocument();
+      expect(screen.getByText('Whatever is in season.').query()).toBeNull();
+    });
+
+    it('disables the input', async () => {
+      const screen = await render(<Single disabled />);
+
+      expect(screen.getByRole('combobox').element()).toBeDisabled();
+    });
+
+    it('offers a clear button only when it was asked for', async () => {
+      const screen = await render(<Single initial="apple" />);
+
+      expect(screen.getByRole('button', { name: 'Clear' }).query()).toBeNull();
+
+      await screen.rerender(<Single initial="apple" clearable />);
+
+      await expect.element(screen.getByRole('button', { name: 'Clear' })).toBeInTheDocument();
+    });
+  });
+});

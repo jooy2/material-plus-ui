@@ -89,5 +89,5 @@ Prose inherits the surface's own ink unless a role is asked for, because the com
 ## See also
 
 - [Colour](../../design/color) — where `on-surface` and the accent families come from.
-- [MPTextLink](../navigation/text-link) — a link inside one of these paragraphs.
+- [MPTextLink](./text-link) — a link inside one of these paragraphs.
 - [MPBlockquote](./blockquote) — somebody else's words, set apart from yours.

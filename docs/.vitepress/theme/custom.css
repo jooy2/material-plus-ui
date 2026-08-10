@@ -1,24 +1,41 @@
 /**
  * The default theme's shell, retuned.
  *
- * VitePress sizes its article column for prose. These pages hold a four-column
- * props table and a live preview of a component that a consumer will render at
- * the full width of their own page, so the article takes a little more room and
- * the layout is allowed to grow further before it stops.
+ * VitePress sizes its three columns for a site with a short menu and a short
+ * outline. Neither is true here: the sidebar lists every component in the
+ * library, the article holds a four-column props table and a live preview of a
+ * component a consumer will render at the full width of their own page, and the
+ * outline now goes two levels deep. So the menu gives width back, the article
+ * takes it, and the layout is allowed to grow further before it stops.
  *
  * Every rule below overrides a scoped style from the default theme, which is
  * why the selectors carry one class more than they look like they need. A
  * scoped rule is compiled with a `[data-v-…]` attribute selector on it, so the
- * theme's own `.content-container` and a plain one here weigh the same and the
- * winner would come down to which stylesheet Vite happened to emit last.
+ * theme's own `.content-container` and a plain one here weigh exactly the same
+ * and the winner would come down to which stylesheet Vite happened to emit
+ * last.
  */
 
 :root {
+  /* Wide enough for the longest component name and no wider. */
   --vp-sidebar-width: 280px;
   /* Where the whole layout stops growing. Raised alongside the article below —
      without it the extra width would come out of the page's own margins. */
-  --vp-layout-max-width: 1560px;
+  --vp-layout-max-width: 1600px;
+  /*
+   * Half of what the page has left over once the layout has stopped growing.
+   *
+   * Never negative, which is the entire fix in the section below: the default
+   * theme writes this subtraction out five times without a floor, and raising
+   * the constant above is what makes it possible for the answer to come out
+   * below zero.
+   */
+  --mp-gutter: max(0px, calc((100vw - var(--vp-layout-max-width)) / 2));
 }
+
+/* ---------------------------------------------------------------------------
+ * The article
+ * ------------------------------------------------------------------------- */
 
 /*
  * 688px is a comfortable measure for prose and too narrow for what these pages
@@ -28,8 +45,121 @@
  */
 @media (min-width: 1280px) {
   .VPContent .VPDoc.has-aside .content-container {
-    max-width: 880px;
+    max-width: 896px;
   }
+}
+
+/* ---------------------------------------------------------------------------
+ * The shell, floored
+ *
+ * Raising `--vp-layout-max-width` above the default opens a window where the
+ * default theme's layout arithmetic goes negative, and things start hanging off
+ * the edges: the icons at the end of the nav bar sit 8px outside the viewport,
+ * and the sidebar climbs over the left margin of the article.
+ *
+ * The theme centres everything on the article by taking half of what the page
+ * has left over — `(100vw - var(--vp-layout-max-width)) / 2` — and it only does
+ * so from 1440px up, because with the constant left at its own 1440px that
+ * subtraction cannot come out below zero. At 1600px it can, for every viewport
+ * between the two: at 1500px the nav bar's right padding computes to −18px,
+ * which clamps to zero, and `.social-links` then carries its own `-8px` margin
+ * out past the window.
+ *
+ * `--mp-gutter` above is that same half, floored at nothing — and once it is
+ * floored, all five of the rules below say the same three things. Every offset
+ * in this layout is the gutter plus one of: nothing, the 32px page margin, or
+ * the width of the sidebar. Written that way they cannot drift apart.
+ *
+ * The selectors are hung off `#app` — the id VitePress mounts on. The rules
+ * being corrected are Vue scoped styles, so they compile with a `[data-v-…]`
+ * attribute on them; an override built out of class names alone weighs the same
+ * and would be decided by which stylesheet Vite happened to emit last. One id
+ * settles all five at once rather than counting classes five times.
+ *
+ * `.VPLocalNav` carries the same expression and is deliberately not here: it is
+ * `display: none` from 1280px up, so it never reaches the window this fixes.
+ * ------------------------------------------------------------------------- */
+
+@media (min-width: 1440px) {
+  /*
+   * The sidebar, and the logo's box in the bar above it — one column, so they
+   * take one width.
+   *
+   * `> .title` and not ` .title`. Standing in for a scoped selector means
+   * giving up the one thing scoping was doing: `VPNavBarTitle` renders a second
+   * `.title` for the logo's link, the language menu renders a third, and a
+   * descendant selector reaches all of them. The theme's own rule cannot,
+   * because its `[data-v-…]` belongs to `VPNavBar`'s template alone — so every
+   * selector here that replaces a scoped one has to say how deep it goes.
+   */
+  #app .VPSidebar,
+  #app .VPNavBar.has-sidebar .container > .title {
+    padding-left: calc(var(--mp-gutter) + 32px);
+    width: calc(var(--mp-gutter) + var(--vp-sidebar-width));
+  }
+
+  /* Everything that starts where that column ends. `.content` and `.divider`
+     are each the only one of their name inside the bar. */
+  #app .VPNavBar.has-sidebar .content,
+  #app .VPNavBar.has-sidebar .divider,
+  #app .VPContent.has-sidebar {
+    padding-left: calc(var(--mp-gutter) + var(--vp-sidebar-width));
+  }
+
+  /* The bar keeps the page margin on its right; the article gives it back to
+     the page, because its own content is already capped. */
+  #app .VPNavBar.has-sidebar .content {
+    padding-right: calc(var(--mp-gutter) + 32px);
+  }
+
+  #app .VPContent.has-sidebar {
+    padding-right: var(--mp-gutter);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * The outline
+ *
+ * Wider, because it now holds `h3`s — a prop name lands inside 224px, but
+ * "What a value may be" indented one level does not, and an outline that
+ * ellipsises is an outline nobody reads.
+ * ------------------------------------------------------------------------- */
+
+@media (min-width: 1280px) {
+  .VPContent .VPDoc .aside {
+    max-width: 288px;
+  }
+
+  /* These two are separate elements pinned to the same width; a mismatch shows
+     up as the fade at the bottom of the column stopping short. */
+  .VPContent .VPDoc .aside-container,
+  .VPContent .VPDoc .aside-curtain {
+    width: 256px;
+  }
+}
+
+/*
+ * A depth of two only helps if the two levels look different, and indentation
+ * alone does not survive a heading that wraps. The nested group gets a rule
+ * down its left instead — the same hairline the outline is already bounded by,
+ * one level in — and its rows step down in weight rather than in colour, so an
+ * `h3` still reads as a destination and not as a caption.
+ */
+.VPDocAsideOutline .VPDocOutlineItem.nested {
+  margin-left: 1px;
+  padding-right: 0;
+  padding-left: 12px;
+  border-left: 1px solid var(--vp-c-divider);
+}
+
+.VPDocAsideOutline .VPDocOutlineItem.root > li > .outline-link {
+  font-weight: 500;
+}
+
+.VPDocAsideOutline .VPDocOutlineItem.nested .outline-link {
+  line-height: 28px;
+  font-size: 13px;
+  font-weight: 400;
 }
 
 /*

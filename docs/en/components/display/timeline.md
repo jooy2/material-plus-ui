@@ -85,4 +85,4 @@ There is no Base UI primitive under this and there should not be — a timeline 
 ## See also
 
 - [MPList](./list) — when the order is not the point.
-- [MPBreadcrumb](../navigation/breadcrumb) — a trail you can walk back up, rather than a record of what happened.
+- [MPBreadcrumb](./breadcrumb) — a trail you can walk back up, rather than a record of what happened.

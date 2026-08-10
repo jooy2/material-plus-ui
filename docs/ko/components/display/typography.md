@@ -89,5 +89,5 @@ MD3의 모든 display, headline, `title-large` 역할은 **굵기 400**이고, `
 ## 함께 보기
 
 - [색](../../design/color) — `on-surface`와 강조 색 계열이 어디서 오는지.
-- [MPTextLink](../navigation/text-link) — 이 문단 안에 들어가는 링크.
+- [MPTextLink](./text-link) — 이 문단 안에 들어가는 링크.
 - [MPBlockquote](./blockquote) — 남의 말을 내 글과 구분해서 놓기.

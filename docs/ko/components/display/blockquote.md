@@ -79,4 +79,4 @@ import { MPBlockquote } from 'material-plus-ui';
 ## 함께 보기
 
 - [MPTypography](./typography) — 이것이 만들어진 타입 역할들.
-- [MPTextLink](../navigation/text-link) — 인용문 안의 링크.
+- [MPTextLink](./text-link) — 인용문 안의 링크.

@@ -10,13 +10,26 @@ import {
   MPButtonGroup,
   MPCheckbox,
   MPChip,
+  MPColorPicker,
+  MPCombobox,
+  MPDialog,
+  MPDialogClose,
   MPDivider,
   MPEmpty,
   MPFilePicker,
+  MPHighlight,
   MPIcon,
   MPList,
   MPListItem,
+  MPMenu,
+  MPMenuItem,
+  MPMenuSeparator,
   MPNumberField,
+  MPOtpField,
+  MPOverlay,
+  MPProgressBox,
+  MPProgressCircular,
+  MPProgressLinear,
   MPRadio,
   MPRadioGroup,
   MPSegmentedButton,
@@ -24,6 +37,7 @@ import {
   MPShortcut,
   MPSkeleton,
   MPSlider,
+  MPSnackbarProvider,
   MPSwitch,
   MPTable,
   MPTextField,
@@ -31,9 +45,10 @@ import {
   MPTimeline,
   MPTimelineItem,
   MPTooltip,
-  MPTypography
+  MPTypography,
+  useMPSnackbar
 } from 'material-plus-ui';
-import type { MPSelectValue } from 'material-plus-ui';
+import type { MPComboboxValue, MPSelectValue } from 'material-plus-ui';
 import { DEFAULT_LOCALE, type Locale } from '../../data/i18n';
 
 /**
@@ -234,12 +249,96 @@ function TablePreview() {
   );
 }
 
+function ComboboxPreview() {
+  const [value, setValue] = useState<MPComboboxValue | null>('rs');
+
+  return (
+    <MPCombobox
+      label="Language"
+      items={[
+        { value: 'ts', label: 'TypeScript' },
+        { value: 'rs', label: 'Rust' },
+        { value: 'go', label: 'Go' }
+      ]}
+      value={value}
+      onValueChange={setValue}
+      fullWidth
+    />
+  );
+}
+
+function MenuPreview() {
+  return (
+    <MPMenu
+      size="sm"
+      trigger={
+        <MPButton size="sm" variant="outlined">
+          Actions
+        </MPButton>
+      }
+    >
+      <MPMenuItem shortcut="⌘C">Copy</MPMenuItem>
+      <MPMenuItem>Duplicate</MPMenuItem>
+      <MPMenuSeparator />
+      <MPMenuItem color="error">Delete</MPMenuItem>
+    </MPMenu>
+  );
+}
+
+function ColorPickerPreview() {
+  const [color, setColor] = useState('#00639b');
+
+  return (
+    <MPColorPicker
+      label="Tag"
+      size="sm"
+      value={color}
+      onValueChange={setColor}
+      swatches={false}
+      editable={false}
+      fullWidth
+    />
+  );
+}
+
+function OverlayPreview() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <MPButton
+        size="sm"
+        variant="outlined"
+        onClick={() => {
+          setOpen(true);
+          window.setTimeout(() => setOpen(false), 1400);
+        }}
+      >
+        Show a scrim
+      </MPButton>
+      <MPOverlay open={open} label="Working" onOpenChange={setOpen}>
+        <MPProgressCircular size="lg" />
+      </MPOverlay>
+    </>
+  );
+}
+
+function SnackbarPreview() {
+  const snackbar = useMPSnackbar();
+
+  return (
+    <MPButton size="sm" variant="outlined" onClick={() => snackbar.add({ message: 'Draft saved' })}>
+      Raise one
+    </MPButton>
+  );
+}
+
 const GROUPS: Group[] = [
   {
-    title: { ko: '동작', en: 'Actions' },
+    title: { ko: '입력', en: 'Inputs' },
     note: {
-      ko: '사람이 눌러서 무언가를 일으키는 컨트롤.',
-      en: 'Controls a reader presses to make something happen.'
+      ko: '사람이 눌러서 무언가를 일으키거나, 값을 받아내는 컨트롤.',
+      en: 'Controls a reader acts on — to make something happen, or to hand over a value.'
     },
     entries: [
       {
@@ -248,7 +347,7 @@ const GROUPS: Group[] = [
           ko: '머터리얼의 다섯 가지 버튼',
           en: "Material's five buttons"
         },
-        path: '/components/actions/button',
+        path: '/components/inputs/button',
         preview: (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center' }}>
             <MPButton size="sm">Save</MPButton>
@@ -267,7 +366,7 @@ const GROUPS: Group[] = [
           ko: '함께 묶이는 버튼들, 설정은 한 번만',
           en: 'Buttons that belong together, configured once'
         },
-        path: '/components/actions/button-group',
+        path: '/components/inputs/button-group',
         preview: (
           <MPButtonGroup variant="outlined" size="sm">
             <MPButton>Copy</MPButton>
@@ -282,18 +381,9 @@ const GROUPS: Group[] = [
           ko: '하나의 알약 안에 담긴 두세 가지 선택',
           en: 'Two to five choices in one pill'
         },
-        path: '/components/actions/segmented-button',
+        path: '/components/inputs/segmented-button',
         preview: <SegmentedButtonPreview />
-      }
-    ]
-  },
-  {
-    title: { ko: '입력', en: 'Inputs' },
-    note: {
-      ko: '값을 받는 컨트롤. 라벨과 유효성 배선이 이미 조립되어 있습니다.',
-      en: 'Controls that collect a value, with the labelling and validity already assembled.'
-    },
-    entries: [
+      },
       {
         name: 'MPTextField',
         summary: {
@@ -385,14 +475,58 @@ const GROUPS: Group[] = [
             <FilePickerPreview />
           </Fit>
         )
+      },
+      {
+        name: 'MPCombobox',
+        summary: {
+          ko: '입력해서 걸러내고, 없으면 만들어 넣는 필드',
+          en: 'A field you type into, filter with, and can add to'
+        },
+        path: '/components/inputs/combobox',
+        preview: (
+          <Fit>
+            <ComboboxPreview />
+          </Fit>
+        )
+      },
+      {
+        name: 'MPMenu',
+        summary: {
+          ko: '누르면 나타나는 동작의 목록',
+          en: 'A list of actions that appears when something is pressed'
+        },
+        path: '/components/inputs/menu',
+        preview: <MenuPreview />
+      },
+      {
+        name: 'MPOtpField',
+        summary: {
+          ko: '한 글자씩 들어가는 인증 코드 줄',
+          en: 'A row of one-character slots for a code'
+        },
+        path: '/components/inputs/otp-field',
+        preview: <MPOtpField length={4} defaultValue="42" size="sm" />
+      },
+      {
+        name: 'MPColorPicker',
+        summary: {
+          ko: '눈으로 고르는 색. 채도 사각형과 색조 레일',
+          en: 'A colour chosen by eye, with a square and a hue rail'
+        },
+        path: '/components/inputs/color-picker',
+        preview: (
+          <Fit width={200}>
+            <ColorPickerPreview />
+          </Fit>
+        )
       }
     ]
   },
   {
     title: { ko: '표시', en: 'Display' },
     note: {
-      ko: '내용을 보여주는 컴포넌트.',
-      en: 'Components that show something rather than collect it.'
+      ko: '무언가를 보여주고, 그 이상은 하지 않는 것.',
+      en: 'It shows something, and nothing more.'
     },
     entries: [
       {
@@ -546,20 +680,11 @@ const GROUPS: Group[] = [
             <MPShortcut keys="Shift+Enter" size="sm" />
           </div>
         )
-      }
-    ]
-  },
-  {
-    title: { ko: '내비게이션', en: 'Navigation' },
-    note: {
-      ko: '독자를 다른 곳으로 데려가는 것들.',
-      en: 'The things that take a reader somewhere else.'
-    },
-    entries: [
+      },
       {
         name: 'MPTextLink',
         summary: { ko: '문장 안에 있거나 홀로 선 링크', en: 'A link, in a sentence or on its own' },
-        path: '/components/navigation/text-link',
+        path: '/components/display/text-link',
         preview: (
           <Fit>
             <span style={{ lineHeight: 1.8 }}>
@@ -575,7 +700,7 @@ const GROUPS: Group[] = [
       {
         name: 'MPBreadcrumb',
         summary: { ko: '지금 페이지 위쪽의 경로', en: 'The trail of pages above this one' },
-        path: '/components/navigation/breadcrumb',
+        path: '/components/display/breadcrumb',
         preview: (
           <MPBreadcrumb size="sm">
             <MPBreadcrumbItem href="#">Home</MPBreadcrumbItem>
@@ -583,14 +708,29 @@ const GROUPS: Group[] = [
             <MPBreadcrumbItem>Breadcrumb</MPBreadcrumbItem>
           </MPBreadcrumb>
         )
+      },
+      {
+        name: 'MPHighlight',
+        summary: {
+          ko: '읽던 글 안에서 찾는 단어를 표시',
+          en: 'Marks the words a reader is looking for'
+        },
+        path: '/components/display/highlight',
+        preview: (
+          <Fit>
+            <MPHighlight query={['data', 'query']}>
+              A data set that nobody can query is a file.
+            </MPHighlight>
+          </Fit>
+        )
       }
     ]
   },
   {
     title: { ko: '피드백', en: 'Feedback' },
     note: {
-      ko: '기다리는 중이거나, 아무것도 없거나, 한마디 덧붙일 때.',
-      en: 'For a wait, for nothing at all, and for one more word.'
+      ko: '무슨 일이 일어났는지, 또는 무엇이 일어나고 있는지 말하는 것.',
+      en: 'It says what happened, or what is happening.'
     },
     entries: [
       {
@@ -641,6 +781,93 @@ const GROUPS: Group[] = [
             </MPButton>
           </MPTooltip>
         )
+      },
+      {
+        name: 'MPDialog',
+        summary: {
+          ko: '답할 때까지 페이지를 가져가는 시트',
+          en: 'A sheet that takes the page away until it is answered'
+        },
+        path: '/components/feedback/dialog',
+        preview: (
+          <MPDialog
+            trigger={
+              <MPButton size="sm" variant="tonal">
+                Open a dialog
+              </MPButton>
+            }
+            title="Delete “Aurora”?"
+            description="Everything in it goes too."
+            size="sm"
+            actions={
+              <MPDialogClose
+                render={
+                  <MPButton size="sm" variant="text">
+                    Cancel
+                  </MPButton>
+                }
+              />
+            }
+          />
+        )
+      },
+      {
+        name: 'MPOverlay',
+        summary: {
+          ko: '페이지를 덮어 쓰지 못하게 하는 스크림',
+          en: 'A scrim over the page that stops it being used'
+        },
+        path: '/components/feedback/overlay',
+        preview: <OverlayPreview />
+      },
+      {
+        name: 'MPSnackbar',
+        summary: {
+          ko: '이미 일어난 일에 대한 짧은 메시지',
+          en: 'A short message about something that has happened'
+        },
+        path: '/components/feedback/snackbar',
+        preview: (
+          <MPSnackbarProvider timeout={2500}>
+            <SnackbarPreview />
+          </MPSnackbarProvider>
+        )
+      },
+      {
+        name: 'MPProgressLinear',
+        summary: {
+          ko: '채워지는 바. 얼마나 남았는지를 한눈에',
+          en: 'A bar that fills — how much is left, at a glance'
+        },
+        path: '/components/feedback/progress-linear',
+        preview: (
+          <Fit>
+            <MPProgressLinear value={62} showValue label="Uploading" />
+          </Fit>
+        )
+      },
+      {
+        name: 'MPProgressCircular',
+        summary: {
+          ko: '바를 놓을 자리가 없는 곳의 링',
+          en: 'A ring, for where there is no room for a bar'
+        },
+        path: '/components/feedback/progress-circular',
+        preview: (
+          <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
+            <MPProgressCircular value={70} showValue />
+            <MPProgressCircular size="sm" />
+          </div>
+        )
+      },
+      {
+        name: 'MPProgressBox',
+        summary: {
+          ko: '단계가 있는 일을 위한 조각들의 줄',
+          en: 'A row of segments, for work that has steps'
+        },
+        path: '/components/feedback/progress-box',
+        preview: <MPProgressBox value={50} count={4} />
       }
     ]
   }

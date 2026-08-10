@@ -73,5 +73,5 @@ On the group it disables every option at once; on an option it disables that one
 ## See also
 
 - [MPSelect](./select) — for more options than are worth showing at once.
-- [MPSegmentedButton](../actions/segmented-button) — the same question, when it is switching a view rather than filling in a form.
+- [MPSegmentedButton](./segmented-button) — the same question, when it is switching a view rather than filling in a form.
 - [Base UI Radio](https://base-ui.com/react/components/radio) — the behaviour underneath.

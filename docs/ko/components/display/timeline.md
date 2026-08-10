@@ -85,4 +85,4 @@ import { MPTimeline, MPTimelineItem } from 'material-plus-ui';
 ## 함께 보기
 
 - [MPList](./list) — 순서가 요점이 아닐 때.
-- [MPBreadcrumb](../navigation/breadcrumb) — 벌어진 일의 기록이 아니라 되짚어 올라갈 수 있는 길.
+- [MPBreadcrumb](./breadcrumb) — 벌어진 일의 기록이 아니라 되짚어 올라갈 수 있는 길.
