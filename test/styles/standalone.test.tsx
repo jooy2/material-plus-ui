@@ -89,6 +89,25 @@ describe('dist/styles.css', () => {
     expect(styles).not.toMatch(/--md-sys-color-primary\s*:/);
   });
 
+  it('ships the shape presets', () => {
+    // `test/styles/shape.test.tsx` measures what these *do*, against the source
+    // stylesheet. This is the other half: that they survived into the built file
+    // at all. They are the one part of the token sheet a consumer reaches by
+    // attribute rather than by writing a value, so a preset pruned out of the
+    // build would be an attribute that silently does nothing.
+    for (const shape of ['rounded', 'sharp']) {
+      const rule = styles.match(
+        new RegExp(`\\[data-mp-shape=["']?${shape}["']?\\][^{]*\\{([^}]*)\\}`)
+      )?.[1];
+
+      expect(rule, shape).toBeDefined();
+
+      for (const rung of ['extra-small', 'small', 'medium', 'extra-large']) {
+        expect(rule, `${shape}/${rung}`).toContain(`--mp-sys-shape-corner-${rung}:`);
+      }
+    }
+  });
+
   it('carries the layout utilities the components lay themselves out with', () => {
     for (const rule of ['inline-flex', 'shrink-0', 'items-center', 'justify-center']) {
       expect(styles).toContain(`.${rule}`);

@@ -957,6 +957,45 @@
        one thing in the library that actually travels, a switch's thumb. */
     --mp-sys-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
   }
+
+  /*
+   * Two shape presets, on the same model as `data-mp-scheme`: say nothing and
+   * you get the specification's corners, name one and the whole subtree moves.
+   *
+   *   <html data-mp-shape="rounded">
+   *   <section data-mp-shape="sharp">   <!-- a subtree, same as the scheme -->
+   *
+   * These only set the four tokens above, so anything a consumer sets themselves
+   * still wins: the block is inside `@layer theme`, and unlayered CSS beats a
+   * layered rule whatever order the two are imported in.
+   *
+   * Named presets rather than a `--mp-shape-scale` multiplier, because the corner
+   * ladder is not linear and should not be scaled as if it were. Going rounder,
+   * `extra-small` wants to double and `extra-large` wants to move by a sixth — a
+   * dialog whose corner has doubled to 56px is not a rounder dialog, it is a
+   * lozenge. The numbers below are chosen per rung for that reason.
+   */
+  [data-mp-shape='rounded'] {
+    --mp-sys-shape-corner-extra-small: 8px;
+    --mp-sys-shape-corner-small: 12px;
+    --mp-sys-shape-corner-medium: 20px;
+    --mp-sys-shape-corner-extra-large: 32px;
+    /* `full` is not here, and cannot be: a button is already a pill at 9999px,
+       so there is no rounder to go. This preset moves the four rungs that have
+       somewhere to move, which is why it reads on fields, chips, sheets and
+       dialogs and is invisible on buttons and sliders. */
+  }
+
+  [data-mp-shape='sharp'] {
+    --mp-sys-shape-corner-extra-small: 0;
+    --mp-sys-shape-corner-small: 0;
+    --mp-sys-shape-corner-medium: 0;
+    --mp-sys-shape-corner-extra-large: 0;
+    /* `full` *is* here, unlike above, and for the same reason: this is the one
+       direction a pill can travel. Leaving it round would make `sharp` a theme
+       where every corner is square except the buttons, which is not a theme. */
+    --mp-sys-shape-corner-full: 0;
+  }
 }
 
 /* ---------------------------------------------------------------------------

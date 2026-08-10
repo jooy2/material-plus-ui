@@ -117,12 +117,17 @@ export const SEGMENT_SIZE: Record<MPSize, string> = {
  * The corner cut off a segment.
  *
  * `corner-extra-small` from `md` up, which is the spec's smallest corner and the
- * right one for a tile this size. The two rungs below it take a literal, because
- * 4px on an 8px box is not a cut corner — it is a circle.
+ * right one for a tile this size. The two rungs below it cap it, because 4px on
+ * an 8px box is not a cut corner — it is a circle.
+ *
+ * A cap rather than the literal 3px it used to be, so the tiles still follow the
+ * token in the one direction the cap does not block: under a squarer theme these
+ * go square with everything else, and under a rounder one they hold at 3px,
+ * which is the whole point of capping them.
  */
 export const SEGMENT_RADIUS: Record<MPSize, string> = {
-  xs: 'rounded-[3px]',
-  sm: 'rounded-[3px]',
+  xs: 'rounded-[min(var(--mp-sys-shape-corner-extra-small),3px)]',
+  sm: 'rounded-[min(var(--mp-sys-shape-corner-extra-small),3px)]',
   md: 'rounded-mp-xs',
   lg: 'rounded-mp-xs',
   xl: 'rounded-mp-sm'

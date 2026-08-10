@@ -166,7 +166,13 @@ export const MPCheckbox = React.forwardRef<HTMLElement, MPCheckboxProps>(functio
               // `box-border` explicitly: this library ships no page reset, so
               // without it the 2px border is added *outside* the 18px box and the
               // tick comes out 22px — which is the whole ladder off by four.
-              'box-border justify-center rounded-[2px] border-2 p-0',
+              //
+              // Half `corner-extra-small` rather than a literal 2px, which is the
+              // same 2dp the spec asks for and, unlike the literal, follows the
+              // token: a tick that stayed square inside a rounded theme would be
+              // the one square object on the page.
+              'box-border justify-center border-2 p-0',
+              'rounded-[calc(var(--mp-sys-shape-corner-extra-small)/2)]',
               // A native button arrives with the browser's own background, border
               // and font, and this library ships no page reset to take them off.
               'appearance-none bg-transparent font-[inherit] outline-none',

@@ -161,6 +161,51 @@ Type, shape and motion work the same way. As with the colour roles, only what a 
 }
 ```
 
+### Shape
+
+Corners are a token like any other, and there are five of them. Which one a component takes is a statement about what kind of object it is rather than a size to taste — a field is a well, a chip is a tile, a button is a pill:
+
+| Token | Default | What reads it |
+| --- | --- | --- |
+| `--mp-sys-shape-corner-extra-small` | `4px` | Text field, OTP field, tooltip, menu, snackbar, highlight |
+| `--mp-sys-shape-corner-small` | `8px` | Chip, list row, key cap |
+| `--mp-sys-shape-corner-medium` | `12px` | Table, dropzone, list sheet, empty state |
+| `--mp-sys-shape-corner-extra-large` | `28px` | Dialog |
+| `--mp-sys-shape-corner-full` | `9999px` | Button, segmented button, slider, progress bar |
+
+Set any of them and every component that reads it moves together. For the two obvious destinations there is an attribute instead, on the same model as `data-mp-scheme` — say nothing and you get the specification's corners, name a preset and the whole subtree moves:
+
+```html
+<html data-mp-shape="rounded">
+  <!-- 8 / 12 / 20 / 32. Buttons are unaffected: a pill has no rounder to go. -->
+</html>
+```
+
+```html
+<section data-mp-shape="sharp">
+  <!-- Every corner to 0, buttons included — the one direction a pill can travel. -->
+</section>
+```
+
+Two things worth knowing:
+
+- **`rounded` does not touch buttons, sliders or progress bars.** They are already at `corner-full`, so the preset moves the four rungs that have somewhere to move. If you want a rounder screen _and_ squarer buttons, that is `--mp-sys-shape-corner-full` set to a length of your own.
+- **A dialog is portalled**, so an attribute on a section around the trigger is not an ancestor of the popup. Set the preset on `<html>` — or on `:root` — if you want it to reach one.
+
+Anything you set yourself beats a preset, whatever order the two are imported in:
+
+```css
+:root {
+  --mp-sys-shape-corner-small: 10px; /* wins over data-mp-shape */
+}
+```
+
+To change one instance rather than the theme, hand it the token — not a `rounded-*` class. Components concatenate the `className` you pass rather than merging it, so two utilities setting the same property are resolved by their order in the generated stylesheet, which is not something to depend on:
+
+```tsx
+<MPChip style={{ '--mp-sys-shape-corner-small': '9999px' } as React.CSSProperties}>Filter</MPChip>
+```
+
 ### One caveat on the source colour
 
 The derivation uses CSS relative colour syntax, so `--mp-source-color` has to be a **complete colour value** — `#7c3aed`, `oklch(0.49 0.24 292)`, `rgb(124 58 237)`. A design token holding bare channels will not work:
