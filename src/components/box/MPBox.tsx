@@ -1,0 +1,109 @@
+import * as React from 'react';
+import { useRender } from '@base-ui/react/use-render';
+import { SHEET_PAD } from '../../internal/scale';
+import { CONTAINER_SURFACE } from '../../internal/surface';
+import type { MPSize, MPVariant } from '../../types';
+
+export interface MPBoxProps extends React.ComponentPropsWithoutRef<'div'> {
+  /**
+   * How much surface the sheet paints.
+   *
+   * A container's ladder, so `filled` is MD3's own filled-card surface —
+   * `surface-container-highest` — and not the accent. See the note on the
+   * component below for why a box is never dyed.
+   * @default 'outlined'
+   */
+  variant?: MPVariant;
+  /**
+   * The room inside.
+   *
+   * **This is the one component where `size` sets no height and no type scale.**
+   * A box is as tall as what it holds, and its children bring their own
+   * typography — a container that reset the type scale would make the same
+   * paragraph render at two sizes depending on what it happened to be wrapped
+   * in. So here the rung is the padding, and nothing else.
+   *
+   * The *corner* is not on the ladder either, which is where this library and
+   * most others part company. A radius in Material is a statement about what
+   * kind of object something is rather than a size to taste, and a box is a
+   * sheet: `corner-medium` at every rung, exactly as MD3 draws a card.
+   * @default 'md'
+   */
+  size?: MPSize;
+  /**
+   * Inner padding. Turn it off for full-bleed content — a picture, a table, a
+   * list that draws its own rows.
+   * @default true
+   */
+  padded?: boolean;
+  /**
+   * Renders something other than a `<div>`: `render={<section />}`,
+   * `render={<li />}`, or a function for full control. Base UI's own escape
+   * hatch, so it behaves here exactly as it does on every Base UI primitive.
+   */
+  render?: useRender.RenderProp;
+  children?: React.ReactNode;
+}
+
+/**
+ * A sheet with content on it. The plainest surface in the library: it groups
+ * things, and that is all it does.
+ *
+ * Everything structural — a heading, a footer, dividers, a picture across the
+ * top — belongs to [MPCard](./card), which is exactly this box with those
+ * sections laid out on it.
+ *
+ * ## Why a box is never dyed, and takes no `color`
+ *
+ * Because what it holds is somebody else's content, and that content arrives
+ * with its own colours: body text, links, buttons, fields. On an accent fill
+ * every one of them would need an on-accent treatment of its own, which is the
+ * opposite of what a container is for.
+ *
+ * So the ladder runs up the **neutral** surface roles. `filled` is
+ * `surface-container-highest`, which is MD3's own filled card; `elevated` and
+ * `outlined` are the specification's other two card variants to the letter. What
+ * separates them is how much light the sheet holds and whether it carries a
+ * hairline — never which family it reads.
+ *
+ * A component that *is* the thing being coloured says so by taking `color`:
+ * that is [MPAlert](../feedback/alert) for a message, [MPChip](../display/chip)
+ * for a token, [MPButton](../inputs/button) for an action.
+ *
+ * ## Why there is no `elevation`
+ *
+ * There is no `elevation` prop anywhere in this library, and a box is where the
+ * absence is most tempting to fix. It stays absent because MD3 does not treat
+ * height as a free axis: an elevated surface is `surface-container-low` under a
+ * level-1 shadow, and the tone and the shadow are one decision. A prop that
+ * raised a `filled` box would produce a surface the specification has no name
+ * for. `variant="elevated"` is that decision, made once.
+ */
+export const MPBox = React.forwardRef<HTMLDivElement, MPBoxProps>(function MPBox(
+  { variant = 'outlined', size = 'md', padded = true, render, className, children, ...props },
+  ref
+) {
+  return useRender({
+    render,
+    ref,
+    props: {
+      'data-mp-size': size,
+      'data-mp-variant': variant,
+      className: [
+        'mp-box rounded-mp-md block',
+        // `box-border` explicitly, for the reason `MPButton` gives: with no page
+        // reset an `outlined` box's hairline would be added *outside* its
+        // padding and come out two pixels wider than a `filled` one beside it.
+        'box-border',
+        padded ? SHEET_PAD[size] : '',
+        CONTAINER_SURFACE[variant],
+        'text-mp-on-surface',
+        className ?? ''
+      ]
+        .filter(Boolean)
+        .join(' '),
+      children,
+      ...props
+    }
+  });
+});

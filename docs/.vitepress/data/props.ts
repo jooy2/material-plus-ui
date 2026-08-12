@@ -4396,6 +4396,37 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPBox: [
+    containerVariant,
+    {
+      ...size,
+      description: {
+        ko: '안쪽 여백, 그리고 **그것뿐입니다**. 높이도 타입 스케일도 정하지 않는 유일한 컴포넌트입니다 — 박스는 담은 것만큼 높고, 자식들은 자기 타이포그래피를 가지고 옵니다. 모서리도 사다리에 없어서 어느 단계에서나 `corner-medium`입니다',
+        en: 'The room inside, and **nothing else**. The one component where a rung sets no height and no type scale: a box is as tall as what it holds, and its children bring their own typography. The corner is not on the ladder either — a sheet is `corner-medium` at every rung'
+      }
+    },
+    {
+      ...padded,
+      description: {
+        ko: '안쪽 여백. 가장자리까지 닿아야 하는 내용 — 사진, 테이블, 자기 행을 그리는 리스트 — 에는 꺼 두세요. 모서리는 그래도 내용을 잘라냅니다',
+        en: 'Inner padding. Turn it off for full-bleed content — a picture, a table, a list that draws its own rows. The corner still clips it'
+      }
+    },
+    {
+      name: 'render',
+      type: 'RenderProp',
+      description: {
+        ko: '`<div>` 대신 다른 엘리먼트로 렌더링합니다 — `render={<section />}`, `render={<li />}`. Base UI 자신의 탈출구입니다',
+        en: "Renders something other than a `<div>`: `render={<section />}`, `render={<li />}`. Base UI's own escape hatch"
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '시트 위에 놓이는 것', en: 'What sits on the sheet' }
+    }
+  ],
+
   MPCollapsible: [
     {
       name: 'open',

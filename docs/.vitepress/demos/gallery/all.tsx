@@ -8,6 +8,7 @@ import {
   MPAvatar,
   MPBadge,
   MPBlockquote,
+  MPBox,
   MPBreadcrumb,
   MPBreadcrumbItem,
   MPButton,
@@ -1092,6 +1093,24 @@ const GROUPS: Group[] = [
               </MPAspectRatio>
             ))}
           </div>
+        )
+      },
+      {
+        name: 'MPBox',
+        summary: {
+          ko: '내용이 놓인 한 장의 시트. 가장 단순한 표면',
+          en: 'A sheet with content on it — the plainest surface there is'
+        },
+        path: '/components/layout/box',
+        preview: (
+          <Fit>
+            <div style={{ display: 'grid', gap: 8 }}>
+              <MPBox size="sm">Outlined</MPBox>
+              <MPBox size="sm" variant="filled">
+                Filled
+              </MPBox>
+            </div>
+          </Fit>
         )
       },
       {
