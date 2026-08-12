@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { hasContent, PROSE_TEXT, SHEET_GAP, SHEET_PAD_X, SHEET_TITLE } from '../../internal/scale';
+import { CONTAINER_SURFACE } from '../../internal/surface';
 import type { MPSize, MPVariant } from '../../types';
 
 export interface MPEmptyProps extends Omit<
@@ -77,20 +78,6 @@ const GLYPH: Record<MPSize, string> = {
   md: 'text-[2.25rem]',
   lg: 'text-[2.75rem]',
   xl: 'text-[3.25rem]'
-};
-
-/**
- * The five weights, said the way a *container* says them: the sheet stays
- * neutral even on `filled`, because `action` is somebody else's button and it
- * arrived with its own colours. `filled` is the loudest surface a container is
- * allowed here — `surface-container-highest` — rather than the accent.
- */
-const SURFACE: Record<MPVariant, string> = {
-  filled: 'bg-mp-surface-container-highest text-mp-on-surface',
-  tonal: 'bg-mp-surface-container text-mp-on-surface',
-  elevated: 'shadow-mp-1 bg-mp-surface-container-low text-mp-on-surface',
-  outlined: 'border-mp-outline-variant border bg-transparent text-mp-on-surface',
-  text: 'bg-transparent text-mp-on-surface'
 };
 
 /**
@@ -173,7 +160,10 @@ export const MPEmpty = React.forwardRef<HTMLDivElement, MPEmptyProps>(function M
     PAD_Y[size],
     variant === 'text' ? '' : 'rounded-mp-md',
     SHEET_GAP[size],
-    SURFACE[variant],
+    // The sheet stays neutral even on `filled`, because `action` is somebody
+    // else's button and it arrived with its own colours.
+    CONTAINER_SURFACE[variant],
+    'text-mp-on-surface',
     className ?? ''
   ]
     .filter(Boolean)

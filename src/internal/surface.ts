@@ -1,14 +1,19 @@
 /**
- * What everything that floats above the page has in common.
+ * The surfaces, and the two questions they answer.
  *
- * Six components portal something to the end of `<body>` — the dialog, the
- * overlay, the menu, the snackbar, the combobox's list and the colour picker's
- * panel — and the three strings below are the parts of that which must not
- * differ between them. A dialog opened over an overlay would otherwise show a
- * seam where two scrims of slightly different alpha overlap, and a menu that
- * faded on a different curve from the dialog it was opened inside would read as
- * two libraries.
+ * The first is what everything that floats above the page has in common. Eight
+ * components portal something to the end of `<body>` — the dialog, the drawer,
+ * the overlay, the menu, the popover, the snackbar, the combobox's list and the
+ * colour picker's panel — and the three strings below are the parts of that
+ * which must not differ between them. A dialog opened over an overlay would
+ * otherwise show a seam where two scrims of slightly different alpha overlap,
+ * and a menu that faded on a different curve from the dialog it was opened
+ * inside would read as two libraries.
+ *
+ * The second is what a *container* paints itself at, which is the last section
+ * of the file.
  */
+import type { MPVariant } from '../types';
 
 /**
  * The positioner every portalled popup wears.
@@ -49,3 +54,41 @@ export const FADE = [
   'ease-mp-standard',
   'data-starting-style:opacity-0 data-ending-style:opacity-0'
 ].join(' ');
+
+/* ---------------------------------------------------------------------------
+ * Containers
+ * ------------------------------------------------------------------------- */
+
+/**
+ * The five weights, said the way a **container** says them.
+ *
+ * This is the other half of the library's `variant` vocabulary, and the half
+ * that is easy to get wrong. On a component that *is* the thing being coloured —
+ * a button, a chip, an alert — `filled` is the accent under its own ink. On a
+ * component that is a box holding **somebody else's** content it cannot be:
+ * dyeing the box dyes their content's background, and every link, field and
+ * button they put inside it would then need an on-accent treatment of its own.
+ *
+ * So a container's ladder runs up the neutral surface roles instead, and
+ * `filled` is the loudest one it is allowed — MD3's `surface-container-highest`,
+ * which is also the specification's own *filled card*. `elevated` and `outlined`
+ * are MD3's other two card variants to the letter: `surface-container-low` under
+ * a level-1 shadow, and a hairline in `outline-variant`. `text` paints nothing
+ * at all, which is what a container nested inside another container wants.
+ *
+ * The ink is deliberately **not** here. Most callers want `text-mp-on-surface`
+ * and say so once beside this, but a table sets the ink per cell and a carousel
+ * has none of its own, and a ladder that decided for them would be a ladder they
+ * had to undo.
+ *
+ * It lives in `internal/` for the reason `scale.ts` gives about the size ladder:
+ * nine components read it, and a promise kept by nine separate tables is a
+ * promise that gets broken the first time one of them is edited alone.
+ */
+export const CONTAINER_SURFACE: Record<MPVariant, string> = {
+  filled: 'bg-mp-surface-container-highest',
+  tonal: 'bg-mp-surface-container',
+  elevated: 'shadow-mp-1 bg-mp-surface-container-low',
+  outlined: 'border-mp-outline-variant border bg-transparent',
+  text: 'bg-transparent'
+};

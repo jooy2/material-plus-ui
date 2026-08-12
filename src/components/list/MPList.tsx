@@ -3,6 +3,7 @@ import { useRender } from '@base-ui/react/use-render';
 import { accentSlots } from '../../internal/accent';
 import { CONTROL_GAP, hasContent, PROSE_TEXT, SHEET_PAD_X } from '../../internal/scale';
 import { MPStateLayer } from '../../internal/StateLayer';
+import { CONTAINER_SURFACE } from '../../internal/surface';
 import type { MPColor, MPSize, MPVariant } from '../../types';
 
 /**
@@ -104,23 +105,6 @@ export interface MPListItemProps extends Omit<
 }
 
 /**
- * The five weights, said the way a *container* says them — the sheet is never
- * dyed. A list holds other people's content, and that content arrives with its
- * own colours; tinting the sheet under it puts every one of them on a background
- * they were not chosen against.
- *
- * `text` is the one to reach for inside a card: the card is already a sheet, and
- * a second bordered rectangle inside it is a second rectangle.
- */
-const SURFACE: Record<MPVariant, string> = {
-  filled: 'bg-mp-surface-container-highest text-mp-on-surface',
-  tonal: 'bg-mp-surface-container text-mp-on-surface',
-  elevated: 'shadow-mp-1 bg-mp-surface-container-low text-mp-on-surface',
-  outlined: 'border-mp-outline-variant border bg-transparent text-mp-on-surface',
-  text: 'bg-transparent text-mp-on-surface'
-};
-
-/**
  * A row's vertical padding, and the number that makes the whole ladder line up.
  *
  * Each rung is the leading of that rung's `PROSE_TEXT` subtracted from the
@@ -201,7 +185,12 @@ export const MPList = React.forwardRef<HTMLUListElement, MPListProps>(function M
 
   const classNames = [
     'mp-list rounded-mp-md flex flex-col',
-    SURFACE[variant],
+    // The sheet is never dyed: a list holds other people's content, and tinting
+    // the sheet under it puts every colour in it on a background it was not
+    // chosen against. `text` is the one to reach for inside a card, where a
+    // second bordered rectangle is a second rectangle.
+    CONTAINER_SURFACE[variant],
+    'text-mp-on-surface',
     // Without dividers the rows are tiles and the sheet keeps a hair of padding
     // so a hovered row does not run into the edge. With them the rules have to
     // reach the edge, so the padding goes and the rows square off.

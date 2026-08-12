@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { accentSlots } from '../../internal/accent';
 import { META_TEXT } from '../../internal/scale';
+import { CONTAINER_SURFACE } from '../../internal/surface';
 import type { MPAlign, MPColor, MPSize, MPVariant } from '../../types';
 
 /** Which edge the text in a column lines up against. */
@@ -157,19 +158,6 @@ const HEAD_TEXT: Record<MPSize, string> = {
 };
 
 /**
- * The five weights, said the way a *container* says them: the sheet stays
- * neutral. A table is the one component whose content is entirely somebody
- * else's, and a tinted panel behind a column of numbers is a claim about them.
- */
-const SURFACE: Record<MPVariant, string> = {
-  filled: 'bg-mp-surface-container-highest',
-  tonal: 'bg-mp-surface-container',
-  elevated: 'shadow-mp-1 bg-mp-surface-container-low',
-  outlined: 'border-mp-outline-variant border bg-transparent',
-  text: 'bg-transparent'
-};
-
-/**
  * A row's own background, read from a slot rather than written inline.
  *
  * Everything else about a cell is inline because a host stylesheet outranks a
@@ -245,7 +233,14 @@ export function MPTable<Row>({
     <div
       data-mp-size={size}
       data-mp-variant={variant}
-      className={['mp-table rounded-mp-md overflow-x-auto', SURFACE[variant], className ?? '']
+      // The sheet stays neutral. A table is the one component whose content is
+      // entirely somebody else's, and a tinted panel behind a column of numbers
+      // is a claim about them.
+      className={[
+        'mp-table rounded-mp-md overflow-x-auto',
+        CONTAINER_SURFACE[variant],
+        className ?? ''
+      ]
         .filter(Boolean)
         .join(' ')}
       style={{ ...accentSlots(color), ...style }}
