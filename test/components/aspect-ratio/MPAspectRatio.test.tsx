@@ -2,6 +2,18 @@ import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { MPAspectRatio } from 'material-plus-ui';
 
+/**
+ * A 1×1 transparent GIF that actually decodes.
+ *
+ * It has to: an `img` whose source cannot be decoded and whose `alt` is empty
+ * "represents nothing" per the HTML spec, and WebKit takes that literally and
+ * collapses the element to 0×0 — `width: 100%` and all. Chromium and Firefox
+ * lay the undecodable element out at its CSS size instead, so a truncated GIF
+ * here measures 200×100 on two engines and 0×0 on the third while testing the
+ * stretch on none of them.
+ */
+const PIXEL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
 /** The box the browser actually laid out. */
 function boxOf(element: Element) {
   return element.getBoundingClientRect();
@@ -61,7 +73,7 @@ describe('MPAspectRatio', () => {
       const screen = await render(
         <div style={{ width: 200 }}>
           <MPAspectRatio ratio={2}>
-            <img data-testid="photo" alt="" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" />
+            <img data-testid="photo" alt="" src={PIXEL} />
           </MPAspectRatio>
         </div>
       );
@@ -75,7 +87,7 @@ describe('MPAspectRatio', () => {
     it('takes the other three fits', async () => {
       const screen = await render(
         <MPAspectRatio fit="contain">
-          <img data-testid="photo" alt="" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" />
+          <img data-testid="photo" alt="" src={PIXEL} />
         </MPAspectRatio>
       );
 
