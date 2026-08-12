@@ -10,6 +10,7 @@ export * from './components/box';
 export * from './components/breadcrumb';
 export * from './components/button';
 export * from './components/button-group';
+export * from './components/card';
 export * from './components/checkbox';
 export * from './components/chip';
 export * from './components/collapsible';

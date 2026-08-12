@@ -4427,6 +4427,79 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPCard: [
+    {
+      name: 'title',
+      type: NODE,
+      description: {
+        ko: '카드의 제목. 평범한 문자열은 카드의 제목 역할로 그려지고, 문서 개요에 나타나야 한다면 진짜 제목 엘리먼트(`title={<h3>…</h3>}`)를 넘기세요 — 브라우저가 아니라 카드의 타이포그래피를 물려받습니다',
+        en: "The card's heading. A plain string is set in the card's own title role; pass a real heading element (`title={<h3>…</h3>}`) when the card should appear in the document outline — it inherits the card's typography rather than the browser's"
+      }
+    },
+    {
+      name: 'subtitle',
+      type: NODE,
+      description: {
+        ko: '제목 아래 한 줄. 타입 스케일 한 단계 아래이고 한 톤 물러납니다',
+        en: 'A second line under it, one step down the type scale and muted'
+      }
+    },
+    {
+      name: 'headerAction',
+      type: NODE,
+      description: {
+        ko: '헤더 행 끝에 고정되는 내용 — 메뉴 버튼, 상태 칩. 제목이 옆에서 줄바꿈되는 동안에도 제목의 줄에 남습니다',
+        en: 'Content pinned to the end of the header row — a menu button, a status chip. It stays on the title’s line while the title wraps beside it'
+      }
+    },
+    {
+      name: 'media',
+      type: NODE,
+      description: {
+        ko: '사진, 차트, 지도. 위쪽에 가장자리까지 그려져 카드의 모서리가 잘라냅니다. 여백이 붙으면 안 되는 유일한 부분이라서 독립된 슬롯입니다',
+        en: "A picture, a chart, a map: drawn edge to edge across the top so the card's own corners crop it. A slot of its own because it is the one part of a card that must not be padded"
+      }
+    },
+    {
+      name: 'footer',
+      type: NODE,
+      description: {
+        ko: '아래 영역. 줄바꿈되는 행으로 배치되므로 버튼 두 개에 별도의 래퍼가 필요 없습니다',
+        en: 'The bottom area. Laid out as a wrapping row, so a pair of buttons needs no wrapper of its own'
+      }
+    },
+    {
+      name: 'dividers',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '구획 사이를 여백 대신 실선으로 나눕니다. 선이 시트의 양 끝까지 닿아야 하므로 세로 여백이 카드에서 각 구획으로 옮겨 갑니다',
+        en: 'Draws a hairline between the sections instead of separating them with space. The rules run the full width of the sheet, so the vertical padding moves off the card and onto each section'
+      }
+    },
+    containerVariant,
+    {
+      ...size,
+      description: {
+        ko: '구획들의 안쪽 여백과 본문의 타입 스케일. 모서리는 사다리에 없습니다 — 카드는 어느 단계에서나 `corner-medium`입니다',
+        en: "The room inside the sections, and the body's type scale. The corner is not on the ladder: a card is `corner-medium` at every rung"
+      }
+    },
+    {
+      name: 'render',
+      type: 'RenderProp',
+      description: {
+        ko: '`<div>` 대신 다른 엘리먼트로 렌더링합니다 — `render={<article />}`',
+        en: 'Renders something other than a `<div>`: `render={<article />}`'
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '카드의 본문', en: "The card's body" }
+    }
+  ],
+
   MPCollapsible: [
     {
       name: 'open',

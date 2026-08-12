@@ -13,6 +13,7 @@ import {
   MPBreadcrumbItem,
   MPButton,
   MPButtonGroup,
+  MPCard,
   MPCheckbox,
   MPChip,
   MPCollapsible,
@@ -1110,6 +1111,31 @@ const GROUPS: Group[] = [
                 Filled
               </MPBox>
             </div>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPCard',
+        summary: {
+          ko: '카드를 이루는 부분들을 배치한 박스',
+          en: 'A box with the parts a card is made of laid out on it'
+        },
+        path: '/components/layout/card',
+        preview: (
+          <Fit>
+            <MPCard
+              size="sm"
+              variant="elevated"
+              title="Weekly digest"
+              subtitle="Every Monday"
+              footer={
+                <MPButton size="xs" variant="text">
+                  Send
+                </MPButton>
+              }
+            >
+              Forty-two opens last week.
+            </MPCard>
           </Fit>
         )
       },
