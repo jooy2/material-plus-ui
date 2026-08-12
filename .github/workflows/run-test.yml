@@ -20,6 +20,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     name: Lint and typecheck
+    timeout-minutes: 10
 
     steps:
       - uses: actions/checkout@v5
@@ -42,6 +43,15 @@ jobs:
   run-test:
     runs-on: ${{ matrix.os }}
     name: Test Node.js ${{ matrix.node_version }} on ${{ matrix.os }} (${{ matrix.browser }})
+    # A healthy job here finishes in under six minutes, install included. The
+    # ceiling is not for a slow run, it is for a wedged browser: a Playwright
+    # process that stops making progress produces no output and never returns,
+    # so without a limit of our own GitHub's default applies — 360 minutes of a
+    # run that is never going to finish, with the checks on the pull request
+    # pending behind it until somebody notices and cancels by hand. Fifteen
+    # leaves ample headroom for a loaded runner and turns a hang into a failed
+    # job within the quarter hour.
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
