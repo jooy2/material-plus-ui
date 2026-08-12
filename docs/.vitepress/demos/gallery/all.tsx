@@ -14,6 +14,7 @@ import {
   MPButton,
   MPButtonGroup,
   MPCard,
+  MPCarousel,
   MPCheckbox,
   MPChip,
   MPCollapsible,
@@ -1136,6 +1137,33 @@ const GROUPS: Group[] = [
             >
               Forty-two opens last week.
             </MPCard>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPCarousel',
+        summary: {
+          ko: '한 장씩 스냅되는 슬라이드의 띠',
+          en: 'A strip of slides, one of which is in view'
+        },
+        path: '/components/layout/carousel',
+        preview: (
+          <Fit>
+            <MPCarousel size="xs" label="Mountains">
+              {['Namsan', 'Bukhansan', 'Gwanaksan'].map((name, index) => (
+                <div
+                  key={name}
+                  className="text-mp-on-surface text-mp-label-large flex h-20 items-center justify-center"
+                  style={{
+                    background: `var(--_mp-color-${
+                      ['primary', 'secondary', 'tertiary'][index]
+                    }-container)`
+                  }}
+                >
+                  {name}
+                </div>
+              ))}
+            </MPCarousel>
           </Fit>
         )
       },

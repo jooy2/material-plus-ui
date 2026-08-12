@@ -4500,6 +4500,135 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPCarousel: [
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '슬라이드들. 최상위 자식 하나가 슬라이드 하나가 되며, 컴포넌트는 안에서 무엇을 렌더링하든 하나입니다. 조건부 슬라이드가 남긴 `null`과 `false`는 걸러집니다',
+        en: 'The slides. Every top-level child becomes one — a component is a single slide whatever it renders inside. The `null`s and `false`s a conditional slide leaves behind are dropped'
+      }
+    },
+    {
+      name: 'value',
+      type: 'number',
+      description: {
+        ko: '보이고 있는 슬라이드. 0부터 셉니다. `onValueChange`와 함께 쓰면 controlled입니다',
+        en: 'Which slide is showing, counted from 0. Use with `onValueChange` for a controlled carousel'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'number',
+      default: '0',
+      description: {
+        ko: '처음 보이는 슬라이드. uncontrolled일 때 씁니다',
+        en: 'Which starts showing, for an uncontrolled carousel'
+      }
+    },
+    {
+      name: 'onValueChange',
+      type: '(index: number) => void',
+      description: {
+        ko: '인덱스가 움직이는 모든 경로에서 호출됩니다 — 화살표, 표시점, 새 스냅 포인트에 안착한 드래그까지',
+        en: 'Called for every way the index can move: an arrow, a mark, or a drag that settled on a new snap point'
+      }
+    },
+    {
+      name: 'loop',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '화살표가 마지막에서 처음으로 감기는지. 끄면 양 끝에서 `disabled`가 됩니다 — 시작과 끝이 있는 묶음에는 그쪽이 정직합니다',
+        en: 'Whether the arrows wrap from the last slide back to the first. With it off they go `disabled` at the ends instead, which is the honest thing for a set that has a beginning and an end'
+      }
+    },
+    {
+      name: 'autoPlay',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '스스로 넘어갑니다. 호버, 내부 포커스, 백그라운드 탭에서 멈추고, `prefers-reduced-motion`에서는 아예 시작하지 않습니다. live region도 그동안 조용해집니다',
+        en: 'Advances on its own. It pauses on hover, on focus anywhere inside it, and while the tab is in the background, and it does not start at all under `prefers-reduced-motion`. The live region goes quiet with it'
+      }
+    },
+    {
+      name: 'interval',
+      type: 'number',
+      default: '5000',
+      description: {
+        ko: '각 슬라이드가 머무는 시간, 밀리초',
+        en: 'How long each slide is held, in milliseconds'
+      }
+    },
+    {
+      name: 'arrows',
+      type: 'boolean',
+      default: 'true',
+      description: { ko: '이전/다음 버튼', en: 'The previous/next buttons' }
+    },
+    {
+      name: 'indicators',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '프레임 아래의 위치 표시. 현재 것은 더 큰 점이 아니라 짧은 막대라서, 이웃이 움직이지 않습니다',
+        en: 'The row of position marks under the frame. The current one is a short bar rather than a bigger dot, so its neighbours never move'
+      }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      default: "'Carousel'",
+      description: { ko: '캐러셀의 접근성 이름', en: "The carousel's accessible name" }
+    },
+    {
+      name: 'previousLabel',
+      type: 'string',
+      default: "'Previous slide'",
+      description: {
+        ko: '이전 버튼의 접근성 이름',
+        en: 'The accessible name of the previous button'
+      }
+    },
+    {
+      name: 'nextLabel',
+      type: 'string',
+      default: "'Next slide'",
+      description: { ko: '다음 버튼의 접근성 이름', en: 'The accessible name of the next button' }
+    },
+    {
+      name: 'slideLabel',
+      type: '(index: number, count: number) => string',
+      default: '(index, count) => `Slide ${index} of ${count}`',
+      description: {
+        ko: '슬라이드 하나가 스크린 리더에 어떻게 불리는지, 그리고 그 표시점의 이름',
+        en: 'How one slide is named to a screen reader, and how its mark is labelled'
+      }
+    },
+    {
+      ...containerVariant,
+      description: {
+        ko: '프레임이 슬라이드 뒤에 칠하는 면의 양. `text`는 프레임을 아예 그리지 않으므로, 슬라이드가 이미 자기 테두리를 가지고 있을 때 쓰세요',
+        en: 'How much surface the frame paints behind the slides. `text` draws no frame at all, which is what to reach for when the slides already have edges of their own'
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '화살표와 표시점의 크기, 그리고 화살표가 프레임 가장자리에서 들어온 정도. 슬라이드의 크기는 아닙니다 — 그건 프레임 그 자체입니다',
+        en: 'The size of the arrows and the marks, and how far the arrows sit in from the frame’s edge. Not the size of a slide, which is whatever the frame is'
+      }
+    },
+    {
+      ...color,
+      description: {
+        ko: '현재 표시점과 화살표가 읽는 강조 색 계열. 프레임은 다른 컨테이너와 마찬가지로 중립으로 남습니다',
+        en: 'Which accent family the current mark and the arrows read. The frame stays neutral, as every container does'
+      }
+    }
+  ],
+
   MPCollapsible: [
     {
       name: 'open',
