@@ -422,6 +422,7 @@ const vitePressConfig: UserConfig = {
         'react-dom/client',
         'react/jsx-runtime',
         'react/jsx-dev-runtime',
+        '@base-ui/react/collapsible',
         '@base-ui/react/combobox',
         '@base-ui/react/context-menu',
         '@base-ui/react/dialog',

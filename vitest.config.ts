@@ -61,6 +61,7 @@ export default defineConfig({
       '@base-ui/react/avatar',
       '@base-ui/react/button',
       '@base-ui/react/checkbox',
+      '@base-ui/react/collapsible',
       '@base-ui/react/combobox',
       '@base-ui/react/context-menu',
       '@base-ui/react/dialog',

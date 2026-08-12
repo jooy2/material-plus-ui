@@ -67,6 +67,36 @@ const fullWidth: PropRow = {
   }
 };
 
+/* ---------------------------------------------------------------------------
+ * Containers
+ *
+ * The components that are a box holding somebody else's content rather than the
+ * thing being coloured. They share a `variant` whose `filled` is neutral, and
+ * most of them share a `padded`. Written once for the reason `size` is: a
+ * `variant` that means the accent on a card and a neutral surface on a box is
+ * exactly the drift this file exists to prevent.
+ * ------------------------------------------------------------------------- */
+
+const containerVariant: PropRow = {
+  name: 'variant',
+  type: VARIANT,
+  default: "'outlined'",
+  description: {
+    ko: '시트가 칠하는 면의 양. 컨테이너의 사다리라서 `filled`도 강조 색이 아니라 MD3의 filled 카드 표면인 `surface-container-highest`입니다 — 남의 내용을 담는 상자를 물들이면 그 내용의 배경이 물듭니다',
+    en: "How much surface the sheet paints. A container's ladder, so even `filled` is neutral — MD3's own filled-card surface, `surface-container-highest`, rather than the accent: dyeing a box that holds somebody else's content dyes their content's background"
+  }
+};
+
+const padded: PropRow = {
+  name: 'padded',
+  type: 'boolean',
+  default: 'true',
+  description: {
+    ko: '내용 주위의 안쪽 여백. 가장자리까지 닿아야 하는 것 — 사진, 테이블, 자기 행을 그리는 리스트 — 에는 꺼 두세요',
+    en: 'Inner padding around the content. Turn it off for something that should reach the edges — a picture, a table, a list that draws its own rows'
+  }
+};
+
 const disabled: PropRow = {
   name: 'disabled',
   type: 'boolean',
@@ -4224,6 +4254,121 @@ export const propTables: Record<string, PropRow[]> = {
         ko: '얼마나 크게까지 끌 수 있는지. 생략하면 제한이 없습니다',
         en: 'How large it may be dragged. Unbounded when left out'
       }
+    }
+  ],
+
+  MPCollapsible: [
+    {
+      name: 'open',
+      type: 'boolean',
+      description: {
+        ko: '패널이 보이는지. `onOpenChange`와 함께 쓰면 controlled입니다',
+        en: 'Whether the panel is showing. Use with `onOpenChange` for a controlled one'
+      }
+    },
+    {
+      name: 'defaultOpen',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '처음에 열려 있을지. uncontrolled일 때 씁니다',
+        en: 'Whether it starts open, for an uncontrolled one'
+      }
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: {
+        ko: '트리거가 패널을 열고 닫을 때 호출됩니다',
+        en: 'Called when the trigger opens or closes the panel'
+      }
+    },
+    {
+      name: 'title',
+      type: NODE,
+      description: { ko: '트리거 위의 제목', en: 'The heading on the trigger' }
+    },
+    {
+      name: 'subtitle',
+      type: NODE,
+      description: {
+        ko: '제목 아래 한 줄. 타입 스케일 한 단계 아래이고 한 톤 물러납니다',
+        en: 'A second line under it, one step down the type scale and muted'
+      }
+    },
+    {
+      name: 'startIcon',
+      type: NODE,
+      description: {
+        ko: '제목 앞에 놓이는 내용 — 글리프, 상태 점, 개수',
+        en: 'Content before the title — a glyph, a status dot, a count'
+      }
+    },
+    {
+      name: 'action',
+      type: NODE,
+      description: {
+        ko: '헤더 끝에 고정되는 컨트롤. 트리거 *바깥*이라, 눌러도 구획이 접히지 않습니다 — `<button>` 안의 `<button>`은 브라우저가 파싱하면서 고쳐 쓰는 마크업입니다',
+        en: 'A control pinned to the end of the header, *outside* the trigger — so pressing it does not fold the section. A `<button>` inside a `<button>` is markup the browser rewrites on parse'
+      }
+    },
+    {
+      name: 'trigger',
+      type: 'ReactElement',
+      description: {
+        ko: '헤더 전체를 직접 만든 컨트롤로 바꿉니다. 넘긴 엘리먼트가 트리거가 되고, Base UI가 클릭 핸들러와 `aria-expanded`/`aria-controls`를 쥐여 줍니다',
+        en: 'Replaces the header entirely with a control of your own. The element *becomes* the trigger, and Base UI hands it the click handler and the `aria-expanded` / `aria-controls` wiring'
+      }
+    },
+    {
+      name: 'indicator',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '헤더 끝의 셰브런. 상태를 알리기 위해 회전합니다',
+        en: 'The chevron at the end of the header, turned to report the state'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '트리거가 응답을 멈추고 패널은 있던 상태 그대로 남습니다',
+        en: 'Unavailable. The trigger stops answering and the panel stays as it is'
+      }
+    },
+    padded,
+    containerVariant,
+    {
+      ...size,
+      description: {
+        ko: '안쪽 여백, 그리고 헤더와 본문의 타입 스케일. 모서리는 사다리에 없습니다 — 시트는 어느 단계에서나 `corner-medium`입니다',
+        en: 'The room inside, and the type scale of the header and the body. The corner is not on the ladder: a sheet is `corner-medium` at every rung'
+      }
+    },
+    {
+      name: 'hiddenUntilFound',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '닫힌 패널을 DOM에 남겨, 브라우저의 페이지 검색이 찾아서 열 수 있게 합니다. `keepMounted`보다 우선합니다',
+        en: "Keeps a closed panel in the DOM so the browser's own page search can find and open it. Overrides `keepMounted`"
+      }
+    },
+    {
+      name: 'keepMounted',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '닫힌 패널을 DOM에 남깁니다. 만드는 비용이 크거나, 접혀 있는 동안에도 살아남아야 하는 폼 상태를 담은 내용에 씁니다',
+        en: 'Keeps a closed panel in the DOM. For content that is expensive to build, or that holds form state which should survive being folded away'
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '본문', en: 'The body' }
     }
   ],
 

@@ -10,6 +10,7 @@ export * from './components/button';
 export * from './components/button-group';
 export * from './components/checkbox';
 export * from './components/chip';
+export * from './components/collapsible';
 export * from './components/color-picker';
 export * from './components/combobox';
 export * from './components/date-picker';

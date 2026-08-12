@@ -12,6 +12,7 @@ import {
   MPButtonGroup,
   MPCheckbox,
   MPChip,
+  MPCollapsible,
   MPColorPicker,
   MPCombobox,
   MPDatePicker,
@@ -1042,8 +1043,8 @@ const GROUPS: Group[] = [
   {
     title: { ko: '레이아웃', en: 'Layout' },
     note: {
-      ko: '아무것도 그리지 않고, 다른 것들이 놓일 자리만 정하는 것.',
-      en: 'It draws nothing. What it decides is where everything else sits.'
+      ko: '다른 것들이 놓일 자리를 정하는 것 — 그리고 그것들을 담는 시트.',
+      en: 'It decides where everything else sits — and the sheets that hold it.'
     },
     entries: [
       {
@@ -1069,6 +1070,21 @@ const GROUPS: Group[] = [
               </MPAspectRatio>
             ))}
           </div>
+        )
+      },
+      {
+        name: 'MPCollapsible',
+        summary: {
+          ko: '혼자 서 있는, 접히는 한 구획',
+          en: 'One section that folds, standing on its own'
+        },
+        path: '/components/layout/collapsible',
+        preview: (
+          <Fit>
+            <MPCollapsible size="sm" title="Delivery options" subtitle="Standard, chosen">
+              Three to five working days, included in the price.
+            </MPCollapsible>
+          </Fit>
         )
       },
       {

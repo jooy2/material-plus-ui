@@ -171,6 +171,25 @@ export const SHEET_PAD_X: Record<MPSize, string> = {
 };
 
 /**
+ * And the other axis, for the sheet that is built out of stacked sections.
+ *
+ * A card, a drawer and a collapsible all make the same trade: without dividers
+ * the *sheet* carries the vertical room and each section carries only the
+ * horizontal, so the gaps between sections belong to the sheet; with them each
+ * section carries both, so a hairline can reach the sheet's edges. That needs
+ * the two axes separately, and it needs them written out — Tailwind finds
+ * classes by scanning source text, so a `p-4` turned into a `py-4` at runtime
+ * generates no rule at all and the padding simply would not exist.
+ */
+export const SHEET_PAD_Y: Record<MPSize, string> = {
+  xs: 'py-2.5',
+  sm: 'py-3',
+  md: 'py-4',
+  lg: 'py-5',
+  xl: 'py-6'
+};
+
+/**
  * A sheet's heading.
  *
  * The `title` roles rather than the `headline` ones: a headline is what a page
