@@ -44,6 +44,7 @@ import {
   MPPane,
   MPPanes,
   MPPill,
+  MPPopover,
   MPProgressBox,
   MPProgressCircular,
   MPProgressLinear,
@@ -993,6 +994,28 @@ const GROUPS: Group[] = [
               Hover me
             </MPButton>
           </MPTooltip>
+        )
+      },
+      {
+        name: 'MPPopover',
+        summary: {
+          ko: '자기를 연 것 옆에 열리는, 손이 닿는 시트',
+          en: 'A sheet that opens beside the thing that opened it'
+        },
+        path: '/components/feedback/popover',
+        preview: (
+          <MPPopover
+            size="sm"
+            title="Rename this view"
+            description="Only you will see it"
+            trigger={
+              <MPButton size="sm" variant="tonal">
+                Open a popover
+              </MPButton>
+            }
+          >
+            Unlike a tooltip, this one can be entered with the keyboard.
+          </MPPopover>
         )
       },
       {

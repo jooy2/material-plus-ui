@@ -4841,6 +4841,143 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPPopover: [
+    {
+      name: 'trigger',
+      type: 'ReactElement',
+      description: {
+        ko: '팝업이 매달리고, 팝업을 여는 엘리먼트. ref와 prop spread를 받는 엘리먼트 하나여야 하며, 모든 Material Plus 컴포넌트가 그렇습니다. 선택 사항이지만, 없으면 위치를 잡을 대상이 없어 뷰포트에 붙습니다',
+        en: 'The element the popup hangs off and that opens it. Exactly one element, which must accept a ref and spread props — every Material Plus component does. Optional, though a popover with none has nothing to position against and will sit against the viewport'
+      }
+    },
+    {
+      name: 'title',
+      type: NODE,
+      description: {
+        ko: '제목. 팝업의 이름이 되는 엘리먼트로 렌더링됩니다',
+        en: 'The heading, rendered as the element that names the popup'
+      }
+    },
+    {
+      name: 'description',
+      type: NODE,
+      description: {
+        ko: '제목 아래 한 줄이자 팝업의 접근성 설명',
+        en: "A line under it, and the popup's accessible description"
+      }
+    },
+    {
+      name: 'side',
+      type: "'top' | 'right' | 'bottom' | 'left'",
+      default: "'bottom'",
+      description: {
+        ko: '트리거의 어느 변에 나타날지. 자리가 없으면 반대편으로 뒤집힙니다 — Base UI가 하는 일이고, 그게 옳습니다. 지시가 아니라 선호입니다',
+        en: "Which edge of the trigger it appears on. Flips to the opposite side when there is no room, which is Base UI's doing and is the right behaviour — this is a preference, not an instruction"
+      }
+    },
+    {
+      name: 'align',
+      type: "'start' | 'center' | 'end'",
+      default: "'center'",
+      description: {
+        ko: '그 변을 따라 어디에 앉을지. 논리적입니다 — 변이 RTL에서 반대로 흐르기 때문입니다',
+        en: 'Where it sits along that edge. Logical, because that edge runs the other way under RTL'
+      }
+    },
+    {
+      name: 'sideOffset',
+      type: 'number',
+      default: '8',
+      description: { ko: '트리거와의 거리, 픽셀', en: 'Distance from the trigger, in pixels' }
+    },
+    {
+      name: 'alignOffset',
+      type: 'number',
+      default: '0',
+      description: { ko: '그 변을 따라 밀어내는 양, 픽셀', en: 'Shift along that edge, in pixels' }
+    },
+    {
+      name: 'arrow',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '트리거를 가리키는 작은 쐐기를 그립니다. 기본이 꺼짐인 것은 MD3가 메뉴와 rich tooltip에 하는 것과 같습니다 — 8픽셀 떨어진 팝업은 자기가 무엇에 속하는지 말할 필요가 없습니다',
+        en: 'Draws the little wedge pointing at the trigger. Off by default, which is what MD3 does with both the menu and the rich tooltip: a popup eight pixels from its trigger does not need to say what it belongs to'
+      }
+    },
+    {
+      name: 'open',
+      type: 'boolean',
+      description: {
+        ko: '팝오버가 열려 있는지. `onOpenChange`와 함께 쓰면 controlled입니다',
+        en: 'Whether the popover is open. Use with `onOpenChange` for a controlled one'
+      }
+    },
+    {
+      name: 'defaultOpen',
+      type: 'boolean',
+      description: {
+        ko: '처음에 열려 있을지. uncontrolled일 때 씁니다',
+        en: 'Whether it starts open, for an uncontrolled one'
+      }
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: { ko: '열리고 닫힐 때 호출됩니다', en: 'Called as the popup opens and closes' }
+    },
+    {
+      name: 'modal',
+      type: "boolean | 'trap-focus'",
+      default: 'false',
+      description: {
+        ko: '뒤쪽 페이지를 가져갈지. `false`가 기본이고, 그것이 팝오버와 다이얼로그를 가릅니다 — 페이지 대신이 아니라 페이지 옆의 상세입니다. `trap-focus`는 스크롤을 잠그지 않고 포커스만 붙잡습니다',
+        en: 'Whether the page behind is taken away. `false` is the default, and that is what separates a popover from a dialog: it is a detail beside the page, not instead of it. `trap-focus` holds focus inside without locking the scroll'
+      }
+    },
+    {
+      name: 'dismissible',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: 'Escape와 바깥 클릭으로 닫히는지. 스스로 나갈 길이 있는 팝업에서만 끄세요. `MPPopoverClose`와 코드에 의한 닫기는 계속 동작합니다',
+        en: 'Whether pressing Escape or clicking outside closes the popup. Turn it off only for a popup with its own way out — `MPPopoverClose` and an imperative close still work'
+      }
+    },
+    {
+      name: 'showClose',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '모서리의 ×', en: 'Shows the × in the corner' }
+    },
+    {
+      name: 'closeLabel',
+      type: 'string',
+      default: "'Close'",
+      description: { ko: '× 버튼의 접근성 이름', en: 'Accessible name of the × button' }
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      description: {
+        ko: '`size`가 함의하는 너비 상한을 덮어씁니다. 숫자는 픽셀입니다. 스케일 조정이 아니라 *내용*이 너비를 정하는 팝오버를 위한 것입니다',
+        en: "A hard cap on the popup's width, overriding the one `size` implies. Numbers are pixels. For the popover whose *content* decides its width, rather than for tuning the scale"
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '팝업 안의 여백, 그 안의 타입 스케일, 그리고 최대 너비. 다이얼로그의 사다리보다 한 단계씩 좁습니다 — 팝오버는 페이지 한가운데의 시트가 아니라 컨트롤 옆의 상세입니다',
+        en: 'The room inside the popup, the type scale in it, and how wide it may get. One rung narrower than the dialog at every step: a popover is a detail beside a control rather than a sheet in the middle of the page'
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '본문', en: 'The body' }
+    }
+  ],
+
   MPCollapsible: [
     {
       name: 'open',
