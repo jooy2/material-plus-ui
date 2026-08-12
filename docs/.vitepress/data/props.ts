@@ -4738,6 +4738,109 @@ export const propTables: Record<string, PropRow[]> = {
     color
   ],
 
+  MPPill: [
+    {
+      name: 'title',
+      type: NODE,
+      description: {
+        ko: '가운데의 헤드라인 — 이 필이 지금 무엇에 대한 것인지',
+        en: 'The headline in the middle — what the pill is currently about'
+      }
+    },
+    {
+      name: 'description',
+      type: NODE,
+      description: {
+        ko: '제목 아래 두 번째 줄. 한 단계 아래이고 더 조용합니다',
+        en: 'The second line, under the title. One step down and quieter'
+      }
+    },
+    {
+      name: 'startIcon',
+      type: NODE,
+      description: {
+        ko: '앞쪽 슬롯 — 글리프, 아바타, 상태 점, 사진. 정사각형 상자에 담겨 원형으로 잘리므로 `<img>`도 아이콘처럼 들어갑니다',
+        en: 'The leading slot — a glyph, an avatar, a status dot, a photograph. It gets a square box of its own, clipped to a circle, so an `<img>` lands in it as readily as an icon does'
+      }
+    },
+    {
+      name: 'endIcon',
+      type: NODE,
+      description: {
+        ko: '뒤쪽 슬롯. 누를 수 있는 영역 바깥이라 컨트롤이 들어갈 수 있습니다',
+        en: 'The trailing slot. Outside the pressable area, so it can be a control'
+      }
+    },
+    {
+      name: 'details',
+      type: NODE,
+      description: {
+        ko: '`expanded`일 때 드러나는 나머지 절반. 필은 다른 모양으로 바뀌는 대신 아래로 자라 들어갑니다. 높이는 `ResizeObserver`로 재므로, 열린 뒤에 내용이 자라도 함께 자랍니다',
+        en: 'The second half, revealed when `expanded`. The pill grows downward into it rather than swapping to a different shape. The height is measured with a `ResizeObserver`, so details that change after they open grow with it'
+      }
+    },
+    {
+      name: 'expanded',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '`details`가 보이는지. 열리면 모서리도 `corner-full`에서 `corner-extra-large`로 옮겨 갑니다',
+        en: 'Whether `details` is showing. Opening it also moves the corner from `corner-full` to `corner-extra-large`'
+      }
+    },
+    {
+      name: 'position',
+      type: "'static' | 'sticky' | 'fixed'",
+      default: "'static'",
+      description: {
+        ko: '페이지의 스크롤 속에서 어떻게 앉는지. `fixed`는 뷰포트에 고정하고 가운데로 보냅니다 — 이 모양이 존재하는 배치입니다',
+        en: "How it sits in the page's scroll. `fixed` pins it against the viewport and centres it, which is the arrangement this shape exists for"
+      }
+    },
+    {
+      name: 'side',
+      type: "'top' | 'bottom'",
+      default: "'top'",
+      description: {
+        ko: '`position`이 `static`이 아닐 때 어느 가장자리에 붙는지',
+        en: 'Which edge it is held against when `position` is not `static`'
+      }
+    },
+    {
+      name: 'onClick',
+      type: 'MouseEventHandler<HTMLButtonElement>',
+      description: {
+        ko: '넘기는 것 자체가 가운데를 진짜 버튼으로 만듭니다. `endIcon`은 그 바깥에 남습니다',
+        en: 'Passing it makes the middle a real button. `endIcon` stays outside it'
+      }
+    },
+    {
+      name: 'variant',
+      type: VARIANT,
+      default: "'filled'",
+      description: {
+        ko: '알약이 칠하는 면의 양. **컨트롤**의 사다리라서 `filled`가 강조 색으로 채웁니다. 다섯 모두 그림자를 가지는데, 자기가 떠 있는 내용 위에 평평하게 놓인 알약은 실수처럼 읽히기 때문입니다',
+        en: 'How much surface the lozenge paints. The **control** ladder, so `filled` takes the accent under its own ink. All five carry a shadow, because a lozenge floating flat on the content it is floating over reads as a mistake'
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '행의 최소 높이와 그 안의 타입 스케일. 버튼과 같은 숫자라서, 접힌 필은 옆의 버튼과 줄이 맞습니다',
+        en: "The row's minimum height and the type scale in it. The same numbers a button is drawn at, so a collapsed pill lines up with one beside it"
+      }
+    },
+    { ...color, default: "'secondary'" },
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '`title`과 `description`으로 말할 수 없는 것 — 작은 수치, 살아 있는 카운터, 진행 표시. 그 아래 같은 열에 그려집니다',
+        en: 'Anything the middle needs that `title` and `description` cannot say — a small readout, a live counter, a progress indicator. Rendered under them, in the same column'
+      }
+    }
+  ],
+
   MPCollapsible: [
     {
       name: 'open',

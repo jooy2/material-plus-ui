@@ -43,6 +43,7 @@ import {
   MPOverlay,
   MPPane,
   MPPanes,
+  MPPill,
   MPProgressBox,
   MPProgressCircular,
   MPProgressLinear,
@@ -708,6 +709,22 @@ const GROUPS: Group[] = [
               </MPChatBubble>
             </div>
           </Fit>
+        )
+      },
+      {
+        name: 'MPPill',
+        summary: {
+          ko: '살아 있는 정보를 담아 떠 있는 알약',
+          en: 'A floating lozenge holding live information'
+        },
+        path: '/components/display/pill',
+        preview: (
+          <MPPill
+            size="sm"
+            title="On a call"
+            description="04:12"
+            startIcon={<MPIcon icon={ICONS.clock} />}
+          />
         )
       },
       {
