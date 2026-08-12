@@ -4978,6 +4978,133 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPSpoiler: [
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '가려지는 것', en: 'What is being covered' }
+    },
+    {
+      name: 'revealed',
+      type: 'boolean',
+      description: {
+        ko: '내용이 드러나 있는지. `onRevealedChange`와 함께 쓰면 controlled입니다',
+        en: 'Whether the content is uncovered. Use with `onRevealedChange` to control it'
+      }
+    },
+    {
+      name: 'defaultRevealed',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '처음에 드러나 있을지. uncontrolled일 때 씁니다',
+        en: 'Where an uncontrolled spoiler starts'
+      }
+    },
+    {
+      name: 'onRevealedChange',
+      type: '(revealed: boolean) => void',
+      description: {
+        ko: '보기 또는 가리기 버튼을 눌렀을 때 호출됩니다',
+        en: 'Called when the reveal or hide button is pressed'
+      }
+    },
+    {
+      name: 'locale',
+      type: 'string',
+      description: {
+        ko: '덮개의 문구가 어느 언어로 쓰이는지. 가장 가까운 `MPLocaleProvider`, 그다음 영어로 내려갑니다. 이 라이브러리에서 컴포넌트 자신의 단어가 읽히기만 하는 게 아니라 *그려지는* 유일한 자리입니다',
+        en: 'Which language the cover is written in. Falls back to the nearest `MPLocaleProvider`, then to English. This is the one place in the library where a component’s own words are *drawn* rather than only announced'
+      }
+    },
+    {
+      name: 'label',
+      type: NODE,
+      description: {
+        ko: '공개 버튼의 문구. 기본값은 `locale`의 단어입니다',
+        en: "The reveal button's label. Defaults to the `locale`'s word for it"
+      }
+    },
+    {
+      name: 'hideLabel',
+      type: NODE,
+      description: {
+        ko: '`reversible`일 때 가리기 버튼의 문구',
+        en: "The hide button's label, when `reversible` is on"
+      }
+    },
+    {
+      name: 'description',
+      type: `${NODE} | false`,
+      description: {
+        ko: '버튼 위의 한 줄. 왜 가려졌는지를 말합니다. 기본값은 `locale`의 문구이고, `false`를 주면 아무것도 쓰이지 않은 덮개가 됩니다',
+        en: "The line above the button, saying why the content is covered. Defaults to the `locale`'s wording; pass `false` for a cover with nothing written on it"
+      }
+    },
+    {
+      name: 'action',
+      type: NODE,
+      description: {
+        ko: '기본 공개 버튼 전체를 대체합니다. 대체한 컨트롤은 직접 연결해야 합니다 — `revealed`를 넘기고 자기 상태로 구동하세요',
+        en: 'Replaces the default reveal button entirely. The replacement is yours to wire up: pass `revealed` and drive it from your own state'
+      }
+    },
+    {
+      name: 'reversible',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '한 번 열린 뒤 내용 아래에 다시 가리는 버튼이 나타납니다',
+        en: 'Keeps the content coverable: once revealed, a hide button appears under it'
+      }
+    },
+    {
+      name: 'maxHeight',
+      type: 'number | string',
+      description: {
+        ko: '**가려진** 상자를 이 높이로 자릅니다. 숫자는 픽셀입니다. 열면 제한이 풀립니다 — 보여 주면서 스크롤바 달린 상자에 남겨 두는 건 엉뚱한 질문에 답하는 일입니다',
+        en: 'Clamps the **covered** box to this height — a CSS length, or a number in pixels. Revealing releases it: showing something and leaving it in a box with a scrollbar is answering the wrong question'
+      }
+    },
+    {
+      name: 'blur',
+      type: 'number',
+      default: '10',
+      description: {
+        ko: '내용을 얼마나 세게 흐릴지, 픽셀',
+        en: 'How hard the content is blurred, in pixels'
+      }
+    },
+    {
+      ...padded,
+      description: {
+        ko: '내용 주위의 안쪽 여백. 가장자리까지 닿아야 하는 것 — 사진, 영상 — 에는 꺼 두세요',
+        en: 'Inner padding around the content. Turn it off for something that should reach the edges — a picture, a video'
+      }
+    },
+    {
+      ...containerVariant,
+      description: {
+        ko: '시트가 칠하는 면의 양. `text`는 상자를 아예 그리지 않는데, 문장 속에 놓인 스포일러가 보통 원하는 것입니다',
+        en: 'How much surface the sheet paints. `text` draws no box at all, which is what a spoiler sitting inside running prose usually wants'
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '안쪽 여백과 덮개 위 버튼의 크기',
+        en: 'The room inside, and the size of the button on the cover'
+      }
+    },
+    {
+      ...color,
+      description: {
+        ko: '공개 버튼이 읽는 강조 색 계열. 시트는 다른 컨테이너와 마찬가지로 중립으로 남습니다',
+        en: 'Which accent family the reveal button reads. The sheet stays neutral, as every container in this library does'
+      }
+    }
+  ],
+
   MPCollapsible: [
     {
       name: 'open',

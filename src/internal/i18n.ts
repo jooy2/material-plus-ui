@@ -99,6 +99,21 @@ export interface MPMessages {
     /** The three dots, which are a picture of somebody writing. */
     typing: string;
   };
+  /**
+   * MPSpoiler.
+   *
+   * The one namespace whose strings are *drawn* rather than only announced —
+   * they are the words on the cover, and a cover written in a language the page
+   * is not in is a cover nobody reads.
+   */
+  spoiler: {
+    /** The button that uncovers the content. */
+    reveal: string;
+    /** The button that covers it again, when the spoiler is reversible. */
+    hide: string;
+    /** The line above the button, saying why the content is covered. */
+    notice: string;
+  };
 }
 
 /** A translation may fill in as much or as little of the table as it has. */
@@ -142,6 +157,11 @@ const base: MPMessages = {
     read: 'Read',
     failed: 'Not sent',
     typing: 'Typing'
+  },
+  spoiler: {
+    reveal: 'Reveal',
+    hide: 'Hide',
+    notice: 'Hidden so it is not read by accident'
   }
 };
 
@@ -183,6 +203,11 @@ const translations: Record<string, PartialMessages> = {
       read: '읽음',
       failed: '전송 실패',
       typing: '입력 중'
+    },
+    spoiler: {
+      reveal: '보기',
+      hide: '가리기',
+      notice: '실수로 읽지 않도록 가려 두었습니다'
     }
   },
   ja: {
@@ -214,6 +239,11 @@ const translations: Record<string, PartialMessages> = {
       read: '既読',
       failed: '送信できませんでした',
       typing: '入力中'
+    },
+    spoiler: {
+      reveal: '表示する',
+      hide: '隠す',
+      notice: 'うっかり読まないように隠してあります'
     }
   },
   'zh-hans': {
@@ -245,6 +275,11 @@ const translations: Record<string, PartialMessages> = {
       read: '已读',
       failed: '未发送',
       typing: '正在输入'
+    },
+    spoiler: {
+      reveal: '显示',
+      hide: '隐藏',
+      notice: '已隐藏，以免不小心读到'
     }
   },
   'zh-hant': {
@@ -276,6 +311,11 @@ const translations: Record<string, PartialMessages> = {
       read: '已讀',
       failed: '未傳送',
       typing: '正在輸入'
+    },
+    spoiler: {
+      reveal: '顯示',
+      hide: '隱藏',
+      notice: '已隱藏，以免不小心讀到'
     }
   },
   es: {
@@ -307,6 +347,11 @@ const translations: Record<string, PartialMessages> = {
       read: 'Leído',
       failed: 'No enviado',
       typing: 'Escribiendo'
+    },
+    spoiler: {
+      reveal: 'Mostrar',
+      hide: 'Ocultar',
+      notice: 'Oculto para que no se lea por accidente'
     }
   },
   pt: {
@@ -338,6 +383,11 @@ const translations: Record<string, PartialMessages> = {
       read: 'Lido',
       failed: 'Não enviado',
       typing: 'Digitando'
+    },
+    spoiler: {
+      reveal: 'Mostrar',
+      hide: 'Ocultar',
+      notice: 'Oculto para não ser lido por acidente'
     }
   },
   fr: {
@@ -369,6 +419,11 @@ const translations: Record<string, PartialMessages> = {
       read: 'Lu',
       failed: 'Non envoyé',
       typing: "En train d'écrire"
+    },
+    spoiler: {
+      reveal: 'Afficher',
+      hide: 'Masquer',
+      notice: 'Masqué pour ne pas être lu par accident'
     }
   },
   de: {
@@ -400,6 +455,11 @@ const translations: Record<string, PartialMessages> = {
       read: 'Gelesen',
       failed: 'Nicht gesendet',
       typing: 'Schreibt'
+    },
+    spoiler: {
+      reveal: 'Anzeigen',
+      hide: 'Verbergen',
+      notice: 'Verborgen, damit es nicht versehentlich gelesen wird'
     }
   },
   it: {
@@ -431,6 +491,11 @@ const translations: Record<string, PartialMessages> = {
       read: 'Letto',
       failed: 'Non inviato',
       typing: 'Sta scrivendo'
+    },
+    spoiler: {
+      reveal: 'Mostra',
+      hide: 'Nascondi',
+      notice: 'Nascosto per non essere letto per sbaglio'
     }
   },
   nl: {
@@ -462,6 +527,11 @@ const translations: Record<string, PartialMessages> = {
       read: 'Gelezen',
       failed: 'Niet verzonden',
       typing: 'Aan het typen'
+    },
+    spoiler: {
+      reveal: 'Tonen',
+      hide: 'Verbergen',
+      notice: 'Verborgen zodat het niet per ongeluk wordt gelezen'
     }
   },
   pl: {
@@ -493,6 +563,11 @@ const translations: Record<string, PartialMessages> = {
       read: 'Przeczytano',
       failed: 'Nie wysłano',
       typing: 'Pisze'
+    },
+    spoiler: {
+      reveal: 'Pokaż',
+      hide: 'Ukryj',
+      notice: 'Ukryte, aby nie przeczytać przez przypadek'
     }
   },
   ru: {
@@ -524,6 +599,11 @@ const translations: Record<string, PartialMessages> = {
       read: 'Прочитано',
       failed: 'Не отправлено',
       typing: 'Печатает'
+    },
+    spoiler: {
+      reveal: 'Показать',
+      hide: 'Скрыть',
+      notice: 'Скрыто, чтобы не прочитать случайно'
     }
   },
   tr: {
@@ -555,6 +635,11 @@ const translations: Record<string, PartialMessages> = {
       read: 'Okundu',
       failed: 'Gönderilemedi',
       typing: 'Yazıyor'
+    },
+    spoiler: {
+      reveal: 'Göster',
+      hide: 'Gizle',
+      notice: 'Yanlışlıkla okunmasın diye gizlendi'
     }
   },
   ar: {
@@ -586,6 +671,11 @@ const translations: Record<string, PartialMessages> = {
       read: 'تمت القراءة',
       failed: 'لم يتم الإرسال',
       typing: 'يكتب الآن'
+    },
+    spoiler: {
+      reveal: 'إظهار',
+      hide: 'إخفاء',
+      notice: 'مخفي حتى لا يُقرأ بالخطأ'
     }
   },
   hi: {
@@ -617,6 +707,11 @@ const translations: Record<string, PartialMessages> = {
       read: 'पढ़ लिया गया',
       failed: 'नहीं भेजा गया',
       typing: 'टाइप कर रहे हैं'
+    },
+    spoiler: {
+      reveal: 'दिखाएँ',
+      hide: 'छिपाएँ',
+      notice: 'गलती से न पढ़ लिया जाए इसलिए छिपाया गया है'
     }
   },
   id: {
@@ -648,6 +743,11 @@ const translations: Record<string, PartialMessages> = {
       read: 'Dibaca',
       failed: 'Gagal terkirim',
       typing: 'Sedang mengetik'
+    },
+    spoiler: {
+      reveal: 'Tampilkan',
+      hide: 'Sembunyikan',
+      notice: 'Disembunyikan agar tidak terbaca tanpa sengaja'
     }
   },
   vi: {
@@ -679,6 +779,11 @@ const translations: Record<string, PartialMessages> = {
       read: 'Đã đọc',
       failed: 'Chưa gửi được',
       typing: 'Đang nhập'
+    },
+    spoiler: {
+      reveal: 'Hiện',
+      hide: 'Ẩn',
+      notice: 'Đã ẩn để không vô tình đọc phải'
     }
   },
   th: {
@@ -710,6 +815,11 @@ const translations: Record<string, PartialMessages> = {
       read: 'อ่านแล้ว',
       failed: 'ส่งไม่สำเร็จ',
       typing: 'กำลังพิมพ์'
+    },
+    spoiler: {
+      reveal: 'แสดง',
+      hide: 'ซ่อน',
+      notice: 'ซ่อนไว้เพื่อไม่ให้อ่านโดยบังเอิญ'
     }
   }
 };
@@ -799,7 +909,8 @@ export function resolveMessages(locale?: string): MPMessages {
     ? {
         picker: { ...base.picker, ...match.picker },
         alert: { ...base.alert, ...match.alert },
-        chat: { ...base.chat, ...match.chat }
+        chat: { ...base.chat, ...match.chat },
+        spoiler: { ...base.spoiler, ...match.spoiler }
       }
     : base;
 

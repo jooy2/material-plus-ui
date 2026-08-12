@@ -56,6 +56,7 @@ import {
   MPSkeleton,
   MPSlider,
   MPSnackbarProvider,
+  MPSpoiler,
   MPSwitch,
   MPTable,
   MPTextField,
@@ -726,6 +727,21 @@ const GROUPS: Group[] = [
             description="04:12"
             startIcon={<MPIcon icon={ICONS.clock} />}
           />
+        )
+      },
+      {
+        name: 'MPSpoiler',
+        summary: {
+          ko: '요청하기 전까지 가려 두는 내용',
+          en: 'Content that is covered until somebody asks for it'
+        },
+        path: '/components/display/spoiler',
+        preview: (
+          <Fit>
+            <MPSpoiler size="sm" reversible>
+              She was his sister the whole time.
+            </MPSpoiler>
+          </Fit>
         )
       },
       {

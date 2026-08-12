@@ -48,6 +48,7 @@ export * from './components/shortcut';
 export * from './components/skeleton';
 export * from './components/slider';
 export * from './components/snackbar';
+export * from './components/spoiler';
 export * from './components/switch';
 export * from './components/table';
 export * from './components/text-field';
