@@ -76,6 +76,29 @@ export interface MPMessages {
     /** The × in the corner, which has no text of its own. */
     dismiss: string;
   };
+  /**
+   * MPChatBubble.
+   *
+   * Every string here is read out and never drawn: a delivery state is a mark
+   * on the bubble, and the word behind it is for the readers the mark says
+   * nothing to. That is exactly why they belong in this table rather than in a
+   * prop — a thread is a column of forty of these, and a caller who had to hand
+   * over five words per message would hand over the English ones.
+   */
+  chat: {
+    /** On its way. */
+    sending: string;
+    /** It left. */
+    sent: string;
+    /** It arrived on their device. */
+    delivered: string;
+    /** They opened it. */
+    read: string;
+    /** It did not go — the one step that is not on the ladder. */
+    failed: string;
+    /** The three dots, which are a picture of somebody writing. */
+    typing: string;
+  };
 }
 
 /** A translation may fill in as much or as little of the table as it has. */
@@ -111,6 +134,14 @@ const base: MPMessages = {
   },
   alert: {
     dismiss: 'Dismiss'
+  },
+  chat: {
+    sending: 'Sending',
+    sent: 'Sent',
+    delivered: 'Delivered',
+    read: 'Read',
+    failed: 'Not sent',
+    typing: 'Typing'
   }
 };
 
@@ -144,7 +175,15 @@ const translations: Record<string, PartialMessages> = {
       start: '시작',
       end: '종료'
     },
-    alert: { dismiss: '닫기' }
+    alert: { dismiss: '닫기' },
+    chat: {
+      sending: '보내는 중',
+      sent: '보냄',
+      delivered: '전달됨',
+      read: '읽음',
+      failed: '전송 실패',
+      typing: '입력 중'
+    }
   },
   ja: {
     picker: {
@@ -167,7 +206,15 @@ const translations: Record<string, PartialMessages> = {
       start: '開始',
       end: '終了'
     },
-    alert: { dismiss: '閉じる' }
+    alert: { dismiss: '閉じる' },
+    chat: {
+      sending: '送信中',
+      sent: '送信済み',
+      delivered: '配信済み',
+      read: '既読',
+      failed: '送信できませんでした',
+      typing: '入力中'
+    }
   },
   'zh-hans': {
     picker: {
@@ -190,7 +237,15 @@ const translations: Record<string, PartialMessages> = {
       start: '开始',
       end: '结束'
     },
-    alert: { dismiss: '关闭' }
+    alert: { dismiss: '关闭' },
+    chat: {
+      sending: '发送中',
+      sent: '已发送',
+      delivered: '已送达',
+      read: '已读',
+      failed: '未发送',
+      typing: '正在输入'
+    }
   },
   'zh-hant': {
     picker: {
@@ -213,7 +268,15 @@ const translations: Record<string, PartialMessages> = {
       start: '開始',
       end: '結束'
     },
-    alert: { dismiss: '關閉' }
+    alert: { dismiss: '關閉' },
+    chat: {
+      sending: '傳送中',
+      sent: '已傳送',
+      delivered: '已送達',
+      read: '已讀',
+      failed: '未傳送',
+      typing: '正在輸入'
+    }
   },
   es: {
     picker: {
@@ -236,7 +299,15 @@ const translations: Record<string, PartialMessages> = {
       start: 'Inicio',
       end: 'Fin'
     },
-    alert: { dismiss: 'Cerrar' }
+    alert: { dismiss: 'Cerrar' },
+    chat: {
+      sending: 'Enviando',
+      sent: 'Enviado',
+      delivered: 'Entregado',
+      read: 'Leído',
+      failed: 'No enviado',
+      typing: 'Escribiendo'
+    }
   },
   pt: {
     picker: {
@@ -259,7 +330,15 @@ const translations: Record<string, PartialMessages> = {
       start: 'Início',
       end: 'Fim'
     },
-    alert: { dismiss: 'Fechar' }
+    alert: { dismiss: 'Fechar' },
+    chat: {
+      sending: 'Enviando',
+      sent: 'Enviado',
+      delivered: 'Entregue',
+      read: 'Lido',
+      failed: 'Não enviado',
+      typing: 'Digitando'
+    }
   },
   fr: {
     picker: {
@@ -282,7 +361,15 @@ const translations: Record<string, PartialMessages> = {
       start: 'Début',
       end: 'Fin'
     },
-    alert: { dismiss: 'Fermer' }
+    alert: { dismiss: 'Fermer' },
+    chat: {
+      sending: 'Envoi en cours',
+      sent: 'Envoyé',
+      delivered: 'Distribué',
+      read: 'Lu',
+      failed: 'Non envoyé',
+      typing: "En train d'écrire"
+    }
   },
   de: {
     picker: {
@@ -305,7 +392,15 @@ const translations: Record<string, PartialMessages> = {
       start: 'Beginn',
       end: 'Ende'
     },
-    alert: { dismiss: 'Schließen' }
+    alert: { dismiss: 'Schließen' },
+    chat: {
+      sending: 'Wird gesendet',
+      sent: 'Gesendet',
+      delivered: 'Zugestellt',
+      read: 'Gelesen',
+      failed: 'Nicht gesendet',
+      typing: 'Schreibt'
+    }
   },
   it: {
     picker: {
@@ -328,7 +423,15 @@ const translations: Record<string, PartialMessages> = {
       start: 'Inizio',
       end: 'Fine'
     },
-    alert: { dismiss: 'Chiudi' }
+    alert: { dismiss: 'Chiudi' },
+    chat: {
+      sending: 'Invio in corso',
+      sent: 'Inviato',
+      delivered: 'Consegnato',
+      read: 'Letto',
+      failed: 'Non inviato',
+      typing: 'Sta scrivendo'
+    }
   },
   nl: {
     picker: {
@@ -351,7 +454,15 @@ const translations: Record<string, PartialMessages> = {
       start: 'Begin',
       end: 'Einde'
     },
-    alert: { dismiss: 'Sluiten' }
+    alert: { dismiss: 'Sluiten' },
+    chat: {
+      sending: 'Verzenden',
+      sent: 'Verzonden',
+      delivered: 'Bezorgd',
+      read: 'Gelezen',
+      failed: 'Niet verzonden',
+      typing: 'Aan het typen'
+    }
   },
   pl: {
     picker: {
@@ -374,7 +485,15 @@ const translations: Record<string, PartialMessages> = {
       start: 'Początek',
       end: 'Koniec'
     },
-    alert: { dismiss: 'Zamknij' }
+    alert: { dismiss: 'Zamknij' },
+    chat: {
+      sending: 'Wysyłanie',
+      sent: 'Wysłano',
+      delivered: 'Dostarczono',
+      read: 'Przeczytano',
+      failed: 'Nie wysłano',
+      typing: 'Pisze'
+    }
   },
   ru: {
     picker: {
@@ -397,7 +516,15 @@ const translations: Record<string, PartialMessages> = {
       start: 'Начало',
       end: 'Конец'
     },
-    alert: { dismiss: 'Закрыть' }
+    alert: { dismiss: 'Закрыть' },
+    chat: {
+      sending: 'Отправка',
+      sent: 'Отправлено',
+      delivered: 'Доставлено',
+      read: 'Прочитано',
+      failed: 'Не отправлено',
+      typing: 'Печатает'
+    }
   },
   tr: {
     picker: {
@@ -420,7 +547,15 @@ const translations: Record<string, PartialMessages> = {
       start: 'Başlangıç',
       end: 'Bitiş'
     },
-    alert: { dismiss: 'Kapat' }
+    alert: { dismiss: 'Kapat' },
+    chat: {
+      sending: 'Gönderiliyor',
+      sent: 'Gönderildi',
+      delivered: 'İletildi',
+      read: 'Okundu',
+      failed: 'Gönderilemedi',
+      typing: 'Yazıyor'
+    }
   },
   ar: {
     picker: {
@@ -443,7 +578,15 @@ const translations: Record<string, PartialMessages> = {
       start: 'البداية',
       end: 'النهاية'
     },
-    alert: { dismiss: 'إغلاق' }
+    alert: { dismiss: 'إغلاق' },
+    chat: {
+      sending: 'جارٍ الإرسال',
+      sent: 'تم الإرسال',
+      delivered: 'تم التسليم',
+      read: 'تمت القراءة',
+      failed: 'لم يتم الإرسال',
+      typing: 'يكتب الآن'
+    }
   },
   hi: {
     picker: {
@@ -466,7 +609,15 @@ const translations: Record<string, PartialMessages> = {
       start: 'प्रारंभ',
       end: 'समाप्ति'
     },
-    alert: { dismiss: 'बंद करें' }
+    alert: { dismiss: 'बंद करें' },
+    chat: {
+      sending: 'भेजा जा रहा है',
+      sent: 'भेजा गया',
+      delivered: 'पहुँच गया',
+      read: 'पढ़ लिया गया',
+      failed: 'नहीं भेजा गया',
+      typing: 'टाइप कर रहे हैं'
+    }
   },
   id: {
     picker: {
@@ -489,7 +640,15 @@ const translations: Record<string, PartialMessages> = {
       start: 'Mulai',
       end: 'Akhir'
     },
-    alert: { dismiss: 'Tutup' }
+    alert: { dismiss: 'Tutup' },
+    chat: {
+      sending: 'Mengirim',
+      sent: 'Terkirim',
+      delivered: 'Diterima',
+      read: 'Dibaca',
+      failed: 'Gagal terkirim',
+      typing: 'Sedang mengetik'
+    }
   },
   vi: {
     picker: {
@@ -512,7 +671,15 @@ const translations: Record<string, PartialMessages> = {
       start: 'Bắt đầu',
       end: 'Kết thúc'
     },
-    alert: { dismiss: 'Đóng' }
+    alert: { dismiss: 'Đóng' },
+    chat: {
+      sending: 'Đang gửi',
+      sent: 'Đã gửi',
+      delivered: 'Đã nhận',
+      read: 'Đã đọc',
+      failed: 'Chưa gửi được',
+      typing: 'Đang nhập'
+    }
   },
   th: {
     picker: {
@@ -535,7 +702,15 @@ const translations: Record<string, PartialMessages> = {
       start: 'เริ่ม',
       end: 'สิ้นสุด'
     },
-    alert: { dismiss: 'ปิด' }
+    alert: { dismiss: 'ปิด' },
+    chat: {
+      sending: 'กำลังส่ง',
+      sent: 'ส่งแล้ว',
+      delivered: 'ส่งถึงแล้ว',
+      read: 'อ่านแล้ว',
+      failed: 'ส่งไม่สำเร็จ',
+      typing: 'กำลังพิมพ์'
+    }
   }
 };
 
@@ -623,7 +798,8 @@ export function resolveMessages(locale?: string): MPMessages {
   const messages: MPMessages = match
     ? {
         picker: { ...base.picker, ...match.picker },
-        alert: { ...base.alert, ...match.alert }
+        alert: { ...base.alert, ...match.alert },
+        chat: { ...base.chat, ...match.chat }
       }
     : base;
 

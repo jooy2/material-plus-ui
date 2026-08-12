@@ -1135,17 +1135,17 @@
  * The one part of the library that cannot be written as a utility, and the only
  * CSS here that draws rather than declares.
  *
- * All four belong to the progress indicators, and they exist for a reason
- * Tailwind cannot answer: an indeterminate indicator is a *loop*, and a loop is
- * a `@keyframes` rule. Everything else about the three components — their
- * colours, their ladders, their shapes — is classes and inline slots, exactly
- * as it is everywhere else.
+ * Four of them belong to the progress indicators and the fifth is shared with
+ * `MPChatBubble`'s typing dots, and they exist for a reason Tailwind cannot
+ * answer: an indeterminate indicator is a *loop*, and a loop is a `@keyframes`
+ * rule. Everything else about those components — their colours, their ladders,
+ * their shapes — is classes and inline slots, exactly as it is everywhere else.
  *
  * Unlayered on purpose. `@keyframes` does not take part in the cascade, but the
  * two classes below do, and a layered class would lose to any unlayered rule a
  * consumer's own stylesheet happens to have.
  *
- * `prefers-reduced-motion` stops all four. An indeterminate indicator that has
+ * `prefers-reduced-motion` stops all of them. An indeterminate indicator that has
  * stopped moving still says "something is happening" — it is on screen, and it
  * was not before — and for a reader who asked for less motion that is the whole
  * of the message. The determinate transitions are left alone: they are a value
@@ -1229,14 +1229,20 @@
 }
 
 /*
- * The segmented indicator: a wave of light running along the row.
+ * A wave of light running along a row of marks, and the one loop two components
+ * turned out to want.
+ *
+ * `MPProgressBox` runs it along its segments and `MPChatBubble` runs it along
+ * the three dots that say somebody is writing. The two differ only in how fast
+ * and how far apart, which is what the classes below set — a second keyframe
+ * saying the same thing is a second chance for the two to drift apart.
  *
  * Opacity rather than colour, so one rule covers all four accent families, and
- * each segment reads its own index out of `--_mp-index` for its delay — which
- * is what makes the row one class and one custom property instead of N
- * generated keyframe names.
+ * each mark reads its own index out of `--_mp-index` for its delay — which is
+ * what makes a row one class and one custom property instead of N generated
+ * keyframe names.
  */
-@keyframes mp-progress-segment-wave {
+@keyframes mp-wave {
   0%,
   100% {
     opacity: 0.24;
@@ -1265,8 +1271,16 @@
 }
 
 .mp-progress-segment-wave {
-  animation: mp-progress-segment-wave 1.2s ease-in-out infinite;
+  animation: mp-wave 1.2s ease-in-out infinite;
   animation-delay: calc(var(--_mp-index, 0) * 120ms);
+}
+
+/* Faster and tighter than the progress row: three dots at conversational pace,
+   which is roughly a beat a second. The dots never move — a bubble that bounced
+   while somebody typed would bounce in a thread another reader is scrolling. */
+.mp-chat-typing {
+  animation: mp-wave 1s ease-in-out infinite;
+  animation-delay: calc(var(--_mp-index, 0) * 160ms);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1274,7 +1288,8 @@
   .mp-progress-linear-trail,
   .mp-progress-circular-turn,
   .mp-progress-circular-arc,
-  .mp-progress-segment-wave {
+  .mp-progress-segment-wave,
+  .mp-chat-typing {
     animation: none;
   }
 
@@ -1296,7 +1311,8 @@
     stroke-dashoffset: 0;
   }
 
-  .mp-progress-segment-wave {
+  .mp-progress-segment-wave,
+  .mp-chat-typing {
     opacity: 0.6;
   }
 }

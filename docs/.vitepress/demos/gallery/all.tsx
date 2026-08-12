@@ -15,6 +15,7 @@ import {
   MPButtonGroup,
   MPCard,
   MPCarousel,
+  MPChatBubble,
   MPCheckbox,
   MPChip,
   MPCollapsible,
@@ -688,6 +689,26 @@ const GROUPS: Group[] = [
       en: 'It shows something, and nothing more.'
     },
     entries: [
+      {
+        name: 'MPChatBubble',
+        summary: {
+          ko: '대화 속 메시지 하나',
+          en: 'One message in a conversation'
+        },
+        path: '/components/display/chat-bubble',
+        preview: (
+          <Fit>
+            <div style={{ display: 'grid', gap: 8 }}>
+              <MPChatBubble size="sm" time="18:01">
+                Still on for six?
+              </MPChatBubble>
+              <MPChatBubble size="sm" side="end" variant="filled" status="read">
+                Booked it.
+              </MPChatBubble>
+            </div>
+          </Fit>
+        )
+      },
       {
         name: 'MPIcon',
         summary: {

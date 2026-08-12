@@ -4629,6 +4629,115 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPChatBubble: [
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '메시지', en: 'The message' }
+    },
+    {
+      name: 'side',
+      type: "'start' | 'end'",
+      default: "'start'",
+      description: {
+        ko: '누구의 메시지인지. 행이 흐르는 방향과 어느 모서리가 잘리는지를 정합니다. `left`/`right`가 아닌 이유는 스레드가 언어가 흐르는 방향으로 흐르기 때문입니다',
+        en: 'Whose message this is. Decides which way the row runs and which corner is cut short. Not `left`/`right`, because a thread runs the way the language does'
+      }
+    },
+    {
+      name: 'name',
+      type: NODE,
+      description: { ko: '보낸 사람. 말풍선 위에 놓입니다', en: 'Who sent it, above the bubble' }
+    },
+    {
+      name: 'time',
+      type: NODE,
+      description: { ko: '보낸 시각. 이름 옆에 놓입니다', en: 'When it was sent, beside the name' }
+    },
+    {
+      name: 'avatar',
+      type: NODE,
+      description: {
+        ko: '보낸 사람의 사진 — 보통 `MPAvatar`. 생략하면 말풍선이 행 전체를 씁니다',
+        en: "The sender's picture — an `MPAvatar`, usually. Left out, the bubble takes the whole row"
+      }
+    },
+    {
+      name: 'status',
+      type: "'sending' | 'sent' | 'delivered' | 'read' | 'failed'",
+      description: {
+        ko: '메시지가 어디까지 갔는지. 말풍선 아래 표시로 그려집니다. 생략하면 아무것도 그려지지 않습니다 — 받은 메시지에는 보여 줄 전송 상태가 없습니다',
+        en: 'How far the message has got, drawn as a mark under the bubble. Left out, nothing is drawn — a received message has no delivery state worth showing'
+      }
+    },
+    {
+      name: 'statusLabel',
+      type: 'string',
+      description: {
+        ko: '표시가 읽히는 단어를 덮어씁니다. 기본값은 `locale`의 번역입니다',
+        en: 'Overrides the word the mark is read out as. Defaults to the translation for `locale`'
+      }
+    },
+    {
+      name: 'typing',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '메시지 대신 점 세 개를 그립니다. `children`은 그대로 두므로, 메시지가 도착하면 같은 말풍선이 그리로 돌아갑니다',
+        en: 'Draws the three dots instead of the message. Whatever is in `children` is left alone, so the same bubble can go back to it when the message arrives'
+      }
+    },
+    {
+      name: 'media',
+      type: NODE,
+      description: {
+        ko: '사진, 영상, 지도. 텍스트 위에 가장자리까지 그려져 말풍선의 모서리가 잘라냅니다',
+        en: "A picture, a video, a map — drawn edge to edge above the text, so the bubble's own corners crop it"
+      }
+    },
+    {
+      name: 'preview',
+      type: 'MPChatBubblePreview',
+      description: {
+        ko: '메시지 속 링크를 텍스트 아래 카드로 펼칩니다 — `{ url, title?, description?, image?, site?, newTab? }`',
+        en: 'A link in the message, unfurled into a card under the text — `{ url, title?, description?, image?, site?, newTab? }`'
+      }
+    },
+    {
+      name: 'actions',
+      type: NODE,
+      description: {
+        ko: '메시지 자신의 액션. 말풍선 옆에 앉고, 행에 호버가 오거나 내부에 포커스가 들어오기 전까지 비켜서 있습니다',
+        en: "The message's own actions. Sits beside the bubble and stays out of the way until the row is hovered or something in it takes focus"
+      }
+    },
+    {
+      name: 'locale',
+      type: 'string',
+      description: {
+        ko: '전송 표시가 어느 언어로 읽히는지. 가장 가까운 `MPLocaleProvider`, 그다음 영어로 내려갑니다',
+        en: 'Which language the marks are read out in. Falls back to the nearest `MPLocaleProvider`, then to English'
+      }
+    },
+    {
+      name: 'variant',
+      type: VARIANT,
+      default: "'tonal'",
+      description: {
+        ko: '말풍선이 칠하는 면의 양. 컨테이너가 아니라 **컨트롤**의 사다리라서 `filled`가 강조 색으로 채웁니다 — 말풍선은 스스로가 칠해지는 대상입니다. `text`만은 표면 없음이 아니라 가장 조용한 중립 컨테이너입니다',
+        en: "How much surface the bubble paints. The **control** ladder rather than the container one, so `filled` floods it with the accent — a bubble is the thing being coloured. `text` is the one rung that is not 'no surface': it takes the quietest neutral container instead"
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '메시지의 타입 스케일과 말풍선 안의 여백. 여백 트랙은 시트 사다리보다 좁습니다 — 여덟 단어 주위의 16px는 메시지가 아니라 카드입니다',
+        en: 'The type scale of the message, and the room inside the bubble. A tighter padding track than the sheet ladder: 16px around eight words is a card, not a message'
+      }
+    },
+    color
+  ],
+
   MPCollapsible: [
     {
       name: 'open',
