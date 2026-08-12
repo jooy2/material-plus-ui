@@ -23,6 +23,7 @@ export * from './components/date-range-picker';
 export * from './components/date-time-picker';
 export * from './components/dialog';
 export * from './components/divider';
+export * from './components/drawer';
 export * from './components/empty';
 export * from './components/file-picker';
 export * from './components/highlight';

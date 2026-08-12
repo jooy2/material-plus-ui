@@ -4853,6 +4853,144 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPDrawer: [
+    {
+      name: 'side',
+      type: "'top' | 'right' | 'bottom' | 'left'",
+      default: "'left'",
+      description: {
+        ko: '어느 가장자리에 붙는지. 논리적이 아니라 물리적입니다 — 창 위쪽에 붙은 드로어는 어느 표기 방향에서든 위쪽입니다. 옆면은 내비게이션 드로어이고 위·아래는 시트라서, 둘의 모서리와 크기 규칙이 다릅니다',
+        en: 'Which edge the panel is attached to. Physical rather than logical — a drawer along the top of the window is along the top in every writing direction. A side panel is a navigation drawer and a top or bottom one is a sheet, so the two take different corners and different sizing'
+      }
+    },
+    {
+      name: 'mode',
+      type: "'modal' | 'standard'",
+      default: "'modal'",
+      description: {
+        ko: 'MD3 자신의 두 단어입니다. `modal`은 스크림 위에 떠서 포커스를 붙잡는 드로어, `standard`는 레이아웃의 일부인 드로어 — 스크림도, 포털도, 포커스 트랩도, 닫을 것도 없습니다',
+        en: "MD3's own two words. `modal` floats over the page on a scrim and holds the focus; `standard` is part of the layout — no scrim, no portal, no focus trap and nothing to dismiss"
+      }
+    },
+    {
+      name: 'open',
+      type: 'boolean',
+      description: {
+        ko: '드로어가 보이는지. `onOpenChange`와 함께 쓰면 controlled입니다',
+        en: 'The drawer is shown. Use with `onOpenChange` for a controlled drawer'
+      }
+    },
+    {
+      name: 'defaultOpen',
+      type: 'boolean',
+      description: {
+        ko: '처음에 열려 있을지. `modal`에서는 `false`, `standard`에서는 `true`가 기본값입니다 — 열어야만 나타나는 고정 사이드바는 고정 사이드바가 아닙니다',
+        en: 'Whether it starts open. `false` in `modal` mode and `true` in `standard`, because a fixed sidebar that had to be opened before it appeared would not be a fixed sidebar'
+      }
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: { ko: '열리고 닫힐 때 호출됩니다', en: 'Called as the drawer opens and closes' }
+    },
+    {
+      name: 'trigger',
+      type: 'ReactElement',
+      description: {
+        ko: '드로어를 여는 엘리먼트. Base UI가 연결합니다. `modal` 전용입니다 — `standard` 드로어는 여는 것이 아니라 레이아웃에 있는 것이라서, 트리거는 할 일이 없어 렌더링되지 않습니다',
+        en: 'The element that opens the drawer, wired up by Base UI. `modal` only: a `standard` drawer is not opened — it is in the layout — so a trigger there has nothing to do and is not rendered'
+      }
+    },
+    {
+      name: 'title',
+      type: NODE,
+      description: {
+        ko: '제목. 드로어의 이름이 되는 엘리먼트로 렌더링됩니다',
+        en: 'The heading. Rendered as the element that names the drawer'
+      }
+    },
+    {
+      name: 'description',
+      type: NODE,
+      description: {
+        ko: '제목 아래 한 줄이자 드로어의 접근성 설명',
+        en: "A line under it, and the drawer's accessible description"
+      }
+    },
+    {
+      name: 'actions',
+      type: NODE,
+      description: {
+        ko: '패널 바닥에 고정되는 행. 끝 정렬이라 버튼 두 개에 래퍼가 필요 없고, `MPDrawerClose`가 그중 하나를 닫기 버튼으로 만듭니다',
+        en: 'The bottom row, held against the foot of the panel. Laid out end-aligned, so a pair of buttons needs no wrapper — and `MPDrawerClose` is what makes one of them dismiss'
+      }
+    },
+    {
+      name: 'dividers',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '헤더·본문·액션 사이를 여백 대신 실선으로 나눕니다. 본문이 스크롤되기 시작하면 켜세요 — 선이 헤더가 제자리에 남았다고 말해 줍니다',
+        en: 'Draws a hairline between the header, the body and the actions instead of separating them with space. Worth turning on the moment the body scrolls: the lines are what say the header stayed put'
+      }
+    },
+    {
+      name: 'showClose',
+      type: 'boolean',
+      description: {
+        ko: '모서리의 ×. `modal`에서는 켜짐 — 페이지를 가져갔으니 나가는 길을 외우게 하면 안 됩니다. `standard`에서는 꺼짐 — 다시 열 방법 없이 고정 사이드바를 닫는 ×는 일방통행문입니다',
+        en: 'Shows the × in the corner. On in `modal` mode, where the panel has taken the page and the way out should not have to be remembered; off in `standard`, where a × that closes a fixed sidebar with nothing to reopen it is a one-way door'
+      }
+    },
+    {
+      name: 'closeLabel',
+      type: 'string',
+      default: "'Close'",
+      description: { ko: '× 버튼의 접근성 이름', en: 'Accessible name of the × button' }
+    },
+    {
+      name: 'extent',
+      type: 'number | string',
+      description: {
+        ko: '가장자리에서 얼마나 들어오는지 — `left`/`right`에는 **너비**, `top`/`bottom`에는 **높이**. 숫자는 픽셀입니다. 생략하면 옆면 패널은 `size`가 함의하는 너비를, 위·아래 패널은 내용만큼의 높이(최대 85%)를 씁니다',
+        en: 'How far the panel reaches in from its edge: a **width** for `left` and `right`, a **height** for `top` and `bottom`. Numbers are pixels. Left alone, a side panel takes the width its `size` implies and a top or bottom panel is as tall as its content, up to 85% of the window'
+      }
+    },
+    {
+      name: 'rounded',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '페이지를 향한 가장자리의 모서리를 둥글립니다. 창에 맞닿은 모서리는 언제나 각집니다 — 보이는 끝이 없는 것에서 잘라낸 모서리는 아무것도 잘라내지 않은 모서리입니다',
+        en: 'Rounds the corners on the edge that faces the page. The corners against the window are always square, because a corner cut off something that has no visible end is a corner cut off nothing'
+      }
+    },
+    {
+      name: 'dismissible',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: 'Escape와 스크림 클릭으로 닫히는지. 반드시 대답을 받아야 하는 드로어에서만 끄고, 그때는 대답할 수 있는 액션을 함께 주세요. `modal` 전용입니다',
+        en: 'Whether pressing Escape or clicking the scrim closes the drawer. Turn it off only for the drawer that has to be answered, and then give it actions that answer it. `modal` only'
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '기본 도달 거리와 내부의 타입 스케일. `md`가 MD3 자신의 360dp 내비게이션 드로어입니다',
+        en: "How far the panel reaches in by default, and the type scale inside it. `md` is MD3's own 360dp navigation drawer"
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '본문. 스크롤되는 유일한 부분이라, 제목과 액션은 제자리에 남습니다',
+        en: 'The body. The only part that scrolls, so the heading and the actions stay put'
+      }
+    }
+  ],
+
   MPDatePicker: [
     {
       name: 'value',

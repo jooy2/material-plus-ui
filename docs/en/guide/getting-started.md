@@ -163,21 +163,22 @@ Type, shape and motion work the same way. As with the colour roles, only what a 
 
 ### Shape
 
-Corners are a token like any other, and there are five of them. Which one a component takes is a statement about what kind of object it is rather than a size to taste — a field is a well, a chip is a tile, a button is a pill:
+Corners are a token like any other, and there are six of them. Which one a component takes is a statement about what kind of object it is rather than a size to taste — a field is a well, a chip is a tile, a button is a pill:
 
 | Token | Default | What reads it |
 | --- | --- | --- |
 | `--mp-sys-shape-corner-extra-small` | `4px` | Text field, OTP field, tooltip, menu, snackbar, highlight |
 | `--mp-sys-shape-corner-small` | `8px` | Chip, list row, key cap |
-| `--mp-sys-shape-corner-medium` | `12px` | Table, dropzone, list sheet, empty state |
-| `--mp-sys-shape-corner-extra-large` | `28px` | Dialog |
+| `--mp-sys-shape-corner-medium` | `12px` | Box, card, collapsible, accordion, carousel, table, dropzone, list sheet, empty state |
+| `--mp-sys-shape-corner-large` | `16px` | A drawer's free edge |
+| `--mp-sys-shape-corner-extra-large` | `28px` | Dialog, chat bubble, bottom sheet |
 | `--mp-sys-shape-corner-full` | `9999px` | Button, segmented button, slider, progress bar |
 
 Set any of them and every component that reads it moves together. For the two obvious destinations there is an attribute instead, on the same model as `data-mp-scheme` — say nothing and you get the specification's corners, name a preset and the whole subtree moves:
 
 ```html
 <html data-mp-shape="rounded">
-  <!-- 8 / 12 / 20 / 32. Buttons are unaffected: a pill has no rounder to go. -->
+  <!-- 8 / 12 / 20 / 24 / 32. Buttons are unaffected: a pill has no rounder to go. -->
 </html>
 ```
 
@@ -189,7 +190,7 @@ Set any of them and every component that reads it moves together. For the two ob
 
 Two things worth knowing:
 
-- **`rounded` does not touch buttons, sliders or progress bars.** They are already at `corner-full`, so the preset moves the four rungs that have somewhere to move. If you want a rounder screen _and_ squarer buttons, that is `--mp-sys-shape-corner-full` set to a length of your own.
+- **`rounded` does not touch buttons, sliders or progress bars.** They are already at `corner-full`, so the preset moves the five rungs that have somewhere to move. If you want a rounder screen _and_ squarer buttons, that is `--mp-sys-shape-corner-full` set to a length of your own.
 - **A dialog is portalled**, so an attribute on a section around the trigger is not an ancestor of the popup. Set the preset on `<html>` — or on `:root` — if you want it to reach one.
 
 Anything you set yourself beats a preset, whatever order the two are imported in:

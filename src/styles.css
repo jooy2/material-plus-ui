@@ -785,6 +785,7 @@
     --radius-mp-xs: var(--mp-sys-shape-corner-extra-small);
     --radius-mp-sm: var(--mp-sys-shape-corner-small);
     --radius-mp-md: var(--mp-sys-shape-corner-medium);
+    --radius-mp-lg: var(--mp-sys-shape-corner-large);
     --radius-mp-xl: var(--mp-sys-shape-corner-extra-large);
     --radius-mp-full: var(--mp-sys-shape-corner-full);
 
@@ -927,10 +928,16 @@
     --mp-sys-shape-corner-extra-small: 4px;
     --mp-sys-shape-corner-small: 8px;
     --mp-sys-shape-corner-medium: 12px;
-    /* There is no `large` between this and `medium`, because nothing reads one.
-       `extra-large` is here for the dialog, which is the spec's own corner for
+    /* `large` is read by exactly one thing, and it arrived with it: a drawer's
+       free edge. MD3 gives the navigation drawer `corner-large` on the side that
+       faces the page and leaves the side against the window square, and neither
+       neighbour is a substitute — 12px on a 360dp panel is barely a corner, and
+       28px is the bottom sheet's, which is a different object. */
+    --mp-sys-shape-corner-large: 16px;
+    /* `extra-large` is here for the dialog, which is the spec's own corner for
        it and the loudest radius in the system: a sheet that has taken the page
-       is allowed to look like an object rather than like a panel. */
+       is allowed to look like an object rather than like a panel. It is also the
+       bottom sheet's, which is the same claim made along one edge. */
     --mp-sys-shape-corner-extra-large: 28px;
     --mp-sys-shape-corner-full: 9999px;
 
@@ -979,6 +986,7 @@
     --mp-sys-shape-corner-extra-small: 8px;
     --mp-sys-shape-corner-small: 12px;
     --mp-sys-shape-corner-medium: 20px;
+    --mp-sys-shape-corner-large: 24px;
     --mp-sys-shape-corner-extra-large: 32px;
     /* `full` is not here, and cannot be: a button is already a pill at 9999px,
        so there is no rounder to go. This preset moves the four rungs that have
@@ -990,6 +998,7 @@
     --mp-sys-shape-corner-extra-small: 0;
     --mp-sys-shape-corner-small: 0;
     --mp-sys-shape-corner-medium: 0;
+    --mp-sys-shape-corner-large: 0;
     --mp-sys-shape-corner-extra-large: 0;
     /* `full` *is* here, unlike above, and for the same reason: this is the one
        direction a pill can travel. Leaving it round would make `sharp` a theme
@@ -1119,6 +1128,7 @@
   --radius-mp-xs: var(--mp-sys-shape-corner-extra-small);
   --radius-mp-sm: var(--mp-sys-shape-corner-small);
   --radius-mp-md: var(--mp-sys-shape-corner-medium);
+  --radius-mp-lg: var(--mp-sys-shape-corner-large);
   --radius-mp-xl: var(--mp-sys-shape-corner-extra-large);
   --radius-mp-full: var(--mp-sys-shape-corner-full);
 

@@ -27,6 +27,7 @@ import {
   MPDialog,
   MPDialogClose,
   MPDivider,
+  MPDrawer,
   MPEmpty,
   MPFilePicker,
   MPHighlight,
@@ -1200,6 +1201,32 @@ const GROUPS: Group[] = [
             <MPCollapsible size="sm" title="Delivery options" subtitle="Standard, chosen">
               Three to five working days, included in the price.
             </MPCollapsible>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPDrawer',
+        summary: {
+          ko: '창의 한쪽 가장자리에 붙는 패널',
+          en: 'A panel attached to one edge of the window'
+        },
+        path: '/components/layout/drawer',
+        preview: (
+          <Fit>
+            <MPDrawer
+              mode="standard"
+              size="xs"
+              rounded
+              title="Sections"
+              description="Standard mode, in the layout"
+            >
+              <MPList variant="text" size="sm">
+                <MPListItem selected onClick={() => {}}>
+                  Overview
+                </MPListItem>
+                <MPListItem onClick={() => {}}>Schedule</MPListItem>
+              </MPList>
+            </MPDrawer>
           </Fit>
         )
       },
