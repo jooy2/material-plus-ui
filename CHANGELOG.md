@@ -4,6 +4,8 @@
 
 ### Fixed
 
+- **`MPTextField`'s `onFormReset` was skipped for the one change an IME makes.** It is documented as running "before every change, ahead of `onChange`", and it did — from the `input` handler. But a committed composition reaches `onChange` down its own path, from `compositionend`, and browsers disagree on which of the two fires first: where the composition ends before the `input` event, `compositionend` was the only announcement the parent ever got, and it carried no reset with it. A form-level error a further edit had made stale therefore cleared itself for somebody typing `abc` and stayed on screen for somebody typing 안녕 — the callback's whole purpose, withheld from exactly the readers this library keeps a composition path for. `compositionend` now resets ahead of its change like every other route does.
+
 - **A focus ring that arrived a fifth of a second late.** The text field's outline was transitioning its `border-width` from 1px to 2px, and an interpolated width is rounded to whole device pixels at paint — so the ring rendered as 1px for the whole animation and then jumped. Measured: the focus state itself landed in 4ms, `data-focused`, the label colour and the outline colour all changed at 4ms, and the width did not move until **197ms**. The width now snaps and only the colour eases, which puts the ring on screen at 5ms. Anything sub-pixel in extent should not be transitioned; that is the general lesson and it is written next to the rule.
 
 ### Changed

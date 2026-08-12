@@ -24,6 +24,20 @@ function Basic(props: Record<string, unknown>) {
   );
 }
 
+/**
+ * Presses the trigger and waits until the popup is actually on the page.
+ *
+ * The popup is portalled, so it is mounted in an effect rather than in the
+ * commit the click produced: when `click()` resolves the menu is opening, not
+ * open. `element()` reads the DOM at that instant and throws, where
+ * `expect.element` retries — so a test that reads a row straight after the
+ * click is a race, and one that only Chromium happens to win.
+ */
+async function open(screen: Awaited<ReturnType<typeof render>>, trigger = 'Actions') {
+  await screen.getByRole('button', { name: trigger }).click();
+  await expect.element(screen.getByRole('menu')).toBeInTheDocument();
+}
+
 describe('MPMenu', () => {
   describe('opening', () => {
     it('puts nothing on the page until the trigger is pressed', async () => {
@@ -45,7 +59,7 @@ describe('MPMenu', () => {
       const onOpenChange = vi.fn();
       const screen = await render(<Basic onOpenChange={onOpenChange} />);
 
-      await screen.getByRole('button', { name: 'Actions' }).click();
+      await open(screen);
 
       expect(onOpenChange).toHaveBeenCalledWith(true);
     });
@@ -87,7 +101,7 @@ describe('MPMenu', () => {
         </MPMenu>
       );
 
-      await screen.getByRole('button', { name: 'Actions' }).click();
+      await open(screen);
 
       const row = screen.getByRole('menuitem', { name: 'Docs' }).element();
 
@@ -101,7 +115,7 @@ describe('MPMenu', () => {
       // do nothing.
       const screen = await render(<Basic />);
 
-      await screen.getByRole('button', { name: 'Actions' }).click();
+      await open(screen);
 
       const row = screen.getByRole('menuitem', { name: 'Delete' }).element() as HTMLElement;
 
@@ -122,7 +136,7 @@ describe('MPMenu', () => {
         </MPMenu>
       );
 
-      await screen.getByRole('button', { name: 'Actions' }).click();
+      await open(screen);
 
       expect(screen.getByRole('menuitem', { name: 'Paste' }).element()).toHaveAttribute(
         'aria-disabled',
@@ -133,7 +147,7 @@ describe('MPMenu', () => {
     it('sets a shortcut at the end of the row without binding it', async () => {
       const screen = await render(<Basic />);
 
-      await screen.getByRole('button', { name: 'Actions' }).click();
+      await open(screen);
 
       expect(screen.getByRole('menuitem', { name: /Cut/ }).element().textContent).toContain('⌘X');
     });
@@ -155,7 +169,7 @@ describe('MPMenu', () => {
 
       const screen = await render(<Checkable />);
 
-      await screen.getByRole('button', { name: 'View' }).click();
+      await open(screen, 'View');
 
       const row = screen.getByRole('menuitemcheckbox', { name: 'Show grid' });
 
@@ -184,7 +198,7 @@ describe('MPMenu', () => {
 
       const screen = await render(<Chooser />);
 
-      await screen.getByRole('button', { name: 'View' }).click();
+      await open(screen, 'View');
 
       expect(screen.getByRole('menuitemradio', { name: 'List' }).element()).toHaveAttribute(
         'aria-checked',
@@ -237,7 +251,7 @@ describe('MPMenu', () => {
       // up the tree reaches it.
       const screen = await render(<Basic color="tertiary" />);
 
-      await screen.getByRole('button', { name: 'Actions' }).click();
+      await open(screen);
 
       const popup = screen.getByRole('menu').element() as HTMLElement;
 

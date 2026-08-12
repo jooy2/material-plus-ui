@@ -103,6 +103,14 @@ export default defineConfig({
       provider: playwright(),
       headless: true,
       screenshotFailures: false,
+      // Vitest's default is 414×896 — a phone. A popup anchored to a trigger is
+      // `position: fixed`, so a panel wider than that hangs off the viewport
+      // with nothing to scroll it back in, and Playwright's click lands on a
+      // coordinate outside the page. The two-month range picker is ~590px wide
+      // and the date-time picker's minute column ends past 414px, which is why
+      // those clicks silently missed on some browsers and not others. Give the
+      // suite the desktop the components are drawn for.
+      viewport: { width: 1280, height: 900 },
       instances: resolveBrowsers().map((browser) => ({ browser }))
     }
   }

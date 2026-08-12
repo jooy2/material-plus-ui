@@ -125,7 +125,12 @@ describe('MPCombobox', () => {
     it('lists a disabled option without letting it be taken', async () => {
       const screen = await render(<Single />);
 
+      // Awaited rather than read straight off the click: the popup is portalled,
+      // so it is mounted in an effect rather than in the commit the click
+      // produced, and `element()` reads the DOM at the instant the click
+      // resolves — a race only the fastest browser wins.
       await screen.getByRole('button', { name: 'Fruit' }).click();
+      await expect.element(screen.getByRole('listbox')).toBeInTheDocument();
 
       expect(screen.getByRole('option', { name: 'Cherry' }).element()).toHaveAttribute(
         'aria-disabled',

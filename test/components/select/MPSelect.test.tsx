@@ -34,6 +34,20 @@ function ControlledSelect({
   );
 }
 
+/**
+ * Presses the trigger and waits until the list is actually on the page.
+ *
+ * The popup is portalled, so it is mounted in an effect rather than in the
+ * commit the click produced: when `click()` resolves the list is opening, not
+ * open. `element()` and `all()` read the DOM at that instant, where
+ * `expect.element` retries — so a test that reads an option straight after the
+ * click is a race, and one that only Chromium happens to win.
+ */
+async function open(screen: Awaited<ReturnType<typeof render>>) {
+  await screen.getByRole('combobox').click();
+  await expect.element(screen.getByRole('listbox')).toBeInTheDocument();
+}
+
 describe('MPSelect', () => {
   describe('rendering', () => {
     it('renders a trigger named by its label', async () => {
@@ -83,7 +97,7 @@ describe('MPSelect', () => {
     it('opens on click and lists every option', async () => {
       const screen = await render(<ControlledSelect />);
 
-      await screen.getByRole('combobox').click();
+      await open(screen);
 
       expect(screen.getByRole('option').all()).toHaveLength(3);
       await expect.element(screen.getByRole('option', { name: 'Tokyo' })).toBeInTheDocument();
@@ -114,7 +128,7 @@ describe('MPSelect', () => {
     it('lists a disabled option without letting it be taken', async () => {
       const screen = await render(<ControlledSelect />);
 
-      await screen.getByRole('combobox').click();
+      await open(screen);
 
       expect(screen.getByRole('option', { name: 'Paris' }).element()).toHaveAttribute(
         'aria-disabled',
@@ -127,7 +141,7 @@ describe('MPSelect', () => {
       // "selected" and "where the cursor is" are the same colour is unreadable.
       const screen = await render(<ControlledSelect initial="kr-11" />);
 
-      await screen.getByRole('combobox').click();
+      await open(screen);
 
       expect(screen.getByRole('option', { name: 'Seoul' }).element()).toHaveAttribute(
         'aria-selected',
