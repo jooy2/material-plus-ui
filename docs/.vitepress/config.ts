@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs';
-import { writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { withSidebar } from 'vitepress-sidebar';
@@ -168,6 +168,12 @@ function clamp(text: string, limit = 160): string {
  * The lede is what a component page opens with, and it already says what the
  * component is and what it is for. The pages that have none — the guide — open
  * with the same thing written as prose, so their first paragraph stands in.
+ *
+ * A page that declares a `description` of its own is taken at its word first.
+ * VitePress has already used that for the `<meta>` by the time anything here
+ * runs, so it is only reached by `llms.txt` — and a page bothers to declare one
+ * precisely when its own first paragraph is the wrong sentence. The changelog
+ * is the whole of that category: its first paragraph is the newest release.
  */
 function summaryOf(filePath: string): string | undefined {
   const file = resolve(srcDir, filePath);
@@ -177,6 +183,18 @@ function summaryOf(filePath: string): string | undefined {
   }
 
   const source = readFileSync(file, 'utf8');
+  const declared = source
+    .match(/^---\r?\n([\s\S]*?)\r?\n---/)?.[1]
+    .match(/^description:\s*(.+)$/m)?.[1]
+    // Quoted or not: YAML does not need them here, and a later edit that adds a
+    // colon to the sentence will.
+    .trim()
+    .replace(/^(['"])(.*)\1$/, '$2');
+
+  if (declared) {
+    return clamp(plainText(declared));
+  }
+
   const lede = source.match(/<p class="mp-lede">([\s\S]*?)<\/p>/);
 
   if (lede) {
@@ -358,18 +376,21 @@ const vitePressConfig: UserConfig = {
     hostname: packageJson.homepage
   },
   /**
-   * `robots.txt`, written rather than committed.
+   * `robots.txt` and `llms.txt`, written rather than committed.
    *
-   * It exists to name the sitemap, and the sitemap's own URL is already derived
-   * from `package.json`. A copy of that host sitting in `public/` would be one
-   * more place to forget when the site moves — and a robots file pointing at a
-   * sitemap that is not there is worse than no robots file.
+   * `robots.txt` exists to name the sitemap, and the sitemap's own URL is
+   * already derived from `package.json`. A copy of that host sitting in
+   * `public/` would be one more place to forget when the site moves — and a
+   * robots file pointing at a sitemap that is not there is worse than no robots
+   * file. `llms.txt` is generated for a longer version of the same reason; the
+   * section at the foot of this file has it.
    */
   async buildEnd({ outDir }) {
     await writeFile(
       resolve(outDir, 'robots.txt'),
       `User-agent: *\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\n`
     );
+    await writeLlmsTxt(outDir);
   },
   /**
    * A description that is about this page rather than about the library.
@@ -649,6 +670,183 @@ if (sidebar) {
       group.items = arrangeSidebar(cleanUpItems(group.items), lang);
     }
   }
+}
+
+/* ---------------------------------------------------------------------------
+ * llms.txt
+ *
+ * The site's table of contents, written for a language model rather than for a
+ * reader: one Markdown file per locale — `/llms.txt` and `/ko/llms.txt` — that
+ * names every page, links it, and gives the one sentence saying what it is
+ * about. A model asked about this library reads that instead of guessing, and
+ * guessing is what produces a prop this package does not have.
+ *
+ * It is generated from the arranged sidebar, which is the only structure here
+ * that already knows the reading order, the titles and the links at once — and
+ * it is generated for the reason the changelog page is: a hand-kept list of
+ * sixty pages goes wrong the first week nobody remembers to touch it, and goes
+ * wrong in the way that is hardest to notice, a component whose page still
+ * loads under a name it no longer has.
+ *
+ * Ref: https://llmstxt.org
+ * ------------------------------------------------------------------------- */
+
+/**
+ * What is worth knowing before opening any of the pages, per locale.
+ *
+ * The blockquote under the title is the site's own description, so this is the
+ * next thing down: how the package is installed and set up, which is what a
+ * model is asked for before it is asked for a component. Every claim here is
+ * one the Getting started page makes at length.
+ */
+const llmsPreamble: Record<string, string[]> = {
+  en: [
+    'Install with `npm install material-plus-ui`. ESM only, TypeScript declarations included.',
+    'Peer dependencies: `@base-ui/react` 1, and `react` with `react-dom` 18 or 19. `lucide-react` ships inside the package.',
+    'Setup is one stylesheet import — `material-plus-ui/styles.css`, or `material-plus-ui/tailwind.css` in a project already running Tailwind CSS v4 — and there is no provider to wrap the tree in.',
+    "Every component is a named export from the package root and carries an `MP` prefix: `import { MPTextField } from 'material-plus-ui'`.",
+    'Theming is plain CSS custom properties. `--mp-source-color` derives every colour role; `data-mp-scheme` selects light or dark and `data-mp-shape` moves the corner scale.',
+    "Each component page below carries that component's full props table, so it is the page to read before writing a prop name."
+  ],
+  ko: [
+    '설치는 `npm install material-plus-ui`. ESM 전용이며 타입 선언이 함께 들어 있습니다.',
+    '피어 의존성은 `@base-ui/react` 1과 `react`·`react-dom` 18 또는 19입니다. `lucide-react`는 패키지에 포함되어 있습니다.',
+    '설정은 스타일시트 한 줄이 전부입니다 — `material-plus-ui/styles.css`, 이미 Tailwind CSS v4를 쓰는 프로젝트라면 `material-plus-ui/tailwind.css`. 트리를 감싸는 프로바이더는 없습니다.',
+    "모든 컴포넌트는 패키지 루트에서 `MP` 접두사가 붙은 이름으로 내보냅니다: `import { MPTextField } from 'material-plus-ui'`.",
+    '테마는 CSS 커스텀 프로퍼티입니다. `--mp-source-color` 하나로 모든 색 역할이 파생되고, `data-mp-scheme`가 라이트/다크를, `data-mp-shape`가 모서리 스케일을 바꿉니다.',
+    '아래 각 컴포넌트 문서에는 그 컴포넌트의 전체 props 표가 있습니다. prop 이름을 쓰기 전에 읽어야 할 페이지입니다.'
+  ]
+};
+
+/** The notes on the links that are not pages of this site. */
+const llmsLinkNotes: Record<string, { locale: string; repo: string; npm: string }> = {
+  en: {
+    locale: 'The same documentation in another language.',
+    repo: 'The source of every component, its tests, and the issue tracker.',
+    npm: 'The published package.'
+  },
+  ko: {
+    locale: '같은 문서의 다른 언어판입니다.',
+    repo: '모든 컴포넌트의 소스와 테스트, 이슈 트래커입니다.',
+    npm: '배포된 패키지입니다.'
+  }
+};
+
+/** How each locale names itself — the label a link to it should carry. */
+const localeNames: Record<string, string> = {
+  en: 'English',
+  ko: '한국어'
+};
+
+/** The arranged top-level groups for a locale, whichever shape they came in. */
+function sidebarFor(lang: string): GeneratedSidebarItem[] {
+  const group = sidebar?.[localeBase(lang)];
+
+  if (!group) {
+    return [];
+  }
+
+  return Array.isArray(group) ? group : (group.items ?? []);
+}
+
+/**
+ * `components/` → `en/components/index.md` — `pathOf` read the other way.
+ *
+ * Sidebar links are relative to their group's base, which is `localeBase(lang)`
+ * itself, so the locale folder is prepended rather than stripped.
+ */
+function sourceOf(link: string, lang: string): string {
+  return `${lang}/${link.endsWith('/') || link === '' ? `${link}index.md` : `${link}.md`}`;
+}
+
+/** One row: the page's own title, its absolute URL, and its own summary. */
+function llmsRow(item: GeneratedSidebarItem, lang: string): string | undefined {
+  if (!item.link) {
+    return undefined;
+  }
+
+  // The same sentence `transformPageData` puts in the page's `<meta>`. A page
+  // that has none — nothing but a title and a table — is still worth listing.
+  const summary = summaryOf(sourceOf(item.link, lang));
+
+  return `- [${item.text}](${siteUrl}${localeBase(lang)}${item.link})${summary ? `: ${summary}` : ''}`;
+}
+
+/**
+ * A sidebar group as one `##` section, and its subgroups as sections of their
+ * own beneath it.
+ *
+ * The format's sections are flat, so `Components` and its four categories
+ * cannot nest — but the category is worth keeping, because "what does this
+ * library have for inputs" is a real question and the answer to it is a
+ * heading. So a subgroup takes its parent's name as a prefix.
+ */
+function llmsSection(group: GeneratedSidebarItem, lang: string, title: string): string[] {
+  const items = group.items ?? [];
+  const pages = items.filter((item) => item.link && !item.items?.length);
+  const subgroups = items.filter((item) => item.items?.length);
+  const rows = pages.map((page) => llmsRow(page, lang)).filter(Boolean) as string[];
+
+  return [
+    ...(rows.length ? [`## ${title}`, '', ...rows, ''] : []),
+    ...subgroups.flatMap((subgroup) => llmsSection(subgroup, lang, `${title}: ${subgroup.text}`))
+  ];
+}
+
+/** One locale's whole file. */
+function llmsTxt(lang: string): string {
+  const preamble = llmsPreamble[lang] ?? llmsPreamble[defaultLocale];
+  const notes = llmsLinkNotes[lang] ?? llmsLinkNotes[defaultLocale];
+  const description = vitePressI18nConfig.description?.[lang] ?? packageJson.description;
+  const groups = sidebarFor(lang);
+
+  /*
+   * `Optional` is the one heading the format gives a meaning to: everything
+   * under it may be skipped when there is not enough context for all of it. The
+   * changelog is exactly that — long, and not what anyone came here to read —
+   * so the group holding it is folded in rather than given a section, together
+   * with the links that leave the site. The word stays English in every locale
+   * because it is read by the consumer, not by a person.
+   */
+  const optional = groups.find(startsWith('changelog'));
+
+  return [
+    `# ${vitePressConfig.title}`,
+    '',
+    `> ${description}`,
+    '',
+    ...preamble.map((line) => `- ${line}`),
+    '',
+    ...groups
+      .filter((group) => group !== optional)
+      .flatMap((group) => llmsSection(group, lang, group.text ?? '')),
+    '## Optional',
+    '',
+    ...((optional?.items ?? []).map((item) => llmsRow(item, lang)).filter(Boolean) as string[]),
+    ...supportLocales
+      .filter((other) => other !== lang)
+      .map(
+        (other) =>
+          `- [${localeNames[other] ?? other}](${siteUrl}${localeBase(other)}llms.txt): ${notes.locale}`
+      ),
+    `- [GitHub](${repoUrl}): ${notes.repo}`,
+    `- [npm](${npmUrl}): ${notes.npm}`,
+    ''
+  ].join('\n');
+}
+
+/** `/llms.txt` for the default locale, `/{lang}/llms.txt` for every other one. */
+async function writeLlmsTxt(outDir: string): Promise<void> {
+  await Promise.all(
+    supportLocales.map(async (lang) => {
+      // `localeBase` leads with a slash, which `resolve` would read as a path of
+      // its own and answer with `/llms.txt` on the filesystem.
+      const file = resolve(outDir, `${localeBase(lang).slice(1)}llms.txt`);
+
+      await mkdir(dirname(file), { recursive: true });
+      await writeFile(file, llmsTxt(lang), 'utf8');
+    })
+  );
 }
 
 export default defineConfig(config);
