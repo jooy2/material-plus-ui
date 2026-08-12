@@ -1,6 +1,8 @@
 import { useState, type ReactNode } from 'react';
 import {
   ICONS,
+  MPAccordion,
+  MPAccordionItem,
   MPAlert,
   MPAspectRatio,
   MPAvatar,
@@ -1047,6 +1049,26 @@ const GROUPS: Group[] = [
       en: 'It decides where everything else sits — and the sheets that hold it.'
     },
     entries: [
+      {
+        name: 'MPAccordion',
+        summary: {
+          ko: '한 번에 하나만 열리는 구획의 묶음',
+          en: 'A stack of sections, one of which is open'
+        },
+        path: '/components/layout/accordion',
+        preview: (
+          <Fit>
+            <MPAccordion size="sm" defaultValue={['delivery']}>
+              <MPAccordionItem value="delivery" title="Delivery">
+                Three to five working days.
+              </MPAccordionItem>
+              <MPAccordionItem value="returns" title="Returns">
+                Thirty days, postage paid.
+              </MPAccordionItem>
+            </MPAccordion>
+          </Fit>
+        )
+      },
       {
         name: 'MPAspectRatio',
         summary: {

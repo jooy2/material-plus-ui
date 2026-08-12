@@ -4257,6 +4257,145 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPAccordion: [
+    {
+      name: 'multiple',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '동시에 두 개 이상 열릴 수 있는지. 기본이 꺼짐인 것이 아코디언이 콜랩서블 더미가 아닌 이유입니다 — 다음이 열릴 때 이전 것을 닫는 일이 페이지가 읽는 사람 밑에서 자라나지 않게 합니다',
+        en: 'Whether more than one section may be open at once. `false` by default, which is the whole reason an accordion is not a stack of collapsibles: closing the last as the next opens is what keeps the page from growing under the reader'
+      }
+    },
+    {
+      name: 'value',
+      type: '(string | number)[]',
+      description: {
+        ko: '열려 있는 구획들. `onValueChange`와 함께 쓰면 controlled입니다',
+        en: 'Which sections are open. Use with `onValueChange` for a controlled accordion'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: '(string | number)[]',
+      description: {
+        ko: '처음 열려 있는 구획들. uncontrolled일 때 씁니다',
+        en: 'Which start open, for an uncontrolled one'
+      }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: (string | number)[]) => void',
+      description: {
+        ko: '움직인 구획이 아니라 열려 있는 집합 전체로 호출됩니다',
+        en: 'Called with the whole open set rather than with the section that moved'
+      }
+    },
+    {
+      name: 'dividers',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '구획 사이를 여백 대신 실선으로 나눕니다. 켜면 시트가 여백을 내놓아 선이 양 끝까지 닿고, 끄면 구획이 한 단계 작은 모서리의 타일이 됩니다',
+        en: 'Separates the sections with a hairline rather than with space. On, the sheet gives up its padding so the rules reach both edges; off, each section becomes a tile with a corner one step down from the sheet'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '모든 구획이 한 번에 응답을 멈춥니다',
+        en: 'Unavailable. Every section stops answering'
+      }
+    },
+    containerVariant,
+    {
+      ...size,
+      description: {
+        ko: '모든 구획의 안쪽 여백과 헤더·본문의 타입 스케일. 묶음의 값이지 구획의 값이 아닙니다',
+        en: "The room inside every section, and the type scale of its header and body. The stack's value, not the section's"
+      }
+    },
+    {
+      name: 'hiddenUntilFound',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '닫힌 패널을 DOM에 남겨, 브라우저의 페이지 검색이 찾아서 열 수 있게 합니다. `keepMounted`보다 우선합니다',
+        en: "Keeps closed panels in the DOM so the browser's own page search can find and open them. Overrides `keepMounted`"
+      }
+    },
+    {
+      name: 'keepMounted',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '닫힌 패널을 DOM에 남깁니다. 만드는 비용이 크거나, 접혀 있는 동안에도 살아남아야 하는 폼 상태를 담은 내용에 씁니다',
+        en: 'Keeps closed panels in the DOM. For content that is expensive to build, or that holds form state which should survive being folded away'
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '`MPAccordionItem`들', en: 'The `MPAccordionItem`s' }
+    }
+  ],
+
+  MPAccordionItem: [
+    {
+      name: 'value',
+      type: 'string | number',
+      description: {
+        ko: '`value` / `defaultValue`에 대해 이 구획을 식별합니다. 생략하면 Base UI가 하나 만들어 주며, 코드로 조작하지 않는 아코디언에는 그것으로 충분합니다',
+        en: 'Identifies the section to `value` / `defaultValue`. Base UI generates one when it is left out, which is enough for an accordion nobody drives from code'
+      }
+    },
+    {
+      name: 'title',
+      type: NODE,
+      description: { ko: '접힘 위의 제목', en: 'The heading on the fold' }
+    },
+    {
+      name: 'subtitle',
+      type: NODE,
+      description: {
+        ko: '제목 아래 한 줄. 타입 스케일 한 단계 아래이고 한 톤 물러납니다',
+        en: 'A second line under it, one step down the type scale and muted'
+      }
+    },
+    {
+      name: 'startIcon',
+      type: NODE,
+      description: {
+        ko: '제목 앞에 놓이는 내용 — 글리프, 상태 점, 개수',
+        en: 'Content before the title — a glyph, a status dot, a count'
+      }
+    },
+    {
+      name: 'action',
+      type: NODE,
+      description: {
+        ko: '헤더 끝에 고정되는 컨트롤. 트리거 *바깥*이라, 눌러도 구획이 접히지 않습니다',
+        en: 'A control pinned to the end of the header, *outside* the trigger — so pressing it does not fold the section'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '이 구획만 접히지 않습니다. 나머지는 그대로 동작합니다',
+        en: 'Unavailable. This section stops folding; the rest keep working'
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '본문', en: 'The body' }
+    }
+  ],
+
   MPCollapsible: [
     {
       name: 'open',

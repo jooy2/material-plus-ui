@@ -58,6 +58,7 @@ export default defineConfig({
     // test run reloads the page mid-test — which Vitest reports as a fetch
     // failure for the test file rather than as anything to do with dependencies.
     include: [
+      '@base-ui/react/accordion',
       '@base-ui/react/avatar',
       '@base-ui/react/button',
       '@base-ui/react/checkbox',
