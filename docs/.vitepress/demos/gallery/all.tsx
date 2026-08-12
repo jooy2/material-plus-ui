@@ -1,6 +1,8 @@
 import { useState, type ReactNode } from 'react';
 import {
   ICONS,
+  MPAlert,
+  MPAspectRatio,
   MPAvatar,
   MPBadge,
   MPBlockquote,
@@ -12,6 +14,9 @@ import {
   MPChip,
   MPColorPicker,
   MPCombobox,
+  MPDatePicker,
+  MPDateRangePicker,
+  MPDateTimePicker,
   MPDialog,
   MPDialogClose,
   MPDivider,
@@ -19,6 +24,7 @@ import {
   MPFilePicker,
   MPHighlight,
   MPIcon,
+  MPIconButton,
   MPList,
   MPListItem,
   MPMenu,
@@ -27,6 +33,8 @@ import {
   MPNumberField,
   MPOtpField,
   MPOverlay,
+  MPPane,
+  MPPanes,
   MPProgressBox,
   MPProgressCircular,
   MPProgressLinear,
@@ -42,6 +50,7 @@ import {
   MPTable,
   MPTextField,
   MPTextLink,
+  MPTimePicker,
   MPTimeline,
   MPTimelineItem,
   MPTooltip,
@@ -333,6 +342,67 @@ function SnackbarPreview() {
   );
 }
 
+/**
+ * The pickers, each holding a value so the card shows a formatted date rather
+ * than a placeholder. Every one of them needs state, and a hook cannot live in
+ * the array below.
+ */
+function DatePickerPreview() {
+  const [value, setValue] = useState<Date | null>(new Date());
+
+  return (
+    <MPDatePicker label="Due date" size="sm" value={value} onValueChange={setValue} fullWidth />
+  );
+}
+
+function DateRangePickerPreview() {
+  const start = new Date();
+  const end = new Date();
+
+  end.setDate(end.getDate() + 6);
+
+  const [value, setValue] = useState({ start, end } as { start: Date | null; end: Date | null });
+
+  return (
+    <MPDateRangePicker label="Stay" size="sm" value={value} onValueChange={setValue} fullWidth />
+  );
+}
+
+function DateTimePickerPreview() {
+  const [value, setValue] = useState<Date | null>(new Date());
+
+  return (
+    <MPDateTimePicker label="Starts" size="sm" value={value} onValueChange={setValue} fullWidth />
+  );
+}
+
+function TimePickerPreview() {
+  const [value, setValue] = useState<Date | null>(new Date());
+
+  return (
+    <MPTimePicker label="Starts at" size="sm" value={value} onValueChange={setValue} fullWidth />
+  );
+}
+
+/** A split small enough to fit a card, with a handle that really drags. */
+function PanesPreview() {
+  return (
+    <div
+      className="border-mp-outline-variant rounded-mp-xs overflow-hidden border"
+      style={{ height: 96, width: '100%' }}
+    >
+      <MPPanes size="sm">
+        <MPPane defaultSize="40%" minSize="20%">
+          <div className="text-mp-on-surface-variant text-mp-body-small p-3">Sidebar</div>
+        </MPPane>
+        <MPPane minSize="20%">
+          <div className="text-mp-on-surface-variant text-mp-body-small p-3">Body</div>
+        </MPPane>
+      </MPPanes>
+    </div>
+  );
+}
+
 const GROUPS: Group[] = [
   {
     title: { ko: '입력', en: 'Inputs' },
@@ -376,6 +446,37 @@ const GROUPS: Group[] = [
         )
       },
       {
+        name: 'MPIconButton',
+        summary: {
+          ko: '글리프 하나뿐인 둥근 버튼. 이름은 필수입니다',
+          en: 'A disc with a glyph in it — and a name, required'
+        },
+        path: '/components/inputs/icon-button',
+        preview: (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <MPIconButton size="sm" icon={<MPIcon icon={ICONS.search} />} label="Search" />
+            <MPIconButton
+              size="sm"
+              variant="tonal"
+              icon={<MPIcon icon={ICONS.copy} />}
+              label="Copy"
+            />
+            <MPIconButton
+              size="sm"
+              variant="filled"
+              icon={<MPIcon icon={ICONS.add} />}
+              label="Add"
+            />
+            <MPIconButton
+              size="sm"
+              variant="outlined"
+              icon={<MPIcon icon={ICONS.more} />}
+              label="More"
+            />
+          </div>
+        )
+      },
+      {
         name: 'MPSegmentedButton',
         summary: {
           ko: '하나의 알약 안에 담긴 두세 가지 선택',
@@ -383,6 +484,58 @@ const GROUPS: Group[] = [
         },
         path: '/components/inputs/segmented-button',
         preview: <SegmentedButtonPreview />
+      },
+      {
+        name: 'MPDatePicker',
+        summary: {
+          ko: '달력에서 고르는 하루. 어느 해든 세 번의 클릭',
+          en: 'One day from a calendar — any year at all is three clicks'
+        },
+        path: '/components/inputs/date-picker',
+        preview: (
+          <Fit>
+            <DatePickerPreview />
+          </Fit>
+        )
+      },
+      {
+        name: 'MPDateRangePicker',
+        summary: {
+          ko: '나란한 두 달에서 고르는 구간',
+          en: 'A span, across two months side by side'
+        },
+        path: '/components/inputs/date-range-picker',
+        preview: (
+          <Fit>
+            <DateRangePickerPreview />
+          </Fit>
+        )
+      },
+      {
+        name: 'MPTimePicker',
+        summary: {
+          ko: '다이얼이 아니라 열에서 고르는 시각',
+          en: 'A time of day, from columns rather than a dial'
+        },
+        path: '/components/inputs/time-picker',
+        preview: (
+          <Fit>
+            <TimePickerPreview />
+          </Fit>
+        )
+      },
+      {
+        name: 'MPDateTimePicker',
+        summary: {
+          ko: '한 팝업 안의 날짜와 시각',
+          en: 'A day and a time, in one popup'
+        },
+        path: '/components/inputs/date-time-picker',
+        preview: (
+          <Fit>
+            <DateTimePickerPreview />
+          </Fit>
+        )
       },
       {
         name: 'MPTextField',
@@ -734,6 +887,21 @@ const GROUPS: Group[] = [
     },
     entries: [
       {
+        name: 'MPAlert',
+        summary: {
+          ko: '페이지 안에 놓이는, 방금 일어난 일에 대한 메시지',
+          en: 'A message about something that happened, set into the page'
+        },
+        path: '/components/feedback/alert',
+        preview: (
+          <Fit>
+            <MPAlert size="sm" color="error" title="Payment failed" onClose={() => {}}>
+              The bank declined the card.
+            </MPAlert>
+          </Fit>
+        )
+      },
+      {
         name: 'MPSkeleton',
         summary: {
           ko: '아직 도착하지 않은 것의 모양',
@@ -868,6 +1036,53 @@ const GROUPS: Group[] = [
         },
         path: '/components/feedback/progress-box',
         preview: <MPProgressBox value={50} count={4} />
+      }
+    ]
+  },
+  {
+    title: { ko: '레이아웃', en: 'Layout' },
+    note: {
+      ko: '아무것도 그리지 않고, 다른 것들이 놓일 자리만 정하는 것.',
+      en: 'It draws nothing. What it decides is where everything else sits.'
+    },
+    entries: [
+      {
+        name: 'MPAspectRatio',
+        summary: {
+          ko: '어떤 너비를 받든 비율을 지키는 상자',
+          en: 'A box that keeps a proportion whatever width it is given'
+        },
+        path: '/components/layout/aspect-ratio',
+        preview: (
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, width: '100%' }}>
+            {['1 / 1', '4 / 3', '16 / 9'].map((ratio) => (
+              <MPAspectRatio
+                key={ratio}
+                ratio={ratio}
+                rounded
+                size="sm"
+                className="bg-mp-surface-container-highest"
+              >
+                <div className="text-mp-on-surface-variant text-mp-label-small flex h-full w-full items-center justify-center">
+                  {ratio}
+                </div>
+              </MPAspectRatio>
+            ))}
+          </div>
+        )
+      },
+      {
+        name: 'MPPanes',
+        summary: {
+          ko: '사이에 끌 수 있는 핸들이 놓인 패널 묶음',
+          en: 'A set of panes with draggable handles between them'
+        },
+        path: '/components/layout/panes',
+        preview: (
+          <Fit>
+            <PanesPreview />
+          </Fit>
+        )
       }
     ]
   }

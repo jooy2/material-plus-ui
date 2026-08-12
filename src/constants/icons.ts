@@ -34,6 +34,7 @@ import {
   ArrowDown,
   ArrowRight,
   ArrowUp,
+  CalendarDays,
   Check,
   ChevronDown,
   ChevronLeft,
@@ -41,6 +42,7 @@ import {
   ChevronUp,
   CircleAlert,
   CircleCheck,
+  Clock,
   Copy,
   Ellipsis,
   ExternalLink,
@@ -103,6 +105,10 @@ export const AddIcon = Plus;
 export const RemoveIcon = Minus;
 /** Send a file the other way. A file picker's dropzone. */
 export const UploadIcon = Upload;
+/** A day on a calendar: what a date picker's trigger wears. */
+export const CalendarIcon = CalendarDays;
+/** A time of day: what a time picker's trigger wears. */
+export const ClockIcon = Clock;
 /** Work in progress, spun by whatever is waiting on it. */
 export const SpinnerIcon = LoaderCircle;
 
@@ -139,6 +145,8 @@ export const ICONS = {
   add: AddIcon,
   remove: RemoveIcon,
   upload: UploadIcon,
+  calendar: CalendarIcon,
+  clock: ClockIcon,
   spinner: SpinnerIcon
 } as const;
 

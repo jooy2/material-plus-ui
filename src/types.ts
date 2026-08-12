@@ -92,6 +92,20 @@ export type MPSide = 'top' | 'right' | 'bottom' | 'left';
 export type MPCorner = 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end';
 
 /**
+ * Which day a week is drawn as starting on. `0` is Sunday, the way `Date`
+ * counts.
+ *
+ * `Date`'s numbering rather than a nicer set of words, and rather than CLDR's —
+ * which counts Monday as 1 through Sunday as 7. Every calendar in this library
+ * is built out of `getDay()`, so a second numbering would be a conversion at
+ * every comparison, and an off-by-one there is a week drawn one column out.
+ *
+ * Left unset, a picker asks `Intl` what the locale does: Sunday in the US and
+ * Korea, Monday across most of Europe, Saturday in much of the Middle East.
+ */
+export type MPWeekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
+/**
  * The axes most components share.
  *
  * A component extends this and adds only what is genuinely its own, which is what

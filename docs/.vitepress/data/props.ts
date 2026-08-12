@@ -133,6 +133,182 @@ const errorMessage: PropRow = {
   }
 };
 
+/* ---------------------------------------------------------------------------
+ * The pickers
+ *
+ * Four components with one vocabulary. Everything below is written once for the
+ * same reason `size` is: a `locale` that means one thing on the date picker and
+ * another on the clock is exactly the drift this file exists to prevent, and
+ * four hand-written tables is how that happens.
+ *
+ * What is *not* here is anything whose meaning differs by component — `minDate`
+ * is day-granular on `MPDatePicker` and read at full precision on
+ * `MPDateTimePicker`, so it is written out on each of them rather than shared
+ * under a description that would be wrong for one of the two.
+ * ------------------------------------------------------------------------- */
+
+const pickerLabel: PropRow = {
+  name: 'label',
+  type: NODE,
+  description: {
+    ko: '외곽선의 홈에 놓이는 라벨. 항상 그 자리에 그려지므로 라벨이 있는 피커와 없는 피커의 높이가 같습니다',
+    en: "Label in the outline's notch. Always drawn there, so a picker with a label and one without sit at the same height"
+  }
+};
+
+const pickerStartIcon: PropRow = {
+  name: 'startIcon',
+  type: NODE,
+  description: {
+    ko: '값 앞에 놓이는 내용. 기본값은 피커 자신의 글리프(달력 또는 시계)입니다',
+    en: "Content placed before the value. Defaults to the picker's own glyph — a calendar or a clock"
+  }
+};
+
+const pickerOpen: PropRow = {
+  name: 'open',
+  type: 'boolean',
+  description: {
+    ko: '팝업이 열려 있는지. `onOpenChange`와 함께 쓰면 controlled입니다',
+    en: 'Whether the popup is open. Use with `onOpenChange` to control it'
+  }
+};
+
+const pickerDefaultOpen: PropRow = {
+  name: 'defaultOpen',
+  type: 'boolean',
+  default: 'false',
+  description: { ko: '팝업이 처음에 열려 있을지', en: 'Whether it starts open' }
+};
+
+const pickerOnOpenChange: PropRow = {
+  name: 'onOpenChange',
+  type: '(open: boolean) => void',
+  description: {
+    ko: '팝업이 열리고 닫힐 때 호출됩니다',
+    en: 'Called as the popup opens and closes'
+  }
+};
+
+const pickerLocale: PropRow = {
+  name: 'locale',
+  type: 'string',
+  description: {
+    ko: 'BCP 47 태그. 월·요일 이름, 헤더 두 버튼의 순서, 주 시작 요일, 트리거의 날짜 표기를 결정합니다. 생략하면 가장 가까운 `MPLocaleProvider`, 그다음 플랫폼 기본값을 따릅니다',
+    en: "A BCP 47 tag deciding the month and weekday names, the order of the header's two buttons, which day the week starts on, and how the trigger writes the value. Falls back to the nearest `MPLocaleProvider`, then to the platform's own"
+  }
+};
+
+const pickerFormat: PropRow = {
+  name: 'format',
+  type: 'Intl.DateTimeFormatOptions',
+  description: {
+    ko: '트리거가 값을 쓰는 방식. `Intl`에 그대로 넘어가므로 `{ dateStyle: "full" }` 같은 것도 그대로 동작합니다',
+    en: 'How the trigger writes the value. Passed straight to `Intl`, so `{ dateStyle: "full" }` works as written'
+  }
+};
+
+const pickerPlaceholder: PropRow = {
+  name: 'placeholder',
+  type: NODE,
+  description: {
+    ko: '아무것도 고르지 않았을 때 트리거에 보이는 문구',
+    en: 'Shown in the trigger while nothing is chosen'
+  }
+};
+
+const pickerClearable: PropRow = {
+  name: 'clearable',
+  type: 'boolean',
+  default: 'false',
+  description: {
+    ko: '값을 비우는 ×를 트리거에 답니다. 비어 있거나 읽기 전용일 때는 나타나지 않습니다',
+    en: 'Offers the × that empties the control. It does not appear while the picker is empty, read only or disabled'
+  }
+};
+
+const pickerLabels: PropRow = {
+  name: 'labels',
+  type: 'Partial<MPPickerLabels>',
+  description: {
+    ko: '피커가 스스로 지어내는 단어들의 개별 override. 지정하지 않은 것은 `locale`의 번역, 그다음 영어로 내려갑니다',
+    en: 'Overrides for the words the picker says on its own behalf. Whatever is not given falls back to the translation for `locale`, and then to English'
+  }
+};
+
+const pickerWeekStartsOn: PropRow = {
+  name: 'weekStartsOn',
+  type: '0 | 1 | 2 | 3 | 4 | 5 | 6',
+  description: {
+    ko: '주를 어느 요일부터 그릴지. `0`이 일요일이며, 생략하면 로케일이 말하는 값을 씁니다',
+    en: 'Which day the week starts on — `0` is Sunday. Defaults to whatever the locale says'
+  }
+};
+
+const pickerDefaultMonth: PropRow = {
+  name: 'defaultMonth',
+  type: 'Date',
+  description: {
+    ko: '값이 없을 때 달력이 열리는 달',
+    en: 'Which month the calendar opens on when there is no value'
+  }
+};
+
+const pickerShouldDisableDate: PropRow = {
+  name: 'shouldDisableDate',
+  type: '(date: Date) => boolean',
+  description: {
+    ko: '범위 안에 있지만 고를 수 없는 날을 막습니다 — 주말, 공휴일, 이미 예약된 방. 막힌 날도 지워지지 않고 그대로 그려집니다',
+    en: 'Blocks individual days that are inside the range but still unavailable — weekends, holidays, a room already booked. A blocked day is still drawn'
+  }
+};
+
+const pickerShouldDisableTime: PropRow = {
+  name: 'shouldDisableTime',
+  type: '(value: Date, unit: MPTimeUnit) => boolean',
+  description: {
+    ko: '시계의 개별 행을 막습니다. 각 열의 각 행마다 그 행이 만들어 낼 순간과 열 이름으로 호출됩니다',
+    en: 'Blocks individual clock rows. Called once per row per column with the instant that row would produce and the column it is in'
+  }
+};
+
+const pickerHour12: PropRow = {
+  name: 'hour12',
+  type: 'boolean',
+  description: {
+    ko: '12시간제 시계와 오전/오후 열. 생략하면 로케일이 쓰는 쪽을 따릅니다. 컬럼뿐 아니라 트리거 표기에도 함께 반영됩니다',
+    en: 'A 12-hour dial with an AM/PM column. Defaults to whatever the locale does, and reaches the trigger as well as the columns'
+  }
+};
+
+const pickerShowSeconds: PropRow = {
+  name: 'showSeconds',
+  type: 'boolean',
+  default: 'false',
+  description: { ko: '초 열을 추가합니다', en: 'Adds the seconds column' }
+};
+
+const pickerSteps: PropRow[] = [
+  {
+    name: 'hourStep',
+    type: 'number',
+    default: '1',
+    description: { ko: '시 열의 간격', en: 'How far apart the rows of the hour column are' }
+  },
+  {
+    name: 'minuteStep',
+    type: 'number',
+    default: '1',
+    description: { ko: '분 열의 간격', en: 'How far apart the rows of the minute column are' }
+  },
+  {
+    name: 'secondStep',
+    type: 'number',
+    default: '1',
+    description: { ko: '초 열의 간격', en: 'How far apart the rows of the second column are' }
+  }
+];
+
 export const propTables: Record<string, PropRow[]> = {
   MPIcon: [
     {
@@ -3795,5 +3971,657 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     id
+  ],
+
+  MPAlert: [
+    {
+      name: 'variant',
+      type: VARIANT,
+      default: "'tonal'",
+      description: {
+        ko: '표면을 얼마나 칠할지. 버튼과 달리 `tonal`이 기본값입니다 — 컨테이너 톤은 옆에 놓인 주요 액션과 경쟁하지 않으면서 페이지에서 분리됩니다',
+        en: "How much surface the alert paints. `tonal` rather than the button's `filled`: a container tone separates itself from the page without competing with the primary action beside it"
+      }
+    },
+    {
+      ...color,
+      description: {
+        ko: '어떤 강조 색 계열을 읽을지. 심각도 사다리가 아니라 머터리얼의 네 역할입니다 — `success`나 `warning`은 토큰 시트가 만들어 낼 수 없으므로 제공하지 않습니다',
+        en: 'Which accent family it reads. Four roles, not a severity ladder: there is no `success` or `warning`, because the token sheet has no way to derive them'
+      }
+    },
+    size,
+    {
+      name: 'title',
+      type: NODE,
+      description: {
+        ko: '제목 줄. 있으면 제목과 그 아래 상세의 두 부분이 되고, 없으면 전체가 한 줄입니다',
+        en: 'The heading line. With it the alert is two-part; without it the whole thing is one line'
+      }
+    },
+    {
+      name: 'icon',
+      type: `${NODE} | false`,
+      description: {
+        ko: '앞에 놓이는 글리프. `color`에 맞는 기본 글리프가 들어가며, `false`로 없애거나 노드로 바꿀 수 있습니다',
+        en: 'The glyph at the start. Defaults to the one that goes with `color`; pass `false` to drop it, or a node to replace it'
+      }
+    },
+    {
+      name: 'action',
+      type: NODE,
+      description: {
+        ko: '행 끝에 고정되는 내용 — "다시 시도" 버튼, 링크. 메시지가 줄바꿈되어도 첫 줄에 남도록 `children`과 분리했습니다',
+        en: 'Content pinned to the end of the row — a "Retry" button, a link. Kept out of `children` so it stays on the first line while the message wraps'
+      }
+    },
+    {
+      name: 'onClose',
+      type: '(event: MouseEvent) => void',
+      description: {
+        ko: '이 prop을 넘기는 것이 곧 닫기 버튼을 만드는 일입니다',
+        en: 'Passing it is what makes the dismiss button appear'
+      }
+    },
+    {
+      name: 'closeLabel',
+      type: 'string',
+      description: {
+        ko: '닫기 버튼의 접근성 이름. 기본값은 `locale`에 해당하는 언어의 "닫기"입니다',
+        en: 'The accessible name of the dismiss button. Defaults to the word for "dismiss" in `locale`'
+      }
+    },
+    {
+      name: 'locale',
+      type: 'string',
+      description: {
+        ko: '닫기 버튼 기본 이름의 언어. 생략하면 가장 가까운 `MPLocaleProvider`, 그다음 영어입니다',
+        en: "Which language the dismiss button's default name is written in. Falls back to the nearest `MPLocaleProvider`, then to English"
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '메시지', en: 'The message' }
+    }
+  ],
+
+  MPIconButton: [
+    {
+      name: 'icon',
+      type: NODE,
+      required: true,
+      description: {
+        ko: '글리프. 라벨이 붙은 버튼의 `startIcon`과 똑같이 배치되므로 같은 글리프가 같은 크기로 그려집니다',
+        en: "The glyph. Laid out exactly as a labelled button's `startIcon` is, so the same glyph draws at the same size on both"
+      }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      required: true,
+      description: {
+        ko: '이 버튼이 무엇을 하는지, 말로. 여기서 유일하게 필수인 prop입니다 — 라벨이 그림뿐인 버튼은 접근성 이름이 아예 없습니다',
+        en: 'What the button does, in words. The one required prop here: a button whose whole label is a drawing has no accessible name at all'
+      }
+    },
+    {
+      name: 'variant',
+      type: VARIANT,
+      default: "'text'",
+      description: {
+        ko: '표면을 얼마나 칠할지. MD3의 *standard* 아이콘 버튼이 기본이라 `MPButton`의 `filled`와 다릅니다 — 툴바에 채워진 원반 다섯 개는 강조가 하나도 없는 줄입니다',
+        en: "How much surface it paints. MD3's *standard* icon button is the default, unlike `MPButton`'s `filled`: five filled discs in a toolbar is a row with no emphasis left in it"
+      }
+    },
+    color,
+    size,
+    disabled,
+    {
+      name: 'loading',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '글리프를 스피너로 바꾸고 클릭을 막되, 포커스는 그대로 둡니다',
+        en: 'Swaps the glyph for a spinner and stops the button firing, while leaving it focusable'
+      }
+    },
+    {
+      name: 'loadingLabel',
+      type: 'string',
+      default: "'Loading'",
+      description: {
+        ko: '`loading` 중 읽히는 스피너의 접근성 이름',
+        en: 'The accessible name of the spinner, announced while `loading`'
+      }
+    },
+    {
+      name: 'type',
+      type: "'button' | 'submit' | 'reset'",
+      default: "'button'",
+      description: {
+        ko: '`submit`이 아니라 `button`입니다. 폼 안의 무관한 버튼이 폼을 제출하게 두지 않기 위해서입니다',
+        en: '`button`, not `submit` — otherwise every unrelated button inside a form becomes one that submits it'
+      }
+    }
+  ],
+
+  MPAspectRatio: [
+    {
+      name: 'ratio',
+      type: 'number | string',
+      default: '1',
+      description: {
+        ko: 'CSS가 쓰는 방식 그대로의 비율 — 숫자(`1.5`)나 비(`"16 / 9"`). 둘 다 `aspect-ratio`로 그대로 갑니다',
+        en: 'The proportion, written the way CSS writes it — a number (`1.5`) or a ratio (`"16 / 9"`). Both reach `aspect-ratio` untouched'
+      }
+    },
+    {
+      name: 'fit',
+      type: "'cover' | 'contain' | 'fill' | 'none'",
+      default: "'cover'",
+      description: {
+        ko: '안의 미디어를 어떻게 맞출지. 직계 자식인 `img`, `video`, `canvas`, `svg`, `picture`, `iframe`에 적용됩니다',
+        en: 'How a single piece of media inside is fitted. Applies to an `img`, `video`, `canvas`, `svg`, `picture` or `iframe` that is a direct child'
+      }
+    },
+    {
+      name: 'rounded',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '`size` 단계의 모서리로 다듬습니다. 레이아웃 컴포넌트는 아무것도 그리지 않으므로 기본은 꺼짐입니다',
+        en: 'Rounds the corners to the `size` rung. Off by default: a layout component draws nothing'
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '`rounded`가 쓰는 모서리 단계. 비율만 지키는 상자에는 높이도 타입 스케일도 없으므로 `size`의 축은 이것뿐입니다',
+        en: 'Which corner `rounded` uses. There is no height and no type scale on a box whose whole job is a proportion, so this is the one axis `size` has here'
+      }
+    },
+    {
+      name: 'render',
+      type: 'RenderProp',
+      description: {
+        ko: '`<div>` 대신 다른 것을 렌더링합니다 — `render={<figure />}`',
+        en: 'Renders something other than a `<div>`: `render={<figure />}`'
+      }
+    }
+  ],
+
+  MPPanes: [
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+      description: {
+        ko: '패널이 놓이는 방향. `horizontal`은 나란히, `vertical`은 위아래로 쌓습니다',
+        en: 'Which way the panes run. `horizontal` puts them side by side, `vertical` stacks them'
+      }
+    },
+    {
+      name: 'resizable',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '핸들을 끌 수 있는지. 컨트롤이 아니라 레이아웃인 분할이라면 꺼 두세요',
+        en: 'Whether the handles can be dragged. Turn it off for a split that is a layout rather than a control'
+      }
+    },
+    {
+      ...color,
+      description: {
+        ko: '핸들이 반응할 때 쓰는 강조 색 계열. 분할은 시트를 그리지 않으므로 계열이 닿는 곳은 실선, 호버 틴트, 포커스 링 세 군데뿐입니다',
+        en: 'Which accent family the handles light up in. A split draws no sheet, so the family only reaches three marks: the hairline, the wash under a hovered handle, and the focus ring'
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '핸들의 두께와 손이 닿는 폭. 1픽셀짜리 선은 1픽셀짜리 과녁이므로, 그려지는 것과 잡히는 것을 나눕니다',
+        en: 'How thick a handle is, and how wide the target is. A line one pixel wide is a target one pixel wide, so what is drawn and what can be grabbed are separated'
+      }
+    },
+    {
+      name: 'onResize',
+      type: '(sizes: number[]) => void',
+      description: {
+        ko: '핸들을 끄는 동안 각 패널의 비율(퍼센트)로 계속 호출됩니다',
+        en: "Fires with every pane's share, in percent, while a handle is dragged"
+      }
+    },
+    {
+      name: 'onResizeEnd',
+      type: '(sizes: number[]) => void',
+      description: {
+        ko: '같은 모양으로, 핸들을 놓을 때 한 번. 화살표 키는 그 자체로 하나의 제스처이므로 이쪽도 함께 호출됩니다',
+        en: 'Fires once, with the same shape, when the handle is let go. An arrow key is a whole gesture on its own, so it fires with that too'
+      }
+    }
+  ],
+
+  MPPane: [
+    {
+      name: 'defaultSize',
+      type: 'number | string',
+      description: {
+        ko: '이 패널이 처음 갖는 몫. 맨 숫자는 퍼센트, 문자열은 절대 길이(`"240px"`)입니다. 지정하지 않은 패널끼리 남은 공간을 똑같이 나눕니다',
+        en: 'The share this pane starts with. A bare number is a percentage, a string is an absolute length (`"240px"`). Panes with none split whatever is left over equally'
+      }
+    },
+    {
+      name: 'minSize',
+      type: 'number | string',
+      default: '0',
+      description: { ko: '얼마나 작게까지 끌 수 있는지', en: 'How small it may be dragged' }
+    },
+    {
+      name: 'maxSize',
+      type: 'number | string',
+      description: {
+        ko: '얼마나 크게까지 끌 수 있는지. 생략하면 제한이 없습니다',
+        en: 'How large it may be dragged. Unbounded when left out'
+      }
+    }
+  ],
+
+  MPDatePicker: [
+    {
+      name: 'value',
+      type: 'Date | null',
+      description: {
+        ko: '고른 날. `onValueChange`와 함께 쓰면 controlled입니다',
+        en: 'The chosen day. Use with `onValueChange` for a controlled picker'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'Date | null',
+      description: {
+        ko: '처음 고른 날. uncontrolled일 때 씁니다',
+        en: 'The day the picker starts on, for an uncontrolled one'
+      }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: Date | null) => void',
+      description: {
+        ko: '새로 고른 날로 호출됩니다. 이벤트가 아니라 `Date`이며, 비우면 `null`입니다',
+        en: 'Called with the newly chosen day — a `Date`, not an event. `null` when cleared'
+      }
+    },
+    pickerLabel,
+    pickerPlaceholder,
+    description,
+    errorMessage,
+    pickerDefaultMonth,
+    {
+      name: 'minDate',
+      type: 'Date | null',
+      description: {
+        ko: '고를 수 있는 가장 이른 날. 날짜 단위라 시각은 무시합니다 — 7월 27일 09:00을 넘겨도 27일은 그대로 고를 수 있습니다',
+        en: 'The earliest day that may be chosen. Day-granular: a bound of 27 July at 09:00 still leaves the 27th pickable'
+      }
+    },
+    {
+      name: 'maxDate',
+      type: 'Date | null',
+      description: { ko: '고를 수 있는 가장 늦은 날', en: 'The latest day that may be chosen' }
+    },
+    pickerShouldDisableDate,
+    pickerLocale,
+    pickerWeekStartsOn,
+    { ...pickerFormat, default: "{ dateStyle: 'medium' }" },
+    pickerClearable,
+    {
+      name: 'showTodayButton',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '푸터에 오늘로 가는 단축 버튼을 답니다',
+        en: 'Offers the shortcut to today in the footer'
+      }
+    },
+    {
+      name: 'closeOnSelect',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '날을 고르는 즉시 팝업을 닫습니다',
+        en: 'Closes the popup as soon as a day is chosen'
+      }
+    },
+    pickerOpen,
+    pickerDefaultOpen,
+    pickerOnOpenChange,
+    pickerLabels,
+    pickerStartIcon,
+    size,
+    color,
+    fullWidth,
+    required,
+    disabled,
+    readOnly,
+    {
+      ...name,
+      description: {
+        ko: '폼 제출에 쓰이는 이름. 값은 `YYYY-MM-DD`로, UTC가 아니라 로컬 날짜로 나갑니다',
+        en: 'Identifies the field when a form is submitted, as `YYYY-MM-DD` — the local day, not a UTC instant'
+      }
+    },
+    id
+  ],
+
+  MPDateRangePicker: [
+    {
+      name: 'value',
+      type: 'MPDateRange | null',
+      description: {
+        ko: '고른 범위. `{ start, end }` 객체이며, 한쪽만 있는 상태도 실재하는 상태입니다',
+        en: 'The chosen range, as `{ start, end }`. Half a range is a real state'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'MPDateRange | null',
+      description: { ko: '처음 고른 범위', en: 'The range the picker starts on' }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: MPDateRange) => void',
+      description: {
+        ko: '항상 객체로 호출됩니다. 비운 범위는 `null`이 아니라 `{ start: null, end: null }`입니다',
+        en: 'Always called with an object. A cleared range is `{ start: null, end: null }` rather than `null`'
+      }
+    },
+    pickerLabel,
+    {
+      name: 'startPlaceholder',
+      type: NODE,
+      description: {
+        ko: '시작이 비어 있을 때 트리거 왼쪽에 보이는 문구',
+        en: 'Shown in the first half of the trigger while the start is unchosen'
+      }
+    },
+    {
+      name: 'endPlaceholder',
+      type: NODE,
+      description: {
+        ko: '끝이 비어 있을 때 트리거 오른쪽에 보이는 문구',
+        en: 'Shown in the second half while the end is unchosen'
+      }
+    },
+    description,
+    errorMessage,
+    {
+      name: 'monthCount',
+      type: '1 | 2',
+      default: '2',
+      description: {
+        ko: '한 번에 보이는 달의 수. 달을 넘나드는 범위가 예외가 아니라 일반적인 경우라 둘이 기본입니다',
+        en: 'How many months are on screen at once. Two by default, because a range that crosses a month boundary is the ordinary case'
+      }
+    },
+    {
+      name: 'presets',
+      type: 'MPDateRangePreset[]',
+      description: {
+        ko: '달력 옆에 놓이는 단축 범위 — "지난 7일", "이번 달". 오늘에 따라 달라지면 함수로 넘기세요',
+        en: 'Shortcuts listed beside the calendars — "Last 7 days", "This month". Pass a function when it depends on today'
+      }
+    },
+    pickerDefaultMonth,
+    {
+      name: 'minDate',
+      type: 'Date | null',
+      description: { ko: '고를 수 있는 가장 이른 날', en: 'The earliest day that may be chosen' }
+    },
+    {
+      name: 'maxDate',
+      type: 'Date | null',
+      description: { ko: '고를 수 있는 가장 늦은 날', en: 'The latest day that may be chosen' }
+    },
+    pickerShouldDisableDate,
+    pickerLocale,
+    pickerWeekStartsOn,
+    { ...pickerFormat, default: "{ dateStyle: 'medium' }" },
+    pickerClearable,
+    {
+      name: 'closeOnSelect',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '양쪽 끝이 모두 정해지면 팝업을 닫습니다',
+        en: 'Closes the popup once both ends are chosen'
+      }
+    },
+    pickerOpen,
+    pickerDefaultOpen,
+    pickerOnOpenChange,
+    pickerLabels,
+    pickerStartIcon,
+    size,
+    color,
+    fullWidth,
+    required,
+    disabled,
+    readOnly,
+    {
+      ...name,
+      description: {
+        ko: '폼 제출에 쓰이는 이름. 같은 이름의 hidden input 두 개로 나가므로 서버에서는 `FormData.getAll(name)`으로 받습니다',
+        en: 'Identifies the field when a form is submitted. Two hidden inputs of the same name, so the two ends arrive as `FormData.getAll(name)`'
+      }
+    },
+    id
+  ],
+
+  MPTimePicker: [
+    {
+      name: 'value',
+      type: 'Date | null',
+      description: {
+        ko: '고른 시각. `Date`라서 날짜도 함께 지닙니다 — `referenceDate`를 보세요',
+        en: 'The chosen time. A `Date`, so it carries a day as well — see `referenceDate`'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'Date | null',
+      description: { ko: '처음 고른 시각', en: 'The time the picker starts on' }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: Date | null) => void',
+      description: {
+        ko: '새로 고른 시각으로 호출됩니다',
+        en: 'Called with the newly chosen time'
+      }
+    },
+    pickerLabel,
+    pickerPlaceholder,
+    description,
+    errorMessage,
+    {
+      name: 'referenceDate',
+      type: 'Date',
+      default: 'today',
+      description: {
+        ko: '값이 아직 없을 때 고른 시각이 얹힐 날. 피커가 살아 있는 동안 고정되므로, 자정을 넘겨 열어 두어도 값이 다른 날로 옮겨 가지 않습니다',
+        en: 'The day a chosen time is written onto while there is no value yet. Held still for as long as the picker is mounted, so a popup left open across midnight does not move the value onto a new day'
+      }
+    },
+    {
+      name: 'minTime',
+      type: 'Date | null',
+      description: {
+        ko: '고를 수 있는 가장 이른 시각. 시계만 읽습니다. 열의 단위로 검사하므로, 09:30이 최소라면 시 `9`는 남고 분 `00`–`25`가 흐려집니다',
+        en: 'The earliest time of day that may be chosen. Checked at the granularity of the column: with a minimum of 09:30 the hour `9` stays available and the minutes `00`–`25` grey out'
+      }
+    },
+    {
+      name: 'maxTime',
+      type: 'Date | null',
+      description: {
+        ko: '고를 수 있는 가장 늦은 시각',
+        en: 'The latest time of day that may be chosen'
+      }
+    },
+    pickerShouldDisableTime,
+    pickerHour12,
+    pickerShowSeconds,
+    ...pickerSteps,
+    pickerLocale,
+    {
+      ...pickerFormat,
+      default: "{ hour: 'numeric', minute: '2-digit' }"
+    },
+    pickerClearable,
+    {
+      name: 'showNowButton',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '푸터에 현재 시각으로 가는 단축 버튼을 답니다',
+        en: 'Offers the shortcut to the current time in the footer'
+      }
+    },
+    {
+      name: 'closeOnSelect',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '아무 열이든 건드리는 즉시 팝업을 닫습니다. `MPDatePicker`와 달리 기본이 꺼짐인 이유는, 시각은 답이 둘이라 첫 번째에서 닫으면 9시 30분을 고르려고 팝업을 두 번 열어야 하기 때문입니다',
+        en: 'Closes the popup as soon as any column is touched. `false` by default and unlike `MPDatePicker`: a time is two answers, and closing after the first would make choosing 9:30 a matter of opening the popup twice'
+      }
+    },
+    pickerOpen,
+    pickerDefaultOpen,
+    pickerOnOpenChange,
+    pickerLabels,
+    pickerStartIcon,
+    size,
+    color,
+    fullWidth,
+    required,
+    disabled,
+    readOnly,
+    {
+      ...name,
+      description: {
+        ko: '폼 제출에 쓰이는 이름. 값은 `HH:MM`(초를 보이면 `HH:MM:SS`)입니다',
+        en: 'Identifies the field when a form is submitted, as `HH:MM` (`HH:MM:SS` when the seconds are shown)'
+      }
+    },
+    id
+  ],
+
+  MPDateTimePicker: [
+    {
+      name: 'value',
+      type: 'Date | null',
+      description: { ko: '고른 순간', en: 'The chosen moment' }
+    },
+    {
+      name: 'defaultValue',
+      type: 'Date | null',
+      description: { ko: '처음 고른 순간', en: 'The moment the picker starts on' }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: Date | null) => void',
+      description: {
+        ko: '새로 고른 순간으로 호출됩니다',
+        en: 'Called with the newly chosen moment'
+      }
+    },
+    pickerLabel,
+    pickerPlaceholder,
+    description,
+    errorMessage,
+    pickerDefaultMonth,
+    {
+      name: 'minDate',
+      type: 'Date | null',
+      description: {
+        ko: '고를 수 있는 가장 이른 순간. `MPDatePicker`와 달리 **전체 정밀도**로 읽습니다 — 그 날은 달력에 남고, 그 이전 시각만 시계에서 흐려집니다',
+        en: 'The earliest moment that may be chosen. Unlike `MPDatePicker`, read at **full precision**: the day it falls on stays available and the clock blocks the hours before it'
+      }
+    },
+    {
+      name: 'maxDate',
+      type: 'Date | null',
+      description: {
+        ko: '고를 수 있는 가장 늦은 순간. 마찬가지로 전체 정밀도입니다',
+        en: 'The latest moment that may be chosen, likewise at full precision'
+      }
+    },
+    pickerShouldDisableDate,
+    pickerShouldDisableTime,
+    pickerHour12,
+    pickerShowSeconds,
+    ...pickerSteps,
+    pickerLocale,
+    pickerWeekStartsOn,
+    { ...pickerFormat, default: "{ dateStyle: 'medium', timeStyle: 'short' }" },
+    pickerClearable,
+    {
+      name: 'showNowButton',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '푸터에 지금으로 가는 단축 버튼을 답니다',
+        en: 'Offers the shortcut to this moment in the footer'
+      }
+    },
+    {
+      name: 'closeOnSelect',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '날을 고르는 즉시 팝업을 닫습니다. 순간은 날짜 *그리고* 시각이라 첫 번째에서 닫으면 두 번째가 답을 못 얻습니다',
+        en: 'Closes the popup as soon as a day is chosen. `false` here, because a moment is a day *and* a time and closing on the first would leave the second unanswered'
+      }
+    },
+    pickerOpen,
+    pickerDefaultOpen,
+    pickerOnOpenChange,
+    pickerLabels,
+    pickerStartIcon,
+    size,
+    color,
+    fullWidth,
+    required,
+    disabled,
+    readOnly,
+    {
+      ...name,
+      description: {
+        ko: '폼 제출에 쓰이는 이름. 값은 `YYYY-MM-DDTHH:MM`으로, 로컬 시각입니다',
+        en: 'Identifies the field when a form is submitted, as `YYYY-MM-DDTHH:MM`, in local time'
+      }
+    },
+    id
+  ],
+
+  MPLocaleProvider: [
+    {
+      name: 'locale',
+      type: 'string',
+      description: {
+        ko: 'BCP 47 태그 — `ko`, `ja`, `pt-BR`, `zh-Hant`. 두 계통에 닿습니다: `Intl`은 플랫폼이 아는 모든 언어로 날짜와 숫자를 쓰고, 이 라이브러리의 표는 `Intl`이 의견을 갖지 않는 단어들을 채웁니다. 표에 없는 태그면 앞쪽은 그대로 동작하고 뒤쪽만 영어로 내려갑니다',
+        en: "A BCP 47 tag — `ko`, `ja`, `pt-BR`, `zh-Hant`. It reaches two systems: `Intl` formats the dates and numbers in every language the platform speaks, and this library's table supplies the words `Intl` has no opinion about. For a tag the table does not carry, the first still works and only the second falls back to English"
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '이 언어를 따를 트리',
+        en: 'The tree that follows this language'
+      }
+    }
   ]
 };
