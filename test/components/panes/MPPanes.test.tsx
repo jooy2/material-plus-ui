@@ -147,6 +147,40 @@ describe('MPPanes', () => {
       expect(Math.round(widthOf(screen.getByTestId('a').element()))).toBe(150);
     });
 
+    it('goes to the ends of its travel on Home and End', async () => {
+      // Without them the only way to reach a bound is to hold an arrow key down
+      // and watch — for a floor four hundred pixels away, twenty-five presses.
+      const screen = await render(
+        <Split>
+          <MPPane data-testid="a" minSize="120px" maxSize="320px">
+            A
+          </MPPane>
+          <MPPane>B</MPPane>
+        </Split>
+      );
+      const handle = screen.getByRole('separator').element();
+
+      await press(handle, 'Home');
+      expect(Math.round(widthOf(screen.getByTestId('a').element()))).toBe(120);
+
+      await press(handle, 'End');
+      expect(Math.round(widthOf(screen.getByTestId('a').element()))).toBe(320);
+    });
+
+    it('names the pane its value is about', async () => {
+      // `aria-valuenow` is that pane's share, so without this a screen reader
+      // reads a percentage with nothing to attach it to.
+      const screen = await render(
+        <Split>
+          <MPPane data-testid="a">A</MPPane>
+          <MPPane>B</MPPane>
+        </Split>
+      );
+      const controls = screen.getByRole('separator').element().getAttribute('aria-controls')!;
+
+      expect(screen.getByTestId('a').element().id).toBe(controls);
+    });
+
     it('leaves the tab order and stops responding when it is not resizable', async () => {
       const screen = await render(
         <Split resizable={false}>

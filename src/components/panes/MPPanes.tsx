@@ -18,9 +18,18 @@ export type MPPaneSize = number | string;
 interface PaneContextValue {
   /** The `flex-basis` this pane has been given, or `null` before measurement. */
   basis: string | null;
+  /**
+   * The id the handle beside it points `aria-controls` at, or `null` for a pane
+   * rendered outside a split.
+   *
+   * It comes from the split rather than from the pane because the split is what
+   * numbers them — and because a caller's own `id` has to be able to win, which
+   * it does: the pane spreads its rest props after this.
+   */
+  id: string | null;
 }
 
-const MPPaneContext = React.createContext<PaneContextValue>({ basis: null });
+const MPPaneContext = React.createContext<PaneContextValue>({ basis: null, id: null });
 
 /**
  * The width of a handle, and the width of the target the pointer has to hit.
@@ -220,6 +229,9 @@ export const MPPanes = React.forwardRef<HTMLDivElement, MPPanesProps>(function M
   ) as React.ReactElement<MPPaneProps>[];
   const count = items.length;
 
+  // One stem for every pane's id, so a handle can name the pane its value is
+  // about without the panes having to be told what they are called.
+  const paneIds = React.useId();
   const rootRef = React.useRef<HTMLDivElement | null>(null);
   const setRootRef = React.useCallback(
     (node: HTMLDivElement | null) => {
@@ -334,6 +346,12 @@ export const MPPanes = React.forwardRef<HTMLDivElement, MPPanesProps>(function M
     return {
       root,
       current,
+      // The two ends of the boundary's travel, so `Home` and `End` can go
+      // straight to them rather than nudging sixteen pixels at a time toward a
+      // limit whose distance nobody knows.
+      lower,
+      upper,
+      start,
       resize(delta: number) {
         const sized = Math.min(upper, Math.max(lower, start + delta));
         const next = [...current];
@@ -414,6 +432,26 @@ export const MPPanes = React.forwardRef<HTMLDivElement, MPPanesProps>(function M
     onResizeEnd?.(next.map((fraction) => fraction * 100));
   }
 
+  /**
+   * `Home` and `End`, which the window-splitter pattern asks for and which are
+   * the only way to reach a bound without knowing how far away it is.
+   *
+   * They travel to the ends of *this boundary's* range rather than to the ends
+   * of the split: what a handle can do is bounded by both neighbours' `minSize`
+   * and `maxSize`, and those are already folded into one range by `grip`.
+   */
+  function nudgeToEnd(index: number, edge: 'lower' | 'upper') {
+    const held = grip(index);
+
+    if (!held) {
+      return;
+    }
+
+    const next = held.resize(held[edge] - held.start);
+
+    onResizeEnd?.(next.map((fraction) => fraction * 100));
+  }
+
   const handleClassNames = [
     'mp-panes__handle group/handle relative z-1 flex shrink-0 grow-0 items-center justify-center',
     TRACK[size],
@@ -464,6 +502,10 @@ export const MPPanes = React.forwardRef<HTMLDivElement, MPPanesProps>(function M
               aria-valuemin={0}
               aria-valuemax={100}
               aria-disabled={!resizable || undefined}
+              // The pane the value is *about*. `aria-valuenow` is that pane's
+              // share, so without this a screen reader reads a percentage with
+              // nothing to attach it to.
+              aria-controls={`${paneIds}-${index - 1}`}
               tabIndex={resizable ? 0 : -1}
               className={handleClassNames}
               // No `preventDefault` and no explicit focus: the browser focuses
@@ -482,12 +524,21 @@ export const MPPanes = React.forwardRef<HTMLDivElement, MPPanesProps>(function M
                 const back = horizontal ? 'ArrowLeft' : 'ArrowUp';
                 const forward = horizontal ? 'ArrowRight' : 'ArrowDown';
 
-                if (event.key !== back && event.key !== forward) {
+                if (event.key === back || event.key === forward) {
+                  event.preventDefault();
+                  nudge(index - 1, event.key === forward ? KEYBOARD_STEP : -KEYBOARD_STEP);
+
                   return;
                 }
 
-                event.preventDefault();
-                nudge(index - 1, event.key === forward ? KEYBOARD_STEP : -KEYBOARD_STEP);
+                // `Home` and `End` go to the ends of this boundary's travel.
+                // Without them the only way to reach a bound is to hold an arrow
+                // key down and watch, which for a pane whose minimum is four
+                // hundred pixels away is twenty-five presses.
+                if (event.key === 'Home' || event.key === 'End') {
+                  event.preventDefault();
+                  nudgeToEnd(index - 1, event.key === 'Home' ? 'lower' : 'upper');
+                }
               }}
             >
               {/*
@@ -519,7 +570,8 @@ export const MPPanes = React.forwardRef<HTMLDivElement, MPPanesProps>(function M
             value={{
               basis: fractions
                 ? `calc((100% - ${gutter}px) * ${fractions[index].toFixed(6)})`
-                : null
+                : null,
+              id: `${paneIds}-${index}`
             }}
           >
             {item}
@@ -544,11 +596,12 @@ export const MPPane = React.forwardRef<HTMLDivElement, MPPaneProps>(function MPP
   { defaultSize, minSize, maxSize, className, style, children, ...props },
   ref
 ) {
-  const { basis } = React.useContext(MPPaneContext);
+  const { basis, id } = React.useContext(MPPaneContext);
 
   return (
     <div
       ref={ref}
+      id={id ?? undefined}
       className={['mp-pane relative min-h-0 min-w-0 overflow-auto', className ?? '']
         .filter(Boolean)
         .join(' ')}

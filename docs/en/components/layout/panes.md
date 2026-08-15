@@ -103,7 +103,8 @@ The constraints are read off the direct children's props, so an `MPPane` wrapped
 ## Accessibility
 
 - Each handle is `role="separator"` with `aria-valuenow`, `aria-valuemin` and `aria-valuemax` — the window-splitter pattern — and `aria-orientation` set to the orientation of the **separator**, which is the opposite of the split's.
-- Arrow keys move a handle 16 pixels at a time and honour the same bounds a drag does.
+- Arrow keys move a handle 16 pixels at a time and honour the same bounds a drag does. `Home` and `End` go straight to the ends of that boundary's travel — without them, reaching a floor four hundred pixels away is twenty-five presses.
+- `aria-controls` names the pane the value is about. `aria-valuenow` is that pane's share, so without it a screen reader reads a percentage with nothing to attach it to.
 - A press does not put the focus ring on the handle. The browser focuses it on `pointerdown` by itself and knows a press is not a keystroke; the component takes the page's text selection away for the length of the drag rather than calling `preventDefault`, which would have broken that.
 - A drag under RTL moves the boundary the way the pointer went rather than the way the axis is numbered.
 
