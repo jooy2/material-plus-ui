@@ -37,6 +37,62 @@
  */
 export interface MPMessages {
   /**
+   * The handful of words that are not any one component's.
+   *
+   * A namespace for the words rather than one per component that says them,
+   * because they are the same word: the × on a dialog, on a drawer, on a
+   * popover and on a snackbar is *close* four times, and four namespaces would
+   * be four chances for a translation to disagree with itself about it.
+   *
+   * Every one of these is drawn as a glyph and read out as a word, which is why
+   * they belong in this table at all — see the note at the top of the file. The
+   * components that use them each keep their own override prop for the case
+   * where a particular × means something more specific than "close".
+   */
+  common: {
+    /** The × in the corner of anything that can be dismissed. */
+    close: string;
+    /** The × that empties a control without closing it. */
+    clear: string;
+    /** The chevron that opens a list. */
+    open: string;
+    /** The × that takes one thing out of a set — a chip, a file, a tag. */
+    remove: string;
+    /**
+     * The same, named for what it removes. `{label}` is filled in by
+     * `fillMessage`.
+     *
+     * A second string rather than the bare verb with the name stuck on the end,
+     * because where the name goes is not the same in every language: German and
+     * Korean put it first, English and Spanish put it last. A row of five
+     * remove buttons all called "Remove" is a row a screen reader cannot tell
+     * apart, which is the whole reason this one exists.
+     */
+    removeNamed: string;
+    /** The spinner that replaces a button's leading glyph while it waits. */
+    loading: string;
+  };
+  /**
+   * MPTextField.
+   *
+   * Only the reveal toggle, which is the one part of a text field that has a
+   * name of its own to invent — everything else in it is the caller's.
+   */
+  textField: {
+    showPassword: string;
+    hidePassword: string;
+  };
+  /**
+   * MPEmpty.
+   *
+   * The one string in this table that is **drawn** rather than read out, which
+   * makes it the one that was most obviously wrong to leave in English: a
+   * Korean page with an empty list said "Nothing here" in the middle of it.
+   */
+  empty: {
+    title: string;
+  };
+  /**
    * The four pickers.
    *
    * One namespace for all of them rather than one each, because they are one
@@ -167,6 +223,21 @@ type PartialMessages = {
  * rather than an empty box.
  */
 const base: MPMessages = {
+  common: {
+    close: 'Close',
+    clear: 'Clear',
+    open: 'Open',
+    remove: 'Remove',
+    removeNamed: 'Remove {label}',
+    loading: 'Loading'
+  },
+  textField: {
+    showPassword: 'Show the password',
+    hidePassword: 'Hide the password'
+  },
+  empty: {
+    title: 'Nothing here'
+  },
   picker: {
     previousMonth: 'Previous month',
     nextMonth: 'Next month',
@@ -229,6 +300,16 @@ const base: MPMessages = {
  */
 const translations: Record<string, PartialMessages> = {
   ko: {
+    common: {
+      close: '닫기',
+      clear: '지우기',
+      open: '열기',
+      remove: '제거',
+      removeNamed: '{label} 제거',
+      loading: '불러오는 중'
+    },
+    textField: { showPassword: '비밀번호 표시', hidePassword: '비밀번호 숨기기' },
+    empty: { title: '아무것도 없습니다' },
     picker: {
       previousMonth: '이전 달',
       nextMonth: '다음 달',
@@ -279,6 +360,16 @@ const translations: Record<string, PartialMessages> = {
     }
   },
   ja: {
+    common: {
+      close: '閉じる',
+      clear: 'クリア',
+      open: '開く',
+      remove: '削除',
+      removeNamed: '{label} を削除',
+      loading: '読み込み中'
+    },
+    textField: { showPassword: 'パスワードを表示', hidePassword: 'パスワードを非表示' },
+    empty: { title: '何もありません' },
     picker: {
       previousMonth: '前の月',
       nextMonth: '次の月',
@@ -329,6 +420,16 @@ const translations: Record<string, PartialMessages> = {
     }
   },
   'zh-hans': {
+    common: {
+      close: '关闭',
+      clear: '清除',
+      open: '打开',
+      remove: '移除',
+      removeNamed: '移除 {label}',
+      loading: '加载中'
+    },
+    textField: { showPassword: '显示密码', hidePassword: '隐藏密码' },
+    empty: { title: '暂无内容' },
     picker: {
       previousMonth: '上个月',
       nextMonth: '下个月',
@@ -379,6 +480,16 @@ const translations: Record<string, PartialMessages> = {
     }
   },
   'zh-hant': {
+    common: {
+      close: '關閉',
+      clear: '清除',
+      open: '開啟',
+      remove: '移除',
+      removeNamed: '移除 {label}',
+      loading: '載入中'
+    },
+    textField: { showPassword: '顯示密碼', hidePassword: '隱藏密碼' },
+    empty: { title: '暫無內容' },
     picker: {
       previousMonth: '上個月',
       nextMonth: '下個月',
@@ -429,6 +540,16 @@ const translations: Record<string, PartialMessages> = {
     }
   },
   es: {
+    common: {
+      close: 'Cerrar',
+      clear: 'Borrar',
+      open: 'Abrir',
+      remove: 'Quitar',
+      removeNamed: 'Quitar {label}',
+      loading: 'Cargando'
+    },
+    textField: { showPassword: 'Mostrar la contraseña', hidePassword: 'Ocultar la contraseña' },
+    empty: { title: 'No hay nada aquí' },
     picker: {
       previousMonth: 'Mes anterior',
       nextMonth: 'Mes siguiente',
@@ -479,6 +600,16 @@ const translations: Record<string, PartialMessages> = {
     }
   },
   pt: {
+    common: {
+      close: 'Fechar',
+      clear: 'Limpar',
+      open: 'Abrir',
+      remove: 'Remover',
+      removeNamed: 'Remover {label}',
+      loading: 'Carregando'
+    },
+    textField: { showPassword: 'Mostrar a senha', hidePassword: 'Ocultar a senha' },
+    empty: { title: 'Não há nada aqui' },
     picker: {
       previousMonth: 'Mês anterior',
       nextMonth: 'Próximo mês',
@@ -529,6 +660,19 @@ const translations: Record<string, PartialMessages> = {
     }
   },
   fr: {
+    common: {
+      close: 'Fermer',
+      clear: 'Effacer',
+      open: 'Ouvrir',
+      remove: 'Supprimer',
+      removeNamed: 'Supprimer {label}',
+      loading: 'Chargement'
+    },
+    textField: {
+      showPassword: 'Afficher le mot de passe',
+      hidePassword: 'Masquer le mot de passe'
+    },
+    empty: { title: "Il n'y a rien ici" },
     picker: {
       previousMonth: 'Mois précédent',
       nextMonth: 'Mois suivant',
@@ -579,6 +723,16 @@ const translations: Record<string, PartialMessages> = {
     }
   },
   de: {
+    common: {
+      close: 'Schließen',
+      clear: 'Löschen',
+      open: 'Öffnen',
+      remove: 'Entfernen',
+      removeNamed: '{label} entfernen',
+      loading: 'Wird geladen'
+    },
+    textField: { showPassword: 'Passwort anzeigen', hidePassword: 'Passwort verbergen' },
+    empty: { title: 'Nichts vorhanden' },
     picker: {
       previousMonth: 'Voriger Monat',
       nextMonth: 'Nächster Monat',
@@ -629,6 +783,16 @@ const translations: Record<string, PartialMessages> = {
     }
   },
   it: {
+    common: {
+      close: 'Chiudi',
+      clear: 'Cancella',
+      open: 'Apri',
+      remove: 'Rimuovi',
+      removeNamed: 'Rimuovi {label}',
+      loading: 'Caricamento'
+    },
+    textField: { showPassword: 'Mostra la password', hidePassword: 'Nascondi la password' },
+    empty: { title: "Non c'è nulla qui" },
     picker: {
       previousMonth: 'Mese precedente',
       nextMonth: 'Mese successivo',
@@ -679,6 +843,16 @@ const translations: Record<string, PartialMessages> = {
     }
   },
   nl: {
+    common: {
+      close: 'Sluiten',
+      clear: 'Wissen',
+      open: 'Openen',
+      remove: 'Verwijderen',
+      removeNamed: '{label} verwijderen',
+      loading: 'Laden'
+    },
+    textField: { showPassword: 'Wachtwoord tonen', hidePassword: 'Wachtwoord verbergen' },
+    empty: { title: 'Hier is niets' },
     picker: {
       previousMonth: 'Vorige maand',
       nextMonth: 'Volgende maand',
@@ -729,6 +903,16 @@ const translations: Record<string, PartialMessages> = {
     }
   },
   pl: {
+    common: {
+      close: 'Zamknij',
+      clear: 'Wyczyść',
+      open: 'Otwórz',
+      remove: 'Usuń',
+      removeNamed: 'Usuń {label}',
+      loading: 'Ładowanie'
+    },
+    textField: { showPassword: 'Pokaż hasło', hidePassword: 'Ukryj hasło' },
+    empty: { title: 'Nic tu nie ma' },
     picker: {
       previousMonth: 'Poprzedni miesiąc',
       nextMonth: 'Następny miesiąc',
@@ -779,6 +963,16 @@ const translations: Record<string, PartialMessages> = {
     }
   },
   ru: {
+    common: {
+      close: 'Закрыть',
+      clear: 'Очистить',
+      open: 'Открыть',
+      remove: 'Удалить',
+      removeNamed: 'Удалить {label}',
+      loading: 'Загрузка'
+    },
+    textField: { showPassword: 'Показать пароль', hidePassword: 'Скрыть пароль' },
+    empty: { title: 'Здесь ничего нет' },
     picker: {
       previousMonth: 'Предыдущий месяц',
       nextMonth: 'Следующий месяц',
@@ -829,6 +1023,16 @@ const translations: Record<string, PartialMessages> = {
     }
   },
   tr: {
+    common: {
+      close: 'Kapat',
+      clear: 'Temizle',
+      open: 'Aç',
+      remove: 'Kaldır',
+      removeNamed: '{label} kaldır',
+      loading: 'Yükleniyor'
+    },
+    textField: { showPassword: 'Parolayı göster', hidePassword: 'Parolayı gizle' },
+    empty: { title: 'Burada bir şey yok' },
     picker: {
       previousMonth: 'Önceki ay',
       nextMonth: 'Sonraki ay',
@@ -879,6 +1083,16 @@ const translations: Record<string, PartialMessages> = {
     }
   },
   ar: {
+    common: {
+      close: 'إغلاق',
+      clear: 'مسح',
+      open: 'فتح',
+      remove: 'إزالة',
+      removeNamed: 'إزالة {label}',
+      loading: 'جارٍ التحميل'
+    },
+    textField: { showPassword: 'إظهار كلمة المرور', hidePassword: 'إخفاء كلمة المرور' },
+    empty: { title: 'لا يوجد شيء هنا' },
     picker: {
       previousMonth: 'الشهر السابق',
       nextMonth: 'الشهر التالي',
@@ -929,6 +1143,16 @@ const translations: Record<string, PartialMessages> = {
     }
   },
   hi: {
+    common: {
+      close: 'बंद करें',
+      clear: 'हटाएँ',
+      open: 'खोलें',
+      remove: 'निकालें',
+      removeNamed: '{label} निकालें',
+      loading: 'लोड हो रहा है'
+    },
+    textField: { showPassword: 'पासवर्ड दिखाएँ', hidePassword: 'पासवर्ड छिपाएँ' },
+    empty: { title: 'यहाँ कुछ नहीं है' },
     picker: {
       previousMonth: 'पिछला महीना',
       nextMonth: 'अगला महीना',
@@ -979,6 +1203,16 @@ const translations: Record<string, PartialMessages> = {
     }
   },
   id: {
+    common: {
+      close: 'Tutup',
+      clear: 'Bersihkan',
+      open: 'Buka',
+      remove: 'Hapus',
+      removeNamed: 'Hapus {label}',
+      loading: 'Memuat'
+    },
+    textField: { showPassword: 'Tampilkan kata sandi', hidePassword: 'Sembunyikan kata sandi' },
+    empty: { title: 'Tidak ada apa-apa di sini' },
     picker: {
       previousMonth: 'Bulan sebelumnya',
       nextMonth: 'Bulan berikutnya',
@@ -1029,6 +1263,16 @@ const translations: Record<string, PartialMessages> = {
     }
   },
   vi: {
+    common: {
+      close: 'Đóng',
+      clear: 'Xóa',
+      open: 'Mở',
+      remove: 'Gỡ bỏ',
+      removeNamed: 'Gỡ bỏ {label}',
+      loading: 'Đang tải'
+    },
+    textField: { showPassword: 'Hiện mật khẩu', hidePassword: 'Ẩn mật khẩu' },
+    empty: { title: 'Không có gì ở đây' },
     picker: {
       previousMonth: 'Tháng trước',
       nextMonth: 'Tháng sau',
@@ -1079,6 +1323,16 @@ const translations: Record<string, PartialMessages> = {
     }
   },
   th: {
+    common: {
+      close: 'ปิด',
+      clear: 'ล้าง',
+      open: 'เปิด',
+      remove: 'ลบ',
+      removeNamed: 'ลบ {label}',
+      loading: 'กำลังโหลด'
+    },
+    textField: { showPassword: 'แสดงรหัสผ่าน', hidePassword: 'ซ่อนรหัสผ่าน' },
+    empty: { title: 'ไม่มีอะไรที่นี่' },
     picker: {
       previousMonth: 'เดือนก่อนหน้า',
       nextMonth: 'เดือนถัดไป',
@@ -1211,8 +1465,19 @@ export function resolveMessages(locale?: string): MPMessages {
     .map((candidate) => translations[candidate] ?? translations[aliases[candidate] ?? ''])
     .find(Boolean);
 
+  /*
+   * Merged a namespace at a time, so a language that has one and not another
+   * keeps English for the rest rather than losing both.
+   *
+   * Every namespace in `MPMessages` has to appear here — the type is what
+   * enforces it, and it is the reason adding one is a compile error until it is
+   * wired rather than a namespace that silently resolves to nothing.
+   */
   const messages: MPMessages = match
     ? {
+        common: { ...base.common, ...match.common },
+        textField: { ...base.textField, ...match.textField },
+        empty: { ...base.empty, ...match.empty },
         picker: { ...base.picker, ...match.picker },
         alert: { ...base.alert, ...match.alert },
         chat: { ...base.chat, ...match.chat },

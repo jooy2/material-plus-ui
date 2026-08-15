@@ -4,6 +4,7 @@ import { MPIcon } from '../icon/MPIcon';
 import { SpinnerIcon } from '../../constants/icons';
 import { accentSlots } from '../../internal/accent';
 import { MPButtonGroupContext } from '../../internal/button-group';
+import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { MPStateLayer } from '../../internal/StateLayer';
 import {
   CONTROL_GAP,
@@ -90,10 +91,15 @@ export interface MPButtonProps
    */
   loading?: boolean;
   /**
-   * The accessible name of the spinner, announced while `loading`.
-   * @default 'Loading'
+   * The accessible name of the spinner, announced while `loading`. Defaults to
+   * the word for "loading" in `locale`.
    */
   loadingLabel?: string;
+  /**
+   * Which language the spinner's default name is written in. Falls back to the
+   * nearest `MPLocaleProvider`, then to English.
+   */
+  locale?: string;
   /**
    * `button`, not `submit`. A native button defaults to submitting the form
    * around it, which turns every unrelated button inside a form into one that
@@ -139,7 +145,8 @@ export const MPButton = React.forwardRef<HTMLButtonElement, MPButtonProps>(funct
     startIcon,
     endIcon,
     loading = false,
-    loadingLabel = 'Loading',
+    loadingLabel,
+    locale: localeProp,
     fullWidth = false,
     type = 'button',
     className,
@@ -153,6 +160,8 @@ export const MPButton = React.forwardRef<HTMLButtonElement, MPButtonProps>(funct
   // A group sets these once for the whole run. The button's own prop still wins —
   // a row of secondary actions with one destructive button in it is a real thing
   // — and with no group around it the defaults are what they always were.
+  const locale = useMPLocale(localeProp);
+  const messages = useMPMessages('common', locale);
   const group = React.useContext(MPButtonGroupContext);
   const variant = variantProp ?? group?.variant ?? 'filled';
   const size: MPSize = sizeProp ?? group?.size ?? 'md';
@@ -226,7 +235,7 @@ export const MPButton = React.forwardRef<HTMLButtonElement, MPButtonProps>(funct
         <MPIcon
           icon={SpinnerIcon}
           size={CONTROL_ICON[size]}
-          label={loadingLabel}
+          label={loadingLabel ?? messages.loading}
           className="animate-spin"
         />
       ) : (

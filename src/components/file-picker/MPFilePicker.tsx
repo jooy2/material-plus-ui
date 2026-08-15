@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { MPIcon } from '../icon/MPIcon';
 import { CloseIcon, UploadIcon } from '../../constants/icons';
+import { fillMessage } from '../../internal/i18n';
+import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { CONTROL_ICON, META_TEXT, PROSE_TEXT, STACK_GAP, hasContent } from '../../internal/scale';
 import type { MPSize, MPStyleProps } from '../../types';
@@ -128,8 +130,18 @@ export interface MPFilePickerProps extends MPStyleProps {
   icon?: React.ReactNode;
   /** Lists the chosen files under the box, each with a way to remove it. @default true */
   showList?: boolean;
-  /** The accessible name of a file's remove button. Receives the file's name. */
+  /**
+   * The accessible name of a file's remove button. Receives the file's name.
+   *
+   * Left out, each button is still named for its own file — in `locale`'s own
+   * word order — rather than being one of five buttons all called "Remove".
+   */
   removeLabel?: (name: string) => string;
+  /**
+   * Which language the remove buttons' default names are written in. Falls back
+   * to the nearest `MPLocaleProvider`, then to English.
+   */
+  locale?: string;
   /** Marks the field required. */
   required?: boolean;
   /** Greys the picker out and stops it taking files. */
@@ -187,7 +199,8 @@ export const MPFilePicker = React.forwardRef<HTMLInputElement, MPFilePickerProps
       hint,
       icon,
       showList = true,
-      removeLabel = (name) => `Remove ${name}`,
+      removeLabel,
+      locale: localeProp,
       size = 'md',
       fullWidth = true,
       required = false,
@@ -198,6 +211,8 @@ export const MPFilePicker = React.forwardRef<HTMLInputElement, MPFilePickerProps
     },
     ref
   ) {
+    const locale = useMPLocale(localeProp);
+    const messages = useMPMessages('common', locale);
     const inputRef = React.useRef<HTMLInputElement>(null);
     React.useImperativeHandle(ref, () => inputRef.current as HTMLInputElement);
 
@@ -472,7 +487,11 @@ export const MPFilePicker = React.forwardRef<HTMLInputElement, MPFilePickerProps
                 {inert ? null : (
                   <button
                     type="button"
-                    aria-label={removeLabel(file.name)}
+                    aria-label={
+                      removeLabel
+                        ? removeLabel(file.name)
+                        : fillMessage(messages.removeNamed, { label: file.name })
+                    }
                     className={[
                       'group text-mp-on-surface-variant relative flex size-8 shrink-0',
                       'cursor-pointer appearance-none items-center justify-center rounded-full',

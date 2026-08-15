@@ -97,6 +97,24 @@ That order is what makes a partial answer possible. Supplying one word does not 
 
 `MPAlert` takes `closeLabel` for the same reason, which is the same thing with one string.
 
+### The words that are not any one component's
+
+A handful of them are shared rather than owned: the × on a dialog, a drawer, a popover and a snackbar is _close_ four times over, and the same is true of the clear and open adornments on a combobox, the remove button on a chip and on a file, and the spinner inside a loading button.
+
+They come from one namespace, so a translation cannot disagree with itself about them, and every one of those components takes `locale` plus its own override prop:
+
+```tsx
+<MPLocaleProvider locale="ko">
+  <MPDialog showClose /> {/* 닫기 */}
+  <MPChip onDelete={remove} /> {/* 제거 */}
+  <MPButton loading /> {/* 불러오는 중 */}
+</MPLocaleProvider>
+```
+
+A button that removes something is named for **what** it removes — `report.pdf 제거` in Korean, `Remove report.pdf` in English — because a row of five buttons all called "Remove" is a row a screen reader cannot tell apart, and because where the name goes is not the same in every language.
+
+Two of these are worth calling out. `MPTextField`'s reveal toggle is the only string in the library that once had no override at all. And `MPEmpty`'s headline is the only invented string that is **drawn** rather than read out, so a Korean page with an empty list used to say "Nothing here" in the middle of it.
+
 ## What it does not translate
 
 Anything you handed the component. A button says whatever it was given, a dialog's title is yours, an alert's message is yours. This library never puts a translation layer between a caller and their own content — the strings above exist only because those components had nowhere to take a word from.

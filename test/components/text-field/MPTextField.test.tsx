@@ -327,7 +327,7 @@ describe('MPTextField', () => {
         'password'
       );
       await expect
-        .element(screen.getByRole('button', { name: 'display the password' }))
+        .element(screen.getByRole('button', { name: 'Show the password' }))
         .toBeInTheDocument();
     });
 
@@ -335,11 +335,11 @@ describe('MPTextField', () => {
       const screen = await render(<MPTextField value="hunter2" type="password" label="Password" />);
       const input = screen.getByLabelText('Password', { exact: true }).element();
 
-      await screen.getByRole('button', { name: 'display the password' }).click();
+      await screen.getByRole('button', { name: 'Show the password' }).click();
 
       expect(input).toHaveAttribute('type', 'text');
 
-      await screen.getByRole('button', { name: 'hide the password' }).click();
+      await screen.getByRole('button', { name: 'Hide the password' }).click();
 
       expect(input).toHaveAttribute('type', 'password');
     });
@@ -353,7 +353,7 @@ describe('MPTextField', () => {
       input.focus();
       input.setSelectionRange(3, 3);
 
-      await screen.getByRole('button', { name: 'display the password' }).click();
+      await screen.getByRole('button', { name: 'Show the password' }).click();
 
       expect(document.activeElement).toBe(input);
     });
@@ -369,7 +369,7 @@ describe('MPTextField', () => {
         <MPTextField value="hunter2" type="password" label="Password" disabled />
       );
 
-      expect(screen.getByRole('button', { name: 'display the password' }).element()).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Show the password' }).element()).toBeDisabled();
     });
   });
 

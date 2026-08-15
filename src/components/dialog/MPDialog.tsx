@@ -3,6 +3,7 @@ import { Dialog } from '@base-ui/react/dialog';
 import { MPIcon } from '../icon/MPIcon';
 import { CloseIcon } from '../../constants/icons';
 import { accentSlots } from '../../internal/accent';
+import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { SHEET_GAP, hasContent } from '../../internal/scale';
 import { FADE, PORTAL_LAYER, SCRIM } from '../../internal/surface';
@@ -61,10 +62,15 @@ export interface MPDialogProps {
    */
   showClose?: boolean;
   /**
-   * Accessible name of the × button.
-   * @default 'Close'
+   * Accessible name of the × button. Defaults to the word for "close" in
+   * `locale`.
    */
   closeLabel?: string;
+  /**
+   * Which language the × button's default name is written in. Falls back to the
+   * nearest `MPLocaleProvider`, then to English.
+   */
+  locale?: string;
   /**
    * A hard cap on the sheet's width, overriding the one `size` implies. Numbers
    * are pixels. For the dialog whose *content* decides its width — a wide table,
@@ -261,7 +267,8 @@ export function MPDialog({
   actions,
   dividers = false,
   showClose,
-  closeLabel = 'Close',
+  closeLabel,
+  locale: localeProp,
   width,
   fullWidth = true,
   fullScreen = false,
@@ -273,6 +280,8 @@ export function MPDialog({
   style,
   children
 }: MPDialogProps) {
+  const locale = useMPLocale(localeProp);
+  const messages = useMPMessages('common', locale);
   const withClose = showClose ?? fullScreen;
   const hasIcon = hasContent(icon);
   const hasHeader = hasContent(title) || hasContent(description) || hasIcon;
@@ -374,7 +383,7 @@ export function MPDialog({
 
                 {withClose ? (
                   <Dialog.Close
-                    aria-label={closeLabel}
+                    aria-label={closeLabel ?? messages.close}
                     className={[
                       'group text-mp-on-surface-variant relative flex size-10 shrink-0',
                       'rounded-mp-full cursor-pointer items-center justify-center',

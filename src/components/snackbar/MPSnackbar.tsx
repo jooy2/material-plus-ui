@@ -3,6 +3,7 @@ import { Toast } from '@base-ui/react/toast';
 import { MPIcon } from '../icon/MPIcon';
 import { CloseIcon } from '../../constants/icons';
 import { accentSlots } from '../../internal/accent';
+import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { FADE, PORTAL_LAYER } from '../../internal/surface';
 import type { MPAlign, MPColor, MPSize } from '../../types';
@@ -124,10 +125,15 @@ export interface MPSnackbarProviderProps {
    */
   showClose?: boolean;
   /**
-   * Accessible name of every snackbar's × button.
-   * @default 'Close'
+   * Accessible name of every snackbar's × button. Defaults to the word for
+   * "close" in `locale`.
    */
   closeLabel?: string;
+  /**
+   * Which language the × button's default name is written in. Falls back to the
+   * nearest `MPLocaleProvider`, then to English.
+   */
+  locale?: string;
   children?: React.ReactNode;
 }
 
@@ -445,9 +451,13 @@ export function MPSnackbarProvider({
   width = 600,
   size = 'md',
   showClose = true,
-  closeLabel = 'Close',
+  closeLabel,
+  locale: localeProp,
   children
 }: MPSnackbarProviderProps) {
+  const locale = useMPLocale(localeProp);
+  const messages = useMPMessages('common', locale);
+
   return (
     <Toast.Provider timeout={timeout} limit={limit}>
       {children}
@@ -457,7 +467,7 @@ export function MPSnackbarProvider({
         color={color}
         size={size}
         showClose={showClose}
-        closeLabel={closeLabel}
+        closeLabel={closeLabel ?? messages.close}
       />
     </Toast.Provider>
   );

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
+import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { hasContent, PROSE_TEXT, SHEET_GAP, SHEET_PAD_X, SHEET_TITLE } from '../../internal/scale';
 import { CONTAINER_SURFACE } from '../../internal/surface';
 import type { MPSize, MPVariant } from '../../types';
@@ -9,10 +10,20 @@ export interface MPEmptyProps extends Omit<
   'color' | 'title'
 > {
   /**
-   * The headline. Defaults to `Nothing here`; pass `false` for a state that is a
-   * glyph and a sentence with no heading over them.
+   * The headline. Defaults to the words for "nothing here" in `locale`; pass
+   * `false` for a state that is a glyph and a sentence with no heading over
+   * them.
    */
   title?: React.ReactNode | false;
+  /**
+   * Which language that default headline is written in. Falls back to the
+   * nearest `MPLocaleProvider`, then to English.
+   *
+   * It matters more here than anywhere else in the library: this is the one
+   * invented string that is **drawn** rather than only read out, so a page in
+   * Korean with an empty list used to say "Nothing here" in the middle of it.
+   */
+  locale?: string;
   /**
    * The glyph above the headline. Defaults to the empty tray; pass `false` to
    * drop it, or a node — an illustration, a brand mark, an icon from any set —
@@ -142,6 +153,7 @@ export const MPEmpty = React.forwardRef<HTMLDivElement, MPEmptyProps>(function M
     title,
     icon,
     action,
+    locale: localeProp,
     render,
     className,
     style,
@@ -150,7 +162,9 @@ export const MPEmpty = React.forwardRef<HTMLDivElement, MPEmptyProps>(function M
   },
   ref
 ) {
-  const heading = title === undefined ? 'Nothing here' : title;
+  const locale = useMPLocale(localeProp);
+  const messages = useMPMessages('empty', locale);
+  const heading = title === undefined ? messages.title : title;
   const glyph = icon === undefined ? <TrayIcon /> : icon;
   const titled = hasContent(heading);
 

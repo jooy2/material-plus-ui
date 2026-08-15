@@ -3,6 +3,8 @@ import { Field } from '@base-ui/react/field';
 import { MPIcon } from '../icon/MPIcon';
 import { MPFieldLabel, MPFieldOutline } from '../../internal/FieldOutline';
 import { VisibilityIcon, VisibilityOffIcon } from '../../constants/icons';
+import { useMPLocale, useMPMessages } from '../../internal/locale';
+import type { MPMessages } from '../../internal/i18n';
 import type { MPSize, MPStyleProps } from '../../types';
 
 /** The input modes this field is built for. */
@@ -116,6 +118,17 @@ export interface MPTextFieldProps extends MPStyleProps {
    */
   id?: string;
   /**
+   * Which language the reveal toggle's name is written in. Falls back to the
+   * nearest `MPLocaleProvider`, then to English.
+   *
+   * It is the only text a text field invents — everything else in it is yours —
+   * and until it was in the table it was the one string in the library with no
+   * way at all to change it.
+   */
+  locale?: string;
+  /** Overrides the two words the reveal toggle is announced by. */
+  passwordLabels?: Partial<MPMessages['textField']>;
+  /**
    * Called with the field's text on every change, including each keystroke of
    * an in-progress composition. The field shows what was actually typed until
    * the composition ends, so a parent is free to normalise, truncate or reject
@@ -226,10 +239,14 @@ export const MPTextField = React.forwardRef<
     maxLength,
     startIcon,
     resizable = false,
-    id
+    id,
+    locale: localeProp,
+    passwordLabels
   },
   ref
 ) {
+  const locale = useMPLocale(localeProp);
+  const messages = useMPMessages('textField', locale, passwordLabels);
   const inputRef = React.useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
   const [showPassword, setShowPassword] = React.useState(false);
   const [isComposing, setIsComposing] = React.useState(false);
@@ -417,7 +434,7 @@ export const MPTextField = React.forwardRef<
         {type === 'password' && !multiline ? (
           <button
             type="button"
-            aria-label={showPassword ? 'hide the password' : 'display the password'}
+            aria-label={showPassword ? messages.hidePassword : messages.showPassword}
             onClick={handleClickShowPassword}
             onMouseDown={handleMouseEventPassword}
             onMouseUp={handleMouseEventPassword}

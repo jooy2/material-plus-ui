@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Dialog } from '@base-ui/react/dialog';
 import { MPIcon } from '../icon/MPIcon';
 import { CloseIcon } from '../../constants/icons';
+import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { MPStateLayer } from '../../internal/StateLayer';
 import {
   hasContent,
@@ -95,10 +96,15 @@ export interface MPDrawerProps {
    */
   showClose?: boolean;
   /**
-   * Accessible name of the × button.
-   * @default 'Close'
+   * Accessible name of the × button. Defaults to the word for "close" in
+   * `locale`.
    */
   closeLabel?: string;
+  /**
+   * Which language the × button's default name is written in. Falls back to the
+   * nearest `MPLocaleProvider`, then to English.
+   */
+  locale?: string;
   /**
    * How far the panel reaches in from its edge: a **width** for `left` and
    * `right`, a **height** for `top` and `bottom`. Numbers are pixels.
@@ -249,7 +255,8 @@ export function MPDrawer({
   actions,
   dividers = false,
   showClose,
-  closeLabel = 'Close',
+  closeLabel,
+  locale: localeProp,
   extent,
   rounded = true,
   dismissible = true,
@@ -258,9 +265,12 @@ export function MPDrawer({
   style,
   children
 }: MPDrawerProps) {
+  const locale = useMPLocale(localeProp);
+  const messages = useMPMessages('common', locale);
   const modal = mode === 'modal';
   const along = side === 'left' || side === 'right';
   const withClose = showClose ?? modal;
+  const closeName = closeLabel ?? messages.close;
 
   /*
    * The standard panel's own open state.
@@ -349,14 +359,14 @@ export function MPDrawer({
 
           {withClose ? (
             modal ? (
-              <Dialog.Close aria-label={closeLabel} className={closeButton}>
+              <Dialog.Close aria-label={closeName} className={closeButton}>
                 <MPStateLayer />
                 <MPIcon icon={CloseIcon} size={20} />
               </Dialog.Close>
             ) : (
               <button
                 type="button"
-                aria-label={closeLabel}
+                aria-label={closeName}
                 className={closeButton}
                 onClick={closeStandard}
               >

@@ -2,6 +2,7 @@ import * as React from 'react';
 import { MPIcon } from '../icon/MPIcon';
 import { CloseIcon } from '../../constants/icons';
 import { accentSlots } from '../../internal/accent';
+import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { hasContent } from '../../internal/scale';
 import { MPStateLayer } from '../../internal/StateLayer';
 import type { MPColor, MPSize, MPVariant } from '../../types';
@@ -37,10 +38,15 @@ export interface MPChipProps extends Omit<React.ComponentPropsWithoutRef<'span'>
    */
   onDelete?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   /**
-   * Accessible name of the delete button.
-   * @default 'Remove'
+   * Accessible name of the delete button. Defaults to the word for "remove" in
+   * `locale`.
    */
   deleteLabel?: string;
+  /**
+   * Which language the delete button's default name is written in. Falls back
+   * to the nearest `MPLocaleProvider`, then to English.
+   */
+  locale?: string;
   /**
    * Marks the chip as chosen — a filter that is on.
    *
@@ -235,7 +241,8 @@ export const MPChip = React.forwardRef<HTMLSpanElement, MPChipProps>(function MP
     endIcon,
     count,
     onDelete,
-    deleteLabel = 'Remove',
+    deleteLabel,
+    locale: localeProp,
     selected,
     disabled = false,
     className,
@@ -246,6 +253,8 @@ export const MPChip = React.forwardRef<HTMLSpanElement, MPChipProps>(function MP
   },
   ref
 ) {
+  const locale = useMPLocale(localeProp);
+  const messages = useMPMessages('common', locale);
   const interactive = Boolean(onClick) && !disabled;
 
   const shellClasses = [
@@ -325,7 +334,7 @@ export const MPChip = React.forwardRef<HTMLSpanElement, MPChipProps>(function MP
       {onDelete ? (
         <button
           type="button"
-          aria-label={deleteLabel}
+          aria-label={deleteLabel ?? messages.remove}
           disabled={disabled}
           className={REMOVE}
           onClick={onDelete}

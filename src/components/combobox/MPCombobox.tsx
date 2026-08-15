@@ -5,6 +5,8 @@ import { MPChip } from '../chip/MPChip';
 import { MPIcon } from '../icon/MPIcon';
 import { AddIcon, CheckIcon, ChevronDownIcon, CloseIcon } from '../../constants/icons';
 import { MPFieldLabel, MPFieldOutline } from '../../internal/FieldOutline';
+import { fillMessage } from '../../internal/i18n';
+import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { MPSupportingText } from '../../internal/SupportingText';
 import { CONTROL_ICON, PROSE_TEXT, hasContent } from '../../internal/scale';
@@ -117,8 +119,16 @@ export interface MPComboboxProps<
   /** Whether the popup starts open. */
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
-  /** Accessible name of the clear button. @default 'Clear' */
+  /**
+   * Accessible name of the clear button. Defaults to the word for "clear" in
+   * `locale`.
+   */
   clearLabel?: string;
+  /**
+   * Which language the two adornments' default names are written in. Falls back
+   * to the nearest `MPLocaleProvider`, then to English.
+   */
+  locale?: string;
   /**
    * Accessible name of the chevron that opens the list, **for a combobox with no
    * `label`**.
@@ -128,10 +138,16 @@ export interface MPComboboxProps<
    * a button called "Fruit" beside a field called "Fruit" is the button that
    * opens that field. This is the fallback for the unlabelled case, where the
    * chevron would otherwise be a button with a glyph in it and no name at all.
-   * @default 'Open'
+   *
+   * Defaults to the word for "open" in `locale`.
    */
   openLabel?: string;
-  /** Accessible name of a chip's remove button. Receives the chip's label. */
+  /**
+   * Accessible name of a chip's remove button. Receives the chip's label.
+   *
+   * Left out, the chip is still named — "Remove Seoul" in `locale`'s own word
+   * order — rather than being one of five buttons all called "Remove".
+   */
   removeLabel?: (label: string) => string;
   /** A ref to the text input the reader types into. */
   inputRef?: React.Ref<HTMLInputElement>;
@@ -251,14 +267,17 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
   open,
   defaultOpen,
   onOpenChange,
-  clearLabel = 'Clear',
-  openLabel = 'Open',
-  removeLabel = (chip) => `Remove ${chip}`,
+  clearLabel,
+  openLabel,
+  locale: localeProp,
+  removeLabel,
   inputRef,
   id,
   className,
   style
 }: MPComboboxProps<Multiple>) {
+  const locale = useMPLocale(localeProp);
+  const messages = useMPMessages('common', locale);
   const invalid = hasContent(errorMessage);
   const isMultiple = multiple === true;
   const scale = FIELD[size];
@@ -461,7 +480,17 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
                               endIcon={
                                 readOnly || disabled ? null : (
                                   <Combobox.ChipRemove
-                                    aria-label={removeLabel(entry.label)}
+                                    aria-label={
+                                      // Named for the chip it removes rather
+                                      // than being one of five buttons all
+                                      // called "Remove" — which is a row a
+                                      // screen reader cannot tell apart.
+                                      removeLabel
+                                        ? removeLabel(entry.label)
+                                        : fillMessage(messages.removeNamed, {
+                                            label: entry.label
+                                          })
+                                    }
                                     className="flex cursor-pointer items-center opacity-70 hover:opacity-100"
                                   >
                                     <MPIcon icon={CloseIcon} size={16} />
@@ -484,13 +513,13 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
             )}
 
             {clearable && !readOnly ? (
-              <Combobox.Clear aria-label={clearLabel} className={adornment}>
+              <Combobox.Clear aria-label={clearLabel ?? messages.clear} className={adornment}>
                 <MPStateLayer />
                 <MPIcon icon={CloseIcon} size={CONTROL_ICON[size]} />
               </Combobox.Clear>
             ) : null}
 
-            <Combobox.Trigger aria-label={openLabel} className={adornment}>
+            <Combobox.Trigger aria-label={openLabel ?? messages.open} className={adornment}>
               <MPStateLayer />
               <Combobox.Icon
                 className={[

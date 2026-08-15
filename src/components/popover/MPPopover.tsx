@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
 import { MPIcon } from '../icon/MPIcon';
 import { CloseIcon } from '../../constants/icons';
+import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { MPStateLayer } from '../../internal/StateLayer';
 import {
   hasContent,
@@ -94,10 +95,15 @@ export interface MPPopoverProps {
    */
   showClose?: boolean;
   /**
-   * Accessible name of the × button.
-   * @default 'Close'
+   * Accessible name of the × button. Defaults to the word for "close" in
+   * `locale`.
    */
   closeLabel?: string;
+  /**
+   * Which language the × button's default name is written in. Falls back to the
+   * nearest `MPLocaleProvider`, then to English.
+   */
+  locale?: string;
   /**
    * A hard cap on the popup's width, overriding the one `size` implies. Numbers
    * are pixels. For the popover whose *content* decides its width — a form, a
@@ -191,13 +197,16 @@ export function MPPopover({
   modal = false,
   dismissible = true,
   showClose = false,
-  closeLabel = 'Close',
+  closeLabel,
+  locale: localeProp,
   width,
   size = 'md',
   className,
   style,
   children
 }: MPPopoverProps) {
+  const locale = useMPLocale(localeProp);
+  const messages = useMPMessages('common', locale);
   const hasHeader = hasContent(title) || hasContent(description);
   const arrowSize = ARROW_SIZE[size];
 
@@ -301,7 +310,7 @@ export function MPPopover({
 
                 {showClose ? (
                   <Popover.Close
-                    aria-label={closeLabel}
+                    aria-label={closeLabel ?? messages.close}
                     className={[
                       'group text-mp-on-surface-variant relative flex size-8 shrink-0',
                       'rounded-mp-full -m-1 cursor-pointer items-center justify-center',
