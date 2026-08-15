@@ -4511,6 +4511,54 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPContainer: [
+    {
+      name: 'maxWidth',
+      type: `${SIZE} | 'none'`,
+      default: "'none'",
+      description: {
+        ko: "내용이 넓어질 수 있는 한계. MD3의 윈도우 크기 클래스 경계에 맞춘 사다리입니다 — `sm` 600dp, `md` 840dp, `lg` 1200dp, `xl` 1600dp, `xs` 480dp. 기본값 `'none'`은 제한 없음이며, 컨테이너의 일은 여백이고 본문 폭은 따로 요청해야 하는 두 번째 결정이기 때문입니다",
+        en: "How wide the content may get, on a ladder pinned to MD3's window size class boundaries — `sm` 600dp, `md` 840dp, `lg` 1200dp, `xl` 1600dp, `xs` 480dp. `'none'`, the default, is no limit: a container's job is the margin, and a measure is a second decision a page should have to ask for"
+      }
+    },
+    {
+      ...padded,
+      description: {
+        ko: '페이지 여백. 끄면 중앙 정렬과 본문 폭은 그대로 두고 여백만 없앱니다 — 전체 폭 히어로, 스스로 여백을 갖는 구획',
+        en: 'The page margin. Turn it off to keep the centring and the measure without the gutter — a full-bleed hero, a section that pads itself'
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '여백의 단계. `md`는 16dp로 MD3 자신의 compact 여백이고, 명세가 medium 윈도우부터 넓히는 24dp는 여기서 `size="lg"`입니다. [MPBox](./box)에서처럼 높이도 타입 스케일도 정하지 않으며, `maxWidth`와는 독립적입니다',
+        en: 'The margin\'s rung. `md` is 16dp, MD3\'s own compact margin; the 24dp the specification uses from a medium window up is `size="lg"` here. As on [MPBox](./box) it sets no height and no type scale, and it is independent of `maxWidth`'
+      }
+    },
+    {
+      name: 'centered',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '`maxWidth`가 페이지보다 좁아진 뒤 내용을 가운데로 놓습니다. `maxWidth`가 `none`인 동안에는 가운데로 놓을 여백 자체가 없으므로 아무 효과도 없습니다',
+        en: 'Centres the content once `maxWidth` is narrower than the page. No effect while `maxWidth` is `none`, because there is nothing left over to centre in'
+      }
+    },
+    {
+      name: 'render',
+      type: 'RenderProp',
+      description: {
+        ko: '`<div>` 대신 다른 엘리먼트로 렌더링합니다 — `render={<main />}`, `render={<section />}`. Base UI 자신의 탈출구입니다',
+        en: "Renders something other than a `<div>`: `render={<main />}`, `render={<section />}`. Base UI's own escape hatch"
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '페이지 내용', en: "The page's content" }
+    }
+  ],
+
   MPGridItem: [
     {
       name: 'span',

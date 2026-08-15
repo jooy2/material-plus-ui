@@ -21,6 +21,7 @@ import {
   MPCollapsible,
   MPColorPicker,
   MPCombobox,
+  MPContainer,
   MPDatePicker,
   MPDateRangePicker,
   MPDateTimePicker,
@@ -1193,6 +1194,28 @@ const GROUPS: Group[] = [
               </MPBox>
             </div>
           </Fit>
+        )
+      },
+      {
+        name: 'MPContainer',
+        summary: {
+          ko: '페이지 여백, 그리고 필요하다면 본문 폭',
+          en: 'The page margin, and optionally a measure'
+        },
+        path: '/components/layout/container',
+        preview: (
+          <div
+            style={{
+              width: '100%',
+              outline: '1px dashed var(--mp-sys-color-outline-variant)'
+            }}
+          >
+            <MPContainer maxWidth="xs" size="sm">
+              <div className="bg-mp-surface-container-highest text-mp-on-surface-variant text-mp-label-small rounded-mp-xs flex h-12 items-center justify-center">
+                maxWidth=&quot;xs&quot;
+              </div>
+            </MPContainer>
+          </div>
         )
       },
       {

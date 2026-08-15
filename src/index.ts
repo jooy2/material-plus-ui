@@ -18,6 +18,7 @@ export * from './components/chip';
 export * from './components/collapsible';
 export * from './components/color-picker';
 export * from './components/combobox';
+export * from './components/container';
 export * from './components/date-picker';
 export * from './components/date-range-picker';
 export * from './components/date-time-picker';
