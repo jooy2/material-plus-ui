@@ -210,6 +210,7 @@ export const MPFilePicker = React.forwardRef<HTMLInputElement, MPFilePickerProps
     const invalid = hasContent(errorMessage);
     const inert = disabled || readOnly;
     const describedById = React.useId();
+    const labelId = React.useId();
 
     const commit = React.useCallback(
       (next: File[]) => {
@@ -287,6 +288,7 @@ export const MPFilePicker = React.forwardRef<HTMLInputElement, MPFilePickerProps
       >
         {hasContent(label) ? (
           <span
+            id={labelId}
             className={[
               META_TEXT,
               disabled
@@ -411,6 +413,18 @@ export const MPFilePicker = React.forwardRef<HTMLInputElement, MPFilePickerProps
            * and `visibility: hidden` both make an input unfocusable, and this one
            * still has to be reachable by a form and by a `required` validation
            * message.
+           *
+           * `tabIndex={-1}` keeps it out of the tab order — the zone above is
+           * what a reader tabs to — but it is deliberately **not** `aria-hidden`.
+           * The two cannot both be true: a `required` field that is empty is one
+           * the browser focuses to hang its validation bubble off, and focusing
+           * an element that has been taken out of the accessibility tree moves a
+           * screen reader to somewhere it has been told does not exist. The
+           * message is then delivered to nobody.
+           *
+           * So it carries the field's own name instead. The cost is one more
+           * node a reader can meet while browsing, which is what a bare
+           * `<input type="file">` would have presented anyway.
            */}
           <input
             ref={inputRef}
@@ -421,7 +435,8 @@ export const MPFilePicker = React.forwardRef<HTMLInputElement, MPFilePickerProps
             required={required && files.length === 0}
             disabled={inert}
             tabIndex={-1}
-            aria-hidden="true"
+            aria-labelledby={hasContent(label) ? labelId : undefined}
+            aria-describedby={hasContent(description) || invalid ? describedById : undefined}
             className="absolute size-px overflow-hidden opacity-0 [clip-path:inset(50%)]"
             onChange={(event) => add(Array.from(event.target.files ?? []))}
           />

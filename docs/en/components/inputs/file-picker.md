@@ -73,6 +73,7 @@ Shows what was chosen without allowing it to be added to or removed from. The re
 
 - The pressable area is a real `<button>`, and the file list sits **outside** it — the remove buttons cannot be nested inside the browse button.
 - The real `<input type="file">` is kept off-screen rather than hidden. `display: none` and `visibility: hidden` both make an input unfocusable, and this one still has to be reachable by a form and by a `required` validation message.
+- That input is out of the tab order but **not** `aria-hidden`, and the two facts belong together: an empty `required` field is one the browser focuses to hang its validation bubble off, and focusing an element that has been taken out of the accessibility tree delivers that message to nobody. It carries the field's own name instead.
 - The description or the error is wired to the button by `aria-describedby`.
 - `removeLabel` receives the file's name, so each remove button is named for the file it removes rather than being one of five buttons all called "Remove".
 

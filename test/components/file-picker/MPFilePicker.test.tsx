@@ -114,6 +114,42 @@ describe('MPFilePicker', () => {
       expect(getComputedStyle(input).display).not.toBe('none');
     });
 
+    it('names the reachable input rather than hiding it from the tree', async () => {
+      /*
+       * The two cannot both be true. A `required` field that is empty is one the
+       * browser focuses to hang its validation bubble off, and focusing an
+       * element that has been taken out of the accessibility tree moves a screen
+       * reader somewhere it has been told does not exist — so the message is
+       * delivered to nobody.
+       */
+      const screen = await render(<MPFilePicker label="Attachments" name="files" required />);
+      const input = fileInput();
+
+      expect(input).not.toHaveAttribute('aria-hidden');
+      // Out of the tab order all the same: the zone above is what a reader tabs
+      // to, and two stops for one control is one too many.
+      expect(input.tabIndex).toBe(-1);
+
+      const labelled = screen.container.querySelector(
+        `#${CSS.escape(input.getAttribute('aria-labelledby')!)}`
+      );
+
+      expect(labelled?.textContent).toContain('Attachments');
+    });
+
+    it('refuses to submit a form while a required picker is empty', async () => {
+      const screen = await render(
+        <form>
+          <MPFilePicker label="Attachments" name="files" required />
+        </form>
+      );
+
+      expect(screen.container.querySelector('form')!.checkValidity()).toBe(false);
+      // And the browser can reach the control to say so.
+      fileInput().focus();
+      expect(document.activeElement).toBe(fileInput());
+    });
+
     it('passes accept and multiple through to the browser’s own dialog', async () => {
       await render(<MPFilePicker label="Attachments" accept="image/*,.pdf" multiple />);
 
