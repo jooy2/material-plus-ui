@@ -88,6 +88,28 @@ Which is the same answer this library gives everywhere else.
 
 `name` identifies the value, `required` stops the form submitting until a star has been chosen, and the browser does both. Without a `name` one is generated, so two ratings on a page never share a radio group by accident.
 
+## structuredData
+
+A score is the other thing a search engine will draw beside a result, and it wants schema.org `Rating` markup to do it.
+
+```tsx
+<div itemScope itemType="https://schema.org/Product">
+  <h2 itemProp="name">A kettle</h2>
+  <MPRating readOnly value={4.3} structuredData itemProp="aggregateRating" />
+  <meta itemProp="ratingCount" content="128" />
+</div>
+```
+
+Three things about that example are the whole of this prop.
+
+It is **`readOnly` only**. A score somebody is still choosing is not a fact about anything, and marking an empty control up as a rating of nought tells a crawler something untrue about the page.
+
+The **`itemProp` is yours**. Microdata is nesting, and this component cannot know what it is nested in — `aggregateRating` on a product, `reviewRating` inside a review, something else entirely. It emits the `Rating` and its values; naming the relationship is the page's job.
+
+The **count is yours too**. `aggregateRating` needs a `ratingCount` or a `reviewCount` beside it before a search engine will draw anything, and that number is not something a row of stars knows.
+
+`worstRating` is written out as `0` rather than left to default to 1, because this control's floor is nought — "1 out of 5" means something different on a scale that starts at 1.
+
 ## Accessibility
 
 - A `radiogroup` named from the locale's word for "Rating", holding one radio per choosable score.

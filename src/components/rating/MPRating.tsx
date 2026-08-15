@@ -108,6 +108,33 @@ export interface MPRatingProps extends Omit<
   locale?: string;
   /** Overrides for the words themselves. They win over the translation. */
   labels?: Partial<MPRatingLabels>;
+  /**
+   * Publishes the score as schema.org `Rating` microdata, which is what a search
+   * engine reads to draw stars beside a result.
+   *
+   * `readOnly` only, and that is the whole of the rule: a score somebody is
+   * still choosing is not a fact about anything, and marking up an empty control
+   * as a rating of nought is telling a crawler something untrue about the page.
+   *
+   * ## It has to be placed inside what it rates
+   *
+   * Microdata is nesting, and this component cannot know what it is nested in —
+   * only the page does. So it emits the `Rating` and its three values, and the
+   * `itemProp` naming the relationship is yours to pass:
+   *
+   * ```tsx
+   * <div itemScope itemType="https://schema.org/Product">
+   *   <h2 itemProp="name">A kettle</h2>
+   *   <MPRating readOnly value={4.3} structuredData itemProp="aggregateRating" />
+   * </div>
+   * ```
+   *
+   * `aggregateRating` also wants a `ratingCount` or a `reviewCount` beside it
+   * before a search engine will draw anything, and that number is the page's
+   * rather than this control's.
+   * @default false
+   */
+  structuredData?: boolean;
 }
 
 /**
@@ -159,6 +186,7 @@ export const MPRating = React.forwardRef<HTMLDivElement, MPRatingProps>(function
     color = 'primary',
     locale: localeProp,
     labels,
+    structuredData = false,
     className,
     style,
     onPointerLeave,
@@ -329,6 +357,8 @@ export const MPRating = React.forwardRef<HTMLDivElement, MPRatingProps>(function
   const styles = { ...accentSlots(color), ...style };
 
   if (readOnly) {
+    const shownValue = Math.max(0, Math.min(stars, value));
+
     return (
       <div
         ref={ref}
@@ -336,12 +366,36 @@ export const MPRating = React.forwardRef<HTMLDivElement, MPRatingProps>(function
         // twenty inputs. What is left here is a picture of a number.
         role="img"
         data-mp-size={size}
-        aria-label={describe(Math.max(0, Math.min(stars, value)))}
+        aria-label={describe(shownValue)}
+        // `itemProp` is deliberately not set here: only the page knows whether
+        // this is an `aggregateRating`, a `reviewRating` or something else, and
+        // it arrives through the rest props below.
+        itemScope={structuredData || undefined}
+        itemType={structuredData ? 'https://schema.org/Rating' : undefined}
         className={classNames}
         style={styles}
         onPointerLeave={onPointerLeave}
         {...props}
       >
+        {/*
+          The three numbers, as `<meta>` rather than as anything drawn: the stars
+          are already the score for a reader who can see them and the label
+          already is for one who cannot, so a fourth telling would be the markup
+          reading itself out.
+
+          `worstRating` is written out rather than left to default. It defaults
+          to 1, and this control's floor is nought — a rating of 1 out of 5 means
+          something different depending on which of the two a reader is assumed
+          to have been offered.
+        */}
+        {structuredData ? (
+          <React.Fragment>
+            <meta itemProp="ratingValue" content={String(shownValue)} />
+            <meta itemProp="bestRating" content={String(stars)} />
+            <meta itemProp="worstRating" content="0" />
+          </React.Fragment>
+        ) : null}
+
         {marks}
       </div>
     );

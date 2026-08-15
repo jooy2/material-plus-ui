@@ -77,6 +77,24 @@ import { MPBreadcrumb, MPBreadcrumbItem } from 'material-plus-ui';
 
 hover 배경은 일부러 사다리 아래쪽의 `corner-extra-small`입니다. 높이 20px짜리 글줄에 `corner-full`은 알약이고, 알약이 늘어선 경로는 필터 칩의 줄입니다.
 
+## structuredData
+
+트레일은 검색 엔진이 결과를 다시 그려 주는 몇 안 되는 것 중 하나입니다. `BreadcrumbList` 마크업이 있으면 제목 아래에 맨 URL 대신 `Docs › Components › Breadcrumb`이 표시됩니다.
+
+```tsx
+<MPBreadcrumb structuredData>
+  <MPBreadcrumbItem href="/">Home</MPBreadcrumbItem>
+  <MPBreadcrumbItem href="/docs">Docs</MPBreadcrumbItem>
+  <MPBreadcrumbItem>Breadcrumb</MPBreadcrumbItem>
+</MPBreadcrumb>
+```
+
+`<ol>`이 `BreadcrumbList`가 되고, 각 `<li>`가 위치를 담은 `<meta>`를 지닌 `ListItem`이 되며, 라벨이 `name`이 되고, `href`는 `<a>`에서 그대로 읽힙니다. 크롤러가 따라가는 주소와 독자가 따라가는 주소가 어긋날 수 없습니다. 지금 보고 있는 단계에는 `item`이 없습니다. 이미 있는 페이지는 갈 곳이 아니기 때문입니다.
+
+**기본값은 꺼짐**이고, 소심해서가 아닙니다. 한 페이지는 트레일을 하나만 주장할 수 있으므로, 묻지 않고 이걸 내보내는 컴포넌트는 사이트가 이미 `<head>`에 둔 JSON-LD와 충돌합니다. 트레일이 둘인 것은 없느니만 못합니다.
+
+이것을 켜면 `maxItems`가 꺼집니다. `BreadcrumbList`의 position은 빠짐없이 1, 2, 3으로 이어져야 하는데 `…` 뒤의 단계들은 문서에 없어 번호를 매길 수 없습니다. 게시할 가치가 있는 트레일이라면 보여 줄 가치도 있습니다.
+
 ## 접근성
 
 - 경로는 `aria-label="Breadcrumb"`을 가진 `<nav>`입니다. 페이지의 다른 세 nav와 구분되는 방법이고, `label`이 그것을 번역합니다.

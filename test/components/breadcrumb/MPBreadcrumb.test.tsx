@@ -181,6 +181,84 @@ describe('MPBreadcrumb', () => {
     });
   });
 
+  describe('structuredData', () => {
+    it('publishes nothing at all unless it is asked to', async () => {
+      // A page may only claim one breadcrumb trail, so a component that emitted
+      // this unasked would collide with the JSON-LD a site already has.
+      const screen = await render(
+        <MPBreadcrumb>
+          <MPBreadcrumbItem href="/">Home</MPBreadcrumbItem>
+          <MPBreadcrumbItem>Docs</MPBreadcrumbItem>
+        </MPBreadcrumb>
+      );
+
+      expect(screen.container.querySelector('[itemtype]')).toBeNull();
+      expect(screen.container.querySelector('meta')).toBeNull();
+    });
+
+    it('marks the list, each step, its name, its link and its position', async () => {
+      const screen = await render(
+        <MPBreadcrumb structuredData>
+          <MPBreadcrumbItem href="/">Home</MPBreadcrumbItem>
+          <MPBreadcrumbItem href="/docs">Docs</MPBreadcrumbItem>
+          <MPBreadcrumbItem>Breadcrumb</MPBreadcrumbItem>
+        </MPBreadcrumb>
+      );
+      const list = screen.container.querySelector('ol')!;
+
+      expect(list).toHaveAttribute('itemtype', 'https://schema.org/BreadcrumbList');
+
+      const steps = list.querySelectorAll('[itemtype="https://schema.org/ListItem"]');
+
+      expect(steps).toHaveLength(3);
+      expect([...steps].map((step) => step.getAttribute('itemprop'))).toEqual(
+        Array(3).fill('itemListElement')
+      );
+
+      // Contiguous and 1-based, which is what `BreadcrumbList` requires.
+      expect(
+        [...steps].map((step) =>
+          step.querySelector('[itemprop="position"]')!.getAttribute('content')
+        )
+      ).toEqual(['1', '2', '3']);
+
+      expect(
+        [...steps].map((step) => step.querySelector('[itemprop="name"]')!.textContent)
+      ).toEqual(['Home', 'Docs', 'Breadcrumb']);
+
+      // The URL is on the `<a>` itself, so what a crawler reads and what a
+      // reader follows cannot disagree.
+      const links = list.querySelectorAll('[itemprop="item"]');
+
+      expect(links).toHaveLength(2);
+      expect(links[0].tagName).toBe('A');
+      // The page you are on is not somewhere to go, so it carries no `item`.
+      expect(steps[2].querySelector('[itemprop="item"]')).toBeNull();
+    });
+
+    it('refuses to fold, because a published trail cannot have gaps', async () => {
+      /*
+       * `BreadcrumbList` positions have to run 1, 2, 3 with nothing missing, and
+       * the steps behind a `…` are not in the document to be numbered. A trail
+       * worth publishing is a trail worth showing.
+       */
+      const screen = await render(
+        <MPBreadcrumb structuredData maxItems={3}>
+          <MPBreadcrumbItem href="/">Home</MPBreadcrumbItem>
+          <MPBreadcrumbItem href="/a">A</MPBreadcrumbItem>
+          <MPBreadcrumbItem href="/b">B</MPBreadcrumbItem>
+          <MPBreadcrumbItem href="/c">C</MPBreadcrumbItem>
+          <MPBreadcrumbItem>D</MPBreadcrumbItem>
+        </MPBreadcrumb>
+      );
+
+      expect(
+        screen.container.querySelectorAll('[itemtype="https://schema.org/ListItem"]')
+      ).toHaveLength(5);
+      expect(screen.getByRole('button', { name: 'Show hidden steps' }).query()).toBeNull();
+    });
+  });
+
   describe('MPBreadcrumbItem', () => {
     it('is a button when it has an onClick and no href', async () => {
       const onClick = vi.fn();

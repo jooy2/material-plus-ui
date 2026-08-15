@@ -88,6 +88,28 @@ MD3는 강조 색 계열을 넷 정의합니다 — `primary`, `secondary`, `ter
 
 `name`이 값을 식별하고 `required`가 별을 고르기 전까지 제출을 막습니다. 둘 다 브라우저가 합니다. `name`이 없으면 하나가 생성되므로, 한 페이지의 별점 두 개가 실수로 같은 라디오 그룹을 공유하는 일은 없습니다.
 
+## structuredData
+
+점수는 검색 엔진이 결과 옆에 그려 주는 또 하나의 것이고, 그러려면 schema.org `Rating` 마크업이 필요합니다.
+
+```tsx
+<div itemScope itemType="https://schema.org/Product">
+  <h2 itemProp="name">주전자</h2>
+  <MPRating readOnly value={4.3} structuredData itemProp="aggregateRating" />
+  <meta itemProp="ratingCount" content="128" />
+</div>
+```
+
+저 예시의 세 가지가 이 prop의 전부입니다.
+
+**`readOnly`일 때만** 동작합니다. 아직 고르는 중인 점수는 무엇에 대한 사실도 아니고, 빈 컨트롤을 0점으로 마크업하는 것은 크롤러에게 페이지에 대해 사실이 아닌 것을 말하는 일입니다.
+
+**`itemProp`은 여러분의 것입니다.** 마이크로데이터는 중첩이고, 이 컴포넌트는 자신이 무엇 안에 있는지 알 수 없습니다. 제품이면 `aggregateRating`, 리뷰 안이면 `reviewRating`, 또 다른 것일 수도 있습니다. 컴포넌트는 `Rating`과 그 값들을 내보내고, 관계를 이름 짓는 것은 페이지의 몫입니다.
+
+**개수도 여러분의 것입니다.** `aggregateRating`은 검색 엔진이 무언가를 그리기 전에 옆에 `ratingCount`나 `reviewCount`를 필요로 하는데, 그 숫자는 별 한 줄이 알 수 있는 것이 아닙니다.
+
+`worstRating`은 기본값 1에 맡기지 않고 `0`으로 적습니다. 이 컨트롤의 바닥이 0이기 때문입니다. 1에서 시작하는 척도에서 "5점 만점에 1점"은 다른 뜻입니다.
+
 ## 접근성
 
 - 로케일이 "별점"이라고 부르는 이름을 가진 `radiogroup`이고, 고를 수 있는 점수마다 라디오가 하나씩 있습니다.

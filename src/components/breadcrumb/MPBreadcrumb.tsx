@@ -21,11 +21,21 @@ interface MPBreadcrumbContextValue {
   size: MPSize;
   /** Whether this is the step the trail ends on. */
   last: boolean;
+  /**
+   * Where this step sits in the trail, 1-based, or `null` when the trail is not
+   * publishing itself.
+   *
+   * Counted against the *whole* trail rather than against what is drawn, so a
+   * folded trail does not renumber the steps either side of the fold — see
+   * `structuredData`.
+   */
+  position: number | null;
 }
 
 const MPBreadcrumbContext = React.createContext<MPBreadcrumbContextValue>({
   size: 'md',
-  last: false
+  last: false,
+  position: null
 });
 
 export interface MPBreadcrumbProps extends Omit<React.ComponentPropsWithoutRef<'nav'>, 'color'> {
@@ -72,6 +82,28 @@ export interface MPBreadcrumbProps extends Omit<React.ComponentPropsWithoutRef<'
    * @default 'Show hidden steps'
    */
   expandLabel?: string;
+  /**
+   * Publishes the trail as schema.org `BreadcrumbList` microdata, which is what
+   * a search engine reads to draw the trail under a result instead of the bare
+   * URL.
+   *
+   * Off by default, and that is not timidity: a page may only claim one
+   * breadcrumb trail, so a component that emitted this unasked would collide
+   * with the JSON-LD a site already has in its `<head>` — and two trails is
+   * worse than none. Turn it on when this component *is* the page's trail.
+   *
+   * What it adds is attributes and `<meta>`; nothing about the drawing, the
+   * layout or the accessibility tree changes.
+   *
+   * ## It does not survive a fold
+   *
+   * `BreadcrumbList` positions have to run 1, 2, 3 with nothing missing, and a
+   * folded trail does not render the steps behind its `…` — so publishing one
+   * would describe a trail that skips from 2 to 6. Turning this on therefore
+   * turns `maxItems` off. A trail worth publishing is a trail worth showing.
+   * @default false
+   */
+  structuredData?: boolean;
   /** The `MPBreadcrumbItem`s. */
   children?: React.ReactNode;
 }
@@ -181,6 +213,7 @@ export const MPBreadcrumb = React.forwardRef<HTMLElement, MPBreadcrumbProps>(fun
     expandable = true,
     label = 'Breadcrumb',
     expandLabel = 'Show hidden steps',
+    structuredData = false,
     className,
     style,
     children,
@@ -205,6 +238,10 @@ export const MPBreadcrumb = React.forwardRef<HTMLElement, MPBreadcrumbProps>(fun
 
   const folding =
     !unfolded &&
+    // A published trail is never folded: `BreadcrumbList` positions have to run
+    // 1, 2, 3 with nothing missing, and the steps behind a `…` are not in the
+    // document to be numbered.
+    !structuredData &&
     maxItems !== undefined &&
     total > Math.max(maxItems, 1) &&
     // A fold has to actually remove something. With `1` before and `1` after on
@@ -234,9 +271,13 @@ export const MPBreadcrumb = React.forwardRef<HTMLElement, MPBreadcrumbProps>(fun
     () =>
       Array.from({ length: shown.length }, (_, index) => ({
         size,
-        last: !claimed && index === shown.length - 1
+        last: !claimed && index === shown.length - 1,
+        // 1-based, because `BreadcrumbList` counts from one. `null` while the
+        // trail is not publishing itself, which is what keeps the attributes off
+        // a trail that did not ask for them.
+        position: structuredData ? index + 1 : null
       })),
-    [size, claimed, shown.length]
+    [size, claimed, shown.length, structuredData]
   );
 
   const foldClassNames = [
@@ -270,6 +311,11 @@ export const MPBreadcrumb = React.forwardRef<HTMLElement, MPBreadcrumbProps>(fun
         // may take the markers off every `<ol>`, and Safari takes the list
         // semantics off with them.
         role="list"
+        // The list is the `BreadcrumbList`; each step is a `ListItem` inside it.
+        // Both are attributes and nothing else — no element, no class, no change
+        // to what is drawn or announced.
+        itemScope={structuredData || undefined}
+        itemType={structuredData ? 'https://schema.org/BreadcrumbList' : undefined}
         className={`flex list-none flex-wrap items-center p-0 ${TRAIL_GAP[size]}`}
       >
         {shown.map((step, index) => (
@@ -325,9 +371,10 @@ export const MPBreadcrumbItem = React.forwardRef<HTMLLIElement, MPBreadcrumbItem
     { href, onClick, startIcon, endIcon, current, disabled = false, className, children, ...props },
     ref
   ) {
-    const { size, last } = React.useContext(MPBreadcrumbContext);
+    const { size, last, position } = React.useContext(MPBreadcrumbContext);
     const isCurrent = current ?? last;
     const interactive = Boolean(href || onClick) && !isCurrent && !disabled;
+    const published = position !== null;
 
     const stepClassNames = [
       'inline-flex min-w-0 items-center px-1 no-underline',
@@ -361,7 +408,12 @@ export const MPBreadcrumbItem = React.forwardRef<HTMLLIElement, MPBreadcrumbItem
         {hasContent(startIcon) ? (
           <span className="flex h-[1lh] shrink-0 items-center">{startIcon}</span>
         ) : null}
-        <span className="truncate">{children}</span>
+        {/* The label is the `ListItem`'s `name`, which is the string a search
+            engine draws. It goes on the span around the words rather than on
+            the step, so an icon beside them is not read as part of the name. */}
+        <span className="truncate" itemProp={published ? 'name' : undefined}>
+          {children}
+        </span>
         {hasContent(endIcon) ? (
           <span className="flex h-[1lh] shrink-0 items-center">{endIcon}</span>
         ) : null}
@@ -371,11 +423,30 @@ export const MPBreadcrumbItem = React.forwardRef<HTMLLIElement, MPBreadcrumbItem
     return (
       <li
         ref={ref}
+        itemProp={published ? 'itemListElement' : undefined}
+        itemScope={published || undefined}
+        itemType={published ? 'https://schema.org/ListItem' : undefined}
         className={['flex min-w-0 items-center', className ?? ''].filter(Boolean).join(' ')}
         {...props}
       >
+        {/*
+          Where this step sits in the trail. A `<meta>` rather than something
+          drawn, because the number is the *order* — the reader can already see
+          that, and a screen reader counting "one, Home, two, Docs" would be
+          reading the markup rather than the trail.
+        */}
+        {published ? <meta itemProp="position" content={String(position)} /> : null}
+
         {interactive && href ? (
-          <a href={href} className={stepClassNames} onClick={onClick}>
+          // `item` is the URL the step goes to. It is on the `<a>` rather than
+          // on a `<link>` of its own, so the address a search engine reads and
+          // the address a reader follows cannot disagree.
+          <a
+            href={href}
+            itemProp={published ? 'item' : undefined}
+            className={stepClassNames}
+            onClick={onClick}
+          >
             {body}
           </a>
         ) : interactive ? (

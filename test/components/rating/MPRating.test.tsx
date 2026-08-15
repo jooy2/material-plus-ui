@@ -206,4 +206,50 @@ describe('MPRating', () => {
     expect(root).toHaveAttribute('data-mp-size', 'sm');
     expect(root).toHaveAttribute('id', 'score');
   });
+
+  describe('structuredData', () => {
+    it('publishes nothing unless it is asked to', async () => {
+      const screen = await render(<MPRating value={4.3} readOnly />);
+
+      expect(screen.container.querySelector('[itemtype]')).toBeNull();
+    });
+
+    it('publishes the score, the ceiling and the floor', async () => {
+      const screen = await render(
+        <MPRating value={4.3} readOnly structuredData itemProp="aggregateRating" />
+      );
+      const root = screen.container.querySelector('.mp-rating')!;
+
+      expect(root).toHaveAttribute('itemtype', 'https://schema.org/Rating');
+      // The relationship is the page's to name, not this component's.
+      expect(root).toHaveAttribute('itemprop', 'aggregateRating');
+
+      const value = (name: string) =>
+        root.querySelector(`[itemprop="${name}"]`)!.getAttribute('content');
+
+      expect(value('ratingValue')).toBe('4.3');
+      expect(value('bestRating')).toBe('5');
+      // Written out rather than left to default to 1: this control's floor is
+      // nought, and "1 out of 5" means something else on a scale that starts
+      // at 1.
+      expect(value('worstRating')).toBe('0');
+    });
+
+    it('says nothing about a score nobody has chosen yet', async () => {
+      // A control somebody is still using is not a fact about anything, and
+      // marking an empty one up as a rating of nought tells a crawler something
+      // untrue about the page.
+      const screen = await render(<MPRating structuredData />);
+
+      expect(screen.container.querySelector('[itemtype]')).toBeNull();
+    });
+
+    it('publishes the ceiling it was actually given', async () => {
+      const screen = await render(<MPRating value={7} count={10} readOnly structuredData />);
+      const root = screen.container.querySelector('.mp-rating')!;
+
+      expect(root.querySelector('[itemprop="bestRating"]')).toHaveAttribute('content', '10');
+      expect(root.querySelector('[itemprop="ratingValue"]')).toHaveAttribute('content', '7');
+    });
+  });
 });

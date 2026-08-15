@@ -2365,6 +2365,15 @@ export const propTables: Record<string, PropRow[]> = {
       type: 'string',
       default: "'Show hidden steps'",
       description: { ko: '`…`가 읽히는 이름', en: 'What the `…` is announced as' }
+    },
+    {
+      name: 'structuredData',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '트레일을 schema.org `BreadcrumbList` 마이크로데이터로 게시합니다. 켜면 `maxItems`가 꺼집니다',
+        en: 'Publishes the trail as schema.org `BreadcrumbList` microdata. Turning it on turns `maxItems` off'
+      }
     }
   ],
 
@@ -4638,6 +4647,15 @@ export const propTables: Record<string, PropRow[]> = {
       description: {
         ko: '단어 자체에 대한 덮어쓰기. 번역보다 우선합니다',
         en: 'Overrides for the words themselves. They win over the translation'
+      }
+    },
+    {
+      name: 'structuredData',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '점수를 schema.org `Rating` 마이크로데이터로 게시합니다. `readOnly`일 때만 동작하며, 관계를 이름 짓는 `itemProp`은 직접 넘겨야 합니다',
+        en: 'Publishes the score as schema.org `Rating` microdata. `readOnly` only, and the `itemProp` naming the relationship is yours to pass'
       }
     }
   ],

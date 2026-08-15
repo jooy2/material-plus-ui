@@ -77,6 +77,24 @@ The caller picks by what they pass:
 
 The hover tint is `corner-extra-small` at the bottom of the ladder, deliberately. `corner-full` on a line of text 20px tall is a pill, and a trail of pills is a row of filter chips.
 
+## structuredData
+
+A trail is one of the few things on a page a search engine will redraw a result around: with `BreadcrumbList` markup it shows `Docs › Components › Breadcrumb` under the title instead of the bare URL.
+
+```tsx
+<MPBreadcrumb structuredData>
+  <MPBreadcrumbItem href="/">Home</MPBreadcrumbItem>
+  <MPBreadcrumbItem href="/docs">Docs</MPBreadcrumbItem>
+  <MPBreadcrumbItem>Breadcrumb</MPBreadcrumbItem>
+</MPBreadcrumb>
+```
+
+The `<ol>` becomes the `BreadcrumbList`, each `<li>` a `ListItem` carrying a `<meta>` position, the label becomes the `name`, and the `href` is read straight off the `<a>` — so the address a crawler follows and the address a reader follows cannot disagree. The step you are on carries no `item`, because the page you are already on is not somewhere to go.
+
+It is **off by default**, and not out of timidity: a page may only claim one trail, so a component that emitted this unasked would collide with the JSON-LD a site already has in its `<head>`, and two trails is worse than none.
+
+Turning it on turns `maxItems` off. `BreadcrumbList` positions have to run 1, 2, 3 with nothing missing, and the steps behind a `…` are not in the document to be numbered — a trail worth publishing is a trail worth showing.
+
 ## Accessibility
 
 - The trail is a `<nav>` with `aria-label="Breadcrumb"`, which is how a screen reader tells it from the other three navs on the page. `label` translates it.
