@@ -670,12 +670,29 @@ function DayGrid({
   onPreviewChange,
   onMoveFocus
 }: DayGridProps) {
-  const weeks = calendarWeeks(month, weekStartsOn);
   const narrow = weekdayLabels(locale, weekStartsOn, 'narrow');
   const long = weekdayLabels(locale, weekStartsOn, 'long');
-  const fullDate = dateFormatter(locale, { dateStyle: 'full' });
   const band = orderedRange(rangeStart, rangeEnd);
   const now = today();
+
+  /*
+   * The grid and the name of every cell in it, kept until the month changes.
+   *
+   * Forty-two `Date`s and forty-two `Intl` formats is a real cost to pay once
+   * and an absurd one to pay per pointer move — which is what a range picker
+   * asks for, because moving across a cell re-renders the whole control to
+   * redraw the band, and it draws two of these.
+   *
+   * The name is what the format costs; the day number beside it is free. They
+   * are built together so there is one walk rather than two.
+   */
+  const cells = React.useMemo(() => {
+    const fullDate = dateFormatter(locale, { dateStyle: 'full' });
+
+    return calendarWeeks(month, weekStartsOn).map((week) =>
+      week.map((date) => ({ date, label: fullDate.format(date) }))
+    );
+  }, [month, weekStartsOn, locale]);
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>, date: Date) => {
     const offsetInWeek = (date.getDay() - weekStartsOn + 7) % 7;
@@ -722,9 +739,9 @@ function DayGrid({
         ))}
       </div>
 
-      {weeks.map((week, weekIndex) => (
+      {cells.map((week, weekIndex) => (
         <div role="row" key={weekIndex} className="grid grid-cols-7">
-          {week.map((date) => {
+          {week.map(({ date, label }) => {
             const outside = !isSameMonth(date, month);
 
             // A hole the size of a cell rather than a missing one: the grid has
@@ -749,7 +766,7 @@ function DayGrid({
             return (
               <Cell
                 key={date.getTime()}
-                label={fullDate.format(date)}
+                label={label}
                 selected={isChosen}
                 inRange={within && !isChosen}
                 rangeEdge={

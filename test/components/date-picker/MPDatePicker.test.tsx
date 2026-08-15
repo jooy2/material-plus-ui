@@ -378,6 +378,38 @@ describe('MPDatePicker', () => {
 
       expect(again).toBeGreaterThan(20);
     });
+
+    /*
+     * The open calendar is the other half of the same cost. Forty-two cells each
+     * carry a whole date as their name, and a range picker re-renders on every
+     * cell the pointer crosses in order to redraw the band — while drawing two
+     * calendars. Naming them per render is fifty-odd `Intl` calls per pointer
+     * move; naming them per month is none.
+     */
+    it('does not re-name its cells while the month stays put', async () => {
+      const screen = await render(<Controlled defaultOpen />);
+
+      await expect.element(screen.getByRole('grid', { name: 'July 2026' })).toBeInTheDocument();
+
+      const again = await countFormats(async () => {
+        await screen.rerender(<Controlled defaultOpen placeholder="Pick a day" />);
+      });
+
+      expect(again).toBeLessThan(5);
+    });
+
+    it('re-names them when the month moves', async () => {
+      const screen = await render(<Controlled defaultOpen />);
+
+      await expect.element(screen.getByRole('grid', { name: 'July 2026' })).toBeInTheDocument();
+
+      const again = await countFormats(async () => {
+        await screen.getByRole('button', { name: 'Next month' }).click();
+        await expect.element(screen.getByRole('grid', { name: 'August 2026' })).toBeInTheDocument();
+      });
+
+      expect(again).toBeGreaterThan(40);
+    });
   });
 
   describe('submitting', () => {

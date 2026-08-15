@@ -380,6 +380,20 @@ export function toISODateTime(date: Date, withSeconds = false): string {
 const WEEKDAY_ORIGIN = makeDate(2021, 7, 1);
 
 /**
+ * The name lists, cached beside the formatters and for the same reason.
+ *
+ * A calendar asks for seven weekday names and twelve month names on every
+ * render, and a range picker draws two calendars — so a pointer moving across
+ * one cell costs fifty-odd `format` calls that can only ever produce the answer
+ * they produced last time. The lists depend on nothing but the locale and the
+ * shape asked for, so they are a cache rather than a computation.
+ *
+ * `string[]` is handed back by reference on a hit, which is what makes it usable
+ * as a `useMemo` dependency further up.
+ */
+const nameCache = new Map<string, readonly string[]>();
+
+/**
  * The seven column headers, rotated so the first one is `weekStartsOn`.
  *
  * `narrow` is what MD3's own calendar draws — one character per column, which is
@@ -391,22 +405,38 @@ export function weekdayLabels(
   locale: string | undefined,
   weekStartsOn: MPWeekday,
   weekday: 'narrow' | 'short' | 'long' = 'narrow'
-): string[] {
-  const formatter = dateFormatter(locale, { weekday });
+): readonly string[] {
+  const key = `w ${locale ?? ''} ${weekStartsOn} ${weekday}`;
+  let names = nameCache.get(key);
 
-  return Array.from({ length: 7 }, (_, index) =>
-    formatter.format(addDays(WEEKDAY_ORIGIN, (weekStartsOn + index) % 7))
-  );
+  if (!names) {
+    const formatter = dateFormatter(locale, { weekday });
+
+    names = Array.from({ length: 7 }, (_, index) =>
+      formatter.format(addDays(WEEKDAY_ORIGIN, (weekStartsOn + index) % 7))
+    );
+    nameCache.set(key, names);
+  }
+
+  return names;
 }
 
 /** The twelve month names, January first, in the locale's own words. */
 export function monthLabels(
   locale: string | undefined,
   month: 'short' | 'long' = 'short'
-): string[] {
-  const formatter = dateFormatter(locale, { month });
+): readonly string[] {
+  const key = `m ${locale ?? ''} ${month}`;
+  let names = nameCache.get(key);
 
-  return Array.from({ length: 12 }, (_, index) => formatter.format(makeDate(2021, index, 1)));
+  if (!names) {
+    const formatter = dateFormatter(locale, { month });
+
+    names = Array.from({ length: 12 }, (_, index) => formatter.format(makeDate(2021, index, 1)));
+    nameCache.set(key, names);
+  }
+
+  return names;
 }
 
 /**
