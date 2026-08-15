@@ -4511,6 +4511,168 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPTabs: [
+    {
+      name: 'variant',
+      type: "'primary' | 'secondary'",
+      default: "'primary'",
+      description: {
+        ko: 'MD3의 두 가지 탭 중 어느 쪽인지. 화면의 최상위 층이면 `primary`, 그 패널 안의 구분이면 `secondary`입니다. 세기가 아니라 깊이의 구분이며, 인디케이터·선택된 라벨 색·글리프 위치 세 가지가 함께 바뀝니다',
+        en: "Which of MD3's two kinds of tab bar this is: `primary` for the top level of a screen, `secondary` for a division inside one of its panels. A difference of depth rather than emphasis, and it moves the indicator, the chosen label's colour and the glyph together"
+      }
+    },
+    color,
+    {
+      name: 'value',
+      type: 'string | number | null',
+      description: {
+        ko: '선택된 탭. controlled로 쓰려면 `onValueChange`와 함께 쓰세요',
+        en: 'The chosen tab. Use with `onValueChange` for a controlled set'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'string | number | null',
+      description: {
+        ko: '처음 선택되는 탭. uncontrolled일 때 씁니다',
+        en: 'Which starts chosen, for an uncontrolled set'
+      }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: string | number | null) => void',
+      description: {
+        ko: '선택된 탭의 값으로 호출됩니다',
+        en: "Called with the chosen tab's value"
+      }
+    },
+    {
+      name: 'iconPosition',
+      type: "'top' | 'start'",
+      description: {
+        ko: '글리프가 놓이는 자리. 기본값은 명세가 하는 대로입니다 — primary는 라벨 위, secondary는 라벨 앞',
+        en: "Where a tab's glyph sits. Defaults to what the variant does in the specification: above the label on a primary tab, before it on a secondary one"
+      }
+    },
+    {
+      name: 'activateOnFocus',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '방향키가 지나가는 탭을 그대로 선택할지. 꺼 두는 이유는 패널 하나가 데이터를 가져오는 순간 탭 넷을 지나가는 것이 요청 넷이 되기 때문입니다',
+        en: 'Whether an arrow key also chooses the tab it lands on. Off, because the moment one panel fetches, walking past four tabs fires four requests'
+      }
+    },
+    {
+      name: 'loopFocus',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '방향키가 마지막 탭에서 첫 탭으로 돌아갈지',
+        en: 'Whether the arrow keys wrap from the last tab back to the first'
+      }
+    },
+    {
+      name: 'divider',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '바 아래의 실선. 탭 바와 그 내용을 가르는 MD3 자신의 구분선입니다. 이미 테두리가 있는 카드 안에서는 꺼 두세요',
+        en: "The hairline under the bar — MD3's own divider between a tab bar and the content it is about. Turn it off inside a card that already has an edge"
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '탭의 높이와 타입 스케일. `md`가 MD3 자신의 48dp이고, 글리프가 라벨 위에 놓이면 명세대로 64dp입니다',
+        en: "The tab's height and type scale. `md` is MD3's own 48dp, or the specification's 64dp once a glyph sits above the label"
+      }
+    },
+    {
+      ...fullWidth,
+      description: {
+        ko: '탭들이 바의 폭을 똑같이 나눠 가집니다',
+        en: "The tabs share the bar's full width, each taking an equal part of it"
+      }
+    },
+    {
+      name: 'aria-label',
+      type: 'string',
+      description: {
+        ko: '바의 접근성 이름. 탭들은 자기 이름만 말하므로 바에는 이름이 따로 필요합니다',
+        en: 'The accessible name of the bar. The set needs a name; the tabs only name themselves'
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '`MPTab`들과 `MPTabPanel`들. 바와 본문으로 알아서 나뉩니다',
+        en: 'The `MPTab`s and the `MPTabPanel`s, sorted into the bar and the body for you'
+      }
+    }
+  ],
+
+  MPTab: [
+    {
+      name: 'value',
+      type: 'string | number',
+      required: true,
+      description: {
+        ko: '탭을 식별하고, 같은 값을 가진 패널을 골라냅니다',
+        en: 'Identifies the tab, and picks out the panel with the same value'
+      }
+    },
+    {
+      name: 'icon',
+      type: NODE,
+      description: {
+        ko: '글리프. 바의 `iconPosition`에 따라 라벨 위나 앞에 그려지고, 크기는 바의 단계를 따릅니다',
+        en: "The glyph. Drawn above or before the label depending on the bar's `iconPosition`, and sized by the bar's rung"
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '사용할 수 없지만 목록에는 남습니다',
+        en: 'Unavailable, but still listed'
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '탭의 라벨', en: "The tab's label" }
+    }
+  ],
+
+  MPTabPanel: [
+    {
+      name: 'value',
+      type: 'string | number',
+      required: true,
+      description: {
+        ko: '어느 탭이 이 패널을 보여 줄지',
+        en: 'Which tab shows this panel'
+      }
+    },
+    {
+      name: 'keepMounted',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '숨겨져 있는 동안에도 DOM에 남깁니다. 만드는 비용이 큰 패널이나, 탭을 옮겨도 살아 있어야 하는 폼 상태를 가진 패널에 씁니다',
+        en: 'Keeps the panel in the DOM while it is hidden — for a panel that is expensive to build, or that holds form state which should survive being switched away from'
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '패널의 내용', en: "The panel's content" }
+    }
+  ],
+
   MPContainer: [
     {
       name: 'maxWidth',

@@ -78,6 +78,7 @@ export default defineConfig({
       '@base-ui/react/separator',
       '@base-ui/react/slider',
       '@base-ui/react/switch',
+      '@base-ui/react/tabs',
       '@base-ui/react/toast',
       '@base-ui/react/toggle',
       '@base-ui/react/toggle-group',

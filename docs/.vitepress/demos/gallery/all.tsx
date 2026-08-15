@@ -61,7 +61,10 @@ import {
   MPSnackbarProvider,
   MPSpoiler,
   MPSwitch,
+  MPTab,
   MPTable,
+  MPTabPanel,
+  MPTabs,
   MPTextField,
   MPTextLink,
   MPTimePicker,
@@ -1193,6 +1196,25 @@ const GROUPS: Group[] = [
                 Filled
               </MPBox>
             </div>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPTabs',
+        summary: {
+          ko: '여러 패널 중 하나를 보여 주는 묶음',
+          en: 'One set of panels, one of which is shown'
+        },
+        path: '/components/layout/tabs',
+        preview: (
+          <Fit>
+            <MPTabs aria-label="Library" defaultValue="albums" size="sm" fullWidth>
+              <MPTab value="albums">Albums</MPTab>
+              <MPTab value="artists">Artists</MPTab>
+
+              <MPTabPanel value="albums">Four added this week.</MPTabPanel>
+              <MPTabPanel value="artists">Twelve artists.</MPTabPanel>
+            </MPTabs>
           </Fit>
         )
       },
