@@ -100,6 +100,31 @@ export interface MPMessages {
     typing: string;
   };
   /**
+   * MPPagination.
+   *
+   * Every string here is read out and never drawn: what a page button shows is a
+   * number, and what the two steppers show is a chevron. The words behind them
+   * are for the readers those say nothing to — which is exactly why they belong
+   * in this table rather than in props. A row of nine buttons whose caller had to
+   * supply nine names is a row of nine English names.
+   *
+   * `{page}` and `{total}` are filled in by `fillMessage`.
+   */
+  pagination: {
+    /** The name of the `<nav>` the row is inside. */
+    label: string;
+    /** One page button — the number is drawn, this is what is heard. */
+    page: string;
+    /** Announced after a move: where the reader now is, and how far it goes. */
+    status: string;
+    /** The two steppers that move by one page. */
+    previous: string;
+    next: string;
+    /** And the two that jump to an end. */
+    first: string;
+    last: string;
+  };
+  /**
    * MPSpoiler.
    *
    * The one namespace whose strings are *drawn* rather than only announced —
@@ -162,6 +187,15 @@ const base: MPMessages = {
     reveal: 'Reveal',
     hide: 'Hide',
     notice: 'Hidden so it is not read by accident'
+  },
+  pagination: {
+    label: 'Pagination',
+    page: 'Page {page}',
+    status: 'Page {page} of {total}',
+    previous: 'Previous page',
+    next: 'Next page',
+    first: 'First page',
+    last: 'Last page'
   }
 };
 
@@ -208,6 +242,15 @@ const translations: Record<string, PartialMessages> = {
       reveal: '보기',
       hide: '가리기',
       notice: '실수로 읽지 않도록 가려 두었습니다'
+    },
+    pagination: {
+      label: '페이지 매기기',
+      page: '{page}페이지',
+      status: '{total}페이지 중 {page}페이지',
+      previous: '이전 페이지',
+      next: '다음 페이지',
+      first: '첫 페이지',
+      last: '마지막 페이지'
     }
   },
   ja: {
@@ -244,6 +287,15 @@ const translations: Record<string, PartialMessages> = {
       reveal: '表示する',
       hide: '隠す',
       notice: 'うっかり読まないように隠してあります'
+    },
+    pagination: {
+      label: 'ページ送り',
+      page: '{page}ページ',
+      status: '{total}ページ中{page}ページ',
+      previous: '前のページ',
+      next: '次のページ',
+      first: '最初のページ',
+      last: '最後のページ'
     }
   },
   'zh-hans': {
@@ -280,6 +332,15 @@ const translations: Record<string, PartialMessages> = {
       reveal: '显示',
       hide: '隐藏',
       notice: '已隐藏，以免不小心读到'
+    },
+    pagination: {
+      label: '分页',
+      page: '第 {page} 页',
+      status: '第 {page} 页，共 {total} 页',
+      previous: '上一页',
+      next: '下一页',
+      first: '第一页',
+      last: '最后一页'
     }
   },
   'zh-hant': {
@@ -316,6 +377,15 @@ const translations: Record<string, PartialMessages> = {
       reveal: '顯示',
       hide: '隱藏',
       notice: '已隱藏，以免不小心讀到'
+    },
+    pagination: {
+      label: '分頁',
+      page: '第 {page} 頁',
+      status: '第 {page} 頁，共 {total} 頁',
+      previous: '上一頁',
+      next: '下一頁',
+      first: '第一頁',
+      last: '最後一頁'
     }
   },
   es: {
@@ -352,6 +422,15 @@ const translations: Record<string, PartialMessages> = {
       reveal: 'Mostrar',
       hide: 'Ocultar',
       notice: 'Oculto para que no se lea por accidente'
+    },
+    pagination: {
+      label: 'Paginación',
+      page: 'Página {page}',
+      status: 'Página {page} de {total}',
+      previous: 'Página anterior',
+      next: 'Página siguiente',
+      first: 'Primera página',
+      last: 'Última página'
     }
   },
   pt: {
@@ -388,6 +467,15 @@ const translations: Record<string, PartialMessages> = {
       reveal: 'Mostrar',
       hide: 'Ocultar',
       notice: 'Oculto para não ser lido por acidente'
+    },
+    pagination: {
+      label: 'Paginação',
+      page: 'Página {page}',
+      status: 'Página {page} de {total}',
+      previous: 'Página anterior',
+      next: 'Próxima página',
+      first: 'Primeira página',
+      last: 'Última página'
     }
   },
   fr: {
@@ -424,6 +512,15 @@ const translations: Record<string, PartialMessages> = {
       reveal: 'Afficher',
       hide: 'Masquer',
       notice: 'Masqué pour ne pas être lu par accident'
+    },
+    pagination: {
+      label: 'Pagination',
+      page: 'Page {page}',
+      status: 'Page {page} sur {total}',
+      previous: 'Page précédente',
+      next: 'Page suivante',
+      first: 'Première page',
+      last: 'Dernière page'
     }
   },
   de: {
@@ -460,6 +557,15 @@ const translations: Record<string, PartialMessages> = {
       reveal: 'Anzeigen',
       hide: 'Verbergen',
       notice: 'Verborgen, damit es nicht versehentlich gelesen wird'
+    },
+    pagination: {
+      label: 'Seitennummerierung',
+      page: 'Seite {page}',
+      status: 'Seite {page} von {total}',
+      previous: 'Vorherige Seite',
+      next: 'Nächste Seite',
+      first: 'Erste Seite',
+      last: 'Letzte Seite'
     }
   },
   it: {
@@ -496,6 +602,15 @@ const translations: Record<string, PartialMessages> = {
       reveal: 'Mostra',
       hide: 'Nascondi',
       notice: 'Nascosto per non essere letto per sbaglio'
+    },
+    pagination: {
+      label: 'Impaginazione',
+      page: 'Pagina {page}',
+      status: 'Pagina {page} di {total}',
+      previous: 'Pagina precedente',
+      next: 'Pagina successiva',
+      first: 'Prima pagina',
+      last: 'Ultima pagina'
     }
   },
   nl: {
@@ -532,6 +647,15 @@ const translations: Record<string, PartialMessages> = {
       reveal: 'Tonen',
       hide: 'Verbergen',
       notice: 'Verborgen zodat het niet per ongeluk wordt gelezen'
+    },
+    pagination: {
+      label: 'Paginering',
+      page: 'Pagina {page}',
+      status: 'Pagina {page} van {total}',
+      previous: 'Vorige pagina',
+      next: 'Volgende pagina',
+      first: 'Eerste pagina',
+      last: 'Laatste pagina'
     }
   },
   pl: {
@@ -568,6 +692,15 @@ const translations: Record<string, PartialMessages> = {
       reveal: 'Pokaż',
       hide: 'Ukryj',
       notice: 'Ukryte, aby nie przeczytać przez przypadek'
+    },
+    pagination: {
+      label: 'Paginacja',
+      page: 'Strona {page}',
+      status: 'Strona {page} z {total}',
+      previous: 'Poprzednia strona',
+      next: 'Następna strona',
+      first: 'Pierwsza strona',
+      last: 'Ostatnia strona'
     }
   },
   ru: {
@@ -604,6 +737,15 @@ const translations: Record<string, PartialMessages> = {
       reveal: 'Показать',
       hide: 'Скрыть',
       notice: 'Скрыто, чтобы не прочитать случайно'
+    },
+    pagination: {
+      label: 'Постраничная навигация',
+      page: 'Страница {page}',
+      status: 'Страница {page} из {total}',
+      previous: 'Предыдущая страница',
+      next: 'Следующая страница',
+      first: 'Первая страница',
+      last: 'Последняя страница'
     }
   },
   tr: {
@@ -640,6 +782,15 @@ const translations: Record<string, PartialMessages> = {
       reveal: 'Göster',
       hide: 'Gizle',
       notice: 'Yanlışlıkla okunmasın diye gizlendi'
+    },
+    pagination: {
+      label: 'Sayfalama',
+      page: 'Sayfa {page}',
+      status: '{total} sayfadan {page}. sayfa',
+      previous: 'Önceki sayfa',
+      next: 'Sonraki sayfa',
+      first: 'İlk sayfa',
+      last: 'Son sayfa'
     }
   },
   ar: {
@@ -676,6 +827,15 @@ const translations: Record<string, PartialMessages> = {
       reveal: 'إظهار',
       hide: 'إخفاء',
       notice: 'مخفي حتى لا يُقرأ بالخطأ'
+    },
+    pagination: {
+      label: 'ترقيم الصفحات',
+      page: 'الصفحة {page}',
+      status: 'الصفحة {page} من {total}',
+      previous: 'الصفحة السابقة',
+      next: 'الصفحة التالية',
+      first: 'الصفحة الأولى',
+      last: 'الصفحة الأخيرة'
     }
   },
   hi: {
@@ -712,6 +872,15 @@ const translations: Record<string, PartialMessages> = {
       reveal: 'दिखाएँ',
       hide: 'छिपाएँ',
       notice: 'गलती से न पढ़ लिया जाए इसलिए छिपाया गया है'
+    },
+    pagination: {
+      label: 'पृष्ठ क्रमांकन',
+      page: 'पृष्ठ {page}',
+      status: '{total} में से पृष्ठ {page}',
+      previous: 'पिछला पृष्ठ',
+      next: 'अगला पृष्ठ',
+      first: 'पहला पृष्ठ',
+      last: 'अंतिम पृष्ठ'
     }
   },
   id: {
@@ -748,6 +917,15 @@ const translations: Record<string, PartialMessages> = {
       reveal: 'Tampilkan',
       hide: 'Sembunyikan',
       notice: 'Disembunyikan agar tidak terbaca tanpa sengaja'
+    },
+    pagination: {
+      label: 'Penomoran halaman',
+      page: 'Halaman {page}',
+      status: 'Halaman {page} dari {total}',
+      previous: 'Halaman sebelumnya',
+      next: 'Halaman berikutnya',
+      first: 'Halaman pertama',
+      last: 'Halaman terakhir'
     }
   },
   vi: {
@@ -784,6 +962,15 @@ const translations: Record<string, PartialMessages> = {
       reveal: 'Hiện',
       hide: 'Ẩn',
       notice: 'Đã ẩn để không vô tình đọc phải'
+    },
+    pagination: {
+      label: 'Phân trang',
+      page: 'Trang {page}',
+      status: 'Trang {page} trên {total}',
+      previous: 'Trang trước',
+      next: 'Trang sau',
+      first: 'Trang đầu',
+      last: 'Trang cuối'
     }
   },
   th: {
@@ -820,6 +1007,15 @@ const translations: Record<string, PartialMessages> = {
       reveal: 'แสดง',
       hide: 'ซ่อน',
       notice: 'ซ่อนไว้เพื่อไม่ให้อ่านโดยบังเอิญ'
+    },
+    pagination: {
+      label: 'การแบ่งหน้า',
+      page: 'หน้า {page}',
+      status: 'หน้า {page} จาก {total}',
+      previous: 'หน้าก่อนหน้า',
+      next: 'หน้าถัดไป',
+      first: 'หน้าแรก',
+      last: 'หน้าสุดท้าย'
     }
   }
 };
@@ -910,6 +1106,7 @@ export function resolveMessages(locale?: string): MPMessages {
         picker: { ...base.picker, ...match.picker },
         alert: { ...base.alert, ...match.alert },
         chat: { ...base.chat, ...match.chat },
+        pagination: { ...base.pagination, ...match.pagination },
         spoiler: { ...base.spoiler, ...match.spoiler }
       }
     : base;
@@ -917,4 +1114,21 @@ export function resolveMessages(locale?: string): MPMessages {
   resolved.set(key, messages);
 
   return messages;
+}
+
+/**
+ * A message with its placeholders filled in.
+ *
+ * `{page}`, `{total}`, `{value}` — named rather than positional, because the
+ * order of two numbers in a sentence is not the same in every language: English
+ * counts "page 3 of 20" and Turkish counts the total first. A translation that
+ * had to keep the arguments in one order would be a translation that reads
+ * wrongly in half of them.
+ *
+ * A placeholder with nothing to put in it is left as it was written rather than
+ * blanked. A visible `{page}` is a bug report; a sentence with a hole in it is a
+ * sentence somebody has to guess at.
+ */
+export function fillMessage(message: string, values: Record<string, string>): string {
+  return message.replace(/\{(\w+)\}/g, (placeholder, key: string) => values[key] ?? placeholder);
 }

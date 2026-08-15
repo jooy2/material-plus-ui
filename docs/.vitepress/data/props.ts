@@ -4511,6 +4511,128 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPPagination: [
+    {
+      name: 'count',
+      type: 'number',
+      required: true,
+      description: {
+        ko: '전체 페이지 수. 둘보다 적으면 컨트롤 전체가 아무것도 렌더링하지 않습니다 — 한 페이지는 페이지의 묶음이 아닙니다',
+        en: 'How many pages there are. Fewer than two and the whole control renders nothing: one page is not a set of pages'
+      }
+    },
+    {
+      name: 'page',
+      type: 'number',
+      description: {
+        ko: '현재 페이지, 1부터 셉니다. controlled로 쓰려면 `onPageChange`와 함께 쓰세요',
+        en: 'The current page, 1-based. Use with `onPageChange` for a controlled row'
+      }
+    },
+    {
+      name: 'defaultPage',
+      type: 'number',
+      default: '1',
+      description: {
+        ko: '처음 현재가 되는 페이지. uncontrolled일 때 씁니다',
+        en: 'Which page starts current, for an uncontrolled row'
+      }
+    },
+    {
+      name: 'onPageChange',
+      type: '(page: number) => void',
+      description: { ko: '선택된 페이지로 호출됩니다', en: 'Called with the page that was chosen' }
+    },
+    {
+      name: 'siblingCount',
+      type: 'number',
+      default: '1',
+      description: {
+        ko: '현재 페이지 양옆에 항상 보이는 페이지 수',
+        en: 'How many pages are always shown on either side of the current one'
+      }
+    },
+    {
+      name: 'boundaryCount',
+      type: 'number',
+      default: '1',
+      description: {
+        ko: '어느 페이지에 있든 양 끝에 항상 보이는 페이지 수. `0`이면 첫 페이지와 마지막 페이지가 빠지고 창만 남습니다',
+        en: 'How many pages are always shown at each end, whatever page is current. `0` drops the first and last page, leaving only the window'
+      }
+    },
+    {
+      name: 'showEdges',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '첫 페이지와 마지막 페이지로 건너뛰는 스테퍼 두 개를 보여 줍니다',
+        en: 'Shows the two steppers that jump to the first and last page'
+      }
+    },
+    {
+      name: 'showArrows',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '한 페이지씩 움직이는 스테퍼 두 개를 보여 줍니다',
+        en: 'Shows the two steppers that move by one page'
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '칸의 높이와 타입 스케일. 다른 모든 컨트롤과 같은 사다리라서 `sm` 페이지네이션은 옆의 `sm` 버튼과 줄이 맞습니다. 테이블 푸터에는 보통 `sm`이 맞습니다',
+        en: "The cells' height and type scale, on the same ladder as every other control — so a `sm` pagination lines up with a `sm` button beside it. `sm` is usually what a table footer wants"
+      }
+    },
+    {
+      ...color,
+      description: {
+        ko: '현재 페이지를 채우는 강조 색 계열',
+        en: 'Which accent family the current page is filled with'
+      }
+    },
+    {
+      ...fullWidth,
+      description: {
+        ko: '행을 컨테이너 폭에 맞추고 가운데로 놓습니다',
+        en: 'Stretches the row to its container and centres it in the space'
+      }
+    },
+    {
+      ...disabled,
+      description: {
+        ko: '행의 모든 칸이 응답을 멈춥니다',
+        en: 'Every cell in the row stops answering'
+      }
+    },
+    {
+      name: 'getPageHref',
+      type: '(page: number) => string',
+      description: {
+        ko: '페이지의 주소. 행의 모든 숫자를 진짜 링크로 만듭니다. 이것이 없으면 크롤러가 누를 수 없어 페이지 목록이 1페이지에서 끝납니다. `onPageChange`는 그대로 호출되고 이동은 먼저 취소되므로 클라이언트 라우터도 그대로 동작합니다',
+        en: 'The address of a page, which turns every number into a real link. Without it a crawler cannot press one, so a paged list stops at page one for everything but a reader. `onPageChange` still fires and the navigation is cancelled first, so a client-side router keeps working'
+      }
+    },
+    {
+      name: 'locale',
+      type: 'string',
+      description: {
+        ko: '행이 자기를 말할 언어 — `ko`, `pt-BR`, `zh-Hant` 같은 BCP 47 태그. 여기서 그려지는 것은 숫자뿐이므로, 이 표의 단어들은 전부 스크린 리더만 듣습니다',
+        en: 'Which language the row names itself in — a BCP 47 tag such as `ko`, `pt-BR` or `zh-Hant`. Nothing here is drawn but the numbers, so every word in the table is one only a screen reader hears'
+      }
+    },
+    {
+      name: 'labels',
+      type: 'Partial<MPPaginationLabels>',
+      description: {
+        ko: '단어 자체에 대한 덮어쓰기. 번역보다 우선하고, 지정하지 않은 나머지는 번역된 채로 남습니다',
+        en: 'Overrides for the words themselves. They win over the translation, and anything not named stays translated'
+      }
+    }
+  ],
+
   MPBottomNavigation: [
     {
       name: 'value',

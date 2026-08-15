@@ -47,6 +47,7 @@ import {
   MPNumberField,
   MPOtpField,
   MPOverlay,
+  MPPagination,
   MPPane,
   MPPanes,
   MPPill,
@@ -955,6 +956,15 @@ const GROUPS: Group[] = [
             <MPBreadcrumbItem>Breadcrumb</MPBreadcrumbItem>
           </MPBreadcrumb>
         )
+      },
+      {
+        name: 'MPPagination',
+        summary: {
+          ko: '페이지들의 행, 그중 하나가 지금 읽는 페이지',
+          en: 'A row of pages, one of which is the one being read'
+        },
+        path: '/components/display/pagination',
+        preview: <MPPagination count={12} defaultPage={3} size="xs" />
       },
       {
         name: 'MPHighlight',

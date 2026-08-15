@@ -39,6 +39,8 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
   ChevronUp,
   CircleAlert,
   CircleCheck,
@@ -75,6 +77,11 @@ export const ChevronUpIcon = ChevronUp;
 export const ChevronLeftIcon = ChevronLeft;
 /** Next, in a pager or a carousel. */
 export const ChevronRightIcon = ChevronRight;
+
+/** First, in a pager: the stepper that jumps to an end rather than by one. */
+export const ChevronsLeftIcon = ChevronsLeft;
+/** And last. */
+export const ChevronsRightIcon = ChevronsRight;
 /** Search, for a field's leading adornment. */
 export const SearchIcon = Search;
 /** Sorted ascending: the arrow a table's sorted column carries. */
@@ -130,6 +137,8 @@ export const ICONS = {
   'chevron-up': ChevronUpIcon,
   'chevron-left': ChevronLeftIcon,
   'chevron-right': ChevronRightIcon,
+  'chevrons-left': ChevronsLeftIcon,
+  'chevrons-right': ChevronsRightIcon,
   search: SearchIcon,
   'arrow-up': ArrowUpIcon,
   'arrow-down': ArrowDownIcon,
