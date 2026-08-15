@@ -200,6 +200,26 @@ export const MPCarousel = React.forwardRef<HTMLDivElement, MPCarouselProps>(func
   const settling = React.useRef(false);
   const [paused, setPaused] = React.useState(false);
 
+  /*
+   * The two things `go` reads that change on every render, held in refs.
+   *
+   * `go` used to depend on `index` and on `onValueChange`, and a caller passing
+   * an inline arrow — which is nearly all of them — made it a new function every
+   * render. The autoplay effect below depends on `go`, so it tore its interval
+   * down and set a fresh one up on every render: on a page whose parent
+   * re-renders more often than `interval`, the timer never reached the end of
+   * its first tick and the carousel simply never advanced.
+   *
+   * A ref rather than a wider dependency list, because neither of these is
+   * something the timer should restart for. What the timer cares about is how
+   * long to wait, not which slide is showing when it fires.
+   */
+  const indexRef = React.useRef(index);
+  const notifyRef = React.useRef(onValueChange);
+
+  indexRef.current = index;
+  notifyRef.current = onValueChange;
+
   const go = React.useCallback(
     (next: number, viaScroll = false) => {
       if (count === 0) {
@@ -215,11 +235,11 @@ export const MPCarousel = React.forwardRef<HTMLDivElement, MPCarouselProps>(func
       if (value === undefined) {
         setUncontrolled(wrapped);
       }
-      if (wrapped !== index) {
-        onValueChange?.(wrapped);
+      if (wrapped !== indexRef.current) {
+        notifyRef.current?.(wrapped);
       }
     },
-    [count, loop, value, index, onValueChange]
+    [count, loop, value]
   );
 
   React.useEffect(() => {
@@ -262,30 +282,51 @@ export const MPCarousel = React.forwardRef<HTMLDivElement, MPCarouselProps>(func
         return;
       }
 
-      go(index + 1);
+      // Read at the moment it fires rather than closed over, so the interval
+      // does not have to be rebuilt every time the slide changes — which is
+      // what kept restarting the wait before it could elapse.
+      go(indexRef.current + 1);
     }, interval);
 
     return () => window.clearInterval(timer);
-  }, [autoPlay, paused, count, interval, index, go]);
+  }, [autoPlay, paused, count, interval, go]);
 
   /**
    * Where the strip has settled, read off the scroll offset rather than measured
    * per slide: every slide is exactly the width of the frame, so the offset
    * divided by that width *is* the index. `Math.abs` is what makes it hold under
    * RTL, where a scroll position counts backwards from zero.
+   *
+   * Coalesced into an animation frame. `scroll` fires far faster than the screen
+   * refreshes, and both properties this reads are layout — so answering every
+   * event is asking the browser to flush layout dozens of times between two
+   * paints, in the middle of a gesture, for an answer that can only change once
+   * per frame.
    */
-  const handleScroll = () => {
-    const track = trackRef.current;
+  const scrollFrame = React.useRef(0);
 
-    if (!track || track.clientWidth === 0 || settling.current) {
+  React.useEffect(() => () => cancelAnimationFrame(scrollFrame.current), []);
+
+  const handleScroll = () => {
+    if (scrollFrame.current) {
       return;
     }
 
-    const nearest = Math.round(Math.abs(track.scrollLeft) / track.clientWidth);
+    scrollFrame.current = requestAnimationFrame(() => {
+      scrollFrame.current = 0;
 
-    if (nearest !== index && nearest >= 0 && nearest < count) {
-      go(nearest, true);
-    }
+      const track = trackRef.current;
+
+      if (!track || track.clientWidth === 0 || settling.current) {
+        return;
+      }
+
+      const nearest = Math.round(Math.abs(track.scrollLeft) / track.clientWidth);
+
+      if (nearest !== indexRef.current && nearest >= 0 && nearest < count) {
+        go(nearest, true);
+      }
+    });
   };
 
   const atStart = index <= 0;

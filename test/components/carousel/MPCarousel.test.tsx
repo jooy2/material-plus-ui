@@ -164,6 +164,59 @@ describe('MPCarousel', () => {
 
       expect(screen.container.querySelector('[aria-live]')).toHaveAttribute('aria-live', 'off');
     });
+
+    /*
+     * The timer used to be torn down and rebuilt on every render, because `go`
+     * depended on `index` and on `onValueChange` — and a caller passing an
+     * inline arrow, which is nearly all of them, made `go` a new function every
+     * time. On a page whose parent re-renders more often than `interval`, the
+     * wait never reached its end and the carousel never advanced at all.
+     */
+    /*
+     * The timer used to be torn down and rebuilt on every render, because `go`
+     * depended on `index` and on `onValueChange` — and an inline arrow, which is
+     * what nearly every caller passes, made `go` a new function each time. On a
+     * page re-rendering more often than `interval`, the wait never reached its
+     * end and the carousel never advanced at all.
+     *
+     * The handler is deliberately inline here, because that is the shape of the
+     * bug. `hover` on the spacer first because the pointer is left over the
+     * carousel by the tests above, and a hovered carousel is a paused one.
+     */
+    it('keeps advancing across a parent’s re-renders', async () => {
+      const moved = vi.fn();
+      const strip = (
+        <>
+          <div data-testid="spacer" style={{ height: 20 }} />
+          <MPCarousel autoPlay interval={30} onValueChange={(next) => moved(next)}>
+            {SLIDES}
+          </MPCarousel>
+        </>
+      );
+      const screen = await render(strip);
+
+      await screen.getByTestId('spacer').hover();
+
+      for (let round = 0; round < 12; round += 1) {
+        await screen.rerender(
+          <>
+            <div data-testid="spacer" style={{ height: 20 }} />
+            <MPCarousel autoPlay interval={30} onValueChange={(next) => moved(next)}>
+              {SLIDES}
+            </MPCarousel>
+          </>
+        );
+        await new Promise((resolve) => setTimeout(resolve, 10));
+      }
+
+      /*
+       * Read here rather than after a settling wait, and that is the whole
+       * assertion: a timer rebuilt on every render still fires once the renders
+       * stop, so waiting for quiet would pass on the broken version too. What
+       * has to be true is that it advanced *while* the page was busy.
+       */
+      expect(moved).toHaveBeenCalled();
+    });
   });
 
   describe('the strip', () => {
