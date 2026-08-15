@@ -62,6 +62,10 @@ A window changing under the reader is the one thing about a link that cannot be 
 
 `noopener` is what stops the new page reaching back through `window.opener`; `noreferrer` is kept beside it for the browsers that still need the pair. The note is a real text node preceded by a space, so the accessible name comes out as two words rather than as the label with a bracket stuck to the end of it — and `newTabLabel` is how it gets written in the reader's language.
 
+All three follow the `target` **attribute** rather than this prop, so writing `target="_blank"` out directly — or handing over a router's `Link` that carries one — gets the same `rel`, the same mark and the same note. It is the same window either way.
+
+A `rel` of your own replaces the default rather than adding to it, which is what makes `rel="noopener noreferrer nofollow"` possible.
+
 ### icon
 
 Left out, it follows `newTab`. That is the whole reason it is not a plain boolean with a `false` default: a link that takes over the window should say so, and a caller should have to ask for the silent version.

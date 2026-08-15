@@ -62,6 +62,10 @@ import { MPTextLink } from 'material-plus-ui';
 
 `noopener`가 새 페이지가 `window.opener`로 되짚어 오는 것을 막고, `noreferrer`는 아직 그 쌍이 필요한 브라우저를 위해 함께 둡니다. 안내 문구 앞의 공백은 진짜 텍스트 노드라서 접근성 이름이 라벨 끝에 괄호가 붙은 모양이 아니라 두 단어로 나옵니다 — 그리고 `newTabLabel`이 그것을 독자의 언어로 적는 방법입니다.
 
+세 가지 모두 이 prop이 아니라 `target` **속성**을 따릅니다. `target="_blank"`를 직접 적든, 그것을 지닌 라우터의 `Link`를 넘기든 같은 `rel`, 같은 표시, 같은 안내를 받습니다. 어느 쪽이든 같은 창이기 때문입니다.
+
+직접 준 `rel`은 기본값에 더해지는 것이 아니라 대체합니다. `rel="noopener noreferrer nofollow"`가 가능한 이유입니다.
+
 ### icon
 
 생략하면 `newTab`을 따릅니다. 이것이 기본값 `false`인 평범한 불리언이 아닌 이유 전부입니다. 창을 가져가는 링크는 그렇다고 말해야 하고, 조용한 버전은 호출자가 요청해야 합니다.

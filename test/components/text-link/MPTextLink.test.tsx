@@ -165,6 +165,62 @@ describe('MPTextLink', () => {
 
       expect(screen.getByRole('link', { name: '예시 새 탭에서 열림' }).query()).not.toBeNull();
     });
+
+    /*
+     * `target` also arrives through the rest props — written out directly, or
+     * carried by a router's own `Link` — and everything that follows from a new
+     * tab has to follow the attribute rather than the prop that usually sets it.
+     */
+    it('closes the opener hole for a target written out directly', async () => {
+      const screen = await render(
+        <MPTextLink href="https://example.com" target="_blank">
+          Example
+        </MPTextLink>
+      );
+      const element = screen.getByRole('link').element();
+
+      expect(element).toHaveAttribute('target', '_blank');
+      expect(element).toHaveAttribute('rel', 'noopener noreferrer');
+    });
+
+    it('warns about that tab too', async () => {
+      const screen = await render(
+        <MPTextLink href="https://example.com" target="_blank">
+          Example
+        </MPTextLink>
+      );
+
+      expect(
+        screen.getByRole('link', { name: 'Example Opens in a new tab' }).query()
+      ).not.toBeNull();
+    });
+
+    it('leaves a target that is not a new tab alone', async () => {
+      const screen = await render(
+        <MPTextLink href="/docs" target="_self">
+          Docs
+        </MPTextLink>
+      );
+      const element = screen.getByRole('link').element();
+
+      expect(element).toHaveAttribute('target', '_self');
+      expect(element).not.toHaveAttribute('rel');
+    });
+
+    it('lets a caller replace the rel it would have written', async () => {
+      // The rest props are spread last on purpose: `noopener noreferrer
+      // nofollow` is a real thing to want.
+      const screen = await render(
+        <MPTextLink href="https://example.com" newTab rel="noopener noreferrer nofollow">
+          Example
+        </MPTextLink>
+      );
+
+      expect(screen.getByRole('link').element()).toHaveAttribute(
+        'rel',
+        'noopener noreferrer nofollow'
+      );
+    });
   });
 
   describe('icon', () => {

@@ -152,16 +152,30 @@ export const MPTextLink = React.forwardRef<HTMLAnchorElement, MPTextLinkProps>(f
   },
   ref
 ) {
+  /*
+   * Whether this link takes over the window, however it was asked to.
+   *
+   * `newTab` is the documented spelling, but `target` also arrives through the
+   * rest props — a caller writing `target="_blank"` directly, or a router's
+   * `Link` carrying one — and everything that follows from opening a new tab
+   * has to follow the *attribute* rather than the prop that usually sets it.
+   * That is the `rel` below, and it is the mark and the spoken warning too: a
+   * window changing under the reader is the one thing about a link that cannot
+   * be seen before it happens, whichever prop arranged it.
+   */
+  const target = newTab ? '_blank' : (props.target as string | undefined);
+  const opensNewTab = target === '_blank';
+
   // `icon` left out follows `newTab`, which is the whole reason it is not a
   // plain boolean with a `false` default: a link that takes over the window
   // should say so, and a caller should have to ask for the silent version.
-  const mark = icon ?? newTab;
+  const mark = icon ?? opensNewTab;
   const glyph =
     mark === true ? (
       // `1em` rather than a pixel size: the glyph rides on the label at just
       // under its cap height, and an icon as tall as the line box would space
       // the words around it apart.
-      <MPIcon icon={newTab ? ExternalLinkIcon : LinkIcon} size="0.95em" />
+      <MPIcon icon={opensNewTab ? ExternalLinkIcon : LinkIcon} size="0.95em" />
     ) : (
       mark
     );
@@ -187,11 +201,11 @@ export const MPTextLink = React.forwardRef<HTMLAnchorElement, MPTextLinkProps>(f
     ref,
     props: {
       href,
-      target: newTab ? '_blank' : undefined,
+      target,
       // `noopener` is what stops the new page reaching back through
       // `window.opener`; `noreferrer` is kept beside it for the browsers that
       // still need the pair.
-      rel: newTab ? 'noopener noreferrer' : undefined,
+      rel: opensNewTab ? 'noopener noreferrer' : undefined,
       className: classNames,
       style: color ? { ...accentSlots(color), ...style } : style,
       children: (
@@ -202,7 +216,7 @@ export const MPTextLink = React.forwardRef<HTMLAnchorElement, MPTextLinkProps>(f
               only to a reader who can see it. The space is a real text node, so
               the accessible name comes out as two words rather than as the
               label with a bracket stuck to the end of it. */}
-          {newTab ? (
+          {opensNewTab ? (
             <>
               {' '}
               <span className={VISUALLY_HIDDEN}>{newTabLabel}</span>
