@@ -121,7 +121,17 @@ function escapeRegExp(text: string): string {
  */
 function buildPattern(query: string | string[] | RegExp, caseSensitive: boolean): RegExp | null {
   if (query instanceof RegExp) {
-    return query.global ? query : new RegExp(query.source, `${query.flags}g`);
+    /*
+     * Copied even when it is already global, rather than used as it stands.
+     *
+     * `markString` drives the expression with `exec` in a loop, which means it
+     * writes `lastIndex`. Doing that to the caller's own object would leave a
+     * module-level `const RE = /…/g` somewhere else in their application
+     * holding an offset this component put there — a bug that shows up as a
+     * search that skips its first few matches, nowhere near the component that
+     * caused it.
+     */
+    return new RegExp(query.source, query.global ? query.flags : `${query.flags}g`);
   }
 
   const terms = (Array.isArray(query) ? query : [query])
@@ -278,7 +288,27 @@ export const MPHighlight = React.forwardRef<HTMLSpanElement, MPHighlightProps>(f
   },
   ref
 ) {
-  const pattern = React.useMemo(() => buildPattern(query, caseSensitive), [query, caseSensitive]);
+  /*
+   * Keyed on what the query *says* rather than on the object that says it.
+   *
+   * `query={['data', 'database']}` and `query={/\bfoo\b/}` are both a fresh
+   * object on every render when written inline, which is how they are usually
+   * written — so an identity-keyed memo would rebuild the expression, and with
+   * it re-walk the whole tree below, on every keystroke of the search box.
+   */
+  const queryKey =
+    query instanceof RegExp
+      ? `re ${query.source} ${query.flags}`
+      : Array.isArray(query)
+        ? `a ${query.join(' ')}`
+        : `s ${query}`;
+
+  // `queryKey` and `caseSensitive` are the whole dependency: they are what
+  // `query` amounts to, and it is read from the render the key belongs to.
+  const pattern = React.useMemo(
+    () => buildPattern(query, caseSensitive),
+    [queryKey, caseSensitive]
+  );
 
   const markClasses = [
     // A hair of padding so the wash does not sit flush against the letters, and
@@ -298,13 +328,26 @@ export const MPHighlight = React.forwardRef<HTMLSpanElement, MPHighlightProps>(f
     .filter(Boolean)
     .join(' ');
 
-  const marked = pattern
-    ? markNode(children, pattern, wholeWord, (matched, key) => (
-        <mark key={key} className={markClasses}>
-          {matched}
-        </mark>
-      ))
-    : children;
+  /*
+   * The walk, kept until something it depends on moves.
+   *
+   * `markNode` visits every node under `children` and clones each element it
+   * finds. That is the right amount of work to do when the query changes and
+   * far too much to do because a parent re-rendered — and the place this
+   * component is used is a page of search results, where there are fifty of it
+   * and the parent re-renders on every keystroke of the box being searched from.
+   */
+  const marked = React.useMemo(
+    () =>
+      pattern
+        ? markNode(children, pattern, wholeWord, (matched, key) => (
+            <mark key={key} className={markClasses}>
+              {matched}
+            </mark>
+          ))
+        : children,
+    [children, pattern, wholeWord, markClasses]
+  );
 
   return (
     <span

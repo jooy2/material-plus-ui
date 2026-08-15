@@ -374,6 +374,11 @@ export const MPTimeline = React.forwardRef<HTMLOListElement, MPTimelineProps>(fu
     [size, orientation, color, active]
   );
 
+  const positions = React.useMemo<MPTimelineItemContextValue[]>(
+    () => Array.from({ length: count }, (_, index) => ({ index, last: index === count - 1 })),
+    [count]
+  );
+
   const element = useRender({
     render: render ?? <ol />,
     ref,
@@ -391,8 +396,11 @@ export const MPTimeline = React.forwardRef<HTMLOListElement, MPTimelineProps>(fu
         .filter(Boolean)
         .join(' '),
       style,
+      // One value per position, built with the list rather than inline: a fresh
+      // object per item per render is a fresh context value per item per render,
+      // which re-renders every step of a sequence that did not change.
       children: items.map((item, index) => (
-        <MPTimelineItemContext.Provider key={index} value={{ index, last: index === count - 1 }}>
+        <MPTimelineItemContext.Provider key={index} value={positions[index]}>
           {item}
         </MPTimelineItemContext.Provider>
       )),

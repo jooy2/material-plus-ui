@@ -222,6 +222,23 @@ export const MPBreadcrumb = React.forwardRef<HTMLElement, MPBreadcrumbProps>(fun
 
   const mark = isSeparatorName(separator) ? separatorMark(separator) : separator;
 
+  /*
+   * One context value per position, built with the list rather than inline.
+   *
+   * A fresh object per step per render is a fresh context value per step per
+   * render, which re-renders a whole trail because something above it moved.
+   * `shown.length` is what the last step is decided against, so the list is
+   * rebuilt exactly when the fold opens or the trail's length changes.
+   */
+  const positions = React.useMemo<MPBreadcrumbContextValue[]>(
+    () =>
+      Array.from({ length: shown.length }, (_, index) => ({
+        size,
+        last: !claimed && index === shown.length - 1
+      })),
+    [size, claimed, shown.length]
+  );
+
   const foldClassNames = [
     'rounded-mp-xs text-mp-on-surface-variant inline-flex items-center px-0.5',
     'appearance-none border-0 bg-transparent font-[inherit]',
@@ -267,9 +284,7 @@ export const MPBreadcrumb = React.forwardRef<HTMLElement, MPBreadcrumbProps>(fun
             ) : null}
 
             {step ? (
-              <MPBreadcrumbContext.Provider
-                value={{ size, last: !claimed && index === shown.length - 1 }}
-              >
+              <MPBreadcrumbContext.Provider value={positions[index]}>
                 {step}
               </MPBreadcrumbContext.Provider>
             ) : (

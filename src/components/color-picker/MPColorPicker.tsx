@@ -239,13 +239,11 @@ interface PanelProps {
   labels: MPColorPickerLabels;
 }
 
-/** Where a pointer landed inside an element, as a 0–1 fraction of each axis. */
-function fractionsOf(event: React.PointerEvent<HTMLElement>): { x: number; y: number } {
-  const rect = event.currentTarget.getBoundingClientRect();
-
+/** Where a pointer landed inside a box, as a 0–1 fraction of each axis. */
+function fractionsIn(rect: DOMRect, clientX: number, clientY: number): { x: number; y: number } {
   return {
-    x: rect.width === 0 ? 0 : clamp((event.clientX - rect.left) / rect.width, 0, 1),
-    y: rect.height === 0 ? 0 : clamp((event.clientY - rect.top) / rect.height, 0, 1)
+    x: rect.width === 0 ? 0 : clamp((clientX - rect.left) / rect.width, 0, 1),
+    y: rect.height === 0 ? 0 : clamp((clientY - rect.top) / rect.height, 0, 1)
   };
 }
 
@@ -290,22 +288,43 @@ function ColorPanel({
   const pure = cssColor({ h: hsv.h, s: 100, v: 100 });
   const solid = cssColor(hsv);
 
-  /** Pointer capture on the element itself, so a drag off the panel keeps working. */
-  const track = (handler: (event: React.PointerEvent<HTMLElement>) => void) => ({
+  /**
+   * Pointer capture on the element itself, so a drag off the panel keeps working.
+   *
+   * The box is measured once, on the press, and reused for every move of that
+   * drag. `getBoundingClientRect` forces the browser to flush layout, and a
+   * pointer sends moves faster than the screen refreshes — so measuring per move
+   * was asking for a layout on every one of them to re-learn a rectangle that
+   * cannot change while a finger is down on it.
+   */
+  const gripRect = React.useRef<DOMRect | null>(null);
+
+  const track = (handler: (at: { x: number; y: number }) => void) => ({
     onPointerDown: (event: React.PointerEvent<HTMLElement>) => {
       if (inert) {
         return;
       }
 
+      const rect = event.currentTarget.getBoundingClientRect();
+
+      gripRect.current = rect;
       event.currentTarget.setPointerCapture(event.pointerId);
-      handler(event);
+      handler(fractionsIn(rect, event.clientX, event.clientY));
     },
     onPointerMove: (event: React.PointerEvent<HTMLElement>) => {
-      if (inert || !event.currentTarget.hasPointerCapture(event.pointerId)) {
+      const rect = gripRect.current;
+
+      if (inert || !rect || !event.currentTarget.hasPointerCapture(event.pointerId)) {
         return;
       }
 
-      handler(event);
+      handler(fractionsIn(rect, event.clientX, event.clientY));
+    },
+    onPointerUp: () => {
+      gripRect.current = null;
+    },
+    onPointerCancel: () => {
+      gripRect.current = null;
     }
   });
 
@@ -335,14 +354,39 @@ function ColorPanel({
     'focus-visible:outline-solid outline-none'
   ].join(' ');
 
+  /*
+   * The swatches, parsed once rather than on every render.
+   *
+   * Each one was being run through `parseColor` and then `formatColor` to work
+   * out whether it is the chosen one — three colour conversions per swatch, on
+   * a default row of sixteen, on every move of a drag across the panel above
+   * them. None of it depends on the current colour except the last comparison,
+   * so only the last comparison stays in the render.
+   */
+  const swatchList = React.useMemo(() => {
+    if (!swatches) {
+      return [];
+    }
+
+    return swatches.map((swatch) => {
+      const parsed = parseColor(swatch);
+
+      return {
+        swatch,
+        parsed,
+        hex: parsed === null ? null : formatColor(parsed.hsv, parsed.alpha, 'hex')
+      };
+    });
+  }, [swatches]);
+
+  const current = formatColor(hsv, alphaValue, 'hex');
+
   return (
     <div className={`mp-color-picker__panel flex flex-col ${PANEL_WIDTH[size]} ${PANEL_GAP[size]}`}>
       <div
-        {...track((event) => {
-          const { x, y } = fractionsOf(event);
-
-          onChange({ hsv: { h: hsv.h, s: x * 100, v: (1 - y) * 100 }, alpha: alphaValue });
-        })}
+        {...track(({ x, y }) =>
+          onChange({ hsv: { h: hsv.h, s: x * 100, v: (1 - y) * 100 }, alpha: alphaValue })
+        )}
         role="slider"
         tabIndex={inert ? -1 : 0}
         aria-label={labels.area}
@@ -399,9 +443,7 @@ function ColorPanel({
       </div>
 
       <div
-        {...track((event) =>
-          onChange({ hsv: { ...hsv, h: fractionsOf(event).x * 360 }, alpha: alphaValue })
-        )}
+        {...track(({ x }) => onChange({ hsv: { ...hsv, h: x * 360 }, alpha: alphaValue }))}
         {...railProps(labels.hue, hsv.h, 360, (delta) =>
           onChange({ hsv: { ...hsv, h: (hsv.h + delta * 2 + 360) % 360 }, alpha: alphaValue })
         )}
@@ -430,7 +472,7 @@ function ColorPanel({
 
       {withAlpha ? (
         <div
-          {...track((event) => onChange({ hsv, alpha: fractionsOf(event).x }))}
+          {...track(({ x }) => onChange({ hsv, alpha: x }))}
           {...railProps(labels.alpha, alphaValue * 100, 100, (delta) =>
             onChange({ hsv, alpha: clamp(alphaValue + delta / 100, 0, 1) })
           )}
@@ -498,24 +540,24 @@ function ColorPanel({
         </div>
       ) : null}
 
-      {swatches && swatches.length > 0 ? (
+      {swatchList.length > 0 ? (
         <div role="group" aria-label={labels.swatches} className="grid grid-cols-8 gap-1">
-          {swatches.map((swatch) => {
-            const parsed = parseColor(swatch);
-            const chosen =
-              parsed !== null &&
-              formatColor(parsed.hsv, parsed.alpha, 'hex') === formatColor(hsv, alphaValue, 'hex');
+          {swatchList.map(({ swatch, parsed, hex }, index) => {
+            const chosen = parsed !== null && hex === current;
 
             return (
               <button
-                key={swatch}
+                // The colour and its place in the row, because a caller's own
+                // list may legitimately hold the same colour twice — a duplicate
+                // key would leave React reconciling two buttons as one.
+                key={`${index}:${swatch}`}
                 type="button"
                 disabled={inert}
                 aria-label={swatch}
                 aria-pressed={chosen}
                 onClick={() => {
                   if (parsed) {
-                    onChange(parsed);
+                    onChange({ hsv: parsed.hsv, alpha: parsed.alpha });
                   }
                 }}
                 className={[

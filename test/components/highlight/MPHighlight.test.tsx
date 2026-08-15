@@ -8,6 +8,41 @@ function marks() {
 }
 
 describe('MPHighlight', () => {
+  describe('the expression it builds', () => {
+    it('leaves a caller’s own RegExp unwound', async () => {
+      /*
+       * `markString` drives the expression with `exec` in a loop, which writes
+       * `lastIndex`. Doing that to the caller's object leaves a module-level
+       * `const RE = /…/g` elsewhere in their application holding an offset this
+       * component put there — a search that skips its first matches, nowhere
+       * near the component that caused it.
+       */
+      const shared = /a/g;
+
+      await render(<MPHighlight query={shared}>banana</MPHighlight>);
+
+      expect(shared.lastIndex).toBe(0);
+      // And it still works where the caller left off using it themselves.
+      expect(shared.exec('banana')?.index).toBe(1);
+    });
+
+    it('re-marks when an inline query changes and not when it does not', async () => {
+      // Written inline is how a query is usually written, and an
+      // identity-keyed memo would rebuild on every keystroke of the box the
+      // query came from.
+      const screen = await render(<MPHighlight query={['data']}>database</MPHighlight>);
+      const first = screen.container.querySelector('mark')!;
+
+      await screen.rerender(<MPHighlight query={['data']}>database</MPHighlight>);
+
+      expect(screen.container.querySelector('mark')).toBe(first);
+
+      await screen.rerender(<MPHighlight query={['base']}>database</MPHighlight>);
+
+      expect(screen.container.querySelector('mark')!.textContent).toBe('base');
+    });
+  });
+
   describe('marking', () => {
     it('wraps every match in a real <mark>', async () => {
       await render(<MPHighlight query="cat">the cat sat on the cat</MPHighlight>);
