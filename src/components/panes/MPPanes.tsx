@@ -246,11 +246,19 @@ export const MPPanes = React.forwardRef<HTMLDivElement, MPPanesProps>(function M
     [ref]
   );
 
-  // The constraints are read during render and used inside pointer handlers that
-  // outlive it, so they go through a ref rather than through the closure.
+  /*
+   * The constraints, read inside pointer handlers that outlive the render they
+   * were created in — so they go through a ref rather than through the closure.
+   *
+   * Written in a layout effect rather than during the render itself. A render
+   * may be thrown away: React can start one, abandon it and start again, and a
+   * ref assigned in the body would keep whatever the discarded attempt wrote.
+   * A layout effect only runs for the render that was actually committed, and it
+   * runs before the browser can deliver an event against that commit — which is
+   * the whole window these have to be correct in.
+   */
   const constraintsRef = React.useRef<MPPaneProps[]>([]);
-
-  constraintsRef.current = items.map((item) => item.props);
+  const constraints = items.map((item) => item.props);
 
   const [stored, setFractions] = React.useState<number[] | null>(null);
   // A pane added or removed leaves the stored split a render behind the children
@@ -260,7 +268,31 @@ export const MPPanes = React.forwardRef<HTMLDivElement, MPPanesProps>(function M
   const fractions = stored && stored.length === count ? stored : null;
   const fractionsRef = React.useRef<number[] | null>(null);
 
-  fractionsRef.current = fractions;
+  React.useLayoutEffect(() => {
+    constraintsRef.current = constraints;
+    fractionsRef.current = fractions;
+  });
+
+  /**
+   * What `document.body` had before a drag took its text selection away, or
+   * `null` when no drag is in flight.
+   *
+   * The page's selection is not this component's property, so a split that
+   * disappears mid-drag — a route change, a closed panel — has to give it back.
+   * Without this it stays `none` and the whole page is unselectable, with
+   * nothing left on screen to suggest why.
+   */
+  const heldSelection = React.useRef<string | null>(null);
+
+  React.useEffect(
+    () => () => {
+      if (heldSelection.current !== null) {
+        document.body.style.userSelect = heldSelection.current;
+        heldSelection.current = null;
+      }
+    },
+    []
+  );
 
   const horizontal = orientation === 'horizontal';
   const gutter = TRACK_PX[size] * Math.max(0, count - 1);
@@ -385,9 +417,15 @@ export const MPPanes = React.forwardRef<HTMLDivElement, MPPanesProps>(function M
      * handle, which leaves the component focusing it by hand and every mouse
      * press wearing a keyboard focus ring. Taking the selection off the document
      * for the length of the drag fixes the selection without touching the focus.
+     *
+     * Held in a ref as well as in this closure, because the thing being changed
+     * is not ours: a split unmounted mid-drag never reaches `end`, and would
+     * leave the whole page unselectable with nothing left on screen to explain
+     * why. The unmount effect below hands it back.
      */
     const selection = document.body.style.userSelect;
 
+    heldSelection.current = selection;
     document.body.style.userSelect = 'none';
 
     const origin = horizontal ? event.clientX : event.clientY;
@@ -410,6 +448,7 @@ export const MPPanes = React.forwardRef<HTMLDivElement, MPPanesProps>(function M
       handle.removeEventListener('pointercancel', end);
       delete handle.dataset.dragging;
       document.body.style.userSelect = selection;
+      heldSelection.current = null;
       onResizeEnd?.(latest.map((fraction) => fraction * 100));
     };
 

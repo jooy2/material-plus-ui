@@ -202,6 +202,44 @@ describe('MPPanes', () => {
     });
   });
 
+  describe('the page’s own selection', () => {
+    it('is handed back when a split disappears mid-drag', async () => {
+      /*
+       * A drag takes the document's text selection away so that dragging a
+       * handle does not select the page it passes over. That is not this
+       * component's property to keep: a split unmounted mid-drag — a route
+       * change, a closed panel — never reaches the end of the gesture, and
+       * without a cleanup the whole page stays unselectable with nothing left on
+       * screen to suggest why.
+       */
+      const before = document.body.style.userSelect;
+      const screen = await render(
+        <Split>
+          <MPPane data-testid="a">A</MPPane>
+          <MPPane>B</MPPane>
+        </Split>
+      );
+      const handle = screen.getByRole('separator').element();
+
+      handle.dispatchEvent(
+        new PointerEvent('pointerdown', {
+          bubbles: true,
+          cancelable: true,
+          button: 0,
+          pointerId: 1,
+          clientX: 200,
+          clientY: 100
+        })
+      );
+
+      expect(document.body.style.userSelect).toBe('none');
+
+      screen.unmount();
+
+      expect(document.body.style.userSelect).toBe(before);
+    });
+  });
+
   describe('what a pane draws', () => {
     it('is nothing: a split is layout, so a pane has no surface of its own', async () => {
       const screen = await render(
