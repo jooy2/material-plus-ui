@@ -57,6 +57,7 @@ import {
   MPProgressLinear,
   MPRadio,
   MPRadioGroup,
+  MPRating,
   MPSegmentedButton,
   MPSelect,
   MPShortcut,
@@ -199,6 +200,12 @@ function SliderPreview() {
   const [volume, setVolume] = useState<number | number[]>(45);
 
   return <MPSlider label="Volume" showValue value={volume} onValueChange={setVolume} />;
+}
+
+function RatingPreview() {
+  const [score, setScore] = useState(4);
+
+  return <MPRating value={score} onValueChange={setScore} />;
 }
 
 function SegmentedButtonPreview() {
@@ -519,6 +526,15 @@ const GROUPS: Group[] = [
             />
           </div>
         )
+      },
+      {
+        name: 'MPRating',
+        summary: {
+          ko: '별 다섯 개로 표현하는 점수',
+          en: 'A score out of five, as a row of stars'
+        },
+        path: '/components/inputs/rating',
+        preview: <RatingPreview />
       },
       {
         name: 'MPSegmentedButton',

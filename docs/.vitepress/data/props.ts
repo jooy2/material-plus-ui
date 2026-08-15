@@ -4511,6 +4511,137 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPRating: [
+    {
+      name: 'value',
+      type: 'number',
+      description: {
+        ko: '점수. controlled로 쓰려면 `onValueChange`와 함께 쓰세요',
+        en: 'The score. Use with `onValueChange` for a controlled rating'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'number',
+      default: '0',
+      description: {
+        ko: 'uncontrolled일 때 시작하는 점수',
+        en: 'Where an uncontrolled rating starts'
+      }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: number) => void',
+      description: {
+        ko: '새 점수로 호출됩니다. 지워진 별점은 `0`을 보고합니다',
+        en: 'Called with the new score. `0` is what a cleared rating reports'
+      }
+    },
+    {
+      name: 'count',
+      type: 'number',
+      default: '5',
+      description: {
+        ko: '별의 개수, 곧 최고 점수',
+        en: 'How many stars there are, and therefore the highest score'
+      }
+    },
+    {
+      name: 'precision',
+      type: 'number',
+      default: '1',
+      description: {
+        ko: '**고를 수 있는** 최소 단위. 별 하나의 비율입니다 — `0.5`면 반 개씩, `1`이면 한 개씩. 그려지는 것에는 관여하지 않아서 `4.3`은 어느 값에서든 별 넷과 3분의 1로 그려집니다. 평균은 선택이 아니기 때문입니다',
+        en: 'The smallest step that can be **chosen**, as a fraction of one star — `0.5` gives half stars, `1` whole ones. It does not bound what is *drawn*: a `4.3` is four stars and a third at every precision, because an average is not a choice'
+      }
+    },
+    {
+      name: 'icon',
+      type: NODE,
+      description: { ko: '채워진 별의 글리프', en: 'The glyph a filled star is drawn with' }
+    },
+    {
+      name: 'emptyIcon',
+      type: NODE,
+      description: {
+        ko: '빈 별의 글리프. 같은 모양이어야 합니다',
+        en: 'And the one an empty star is drawn with. It has to be the same shape'
+      }
+    },
+    {
+      name: 'clearable',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '이미 선택된 점수를 다시 고르면 `0`으로 지워집니다',
+        en: 'Choosing the score that is already chosen clears it back to `0`'
+      }
+    },
+    {
+      name: 'readOnly',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '바꿀 수 없는 점수 표시 — 상품의 평균, 남이 남긴 평가. 입력도 라디오 그룹도 없이 점수를 문장으로 든 `role="img"` 하나가 됩니다. 채도를 빼지 않는 이 라이브러리의 유일한 `readOnly`입니다. 붙잡아 둔 컨트롤이 아니라 숫자의 그림이기 때문입니다',
+        en: 'Shows the score without letting it be changed — a product’s average, a rating somebody else left. No inputs and no radio group: one `role="img"` with the score as a sentence. The one `readOnly` in the library that does not drain the saturation, because it is a picture of a number rather than a control being held still'
+      }
+    },
+    {
+      ...disabled,
+      description: {
+        ko: '사용할 수 없음. 강조 색이 사라지고 명세의 비활성 잉크가 들어옵니다',
+        en: 'Unavailable. Drops the accent for the specification’s disabled ink'
+      }
+    },
+    {
+      name: 'name',
+      type: 'string',
+      description: {
+        ko: '폼이 제출될 때 값을 식별합니다. 없으면 하나가 생성되므로 한 페이지의 별점 둘이 실수로 같은 그룹을 공유하지 않습니다',
+        en: 'Identifies the value when a form is submitted. One is generated without it, so two ratings on a page never share a radio group by accident'
+      }
+    },
+    {
+      name: 'required',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '별을 고르기 전에는 폼이 제출되지 않습니다',
+        en: 'A form will not submit until a star has been chosen'
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '별 하나의 높이, 글리프 사다리 위에서. `md`가 24dp입니다 — 별에는 옆에 붙는 라벨도 감싸는 컨테이너도 없어서 크기가 정해지는 대상이 곧 그림입니다',
+        en: 'One star’s height, on the glyph ladder — `md` is 24dp. A star has no label beside it and no container around it, so the thing being sized *is* the drawing'
+      }
+    },
+    {
+      ...color,
+      description: {
+        ko: '채워진 별이 읽는 강조 색 계열. 호박색이 없는 이유는 MD3의 색 체계에 없기 때문입니다 — 금색 별을 원하면 토큰을 설정하고 그 계열을 요청하세요',
+        en: 'Which accent family the filled stars read. There is no amber because MD3’s colour system has none: for gold stars, set the token and ask for that family'
+      }
+    },
+    {
+      name: 'locale',
+      type: 'string',
+      description: {
+        ko: '말로 된 이름을 쓸 언어 — `ko`, `pt-BR`, `zh-Hant` 같은 BCP 47 태그',
+        en: 'Which language the spoken names are written in — a BCP 47 tag such as `ko`, `pt-BR` or `zh-Hant`'
+      }
+    },
+    {
+      name: 'labels',
+      type: 'Partial<MPRatingLabels>',
+      description: {
+        ko: '단어 자체에 대한 덮어쓰기. 번역보다 우선합니다',
+        en: 'Overrides for the words themselves. They win over the translation'
+      }
+    }
+  ],
+
   MPPagination: [
     {
       name: 'count',

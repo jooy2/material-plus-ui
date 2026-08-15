@@ -56,6 +56,7 @@ import {
   Minus,
   Plus,
   Search,
+  Star,
   TriangleAlert,
   Upload,
   X
@@ -77,7 +78,6 @@ export const ChevronUpIcon = ChevronUp;
 export const ChevronLeftIcon = ChevronLeft;
 /** Next, in a pager or a carousel. */
 export const ChevronRightIcon = ChevronRight;
-
 /** First, in a pager: the stepper that jumps to an end rather than by one. */
 export const ChevronsLeftIcon = ChevronsLeft;
 /** And last. */
@@ -116,6 +116,12 @@ export const UploadIcon = Upload;
 export const CalendarIcon = CalendarDays;
 /** A time of day: what a time picker's trigger wears. */
 export const ClockIcon = Clock;
+/**
+ * A score. Drawn as an outline, and filled by whatever is scoring with it —
+ * lucide draws it `fill="none"`, and `MPRating` overlays a copy in `fill-current`
+ * rather than shipping a second glyph.
+ */
+export const StarIcon = Star;
 /** Work in progress, spun by whatever is waiting on it. */
 export const SpinnerIcon = LoaderCircle;
 
@@ -156,6 +162,7 @@ export const ICONS = {
   upload: UploadIcon,
   calendar: CalendarIcon,
   clock: ClockIcon,
+  star: StarIcon,
   spinner: SpinnerIcon
 } as const;
 

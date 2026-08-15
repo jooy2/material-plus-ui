@@ -47,6 +47,7 @@ export * from './components/progress-box';
 export * from './components/progress-circular';
 export * from './components/progress-linear';
 export * from './components/radio-group';
+export * from './components/rating';
 export * from './components/segmented-button';
 export * from './components/select';
 export * from './components/shortcut';

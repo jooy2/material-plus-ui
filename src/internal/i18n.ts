@@ -125,6 +125,21 @@ export interface MPMessages {
     last: string;
   };
   /**
+   * MPRating.
+   *
+   * Read out and never drawn, like the pagination's: a score is a row of stars,
+   * and the sentence behind it is the whole of what a reader who cannot see them
+   * gets. `{value}` and `{max}` are filled in by `fillMessage`.
+   */
+  rating: {
+    /** The name of the control itself. */
+    label: string;
+    /** A score — what one star is called, and what a read-only row announces. */
+    value: string;
+    /** Nothing chosen yet, which is not the same as a score of nought. */
+    empty: string;
+  };
+  /**
    * MPSpoiler.
    *
    * The one namespace whose strings are *drawn* rather than only announced —
@@ -196,6 +211,11 @@ const base: MPMessages = {
     next: 'Next page',
     first: 'First page',
     last: 'Last page'
+  },
+  rating: {
+    label: 'Rating',
+    value: '{value} out of {max}',
+    empty: 'Not rated'
   }
 };
 
@@ -251,6 +271,11 @@ const translations: Record<string, PartialMessages> = {
       next: '다음 페이지',
       first: '첫 페이지',
       last: '마지막 페이지'
+    },
+    rating: {
+      label: '별점',
+      value: '{max}점 만점에 {value}점',
+      empty: '평가 없음'
     }
   },
   ja: {
@@ -296,6 +321,11 @@ const translations: Record<string, PartialMessages> = {
       next: '次のページ',
       first: '最初のページ',
       last: '最後のページ'
+    },
+    rating: {
+      label: '評価',
+      value: '{max}段階中{value}',
+      empty: '未評価'
     }
   },
   'zh-hans': {
@@ -341,6 +371,11 @@ const translations: Record<string, PartialMessages> = {
       next: '下一页',
       first: '第一页',
       last: '最后一页'
+    },
+    rating: {
+      label: '评分',
+      value: '{max} 分中的 {value} 分',
+      empty: '未评分'
     }
   },
   'zh-hant': {
@@ -386,6 +421,11 @@ const translations: Record<string, PartialMessages> = {
       next: '下一頁',
       first: '第一頁',
       last: '最後一頁'
+    },
+    rating: {
+      label: '評分',
+      value: '{max} 分中的 {value} 分',
+      empty: '未評分'
     }
   },
   es: {
@@ -431,6 +471,11 @@ const translations: Record<string, PartialMessages> = {
       next: 'Página siguiente',
       first: 'Primera página',
       last: 'Última página'
+    },
+    rating: {
+      label: 'Valoración',
+      value: '{value} de {max}',
+      empty: 'Sin valorar'
     }
   },
   pt: {
@@ -476,6 +521,11 @@ const translations: Record<string, PartialMessages> = {
       next: 'Próxima página',
       first: 'Primeira página',
       last: 'Última página'
+    },
+    rating: {
+      label: 'Avaliação',
+      value: '{value} de {max}',
+      empty: 'Sem avaliação'
     }
   },
   fr: {
@@ -521,6 +571,11 @@ const translations: Record<string, PartialMessages> = {
       next: 'Page suivante',
       first: 'Première page',
       last: 'Dernière page'
+    },
+    rating: {
+      label: 'Note',
+      value: '{value} sur {max}',
+      empty: 'Non noté'
     }
   },
   de: {
@@ -566,6 +621,11 @@ const translations: Record<string, PartialMessages> = {
       next: 'Nächste Seite',
       first: 'Erste Seite',
       last: 'Letzte Seite'
+    },
+    rating: {
+      label: 'Bewertung',
+      value: '{value} von {max}',
+      empty: 'Nicht bewertet'
     }
   },
   it: {
@@ -611,6 +671,11 @@ const translations: Record<string, PartialMessages> = {
       next: 'Pagina successiva',
       first: 'Prima pagina',
       last: 'Ultima pagina'
+    },
+    rating: {
+      label: 'Valutazione',
+      value: '{value} su {max}',
+      empty: 'Non valutato'
     }
   },
   nl: {
@@ -656,6 +721,11 @@ const translations: Record<string, PartialMessages> = {
       next: 'Volgende pagina',
       first: 'Eerste pagina',
       last: 'Laatste pagina'
+    },
+    rating: {
+      label: 'Beoordeling',
+      value: '{value} van {max}',
+      empty: 'Niet beoordeeld'
     }
   },
   pl: {
@@ -701,6 +771,11 @@ const translations: Record<string, PartialMessages> = {
       next: 'Następna strona',
       first: 'Pierwsza strona',
       last: 'Ostatnia strona'
+    },
+    rating: {
+      label: 'Ocena',
+      value: '{value} z {max}',
+      empty: 'Brak oceny'
     }
   },
   ru: {
@@ -746,6 +821,11 @@ const translations: Record<string, PartialMessages> = {
       next: 'Следующая страница',
       first: 'Первая страница',
       last: 'Последняя страница'
+    },
+    rating: {
+      label: 'Оценка',
+      value: '{value} из {max}',
+      empty: 'Без оценки'
     }
   },
   tr: {
@@ -791,6 +871,11 @@ const translations: Record<string, PartialMessages> = {
       next: 'Sonraki sayfa',
       first: 'İlk sayfa',
       last: 'Son sayfa'
+    },
+    rating: {
+      label: 'Değerlendirme',
+      value: '{max} üzerinden {value}',
+      empty: 'Değerlendirilmedi'
     }
   },
   ar: {
@@ -836,6 +921,11 @@ const translations: Record<string, PartialMessages> = {
       next: 'الصفحة التالية',
       first: 'الصفحة الأولى',
       last: 'الصفحة الأخيرة'
+    },
+    rating: {
+      label: 'التقييم',
+      value: '{value} من {max}',
+      empty: 'بدون تقييم'
     }
   },
   hi: {
@@ -881,6 +971,11 @@ const translations: Record<string, PartialMessages> = {
       next: 'अगला पृष्ठ',
       first: 'पहला पृष्ठ',
       last: 'अंतिम पृष्ठ'
+    },
+    rating: {
+      label: 'रेटिंग',
+      value: '{max} में से {value}',
+      empty: 'रेटिंग नहीं दी गई'
     }
   },
   id: {
@@ -926,6 +1021,11 @@ const translations: Record<string, PartialMessages> = {
       next: 'Halaman berikutnya',
       first: 'Halaman pertama',
       last: 'Halaman terakhir'
+    },
+    rating: {
+      label: 'Peringkat',
+      value: '{value} dari {max}',
+      empty: 'Belum dinilai'
     }
   },
   vi: {
@@ -971,6 +1071,11 @@ const translations: Record<string, PartialMessages> = {
       next: 'Trang sau',
       first: 'Trang đầu',
       last: 'Trang cuối'
+    },
+    rating: {
+      label: 'Đánh giá',
+      value: '{value} trên {max}',
+      empty: 'Chưa đánh giá'
     }
   },
   th: {
@@ -1016,6 +1121,11 @@ const translations: Record<string, PartialMessages> = {
       next: 'หน้าถัดไป',
       first: 'หน้าแรก',
       last: 'หน้าสุดท้าย'
+    },
+    rating: {
+      label: 'คะแนน',
+      value: '{value} จาก {max}',
+      empty: 'ยังไม่ได้ให้คะแนน'
     }
   }
 };
@@ -1107,6 +1217,7 @@ export function resolveMessages(locale?: string): MPMessages {
         alert: { ...base.alert, ...match.alert },
         chat: { ...base.chat, ...match.chat },
         pagination: { ...base.pagination, ...match.pagination },
+        rating: { ...base.rating, ...match.rating },
         spoiler: { ...base.spoiler, ...match.spoiler }
       }
     : base;
