@@ -106,6 +106,17 @@ export type MPCorner = 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end';
 export type MPWeekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 /**
+ * How something sits in the page's scroll.
+ *
+ * CSS's own four values, because this is CSS's own question and a second
+ * spelling for `fixed` would be a word a caller has to translate. `sticky` and
+ * `fixed` are what a bar pinned to an edge of the window wants; `absolute` pins
+ * a thing to a *region* instead — a button in a card, in a map, in a preview —
+ * and is the one that makes a floating control usable anywhere but the window.
+ */
+export type MPPosition = 'static' | 'absolute' | 'sticky' | 'fixed';
+
+/**
  * How wide the window is, in Material's own words.
  *
  * MD3 does not describe a layout in pixels, it describes it in **window size

@@ -4511,6 +4511,95 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPFloatingActionButton: [
+    {
+      name: 'icon',
+      type: NODE,
+      description: {
+        ko: '글리프. 크기를 따로 정해야 하면 [MPIcon](../display/icon)으로 감싸고, 그냥 넘기면 단계가 정한 글리프 크기로 그려집니다',
+        en: 'The glyph. Wrap it in an [MPIcon](../display/icon) when it needs a size of its own; passed bare it is drawn at the rung’s own glyph size'
+      }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      required: true,
+      description: {
+        ko: '버튼이 무슨 일을 하는지, 말로. 여기서 유일한 필수 prop입니다 — 라벨 전체가 그림인 버튼에는 접근성 이름이 없습니다. `extended`일 때는 버튼에 쓰이는 단어이기도 해서 둘이 다른 말을 할 수 없습니다',
+        en: 'What the button does, in words. The one required prop here: a button whose whole label is a drawing has no accessible name at all. With `extended` it is also the word written on the button, so the two can never say different things'
+      }
+    },
+    {
+      name: 'extended',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '`label`을 글리프 옆에 씁니다. 원반이 스타디움이 되는 MD3의 extended 플로팅 버튼이고, 화면이 다루는 그 하나의 액션을 위한 것입니다',
+        en: "Writes `label` beside the glyph, which turns the disc into a stadium — MD3's extended floating button, for the one action a screen is about"
+      }
+    },
+    {
+      name: 'variant',
+      type: "'filled' | 'tonal' | 'elevated'",
+      default: "'tonal'",
+      description: {
+        ko: '어떤 컨테이너를 칠할지. `tonal`이 명세의 기본값(강조 색 컨테이너), `filled`가 강조 색 자체, `elevated`가 MD3의 surface FAB입니다. 플로팅 버튼은 곧 자기 컨테이너이므로 `outlined`와 `text`는 없습니다',
+        en: "Which container it paints. `tonal` is the specification's default (the accent container), `filled` is the accent itself, `elevated` is MD3's surface FAB. `outlined` and `text` are absent because a floating button *is* its container"
+      }
+    },
+    color,
+    {
+      ...size,
+      description: {
+        ko: '버튼의 크기. `md`가 MD3 자신의 56dp이고, `xs`와 `xl`이 명세의 small(40dp)과 large(96dp)입니다. 모서리도 함께 움직이는데, 이 라이브러리에서 그런 유일한 컴포넌트입니다',
+        en: "The button's size. `md` is MD3's own 56dp; `xs` and `xl` are the specification's small and large floating buttons at 40 and 96dp. The corner moves with it, which is the one place in this library it does"
+      }
+    },
+    {
+      name: 'position',
+      type: "'static' | 'absolute' | 'sticky' | 'fixed'",
+      default: "'fixed'",
+      description: {
+        ko: '페이지 안에서 어떻게 놓일지. 기본값 `fixed`가 플로팅 버튼 그 자체입니다 — 아래 페이지가 무엇을 하든 창의 한 모서리에 붙어 있습니다. `absolute`는 가장 가까운 위치 지정 조상에 고정하고, `static`은 흐름으로 되돌립니다',
+        en: 'How it sits in the page. `fixed` — the default — is what a floating button *is*: held against a corner of the window whatever the page does. `absolute` pins it to the nearest positioned ancestor instead, and `static` puts it back in the flow'
+      }
+    },
+    {
+      name: 'corner',
+      type: "'top-start' | 'top-end' | 'bottom-start' | 'bottom-end'",
+      default: "'bottom-end'",
+      description: {
+        ko: '어느 모서리에 붙일지. 논리 방향이라 `bottom-end`는 RTL에서 왼쪽 아래입니다. `position`이 `static`이면 효과가 없습니다',
+        en: 'Which corner it is pinned to. Logical, so `bottom-end` is bottom-left under RTL. No effect while `position` is `static`'
+      }
+    },
+    {
+      name: 'offset',
+      type: 'number | string',
+      default: '16',
+      description: {
+        ko: '양쪽 가장자리로부터의 거리. CSS 길이나 픽셀 수입니다. MD3 자신의 값은 16dp입니다',
+        en: "How far in from both edges, as a CSS length or a number of pixels. MD3's own is 16dp"
+      }
+    },
+    {
+      ...disabled,
+      description: {
+        ko: '사용할 수 없음. 자리는 지키고, 응답을 멈추고, 떠 있기를 멈춥니다 — 누를 수 없는데도 그림자를 드리우는 버튼은 여전히 자기가 할 일이라고 주장하는 버튼입니다',
+        en: 'Unavailable. It keeps its place, stops answering, and stops floating — a button still casting a shadow while it cannot be pressed is one still claiming to be the thing to do'
+      }
+    },
+    {
+      name: 'type',
+      type: "'button' | 'submit' | 'reset'",
+      default: "'button'",
+      description: {
+        ko: '`submit`이 아니라 `button`입니다. 네이티브 버튼은 기본적으로 자기를 감싼 폼을 제출합니다',
+        en: '`button`, not `submit`. A native button defaults to submitting the form around it'
+      }
+    }
+  ],
+
   MPTabs: [
     {
       name: 'variant',

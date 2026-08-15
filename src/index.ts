@@ -27,6 +27,7 @@ export * from './components/divider';
 export * from './components/drawer';
 export * from './components/empty';
 export * from './components/file-picker';
+export * from './components/floating-action-button';
 export * from './components/grid';
 export * from './components/highlight';
 export * from './components/icon';

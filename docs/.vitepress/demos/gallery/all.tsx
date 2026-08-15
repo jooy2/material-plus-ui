@@ -31,6 +31,7 @@ import {
   MPDrawer,
   MPEmpty,
   MPFilePicker,
+  MPFloatingActionButton,
   MPGrid,
   MPGridItem,
   MPHighlight,
@@ -460,6 +461,29 @@ const GROUPS: Group[] = [
             <MPButton>Share</MPButton>
             <MPButton>Delete</MPButton>
           </MPButtonGroup>
+        )
+      },
+      {
+        name: 'MPFloatingActionButton',
+        summary: {
+          ko: '화면이 다루는 단 하나의 액션이, 그 위에 떠 있는 것',
+          en: 'The one action a screen is about, floating over it'
+        },
+        path: '/components/inputs/floating-action-button',
+        preview: (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <MPFloatingActionButton
+              position="static"
+              icon={<MPIcon icon={ICONS.add} />}
+              label="Compose"
+            />
+            <MPFloatingActionButton
+              position="static"
+              extended
+              icon={<MPIcon icon={ICONS.add} />}
+              label="Compose"
+            />
+          </div>
         )
       },
       {
