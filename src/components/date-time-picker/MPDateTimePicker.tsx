@@ -8,12 +8,12 @@ import {
   MPPickerDivider,
   MPPickerFooter,
   MPPickerShell,
+  useDisplaySamples,
   type MPPickerShellProps
 } from '../../internal/Picker';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { CONTROL_ICON } from '../../internal/scale';
 import {
-  displaySamples,
   formatDate,
   isDayOutside,
   isHour12,
@@ -239,10 +239,7 @@ export const MPDateTimePicker = React.forwardRef<HTMLButtonElement, MPDateTimePi
       isTimeBlocked(nowValue, 'second');
 
     // Holds the trigger open at the width of the longest moment it could show.
-    const samples = React.useMemo(
-      () => withPlaceholder(displaySamples(locale, displayFormat), placeholder),
-      [locale, displayFormat, placeholder]
-    );
+    const samples = withPlaceholder(useDisplaySamples(locale, displayFormat), placeholder);
 
     return (
       <MPPickerShell

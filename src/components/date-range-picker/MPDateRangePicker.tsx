@@ -7,6 +7,7 @@ import {
   FOOTER_SIZE,
   MPPickerFooter,
   MPPickerShell,
+  useDisplaySamples,
   type MPPickerShellProps
 } from '../../internal/Picker';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
@@ -15,7 +16,6 @@ import { CONTROL_ICON, META_TEXT } from '../../internal/scale';
 import {
   addMonths,
   compareDay,
-  displaySamples,
   formatDate,
   isValidDate,
   localeWeekStart,
@@ -268,8 +268,10 @@ export const MPDateRangePicker = React.forwardRef<HTMLButtonElement, MPDateRange
     const twoUp = monthCount === 2;
 
     // Every date either half could show, so neither end of the trigger changes
-    // width as the range is filled in.
-    const dateSamples = React.useMemo(() => displaySamples(locale, format), [locale, format]);
+    // width as the range is filled in. Held across renders, which matters more
+    // here than anywhere else: moving the pointer across a calendar redraws the
+    // band, so this component re-renders on every cell the pointer crosses.
+    const dateSamples = useDisplaySamples(locale, format);
 
     // Which end the next click will fill. The trigger says the same thing with
     // its two halves, but the trigger is behind the popup while the popup is up,

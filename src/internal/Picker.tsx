@@ -8,10 +8,46 @@ import { MPFieldLabel, MPFieldOutline } from './FieldOutline';
 import { MPStateLayer } from './StateLayer';
 import { MPSupportingText } from './SupportingText';
 import { MPWidthSizer } from './WidthSizer';
+import { displaySamples } from './date';
 import { CONTROL_ICON, hasContent, PROSE_TEXT } from './scale';
 import { FADE, PORTAL_LAYER } from './surface';
 import type { MPPickerLabels } from './Calendar';
 import type { MPColor, MPSize, MPStyleProps } from '../types';
+
+/**
+ * The strings a trigger is held open by, kept across renders that did not
+ * change what it could say.
+ *
+ * `displaySamples` formats two dozen instants and deduplicates them, which is
+ * cheap once and not cheap sixty times a second — and sixty times a second is
+ * exactly what a range picker asks for, because moving the pointer across the
+ * calendar re-renders the whole control to redraw the band.
+ *
+ * ## Why it is keyed on the format's *contents*
+ *
+ * Because an options object is nearly always a fresh one. Three of the four
+ * pickers build theirs from a default parameter or a literal, so it is a new
+ * object on every render by construction; and a caller who writes
+ * `format={{ dateStyle: 'full' }}` inline hands over a new object too. Keyed on
+ * identity, the memo would miss every single time — which is what it was doing.
+ *
+ * Serialising instead means the memo holds for as long as the format *says* the
+ * same thing, whoever built the object. `internal/date.ts` keys its formatter
+ * cache the same way, and inherits the same harmless quirk: two objects whose
+ * keys are in a different order read as two formats. That costs one extra miss,
+ * never a wrong answer.
+ */
+export function useDisplaySamples(
+  locale: string | undefined,
+  options: Intl.DateTimeFormatOptions
+): string[] {
+  const key = `${locale ?? ''} ${JSON.stringify(options)}`;
+
+  // `key` is the whole of the dependency on purpose: it is what `locale` and
+  // `options` amount to, and both are read from the render the key belongs to,
+  // so they cannot be stale relative to it.
+  return React.useMemo(() => displaySamples(locale, options), [key]);
+}
 
 /**
  * The shell all four pickers wear: a field-shaped trigger with a popup hanging

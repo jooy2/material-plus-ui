@@ -7,12 +7,12 @@ import {
   FOOTER_SIZE,
   MPPickerFooter,
   MPPickerShell,
+  useDisplaySamples,
   type MPPickerShellProps
 } from '../../internal/Picker';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { CONTROL_ICON } from '../../internal/scale';
 import {
-  displaySamples,
   formatDate,
   isHour12,
   isValidDate,
@@ -238,10 +238,7 @@ export const MPTimePicker = React.forwardRef<HTMLButtonElement, MPTimePickerProp
     const hasFooter = showNowButton || clearable || !closeOnSelect;
 
     // Holds the trigger open at the width of the longest time it could show.
-    const samples = React.useMemo(
-      () => withPlaceholder(displaySamples(locale, displayFormat), placeholder),
-      [locale, displayFormat, placeholder]
-    );
+    const samples = withPlaceholder(useDisplaySamples(locale, displayFormat), placeholder);
 
     return (
       <MPPickerShell

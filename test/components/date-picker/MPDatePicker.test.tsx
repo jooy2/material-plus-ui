@@ -302,6 +302,73 @@ describe('MPDatePicker', () => {
     });
   });
 
+  describe('the width samples', () => {
+    /**
+     * Counts how many strings `Intl` is asked to format while `body` runs.
+     *
+     * `displaySamples` formats two dozen instants to work out the widest thing a
+     * trigger could ever say. That is cheap once and not cheap on every render —
+     * and a picker re-renders on every keystroke of the form around it.
+     *
+     * The getter is what is replaced, not the method: `format` is an accessor on
+     * `DateTimeFormat.prototype` whose getter hands back a function already
+     * bound to its formatter, so anything read off the prototype and called with
+     * a receiver throws.
+     */
+    async function countFormats(body: () => Promise<void>) {
+      const descriptor = Object.getOwnPropertyDescriptor(Intl.DateTimeFormat.prototype, 'format')!;
+      let calls = 0;
+
+      Object.defineProperty(Intl.DateTimeFormat.prototype, 'format', {
+        configurable: true,
+        get(this: Intl.DateTimeFormat) {
+          const bound = descriptor.get!.call(this) as (date?: Date | number) => string;
+
+          return (date?: Date | number) => {
+            calls += 1;
+
+            return bound(date);
+          };
+        }
+      });
+
+      try {
+        await body();
+
+        return calls;
+      } finally {
+        Object.defineProperty(Intl.DateTimeFormat.prototype, 'format', descriptor);
+      }
+    }
+
+    it('does not re-measure when nothing about the format changed', async () => {
+      // The format is a fresh object on every render — it is a default
+      // parameter — so a memo keyed on its identity would miss every time. This
+      // is that memo, keyed on what the format says instead.
+      const screen = await render(<Controlled />);
+
+      const again = await countFormats(async () => {
+        // Re-rendered with a prop that changes nothing about how a date is
+        // written, which is what a keystroke elsewhere in the form looks like.
+        await screen.rerender(<Controlled placeholder="Pick a day" />);
+      });
+
+      // The trigger still writes its own value; what must not come back is the
+      // two dozen samples behind it.
+      expect(again).toBeLessThan(5);
+    });
+
+    it('re-measures when the format actually changes', async () => {
+      const screen = await render(<Controlled />);
+
+      const again = await countFormats(async () => {
+        await screen.rerender(<Controlled format={{ dateStyle: 'full' }} />);
+      });
+
+      expect(again).toBeGreaterThan(20);
+    });
+  });
+
   describe('submitting', () => {
     it('writes the local day rather than a UTC instant', async () => {
       // `toISOString()` on a Date standing for 15 July in Seoul gives the 14th,

@@ -7,12 +7,12 @@ import {
   FOOTER_SIZE,
   MPPickerFooter,
   MPPickerShell,
+  useDisplaySamples,
   type MPPickerShellProps
 } from '../../internal/Picker';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { CONTROL_ICON } from '../../internal/scale';
 import {
-  displaySamples,
   formatDate,
   isDayOutside,
   isValidDate,
@@ -63,6 +63,9 @@ export interface MPDatePickerProps extends MPPickerShellProps {
   /**
    * How the trigger writes the chosen date. Passed straight to `Intl`, so
    * `{ dateStyle: 'full' }` and `{ year: '2-digit', month: 'narrow' }` both work.
+   *
+   * An object written inline is fine: what the picker keeps between renders is
+   * keyed on what the format *says*, not on the object that says it.
    * @default { dateStyle: 'medium' }
    */
   format?: Intl.DateTimeFormatOptions;
@@ -217,10 +220,7 @@ export const MPDatePicker = React.forwardRef<HTMLButtonElement, MPDatePickerProp
 
     // Holds the trigger open at the width of the longest date it could show, so
     // choosing the 1st after the 28th does not shrink the field.
-    const samples = React.useMemo(
-      () => withPlaceholder(displaySamples(locale, format), placeholder),
-      [locale, format, placeholder]
-    );
+    const samples = withPlaceholder(useDisplaySamples(locale, format), placeholder);
 
     return (
       <MPPickerShell
