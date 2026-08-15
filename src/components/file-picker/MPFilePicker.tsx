@@ -214,7 +214,10 @@ export const MPFilePicker = React.forwardRef<HTMLInputElement, MPFilePickerProps
     const locale = useMPLocale(localeProp);
     const messages = useMPMessages('common', locale);
     const inputRef = React.useRef<HTMLInputElement>(null);
-    React.useImperativeHandle(ref, () => inputRef.current as HTMLInputElement);
+
+    // Empty deps: the ref this hands over is the same one for the life of the
+    // component, so recomputing it on every render was rebuilding a constant.
+    React.useImperativeHandle(ref, () => inputRef.current as HTMLInputElement, []);
 
     const [uncontrolled, setUncontrolled] = React.useState<File[]>(() => [...(defaultValue ?? [])]);
     const files = value ? [...value] : uncontrolled;

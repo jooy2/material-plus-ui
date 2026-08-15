@@ -347,7 +347,15 @@ export const MPCarousel = React.forwardRef<HTMLDivElement, MPCarouselProps>(func
       onPointerEnter={() => setPaused(true)}
       onPointerLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
-      onBlur={() => setPaused(false)}
+      onBlur={(event) => {
+        // Only when the focus actually leaves the carousel. Moving between two
+        // controls inside it fires a blur before the next focus, and answering
+        // that one would restart the timer for the length of a tab press — in
+        // the middle of somebody reading their way through the slides.
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+          setPaused(false);
+        }
+      }}
       {...props}
     >
       <div
@@ -384,6 +392,10 @@ export const MPCarousel = React.forwardRef<HTMLDivElement, MPCarouselProps>(func
               key={slideIndex}
               ref={(element) => {
                 slideRefs.current[slideIndex] = element;
+                // Trimmed to the strip's own length, so a carousel whose slides
+                // were narrowed down does not keep the removed ones' elements
+                // alive in an array nothing ever shortens.
+                slideRefs.current.length = count;
               }}
               role="group"
               aria-roledescription="slide"

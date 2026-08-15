@@ -105,9 +105,18 @@ const WEIGHT: Record<MPTypographyWeight, string> = {
 /** Letters, digits and underscores in any script — what `wholeWord` counts. */
 const WORD_CHARACTER = /[\p{L}\p{N}_]/u;
 
-/** The characters a regular expression treats as syntax. */
+/**
+ * The characters a regular expression treats as syntax.
+ *
+ * `-` is in the set even though it only means anything inside a character class
+ * and nothing here builds one. It is what the specification's own
+ * `RegExp.escape` escapes, and a term that comes out of a search box is not
+ * something to be clever about: the cost of one redundant backslash is nothing,
+ * and the cost of a missing one is a query that means something other than what
+ * was typed.
+ */
 function escapeRegExp(text: string): string {
-  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return text.replace(/[.*+?^${}()|[\]\\\-]/g, '\\$&');
 }
 
 /**
