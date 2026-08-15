@@ -56,10 +56,29 @@ const commonSidebarConfig: VitePressSidebarOptions = {
  * The changelog is a loose page with no folder of its own, and the components
  * index cannot both be a heading and a row under it. Left to the generator the
  * changelog would sit at the root with no heading over it at all.
+ *
+ * `examples/` has no `index.md` on purpose, so it cannot take its heading from a
+ * page either: `/examples/` is not a page, it is four of them — one screen each
+ * — and an index that only listed the four would be a row of links standing
+ * where the heading already is. Left to the generator its label would also be
+ * the English word capitalised, over Korean pages.
  */
-const groupLabels: Record<string, { overview: string; more: string; design: string }> = {
-  en: { overview: 'All components', more: 'Discover more', design: 'Design' },
-  ko: { overview: '모든 컴포넌트', more: '더 알아보기', design: '디자인' }
+const groupLabels: Record<
+  string,
+  { overview: string; examples: string; more: string; design: string }
+> = {
+  en: {
+    overview: 'All components',
+    examples: 'Examples',
+    more: 'Discover more',
+    design: 'Design'
+  },
+  ko: {
+    overview: '모든 컴포넌트',
+    examples: '예제',
+    more: '더 알아보기',
+    design: '디자인'
+  }
 };
 
 const vitePressSidebarConfig = [
@@ -73,11 +92,14 @@ const vitePressSidebarConfig = [
   })
 ];
 
-/** The same two destinations in every locale, prefixed with its base. */
-const navFor = (lang: string, labels: [string, string, string]) => [
+/** The same four destinations in every locale, prefixed with its base. */
+const navFor = (lang: string, labels: [string, string, string, string]) => [
   { text: labels[0], link: `${localeBase(lang)}guide/getting-started` },
   { text: labels[1], link: `${localeBase(lang)}design/color` },
-  { text: labels[2], link: `${localeBase(lang)}components/` }
+  { text: labels[2], link: `${localeBase(lang)}components/` },
+  // `/examples/` is a group heading rather than a page, so the nav points at the
+  // one page inside it that shows everything at once.
+  { text: labels[3], link: `${localeBase(lang)}examples/overview` }
 ];
 
 const vitePressI18nConfig: VitePressI18nOptions = {
@@ -90,8 +112,8 @@ const vitePressI18nConfig: VitePressI18nOptions = {
     en: 'A React component library implementing Material Design 3 — the components other Material libraries do not ship, and wider versions of the ones they do. Built on Base UI and Tailwind CSS v4, themed with CSS custom properties so it can coexist with an existing Material setup. ESM only, types included.'
   },
   themeConfig: {
-    ko: { nav: navFor('ko', ['가이드', '디자인', '컴포넌트']) },
-    en: { nav: navFor('en', ['Guide', 'Design', 'Components']) }
+    ko: { nav: navFor('ko', ['가이드', '디자인', '컴포넌트', '예제']) },
+    en: { nav: navFor('en', ['Guide', 'Design', 'Components', 'Examples']) }
   }
 };
 
@@ -567,13 +589,21 @@ function byText(a: GeneratedSidebarItem, b: GeneratedSidebarItem): number {
  * Guide, Components, Discover more — with the component groups kept as headings
  * inside Components.
  *
- * Neither of the two moves below can be stated by the folder tree:
+ * None of the three moves below can be stated by the folder tree:
  *
  * - **The index page becomes an entry rather than the heading's link.** Left to
  *   the generator, `/components/` is only reachable by clicking the word
  *   "Components" above the menu, which does not look like a link and is easy to
  *   miss. It becomes a row of its own and the heading above it stops being
  *   clickable.
+ * - **Examples moves inside Components, above the categories.** Its pages keep
+ *   their own top-level URLs (`/examples/*`) but read as the way into the
+ *   component documentation: whole screens first, then the parts they are built
+ *   from. A group nested in the menu and not in the filesystem is exactly the
+ *   case a generated sidebar has no way to state. It is also the one subgroup
+ *   that is *not* flattened or re-sorted — its four pages are screens rather
+ *   than components, and the order they are read in is the order they are
+ *   written in.
  * - **The component groups stay, but their contents are flattened.** The groups
  *   are what say that a text field is an input and an icon is display; what is
  *   flattened is only what is *inside* a group, so that a page does not sit one
@@ -585,6 +615,7 @@ function arrangeSidebar<T extends GeneratedSidebarItem>(items: T[], lang: string
   const guide = items.find(startsWith('guide/'));
   const design = items.find(startsWith('design/'));
   const components = items.find(startsWith('components/'));
+  const examples = items.find(startsWith('examples/'));
   const changelog = items.find(startsWith('changelog'));
 
   // The folder is `design/` in every locale, so the generator can only ever
@@ -611,14 +642,25 @@ function arrangeSidebar<T extends GeneratedSidebarItem>(items: T[], lang: string
       : undefined;
     delete components.link;
 
-    components.items = [...([overview].filter(Boolean) as T[]), ...loose, ...groups];
+    components.items = [
+      ...([overview].filter(Boolean) as T[]),
+      ...(examples ? [examples as T] : []),
+      ...loose,
+      ...groups
+    ];
+  }
+
+  // The folder is `examples/` in every locale, so — like `design/` above — the
+  // generator can only ever capitalise it into the English word.
+  if (examples) {
+    examples.text = labels.examples;
   }
 
   // A loose page has no group of its own, so it is given one — the place
   // anything that is neither a guide nor a component ends up.
   const more = changelog ? ({ text: labels.more, items: [changelog] } as unknown as T) : undefined;
 
-  const moved = new Set([guide, design, components, changelog].filter(Boolean));
+  const moved = new Set([guide, design, components, examples, changelog].filter(Boolean));
 
   return [
     ...([guide, design, components, more].filter(Boolean) as T[]),
