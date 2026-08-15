@@ -116,8 +116,8 @@ export interface MPSwitchProps {
   /** Name of the form control. */
   name?: string;
   /**
-   * The id put on the control and pointed at by the label. Derived from `name`
-   * when omitted, and generated when there is no name either.
+   * The id put on the control and pointed at by the label. Generated when it is
+   * left out.
    */
   id?: string;
   /**
@@ -164,7 +164,7 @@ export const MPSwitch = React.forwardRef<HTMLElement, MPSwitchProps>(function MP
   const family: MPColor = invalid ? 'error' : color;
   const scale = TRACK[size];
   const generatedId = React.useId();
-  const fieldId = id ?? `mp-switch-${name ?? generatedId}`;
+  const fieldId = id ?? generatedId;
 
   const track = (
     <span className="flex h-[1lh] shrink-0 items-center">

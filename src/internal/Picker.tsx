@@ -146,8 +146,8 @@ export interface MPPickerShellProps extends MPStyleProps {
    */
   readOnly?: boolean;
   /**
-   * The id put on the trigger and pointed at by the label. Derived from `name`
-   * when omitted, and generated when there is no name either.
+   * The id put on the trigger and pointed at by the label. Generated when it is
+   * left out.
    */
   id?: string;
   className?: string;
@@ -219,7 +219,7 @@ export function MPPickerShell({
   const invalid = hasContent(errorMessage);
   const scale = TRIGGER[size];
   const generatedId = React.useId();
-  const fieldId = id ?? `mp-${slug}-${name ?? generatedId}`;
+  const fieldId = id ?? generatedId;
   // A read-only picker keeps its value on screen and keeps its place in the tab
   // order; what it loses is the × and the popup.
   const inert = disabled || readOnly;

@@ -81,8 +81,8 @@ export interface MPCheckboxProps {
   /** The value submitted when the box is ticked. */
   value?: string;
   /**
-   * The id put on the control and pointed at by the label. Derived from `name`
-   * when omitted, and generated when there is no name either.
+   * The id put on the control and pointed at by the label. Generated when it is
+   * left out.
    */
   id?: string;
 }
@@ -129,7 +129,7 @@ export const MPCheckbox = React.forwardRef<HTMLElement, MPCheckboxProps>(functio
   const family: MPColor = invalid ? 'error' : color;
   const tick = TICK[size];
   const generatedId = React.useId();
-  const fieldId = id ?? `mp-checkbox-${name ?? generatedId}`;
+  const fieldId = id ?? generatedId;
 
   return (
     <Field.Root

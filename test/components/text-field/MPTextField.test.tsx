@@ -107,6 +107,27 @@ describe('MPTextField', () => {
       expect(first.id).not.toBe(second.id);
     });
 
+    it('gives two fields of the same name different ids', async () => {
+      /*
+       * A form array — a row of contacts, each with `name="email"` — used to
+       * hand every field the same id, because the id was derived from the name.
+       * A `<label for>` resolves to the first match in the document, so every
+       * label pointed at the first row and clicking the others focused nothing.
+       */
+      const screen = await render(
+        <>
+          <MPTextField value="" label="First" name="email" />
+          <MPTextField value="" label="Second" name="email" />
+        </>
+      );
+
+      const first = screen.getByRole('textbox', { name: 'First' }).element();
+      const second = screen.getByRole('textbox', { name: 'Second' }).element();
+
+      expect(first.id).not.toBe(second.id);
+      expect(document.querySelectorAll(`[id="${CSS.escape(first.id)}"]`)).toHaveLength(1);
+    });
+
     it('takes an explicit id when given one', async () => {
       const screen = await render(<MPTextField value="" label="Email" id="my-own-id" />);
 

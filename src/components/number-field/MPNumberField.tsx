@@ -148,7 +148,7 @@ export function MPNumberField({
   const invalid = hasContent(errorMessage);
   const scale = SHELL[size];
   const generatedId = React.useId();
-  const fieldId = id ?? `mp-number-field-${name ?? generatedId}`;
+  const fieldId = id ?? generatedId;
   // A read-only field keeps its value and loses the buttons: leaving them there
   // disabled is two ways of saying the same thing, and the disabled one is the
   // one that looks broken.

@@ -112,9 +112,8 @@ export interface MPTextFieldProps extends MPStyleProps {
    */
   resizable?: boolean;
   /**
-   * The id put on the control and pointed at by the label. Derived from `name`
-   * when omitted, which is enough as long as no two fields on a page share a
-   * name.
+   * The id put on the control and pointed at by the label. Generated when it is
+   * left out.
    */
   id?: string;
   /**
@@ -252,7 +251,7 @@ export const MPTextField = React.forwardRef<
   const [isComposing, setIsComposing] = React.useState(false);
   const [innerValue, setInnerValue] = React.useState(value);
   const generatedId = React.useId();
-  const fieldId = id ?? `mp-text-field-${name ?? generatedId}`;
+  const fieldId = id ?? generatedId;
   const multiline = !!rows;
   const invalid = errorMessage.length > 0;
   const scale = SIZES[size];

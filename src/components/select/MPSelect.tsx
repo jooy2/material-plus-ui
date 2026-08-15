@@ -86,8 +86,8 @@ export interface MPSelectProps extends MPStyleProps {
   /** Name of the form control. */
   name?: string;
   /**
-   * The id put on the trigger and pointed at by the label. Derived from `name`
-   * when omitted, and generated when there is no name either.
+   * The id put on the trigger and pointed at by the label. Generated when it is
+   * left out.
    */
   id?: string;
 }
@@ -136,7 +136,7 @@ export const MPSelect = React.forwardRef<HTMLButtonElement, MPSelectProps>(funct
   const invalid = hasContent(errorMessage);
   const scale = TRIGGER[size];
   const generatedId = React.useId();
-  const fieldId = id ?? `mp-select-${name ?? generatedId}`;
+  const fieldId = id ?? generatedId;
 
   // Base UI reads this to render the chosen option's *label* in the trigger
   // rather than its raw value, which is the only way a closed select can say

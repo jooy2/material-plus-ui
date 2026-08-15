@@ -116,8 +116,8 @@ export interface MPColorPickerProps extends MPStyleProps {
   /** Overrides for the accessible names, one at a time. */
   labels?: Partial<MPColorPickerLabels>;
   /**
-   * The id put on the trigger and pointed at by the label. Derived from `name`
-   * when omitted, and generated when there is no name either.
+   * The id put on the trigger and pointed at by the label. Generated when it is
+   * left out.
    */
   id?: string;
   className?: string;
@@ -656,7 +656,7 @@ export const MPColorPicker = React.forwardRef<HTMLDivElement, MPColorPickerProps
     const invalid = hasContent(errorMessage);
     const scale = TRIGGER[size];
     const generatedId = React.useId();
-    const fieldId = id ?? `mp-color-picker-${name ?? generatedId}`;
+    const fieldId = id ?? generatedId;
 
     const [uncontrolledValue, setUncontrolledValue] = React.useState(defaultValue);
     const current = value ?? uncontrolledValue;

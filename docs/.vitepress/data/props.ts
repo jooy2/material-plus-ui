@@ -140,8 +140,8 @@ const id: PropRow = {
   name: 'id',
   type: 'string',
   description: {
-    ko: '컨트롤에 붙고 라벨이 가리키는 id. 생략하면 `name`에서, `name`도 없으면 자동 생성됩니다',
-    en: 'The id put on the control and pointed at by the label. Derived from `name` when omitted, and generated when there is no name either'
+    ko: '컨트롤에 붙고 라벨이 가리키는 id. 생략하면 자동 생성됩니다',
+    en: 'The id put on the control and pointed at by the label. Generated when it is left out'
   }
 };
 
@@ -577,8 +577,8 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'id',
       type: 'string',
       description: {
-        ko: '컨트롤에 붙고 라벨이 가리키는 id. 생략하면 `name`에서, `name`도 없으면 자동 생성됩니다',
-        en: 'The id put on the control and pointed at by the label. Derived from `name` when omitted, and generated when there is no name either'
+        ko: '컨트롤에 붙고 라벨이 가리키는 id. 생략하면 자동 생성됩니다',
+        en: 'The id put on the control and pointed at by the label. Generated when it is left out'
       }
     }
   ],

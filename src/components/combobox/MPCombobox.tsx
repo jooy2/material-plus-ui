@@ -152,8 +152,8 @@ export interface MPComboboxProps<
   /** A ref to the text input the reader types into. */
   inputRef?: React.Ref<HTMLInputElement>;
   /**
-   * The id put on the input and pointed at by the label. Derived from `name` when
-   * omitted, and generated when there is no name either.
+   * The id put on the input and pointed at by the label. Generated when it is
+   * left out.
    */
   id?: string;
   className?: string;
@@ -282,7 +282,7 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
   const isMultiple = multiple === true;
   const scale = FIELD[size];
   const generatedId = React.useId();
-  const fieldId = id ?? `mp-combobox-${name ?? generatedId}`;
+  const fieldId = id ?? generatedId;
 
   const options = React.useMemo<Entry[]>(
     () =>
