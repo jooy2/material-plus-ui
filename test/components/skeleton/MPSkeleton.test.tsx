@@ -129,6 +129,24 @@ describe('MPSkeleton', () => {
 
       expect((screen.getByTestId('skeleton').element() as HTMLElement).style.width).toBe('50%');
     });
+
+    it('leaves a stack of lines to the type scale rather than squeezing it', async () => {
+      // On a stack the root is the column that holds the bars, and each bar is
+      // already the height of the type it stands in for — so a `height` here
+      // would clamp the column, and the column hides what overflows it.
+      const screen = await render(<MPSkeleton lines={3} height={20} data-testid="skeleton" />);
+      const element = screen.getByTestId('skeleton').element() as HTMLElement;
+
+      expect(element.style.height).toBe('');
+      expect(element.children).toHaveLength(3);
+      expect(element.getBoundingClientRect().height).toBeGreaterThan(20);
+    });
+
+    it('still takes a height on a single shape', async () => {
+      const screen = await render(<MPSkeleton shape="rect" height={120} data-testid="skeleton" />);
+
+      expect((screen.getByTestId('skeleton').element() as HTMLElement).style.height).toBe('120px');
+    });
   });
 
   describe('render', () => {

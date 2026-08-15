@@ -76,8 +76,15 @@ export interface MPAvatarProps extends Omit<React.ComponentPropsWithoutRef<'span
    * front of a picture that was about to arrive anyway.
    */
   delay?: number;
-  /** Anything else the `<img>` needs — `loading`, `crossOrigin`, `referrerPolicy`. */
-  imageProps?: Omit<React.ComponentPropsWithoutRef<'img'>, 'src' | 'srcSet' | 'alt'>;
+  /**
+   * Anything else the `<img>` needs — `loading`, `crossOrigin`, `referrerPolicy`.
+   *
+   * `className` is not among them, and deliberately: the picture is sized and
+   * cropped by the avatar's own box, and a class replacing that would be a
+   * picture that no longer fits the circle it is in. Style the avatar instead —
+   * `className` on the component reaches the box the picture fills.
+   */
+  imageProps?: Omit<React.ComponentPropsWithoutRef<'img'>, 'src' | 'srcSet' | 'alt' | 'className'>;
   /** Called as the picture moves between `idle`, `loading`, `loaded` and `error`. */
   onLoadingStatusChange?: (status: MPAvatarLoadingStatus) => void;
   /**
@@ -251,9 +258,12 @@ export const MPAvatar = React.forwardRef<HTMLSpanElement, MPAvatarProps>(functio
           // decoration, and `alt` left off is what makes a screen reader read
           // the file name out instead.
           alt={label ?? ''}
-          className="size-full object-cover"
           onLoadingStatusChange={onLoadingStatusChange}
           {...imageProps}
+          // After the spread rather than before it: the crop is what makes the
+          // picture fill its circle, and losing it to a caller's own class is
+          // the picture letterboxed inside the box it was meant to fill.
+          className="size-full object-cover"
         />
       ) : null}
 

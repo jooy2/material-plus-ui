@@ -35,6 +35,58 @@ describe('MPTabs', () => {
     expect(list.querySelector('[role="tabpanel"]')).toBeNull();
   });
 
+  /*
+   * A fragment is the one thing between the tags that is neither a tab nor a
+   * panel and is not a mistake either: a pair that comes and goes together is
+   * written that way. Compared by identity alone it fell to the bar, and the
+   * panel inside it was laid out *as a tab*.
+   */
+  it('sorts through a fragment holding a pair', async () => {
+    const screen = await render(
+      <MPTabs aria-label="Sections" defaultValue="a">
+        <MPTab value="a">A</MPTab>
+        <MPTabPanel value="a">First panel</MPTabPanel>
+        <>
+          <MPTab value="b">B</MPTab>
+          <MPTabPanel value="b">Second panel</MPTabPanel>
+        </>
+      </MPTabs>
+    );
+    const list = screen.container.querySelector('.mp-tabs__list')!;
+
+    expect(list.querySelectorAll('[role="tab"]')).toHaveLength(2);
+    expect(list.querySelector('[role="tabpanel"]')).toBeNull();
+
+    await screen.getByRole('tab', { name: 'B' }).click();
+
+    await expect.element(screen.getByText('Second panel')).toBeInTheDocument();
+  });
+
+  it('keeps two fragments’ children apart', async () => {
+    // `React.Children.toArray` numbers each call from scratch, so two fragments
+    // would each hand back a `.0` and React would reconcile the two panels as
+    // one. A warning here is the signal that the keys collided.
+    const warn = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const screen = await render(
+      <MPTabs aria-label="Sections" defaultValue="a">
+        <>
+          <MPTab value="a">A</MPTab>
+          <MPTabPanel value="a">First panel</MPTabPanel>
+        </>
+        <>
+          <MPTab value="b">B</MPTab>
+          <MPTabPanel value="b">Second panel</MPTabPanel>
+        </>
+      </MPTabs>
+    );
+
+    expect(screen.container.querySelectorAll('[role="tab"]')).toHaveLength(2);
+    expect(warn).not.toHaveBeenCalled();
+
+    warn.mockRestore();
+  });
+
   it('wires each tab to its panel', async () => {
     const screen = await render(<Bar defaultValue="pricing" />);
     const chosen = screen.container.querySelector('[role="tab"][aria-selected="true"]')!;

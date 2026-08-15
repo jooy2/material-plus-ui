@@ -331,12 +331,14 @@ export const MPPagination = React.forwardRef<HTMLElement, MPPaginationProps>(fun
   ) => (
     <li key={key} className="flex">
       {getPageHref && !unavailable && !chosen ? (
+        // No `aria-current` here: this branch is only reached for a cell that is
+        // somewhere to go, and the page being read is not one — it renders as
+        // the button below, which is where the mark belongs.
         <a
           href={getPageHref(to)}
           rel={rel}
           aria-label={name}
-          aria-current={chosen ? 'page' : undefined}
-          className={cellClassNames(chosen, false)}
+          className={cellClassNames(false, false)}
           onClick={(event) => press(event, to)}
         >
           <MPStateLayer />

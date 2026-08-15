@@ -197,6 +197,34 @@ describe('MPListItem', () => {
         'bg-(--_mp-accent-container)'
       );
     });
+
+    it('keeps that fill on a pressable row rather than losing it to a reset', async () => {
+      // A `<button>` arrives with the browser's own grey and this library ships
+      // no page reset, so a pressable row says `bg-transparent` — but two
+      // backgrounds of equal specificity resolve by their order in the generated
+      // stylesheet, so only one of the two may ever be emitted.
+      const screen = await render(
+        <MPList>
+          <MPListItem onClick={() => {}} selected>
+            One
+          </MPListItem>
+        </MPList>
+      );
+      const row = screen.getByRole('button', { name: 'One' }).element();
+
+      expect(row).toHaveClass('bg-(--_mp-accent-container)');
+      expect(row).not.toHaveClass('bg-transparent');
+    });
+
+    it('resets the browser’s own grey on a row that is not selected', async () => {
+      const screen = await render(
+        <MPList>
+          <MPListItem onClick={() => {}}>One</MPListItem>
+        </MPList>
+      );
+
+      expect(screen.getByRole('button', { name: 'One' }).element()).toHaveClass('bg-transparent');
+    });
   });
 
   describe('slots', () => {

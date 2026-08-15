@@ -191,7 +191,11 @@ export const MPSkeleton = React.forwardRef<HTMLDivElement, MPSkeletonProps>(func
           ? `var(--_mp-color-${color}-container)`
           : 'var(--_mp-color-surface-container-highest)',
         width: toLength(width),
-        height: toLength(height),
+        // Not on a stack of lines. There the root is the column that holds them
+        // and each bar has the type scale's own height, so a `height` here would
+        // squeeze the column rather than set a line — and `overflow` is hidden,
+        // so the lines that did not fit would simply be gone.
+        height: stacked ? undefined : toLength(height),
         ...style
       } as React.CSSProperties,
       ...announce,

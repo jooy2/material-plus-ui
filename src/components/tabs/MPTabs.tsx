@@ -215,6 +215,63 @@ export interface MPTabPanelProps extends React.ComponentPropsWithoutRef<'div'> {
 }
 
 /**
+ * Sorts the children into the bar and the body, walking into fragments.
+ *
+ * A fragment is the one thing between the tags that is neither a tab nor a
+ * panel and is not a mistake either — `{cond ? <><MPTab/><MPTabPanel/></> : …}`
+ * is how a caller writes a pair that comes and goes together. Compared by
+ * identity alone it is neither, so it fell to the bar, and the panel inside it
+ * was rendered *into the tab list*: a whole page of content laid out as a tab.
+ *
+ * Only fragments are walked into, deliberately. A caller's own component that
+ * happens to render a panel is opaque here and stays that way — this cannot see
+ * inside it without rendering it, and guessing would be worse than the rule that
+ * a panel is a direct child.
+ *
+ * `React.Children.toArray` numbers what it flattens, but it numbers each call
+ * from scratch, so two fragments would each hand back a `.0`. The fragment's own
+ * key becomes the prefix for what is inside it, which is what keeps two of them
+ * apart.
+ */
+function sortChildren(
+  children: React.ReactNode,
+  tabs: React.ReactNode[],
+  panels: React.ReactNode[],
+  prefix = ''
+): void {
+  React.Children.toArray(children).forEach((child) => {
+    if (!React.isValidElement(child)) {
+      if (hasContent(child)) {
+        tabs.push(child);
+      }
+
+      return;
+    }
+
+    if (child.type === React.Fragment) {
+      sortChildren(
+        (child.props as { children?: React.ReactNode }).children,
+        tabs,
+        panels,
+        `${prefix}${String(child.key)}/`
+      );
+
+      return;
+    }
+
+    const keyed = prefix
+      ? React.cloneElement(child, { key: `${prefix}${String(child.key)}` })
+      : child;
+
+    if (child.type === MPTabPanel) {
+      panels.push(keyed);
+    } else {
+      tabs.push(keyed);
+    }
+  });
+}
+
+/**
  * One set of panels, one of which is shown.
  *
  * Base UI owns everything that makes a tab bar a tab bar rather than a row of
@@ -282,13 +339,7 @@ export const MPTabs = React.forwardRef<HTMLDivElement, MPTabsProps>(function MPT
   const tabs: React.ReactNode[] = [];
   const panels: React.ReactNode[] = [];
 
-  React.Children.forEach(children, (child) => {
-    if (React.isValidElement(child) && child.type === MPTabPanel) {
-      panels.push(child);
-    } else if (hasContent(child)) {
-      tabs.push(child);
-    }
-  });
+  sortChildren(children, tabs, panels);
 
   return (
     <MPTabsContext.Provider value={context}>

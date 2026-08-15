@@ -277,14 +277,19 @@ export const MPListItem = React.forwardRef<HTMLLIElement, MPListItemProps>(funct
         : '',
     interactive
       ? [
-          'cursor-pointer appearance-none border-0 bg-transparent',
+          'cursor-pointer appearance-none border-0',
+          // A `<button>` arrives with the browser's own grey, and this library
+          // ships no page reset — but a *selected* row has a fill of its own,
+          // and two backgrounds of equal specificity resolve by their order in
+          // the generated stylesheet rather than by the order they were written
+          // in. So only one of the two is ever emitted.
+          selected ? '' : 'bg-transparent',
           'outline-mp-secondary focus-visible:outline-2 focus-visible:-outline-offset-2',
           'focus-visible:outline-solid outline-none'
-        ].join(' ')
-      : '',
-    // A selected row keeps its fill; the state layer composites over whatever is
-    // already there, which is the whole reason it is a layer.
-    interactive && selected ? 'bg-(--_mp-accent-container)' : ''
+        ]
+          .filter(Boolean)
+          .join(' ')
+      : ''
   ]
     .filter(Boolean)
     .join(' ');
