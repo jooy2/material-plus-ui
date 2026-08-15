@@ -446,6 +446,71 @@ describe('MPTextField', () => {
 
       expect(event.defaultPrevented).toBe(true);
     });
+
+    /*
+     * The Enter that commits a Korean syllable is the IME's, not the form's.
+     * Both spellings are exercised because engines disagree about which one they
+     * report: `isComposing` is the standard flag, `keyCode === 229` is what
+     * older WebKit sends on the same keystroke.
+     */
+    it('ignores the Enter that commits a composition', async () => {
+      const onSubmit = vi.fn();
+      const screen = await render(<MPTextField value="한" label="Name" onSubmit={onSubmit} />);
+      const input = screen.getByRole('textbox').element();
+
+      const event = new KeyboardEvent('keydown', {
+        key: 'Enter',
+        isComposing: true,
+        bubbles: true,
+        cancelable: true
+      });
+      input.dispatchEvent(event);
+      await tick();
+
+      expect(onSubmit).not.toHaveBeenCalled();
+      // Not swallowed either: the browser is using this keystroke to commit the
+      // syllable, and taking it away would break the composition.
+      expect(event.defaultPrevented).toBe(false);
+    });
+
+    it('ignores the Enter an older engine reports as key code 229', async () => {
+      const onSubmit = vi.fn();
+      const screen = await render(<MPTextField value="한" label="Name" onSubmit={onSubmit} />);
+      const input = screen.getByRole('textbox').element();
+
+      const event = new KeyboardEvent('keydown', {
+        key: 'Enter',
+        keyCode: 229,
+        bubbles: true,
+        cancelable: true
+      });
+      input.dispatchEvent(event);
+      await tick();
+
+      expect(onSubmit).not.toHaveBeenCalled();
+      expect(event.defaultPrevented).toBe(false);
+    });
+
+    it('submits on the Enter that follows a committed composition', async () => {
+      const onSubmit = vi.fn();
+      const screen = await render(<MPTextField value="한글" label="Name" onSubmit={onSubmit} />);
+      const input = screen.getByRole('textbox').element();
+
+      input.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true }));
+      input.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, data: '글' }));
+      await tick();
+
+      const event = new KeyboardEvent('keydown', {
+        key: 'Enter',
+        bubbles: true,
+        cancelable: true
+      });
+      input.dispatchEvent(event);
+      await tick();
+
+      expect(onSubmit).toHaveBeenCalledOnce();
+      expect(event.defaultPrevented).toBe(true);
+    });
   });
 
   describe('states', () => {

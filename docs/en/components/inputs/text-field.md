@@ -120,6 +120,8 @@ Called when Enter is pressed.
 
 On a single-line field Enter is then swallowed, so a surrounding `<form>` is submitted once rather than also natively. On a multiline field it is left alone — there Enter inserts a newline, which is what a textarea is for. `disableEnterKey` swallows it there too, for a multiline field that should submit rather than wrap.
 
+The Enter that **commits a composition** never reaches it. Typing 한글 or 日本語 ends every syllable with an Enter the input method is consuming, and a field that read those as submissions would send the form on the first word of every sentence — the same failure this component exists to prevent, arriving through the key handler instead of through `value`. That keystroke is left alone rather than swallowed, because the browser is using it to commit; the next Enter, once there is nothing being composed, submits as usual.
+
 ### onFormReset
 
 Called before every change, ahead of `onChange`. It exists for the common case of clearing a form-level error that a further edit has made stale:

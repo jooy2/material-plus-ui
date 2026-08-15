@@ -145,6 +145,26 @@ export interface MPTextFieldProps extends MPStyleProps {
 const COMPACT_SCREEN = '(max-width: 599.95px)';
 
 /**
+ * Whether this keystroke belongs to an input method rather than to the field.
+ *
+ * The Enter that commits a Korean or Japanese syllable is a keystroke the IME
+ * is consuming, not one the reader aimed at the form — so a field that treated
+ * it as a submission would send the form on the first word of every sentence.
+ * That is the same class of bug this whole component exists to prevent, arriving
+ * through the key handler instead of through `value`.
+ *
+ * Two tests, because neither covers every engine. `isComposing` is the standard
+ * one and is what Chrome, Firefox and modern Safari set. `keyCode === 229` is
+ * the convention every IME has used since long before that flag existed, and it
+ * is what older WebKit reports on the same keystroke.
+ */
+function isComposingKey(event: React.KeyboardEvent): boolean {
+  const native = event.nativeEvent;
+
+  return native.isComposing || native.keyCode === 229;
+}
+
+/**
  * A Material Design text field that survives an IME.
  *
  * The control is an outlined text field, drawn from Material Design 3's own
@@ -374,6 +394,14 @@ export const MPTextField = React.forwardRef<
           onCompositionEnd={handleCompositionEnd}
           onKeyDown={(event) => {
             if (event.key === 'Enter') {
+              // Left alone rather than swallowed. While an IME is composing the
+              // browser is using Enter to commit the syllable, and a
+              // `preventDefault` here would take the commit away from it —
+              // which is worse than the submission this is avoiding.
+              if (isComposingKey(event)) {
+                return;
+              }
+
               onSubmit?.();
 
               // A single-line field has no newline to insert, so Enter is
