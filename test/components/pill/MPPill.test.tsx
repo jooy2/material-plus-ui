@@ -73,6 +73,25 @@ describe('MPPill', () => {
       expect(Number.parseFloat(panel.style.height)).toBeGreaterThan(0);
     });
 
+    /*
+     * React 18 and React 19 want opposite values for `inert`, and each drops the
+     * other's spelling with only a console warning to say so — so the DOM is the
+     * only honest place to assert it, and the silence is part of the assertion.
+     */
+    it('lands the attribute on the element itself, quietly', async () => {
+      const warn = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      const screen = await render(<MPPill title="On air" details="Two people" />);
+      const panel = screen.container.querySelector('.mp-pill > div:last-child') as HTMLElement;
+
+      expect(panel.hasAttribute('inert')).toBe(true);
+      // The IDL property, which is what actually takes the subtree out of reach.
+      expect(panel.inert).toBe(true);
+      expect(warn).not.toHaveBeenCalled();
+
+      warn.mockRestore();
+    });
+
     it('draws no panel at all when there is nothing to reveal', async () => {
       const screen = await render(<MPPill title="On air" />);
 

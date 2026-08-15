@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { MPButton } from '../button/MPButton';
+import { inertProps } from '../../internal/inert';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { hasContent, META_TEXT, SHEET_PAD, SHEET_PAD_X, SHEET_PAD_Y } from '../../internal/scale';
 import { CONTAINER_SURFACE } from '../../internal/surface';
@@ -205,7 +206,9 @@ export const MPSpoiler = React.forwardRef<HTMLDivElement, MPSpoilerProps>(functi
           maxHeight: open ? undefined : maxHeight,
           overflow: open ? undefined : 'hidden'
         }}
-        inert={!open}
+        // Spread rather than written out: React 18 and React 19 want opposite
+        // values for this attribute — see `internal/inert.ts`.
+        {...inertProps(!open)}
       >
         {children}
       </div>

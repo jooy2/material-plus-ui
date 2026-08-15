@@ -28,6 +28,33 @@ describe('MPSpoiler', () => {
       expect(content.className).toContain('select-none');
     });
 
+    /*
+     * The attribute, not the prop.
+     *
+     * React 18 and React 19 want opposite values for `inert` — a boolean in 19,
+     * an empty string in 18 — and each drops the other's spelling with only a
+     * console warning to say so. The DOM is therefore the only honest place to
+     * assert it, and the silence is worth asserting too: a warning here is the
+     * signal that the value has gone the wrong way round.
+     */
+    it('lands the attribute on the element itself, quietly', async () => {
+      const warn = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      const screen = await render(
+        <MPSpoiler>
+          <a href="#somewhere">A link nobody should reach yet</a>
+        </MPSpoiler>
+      );
+      const content = screen.container.querySelector('.mp-spoiler > div') as HTMLElement;
+
+      expect(content.hasAttribute('inert')).toBe(true);
+      // The IDL property, which is what actually takes the subtree out of reach.
+      expect(content.inert).toBe(true);
+      expect(warn).not.toHaveBeenCalled();
+
+      warn.mockRestore();
+    });
+
     it('writes the notice and the button on the cover', async () => {
       const screen = await render(<MPSpoiler>Hidden</MPSpoiler>);
 

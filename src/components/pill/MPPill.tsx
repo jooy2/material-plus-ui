@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { accentSlots } from '../../internal/accent';
+import { inertProps } from '../../internal/inert';
 import { MPStateLayer } from '../../internal/StateLayer';
 import {
   CONTROL_GAP,
@@ -378,7 +379,10 @@ export const MPPill = React.forwardRef<HTMLDivElement, MPPillProps>(function MPP
           // box whose content is still perfectly focusable, and `aria-hidden`
           // alone would leave a keyboard reader tabbing into something their
           // screen reader has been told does not exist.
-          inert={!expanded}
+          //
+          // Spread rather than written out: React 18 and React 19 want opposite
+          // values for this attribute — see `internal/inert.ts`.
+          {...inertProps(!expanded)}
         >
           <div ref={detailsRef} className={`${padX} pb-2 whitespace-normal ${PROSE_TEXT[size]}`}>
             {details}
