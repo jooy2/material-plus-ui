@@ -4427,6 +4427,131 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPGrid: [
+    {
+      name: 'columns',
+      type: 'MPResponsive<number>',
+      default: '12',
+      description: {
+        ko: '한 행을 몇 개의 열로 나눌지. 안쪽의 모든 `span`과 `offset`이 이 숫자를 기준으로 읽히므로 `columns={24}`에서는 `span={12}`가 절반입니다. MD3 자신의 그리드는 `{ compact: 4, medium: 12 }`입니다',
+        en: "How many columns a row is divided into. Every `span` and `offset` inside is read against it, so `columns={24}` makes `span={12}` a half. MD3's own grid is `{ compact: 4, medium: 12 }`"
+      }
+    },
+    {
+      name: 'spacing',
+      type: 'MPResponsive<number>',
+      default: '4',
+      description: {
+        ko: '아이템 사이 간격. Tailwind의 spacing 스케일이라 `4`는 `gap-4`와 같은 `1rem`입니다. 소수도 됩니다. MD3 자신의 간격은 `{ compact: 4, medium: 6 }` — 휴대폰에서 16dp, medium부터 24dp입니다',
+        en: "The gutter between items, on Tailwind's spacing scale: `4` is `1rem`, the same length `gap-4` is. Fractions allowed. MD3's own gutter is `{ compact: 4, medium: 6 }` — 16dp on a phone, 24dp from a medium window up"
+      }
+    },
+    {
+      name: 'rowSpacing',
+      type: 'MPResponsive<number>',
+      description: {
+        ko: '행 사이 간격만. 없으면 `spacing`을 따릅니다',
+        en: 'The gutter between rows only. Falls back to `spacing`'
+      }
+    },
+    {
+      name: 'columnSpacing',
+      type: 'MPResponsive<number>',
+      description: {
+        ko: '열 사이 간격만. 없으면 `spacing`을 따릅니다',
+        en: 'The gutter between columns only. Falls back to `spacing`'
+      }
+    },
+    {
+      name: 'justifyContent',
+      type: "'start' | 'center' | 'end' | 'space-between' | 'space-around' | 'space-evenly'",
+      description: {
+        ko: '아이템이 쓰지 않은 폭을 행이 어떻게 나눌지',
+        en: 'How a row distributes the width its items did not use'
+      }
+    },
+    {
+      name: 'alignItems',
+      type: "'start' | 'center' | 'end' | 'stretch' | 'baseline'",
+      default: "'stretch'",
+      description: {
+        ko: '아이템들이 행을 가로질러 서로 어떻게 놓일지',
+        en: 'How items sit against each other across a row'
+      }
+    },
+    {
+      name: 'alignContent',
+      type: "'start' | 'center' | 'end' | 'space-between' | 'space-around' | 'space-evenly' | 'stretch'",
+      description: {
+        ko: '그리드가 자기를 담은 상자보다 짧을 때 행들이 어디에 놓일지. 높이를 가진 그리드에서만 보입니다',
+        en: 'Where the rows sit when the grid is shorter than the box holding it. Only visible on a grid with a height of its own'
+      }
+    },
+    {
+      name: 'wrap',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '열이 모자란 행이 다음 줄로 이어질지. 끄면 넘치는 한 줄이 되며, 가로로 스크롤되는 띠가 원하는 동작입니다',
+        en: 'Whether a row that runs out of columns continues on the next one. Turned off it is one row that overflows, which is what a horizontally scrolling strip wants'
+      }
+    },
+    {
+      name: 'render',
+      type: 'RenderProp',
+      description: {
+        ko: '`<div>` 대신 다른 엘리먼트로 렌더링합니다 — `render={<section />}`, `render={<ul />}`. Base UI 자신의 탈출구입니다',
+        en: "Renders something other than a `<div>`: `render={<section />}`, `render={<ul />}`. Base UI's own escape hatch"
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '`MPGridItem`들', en: 'The `MPGridItem`s' }
+    }
+  ],
+
+  MPGridItem: [
+    {
+      name: 'span',
+      type: 'MPResponsive<number>',
+      description: {
+        ko: '그리드의 열 중 몇 개를 가져갈지. 그리드의 `columns` 기준이라 기본 12열에서 `span={6}`은 절반입니다. `{ compact: 12, medium: 6 }`처럼 윈도우 크기 클래스별로 줄 수 있고, 행보다 넓으면 넘치는 대신 행에 맞춰 잘립니다. 기본값은 행 전체입니다',
+        en: "How many of the grid's columns the item takes, read against `columns` — `span={6}` is half of the default twelve. Responsive as `{ compact: 12, medium: 6 }`, and a span wider than the row is clamped to it rather than overflowing. Defaults to the whole row"
+      }
+    },
+    {
+      name: 'offset',
+      type: 'MPResponsive<number>',
+      default: '0',
+      description: {
+        ko: '아이템 **앞에** 비워 두는 열. 행 안의 절대 위치가 아니라 앞으로 밀어 넣는 공간입니다 — 12열 행의 첫 번째에서 `offset={4}`에 `span={4}`면 가운데 3분의 1입니다',
+        en: 'Columns left empty *before* the item — space pushed in ahead of it, not an absolute position: first in a twelve-column row, `offset={4}` with `span={4}` is the middle third'
+      }
+    },
+    {
+      name: 'alignSelf',
+      type: "'auto' | 'start' | 'center' | 'end' | 'stretch' | 'baseline'",
+      description: {
+        ko: '이 아이템 하나에 대해 행의 `alignItems`를 덮어씁니다',
+        en: "Overrides the row's `alignItems` for this item alone"
+      }
+    },
+    {
+      name: 'render',
+      type: 'RenderProp',
+      description: {
+        ko: '`<div>` 대신 다른 엘리먼트로 렌더링합니다 — `render={<li />}`, `render={<article />}`',
+        en: 'Renders something other than a `<div>`: `render={<li />}`, `render={<article />}`'
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '셀 안의 내용', en: 'What goes in the cell' }
+    }
+  ],
+
   MPCard: [
     {
       name: 'title',

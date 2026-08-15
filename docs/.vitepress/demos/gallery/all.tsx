@@ -30,6 +30,8 @@ import {
   MPDrawer,
   MPEmpty,
   MPFilePicker,
+  MPGrid,
+  MPGridItem,
   MPHighlight,
   MPIcon,
   MPIconButton,
@@ -1191,6 +1193,25 @@ const GROUPS: Group[] = [
               </MPBox>
             </div>
           </Fit>
+        )
+      },
+      {
+        name: 'MPGrid',
+        summary: {
+          ko: '윈도우 크기 클래스를 따라 바뀌는 머터리얼의 레이아웃 그리드',
+          en: "Material's layout grid, changing with the window size class"
+        },
+        path: '/components/layout/grid',
+        preview: (
+          <MPGrid spacing={2} style={{ width: '100%' }}>
+            {[12, 6, 6, 4, 4, 4].map((span, index) => (
+              <MPGridItem key={index} span={span}>
+                <div className="bg-mp-surface-container-highest text-mp-on-surface-variant text-mp-label-small rounded-mp-xs flex h-8 items-center justify-center">
+                  {span}
+                </div>
+              </MPGridItem>
+            ))}
+          </MPGrid>
         )
       },
       {

@@ -1140,6 +1140,165 @@
 }
 
 /* ---------------------------------------------------------------------------
+ * The layout grid
+ *
+ * A column is `(100% + gutter) * span / columns - gutter`, and the arithmetic
+ * lives here for the reason the keyframes below do: Tailwind finds classes by
+ * scanning source text, and `columns` is a number the caller picks at runtime.
+ * A class name assembled in JavaScript is a class name Tailwind never sees, so
+ * the per-instance numbers arrive as inline `--_mp-*` slots — exactly as a
+ * `color` reaches a background — and the rules that read them are written once,
+ * here.
+ *
+ * `min(span, columns)` is the clamp: `span={99}` fills its row instead of
+ * running off the page, which is what the caller meant.
+ *
+ * Every slot cascades upward — each window size class falls back through the
+ * ones below it — so `span={{ expanded: 6 }}` sets one custom property and not
+ * five. The chains get long at `extra-large`; that is the cost of keeping the
+ * DOM lean, and it is paid once here rather than on every grid item in a
+ * consumer's application.
+ *
+ * The widths are **MD3's window size classes** — 600, 840, 1200 and 1600dp —
+ * and not Tailwind's breakpoints. See `MPWindowClass` in `src/types.ts`.
+ *
+ * Unlayered, like the two animation classes below and for the same reason: a
+ * layered rule loses to every unlayered one, and a consumer's own page styling
+ * is unlayered. A grid whose widths could be cancelled by a stray `div { }` in
+ * an application's stylesheet is not a grid.
+ * ------------------------------------------------------------------------- */
+
+.mp-grid {
+  --_mp-cols: var(--_mp-cols-compact, 12);
+  --_mp-gap-x: var(--_mp-gap-x-compact, 0px);
+  --_mp-gap-y: var(--_mp-gap-y-compact, 0px);
+}
+
+.mp-grid-item {
+  --_mp-span: var(--_mp-span-compact, var(--_mp-cols, 12));
+  --_mp-offset: var(--_mp-offset-compact, 0);
+
+  /* One column plus one gutter. `--_mp-cols` and `--_mp-gap-x` are inherited
+     from the grid, so this re-resolves on its own at every window class. */
+  --_mp-track: calc((100% + var(--_mp-gap-x, 0px)) / var(--_mp-cols, 12));
+
+  /* Inseparable from the width under them: `flex` stops the row resizing the
+     item, `min-width` stops a long unbroken word doing the same, and
+     `box-sizing` is what makes the percentage mean the whole item. */
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  min-width: 0;
+  width: calc(var(--_mp-track) * min(var(--_mp-span), var(--_mp-cols, 12)) - var(--_mp-gap-x, 0px));
+  margin-inline-start: calc(var(--_mp-track) * min(var(--_mp-offset), var(--_mp-cols, 12)));
+}
+
+@media (width >= 600px) {
+  .mp-grid {
+    --_mp-cols: var(--_mp-cols-medium, var(--_mp-cols-compact, 12));
+    --_mp-gap-x: var(--_mp-gap-x-medium, var(--_mp-gap-x-compact, 0px));
+    --_mp-gap-y: var(--_mp-gap-y-medium, var(--_mp-gap-y-compact, 0px));
+  }
+
+  .mp-grid-item {
+    --_mp-span: var(--_mp-span-medium, var(--_mp-span-compact, var(--_mp-cols, 12)));
+    --_mp-offset: var(--_mp-offset-medium, var(--_mp-offset-compact, 0));
+  }
+}
+
+@media (width >= 840px) {
+  .mp-grid {
+    --_mp-cols: var(--_mp-cols-expanded, var(--_mp-cols-medium, var(--_mp-cols-compact, 12)));
+    --_mp-gap-x: var(--_mp-gap-x-expanded, var(--_mp-gap-x-medium, var(--_mp-gap-x-compact, 0px)));
+    --_mp-gap-y: var(--_mp-gap-y-expanded, var(--_mp-gap-y-medium, var(--_mp-gap-y-compact, 0px)));
+  }
+
+  .mp-grid-item {
+    --_mp-span: var(
+      --_mp-span-expanded,
+      var(--_mp-span-medium, var(--_mp-span-compact, var(--_mp-cols, 12)))
+    );
+    --_mp-offset: var(
+      --_mp-offset-expanded,
+      var(--_mp-offset-medium, var(--_mp-offset-compact, 0))
+    );
+  }
+}
+
+@media (width >= 1200px) {
+  .mp-grid {
+    --_mp-cols: var(
+      --_mp-cols-large,
+      var(--_mp-cols-expanded, var(--_mp-cols-medium, var(--_mp-cols-compact, 12)))
+    );
+    --_mp-gap-x: var(
+      --_mp-gap-x-large,
+      var(--_mp-gap-x-expanded, var(--_mp-gap-x-medium, var(--_mp-gap-x-compact, 0px)))
+    );
+    --_mp-gap-y: var(
+      --_mp-gap-y-large,
+      var(--_mp-gap-y-expanded, var(--_mp-gap-y-medium, var(--_mp-gap-y-compact, 0px)))
+    );
+  }
+
+  .mp-grid-item {
+    --_mp-span: var(
+      --_mp-span-large,
+      var(--_mp-span-expanded, var(--_mp-span-medium, var(--_mp-span-compact, var(--_mp-cols, 12))))
+    );
+    --_mp-offset: var(
+      --_mp-offset-large,
+      var(--_mp-offset-expanded, var(--_mp-offset-medium, var(--_mp-offset-compact, 0)))
+    );
+  }
+}
+
+@media (width >= 1600px) {
+  .mp-grid {
+    --_mp-cols: var(
+      --_mp-cols-extra-large,
+      var(
+        --_mp-cols-large,
+        var(--_mp-cols-expanded, var(--_mp-cols-medium, var(--_mp-cols-compact, 12)))
+      )
+    );
+    --_mp-gap-x: var(
+      --_mp-gap-x-extra-large,
+      var(
+        --_mp-gap-x-large,
+        var(--_mp-gap-x-expanded, var(--_mp-gap-x-medium, var(--_mp-gap-x-compact, 0px)))
+      )
+    );
+    --_mp-gap-y: var(
+      --_mp-gap-y-extra-large,
+      var(
+        --_mp-gap-y-large,
+        var(--_mp-gap-y-expanded, var(--_mp-gap-y-medium, var(--_mp-gap-y-compact, 0px)))
+      )
+    );
+  }
+
+  .mp-grid-item {
+    --_mp-span: var(
+      --_mp-span-extra-large,
+      var(
+        --_mp-span-large,
+        var(
+          --_mp-span-expanded,
+          var(--_mp-span-medium, var(--_mp-span-compact, var(--_mp-cols, 12)))
+        )
+      )
+    );
+    --_mp-offset: var(
+      --_mp-offset-extra-large,
+      var(
+        --_mp-offset-large,
+        var(--_mp-offset-expanded, var(--_mp-offset-medium, var(--_mp-offset-compact, 0)))
+      )
+    );
+  }
+}
+
+/* ---------------------------------------------------------------------------
  * Keyframes
  *
  * The one part of the library that cannot be written as a utility, and the only

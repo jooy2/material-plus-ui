@@ -106,6 +106,37 @@ export type MPCorner = 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end';
 export type MPWeekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 /**
+ * How wide the window is, in Material's own words.
+ *
+ * MD3 does not describe a layout in pixels, it describes it in **window size
+ * classes**: `compact` below 600dp, `medium` from 600, `expanded` from 840,
+ * `large` from 1200, `extra-large` from 1600. They are the axis the
+ * specification's layout grid changes along — four columns in a compact window,
+ * twelve from medium up — and so they are the axis this library's grid changes
+ * along too.
+ *
+ * **They are deliberately not Tailwind's breakpoints.** Tailwind changes at
+ * 640/768/1024/1280, which are different numbers describing the same idea, and a
+ * `<MPGrid>` that reflowed at one set while the `md:` utility beside it reflowed
+ * at another would be a layout that is subtly wrong at exactly one width and
+ * impossible to reason about at every other. Given two ladders, the library
+ * takes the one the specification defines — see
+ * `docs/{locale}/components/layout/grid.md` for how to line the other one up
+ * with it.
+ */
+export type MPWindowClass = 'compact' | 'medium' | 'expanded' | 'large' | 'extra-large';
+
+/**
+ * A value, or the same value said differently at each window size class.
+ *
+ * `span={6}` is six columns at every width; `span={{ compact: 12, medium: 6 }}`
+ * is the whole row on a phone and half of it from 600dp up. Each entry applies
+ * from its own class **upward**, so a layout is usually two entries rather than
+ * five — anything not named keeps whatever the class below it said.
+ */
+export type MPResponsive<T> = T | Partial<Record<MPWindowClass, T>>;
+
+/**
  * The axes most components share.
  *
  * A component extends this and adds only what is genuinely its own, which is what
