@@ -248,7 +248,6 @@ export const MPTimePicker = React.forwardRef<HTMLButtonElement, MPTimePickerProp
         color={color}
         readOnly={readOnly}
         disabled={disabled}
-        name={name}
         triggerRef={ref}
         startIcon={startIcon ?? <MPIcon icon={ClockIcon} size={CONTROL_ICON[size]} />}
         display={

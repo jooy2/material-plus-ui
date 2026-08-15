@@ -311,7 +311,6 @@ export const MPDateRangePicker = React.forwardRef<HTMLButtonElement, MPDateRange
         color={color}
         readOnly={readOnly}
         disabled={disabled}
-        name={name}
         triggerRef={ref}
         startIcon={startIcon ?? <MPIcon icon={CalendarIcon} size={CONTROL_ICON[size]} />}
         display={

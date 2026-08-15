@@ -116,7 +116,9 @@ const WORD_CHARACTER = /[\p{L}\p{N}_]/u;
  * was typed.
  */
 function escapeRegExp(text: string): string {
-  return text.replace(/[.*+?^${}()|[\]\\\-]/g, '\\$&');
+  // The `-` comes first, where it is a literal rather than the start of a range
+  // and so needs no escape of its own.
+  return text.replace(/[-.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 /**

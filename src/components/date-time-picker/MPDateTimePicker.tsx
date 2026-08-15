@@ -249,7 +249,6 @@ export const MPDateTimePicker = React.forwardRef<HTMLButtonElement, MPDateTimePi
         color={color}
         readOnly={readOnly}
         disabled={disabled}
-        name={name}
         triggerRef={ref}
         // The calendar glyph alone, not both: a control cannot say two things at
         // once, and the date is the part a reader scans for.

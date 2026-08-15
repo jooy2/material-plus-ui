@@ -173,9 +173,14 @@ interface InternalShellProps extends MPPickerShellProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   labels: MPPickerLabels;
-  /** `<input type="hidden">` rows, so the control submits with a form. */
+  /**
+   * `<input type="hidden">` rows, so the control submits with a form.
+   *
+   * Each row carries its own name, which is why the shell takes no `name` of
+   * its own: a range picker submits two of them under one name, and the id the
+   * label points at is generated rather than derived from it.
+   */
   hiddenValues?: Array<{ name: string; value: string }>;
-  name?: string;
   children: React.ReactNode;
   triggerRef?: React.Ref<HTMLButtonElement>;
 }
@@ -212,7 +217,6 @@ export function MPPickerShell({
   onOpenChange,
   labels,
   hiddenValues,
-  name,
   children,
   triggerRef
 }: InternalShellProps) {
