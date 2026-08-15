@@ -175,6 +175,46 @@ describe('MPDrawer', () => {
       expect(screen.container.querySelector('.mp-drawer')).toBeNull();
     });
 
+    it('closes itself when nobody is driving it', async () => {
+      // Uncontrolled, so the × has nothing but the panel's own state to call —
+      // without which it is a button that does nothing at all.
+      const screen = await render(
+        <MPDrawer mode="standard" showClose title="Navigation">
+          Body
+        </MPDrawer>
+      );
+
+      await screen.getByRole('button', { name: 'Close' }).click();
+
+      expect(screen.container.querySelector('.mp-drawer')).toBeNull();
+    });
+
+    it('starts closed when defaultOpen says so', async () => {
+      const screen = await render(
+        <MPDrawer mode="standard" defaultOpen={false} title="Navigation">
+          Body
+        </MPDrawer>
+      );
+
+      expect(screen.container.querySelector('.mp-drawer')).toBeNull();
+    });
+
+    it('leaves the panel to its owner while it is controlled', async () => {
+      // A controlled panel that closed itself would be a panel disagreeing with
+      // the state it was handed.
+      const onOpenChange = vi.fn();
+      const screen = await render(
+        <MPDrawer mode="standard" open showClose onOpenChange={onOpenChange} title="Navigation">
+          Body
+        </MPDrawer>
+      );
+
+      await screen.getByRole('button', { name: 'Close' }).click();
+
+      expect(onOpenChange).toHaveBeenCalledWith(false);
+      expect(screen.container.querySelector('.mp-drawer')).not.toBeNull();
+    });
+
     it('renders no trigger, because there is nothing to open', async () => {
       const screen = await render(
         <MPDrawer mode="standard" trigger={<MPButton>Menu</MPButton>} title="Navigation">

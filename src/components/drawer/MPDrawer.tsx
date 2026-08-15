@@ -262,6 +262,29 @@ export function MPDrawer({
   const along = side === 'left' || side === 'right';
   const withClose = showClose ?? modal;
 
+  /*
+   * The standard panel's own open state.
+   *
+   * A modal one has none, because Base UI's Dialog is the thing that remembers
+   * whether it is open — `defaultOpen` goes to it and `MPDrawerClose` talks to
+   * it. A standard panel is not a Dialog: it is in the flow, so "closed" is
+   * "not in the layout", and without this its × had nothing to call and was a
+   * button that did nothing at all.
+   *
+   * Seeded from `defaultOpen`, and `true` when there is none: a fixed sidebar
+   * that had to be opened before it appeared would not be a fixed sidebar.
+   */
+  const [uncontrolledOpen, setUncontrolledOpen] = React.useState(defaultOpen ?? true);
+  const standardOpen = open ?? uncontrolledOpen;
+
+  const closeStandard = () => {
+    if (open === undefined) {
+      setUncontrolledOpen(false);
+    }
+
+    onOpenChange?.(false);
+  };
+
   const padX = SHEET_PAD_X[size];
   const padY = SHEET_PAD_Y[size];
   // With dividers the lines have to reach both edges, so the sheet gives up its
@@ -335,7 +358,7 @@ export function MPDrawer({
                 type="button"
                 aria-label={closeLabel}
                 className={closeButton}
-                onClick={() => onOpenChange?.(false)}
+                onClick={closeStandard}
               >
                 <MPStateLayer />
                 <MPIcon icon={CloseIcon} size={20} />
@@ -388,7 +411,7 @@ export function MPDrawer({
     // A standard drawer is in the flow, so "closed" is "not in the layout". There
     // is nothing to animate on the way out: what moves is the page around it, and
     // moving the page is not this component's to do.
-    if (!(open ?? defaultOpen ?? true)) {
+    if (!standardOpen) {
       return null;
     }
 
