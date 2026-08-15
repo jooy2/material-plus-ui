@@ -107,6 +107,60 @@ describe('MPMenu', () => {
 
       expect(row.tagName).toBe('A');
       expect(row).toHaveAttribute('href', 'https://example.com');
+      // `target="_blank"` hands the opened page a `window.opener` back into this
+      // one unless it is told not to.
+      expect(row).toHaveAttribute('rel', 'noopener noreferrer');
+    });
+
+    it('leaves rel alone on a link that stays in this tab', async () => {
+      const screen = await render(
+        <MPMenu trigger={<MPButton>Actions</MPButton>}>
+          <MPMenuItem href="/docs">Docs</MPMenuItem>
+        </MPMenu>
+      );
+
+      await open(screen);
+
+      expect(screen.getByRole('menuitem', { name: 'Docs' }).element()).not.toHaveAttribute('rel');
+    });
+
+    it('lets a caller replace the rel it would have written', async () => {
+      const screen = await render(
+        <MPMenu trigger={<MPButton>Actions</MPButton>}>
+          <MPMenuItem href="https://example.com" target="_blank" rel="noopener nofollow">
+            Docs
+          </MPMenuItem>
+        </MPMenu>
+      );
+
+      await open(screen);
+
+      expect(screen.getByRole('menuitem', { name: 'Docs' }).element()).toHaveAttribute(
+        'rel',
+        'noopener nofollow'
+      );
+    });
+
+    it('stops being a link once it is disabled', async () => {
+      // Base UI's `LinkItem` has no `disabled` of its own, so a row that kept
+      // its `href` while unavailable is one a keyboard still lands on and a
+      // crawler still follows.
+      const onClick = vi.fn();
+      const screen = await render(
+        <MPMenu trigger={<MPButton>Actions</MPButton>}>
+          <MPMenuItem href="https://example.com" disabled onClick={onClick}>
+            Docs
+          </MPMenuItem>
+        </MPMenu>
+      );
+
+      await open(screen);
+
+      const row = screen.getByRole('menuitem', { name: 'Docs' }).element();
+
+      expect(row.tagName).not.toBe('A');
+      expect(row).not.toHaveAttribute('href');
+      expect(row).toHaveAttribute('aria-disabled', 'true');
     });
 
     it('re-points its own family when it names one', async () => {

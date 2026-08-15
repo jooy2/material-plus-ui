@@ -73,6 +73,10 @@ A tick says "and", a dot says "instead of" — the same distinction [MPCheckbox]
 
 A row given an `href` renders a real `<a>`. A menu of links that are not links cannot be opened in a new tab, cannot be copied, and tells a screen reader the wrong thing about every one of them.
 
+With `target="_blank"` the row also gets `rel="noopener noreferrer"`, which is what stops the opened page reaching back through `window.opener`. Setting `rel` yourself replaces that rather than adding to it.
+
+A `disabled` row is **not** a link, whatever `href` says — it falls back to a plain item. `disabled` is not something an `<a>` can be, and a link that only looked unavailable is one a keyboard still lands on and a crawler still follows.
+
 ### color
 
 A row can name its own family — `error` on the one that deletes — and the slots are re-declared on the row so its ink turns over with it.

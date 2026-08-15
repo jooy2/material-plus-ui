@@ -91,6 +91,15 @@ export interface MPMenuItemProps {
   href?: string;
   /** Where the link opens — `_blank` and the rest. Ignored without `href`. */
   target?: string;
+  /**
+   * The link's relationship to the page. Ignored without `href`.
+   *
+   * Left unset, a `target="_blank"` row gets `noopener noreferrer` — the pair
+   * that stops the opened page reaching back through `window.opener`. Setting
+   * it replaces that rather than adding to it, so a row that needs `nofollow`
+   * should say `rel="noopener noreferrer nofollow"`.
+   */
+  rel?: string;
   /** Content before the label — an icon, a swatch, an avatar. */
   startIcon?: React.ReactNode;
   /** Content after the label, before any `shortcut`. */
@@ -349,6 +358,7 @@ export function MPMenuItem({
   onClick,
   href,
   target,
+  rel,
   startIcon,
   endIcon,
   shortcut,
@@ -383,11 +393,26 @@ export function MPMenuItem({
   const slots = color ? { '--_mp-accent': `var(--_mp-color-${color})` } : undefined;
   const rowStyle = slots || style ? ({ ...slots, ...style } as React.CSSProperties) : undefined;
 
-  if (href !== undefined) {
+  /*
+   * A disabled row is never a link, whatever `href` says.
+   *
+   * Base UI's `LinkItem` has no `disabled` of its own — it renders an `<a>`,
+   * and `disabled` is not something an `<a>` can be — so a row that kept its
+   * `href` while unavailable would be a row a keyboard still lands on and a
+   * crawler still follows. It falls back to the plain item instead, which is
+   * the same call `MPBottomNavigationItem` and `MPPagination` make: a link
+   * with nowhere to go is not a link.
+   */
+  if (href !== undefined && !disabled) {
     return (
       <Menu.LinkItem
         href={href}
         target={target}
+        // `target="_blank"` hands the opened page a `window.opener` back into
+        // this one unless it is told not to. Modern browsers imply `noopener`,
+        // but `noreferrer` is never implied and older ones imply neither — and
+        // the same pair is written out on `MPTextLink` and `MPChatBubble`.
+        rel={rel ?? (target === '_blank' ? 'noopener noreferrer' : undefined)}
         label={label}
         closeOnClick={closeOnClick}
         onClick={onClick}
