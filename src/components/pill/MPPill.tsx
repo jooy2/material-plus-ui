@@ -241,6 +241,7 @@ export const MPPill = React.forwardRef<HTMLDivElement, MPPillProps>(function MPP
   ref
 ) {
   const detailsRef = React.useRef<HTMLDivElement>(null);
+  const detailsId = React.useId();
   const [detailsHeight, setDetailsHeight] = React.useState(0);
 
   React.useEffect(() => {
@@ -353,6 +354,16 @@ export const MPPill = React.forwardRef<HTMLDivElement, MPPillProps>(function MPP
               'outline-mp-secondary focus-visible:outline-2 focus-visible:-outline-offset-2',
               'focus-visible:outline-solid outline-none'
             ].join(' ')}
+            /*
+             * Only where there is something to expand. A pill's `details` is
+             * driven by the caller rather than by this button, so the two are
+             * not necessarily the same gesture — but where a pill has details
+             * at all, the press that reveals them is the press this button
+             * takes, and a control that changes what is on screen without
+             * saying so leaves a screen reader to find out by accident.
+             */
+            aria-expanded={hasContent(details) ? expanded : undefined}
+            aria-controls={hasContent(details) ? detailsId : undefined}
             onClick={onClick}
           >
             <MPStateLayer />
@@ -369,6 +380,7 @@ export const MPPill = React.forwardRef<HTMLDivElement, MPPillProps>(function MPP
 
       {hasContent(details) ? (
         <div
+          id={detailsId}
           className={[
             'overflow-hidden',
             'transition-[height] duration-(--mp-sys-motion-duration-short4) ease-mp-standard',

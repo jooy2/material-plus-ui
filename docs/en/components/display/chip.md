@@ -61,6 +61,8 @@ Both are reachable by keyboard, and neither is nested inside the other. That sha
 
 A pressable chip reports `aria-pressed` from `selected`, and its label button owns the padding so its hit area is the whole chip rather than just the words.
 
+`selected` has **no default**, and that is what decides whether the chip is announced as a toggle at all. Passing it either way round — `selected` or `selected={false}` — makes the chip a toggle; leaving it off makes the chip an action, and an action is not announced as "not pressed".
+
 ### count
 
 A number set into the end of the chip, on its own small plate, so "Errors 12" reads as one token with a count rather than as two words. On a `filled` chip the plate is a hole punched in the fill; everywhere else it is the container tone showing through.

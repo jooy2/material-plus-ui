@@ -97,6 +97,39 @@ describe('MPPill', () => {
 
       expect(screen.container.querySelector('[inert]')).toBeNull();
     });
+
+    it('says whether the details are showing, and what they are', async () => {
+      // A control that changes what is on screen without saying so leaves a
+      // screen reader to find out by accident.
+      const screen = await render(
+        <MPPill title="On air" details="Two people" onClick={() => {}} />
+      );
+      const button = screen.getByRole('button', { name: /On air/ }).element();
+
+      expect(button).toHaveAttribute('aria-expanded', 'false');
+      expect(
+        screen.container.querySelector(`#${CSS.escape(button.getAttribute('aria-controls')!)}`)
+      ).not.toBeNull();
+    });
+
+    it('turns that over when they open', async () => {
+      const screen = await render(
+        <MPPill title="On air" details="Two people" onClick={() => {}} expanded />
+      );
+
+      expect(screen.getByRole('button', { name: /On air/ }).element()).toHaveAttribute(
+        'aria-expanded',
+        'true'
+      );
+    });
+
+    it('claims neither when the pill has no details', async () => {
+      const screen = await render(<MPPill title="On air" onClick={() => {}} />);
+      const button = screen.getByRole('button', { name: /On air/ }).element();
+
+      expect(button).not.toHaveAttribute('aria-expanded');
+      expect(button).not.toHaveAttribute('aria-controls');
+    });
   });
 
   describe('pressing', () => {

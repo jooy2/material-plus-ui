@@ -701,7 +701,14 @@ function DayGrid({
   };
 
   return (
-    <div role="grid" className="flex h-full flex-col">
+    // Named by the month it is showing. A grid with no name is announced as
+    // "grid" and nothing else, which for a calendar leaves the reader to work
+    // out which month they are in from the cells — and the cells are numbers.
+    <div
+      role="grid"
+      aria-label={dateFormatter(locale, { year: 'numeric', month: 'long' }).format(month)}
+      className="flex h-full flex-col"
+    >
       <div role="row" className="grid grid-cols-7">
         {narrow.map((label, index) => (
           <span

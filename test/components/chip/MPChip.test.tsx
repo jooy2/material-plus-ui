@@ -95,6 +95,30 @@ describe('MPChip', () => {
       );
     });
 
+    it('says nothing about a state an action chip does not have', async () => {
+      // Passing `selected` — either way round — is what says a chip is a toggle.
+      // An action announced as "not pressed" is a screen reader describing a
+      // state the chip does not have.
+      const screen = await render(<MPChip onClick={() => {}}>Export</MPChip>);
+
+      expect(screen.getByRole('button', { name: 'Export' }).element()).not.toHaveAttribute(
+        'aria-pressed'
+      );
+    });
+
+    it('is a toggle that is off when selected is false', async () => {
+      const screen = await render(
+        <MPChip onClick={() => {}} selected={false}>
+          Draft
+        </MPChip>
+      );
+
+      expect(screen.getByRole('button', { name: 'Draft' }).element()).toHaveAttribute(
+        'aria-pressed',
+        'false'
+      );
+    });
+
     it('fills with the container tone when selected', async () => {
       const screen = await render(
         <MPChip selected data-testid="chip">

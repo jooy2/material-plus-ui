@@ -104,6 +104,17 @@ describe('MPDatePicker', () => {
         .toHaveTextContent('2026');
     });
 
+    it('names the grid by the month it is showing', async () => {
+      // A grid with no name is announced as "grid" and nothing else, which
+      // leaves the reader to work out the month from the cells — and the cells
+      // are numbers.
+      const screen = await render(<Controlled />);
+
+      await screen.getByRole('button', { name: 'Due date' }).click();
+
+      await expect.element(screen.getByRole('grid', { name: 'July 2026' })).toBeInTheDocument();
+    });
+
     it('names every cell as a whole date rather than as a bare number', async () => {
       const screen = await render(<Controlled />);
 

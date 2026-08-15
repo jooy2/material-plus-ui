@@ -47,7 +47,12 @@ export interface MPChipProps extends Omit<React.ComponentPropsWithoutRef<'span'>
    * MD3's selected filter chip fills with the container tone of its own family
    * rather than changing family, which is what this does: a filter that is on is
    * still the same filter.
-   * @default false
+   *
+   * Deliberately **without a default**, which is the one thing about it worth
+   * knowing. Passing it — either way round — is what says this chip is a toggle,
+   * and only then is it announced as one. A chip that merely has an `onClick`
+   * is an action, and an action announced as "not pressed" is a screen reader
+   * describing a state the chip does not have.
    */
   selected?: boolean;
   /** Unavailable. Drops the accent family, as everywhere else in the library. */
@@ -231,7 +236,7 @@ export const MPChip = React.forwardRef<HTMLSpanElement, MPChipProps>(function MP
     count,
     onDelete,
     deleteLabel = 'Remove',
-    selected = false,
+    selected,
     disabled = false,
     className,
     style,
@@ -303,6 +308,9 @@ export const MPChip = React.forwardRef<HTMLSpanElement, MPChipProps>(function MP
       {interactive ? (
         <button
           type="button"
+          // Only for a chip that is actually a toggle — which is what passing
+          // `selected` at all is the statement of. An action chip announced as
+          // "not pressed" is a screen reader describing a state it does not have.
           aria-pressed={selected}
           className={`${LABEL_BUTTON} ${GAP[size]} ${PAD_X[size]}`}
           onClick={onClick as React.MouseEventHandler<HTMLButtonElement>}
