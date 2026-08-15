@@ -8,6 +8,8 @@ import {
   MPAvatar,
   MPBadge,
   MPBlockquote,
+  MPBottomNavigation,
+  MPBottomNavigationItem,
   MPBox,
   MPBreadcrumb,
   MPBreadcrumbItem,
@@ -1220,6 +1222,35 @@ const GROUPS: Group[] = [
                 Filled
               </MPBox>
             </div>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPBottomNavigation',
+        summary: {
+          ko: '창 아래 가장자리에 붙어 있는 목적지들의 행',
+          en: 'A row of destinations held against the bottom edge of the window'
+        },
+        path: '/components/layout/bottom-navigation',
+        preview: (
+          <Fit>
+            <MPBottomNavigation
+              label="Main"
+              position="static"
+              size="sm"
+              defaultValue="home"
+              className="rounded-mp-lg"
+            >
+              <MPBottomNavigationItem value="home" icon={<MPIcon icon={ICONS.info} />}>
+                Home
+              </MPBottomNavigationItem>
+              <MPBottomNavigationItem value="search" icon={<MPIcon icon={ICONS.search} />}>
+                Search
+              </MPBottomNavigationItem>
+              <MPBottomNavigationItem value="saved" icon={<MPIcon icon={ICONS.check} />}>
+                Saved
+              </MPBottomNavigationItem>
+            </MPBottomNavigation>
           </Fit>
         )
       },

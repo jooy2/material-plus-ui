@@ -4511,6 +4511,158 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPBottomNavigation: [
+    {
+      name: 'value',
+      type: 'string | number | null',
+      description: {
+        ko: '지금 있는 목적지. controlled로 쓰려면 `onValueChange`와 함께 쓰세요',
+        en: 'The destination the reader is on. Use with `onValueChange` for a controlled bar'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'string | number | null',
+      description: {
+        ko: '처음에 있는 목적지. uncontrolled일 때 씁니다',
+        en: 'Which starts current, for an uncontrolled bar'
+      }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: string | number) => void',
+      description: {
+        ko: '눌린 목적지의 값으로 호출됩니다',
+        en: 'Called with the value of the destination that was pressed'
+      }
+    },
+    {
+      name: 'position',
+      type: "'static' | 'absolute' | 'sticky' | 'fixed'",
+      default: "'fixed'",
+      description: {
+        ko: '페이지의 스크롤 안에서 어떻게 놓일지. 기본값 `fixed`가 바텀 내비게이션 그 자체입니다 — 아래 페이지가 무엇을 하든 창의 아래 가장자리에 붙어 있습니다',
+        en: 'How the bar sits in the page’s scroll. `fixed` — the default — is what a bottom navigation bar is: held against the bottom edge of the window whatever the page does'
+      }
+    },
+    {
+      name: 'labels',
+      type: "'all' | 'selected' | 'none'",
+      default: "'all'",
+      description: {
+        ko: '어떤 이름을 그릴지. 그리지 않는다고 말하지 않는 것은 아니어서, 어느 값에서도 이름은 스크린 리더를 위해 문서에 남습니다',
+        en: 'Which names are drawn. Undrawn is never unsaid: the names stay in the document for a screen reader at every setting'
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '바의 높이와 타입 스케일. `md`가 MD3 자신의 80dp입니다',
+        en: "The bar's height and type scale. `md` is MD3's own 80dp"
+      }
+    },
+    {
+      name: 'divider',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '위쪽 가장자리의 실선. 꺼져 있는 이유는 MD3가 바를 선이 아니라 톤으로 분리하기 때문입니다 — 페이지의 `surface`에 대한 `surface-container`. 뒤의 페이지가 같은 톤일 때 켜세요',
+        en: "A hairline along the top edge. Off, because MD3 separates the bar by *tone* — `surface-container` against the page's `surface` — rather than by a rule. Turn it on when the page behind it is the same tone"
+      }
+    },
+    {
+      name: 'safeArea',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '행 아래에 `env(safe-area-inset-bottom)`을 더해 휴대폰의 홈 인디케이터를 피합니다. 컨테이너는 화면 맨 아래까지 그대로 닿고 행만 올라갑니다',
+        en: "Keeps the destinations clear of a phone's home indicator with `env(safe-area-inset-bottom)`. The container still reaches the bottom of the screen — only the row moves up"
+      }
+    },
+    {
+      ...disabled,
+      description: {
+        ko: '모든 목적지가 응답을 멈춥니다',
+        en: 'Every destination stops answering'
+      }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: {
+        ko: '바가 읽히는 이름 — "주 메뉴", "섹션". 이름 없는 랜드마크는 스크린 리더가 그냥 "탐색"이라고 읽습니다',
+        en: 'The name the bar is announced by — "Main", "Sections". A landmark with no name is one a screen reader lists as "navigation"'
+      }
+    },
+    {
+      name: 'render',
+      type: 'RenderProp',
+      description: {
+        ko: '`<nav>` 대신 다른 엘리먼트로 렌더링합니다. 목적지의 행은 탐색이므로 여기서는 좀처럼 필요하지 않습니다',
+        en: 'Renders something other than a `<nav>`. Rarely what you want here: a row of destinations is navigation'
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '`MPBottomNavigationItem`들 — 셋에서 다섯 개',
+        en: 'The `MPBottomNavigationItem`s — three to five of them'
+      }
+    }
+  ],
+
+  MPBottomNavigationItem: [
+    {
+      name: 'value',
+      type: 'string | number',
+      required: true,
+      description: {
+        ko: '목적지를 식별합니다. `onValueChange`가 알려 주는 값입니다',
+        en: 'Identifies the destination. What `onValueChange` reports'
+      }
+    },
+    {
+      name: 'icon',
+      type: NODE,
+      description: {
+        ko: '액티브 인디케이터 안에 그려지는 글리프',
+        en: 'The glyph, drawn inside the active indicator'
+      }
+    },
+    {
+      name: 'activeIcon',
+      type: NODE,
+      description: {
+        ko: '지금 있는 목적지일 때의 두 번째 글리프. MD3는 선택된 아이콘을 채우고 나머지는 외곽선으로 두는데, 곁눈질로도 살아남는 신호입니다. 없으면 `icon`으로 돌아갑니다',
+        en: 'A second glyph for while this is the destination the reader is on — MD3 fills the selected icon and outlines the rest, a signal that survives being seen out of the corner of an eye. Falls back to `icon`'
+      }
+    },
+    {
+      name: 'href',
+      type: 'string',
+      description: {
+        ko: '목적지를 진짜 링크로 렌더링합니다. 길게 누르면 "새 탭에서 열기"가 나오고 주소가 상태 표시줄에 보이는데, `router.push`를 호출하는 버튼으로는 되지 않는 것들입니다. `onValueChange`는 그대로 호출됩니다',
+        en: 'Renders the destination as a real link: a long press offers "open in a new tab" and the address shows in the status bar, neither of which a button calling `router.push` can do. `onValueChange` still fires'
+      }
+    },
+    {
+      ...disabled,
+      description: {
+        ko: '사용할 수 없지만 묶음에는 남습니다. `href`가 있었다면 함께 사라집니다 — `disabled`는 `<a>`가 가질 수 있는 상태가 아닙니다',
+        en: 'Unavailable, but still part of the set. An `href` goes with it: `disabled` is not something an `<a>` can be'
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '목적지의 이름. `labels`가 그리지 않을 때에도 읽힙니다',
+        en: "The destination's name. Read out even when `labels` keeps it undrawn"
+      }
+    }
+  ],
+
   MPFloatingActionButton: [
     {
       name: 'icon',
