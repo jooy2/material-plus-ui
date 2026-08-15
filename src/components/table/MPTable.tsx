@@ -79,7 +79,20 @@ export interface MPTableProps<Row> extends Omit<
    * @default false
    */
   stickyHeader?: boolean;
-  /** Makes rows activatable. Also turns on the hover treatment. */
+  /**
+   * Makes rows activatable. Also turns on the hover treatment.
+   *
+   * A row that answers a press has to answer a keyboard too, so each one joins
+   * the tab order and takes Enter and Space. That is the honest minimum for a
+   * `<tr>` — a row cannot be wrapped in a `<button>` the way an
+   * [MPListItem](../layout/list) is, because a `<button>` is not something a
+   * `<tbody>` may contain.
+   *
+   * It is also worth knowing what it costs: a table of two hundred rows becomes
+   * two hundred tab stops. When the row's job is to *navigate*, put a link in
+   * the first cell instead — one tab stop per row that is already announced as
+   * a link and can be opened in a new tab.
+   */
   onRowClick?: (row: Row, index: number) => void;
   /**
    * How much surface the sheet around the table paints.
@@ -316,12 +329,54 @@ export function MPTable<Row>({
                     ? '[--_mp-row:var(--_mp-color-surface-container-low)]'
                     : '',
                   lit ? 'hover:[--_mp-row:var(--_mp-color-surface-container)]' : '',
-                  clickable ? 'cursor-pointer' : ''
+                  clickable
+                    ? [
+                        'cursor-pointer',
+                        // Inset rather than offset, for the reason a tab's ring
+                        // is: the sheet scrolls sideways and clips at its
+                        // padding box, so a ring drawn outside the row would be
+                        // shaved off at both ends of the table.
+                        'outline-mp-secondary focus-visible:outline-2',
+                        'focus-visible:-outline-offset-2 focus-visible:outline-solid outline-none'
+                      ].join(' ')
+                    : ''
                 ]
                   .filter(Boolean)
                   .join(' ')}
                 style={ruleStyle}
+                /*
+                 * The row keeps `role="row"` rather than claiming
+                 * `role="button"`: a row that said it was a button would lose
+                 * the position-in-the-table a screen reader reads out, which is
+                 * the one thing a table cell has that a button does not.
+                 *
+                 * What it gains is the tab order and the two keys. `tabIndex` is
+                 * only set while there is something to activate, so a plain
+                 * table is not a wall of tab stops.
+                 */
+                tabIndex={clickable ? 0 : undefined}
                 onClick={onRowClick ? () => onRowClick(row, index) : undefined}
+                onKeyDown={
+                  onRowClick
+                    ? (event) => {
+                        if (event.key !== 'Enter' && event.key !== ' ') {
+                          return;
+                        }
+
+                        // Only the row itself. A press inside a cell belongs to
+                        // whatever is in that cell — a Space typed into a
+                        // field in a table must not activate the row around it.
+                        if (event.target !== event.currentTarget) {
+                          return;
+                        }
+
+                        // Space scrolls the page by default, and a row that
+                        // fired *and* scrolled would answer twice.
+                        event.preventDefault();
+                        onRowClick(row, index);
+                      }
+                    : undefined
+                }
               >
                 {headers.map((column) => (
                   <td key={column.key} style={{ ...cellStyle, textAlign: column.align ?? 'start' }}>

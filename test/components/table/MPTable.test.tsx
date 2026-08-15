@@ -150,6 +150,57 @@ describe('MPTable', () => {
       expect(row).toHaveClass('hover:[--_mp-row:var(--_mp-color-surface-container)]');
     });
 
+    it('stays out of the tab order while there is nothing to activate', async () => {
+      const screen = await render(<MPTable headers={COLUMNS} items={ROWS} />);
+
+      expect(screen.getByRole('row').elements()[1]).not.toHaveAttribute('tabindex');
+    });
+
+    it('joins the tab order once it is clickable', async () => {
+      const screen = await render(<MPTable headers={COLUMNS} items={ROWS} onRowClick={() => {}} />);
+
+      expect(screen.getByRole('row').elements()[1]).toHaveAttribute('tabindex', '0');
+    });
+
+    it('fires on Enter and on Space', async () => {
+      const onRowClick = vi.fn();
+      const screen = await render(
+        <MPTable headers={COLUMNS} items={ROWS} onRowClick={onRowClick} />
+      );
+      // The first element is the header's row; the body starts at 1.
+      const row = screen.getByRole('row').elements()[1];
+
+      for (const key of ['Enter', ' ']) {
+        const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+
+        row.dispatchEvent(event);
+        // Space scrolls the page otherwise, and a row that fired *and* scrolled
+        // would answer twice.
+        expect(event.defaultPrevented).toBe(true);
+      }
+
+      expect(onRowClick).toHaveBeenCalledTimes(2);
+      expect(onRowClick).toHaveBeenCalledWith(ROWS[0], 0);
+    });
+
+    it('leaves a key pressed inside a cell to whatever is in that cell', async () => {
+      const onRowClick = vi.fn();
+      const columns = [
+        ...COLUMNS,
+        { key: 'action', label: 'Action', render: () => <button type="button">Edit</button> }
+      ];
+      const screen = await render(
+        <MPTable headers={columns} items={ROWS} onRowClick={onRowClick} />
+      );
+
+      screen
+        .getByRole('button', { name: 'Edit' })
+        .elements()[0]
+        .dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true }));
+
+      expect(onRowClick).not.toHaveBeenCalled();
+    });
+
     it('keys rows by a caller’s key when one is given', async () => {
       const screen = await render(
         <MPTable headers={COLUMNS} items={ROWS} getRowKey={(row) => row.name} />
