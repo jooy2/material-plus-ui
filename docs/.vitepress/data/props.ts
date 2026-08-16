@@ -6790,6 +6790,35 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPAnimateZoom: [
+    animateMode,
+    {
+      name: 'from',
+      type: 'number',
+      default: '0.4',
+      description: {
+        ko: '최종 크기의 몇 배에서 시작할지. `1`보다 크면 크게 도착해 뒤로 물러앉습니다 — 읽는 사람 쪽으로 다가오는 몸짓입니다',
+        en: 'The scale it starts from, as a multiple of its final size. Above `1` it arrives oversized and settles back, which reads as coming *towards* the reader'
+      }
+    },
+    {
+      name: 'fade',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '확대되면서 함께 나타납니다. 첫 프레임이 *작다*가 아니라 *아직 없다*로 읽히게 하는 것이 이쪽입니다',
+        en: 'Fades in as it zooms. The opacity is what makes the first frames read as *not there yet* rather than as *tiny*'
+      }
+    },
+    ...motion,
+    animateRender,
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '도착할 것', en: 'What arrives' }
+    }
+  ],
+
   MPLocaleProvider: [
     {
       name: 'locale',

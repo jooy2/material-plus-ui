@@ -6,6 +6,7 @@ import {
   MPAlert,
   MPAnimateFade,
   MPAnimateGrow,
+  MPAnimateZoom,
   MPAspectRatio,
   MPAvatar,
   MPBadge,
@@ -1495,6 +1496,23 @@ const GROUPS: Group[] = [
                 <MPTypography level="body">Grow</MPTypography>
               </MPBox>
             </MPAnimateGrow>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPAnimateZoom',
+        summary: {
+          ko: '자리잡을 곳의 한가운데에서 도착하는 내용',
+          en: 'Content arriving from the middle of where it will end up'
+        },
+        path: '/components/motion/animate-zoom',
+        preview: (
+          <Fit>
+            <MPAnimateZoom from={0.5} repeat="infinite" alternate duration={1600}>
+              <MPBox size="sm">
+                <MPTypography level="body">Zoom</MPTypography>
+              </MPBox>
+            </MPAnimateZoom>
           </Fit>
         )
       }
