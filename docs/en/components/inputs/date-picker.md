@@ -76,6 +76,18 @@ Choosing a day changes the day and nothing else. A picker bound to a field that 
 <MPDatePicker value={value} onValueChange={setValue} />
 ```
 
+### floatingLabel
+
+Every notched control in this library rests its label on its own line while there is nothing to make room for — see [MPTextField](./text-field#floatinglabel). A picker is the exception in practice, because it draws a calendar glyph exactly where a resting label would stand, and of the two the glyph is what says the trigger opens a calendar.
+
+So the label stays in the notch unless the glyph is asked away:
+
+```tsx
+<MPDatePicker label="Due date" startIcon={null} value={due} onValueChange={setDue} />
+```
+
+The same is true of `MPDateRangePicker`, `MPDateTimePicker` and `MPTimePicker`.
+
 ### clearable
 
 Offers the × in the trigger, and the word in the footer. It does not appear while the picker is empty, read only or disabled — there is nothing to clear.

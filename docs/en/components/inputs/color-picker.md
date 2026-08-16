@@ -47,6 +47,12 @@ There is no colour library under this. The conversions are a hundred lines of ar
 
 `swatches` puts the handful of colours a product actually uses one click away; `false` draws none.
 
+### floatingLabel
+
+While there is no colour and the trigger is unfocused, the label rests on the trigger's own line and rises into the notch on focus or on the first colour. See [MPTextField](./text-field#floatinglabel) for the rule in full.
+
+The swatch comes down with it, and this is the one control in the library where a leading mark does. Everywhere else the mark before the value is an affordance — a calendar glyph says the trigger opens a calendar — so it keeps its place and holds the label out of it. A swatch is the value drawn: with no colour in the picker it is an empty ring saying nothing, so it gives its place up and returns with the label.
+
 ### inline
 
 Draws the panel in the page with no trigger at all — for a sidebar or a settings pane, where the picker is the content rather than a field in a form.

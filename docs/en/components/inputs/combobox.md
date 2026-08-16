@@ -65,6 +65,10 @@ There is no separate `error` boolean. A message is what puts the combobox into i
 
 `description` is the same slot, and `errorMessage` replaces it rather than stacking under it — Material gives supporting text one line.
 
+### floatingLabel
+
+While nothing is chosen or typed and the control is unfocused, the label rests on the input's own line and rises into the notch on focus, on the first character or on the first chip. Typed text counts as content on its own: the label cannot sit on top of what is being typed under it. See [MPTextField](./text-field#floatinglabel) for the rule in full.
+
 ### clearable
 
 Off by default: a field that can be cleared in one click is a field that can be emptied by accident.

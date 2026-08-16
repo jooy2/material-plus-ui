@@ -329,8 +329,18 @@ const pickerLabel: PropRow = {
   name: 'label',
   type: NODE,
   description: {
-    ko: '외곽선의 홈에 놓이는 라벨. 항상 그 자리에 그려지므로 라벨이 있는 피커와 없는 피커의 높이가 같습니다',
-    en: "Label in the outline's notch. Always drawn there, so a picker with a label and one without sit at the same height"
+    ko: '외곽선의 홈에 놓이는 라벨. 고른 값이 없고 포커스도 없고 앞에 글리프도 없는 동안에는 트리거 줄 위에 내려와 있습니다 — `floatingLabel` 참고',
+    en: "Label in the outline's notch, resting on the trigger's own line while nothing is chosen, the popup is shut and there is no leading glyph — see `floatingLabel`"
+  }
+};
+
+const pickerFloatingLabel: PropRow = {
+  name: 'floatingLabel',
+  type: 'boolean',
+  default: 'true',
+  description: {
+    ko: '비어 있는 동안 라벨을 트리거 줄에 내려두고 포커스나 첫 선택에서 홈으로 올릴지 여부. 피커는 값 앞에 자기 글리프를 그리고 그 글리프가 바로 내려온 라벨이 설 자리이므로, 실제로는 `startIcon={null}`로 글리프를 뺀 피커에서만 동작합니다',
+    en: "Whether the label rests on the trigger's line while it is empty and rises into the notch on focus or on the first choice. A picker draws its own glyph exactly where a resting label would stand, so in practice this only takes effect with `startIcon={null}`"
   }
 };
 
@@ -338,8 +348,8 @@ const pickerStartIcon: PropRow = {
   name: 'startIcon',
   type: NODE,
   description: {
-    ko: '값 앞에 놓이는 내용. 기본값은 피커 자신의 글리프(달력 또는 시계)입니다',
-    en: "Content placed before the value. Defaults to the picker's own glyph — a calendar or a clock"
+    ko: '값 앞에 놓이는 내용. 기본값은 피커 자신의 글리프(달력 또는 시계)이고, `null`을 주면 글리프가 사라집니다',
+    en: "Content placed before the value. Defaults to the picker's own glyph — a calendar or a clock — and `null` is how that glyph is asked away"
   }
 };
 
@@ -563,8 +573,17 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'label',
       type: 'string',
       description: {
-        ko: '필드 위 라벨. 항상 축소된 상태로 그려지므로 라벨이 있는 필드와 없는 필드의 높이가 같습니다',
-        en: 'Label above the field. Always drawn shrunk, so a field with a label and one without sit at the same height'
+        ko: '필드의 라벨. 외곽선의 홈에 그려지되, 필드가 비어 있고 포커스도 없고 `startIcon`도 없는 동안에는 필드 줄 위 플레이스홀더 자리에 내려와 있습니다 — `floatingLabel` 참고',
+        en: "Label for the field, drawn in the outline's notch and resting on the field's own line — where a placeholder would be — while it is empty, unfocused and has no `startIcon`. See `floatingLabel`"
+      }
+    },
+    {
+      name: 'floatingLabel',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '비어 있는 동안 라벨을 필드 줄에 내려두고 포커스나 첫 글자에서 홈으로 올릴지 여부. `false`면 홈에 고정됩니다. `startIcon`이 있으면 그 글리프가 내려온 라벨이 설 자리를 이미 차지하므로 언제나 홈에 있습니다',
+        en: "Whether the label rests on the field's line while it is empty and rises into the notch on focus or on the first character. `false` pins it in the notch. A `startIcon` holds it up regardless — the glyph already stands where a resting label would"
       }
     },
     {
@@ -891,8 +910,17 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'label',
       type: NODE,
       description: {
-        ko: '외곽선의 홈에 놓이는 라벨. 항상 축소된 상태로 그려지므로 라벨이 있는 셀렉트와 없는 셀렉트의 높이가 같습니다',
-        en: "Label in the outline's notch. Always drawn there, so a select with a label and one without sit at the same height"
+        ko: '외곽선의 홈에 놓이는 라벨. 고른 값이 없고 팝업도 닫혀 있고 `startIcon`도 없는 동안에는 트리거 줄 위 플레이스홀더 자리에 내려와 있습니다 — `floatingLabel` 참고',
+        en: "Label in the outline's notch, resting on the trigger's own line — where the placeholder would be — while nothing is chosen, the popup is shut and there is no `startIcon`. See `floatingLabel`"
+      }
+    },
+    {
+      name: 'floatingLabel',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '비어 있는 동안 라벨을 트리거 줄에 내려두고 포커스나 첫 선택에서 홈으로 올릴지 여부. `false`면 홈에 고정됩니다. `startIcon`이 있으면 언제나 홈에 있습니다',
+        en: "Whether the label rests on the trigger's line while nothing is chosen and rises into the notch on focus or on the first choice. `false` pins it in the notch, and a `startIcon` holds it up regardless"
       }
     },
     description,
@@ -1033,7 +1061,19 @@ export const propTables: Record<string, PropRow[]> = {
     {
       name: 'label',
       type: NODE,
-      description: { ko: '외곽선의 홈에 놓이는 라벨', en: "Label in the outline's notch" }
+      description: {
+        ko: '외곽선의 홈에 놓이는 라벨. 숫자가 없고 포커스도 없고 앞에 아무것도 서 있지 않은 동안에는 필드 줄 위에 내려와 있습니다 — `floatingLabel` 참고',
+        en: "Label in the outline's notch, resting on the field's own line while it holds no number, is unfocused and has nothing standing at its start. See `floatingLabel`"
+      }
+    },
+    {
+      name: 'floatingLabel',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '비어 있는 동안 라벨을 필드 줄에 내려두고 포커스나 첫 숫자에서 홈으로 올릴지 여부. `false`면 홈에 고정됩니다. `startIcon`이나 `steppers="split"`의 빼기 버튼이 같은 자리에 서므로 그때도 홈에 있습니다',
+        en: 'Whether the label rests on the field\'s line while it is empty and rises into the notch on focus or on the first digit. `false` pins it in the notch, and so does anything standing in the resting label\'s place — a `startIcon`, or the minus of `steppers="split"`'
+      }
     },
     description,
     errorMessage,
@@ -3430,8 +3470,17 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'label',
       type: NODE,
       description: {
-        ko: '외곽선 노치 안의 라벨. 폼 안에서 텍스트 필드와 같은 높이에 서도록 언제나 노치에 그립니다',
-        en: "Label in the outline's notch. Always drawn there, so a combobox and a text field sit at the same height in a form"
+        ko: '외곽선 노치 안의 라벨. 고른 것도 입력한 것도 없고 포커스도 없고 `startIcon`도 없는 동안에는 입력 줄 위에 내려와 있습니다 — `floatingLabel` 참고',
+        en: "Label in the outline's notch, resting on the input's own line while nothing is chosen or typed, the control is unfocused and there is no `startIcon`. See `floatingLabel`"
+      }
+    },
+    {
+      name: 'floatingLabel',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '비어 있는 동안 라벨을 입력 줄에 내려두고 포커스·첫 글자·첫 칩에서 홈으로 올릴지 여부. `false`면 홈에 고정됩니다. `startIcon`이 있으면 언제나 홈에 있습니다',
+        en: "Whether the label rests on the input's line while it is empty and rises into the notch on focus, on the first character or on the first chip. `false` pins it in the notch, and a `startIcon` holds it up regardless"
       }
     },
     description,
@@ -4106,8 +4155,17 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'label',
       type: NODE,
       description: {
-        ko: '외곽선 노치 안의 라벨. `inline`이면 패널 위',
-        en: 'Label in the outline’s notch, or above the panel when `inline`'
+        ko: '외곽선 노치 안의 라벨. `inline`이면 패널 위. 고른 색이 없고 포커스도 없는 동안에는 트리거 줄 위에 내려와 있습니다 — `floatingLabel` 참고',
+        en: 'Label in the outline’s notch, or above the panel when `inline`. While nothing is chosen and the trigger is unfocused it rests on the trigger’s own line — see `floatingLabel`'
+      }
+    },
+    {
+      name: 'floatingLabel',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '비어 있는 동안 라벨을 트리거 줄에 내려두고 포커스나 첫 색에서 홈으로 올릴지 여부. 견본은 라벨과 함께 내려갑니다 — 색이 없는 견본은 빈 고리일 뿐이라, 라이브러리에서 유일하게 내려온 라벨에게 자리를 내주는 앞머리 표식입니다. `inline`이면 무시됩니다',
+        en: "Whether the label rests on the trigger's line while it is empty and rises into the notch on focus or on the first colour. The swatch comes down with it — with no colour it is an empty ring, which makes it the one leading mark in the library that gives its place up to a resting label. Ignored when `inline`"
       }
     },
     description,
@@ -6379,6 +6437,7 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     pickerLabel,
+    pickerFloatingLabel,
     pickerPlaceholder,
     description,
     errorMessage,
@@ -6463,6 +6522,7 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     pickerLabel,
+    pickerFloatingLabel,
     {
       name: 'startPlaceholder',
       type: NODE,
@@ -6567,6 +6627,7 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     pickerLabel,
+    pickerFloatingLabel,
     pickerPlaceholder,
     description,
     errorMessage,
@@ -6664,6 +6725,7 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     pickerLabel,
+    pickerFloatingLabel,
     pickerPlaceholder,
     description,
     errorMessage,

@@ -70,6 +70,14 @@ items={[
 
 Listed rather than removed, on purpose: "this exists but not for you" and "this does not exist" are different things, and only one of them explains why a plan a colleague mentioned is not there.
 
+### floatingLabel
+
+While nothing is chosen and the popup is shut, the label rests on the trigger's own line where the placeholder would be, and rises into the notch on focus or on the first choice. The `placeholder` is withheld until it has — two greyed strings in one box is not a hint. See [MPTextField](./text-field#floatinglabel) for the rule in full.
+
+The open popup counts as focus. Base UI moves the focus into the list, so a label that only watched the trigger would fall back down over a select the reader is halfway through answering.
+
+`floatingLabel={false}` pins the label in the notch, and a `startIcon` holds it up regardless — the glyph is already standing where a resting label would be.
+
 ### size
 
 Five rungs, the same ones a text field is drawn at. A select beside a field at the same `size` lines up to the pixel, which is the whole reason the shell is shared.

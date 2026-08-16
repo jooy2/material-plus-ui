@@ -71,6 +71,24 @@ In the original the error colour reached the helper text only, leaving the outli
 
 `readOnly` shows a value without allowing edits, and unlike `disabled` the text stays selectable and the field stays in the tab order. That is what you want for a value the reader may need to copy.
 
+### floatingLabel
+
+While the field is empty and unfocused the label rests on the field's own line, at the field's own type scale, reading as the placeholder — and rises into the notch the moment there is something to make room for. That is Material's outlined text field, and it is what every other notched control in this library now does too.
+
+<Demo src="text-field/floating-label" :minHeight="260">
+
+<<< @/.vitepress/demos/text-field/floating-label.tsx
+
+</Demo>
+
+Three things hold the label up: focus, content, and a `startIcon`. The icon is already standing where the resting label would be and the two cannot share the spot, so a field with a leading glyph keeps its label in the notch — the third field above.
+
+The `placeholder` is withheld for as long as the label is resting in its place, and comes back with focus, which is also when it is of any use. Two greyed strings in one box is not a hint.
+
+`floatingLabel={false}` pins the label in the notch — the second field above. That is worth having for one reason: a field with a label and a field without one sit at the same height only while the label is up, so a row that mixes the two, or a dense form where the labels moving would be noise, may want them still.
+
+On a multiline field the resting label sits on the first line rather than in the middle of the box, since the middle of a six-row box is nowhere near the caret.
+
 ### rows
 
 Any `rows` renders a `<textarea>` instead of an `<input>`. Everything else stays identical.

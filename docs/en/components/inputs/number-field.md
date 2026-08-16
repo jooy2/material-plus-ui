@@ -57,6 +57,12 @@ There is deliberately no stacked pair of half-height chevrons — the shape a na
 
 A stepper that has run into `min` or `max` is disabled rather than merely inert, so a reader can see there is nowhere left to go before they press it. `readOnly` drops both buttons entirely: leaving them there disabled is two ways of saying the same thing, and the disabled one looks broken.
 
+### floatingLabel
+
+While the field holds no number and is unfocused, the label rests on the field's own line and rises into the notch on focus or on the first digit. See [MPTextField](./text-field#floatinglabel) for the rule in full.
+
+`steppers="split"` pins it in the notch, for the same reason a `startIcon` does: the minus sits exactly where a resting label would.
+
 ### step, largeStep and smallStep
 
 `step` is one arrow key. Shift takes `largeStep` (10 by default) and Alt takes `smallStep` (0.1), which is Base UI's own convention and matches what a spreadsheet does.

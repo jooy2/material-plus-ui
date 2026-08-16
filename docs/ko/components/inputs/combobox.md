@@ -65,6 +65,10 @@ import { MPCombobox } from 'material-plus-ui';
 
 `description`은 같은 칸이고, `errorMessage`는 그 아래 쌓이는 것이 아니라 그것을 대체합니다 — 머터리얼은 보조 텍스트에 한 줄을 줍니다.
 
+### floatingLabel
+
+고른 것도 입력한 것도 없고 포커스도 없는 동안 라벨은 입력 자신의 줄 위에 내려와 있다가 포커스·첫 글자·첫 칩에서 노치로 올라갑니다. 입력한 글자만으로도 내용으로 칩니다. 라벨이 그 아래에서 입력되고 있는 글자 위에 앉아 있을 수는 없기 때문입니다. 규칙 전체는 [MPTextField](./text-field#floatinglabel)에 있습니다.
+
 ### clearable
 
 기본값은 꺼짐입니다. 한 번 클릭으로 비워지는 필드는 실수로도 비워지는 필드입니다.

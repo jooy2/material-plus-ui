@@ -76,6 +76,18 @@ const [due, setDue] = useState(null);
 <MPDatePicker value={value} onValueChange={setValue} />
 ```
 
+### floatingLabel
+
+이 라이브러리에서 노치를 두른 컨트롤은 자리를 비켜줄 것이 없는 동안 라벨을 자기 줄 위에 내려둡니다 — [MPTextField](./text-field#floatinglabel) 참고. 다만 피커는 실질적으로 예외입니다. 내려온 라벨이 설 바로 그 자리에 달력 글리프를 그리고, 둘 중에서는 글리프 쪽이 "누르면 달력이 열린다"고 말하는 쪽이기 때문입니다.
+
+그래서 글리프를 빼달라고 하지 않는 한 라벨은 노치에 남습니다.
+
+```tsx
+<MPDatePicker label="Due date" startIcon={null} value={due} onValueChange={setDue} />
+```
+
+`MPDateRangePicker`, `MPDateTimePicker`, `MPTimePicker`도 마찬가지입니다.
+
 ### clearable
 
 트리거에 ×를, 푸터에 단어를 답니다. 피커가 비어 있거나 읽기 전용이거나 비활성일 때는 나타나지 않습니다. 지울 게 없으니까요.
