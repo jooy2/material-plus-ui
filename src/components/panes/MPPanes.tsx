@@ -408,7 +408,26 @@ export const MPPanes = React.forwardRef<HTMLDivElement, MPPanesProps>(function M
 
     const handle = event.currentTarget;
 
-    handle.setPointerCapture(event.pointerId);
+    /*
+     * Capture is what keeps the drag alive once the pointer leaves the handle —
+     * the listeners below are on the handle rather than on the window, so
+     * without it a boundary stops following a pointer that has moved off it.
+     *
+     * It is still allowed to fail. `setPointerCapture` throws `NotFoundError`
+     * for a `pointerId` that is not an active pointer, which is reachable
+     * whenever the press is over before React's handler runs — a flicked tap, a
+     * synthesised event — and an exception here would abandon the rest of this
+     * function: no `data-dragging`, no listeners, and the page's own selection
+     * taken away with nothing left to hand it back. A drag that only works while
+     * the pointer is over the handle is worse than one that works everywhere and
+     * far better than a page that cannot be selected.
+     */
+    try {
+      handle.setPointerCapture(event.pointerId);
+    } catch {
+      // Nothing to do about it, and nothing that follows depends on it.
+    }
+
     handle.dataset.dragging = 'true';
 
     /*

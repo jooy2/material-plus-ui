@@ -2,6 +2,10 @@
 
 ## 1.1.0 (2026--)
 
+### Fixed
+
+- **A refused pointer capture took `MPPanes` down with it, and took the page's text selection with it.** `beginDrag` captured the pointer before anything else, and `setPointerCapture` throws `NotFoundError` for an id that is not an active pointer — which is reachable whenever the press is over before React's handler runs, and is what a synthesised `pointerdown` produces in Firefox every time. The exception abandoned the rest of the function: no `data-dragging`, no move listeners, and `document.body` left `user-select: none` with no drag on screen to explain why and no `end` coming to hand it back. The capture is attempted and allowed to fail now. It is genuinely load-bearing — the listeners are on the handle, so without it a boundary stops following a pointer that has moved off it — but a drag that only works over the handle is a smaller problem than a page nobody can select.
+
 ### Added
 
 - **Seven components: `MPGrid`, `MPGridItem`, `MPContainer`, `MPTabs`, `MPFloatingActionButton`, `MPBottomNavigation` and `MPPagination`, plus `MPRating`.** Where MD3 defines the component the specification is followed to the number — a primary tab is 48dp with a rounded 3dp indicator under its label and 64dp once a glyph sits above it, a floating button is 56dp at `corner-large` under `primary-container`, a navigation bar is an 80dp `surface-container` with a 64×32dp `secondary-container` pill behind the glyph of the destination you are on, a container's margin is the specification's 16dp — and where it does not, the component is built out of the specification's own roles and this library's own ladders rather than out of sizes invented for it. This is the layout half of the library arriving at once: until now there was a sheet (`MPBox`) and a splitter (`MPPanes`) and nothing that answered "how wide is the page" or "how does the content divide itself up".
