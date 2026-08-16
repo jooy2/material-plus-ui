@@ -1,0 +1,127 @@
+# Material Plus
+
+> Material Design 3를 구현한 React 컴포넌트 라이브러리입니다. 다른 머터리얼 라이브러리가 제공하지 않는 컴포넌트와, 제공하더라도 기능을 더 넓힌 컴포넌트를 모았습니다. Base UI와 Tailwind CSS v4 기반이고, 테마를 CSS 커스텀 프로퍼티로 다루기 때문에 이미 머터리얼을 쓰는 프로젝트와 공존할 수 있습니다. ESM 전용이며 타입 정의가 포함되어 있습니다.
+
+- 설치는 `npm install material-plus-ui`. ESM 전용이며 타입 선언이 함께 들어 있습니다.
+- 피어 의존성은 `@base-ui/react` 1과 `react`·`react-dom` 18 또는 19입니다. `lucide-react`는 패키지에 포함되어 있습니다.
+- 설정은 스타일시트 한 줄이 전부입니다 — `material-plus-ui/styles.css`, 이미 Tailwind CSS v4를 쓰는 프로젝트라면 `material-plus-ui/tailwind.css`. 트리를 감싸는 프로바이더는 없습니다.
+- 모든 컴포넌트는 패키지 루트에서 `MP` 접두사가 붙은 이름으로 내보냅니다: `import { MPTextField } from 'material-plus-ui'`.
+- 테마는 CSS 커스텀 프로퍼티입니다. `--mp-source-color` 하나로 모든 색 역할이 파생되고, `data-mp-scheme`가 라이트/다크를, `data-mp-shape`가 모서리 스케일을 바꿉니다.
+- 아래 각 컴포넌트 문서에는 그 컴포넌트의 전체 props 표가 있습니다. prop 이름을 쓰기 전에 읽어야 할 페이지입니다.
+
+## Guide
+
+- [시작하기](https://material-plus.cdget.com/ko/guide/getting-started): Material Plus는 Material Design 3를 구현한 React 컴포넌트 라이브러리입니다. 다른 구현체를 감싸는 것이 아니라 스펙을 직접 따르기 때문에, 색상 롤·타입 스케일·모양의 이름이 모두 스펙의 이름입니다.
+
+## 디자인
+
+- [색상](https://material-plus.cdget.com/ko/design/color): Material Plus는 하나의 소스 색상에서 스킴 전체를 생성합니다. Material Design이 하는 방식 그대로입니다. 그것만 지정하면 모든 롤이 따라오고, 결과가 마음에 들지 않는 롤만 따로 지정합니다.
+- [Prop 규약](https://material-plus.cdget.com/ko/design/prop-conventions): 아래 전체를 지배하는 규칙이 두 개입니다.
+- [현지화](https://material-plus.cdget.com/ko/design/localization): 이 라이브러리에서 읽는 사람에게 보이는 텍스트를 직접 쓰는 부분은 거의 없습니다. 그래도 쓰는 것들 — 달력의 월 이름, 뒤로 가기 화살표의 이름, 필드를 비우는 버튼의 단어 — 은 두 군데에서 오고, 어느 쪽이 어느 쪽인지 아는 것이 이 페이지의 전부입니다.
+
+## 컴포넌트
+
+- [모든 컴포넌트](https://material-plus.cdget.com/ko/components/): 지금까지 공개된 전부입니다. 카드 안의 미리보기는 그림이 아니라 실제로 동작하는 컴포넌트입니다.
+
+## 컴포넌트: 예제
+
+- [한눈에 보기](https://material-plus.cdget.com/ko/examples/overview): 라이브러리의 모든 부분을 한 화면에 담았습니다. 컴포넌트를 낱개로 늘어놓는 대신 실제 애플리케이션이 배치하는 방식으로 놓아서, 나란히 두었을 때 크기와 기준선과 표면이 서로 맞는지 볼 수 있게 했습니다.
+- [랜딩 페이지](https://material-plus.cdget.com/ko/examples/concept-landing): 존재하지 않는 배포 도구 Kestrel의 마케팅 페이지입니다. 컴포넌트 라이브러리가 가장 덜 필요해 보이는 화면 — 대부분이 타이포그래피와 여백, 그리고 반복되는 하나의 행동 유도 — 이기 때문에, 오히려 부품들이 서로 맞물리는지 가장 잘 드러납니다.
+- [관리자 대시보드](https://material-plus.cdget.com/ko/examples/concept-dashboard): 존재하지 않는 상점 Grange의 백오피스입니다. 레일, 필터 줄, 네 개의 수치, 행마다 동작이 달린 표, 그리고 그 아래 크기를 바꿀 수 있는 분할 — 전부 한 화면에, 전부 같은 크기로. 크기 체계가 실제로 성립하는지 드러나는 배치입니다.
+- [회원 가입 페이지](https://material-plus.cdget.com/ko/examples/concept-signup): 세 단계로 나뉜 Kestrel 가입 절차입니다. 다른 것을 다 걷어내고 라이브러리의 입력 컨트롤만 남긴 화면 — 폼이 물을 수 있는 모든 종류의 답과, 그 주변의 상태들입니다. label , description , errorMessage 는 거의 모든 컨트롤에서 똑같은 세 자리입니다.
+
+## 컴포넌트: Display
+
+- [MPAvatar](https://material-plus.cdget.com/ko/components/display/avatar): 사람이나 사물의 사진을, 아는 크기로, 절대 빈 상자가 되지 않게 그립니다. 사진이 없거나 늦으면 이니셜이 대신하고, 이니셜도 없으면 실루엣이 대신합니다.
+- [MPBadge](https://material-plus.cdget.com/ko/components/display/badge): 다른 것의 모서리에 붙는 작은 표시입니다. 받은 편지함 아이콘 위의 안 읽은 메일, 아바타 위의 상태 점, 탭 위의 개수. 자식이 없으면 인라인으로 놓여서 독립된 상태 표시가 됩니다.
+- [MPBlockquote](https://material-plus.cdget.com/ko/components/display/blockquote): 남의 말을 내 글과 구분해서 놓습니다. 여기에는 상태도 키보드 계약도 없습니다 — 있는 것은 틀리기 쉬운 마크업이고, 그것을 제대로 하는 것이 이 컴포넌트의 대부분입니다.
+- [MPBreadcrumb](https://material-plus.cdget.com/ko/components/display/breadcrumb): 지금 읽는 페이지 위쪽의 경로입니다. 마지막 단계는 독자가 이미 있는 곳이므로 링크가 아니고, 일곱 단계짜리 경로는 가운데를 … 뒤로 접습니다.
+- [MPChatBubble](https://material-plus.cdget.com/ko/components/display/chat-bubble): 대화 속 메시지 하나입니다. 말풍선과, 스레드가 그 주위에 거는 모든 것 — 아바타, 보낸 사람, 시각, 전송 표시, 사진, 펼쳐진 링크.
+- [MPChip](https://material-plus.cdget.com/ko/components/display/chip): 작은 토큰입니다. 태그, 필터, 상태, 목록에서 뽑아낸 개체. 누를 수도 있고, 선택될 수도 있고, 자기 삭제 버튼을 가질 수도 있습니다 — 버튼 안에 버튼을 넣지 않고 셋 다 됩니다.
+- [MPDivider](https://material-plus.cdget.com/ko/components/display/divider): 두 가지 사이를 가르는 선입니다. 자식이 없으면 진짜 role="separator" 그 이상도 이하도 아니고, 자식이 있으면 라벨을 중심으로 선이 끊깁니다.
+- [MPHighlight](https://material-plus.cdget.com/ko/components/display/highlight): 읽고 있던 글 안에서 찾고 있는 단어를 표시합니다. 스타일링만이 아니라 검색 자체가 컴포넌트입니다. query 는 검색창이 들고 있는 값 그대로이고, 값이 바뀌면 표시도 알아서 다시 계산됩니다.
+- [MPIcon](https://material-plus.cdget.com/ko/components/display/icon): 아이콘 글리프에 크기와 색을 붙여 주는 wrapper입니다. Material Plus는 자체 아이콘을 그리지 않으므로 글리프는 여러분이 고른 세트에서 옵니다. lucide-react 가 패키지에 함께 들어 있고, 다른 세트도 똑같이 잘 동작합니다.
+- [MPList](https://material-plus.cdget.com/ko/components/display/list): 행을 쌓은 것입니다. 리스트가 면이고 행이 그 위에 놓인 것 — size 와 color 를 묶음에 한 번만 설정하는 이유이고, 이동하는 행이 진짜 링크인 이유입니다.
+- [MPPagination](https://material-plus.cdget.com/ko/components/display/pagination): 페이지들의 행이고, 그중 하나가 지금 읽고 있는 페이지입니다. 머터리얼에는 페이지네이션 컴포넌트가 없으므로, 여기서 머터리얼인 것은 그 결정을 둘러싼 모든 것입니다 — 라이브러리의 컨트롤 높이를 따르는 알약 모양, 자기 잉크 아래 강조 색으로 채워진 현재 페이지, 그리고 명세가…
+- [MPPill](https://material-plus.cdget.com/ko/components/display/pill): 지금 살아 있는 정보를 조금 담아 떠 있는 알약 모양입니다 — 통화 중, 아직 진행 중인 업로드, 녹음, 2분 뒤 도착하는 열차.
+- [MPShortcut](https://material-plus.cdget.com/ko/components/display/shortcut): 키보드의 키, 또는 그 조합입니다. 이것을 그냥 꾸민 &lt;kbd&gt; 이상으로 만드는 두 가지는 모두 상자가 아니라 라벨에 관한 것입니다.
+- [MPSpoiler](https://material-plus.cdget.com/ko/components/display/spoiler): 누군가 요청하기 전까지 가려 두는 내용입니다. 반전, 연봉 범위, 경고가 붙은 사진 — 형태로는 보이지만 실수로는 읽히지 않습니다.
+- [MPTable](https://material-plus.cdget.com/ko/components/display/table): 데이터 격자를, 행마다 적는 대신 열로 서술합니다. 열이 몇 개인지 말하는 곳이 하나뿐이므로 헤더와 셀이 어긋날 수 없습니다.
+- [MPTextLink](https://material-plus.cdget.com/ko/components/display/text-link): 문장 안에 있거나 홀로 서 있는 링크입니다. 버튼보다 의도적으로 작습니다 — 면도, 자기 높이도, 요청하지 않은 색도 없습니다. 있는 것은 밑줄 하나입니다.
+- [MPTimeline](https://material-plus.cdget.com/ko/components/display/timeline): 일이 벌어진 순서대로 놓인 단계들입니다. prop 하나가 현실이 어디까지 왔는지 말하면, 모든 동그라미와 선과 제목이 거기서 따라 나옵니다.
+- [MPTypography](https://material-plus.cdget.com/ko/components/display/typography): 머터리얼의 타입 역할로 조판된 글입니다. 타입 스케일은 디자인 시스템에서 나머지 모든 것이 기준으로 삼는 유일한 것인데, 이 컴포넌트는 그 사다리 자체입니다. 덕분에 컨트롤을 감싸지 않고도 페이지의 제목을 컴포넌트와 같은 headline-large 로 세울 수 있습니다.
+
+## 컴포넌트: Feedback
+
+- [MPAlert](https://material-plus.cdget.com/ko/components/feedback/alert): 방금 일어난 일에 대한 메시지를, 그 일이 벌어진 페이지 안에 놓습니다. 슬롯을 어디까지 채우느냐가 다를 뿐 하나의 컴포넌트입니다 — 한 줄, 글리프가 붙은 한 줄, 그리고 제목과 그 아래 상세.
+- [MPDialog](https://material-plus.cdget.com/ko/components/feedback/dialog): 답할 때까지 페이지를 가져가는 시트입니다. 각 구역은 조합할 하위 컴포넌트가 아니라 prop입니다. 대화상자의 배치는 고정되어 있고 — 아이콘, 헤드라인, 보조 텍스트, 본문, 액션 — 호출자가 정하고 싶은 것은 각 칸에 무엇이 들어가는가입니다.
+- [MPEmpty](https://material-plus.cdget.com/ko/components/feedback/empty): 내용이 있었어야 할 자리에 서는 것입니다. 글리프 하나, 제목 하나, 문장 하나, 그리고 빠져나갈 길. MPSkeleton 의 나머지 절반입니다 — 그쪽이 오는 중인 것의 모양이라면 이쪽은 오지 않는 것의 모양입니다.
+- [MPOverlay](https://material-plus.cdget.com/ko/components/feedback/overlay): 페이지 전체를 덮어 쓰지 못하게 하는 시트입니다. 대화상자와 다른 점은 여기에 없는 것들입니다. 면도, 외곽선도, 제목도, 액션도 없습니다 — 스크림 그 자체와, 그 위에 호출자가 올려놓는 것뿐입니다.
+- [MPPopover](https://material-plus.cdget.com/ko/components/feedback/popover): 자기를 연 것 옆에 열리는 시트입니다. 툴팁과 달리 손이 닿습니다 — 닫힐 때까지 떠 있고, 안에 든 것을 누르고 입력할 수 있습니다.
+- [MPProgressBox](https://material-plus.cdget.com/ko/components/feedback/progress-box): 차례로 켜지는 조각들의 줄입니다. 바와 링은 둘 다 “이만큼 끝났다”고 말합니다 — 읽는 사람이 재는 양입니다. 조각 넷은 “지금은 세 번째 단계”라고 말하고, 그것은 세는 양입니다. 셀 수 있을 만큼 작은 수라면 세는 쪽이 재는 쪽보다 빠릅니다.
+- [MPProgressCircular](https://material-plus.cdget.com/ko/components/feedback/progress-circular): 채워지는 링이고, 바를 놓을 자리가 없는 곳 — 버튼 안, 표 행 끝, 필드 옆 — 에서 집게 되는 것입니다.
+- [MPProgressLinear](https://material-plus.cdget.com/ko/components/feedback/progress-linear): 채워지는 바이고, 세 진행 표시기 중 일꾼입니다. 얼마나 남았는지를 한눈에 보여주는 것은 이것뿐입니다. 길이는 읽는 사람이 세지 않고 비교할 수 있는 유일한 양이기 때문입니다.
+- [MPSkeleton](https://material-plus.cdget.com/ko/components/feedback/skeleton): 아직 도착하지 않은 것의 모양입니다. 진짜가 차지할 공간을 미리 잡아 두는 것이 일의 전부입니다 — 이미지가 도착하면서 200px 자라는 카드는 누군가 읽고 있는 동안 그 아래 전부를 밀어낸 카드입니다.
+- [MPSnackbar](https://material-plus.cdget.com/ko/components/feedback/snackbar): 이미 일어난 일에 대한 짧은 메시지이고, 애플리케이션 어디에서든 띄울 수 있습니다. 트리를 MPSnackbarProvider 로 한 번 감싸면, 이후 모든 호출 지점은 무슨 일이 있었는지를 말하는 한 줄이 됩니다.
+- [MPTooltip](https://material-plus.cdget.com/ko/components/feedback/tooltip): 포인터가 무언가 위에 머물면 나타나는 짧은 라벨입니다. 컴포넌트 전체가 래퍼입니다 — 레이아웃에 엘리먼트를 더하지 않고, 자식은 원래 그것 그대로 남습니다.
+
+## 컴포넌트: Inputs
+
+- [MPButton](https://material-plus.cdget.com/ko/components/inputs/button): 머터리얼의 다섯 가지 버튼 — filled, tonal, elevated, outlined, text — 을 네 가지 강조 색 계열과 이 라이브러리의 크기 사다리 위에서 그립니다. 스테이트 레이어, 비활성 불투명도, 알약 모양이 모두 Material Design 3의 컴포넌트 토큰에서…
+- [MPButtonGroup](https://material-plus.cdget.com/ko/components/inputs/button-group): 함께 묶이는 버튼들의 한 줄입니다. 이웃과 맞닿는 모서리를 깎고, variant·size·color·비활성 상태를 버튼마다 반복하는 대신 묶음에 한 번만 설정합니다.
+- [MPCheckbox](https://material-plus.cdget.com/ko/components/inputs/checkbox): 예/아니오 하나입니다. 상자는 평상시 on-surface-variant이고 체크되면 강조 색 계열로 채워집니다. 18dp 상자 둘레에 머터리얼의 40dp 스테이트 레이어가 있는데, 보이는 것은 상자이고 눌리는 것은 후광입니다.
+- [MPColorPicker](https://material-plus.cdget.com/ko/components/inputs/color-picker): 눈으로 고르는 색입니다. 채도 사각형과 그 옆의 색조 레일 — 모든 디자인 도구가 결국 정착한 배치이고, 한 번의 포인터 움직임 안에 한 색조의 모든 색을 넣어 주는 유일한 배치이기 때문입니다.
+- [MPCombobox](https://material-plus.cdget.com/ko/components/inputs/combobox): 입력할 수도 있고 고를 수도 있는 필드입니다. 껍데기는 MPSelect 의 트리거와 마찬가지로 셰브런을 단 MPTextField 이고, 다른 것은 텍스트가 하는 일입니다. 목록을 걸러내고, 값 그 자체가 될 수도 있습니다.
+- [MPDatePicker](https://material-plus.cdget.com/ko/components/inputs/date-picker): 달력에서 고르는 하루. 트리거는 텍스트 필드의 껍데기에 달력 글리프를 단 것이라, 폼 안의 날짜 필드가 주변 필드들과 같은 물건이 됩니다.
+- [MPDateRangePicker](https://material-plus.cdget.com/ko/components/inputs/date-range-picker): 두 날 사이의 구간. 달을 넘나드는 범위가 예외가 아니라 일반적인 경우이고, 한 달짜리 피커는 그걸 탐색 문제로 만들기 때문에 두 달을 나란히 보여 줍니다.
+- [MPDateTimePicker](https://material-plus.cdget.com/ko/components/inputs/date-time-picker): 날짜와 시각을 한 팝업에서. 시계가 달린 날짜 피커가 아닙니다 — 두 패널이 정확히 같은 높이로 나란히 앉아 있어서, 팝업이 크기가 다른 두 개를 붙여 놓은 것이 아니라 하나의 사각형입니다.
+- [MPFilePicker](https://material-plus.cdget.com/ko/components/inputs/file-picker): 파일을 떨어뜨리거나 눌러서 파일 대화상자를 여는 상자입니다. 머터리얼에는 이런 컴포넌트가 없으므로, 빌려 오는 것은 면인 부분 — 모서리 크기, outline-variant 테두리, 스테이트 레이어, 보조 텍스트 — 이고, 더하는 것은 직접 만든 드롭존이 늘 틀리는 두 가지입니다.
+- [MPFloatingActionButton](https://material-plus.cdget.com/ko/components/inputs/floating-action-button): 화면이 다루는 단 하나의 액션이, 그 위에 떠 있는 것입니다. 머터리얼의 컨테이너 셋, 각 크기가 가져가는 모서리까지 포함한 크기 셋, 레벨 3 그림자, 그리고 extended 형태까지 들어 있습니다. 기본값은 명세의 FAB 그대로입니다 — on-primary-container 아래의…
+- [MPIconButton](https://material-plus.cdget.com/ko/components/inputs/icon-button): 글리프 하나만 들어 있는 둥근 버튼. 거의 전부가 MPButton 이고, 여기서 더하는 건 기본값을 정할 수 없으면서 항상 빠져 있는 딱 하나 — 이름입니다.
+- [MPMenu](https://material-plus.cdget.com/ko/components/inputs/menu): 무언가를 누르면 나타나는 동작의 목록입니다. 행은 데이터로 넘기는 것이 아니라 조합합니다 — MPSelect 와 반대이고, 일부러 그렇습니다.
+- [MPNumberField](https://material-plus.cdget.com/ko/components/inputs/number-field): 숫자만 담는 필드이고, MPTextField의 껍데기를 픽셀 단위로 그대로 씁니다. 화살표 키와 증감 버튼이 step만큼 움직이고, 값은 min과 max 사이로 잘리며, format은 통화나 백분율로 써 주면서도 값 자체는 순수한 숫자로 남깁니다.
+- [MPOtpField](https://material-plus.cdget.com/ko/components/inputs/otp-field): 한 글자짜리 칸의 줄입니다. PIN, 문자로 온 인증 코드, 초대 키. 몇 개의 입력이 있든 그 뒤에는 하나의 감춰진 값이 있습니다.
+- [MPRadioGroup](https://material-plus.cdget.com/ko/components/inputs/radio-group): 정확히 하나만 고르는 선택지 묶음입니다. 머터리얼의 20dp 링 안에 10dp 점, 그리고 정말 중요한 부분 — 묶음 전체가 탭 정지 하나이고 그 안에서 화살표 키가 움직입니다.
+- [MPRating](https://material-plus.cdget.com/ko/components/inputs/rating): 별 다섯 개로 표현하는 점수입니다. 밑에는 고를 수 있는 점수마다 하나씩 놓인 진짜 라디오 입력들이 있고, 그래서 행 전체가 하나의 탭 스톱이 되고, 방향키가 그 안에서 동작하고, 아무것도 연결하지 않아도 값이 폼 제출에 실려 갑니다.
+- [MPSegmentedButton](https://material-plus.cdget.com/ko/components/inputs/segmented-button): 하나의 알약 안에 담긴 두세 가지에서 다섯 가지 선택입니다. 가는 선의 컨테이너와 같은 선으로 나뉜 세그먼트들, 그리고 선택된 하나는 secondary-container로 채워집니다 — 무언가를 하는 것이 아니라 무엇을 보고 있는지를 바꾸는 컨트롤에 머터리얼이 쓰는 색입니다.
+- [MPSelect](https://material-plus.cdget.com/ko/components/inputs/select): 목록에서 값 하나를 고릅니다. 트리거는 MPTextField의 껍데기에 chevron을 단 것입니다 — 같은 홈이 파인 외곽선, 홈에 놓인 같은 라벨, 같은 보조 텍스트. 그래서 폼 안의 드롭다운이 주변 필드들과 같은 물건이 됩니다.
+- [MPSlider](https://material-plus.cdget.com/ko/components/inputs/slider): 범위 위에서 고르는 값입니다. 트랙의 활성 부분은 강조 색 계열이고 나머지는 surface-container-highest입니다. 머터리얼 자신의 조합이고, 비활성 절반이 두 번째 값이 아니라 홈으로 읽히는 이유입니다.
+- [MPSwitch](https://material-plus.cdget.com/ko/components/inputs/switch): 움직이는 순간 적용되는 켜짐/꺼짐입니다. 머터리얼의 52×32 트랙 안에 16dp 썸이 있고, 켜지면 24dp로 자랍니다. 이 커짐이 있어서 상태가 흘긋 보는 눈으로도, 흑백으로도, 설정 페이지 저편에서도 살아남습니다.
+- [MPTextField](https://material-plus.cdget.com/ko/components/inputs/text-field): IME를 견디는 머터리얼 outlined 텍스트 필드입니다. 라벨, 보조 텍스트, adornment, 비밀번호 토글이 이미 조립되어 있습니다. 색·크기·지속시간이 모두 Material Design 3의 컴포넌트 토큰에서 옵니다.
+- [MPTimePicker](https://material-plus.cdget.com/ko/components/inputs/time-picker): 열에서 고르는 하루 중 시각. 경계를 지금 그리고 있는 열의 단위로 검사하는데, 그게 잘 동작하는 시간 피커와 짜증나는 시간 피커를 가르는 지점입니다.
+
+## 컴포넌트: Layout
+
+- [MPAccordion](https://material-plus.cdget.com/ko/components/layout/accordion): 한 번에 하나만 열리는 구획의 묶음입니다. 다음을 열면 이전 것이 닫히는데, 이것이 콜랩서블을 그냥 쌓아 둔 것과 다른 이유의 전부입니다.
+- [MPAspectRatio](https://material-plus.cdget.com/ko/components/layout/aspect-ratio): 어떤 너비를 받든 비율을 지키는 상자. 아무것도 그리지 않고, 대신 공간을 미리 잡아 둡니다 — 이미지가 늦게 도착하는 카드가 주변 페이지를 밀어내지 않도록.
+- [MPBottomNavigation](https://material-plus.cdget.com/ko/components/layout/bottom-navigation): 창의 아래쪽 가장자리에 붙어 있는 목적지들의 행입니다. 머터리얼은 이것을 내비게이션 바 라고 부르고, 그려지는 것은 명세의 것입니다 — 80dp 높이의 surface-container 바, 그리고 지금 있는 목적지의 글리프 뒤에 놓인 64×32dp secondary-container…
+- [MPBox](https://material-plus.cdget.com/ko/components/layout/box): 내용이 놓인 한 장의 시트입니다. 이 라이브러리에서 가장 단순한 표면으로, 무언가를 묶어 주는 일만 합니다.
+- [MPCard](https://material-plus.cdget.com/ko/components/layout/card): 카드를 이루는 부분들을 배치한 MPBox입니다. 사진, 제목, 부제, 본문, 푸터 — MD3 자신의 카드 해부도를 슬롯으로 옮긴 것입니다.
+- [MPCarousel](https://material-plus.cdget.com/ko/components/layout/carousel): 슬라이드가 늘어선 띠이고, 그중 하나가 화면에 들어와 있습니다. 브라우저 자신의 스크롤과 CSS 스냅 포인트 위에 세워져서, 스와이프도 트랙패드 드래그도 화살표 키도 제스처 핸들러 없이 동작합니다.
+- [MPCollapsible](https://material-plus.cdget.com/ko/components/layout/collapsible): 혼자 서 있는, 접히는 한 구획입니다. 폼의 "더 보기", 선택적인 설정 묶음, 행 아래의 상세 — 패널의 높이는 실제로 잰 값에서 애니메이션되므로 내용이 한 번에 튀어나오지 않습니다.
+- [MPContainer](https://material-plus.cdget.com/ko/components/layout/container): 페이지 여백, 그리고 필요하다면 본문 폭입니다. 머터리얼은 내용을 창 가장자리에서 compact 윈도우에서는 16dp, medium부터는 24dp 떨어뜨려 놓습니다. 이 컴포넌트가 그 여백이고, 안에 있는 것들마다가 아니라 페이지 맨 위에서 한 번 말합니다.
+- [MPDrawer](https://material-plus.cdget.com/ko/components/layout/drawer): 창의 한쪽 가장자리에 붙는 패널입니다. 두 가지가 한 컴포넌트인데, 사실 같은 패널이기 때문입니다 — 열어서 쓰는 드로어와, 그냥 페이지의 일부인 드로어.
+- [MPGrid](https://material-plus.cdget.com/ko/components/layout/grid): 머터리얼의 레이아웃 그리드입니다. 한 행을 열로 나누고, 아이템이 그중 몇 개를 가져갑니다. 열 개수는 이 라이브러리가 임의로 정한 브레이크포인트가 아니라 명세가 정의한 윈도우 크기 클래스 를 따라 바뀝니다 — 휴대폰에서 4열, 600dp부터 12열입니다.
+- [MPPanes](https://material-plus.cdget.com/ko/components/layout/panes): 사이에 끌 수 있는 핸들이 놓인 패널 묶음. 분할을 비율로 기술하므로, 창 크기가 바뀌어도 JavaScript가 한 줄도 돌지 않고 그대로 유지됩니다.
+- [MPTabs](https://material-plus.cdget.com/ko/components/layout/tabs): 여러 패널 중 하나를 보여 주는 묶음입니다. 머터리얼의 두 가지 탭이 variant 로 들어 있습니다 — 화면의 최상위 층은 primary , 그 패널 안의 구분은 secondary — 각각 명세의 인디케이터, 높이, 타입 역할을 그대로 씁니다.
+
+## 컴포넌트: Motion
+
+- [MPAnimateAppear](https://material-plus.cdget.com/ko/components/motion/animate-appear): 여러 개가 차례로 자리를 잡는 목록. 효과가 어느 한 항목이 아니라 묶음 전체의 것이고, 그래서 읽는 사람의 눈을 읽어야 할 순서대로 끌고 내려갑니다.
+- [MPAnimateBlink](https://material-plus.cdget.com/ko/components/motion/animate-blink): 완전한 불투명도와 바닥값 사이를 오가며 맥동하는 내용. 녹화 표시등, 라이브 배지, 방금 바뀐 숫자 — 그리고 쓰기 전에 한 번은 따져 봐야 할 유일한 효과입니다.
+- [MPAnimateFade](https://material-plus.cdget.com/ko/components/motion/animate-fade): 불투명도만으로 나타나거나 사라지는 내용. 아무것도 움직이지 않으므로 레이아웃이 다시 흐르지 않고 글자가 다시 그려지지도 않습니다 — 어떤 크기의 본문 위에도 안전한 유일한 등장입니다.
+- [MPAnimateGrow](https://material-plus.cdget.com/ko/components/motion/animate-grow): 한 점에서 펼쳐져 나오는 내용. 툴바에서 나오는 패널, 자기가 있던 행에서 나오는 카드, 자기를 불러낸 버튼에서 나오는 시트.
+- [MPAnimateHeadline](https://material-plus.cdget.com/ko/components/motion/animate-headline): 한 줄이 위의 줄을 대신하며 도는 릴. 어느 것이었어도 괜찮았을 문구 묶음을 위한 것입니다 — 제품이 무엇인지 말하는 세 가지 방법, 돌아가며 나오는 지역 이름.
+- [MPAnimateLighting](https://material-plus.cdget.com/ko/components/motion/animate-lighting): 무언가의 바깥을 도는 빛. 아무것도 움직이지 않고 "지금 이것"이라고 말하는 방법입니다 — 처리 중인 행, 검사 중인 필드, 추천되는 요금제.
+- [MPAnimateMarquee](https://material-plus.cdget.com/ko/components/motion/animate-marquee): 끝없이 흘러가는 내용. 똑같은 사본 두 벌을 이어 붙이고, 상자에 맞는 속도가 아니라 읽는 사람의 속도로 움직입니다.
+- [MPAnimateRotate](https://material-plus.cdget.com/ko/components/motion/animate-rotate): 한 점을 중심으로 도는 내용. 각도가 하나가 아니라 둘이라서, 한 컴포넌트가 제자리로 들어오는 회전과 끝나지 않는 회전 둘 다가 됩니다.
+- [MPAnimateSlide](https://material-plus.cdget.com/ko/components/motion/animate-slide): 한쪽 가장자리에서 이동해 들어오는 내용. 요소가 움직일 뿐 레이아웃은 움직이지 않습니다 — 도는 동안 페이지의 어떤 것도 다시 흐르지 않습니다.
+- [MPAnimateTyping](https://material-plus.cdget.com/ko/components/motion/animate-typing): 한 글자씩 나타나는 텍스트. 문자열 전체는 첫 프레임부터 문서 안에 있으므로 레이아웃이 다시 흐르지 않고, 아무도 공연이 끝나기를 기다리지 않습니다.
+- [MPAnimateZoom](https://material-plus.cdget.com/ko/components/motion/animate-zoom): 자기가 자리잡을 곳의 한가운데에서 도착하는 내용. 화면에서 끼어들어야 하는 단 하나를 위한 효과입니다 — 확인, 결과, 방금 도착한 숫자.
+
+## Optional
+
+- [변경 기록](https://material-plus.cdget.com/ko/changelog): Material Plus의 모든 릴리스를 최신순으로. 무엇이 추가되고 무엇이 바뀌었는지.
+- [English](https://material-plus.cdget.com/llms.txt): 같은 문서의 다른 언어판입니다.
+- [GitHub](https://github.com/jooy2/material-plus): 모든 컴포넌트의 소스와 테스트, 이슈 트래커입니다.
+- [npm](https://www.npmjs.com/package/material-plus-ui): 배포된 패키지입니다.

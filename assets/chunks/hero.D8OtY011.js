@@ -1,0 +1,1 @@
+import{j as e}from"./jsx-runtime.BjG_zV1W.js";import{r as o}from"./index.CAJ_Adw3.js";import{dI as s}from"./MPTypography.D_WzgiwJ.js";import"./index.CicSMsZE.js";function u(){const[t,r]=o.useState(40);return e.jsx("div",{style:{width:"100%",maxWidth:320},children:e.jsx(s,{label:"Volume",showValue:!0,value:t,onValueChange:r})})}export{u as default};

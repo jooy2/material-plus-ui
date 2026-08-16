@@ -1,0 +1,1 @@
+import{j as e}from"./jsx-runtime.BjG_zV1W.js";import{r}from"./index.CAJ_Adw3.js";import{N as n}from"./MPTypography.D_WzgiwJ.js";import"./index.CicSMsZE.js";function m(){const[t,o]=r.useState(!0);return e.jsx(n,{label:"Wi-Fi",description:"Connect automatically to known networks.",checked:t,onCheckedChange:o})}export{m as default};

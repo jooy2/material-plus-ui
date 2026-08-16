@@ -1,0 +1,1 @@
+import{j as s}from"./jsx-runtime.BjG_zV1W.js";import{bT as e}from"./MPTypography.D_WzgiwJ.js";import"./index.CAJ_Adw3.js";import"./index.CicSMsZE.js";const t=["xs","sm","md","lg","xl"];function m(){return s.jsx("div",{style:{display:"flex",flexWrap:"wrap",gap:24,alignItems:"center"},children:t.map(r=>s.jsx(e,{size:r,value:70},r))})}export{m as default};

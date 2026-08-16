@@ -1,0 +1,1 @@
+import{j as e}from"./jsx-runtime.BjG_zV1W.js";import{dF as t}from"./MPTypography.D_WzgiwJ.js";import"./index.CAJ_Adw3.js";import"./index.CicSMsZE.js";function p(){return e.jsxs("div",{style:{display:"grid",gap:20,width:"100%",maxWidth:420},children:[e.jsx(t,{lines:2}),e.jsx(t,{shape:"rect",height:80}),e.jsx(t,{shape:"circle"})]})}export{p as default};

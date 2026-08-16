@@ -1,0 +1,1 @@
+import{j as o}from"./jsx-runtime.BjG_zV1W.js";import{r}from"./index.CAJ_Adw3.js";import{K as a}from"./MPTypography.D_WzgiwJ.js";import"./index.CicSMsZE.js";function i(){const[e,t]=r.useState(!0);return o.jsx(a,{label:"Email me about new releases",description:"About once a month. Unsubscribe at any time.",checked:e,onCheckedChange:t})}export{i as default};

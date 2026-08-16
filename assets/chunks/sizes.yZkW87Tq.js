@@ -1,0 +1,1 @@
+import{j as r}from"./jsx-runtime.BjG_zV1W.js";import{w as t}from"./MPTypography.D_WzgiwJ.js";import"./index.CAJ_Adw3.js";import"./index.CicSMsZE.js";const e=["xs","sm","md","lg","xl"];function i(){return r.jsx("div",{style:{display:"flex",flexWrap:"wrap",alignItems:"center",gap:16},children:e.map(a=>r.jsx(t,{size:a,name:"Jane Doe"},a))})}export{i as default};
