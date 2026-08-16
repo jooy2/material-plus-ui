@@ -219,6 +219,128 @@ describe('MPTextField', () => {
     });
   });
 
+  describe('the floating label', () => {
+    /**
+     * Where the label currently is, read off the attribute the component
+     * publishes rather than off the geometry.
+     *
+     * The two states differ by a `top` that is a percentage and a `font-size`
+     * that comes from a token, both of which are mid-interpolation for the two
+     * hundred milliseconds after every change — so a test that measured them
+     * would be timing the transition rather than asking the question.
+     */
+    function shrunk() {
+      return document.querySelector('label')!.hasAttribute('data-mp-shrunk');
+    }
+
+    /** Whether the outline's notch is cut, which has to agree with the label. */
+    function notched() {
+      const legend = document.querySelector('.mp-text-field legend')!;
+
+      return getComputedStyle(legend).maxWidth !== '0px';
+    }
+
+    it('rests the label on the field’s line while it is empty and unfocused', async () => {
+      await render(<MPTextField value="" label="Email" />);
+
+      expect(shrunk()).toBe(false);
+      expect(notched()).toBe(false);
+    });
+
+    it('lifts it on focus and puts it back down on blur', async () => {
+      const screen = await render(
+        <>
+          <MPTextField value="" label="Email" />
+          <button type="button">Elsewhere</button>
+        </>
+      );
+
+      await screen.getByRole('textbox').click();
+
+      expect(shrunk()).toBe(true);
+      expect(notched()).toBe(true);
+
+      await screen.getByRole('button', { name: 'Elsewhere' }).click();
+
+      expect(shrunk()).toBe(false);
+    });
+
+    it('keeps it up once there is text, focused or not', async () => {
+      const screen = await render(<MPTextField value="a" label="Email" />);
+
+      expect(shrunk()).toBe(true);
+
+      await screen.rerender(<MPTextField value="" label="Email" />);
+
+      expect(shrunk()).toBe(false);
+    });
+
+    it('stays up while the password toggle has the focus', async () => {
+      // The toggle is a second focusable inside the same shell. Tabbing onto it
+      // is not leaving the field, and a label that dropped and lifted again in
+      // one frame would say it was.
+      const screen = await render(<MPTextField value="" type="password" label="Password" />);
+
+      // A `type="password"` input has no `textbox` role, so it is taken
+      // directly. The toggle is then focused rather than clicked: a click on it
+      // cancels its own `mousedown` to keep the caret where it was, so it never
+      // moves the focus at all and would not exercise the handover.
+      document.querySelector('input')!.focus();
+      await tick();
+
+      expect(shrunk()).toBe(true);
+
+      (screen.getByRole('button', { name: 'Show the password' }).element() as HTMLElement).focus();
+      await tick();
+
+      expect(shrunk()).toBe(true);
+    });
+
+    it('withholds the placeholder until the label is out of its way', async () => {
+      const screen = await render(<MPTextField value="" label="Email" placeholder="you@example" />);
+
+      expect(screen.getByRole('textbox').element()).not.toHaveAttribute('placeholder');
+
+      await screen.getByRole('textbox').click();
+
+      expect(screen.getByRole('textbox').element()).toHaveAttribute('placeholder', 'you@example');
+    });
+
+    it('shows the placeholder straight away when there is no label to rest', async () => {
+      const screen = await render(<MPTextField value="" placeholder="Search" />);
+
+      expect(screen.getByRole('textbox').element()).toHaveAttribute('placeholder', 'Search');
+    });
+
+    it('is pinned in the notch by a start adornment', async () => {
+      // The glyph is already standing where a resting label would be, and the
+      // two cannot share the spot.
+      await render(
+        <MPTextField value="" label="Search" startIcon={<MPIcon icon={ICONS.search} size={18} />} />
+      );
+
+      expect(shrunk()).toBe(true);
+      expect(notched()).toBe(true);
+    });
+
+    it('is pinned in the notch by floatingLabel={false}', async () => {
+      await render(<MPTextField value="" label="Email" floatingLabel={false} />);
+
+      expect(shrunk()).toBe(true);
+      expect(notched()).toBe(true);
+    });
+
+    it('does not let a click on the resting label swallow the caret', async () => {
+      // Resting, the label lies over the text the caret goes into. A `<label
+      // for>` would only focus the control, which puts the caret at the end of
+      // the text rather than under the pointer, so the clicks have to fall
+      // through to the input instead.
+      await render(<MPTextField value="" label="Email" />);
+
+      expect(getComputedStyle(document.querySelector('label')!).pointerEvents).toBe('none');
+    });
+  });
+
   describe('changing', () => {
     it('hands the parent the text rather than an event', async () => {
       const onChange = vi.fn();

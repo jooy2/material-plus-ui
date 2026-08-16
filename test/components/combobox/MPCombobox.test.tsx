@@ -232,6 +232,41 @@ describe('MPCombobox', () => {
     });
   });
 
+  describe('the floating label', () => {
+    /** Where the label is, read off the attribute rather than off the geometry. */
+    function shrunk() {
+      return document.querySelector('label')!.hasAttribute('data-mp-shrunk');
+    }
+
+    it('rests the label on the input’s line while nothing is chosen or typed', async () => {
+      await render(<Single />);
+
+      expect(shrunk()).toBe(false);
+    });
+
+    it('lifts it on typed text as well as on a chosen row', async () => {
+      // Typed text counts as content: the label cannot sit on top of what is
+      // being typed under it.
+      const screen = await render(<Single />);
+
+      await screen.getByRole('combobox').fill('ban');
+
+      expect(shrunk()).toBe(true);
+    });
+
+    it('starts up on a combobox that already has a value', async () => {
+      await render(<Single initial="apple" />);
+
+      expect(shrunk()).toBe(true);
+    });
+
+    it('keeps it up while there are chips in the field', async () => {
+      await render(<Multi initial={['apple']} />);
+
+      expect(shrunk()).toBe(true);
+    });
+  });
+
   describe('states', () => {
     it('shows an error message and marks the combobox invalid', async () => {
       const screen = await render(<Single errorMessage="Pick a fruit." />);

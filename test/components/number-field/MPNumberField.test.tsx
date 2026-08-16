@@ -205,6 +205,47 @@ describe('MPNumberField', () => {
     });
   });
 
+  describe('the floating label', () => {
+    /** Where the label is, read off the attribute rather than off the geometry. */
+    function shrunk() {
+      return document.querySelector('label')!.hasAttribute('data-mp-shrunk');
+    }
+
+    it('rests the label on the field’s line while it holds no number', async () => {
+      await render(<MPNumberField label="Quantity" />);
+
+      expect(shrunk()).toBe(false);
+    });
+
+    it('starts up on a field that already holds one', async () => {
+      await render(<MPNumberField label="Quantity" defaultValue={3} />);
+
+      expect(shrunk()).toBe(true);
+    });
+
+    it('lifts it on the first digit typed into an empty field', async () => {
+      const screen = await render(<MPNumberField label="Quantity" />);
+
+      await screen.getByRole('textbox').fill('7');
+
+      expect(shrunk()).toBe(true);
+    });
+
+    it('is pinned in the notch by split steppers', async () => {
+      // The minus sits exactly where the resting label would, which is the same
+      // rule a start adornment follows.
+      await render(<MPNumberField label="Quantity" steppers="split" />);
+
+      expect(shrunk()).toBe(true);
+    });
+
+    it('is pinned in the notch by floatingLabel={false}', async () => {
+      await render(<MPNumberField label="Quantity" floatingLabel={false} />);
+
+      expect(shrunk()).toBe(true);
+    });
+  });
+
   describe('states', () => {
     it('shows an error message and marks the field invalid', async () => {
       const screen = await render(

@@ -50,6 +50,47 @@ describe('MPColorPicker', () => {
     });
   });
 
+  describe('the floating label', () => {
+    /** Where the label is, read off the attribute rather than off the geometry. */
+    function shrunk() {
+      return document.querySelector('label')!.hasAttribute('data-mp-shrunk');
+    }
+
+    /** The swatch, which is drawn only while there is a colour to draw. */
+    function swatch() {
+      return document.querySelector('.mp-color-picker button [style*="background"]');
+    }
+
+    it('rests the label on the trigger’s line while there is no colour', async () => {
+      await render(<Controlled initial="" />);
+
+      expect(shrunk()).toBe(false);
+    });
+
+    it('takes the swatch down with the resting label', async () => {
+      // The swatch is the value drawn rather than an affordance: with nothing
+      // chosen it is an empty ring, so it gives its place up to the label. It is
+      // the one leading mark in the library that does.
+      await render(<Controlled initial="" />);
+
+      expect(swatch()).toBeNull();
+    });
+
+    it('brings both back once there is a colour', async () => {
+      await render(<Controlled initial="#ff0000" />);
+
+      expect(shrunk()).toBe(true);
+      expect(swatch()).not.toBeNull();
+    });
+
+    it('is pinned in the notch by floatingLabel={false}, swatch and all', async () => {
+      await render(<Controlled initial="" floatingLabel={false} />);
+
+      expect(shrunk()).toBe(true);
+      expect(swatch()).not.toBeNull();
+    });
+  });
+
   describe('the panel', () => {
     it('is not on the page until the trigger is pressed', async () => {
       const screen = await render(<Controlled />);

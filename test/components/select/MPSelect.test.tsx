@@ -154,6 +154,55 @@ describe('MPSelect', () => {
     });
   });
 
+  describe('the floating label', () => {
+    /** Where the label is, read off the attribute rather than off the geometry. */
+    function shrunk() {
+      return document.querySelector('label')!.hasAttribute('data-mp-shrunk');
+    }
+
+    it('rests the label on the trigger’s line while nothing is chosen', async () => {
+      await render(<ControlledSelect />);
+
+      expect(shrunk()).toBe(false);
+    });
+
+    it('keeps it up while the list is open', async () => {
+      // Base UI moves the focus into the popup, so the trigger blurs the instant
+      // the list appears. A label that fell back down then would be reporting an
+      // empty select over a list the reader is halfway through.
+      const screen = await render(<ControlledSelect />);
+
+      await open(screen);
+
+      expect(shrunk()).toBe(true);
+    });
+
+    it('keeps it up once something is chosen', async () => {
+      const screen = await render(<ControlledSelect />);
+
+      await open(screen);
+      await screen.getByRole('option', { name: 'Tokyo' }).click();
+
+      expect(shrunk()).toBe(true);
+    });
+
+    it('starts up on a select that already has a value', async () => {
+      await render(<ControlledSelect initial="kr-11" />);
+
+      expect(shrunk()).toBe(true);
+    });
+
+    it('withholds the placeholder until the label is out of its way', async () => {
+      const screen = await render(<ControlledSelect />);
+
+      expect(screen.getByRole('combobox').element().textContent).not.toContain('Pick one');
+
+      await open(screen);
+
+      expect(screen.getByRole('combobox').element().textContent).toContain('Pick one');
+    });
+  });
+
   describe('states', () => {
     it('shows an error message and marks the select invalid', async () => {
       const screen = await render(<ControlledSelect errorMessage="Pick a city." />);

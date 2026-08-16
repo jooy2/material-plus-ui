@@ -90,6 +90,35 @@ describe('MPDatePicker', () => {
     });
   });
 
+  describe('the floating label', () => {
+    /** Where the label is, read off the attribute rather than off the geometry. */
+    function shrunk() {
+      return document.querySelector('label')!.hasAttribute('data-mp-shrunk');
+    }
+
+    it('is pinned in the notch by the picker’s own glyph', async () => {
+      // The calendar mark is an affordance rather than a value — it is the part
+      // of the trigger that says pressing this opens a calendar — so it keeps
+      // its place and holds the label out of it.
+      await render(<Controlled />);
+
+      expect(shrunk()).toBe(true);
+    });
+
+    it('rests once the glyph is asked away', async () => {
+      await render(<Controlled startIcon={null} />);
+
+      expect(shrunk()).toBe(false);
+      expect(document.querySelector('.mp-date-picker .mp-icon')).toBeNull();
+    });
+
+    it('lifts again on a chosen day', async () => {
+      await render(<Controlled startIcon={null} initial={new Date(2026, 6, 14)} />);
+
+      expect(shrunk()).toBe(true);
+    });
+  });
+
   describe('choosing a day', () => {
     it('opens the calendar on the month it was told to', async () => {
       const screen = await render(<Controlled />);
