@@ -955,14 +955,48 @@
     --mp-sys-elevation-level2: 0 1px 2px 0 rgb(0 0 0 / 0.3), 0 2px 6px 2px rgb(0 0 0 / 0.15);
     --mp-sys-elevation-level3: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 4px 8px 3px rgb(0 0 0 / 0.15);
 
-    /* Motion. MD3's `short4`, which is what a text field's label and outline
-       transition on. Worth knowing if these controls sit beside another
-       library's: 250ms is a common default elsewhere, and a field from here
-       will settle slightly sooner unless this is set to match. */
+    /*
+     * Motion.
+     *
+     * Six of MD3's sixteen duration tokens and six of its seven easing curves —
+     * the ones something in the library actually reads, on the rule every other
+     * token here follows. `short4` is what a text field's label and outline
+     * transition on; the rest arrived with the `MPAnimate*` components, which
+     * take these as their defaults rather than numbers of their own.
+     *
+     * Worth knowing if these controls sit beside another library's: 250ms is a
+     * common default elsewhere, and a field from here will settle slightly
+     * sooner unless `short4` is set to match.
+     */
     --mp-sys-motion-duration-short4: 200ms;
+    --mp-sys-motion-duration-medium2: 300ms;
+    --mp-sys-motion-duration-medium4: 400ms;
+    --mp-sys-motion-duration-long2: 500ms;
+    --mp-sys-motion-duration-extra-long4: 1000ms;
+
     /* The spec's `standard` curve: quick to leave, slow to arrive. Read by the
        one thing in the library that actually travels, a switch's thumb. */
     --mp-sys-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+    --mp-sys-motion-easing-standard-decelerate: cubic-bezier(0, 0, 0, 1);
+    --mp-sys-motion-easing-standard-accelerate: cubic-bezier(0.3, 0, 1, 1);
+    /*
+     * The emphasized set, which is what MD3 asks a *transition* to use — a
+     * standard curve is for a control changing state, an emphasized one for
+     * something arriving on or leaving the screen.
+     *
+     * `emphasized` itself is two curves joined in the middle in the
+     * specification, and CSS has no single value that is both. This is the
+     * one-curve stand-in MD3's own web implementation publishes. Where the
+     * halves genuinely matter — a line rising as another leaves — the two below
+     * are the halves, and they are what the components reach for.
+     */
+    --mp-sys-motion-easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
+    --mp-sys-motion-easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+    --mp-sys-motion-easing-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
+    /* CSS's own `linear` is a keyword rather than a curve, and a token that
+       cannot be interpolated with the other six is a token that breaks the one
+       place they are swapped. The identity bezier is the same line. */
+    --mp-sys-motion-easing-linear: cubic-bezier(0, 0, 1, 1);
   }
 
   /*
@@ -1483,5 +1517,153 @@
   .mp-progress-segment-wave,
   .mp-chat-typing {
     opacity: 0.6;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Animation
+ *
+ * The `MPAnimate*` components. Real CSS for the reason the loading indicators
+ * above are: a keyframe is not a Tailwind variant, so there is nothing to
+ * express one with.
+ *
+ * The whole set is built on one idea. An effect is a single `@keyframes` that
+ * runs from a state written entirely in `--_mp-anim-*` custom properties to the
+ * element's natural one — so `src/internal/animate.ts` never generates CSS, it
+ * only fills slots, and running an effect backwards is `animation-direction:
+ * reverse` rather than a second keyframe. That is what makes `mode="out"` cost
+ * nothing, and it is also what makes it *correct*: CSS mirrors the timing
+ * function along with the keyframes, so an entrance eased on
+ * `emphasized-decelerate` comes back accelerating. MD3 asks for exactly that
+ * pair; the browser supplies the second half of it.
+ *
+ * `fill-mode` is `both` throughout, which is what lets an animation that has
+ * not been triggered yet sit paused on its own first frame. Without it, an
+ * element waiting to be scrolled into view would be fully drawn and then blink
+ * out the moment it arrived.
+ *
+ * This is also where the library's rule against transforms is at its narrowest.
+ * A *control* never moves — that rule is about a button resampling its own
+ * label under the pointer, and it holds without exception. An `MPAnimate*`
+ * moves content the caller asked to have moved, and it moves it with the
+ * independent `translate`, `scale` and `rotate` properties rather than the
+ * `transform` shorthand, so a caller's own transform on the same element
+ * survives.
+ *
+ * Unlayered, like the keyframes above: `@keyframes` takes no part in the
+ * cascade, but the classes do, and a layered class would lose to any unlayered
+ * rule a consumer's own stylesheet happens to have.
+ * ------------------------------------------------------------------------- */
+
+.mp-anim {
+  animation-duration: var(--_mp-anim-duration, var(--mp-sys-motion-duration-medium4));
+  animation-delay: var(--_mp-anim-delay, 0ms);
+  animation-timing-function: var(
+    --_mp-anim-ease,
+    var(--mp-sys-motion-easing-emphasized-decelerate)
+  );
+  animation-iteration-count: var(--_mp-anim-repeat, 1);
+  animation-direction: var(--_mp-anim-direction, normal);
+  animation-fill-mode: both;
+  animation-play-state: var(--_mp-anim-state, running);
+}
+
+@keyframes mp-anim-fade {
+  from {
+    opacity: var(--_mp-anim-opacity, 0);
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.mp-anim-fade {
+  animation-name: mp-anim-fade;
+}
+
+/* Grow and Zoom share this one: they are the same arithmetic at two strengths,
+   separated by their defaults and by their origin rather than by their maths. */
+@keyframes mp-anim-scale {
+  from {
+    opacity: var(--_mp-anim-opacity, 0);
+    scale: var(--_mp-anim-scale, 0.8);
+  }
+
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+.mp-anim-scale {
+  animation-name: mp-anim-scale;
+}
+
+@keyframes mp-anim-slide {
+  from {
+    opacity: var(--_mp-anim-opacity, 0);
+    translate: var(--_mp-anim-x, 0px) var(--_mp-anim-y, 0px);
+  }
+
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+.mp-anim-slide {
+  animation-name: mp-anim-slide;
+}
+
+/* Two angles rather than one, so the same keyframe covers both the quarter turn
+   something arrives on and the endless one a decorative mark spins through. */
+@keyframes mp-anim-rotate {
+  from {
+    opacity: var(--_mp-anim-opacity, 0);
+    rotate: var(--_mp-anim-angle, -180deg);
+  }
+
+  to {
+    opacity: 1;
+    rotate: var(--_mp-anim-angle-to, 0deg);
+  }
+}
+
+.mp-anim-rotate {
+  animation-name: mp-anim-rotate;
+}
+
+/* Symmetric on purpose: a blink that ended anywhere but where it started would
+   leave the element half drawn whenever the count ran out. */
+@keyframes mp-anim-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: var(--_mp-anim-opacity, 0);
+  }
+}
+
+.mp-anim-blink {
+  animation-name: mp-anim-blink;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /*
+   * The Animate components go the other way from the indicators above, and the
+   * difference is what each of them is saying. A spinner that stops is lying
+   * about whether anything is happening; an entrance that does not play has
+   * still delivered its content, which is the only thing it was ever carrying.
+   *
+   * `animation: none` rather than a zero duration, because the shorthand also
+   * clears `fill-mode` — and it is the fill that was holding an untriggered
+   * element on its own first frame at `opacity: 0`. Left in place, respecting a
+   * reader's preference would blank the page.
+   */
+  .mp-anim {
+    animation: none;
   }
 }

@@ -199,3 +199,132 @@ export interface MPIconGlyphProps {
  * caller passing `ICONS.close` would be told to pass `<ICONS.close />` instead.
  */
 export type MPIconGlyph = React.ComponentType<MPIconGlyphProps> | React.ReactElement;
+
+/**
+ * A Material easing curve, by the specification's own name.
+ *
+ * These are MD3's motion easing set and nothing else — no arbitrary
+ * `cubic-bezier()`, for the same reason `color` takes a family rather than a
+ * colour: to change what `emphasized` *is*, set
+ * `--mp-sys-motion-easing-emphasized` and every animation in the page moves
+ * together. A curve written into one component's props is a curve the theme
+ * cannot reach.
+ *
+ * The pairs are how Material describes a transition rather than four
+ * interchangeable options. Something **arriving** decelerates into place;
+ * something **leaving** accelerates away; `standard` is for a change that is
+ * neither, and `linear` for a loop that has no beginning to arrive at.
+ *
+ * A note on `emphasized`: the specification's own emphasized curve is two
+ * curves joined in the middle, which CSS has no single value for. MD3's web
+ * implementation publishes a one-curve stand-in, and that is what the token
+ * carries here. Where the halves matter — a line arriving as another leaves —
+ * the two `emphasized-*` names are the halves, and they are what the components
+ * reach for.
+ */
+export type MPEasing =
+  | 'linear'
+  | 'standard'
+  | 'standard-decelerate'
+  | 'standard-accelerate'
+  | 'emphasized'
+  | 'emphasized-decelerate'
+  | 'emphasized-accelerate';
+
+/**
+ * The six effects the `MPAnimate*` components are built out of.
+ *
+ * Named after what a reader sees rather than after the CSS property underneath:
+ * `zoom` and `grow` are both a change of scale, and they are two words because
+ * they are two *gestures* — one arrives from the middle of where it will end
+ * up, the other unfolds from an edge of it.
+ *
+ * Everything past these six is a component rather than a value. A marquee that
+ * duplicates its children, a headline that swaps between them, a typewriter
+ * that counts characters — none of those can be a class name and a few numbers.
+ */
+export type MPAnimation = 'fade' | 'grow' | 'slide' | 'zoom' | 'rotate' | 'blink';
+
+/**
+ * What makes an animation run.
+ *
+ * - `mount` — as soon as it is on the page. The default, and the only one that
+ *   needs nothing from the caller.
+ * - `visible` — when it is scrolled into view. Once, unless `once` is off.
+ * - `hover` — while the pointer is on it, starting again on each entry.
+ *   Keyboard focus counts, or the effect would be unreachable without a mouse.
+ * - `manual` — never on its own. `play` is what runs it.
+ */
+export type MPAnimateTrigger = 'mount' | 'visible' | 'hover' | 'manual';
+
+/**
+ * Whether an effect brings its content in or takes it away.
+ *
+ * The two are not the same length in Material: an entrance is given room to be
+ * read as an arrival, an exit gets out of the way. That asymmetry is what the
+ * default durations carry, so `mode="out"` is quicker than `mode="in"` without
+ * anybody having to know the numbers.
+ */
+export type MPAnimateMode = 'in' | 'out';
+
+/**
+ * How many times an animation runs. `'infinite'` rather than `Infinity`,
+ * because it is written into CSS as that word and a caller who typed the number
+ * would be surprised by which one worked.
+ */
+export type MPAnimateRepeat = number | 'infinite';
+
+/**
+ * The settings every `MPAnimate*` component takes, and the reason they are one
+ * interface: a `delay` of 200 has to mean the same thing on a fade and on a
+ * marquee, exactly as `size="md"` means one height everywhere.
+ *
+ * Durations and delays are milliseconds — numbers, not CSS strings. A prop
+ * typed `string` invites `'0.4s'`, and then two components on one screen are
+ * written in two units.
+ */
+export interface MPAnimateProps {
+  /**
+   * How long one run takes, in milliseconds. Left unset, the effect takes its
+   * own Material duration token — which is what a theme changes.
+   */
+  duration?: number;
+  /**
+   * How long before it starts, in milliseconds.
+   * @default 0
+   */
+  delay?: number;
+  /** Which Material easing curve it runs on. */
+  easing?: MPEasing;
+  /**
+   * How many times it runs.
+   * @default 1
+   */
+  repeat?: MPAnimateRepeat;
+  /** Runs every other pass backwards, so a repeat returns instead of jumping. */
+  alternate?: boolean;
+  /**
+   * Holds the animation where it is.
+   * @default false
+   */
+  paused?: boolean;
+  /**
+   * What starts it.
+   * @default 'mount'
+   */
+  trigger?: MPAnimateTrigger;
+  /** Runs it, when `trigger` is `manual`. Each `false` → `true` starts it over. */
+  play?: boolean;
+  /**
+   * With `trigger="visible"`, whether it runs only the first time. Off, it runs
+   * again every time the element comes back into view.
+   * @default true
+   */
+  once?: boolean;
+  /**
+   * With `trigger="visible"`, how much of the element has to be on screen
+   * before it counts as visible, from `0` to `1`.
+   * @default 0.2
+   */
+  threshold?: number;
+}
