@@ -58,6 +58,22 @@ jobs:
         node_version: ['26']
         os: [ubuntu-latest, windows-latest, macos-latest]
         browser: [chromium, firefox, webkit]
+        exclude:
+          # WebKit on the macOS runner, and nothing else in the matrix, hangs on
+          # individual clicks: a handful of `.click()` calls sit at exactly the
+          # locator timeout — measured at eleven of them across `MPSwitch` and
+          # `MPDateRangePicker` — while every other test in the same files runs
+          # at its usual few milliseconds. It is not general slowness and it is
+          # not the components: the same files pass on a real macOS in 3s, and
+          # WebKit itself is green on both Ubuntu and Windows. So the engine is
+          # covered twice over and this square adds a red check nobody can act
+          # on, which is the worst thing a required check can be.
+          #
+          # Worth retrying when the runner image or Playwright moves. The one
+          # thing lost meanwhile is WebKit on Apple hardware, which is the
+          # closest the matrix gets to Safari proper.
+          - os: macos-latest
+            browser: webkit
 
     steps:
       - uses: actions/checkout@v5
