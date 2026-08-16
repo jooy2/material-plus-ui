@@ -6,6 +6,7 @@ import {
   MPAlert,
   MPAnimateFade,
   MPAnimateGrow,
+  MPAnimateSlide,
   MPAnimateZoom,
   MPAspectRatio,
   MPAvatar,
@@ -1513,6 +1514,29 @@ const GROUPS: Group[] = [
                 <MPTypography level="body">Zoom</MPTypography>
               </MPBox>
             </MPAnimateZoom>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPAnimateSlide',
+        summary: {
+          ko: '한쪽 가장자리에서 이동해 들어오는 내용',
+          en: 'Content travelling in from one edge'
+        },
+        path: '/components/motion/animate-slide',
+        preview: (
+          <Fit>
+            <MPAnimateSlide
+              from="left"
+              distance="1.5rem"
+              repeat="infinite"
+              alternate
+              duration={1600}
+            >
+              <MPBox size="sm">
+                <MPTypography level="body">Slide</MPTypography>
+              </MPBox>
+            </MPAnimateSlide>
           </Fit>
         )
       }

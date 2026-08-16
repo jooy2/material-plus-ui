@@ -6819,6 +6819,44 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPAnimateSlide: [
+    animateMode,
+    {
+      name: 'from',
+      type: "'top' | 'right' | 'bottom' | 'left'",
+      default: "'bottom'",
+      description: {
+        ko: '어느 가장자리에서 이동해 오는지. 물리적입니다 — 창 위에서 내려오는 것은 어떤 쓰기 방향에서든 위에서 옵니다',
+        en: 'Which edge it travels from. Physical: something sliding down from the top comes from the top in every writing direction'
+      }
+    },
+    {
+      name: 'distance',
+      type: 'number | string',
+      default: "'100%'",
+      description: {
+        ko: "얼마나 이동할지 — CSS 길이 또는 픽셀 숫자. `'100%'`는 요소 자신의 크기라서, 자기 가장자리 뒤에서 나타나게 합니다",
+        en: "How far it travels — a CSS length, or a number in pixels. `'100%'` is the element's own size, which is what makes it appear from behind its own edge"
+      }
+    },
+    {
+      name: 'fade',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '이동하면서 함께 나타납니다',
+        en: 'Fades in as it slides'
+      }
+    },
+    ...motion,
+    animateRender,
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '들어오거나 나갈 것', en: 'What travels in or away' }
+    }
+  ],
+
   MPLocaleProvider: [
     {
       name: 'locale',
