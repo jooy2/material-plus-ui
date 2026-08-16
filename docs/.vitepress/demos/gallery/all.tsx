@@ -4,6 +4,7 @@ import {
   MPAccordion,
   MPAccordionItem,
   MPAlert,
+  MPAnimateBlink,
   MPAnimateFade,
   MPAnimateGrow,
   MPAnimateRotate,
@@ -1560,6 +1561,23 @@ const GROUPS: Group[] = [
             >
               <MPIcon icon={ICONS.spinner} size={28} />
             </MPAnimateRotate>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPAnimateBlink',
+        summary: {
+          ko: '가득과 바닥값 사이를 오가며 맥동하는 내용',
+          en: 'Content pulsing between full opacity and a floor'
+        },
+        path: '/components/motion/animate-blink',
+        preview: (
+          <Fit>
+            <MPAnimateBlink min={0.35} duration={1600}>
+              <MPChip variant="tonal" color="error">
+                Live
+              </MPChip>
+            </MPAnimateBlink>
           </Fit>
         )
       }

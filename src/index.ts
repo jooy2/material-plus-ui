@@ -2,6 +2,7 @@ export * from './types';
 export * from './constants/icons';
 export * from './components/accordion';
 export * from './components/alert';
+export * from './components/animate-blink';
 export * from './components/animate-fade';
 export * from './components/animate-grow';
 export * from './components/animate-rotate';

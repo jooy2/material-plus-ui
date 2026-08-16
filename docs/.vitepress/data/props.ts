@@ -6904,6 +6904,44 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPAnimateBlink: [
+    {
+      name: 'min',
+      type: 'number',
+      default: '0',
+      description: {
+        ko: '주기의 바닥에서 얼마나 흐려지는지, `0`과 `1` 사이. 맥동하는 동안에도 읽혀야 하는 것이면 올리세요',
+        en: 'How faint it gets at the bottom of the cycle, between `0` and `1`. Raise it for something that has to stay readable while it pulses'
+      }
+    },
+    ...motion.map((row) =>
+      row.name === 'repeat'
+        ? {
+            ...row,
+            default: "'infinite'",
+            description: {
+              ko: "몇 번 도는지. 여기서만 기본값이 `'infinite'`입니다 — 한 번의 깜빡임은 그냥 깜빡임이라서",
+              en: "How many times it runs. `'infinite'` here and nowhere else, because a single blink is a flicker"
+            }
+          }
+        : row.name === 'duration'
+          ? {
+              ...row,
+              description: {
+                ko: '한 주기의 길이(ms). 도착까지 걸리는 시간이 아니라 주기입니다',
+                en: 'How long one cycle takes, in milliseconds. A period rather than the time something takes to arrive'
+              }
+            }
+          : row
+    ),
+    animateRender,
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '맥동할 것', en: 'What pulses' }
+    }
+  ],
+
   MPLocaleProvider: [
     {
       name: 'locale',
