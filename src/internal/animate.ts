@@ -15,7 +15,9 @@
  *
  * Because the from-state is the *keyframe* rather than a second class, running
  * an effect backwards is `animation-direction: reverse` and nothing else. That
- * is what makes `mode="out"` free on all six — and, as it happens, correct:
+ * is what makes `mode="out"` free on all five of the effects that take one —
+ * the fade, the grow, the zoom, the slide and the rotate — and, as it happens,
+ * correct:
  * CSS mirrors the timing function along with the keyframes, so an entrance
  * eased on `emphasized-decelerate` comes out accelerating on the way back. The
  * specification asks for exactly that pair, and the browser supplies it.
