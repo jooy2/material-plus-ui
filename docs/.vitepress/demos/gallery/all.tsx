@@ -4,6 +4,7 @@ import {
   MPAccordion,
   MPAccordionItem,
   MPAlert,
+  MPAnimateAppear,
   MPAnimateBlink,
   MPAnimateFade,
   MPAnimateGrow,
@@ -1578,6 +1579,34 @@ const GROUPS: Group[] = [
                 Live
               </MPChip>
             </MPAnimateBlink>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPAnimateAppear',
+        summary: {
+          ko: '여러 개가 차례로 자리를 잡는 목록',
+          en: 'A list of things settling into place one after another'
+        },
+        path: '/components/motion/animate-appear',
+        preview: (
+          <Fit>
+            <MPAnimateAppear
+              trigger="visible"
+              once={false}
+              threshold={0.4}
+              render={<div style={{ display: 'grid', gap: 8, width: '100%' }} />}
+            >
+              <MPBox size="sm">
+                <MPTypography level="caption">One</MPTypography>
+              </MPBox>
+              <MPBox size="sm">
+                <MPTypography level="caption">Two</MPTypography>
+              </MPBox>
+              <MPBox size="sm">
+                <MPTypography level="caption">Three</MPTypography>
+              </MPBox>
+            </MPAnimateAppear>
           </Fit>
         )
       }

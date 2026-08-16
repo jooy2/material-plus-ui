@@ -6942,6 +6942,70 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPAnimateAppear: [
+    {
+      name: 'stagger',
+      type: 'number',
+      default: '80',
+      description: {
+        ko: '한 자식 다음 자식이 시작하기까지의 간격(ms). 이것이 효과의 전부이고, 나머지는 자식 하나가 하는 일입니다',
+        en: 'How long after one child the next one starts, in milliseconds. This is the whole effect — everything else is what a single child does'
+      }
+    },
+    {
+      name: 'from',
+      type: "'top' | 'right' | 'bottom' | 'left'",
+      default: "'bottom'",
+      description: {
+        ko: '각 자식이 어느 가장자리에서 흘러 들어오는지',
+        en: 'Which edge each child drifts in from'
+      }
+    },
+    {
+      name: 'distance',
+      type: 'number | string',
+      default: "'0.75rem'",
+      description: {
+        ko: '각 자식이 이동하는 거리. 일부러 짧습니다 — 화면 밖에서의 등장이 아니라 자리잡음입니다',
+        en: 'How far each child travels. Short on purpose: this is a settling, not an entrance from off screen'
+      }
+    },
+    {
+      name: 'fade',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '자리를 잡으면서 각 자식이 함께 나타납니다',
+        en: 'Fades each child in as it settles'
+      }
+    },
+    {
+      name: 'reverse',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '목록을 마지막 자식부터 첫 자식까지 돌립니다',
+        en: 'Runs the list from the last child to the first'
+      }
+    },
+    ...motion,
+    {
+      ...animateRender,
+      description: {
+        ko: '`<div>` 아닌 것으로 렌더링합니다 — `<ul>`, 그리드. 자식은 그 요소의 직계 자식으로 남습니다',
+        en: 'Renders something other than a `<div>` — a `<ul>`, a grid. The children stay its own direct children'
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '차례로 나타날 것들. 지연은 자식 단위이므로 무엇을 넘기는지가 중요합니다',
+        en: 'The things that appear, one after another. The stagger is per child, so what you pass matters'
+      }
+    }
+  ],
+
   MPLocaleProvider: [
     {
       name: 'locale',
