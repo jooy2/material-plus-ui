@@ -1809,3 +1809,79 @@
     animation: none;
   }
 }
+
+/*
+ * Headline: one line replacing another from below.
+ *
+ * Every item is in the same grid cell, so the box is as tall as the tallest of
+ * them from the first frame and never resizes as the reel turns. The ones not
+ * on screen keep their space with `visibility` rather than `display`, which is
+ * what makes that true.
+ *
+ * The two halves take the two halves of MD3's emphasized curve — the line
+ * arriving decelerates into place, the line leaving accelerates away — which is
+ * the one place in the library where both are written out rather than one being
+ * a reversed run of the other. Here they genuinely are two animations on two
+ * elements at the same moment.
+ */
+@keyframes mp-anim-headline-in {
+  from {
+    translate: 0 var(--_mp-anim-rise, 100%);
+    opacity: 0;
+  }
+
+  to {
+    translate: 0 0;
+    opacity: 1;
+  }
+}
+
+@keyframes mp-anim-headline-out {
+  from {
+    translate: 0 0;
+    opacity: 1;
+  }
+
+  to {
+    translate: 0 calc(-1 * var(--_mp-anim-rise, 100%));
+    opacity: 0;
+  }
+}
+
+.mp-headline {
+  display: grid;
+  overflow: hidden;
+}
+
+.mp-headline-item {
+  grid-area: 1 / 1;
+  visibility: hidden;
+  animation-duration: var(--_mp-anim-duration, var(--mp-sys-motion-duration-long2));
+  animation-fill-mode: both;
+}
+
+.mp-headline-item[data-mp-state='active'] {
+  visibility: visible;
+  animation-name: mp-anim-headline-in;
+  animation-timing-function: var(
+    --_mp-anim-ease,
+    var(--mp-sys-motion-easing-emphasized-decelerate)
+  );
+}
+
+.mp-headline-item[data-mp-state='leaving'] {
+  visibility: visible;
+  animation-name: mp-anim-headline-out;
+  animation-timing-function: var(
+    --_mp-anim-ease,
+    var(--mp-sys-motion-easing-emphasized-accelerate)
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The reel still turns — it is a set of phrases and stopping on the first
+     would be a different message — but the lines swap rather than travel. */
+  .mp-headline-item {
+    animation: none;
+  }
+}

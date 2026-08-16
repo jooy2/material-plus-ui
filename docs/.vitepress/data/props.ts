@@ -7129,6 +7129,70 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPAnimateHeadline: [
+    {
+      name: 'interval',
+      type: 'number',
+      default: '2600',
+      description: {
+        ko: '다음 줄이 올라오기 전에 한 줄을 얼마나 붙들지(ms). 줄이 도착한 순간부터 세므로 주기 길이가 아니라 읽는 시간입니다',
+        en: 'How long each line is held before the next one comes up, in milliseconds. Counted from the moment a line arrives, so it is reading time rather than a cycle length'
+      }
+    },
+    {
+      name: 'index',
+      type: 'number',
+      description: {
+        ko: '어느 줄이 보이는지. 넘기면 릴이 스스로 돌기를 멈추고 여러분의 타이머를 따릅니다',
+        en: 'Which line is showing. Passing it stops the reel turning on its own and hands it to your timer'
+      }
+    },
+    {
+      name: 'defaultIndex',
+      type: 'number',
+      default: '0',
+      description: {
+        ko: '제어하지 않는 릴이 시작하는 자리',
+        en: 'Where an uncontrolled reel starts'
+      }
+    },
+    {
+      name: 'onIndexChange',
+      type: '(index: number) => void',
+      description: {
+        ko: '방금 올라온 줄과 함께 호출됩니다',
+        en: 'Called with the line that has just come up'
+      }
+    },
+    {
+      name: 'loop',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '마지막 줄 다음에 다시 시작합니다. 끄면 마지막 줄에서 멈춰 그대로 있습니다',
+        en: 'Starts again after the last line. Off, the reel stops on the last one and stays there'
+      }
+    },
+    {
+      name: 'rise',
+      type: 'number | string',
+      default: "'100%'",
+      description: {
+        ko: "줄이 올라오거나 나갈 때 이동하는 거리. `'100%'`는 줄 하나의 높이입니다",
+        en: "How far a line travels as it comes up or leaves. `'100%'` is one line's own height"
+      }
+    },
+    ...motion.filter((row) => row.name !== 'alternate'),
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '읽혀야 할 순서대로의 줄들',
+        en: 'The lines, in the order they should be read'
+      }
+    }
+  ],
+
   MPLocaleProvider: [
     {
       name: 'locale',

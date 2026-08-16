@@ -10,6 +10,7 @@ import {
   MPAnimateLighting,
   MPAnimateMarquee,
   MPAnimateGrow,
+  MPAnimateHeadline,
   MPAnimateRotate,
   MPAnimateSlide,
   MPAnimateZoom,
@@ -1643,6 +1644,29 @@ const GROUPS: Group[] = [
               <MPChip variant="tonal">Base UI</MPChip>
               <MPChip variant="tonal">Tailwind</MPChip>
             </MPAnimateMarquee>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPAnimateHeadline',
+        summary: {
+          ko: '한 줄이 위의 줄을 대신하며 도는 릴',
+          en: 'One line replacing the one above it, on a timer'
+        },
+        path: '/components/motion/animate-headline',
+        preview: (
+          <Fit>
+            <MPAnimateHeadline interval={2000}>
+              <MPTypography level="h6" color="primary" gutter={false}>
+                Material
+              </MPTypography>
+              <MPTypography level="h6" color="secondary" gutter={false}>
+                Design 3
+              </MPTypography>
+              <MPTypography level="h6" color="tertiary" gutter={false}>
+                in React
+              </MPTypography>
+            </MPAnimateHeadline>
           </Fit>
         )
       }

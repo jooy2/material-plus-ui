@@ -6,6 +6,7 @@ export * from './components/animate-appear';
 export * from './components/animate-blink';
 export * from './components/animate-fade';
 export * from './components/animate-grow';
+export * from './components/animate-headline';
 export * from './components/animate-lighting';
 export * from './components/animate-marquee';
 export * from './components/animate-rotate';
