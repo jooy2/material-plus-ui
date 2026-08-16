@@ -4,7 +4,7 @@ import { Field } from '@base-ui/react/field';
 import { MPChip } from '../chip/MPChip';
 import { MPIcon } from '../icon/MPIcon';
 import { AddIcon, CheckIcon, ChevronDownIcon, CloseIcon } from '../../constants/icons';
-import { MPFieldLabel, MPFieldOutline } from '../../internal/FieldOutline';
+import { MPFieldLabel, MPFieldOutline, useFloatingLabel } from '../../internal/FieldOutline';
 import { fillMessage } from '../../internal/i18n';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { MPStateLayer } from '../../internal/StateLayer';
@@ -89,14 +89,28 @@ export interface MPComboboxProps<
   emptyMessage?: React.ReactNode;
   /** The most rows the list will show at once. `-1` is all of them. @default -1 */
   limit?: number;
-  /** Shown in the input while nothing is typed. */
+  /**
+   * Shown in the input while nothing is typed. With a floating label it is held
+   * back until the label has risen out of its way.
+   */
   placeholder?: string;
   /**
-   * Label in the outline's notch. Always drawn there rather than floating over
-   * the placeholder, so a combobox and a text field sit at the same height in a
-   * form.
+   * Label for the combobox, drawn in the outline's notch and — while nothing is
+   * chosen or typed, the control is unfocused and there is no `startIcon` —
+   * resting on the input's own line. See `floatingLabel`.
    */
   label?: React.ReactNode;
+  /**
+   * Whether the label rests on the input's line while there is nothing to make
+   * room for, and rises into the notch on focus, on the first character or on
+   * the first chip.
+   *
+   * `false` pins it in the notch, which is the one thing a floating label costs:
+   * a combobox with a label and one without no longer sit at the same height in
+   * a form until both are answered. A `startIcon` holds the label up regardless.
+   * @default true
+   */
+  floatingLabel?: boolean;
   /** The line under the control. Replaced by `errorMessage` when there is one. */
   description?: React.ReactNode;
   /**
@@ -255,6 +269,7 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
   limit,
   placeholder,
   label,
+  floatingLabel = true,
   description,
   errorMessage,
   startIcon,
@@ -304,6 +319,15 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
   const selection = value === undefined ? ownSelection : toArray(value);
 
   const [query, setQuery] = React.useState('');
+
+  // Typed text counts as content as much as a chosen row does: the label cannot
+  // sit on top of what is being typed under it, and in single mode Base UI puts
+  // the chosen option's own label into the input anyway.
+  const { shrunk, focusProps } = useFloatingLabel({
+    floating: floatingLabel && hasContent(label),
+    filled: selection.length > 0 || query !== '',
+    pinned: !!startIcon
+  });
 
   const entryFor = React.useCallback(
     (item: MPComboboxValue): Entry =>
@@ -384,7 +408,8 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
     <Combobox.Input
       ref={inputRef}
       id={fieldId}
-      placeholder={placeholder}
+      // Withheld while a floating label is resting in the same place.
+      placeholder={shrunk ? placeholder : undefined}
       className={
         isMultiple ? `${inputClasses} min-w-16 ${afterChips ? 'ms-1.5' : ''}` : inputClasses
       }
@@ -404,6 +429,7 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
         .filter(Boolean)
         .join(' ')}
       style={style}
+      {...focusProps}
     >
       <Combobox.Root<Entry, boolean>
         name={name}
@@ -535,10 +561,16 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
             </Combobox.Trigger>
           </Combobox.InputGroup>
 
-          <MPFieldOutline label={label} required={required} />
+          <MPFieldOutline label={label} required={required} notched={shrunk} />
 
           {hasContent(label) ? (
-            <MPFieldLabel size={size} label={label} required={required} htmlFor={fieldId} />
+            <MPFieldLabel
+              size={size}
+              label={label}
+              required={required}
+              htmlFor={fieldId}
+              shrunk={shrunk}
+            />
           ) : null}
         </div>
 

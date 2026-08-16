@@ -64,7 +64,10 @@ describe('MPCombobox', () => {
     });
 
     it('shows the placeholder while nothing is chosen', async () => {
-      const screen = await render(<Single placeholder="Search fruit" />);
+      // With the label pinned in the notch there is nothing standing in the
+      // placeholder's way. A floating label rests in exactly that spot and holds
+      // it back until it has risen — covered in the floating label suite below.
+      const screen = await render(<Single placeholder="Search fruit" floatingLabel={false} />);
 
       expect(screen.getByRole('combobox').element()).toHaveAttribute('placeholder', 'Search fruit');
     });

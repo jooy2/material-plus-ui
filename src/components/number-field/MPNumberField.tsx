@@ -3,7 +3,7 @@ import { NumberField } from '@base-ui/react/number-field';
 import { Field } from '@base-ui/react/field';
 import { MPIcon } from '../icon/MPIcon';
 import { AddIcon, RemoveIcon } from '../../constants/icons';
-import { MPFieldLabel, MPFieldOutline } from '../../internal/FieldOutline';
+import { MPFieldLabel, MPFieldOutline, useFloatingLabel } from '../../internal/FieldOutline';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { MPSupportingText } from '../../internal/SupportingText';
 import { CONTROL_ICON, PROSE_TEXT, hasContent } from '../../internal/scale';
@@ -79,13 +79,31 @@ export interface MPNumberFieldProps extends MPStyleProps {
   incrementLabel?: string;
   /** The accessible name of the decrement button. @default 'Decrease' */
   decrementLabel?: string;
-  /** Label in the outline's notch. */
+  /**
+   * Label for the field, drawn in the outline's notch and — while the field is
+   * empty, unfocused and has nothing standing at its start — resting on the
+   * field's own line where a placeholder would be. See `floatingLabel`.
+   */
   label?: React.ReactNode;
+  /**
+   * Whether the label rests on the field's line while there is nothing to make
+   * room for, and rises into the notch on focus or on the first digit.
+   *
+   * `false` pins it in the notch, which is the one thing a floating label costs:
+   * a field with a label and one without no longer sit at the same height in a
+   * form until both are filled. A `startIcon` — or `steppers="split"`, whose
+   * minus sits in the same place — holds the label up regardless.
+   * @default true
+   */
+  floatingLabel?: boolean;
   /** The line under the control. Replaced by `errorMessage` when there is one. */
   description?: React.ReactNode;
   /** The message under the control, which also turns the field over. */
   errorMessage?: React.ReactNode;
-  /** Placeholder shown while the field is empty. */
+  /**
+   * Placeholder shown while the field is empty. With a floating label it is held
+   * back until the label has risen out of its way.
+   */
   placeholder?: string;
   /** Content placed before the number — a currency mark, a unit, an icon. */
   startIcon?: React.ReactNode;
@@ -133,6 +151,7 @@ export function MPNumberField({
   incrementLabel = 'Increase',
   decrementLabel = 'Decrease',
   label,
+  floatingLabel = true,
   description,
   errorMessage,
   placeholder,
@@ -153,6 +172,22 @@ export function MPNumberField({
   // disabled is two ways of saying the same thing, and the disabled one is the
   // one that looks broken.
   const showSteppers = steppers !== 'none' && !readOnly && !disabled;
+
+  /*
+   * A copy of the number, read only to answer "is there anything in here".
+   *
+   * The value itself stays Base UI's, so an uncontrolled field is still
+   * uncontrolled. A half-typed `-` or `1.` parses to `null` and would drop the
+   * label mid-keystroke, except that the field is focused while that is being
+   * typed and focus holds the label up on its own.
+   */
+  const [entered, setEntered] = React.useState<number | null>(defaultValue ?? null);
+  const current = value === undefined ? entered : value;
+  const { shrunk, focusProps } = useFloatingLabel({
+    floating: floatingLabel && hasContent(label),
+    filled: current !== null,
+    pinned: !!startIcon || (showSteppers && steppers === 'split')
+  });
 
   const stepperClasses = [
     'mp-number-field__stepper group relative flex shrink-0 items-center justify-center',
@@ -185,6 +220,7 @@ export function MPNumberField({
       disabled={disabled}
       invalid={invalid}
       data-mp-size={size}
+      {...focusProps}
     >
       {/* `contents` so the group below is laid out by the shell rather than by a
           box of its own — the Root is a grouping element, not an element. */}
@@ -194,7 +230,10 @@ export function MPNumberField({
         className="contents"
         value={value}
         defaultValue={defaultValue}
-        onValueChange={(next) => onValueChange?.(next)}
+        onValueChange={(next) => {
+          setEntered(next);
+          onValueChange?.(next);
+        }}
         onValueCommitted={(next) => onValueCommitted?.(next)}
         min={min}
         max={max}
@@ -237,7 +276,8 @@ export function MPNumberField({
             ) : null}
 
             <NumberField.Input
-              placeholder={placeholder}
+              // Withheld while a floating label is resting in the same place.
+              placeholder={shrunk ? placeholder : undefined}
               className={[
                 'w-full min-w-0 flex-1 tabular-nums',
                 PROSE_TEXT[size],
@@ -265,10 +305,16 @@ export function MPNumberField({
             {showSteppers && steppers === 'split' ? increment : null}
           </NumberField.Group>
 
-          <MPFieldOutline label={label} required={required} />
+          <MPFieldOutline label={label} required={required} notched={shrunk} />
 
           {hasContent(label) ? (
-            <MPFieldLabel size={size} label={label} required={required} htmlFor={fieldId} />
+            <MPFieldLabel
+              size={size}
+              label={label}
+              required={required}
+              htmlFor={fieldId}
+              shrunk={shrunk}
+            />
           ) : null}
         </div>
       </NumberField.Root>

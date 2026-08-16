@@ -3,7 +3,7 @@ import { Select } from '@base-ui/react/select';
 import { Field } from '@base-ui/react/field';
 import { MPIcon } from '../icon/MPIcon';
 import { CheckIcon, ChevronDownIcon } from '../../constants/icons';
-import { MPFieldLabel, MPFieldOutline } from '../../internal/FieldOutline';
+import { MPFieldLabel, MPFieldOutline, useFloatingLabel } from '../../internal/FieldOutline';
 import { MPSupportingText } from '../../internal/SupportingText';
 import { CONTROL_ICON, PROSE_TEXT, hasContent } from '../../internal/scale';
 import type { MPSize, MPStyleProps } from '../../types';
@@ -60,14 +60,31 @@ export interface MPSelectProps extends MPStyleProps {
   defaultValue?: MPSelectValue | null;
   /** Called with the newly chosen value — a value, not an event. */
   onValueChange?: (value: MPSelectValue | null) => void;
-  /** Shown in the trigger while nothing is chosen. */
+  /**
+   * Shown in the trigger while nothing is chosen.
+   *
+   * With a floating label it is held back until the label has risen out of its
+   * way, which is the moment the select is focused or opened. Two greyed strings
+   * in one box is not a hint, it is a collision.
+   */
   placeholder?: React.ReactNode;
   /**
-   * Label in the outline's notch. Always drawn there rather than floating over
-   * the placeholder, so a select with a label and one without sit at the same
-   * height in a form.
+   * Label for the select, drawn in the outline's notch and — while nothing is
+   * chosen, the popup is shut and there is no `startIcon` — resting on the
+   * trigger's own line where the placeholder would be. See `floatingLabel`.
    */
   label?: React.ReactNode;
+  /**
+   * Whether the label rests on the trigger's line while there is nothing to make
+   * room for, and rises into the notch on focus or on the first choice.
+   *
+   * `false` pins it in the notch, which is the one thing a floating label costs:
+   * a select with a label and one without no longer sit at the same height in a
+   * form until both are answered. A `startIcon` holds the label up regardless —
+   * the icon is already standing where the resting label would be.
+   * @default true
+   */
+  floatingLabel?: boolean;
   /** The line under the control. Replaced by `errorMessage` when there is one. */
   description?: React.ReactNode;
   /**
@@ -120,6 +137,7 @@ export const MPSelect = React.forwardRef<HTMLButtonElement, MPSelectProps>(funct
     onValueChange,
     placeholder,
     label,
+    floatingLabel = true,
     description,
     errorMessage,
     startIcon,
@@ -138,6 +156,25 @@ export const MPSelect = React.forwardRef<HTMLButtonElement, MPSelectProps>(funct
   const generatedId = React.useId();
   const fieldId = id ?? generatedId;
 
+  /*
+   * Two states the select did not need until the label started moving.
+   *
+   * `chosen` is only ever read to answer "is there anything in here" — the value
+   * itself stays Base UI's, so an uncontrolled select is still uncontrolled and
+   * this is a copy rather than a second source of truth. `open` is here because
+   * Base UI moves focus into the popup, so the trigger blurs the instant the
+   * list appears and the label would fall back down over a select that is
+   * plainly being answered.
+   */
+  const [chosen, setChosen] = React.useState<MPSelectValue | null>(defaultValue ?? null);
+  const [open, setOpen] = React.useState(false);
+  const current = value === undefined ? chosen : value;
+  const { shrunk, focusProps } = useFloatingLabel({
+    floating: floatingLabel && hasContent(label),
+    filled: current !== null && current !== '',
+    pinned: open || !!startIcon
+  });
+
   // Base UI reads this to render the chosen option's *label* in the trigger
   // rather than its raw value, which is the only way a closed select can say
   // "Seoul" for `value="kr-11"` before the popup has ever been mounted.
@@ -155,6 +192,7 @@ export const MPSelect = React.forwardRef<HTMLButtonElement, MPSelectProps>(funct
       disabled={disabled}
       invalid={invalid}
       data-mp-size={size}
+      {...focusProps}
     >
       <Select.Root
         id={fieldId}
@@ -162,7 +200,11 @@ export const MPSelect = React.forwardRef<HTMLButtonElement, MPSelectProps>(funct
         items={baseItems}
         value={value}
         defaultValue={defaultValue}
-        onValueChange={(next) => onValueChange?.((next ?? null) as MPSelectValue | null)}
+        onValueChange={(next) => {
+          setChosen((next ?? null) as MPSelectValue | null);
+          onValueChange?.((next ?? null) as MPSelectValue | null);
+        }}
+        onOpenChange={setOpen}
         disabled={disabled}
         readOnly={readOnly}
         required={required}
@@ -207,7 +249,8 @@ export const MPSelect = React.forwardRef<HTMLButtonElement, MPSelectProps>(funct
               ]
                 .filter(Boolean)
                 .join(' ')}
-              placeholder={placeholder}
+              // Withheld while a floating label is resting in the same place.
+              placeholder={shrunk ? placeholder : undefined}
             />
 
             <Select.Icon
@@ -224,10 +267,16 @@ export const MPSelect = React.forwardRef<HTMLButtonElement, MPSelectProps>(funct
             </Select.Icon>
           </Select.Trigger>
 
-          <MPFieldOutline label={label} required={required} />
+          <MPFieldOutline label={label} required={required} notched={shrunk} />
 
           {hasContent(label) ? (
-            <MPFieldLabel size={size} label={label} required={required} htmlFor={fieldId} />
+            <MPFieldLabel
+              size={size}
+              label={label}
+              required={required}
+              htmlFor={fieldId}
+              shrunk={shrunk}
+            />
           ) : null}
         </div>
 
