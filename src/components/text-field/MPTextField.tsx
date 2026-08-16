@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Field } from '@base-ui/react/field';
 import { MPIcon } from '../icon/MPIcon';
-import { MPFieldLabel, MPFieldOutline } from '../../internal/FieldOutline';
+import { MPFieldLabel, MPFieldOutline, useFloatingLabel } from '../../internal/FieldOutline';
 import { VisibilityIcon, VisibilityOffIcon } from '../../constants/icons';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import type { MPMessages } from '../../internal/i18n';
@@ -61,16 +61,35 @@ export interface MPTextFieldProps extends MPStyleProps {
    * @default 'text'
    */
   type?: MPTextFieldType;
-  /** Placeholder shown while the field is empty. */
+  /**
+   * Placeholder shown while the field is empty.
+   *
+   * With a floating label it is held back until the label has risen out of its
+   * way, which is the moment the field is focused. Two greyed strings in one box
+   * is not a hint, it is a collision.
+   */
   placeholder?: string;
   /** Native `autocomplete` token — `'email'`, `'current-password'`, `'off'`. */
   autoComplete?: string;
   /**
-   * Label above the field. Always drawn in the outline's notch rather than
-   * floating over the placeholder, so a field with a label and a field without
-   * one sit at the same height in a form.
+   * Label for the field, drawn in the outline's notch and — while the field is
+   * empty, unfocused and has no `startIcon` — resting on the field's own line
+   * where a placeholder would be. See `floatingLabel`.
    */
   label?: string;
+  /**
+   * Whether the label rests on the field's line while there is nothing to make
+   * room for, and rises into the notch on focus or on the first character.
+   *
+   * `false` pins it in the notch, which is the one thing a floating label costs:
+   * a field with a label and a field without one no longer sit at the same
+   * height in a form until both are filled.
+   *
+   * A `startIcon` holds the label up regardless. The icon is already standing
+   * where the resting label would be, and the two cannot share the spot.
+   * @default true
+   */
+  floatingLabel?: boolean;
   /** Marks the field required, both to assistive technology and to the label. */
   required?: boolean;
   /** Greys the field out and stops it taking input. */
@@ -223,6 +242,7 @@ export const MPTextField = React.forwardRef<
     placeholder,
     autoComplete,
     label,
+    floatingLabel = true,
     onChange,
     onFormReset,
     onSubmit,
@@ -255,6 +275,12 @@ export const MPTextField = React.forwardRef<
   const multiline = !!rows;
   const invalid = errorMessage.length > 0;
   const scale = SIZES[size];
+  const shown = isComposing ? innerValue : value;
+  const { shrunk, focusProps } = useFloatingLabel({
+    floating: floatingLabel && !!label,
+    filled: shown.length > 0,
+    pinned: !!startIcon
+  });
 
   const setInputRef = React.useCallback(
     (node: HTMLInputElement | HTMLTextAreaElement | null) => {
@@ -348,6 +374,7 @@ export const MPTextField = React.forwardRef<
       disabled={disabled}
       invalid={invalid}
       data-mp-size={size}
+      {...focusProps}
     >
       <div
         className={[
@@ -360,7 +387,7 @@ export const MPTextField = React.forwardRef<
           .filter(Boolean)
           .join(' ')}
       >
-        <MPFieldOutline label={label} required={required} />
+        <MPFieldOutline label={label} required={required} notched={shrunk} />
 
         {startIcon ? (
           <span className="text-mp-on-surface-variant group-data-disabled:text-mp-on-surface/38 flex shrink-0 items-center">
@@ -379,9 +406,11 @@ export const MPTextField = React.forwardRef<
           readOnly={readOnly}
           disabled={disabled}
           autoComplete={autoComplete}
-          placeholder={placeholder}
+          // Withheld while a floating label is resting in the same place. It
+          // comes back with focus, which is also when it is of any use.
+          placeholder={shrunk ? placeholder : undefined}
           maxLength={maxLength}
-          value={isComposing ? innerValue : value}
+          value={shown}
           ref={setInputRef as React.Ref<HTMLElement>}
           className={[
             `${scale.text} text-mp-on-surface w-full min-w-0 flex-1`,
@@ -453,11 +482,21 @@ export const MPTextField = React.forwardRef<
             <MPIcon icon={showPassword ? VisibilityIcon : VisibilityOffIcon} size={scale.icon} />
           </button>
         ) : null}
-      </div>
 
-      {label ? (
-        <MPFieldLabel size={size} label={label} required={required} htmlFor={fieldId} />
-      ) : null}
+        {/* Inside the row rather than beside it: a resting label is centred on
+            the control, and the `Field.Root` above also holds the supporting
+            text, which would pull that centre down whenever there is a message. */}
+        {label ? (
+          <MPFieldLabel
+            size={size}
+            label={label}
+            required={required}
+            htmlFor={fieldId}
+            shrunk={shrunk}
+            multiline={multiline}
+          />
+        ) : null}
+      </div>
 
       {invalid ? (
         <Field.Error
