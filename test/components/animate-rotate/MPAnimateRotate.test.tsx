@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { MPAnimateRotate } from 'material-plus-ui';
+import { transformOrigin } from '../../support/style';
 
 describe('MPAnimateRotate', () => {
   it('runs the rotate keyframe', async () => {
@@ -67,7 +68,7 @@ describe('MPAnimateRotate', () => {
     );
     const element = screen.getByTestId('rotate').element() as HTMLElement;
 
-    expect(element.style.transformOrigin).toBe('right bottom');
+    expect(transformOrigin(element)).toBe('right bottom');
   });
 
   it('renders something other than a `div`', async () => {

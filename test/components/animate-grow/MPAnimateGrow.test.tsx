@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { MPAnimateGrow } from 'material-plus-ui';
+import { transformOrigin } from '../../support/style';
 
 describe('MPAnimateGrow', () => {
   it('runs the scale keyframe', async () => {
@@ -62,15 +63,16 @@ describe('MPAnimateGrow', () => {
       );
       const element = screen.getByTestId('grow').element() as HTMLElement;
 
-      // Read back in the browser's own normalised spelling.
-      expect(element.style.transformOrigin).toBe('left top');
+      // Read back in the browser's own normalised spelling, which reorders the
+      // pair — and, in Firefox, also names the depth. See `transformOrigin`.
+      expect(transformOrigin(element)).toBe('left top');
     });
 
     it('is the middle by default', async () => {
       const screen = await render(<MPAnimateGrow data-testid="grow">Unfolding</MPAnimateGrow>);
       const element = screen.getByTestId('grow').element() as HTMLElement;
 
-      expect(element.style.transformOrigin).toBe('center center');
+      expect(transformOrigin(element)).toBe('center center');
     });
 
     it('lets a caller’s own `style` win over it', async () => {
@@ -81,7 +83,7 @@ describe('MPAnimateGrow', () => {
       );
       const element = screen.getByTestId('grow').element() as HTMLElement;
 
-      expect(element.style.transformOrigin).toBe('center bottom');
+      expect(transformOrigin(element)).toBe('center bottom');
     });
   });
 

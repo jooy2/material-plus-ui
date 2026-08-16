@@ -101,7 +101,22 @@ export default defineConfig({
     // real browser rather than polyfilling a DOM emulator.
     browser: {
       enabled: true,
-      provider: playwright(),
+      /*
+       * The browser is given a locale, and it has to be.
+       *
+       * Half a dozen components write a number, a date or a time through `Intl`,
+       * and `Intl` with no locale named answers in the *browser's* — which is
+       * Playwright's `en-US` for Chromium and the machine's own for WebKit and
+       * Firefox. So `{ style: 'currency', currency: 'USD' }` reads `$40` on a
+       * runner set to English and `US$40` on a laptop set to Korean, and a suite
+       * that passed everywhere it was written stops passing where it is read.
+       *
+       * `en-US` because that is what the assertions are written against, and
+       * naming it here is the same rule the date tests already follow one at a
+       * time: a test that says nothing about a locale is a test about the
+       * machine it ran on.
+       */
+      provider: playwright({ contextOptions: { locale: 'en-US' } }),
       headless: true,
       screenshotFailures: false,
       // Vitest's default is 414×896 — a phone. A popup anchored to a trigger is

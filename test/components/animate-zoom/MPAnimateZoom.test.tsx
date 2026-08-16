@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { MPAnimateZoom } from 'material-plus-ui';
+import { transformOrigin } from '../../support/style';
 
 describe('MPAnimateZoom', () => {
   it('shares the scale keyframe with a grow', async () => {
@@ -42,7 +43,7 @@ describe('MPAnimateZoom', () => {
     const screen = await render(<MPAnimateZoom data-testid="zoom">Landed</MPAnimateZoom>);
     const element = screen.getByTestId('zoom').element() as HTMLElement;
 
-    expect(element.style.transformOrigin).toBe('center center');
+    expect(transformOrigin(element)).toBe('center center');
   });
 
   it('takes `medium4` arriving and `short4` leaving', async () => {
