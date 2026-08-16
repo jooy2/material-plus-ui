@@ -1667,3 +1667,71 @@
     animation: none;
   }
 }
+
+/*
+ * Lighting: a light travelling around the outside of something.
+ *
+ * The arc is a conic gradient and what moves is its `from` angle, which is only
+ * animatable because the angle is a registered custom property with a type. The
+ * alternative — rotating the pseudo-element itself — swings its corners out
+ * past the element on every quarter turn.
+ *
+ * `z-index: -1` inside an isolated stacking context puts the glow behind the
+ * content but still inside the component, so it reads as light escaping from
+ * under a sheet rather than as a border drawn around one. Nothing inside is
+ * overlaid and nothing is tinted, which is what lets it go around a card or a
+ * button without touching how either is drawn.
+ */
+@property --mp-glow-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes mp-anim-lighting {
+  to {
+    --mp-glow-angle: 360deg;
+  }
+}
+
+.mp-anim-lighting {
+  position: relative;
+  isolation: isolate;
+}
+
+.mp-anim-lighting::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: calc(-1 * var(--_mp-anim-glow-width, 3px));
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--mp-glow-angle),
+    transparent 0deg,
+    var(--_mp-anim-glow, var(--_mp-accent)) var(--_mp-anim-glow-arc, 50deg),
+    transparent calc(var(--_mp-anim-glow-arc, 50deg) * 2),
+    transparent 360deg
+  );
+  filter: blur(var(--_mp-anim-glow-blur, 4px));
+  animation-name: mp-anim-lighting;
+  animation-duration: var(--_mp-anim-duration, 3s);
+  animation-delay: var(--_mp-anim-delay, 0ms);
+  /* Linear, and not a token: a loop with no beginning has nothing to
+     decelerate into, and an eased revolution reads as the light hesitating at
+     an arbitrary point on a circle that has no arbitrary points. */
+  animation-timing-function: linear;
+  animation-iteration-count: var(--_mp-anim-repeat, infinite);
+  animation-direction: var(--_mp-anim-direction, normal);
+  animation-fill-mode: both;
+  animation-play-state: var(--_mp-anim-state, running);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The arc stops travelling and becomes an even glow. The same trade the
+     skeleton makes: the decoration survives, the motion does not — a light
+     that marked the live row still marks it while holding still. */
+  .mp-anim-lighting::before {
+    background: var(--_mp-anim-glow, var(--_mp-accent));
+    animation: none;
+  }
+}

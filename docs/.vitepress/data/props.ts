@@ -7006,6 +7006,63 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPAnimateLighting: [
+    {
+      ...color,
+      description: {
+        ko: '빛이 어떤 계열로 그려지는지. 임의의 색상값은 받지 않습니다 — `primary`가 무엇인지 바꾸려면 토큰을 설정하세요',
+        en: 'Which accent family the light is drawn in. Not an arbitrary colour: to change what `primary` *is*, set the token'
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '빛이 따라 도는 반경. 안에 있는 것과 맞아야 합니다 — 그러지 않으면 내용이 이미 깎아 낸 모서리를 빛이 가로지릅니다',
+        en: 'The radius the light follows. It has to match what is inside, or the glow will cut a corner the content has rounded off'
+      }
+    },
+    {
+      name: 'spread',
+      type: 'number',
+      default: '3',
+      description: {
+        ko: '빛이 내용 바깥으로 얼마나 나가는지(px)',
+        en: 'How far past the content the light reaches, in pixels'
+      }
+    },
+    {
+      name: 'arc',
+      type: 'number',
+      default: '50',
+      description: {
+        ko: '한 번에 얼마만큼의 윤곽이 켜지는지(도). 작으면 지나가는 불꽃, 크면 쓸고 지나가는 빛입니다',
+        en: 'How much of the outline is lit at once, in degrees. Small is a travelling spark; large is a sweep'
+      }
+    },
+    {
+      name: 'blur',
+      type: 'number',
+      default: '4',
+      description: {
+        ko: '빛이 얼마나 부드러운지(px). `0`이면 빛이 아니라 그래픽으로 읽히는 쐐기가 됩니다',
+        en: 'How soft the light is, in pixels. At `0` it is a hard-edged wedge, which reads as a graphic rather than as light'
+      }
+    },
+    {
+      name: 'reverse',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '빛을 반대 방향으로 돌립니다', en: 'Runs the light the other way round' }
+    },
+    ...motion.filter((row) => row.name !== 'easing'),
+    animateRender,
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '빛이 두를 것', en: 'What the light goes around' }
+    }
+  ],
+
   MPLocaleProvider: [
     {
       name: 'locale',

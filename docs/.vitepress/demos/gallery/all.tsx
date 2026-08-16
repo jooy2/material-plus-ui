@@ -7,6 +7,7 @@ import {
   MPAnimateAppear,
   MPAnimateBlink,
   MPAnimateFade,
+  MPAnimateLighting,
   MPAnimateGrow,
   MPAnimateRotate,
   MPAnimateSlide,
@@ -1607,6 +1608,23 @@ const GROUPS: Group[] = [
                 <MPTypography level="caption">Three</MPTypography>
               </MPBox>
             </MPAnimateAppear>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPAnimateLighting',
+        summary: {
+          ko: '무언가의 바깥을 도는 빛',
+          en: 'A light travelling around the outside of something'
+        },
+        path: '/components/motion/animate-lighting',
+        preview: (
+          <Fit>
+            <MPAnimateLighting size="sm" spread={4} arc={70}>
+              <MPBox size="sm" variant="filled">
+                <MPTypography level="body">Lighting</MPTypography>
+              </MPBox>
+            </MPAnimateLighting>
           </Fit>
         )
       }
