@@ -6,6 +6,7 @@ import {
   MPAlert,
   MPAnimateFade,
   MPAnimateGrow,
+  MPAnimateRotate,
   MPAnimateSlide,
   MPAnimateZoom,
   MPAspectRatio,
@@ -1537,6 +1538,28 @@ const GROUPS: Group[] = [
                 <MPTypography level="body">Slide</MPTypography>
               </MPBox>
             </MPAnimateSlide>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPAnimateRotate',
+        summary: {
+          ko: '한 점을 중심으로 도는 내용',
+          en: 'Content turning about a point'
+        },
+        path: '/components/motion/animate-rotate',
+        preview: (
+          <Fit>
+            <MPAnimateRotate
+              from={0}
+              to={360}
+              repeat="infinite"
+              easing="linear"
+              fade={false}
+              duration={2600}
+            >
+              <MPIcon icon={ICONS.spinner} size={28} />
+            </MPAnimateRotate>
           </Fit>
         )
       }

@@ -4,6 +4,7 @@ export * from './components/accordion';
 export * from './components/alert';
 export * from './components/animate-fade';
 export * from './components/animate-grow';
+export * from './components/animate-rotate';
 export * from './components/animate-slide';
 export * from './components/animate-zoom';
 export * from './components/aspect-ratio';

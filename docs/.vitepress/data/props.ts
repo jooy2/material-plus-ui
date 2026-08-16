@@ -6857,6 +6857,53 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPAnimateRotate: [
+    animateMode,
+    {
+      name: 'from',
+      type: 'number',
+      default: '-180',
+      description: {
+        ko: '시작 각도(도). 음수는 반시계 방향입니다',
+        en: 'The angle it starts at, in degrees. Negative is anticlockwise'
+      }
+    },
+    {
+      name: 'to',
+      type: 'number',
+      default: '0',
+      description: {
+        ko: '끝 각도(도). `from`과 함께 쓰면 한 컴포넌트가 도착과 끝없는 회전 둘 다가 됩니다',
+        en: 'The angle it ends at, in degrees. Together with `from` this is what makes one component cover both an arrival and an endless spin'
+      }
+    },
+    {
+      name: 'origin',
+      type: 'string',
+      default: "'center'",
+      description: {
+        ko: '무엇을 축으로 도는지 — CSS `transform-origin`이면 무엇이든',
+        en: 'Which point it turns about — any CSS `transform-origin`'
+      }
+    },
+    {
+      name: 'fade',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '돌면서 함께 나타납니다. 끝없는 회전에는 꺼 두세요 — 반복되는 페이드는 깜빡임으로 읽힙니다',
+        en: 'Fades in as it turns. Turn it off for a continuous spin, where a repeating fade reads as flickering'
+      }
+    },
+    ...motion,
+    animateRender,
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '돌아갈 것. 글자는 아닙니다', en: 'What turns. Not text' }
+    }
+  ],
+
   MPLocaleProvider: [
     {
       name: 'locale',
