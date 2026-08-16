@@ -35,7 +35,7 @@ import { MPAnimateGrow } from 'material-plus-ui';
 
 `origin`은 `transform-origin`을 설정하고, 이 속성은 `transform` 단축 속성뿐 아니라 독립 `scale` 속성도 지배합니다. 애니메이션 자체는 `scale`만 쓰므로, 같은 요소에 걸린 호출자의 `transform`은 덮이지 않고 살아남습니다.
 
-호출자가 준 `style={{ transformOrigin }}`이 여전히 이기는 이유도 같습니다. prop은 호출자의 style 객체보다 뒤가 아니라 앞에 쓰입니다.
+호출자가 자기 `style`에 준 `transformOrigin`이 여전히 이기는 이유도 같습니다. prop은 호출자의 style 객체보다 뒤가 아니라 앞에 쓰입니다.
 
 ## 예제
 

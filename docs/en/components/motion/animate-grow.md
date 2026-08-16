@@ -35,7 +35,7 @@ This is as close as a component library gets to MD3's **container transform**: t
 
 `origin` sets `transform-origin`, which governs the standalone `scale` property as well as the `transform` shorthand. The animation itself only ever writes `scale`, so a caller's own `transform` on the same element survives the effect instead of being overwritten by it.
 
-It is also why a `style={{ transformOrigin }}` of your own still wins: the prop is written before the caller's style object, not after it.
+It is also why a `transformOrigin` in your own `style` still wins: the prop is written before the caller's style object, not after it.
 
 ## Examples
 

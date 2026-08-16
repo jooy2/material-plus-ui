@@ -53,7 +53,12 @@ For a genuine entrance from off screen, one element, use [MPAnimateSlide](./anim
 
 ### render
 
-The escape hatch that makes this work on a real layout. `render={<ul />}` makes the root a list; `render={<div style={{ display: 'grid' }} />}` makes it a grid whose cells are the children being staggered.
+The escape hatch that makes this work on a real layout. The root becomes whatever you pass, and the children being staggered stay its own direct children:
+
+```tsx
+<MPAnimateAppear render={<ul />}>…</MPAnimateAppear>
+<MPAnimateAppear render={<div style={{ display: 'grid' }} />}>…</MPAnimateAppear>
+```
 
 ### reverse
 

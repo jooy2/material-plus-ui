@@ -27,6 +27,12 @@ Not on it. A pseudo-element sits at `z-index: -1` inside an isolated stacking co
 
 That is what lets it go around a [card](../layout/card), a [button](../inputs/button) or a whole form section without touching how any of them are drawn. Nothing inside is overlaid, nothing is tinted, and the content stays exactly as legible as it was — which is the entire reason to reach for it instead of a colour change or a pulse.
 
+## The content has to paint its own surface
+
+"Behind" only reads as behind if there is something opaque in front of it. Around an `outlined` card or a `text` button — both of which paint no background at all — the arc travels **through** the content rather than under it.
+
+That is the correct rendering of a glow behind a transparent box; it is just not the effect anybody wanted. Give the content a surface: `variant="filled"` or `variant="elevated"`.
+
 ## `size` has to match what is inside
 
 The glow follows the wrapper's **own** corners, via `border-radius: inherit`. So an `xl` card inside an `md` Lighting will show light poking out of four corners the card has already rounded away.

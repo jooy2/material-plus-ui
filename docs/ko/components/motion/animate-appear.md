@@ -53,7 +53,12 @@ import { MPAnimateAppear } from 'material-plus-ui';
 
 ### render
 
-이것이 실제 레이아웃 위에서 동작하게 만드는 탈출구입니다. `render={<ul />}`는 루트를 리스트로 만들고, `render={<div style={{ display: 'grid' }} />}`는 지연이 걸린 자식들이 셀이 되는 그리드로 만듭니다.
+이것이 실제 레이아웃 위에서 동작하게 만드는 탈출구입니다. 루트는 넘긴 것이 되고, 지연이 걸린 자식들은 그 요소의 직계 자식으로 남습니다.
+
+```tsx
+<MPAnimateAppear render={<ul />}>…</MPAnimateAppear>
+<MPAnimateAppear render={<div style={{ display: 'grid' }} />}>…</MPAnimateAppear>
+```
 
 ### reverse
 
