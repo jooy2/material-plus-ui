@@ -6752,6 +6752,44 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPAnimateGrow: [
+    animateMode,
+    {
+      name: 'from',
+      type: 'number',
+      default: '0.8',
+      description: {
+        ko: '최종 크기의 몇 배에서 시작할지. `1`보다 크면 크게 도착해 페이지 위로 내려앉습니다',
+        en: 'The scale it starts from, as a multiple of its final size. Above `1` it settles down onto the page instead of up out of it'
+      }
+    },
+    {
+      name: 'origin',
+      type: 'string',
+      default: "'center'",
+      description: {
+        ko: '무엇이 제자리에 남고 나머지가 움직일지 — CSS `transform-origin`이면 무엇이든. 내용이 나온 자리에 고정하세요',
+        en: 'Which point stays put while the rest moves — any CSS `transform-origin`. Anchor it to the place the content came from'
+      }
+    },
+    {
+      name: 'fade',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '자라면서 함께 나타납니다. 이미 페이지에 있고 크기만 바뀌는 것에는 꺼 두세요',
+        en: 'Fades in as it grows. Turn it off for something already on the page that is only changing size'
+      }
+    },
+    ...motion,
+    animateRender,
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '펼쳐질 것', en: 'What unfolds' }
+    }
+  ],
+
   MPLocaleProvider: [
     {
       name: 'locale',

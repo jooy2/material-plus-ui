@@ -3,6 +3,7 @@ export * from './constants/icons';
 export * from './components/accordion';
 export * from './components/alert';
 export * from './components/animate-fade';
+export * from './components/animate-grow';
 export * from './components/aspect-ratio';
 export * from './components/avatar';
 export * from './components/badge';

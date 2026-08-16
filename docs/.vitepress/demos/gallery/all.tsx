@@ -5,6 +5,7 @@ import {
   MPAccordionItem,
   MPAlert,
   MPAnimateFade,
+  MPAnimateGrow,
   MPAspectRatio,
   MPAvatar,
   MPBadge,
@@ -1470,6 +1471,30 @@ const GROUPS: Group[] = [
                 <MPTypography level="body">Fade</MPTypography>
               </MPBox>
             </MPAnimateFade>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPAnimateGrow',
+        summary: {
+          ko: '한 점에서 펼쳐져 나오는 내용',
+          en: 'Content unfolding from a point'
+        },
+        path: '/components/motion/animate-grow',
+        preview: (
+          <Fit>
+            <MPAnimateGrow
+              origin="top left"
+              from={0.7}
+              repeat="infinite"
+              alternate
+              fade={false}
+              duration={1600}
+            >
+              <MPBox size="sm">
+                <MPTypography level="body">Grow</MPTypography>
+              </MPBox>
+            </MPAnimateGrow>
           </Fit>
         )
       }
