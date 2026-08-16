@@ -1885,3 +1885,30 @@
     animation: none;
   }
 }
+
+/* The block after a typewriter. `step-end` rather than a fade, because a caret
+   that eases is a caret that looks like it is being rendered slowly. */
+@keyframes mp-anim-caret {
+  0%,
+  45% {
+    opacity: 1;
+  }
+
+  55%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.mp-typing-caret {
+  display: inline-block;
+  animation: mp-anim-caret 1s step-end infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The whole string is already there under this preference — the caret would
+     be a cursor blinking after text nobody is typing. */
+  .mp-typing-caret {
+    animation: none;
+  }
+}

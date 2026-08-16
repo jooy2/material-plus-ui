@@ -13,6 +13,7 @@ import {
   MPAnimateHeadline,
   MPAnimateRotate,
   MPAnimateSlide,
+  MPAnimateTyping,
   MPAnimateZoom,
   MPAspectRatio,
   MPAvatar,
@@ -1667,6 +1668,19 @@ const GROUPS: Group[] = [
                 in React
               </MPTypography>
             </MPAnimateHeadline>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPAnimateTyping',
+        summary: {
+          ko: '한 글자씩 나타나는 텍스트',
+          en: 'Text appearing one character at a time'
+        },
+        path: '/components/motion/animate-typing',
+        preview: (
+          <Fit>
+            <MPAnimateTyping text="one character at a time" speed={14} repeat="infinite" erase />
           </Fit>
         )
       }

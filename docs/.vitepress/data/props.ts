@@ -7193,6 +7193,74 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPAnimateTyping: [
+    {
+      name: 'text',
+      type: 'string',
+      description: {
+        ko: '중첩해 쓰기보다 넘기는 편이 쉬울 때의 텍스트. `children`보다 우선합니다',
+        en: 'The text, when it is easier to pass than to nest. Overrides `children`'
+      }
+    },
+    {
+      name: 'speed',
+      type: 'number',
+      default: '24',
+      description: {
+        ko: '초당 몇 글자로 치는지. 긴 문단과 짧은 문단은 같은 시간이 아니라 같은 속도로 쳐져야 합니다',
+        en: 'How fast it is typed, in characters per second. A long paragraph and a short one should be typed at the same pace, not in the same time'
+      }
+    },
+    {
+      name: 'hold',
+      type: 'number',
+      default: '1400',
+      description: {
+        ko: '다 친 텍스트를 반복 전에 얼마나 붙들지(ms)',
+        en: 'How long the finished text is held before it repeats, in milliseconds'
+      }
+    },
+    {
+      name: 'erase',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '반복 전에 한 프레임에 지우지 않고 되지웁니다. `repeat`이 1보다 클 때만 의미가 있습니다',
+        en: 'Deletes the text again before repeating, rather than clearing it in one frame. Only means anything when `repeat` is more than once'
+      }
+    },
+    {
+      name: 'eraseSpeed',
+      type: 'number',
+      default: 'twice `speed`',
+      description: {
+        ko: '초당 몇 글자로 지우는지. 사람은 보통 치는 것의 두 배 속도로 지웁니다',
+        en: 'How fast it is deleted, in characters per second. Deleting is usually about twice as fast as typing'
+      }
+    },
+    {
+      name: 'caret',
+      type: 'boolean',
+      default: 'true',
+      description: { ko: '텍스트 뒤의 블록', en: 'The block after the text' }
+    },
+    {
+      name: 'caretChar',
+      type: NODE,
+      default: "'|'",
+      description: { ko: '캐럿을 무엇으로 그릴지', en: 'What the caret is drawn as' }
+    },
+    ...motion.filter((row) => row.name !== 'alternate' && row.name !== 'easing'),
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '칠 텍스트. 텍스트만 쳐집니다 — 엘리먼트는 텍스트만 기여하고 마크업은 기여하지 않습니다',
+        en: 'The text to type. Only text is typed — an element contributes its text and nothing about its markup'
+      }
+    }
+  ],
+
   MPLocaleProvider: [
     {
       name: 'locale',

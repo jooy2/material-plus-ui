@@ -11,6 +11,7 @@ export * from './components/animate-lighting';
 export * from './components/animate-marquee';
 export * from './components/animate-rotate';
 export * from './components/animate-slide';
+export * from './components/animate-typing';
 export * from './components/animate-zoom';
 export * from './components/aspect-ratio';
 export * from './components/avatar';
