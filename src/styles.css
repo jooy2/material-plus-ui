@@ -1735,3 +1735,77 @@
     animation: none;
   }
 }
+
+/*
+ * Marquee: two identical copies, both moving by exactly one copy plus the gap.
+ *
+ * Which is the whole trick — when the first copy has travelled its own width,
+ * the second is standing precisely where the first began, so there is no seam
+ * and no frame where the strip is empty. A percentage `translate` resolves
+ * against the element's own box, so neither copy has to be measured for this to
+ * hold; measuring only ever decides how *fast* it goes.
+ */
+@keyframes mp-anim-marquee-x {
+  from {
+    translate: 0 0;
+  }
+
+  to {
+    translate: calc(-100% - var(--_mp-anim-gap, 0px)) 0;
+  }
+}
+
+@keyframes mp-anim-marquee-y {
+  from {
+    translate: 0 0;
+  }
+
+  to {
+    translate: 0 calc(-100% - var(--_mp-anim-gap, 0px));
+  }
+}
+
+.mp-marquee {
+  display: flex;
+  overflow: hidden;
+  gap: var(--_mp-anim-gap, 0px);
+}
+
+.mp-marquee-vertical {
+  flex-direction: column;
+}
+
+.mp-marquee-track {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: var(--_mp-anim-gap, 0px);
+  animation-name: mp-anim-marquee-x;
+  animation-duration: var(--_mp-anim-duration, 12s);
+  animation-delay: var(--_mp-anim-delay, 0ms);
+  /* Linear unless a caller insists otherwise. An eased marquee slows at both
+     ends of a loop that has no ends, which reads as the page stuttering. */
+  animation-timing-function: var(--_mp-anim-ease, linear);
+  animation-iteration-count: var(--_mp-anim-repeat, infinite);
+  animation-direction: var(--_mp-anim-direction, normal);
+  animation-fill-mode: both;
+  animation-play-state: var(--_mp-anim-state, running);
+}
+
+.mp-marquee-vertical .mp-marquee-track {
+  flex-direction: column;
+  animation-name: mp-anim-marquee-y;
+}
+
+.mp-marquee[data-mp-pause-on-hover]:hover .mp-marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Stopped, not slowed. A strip of logos that has stopped scrolling is a strip
+     of logos, and the first copy is fully in frame — which is more than the
+     moving version guarantees at any given moment. */
+  .mp-marquee-track {
+    animation: none;
+  }
+}

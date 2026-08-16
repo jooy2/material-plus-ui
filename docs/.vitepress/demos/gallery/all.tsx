@@ -8,6 +8,7 @@ import {
   MPAnimateBlink,
   MPAnimateFade,
   MPAnimateLighting,
+  MPAnimateMarquee,
   MPAnimateGrow,
   MPAnimateRotate,
   MPAnimateSlide,
@@ -1625,6 +1626,23 @@ const GROUPS: Group[] = [
                 <MPTypography level="body">Lighting</MPTypography>
               </MPBox>
             </MPAnimateLighting>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPAnimateMarquee',
+        summary: {
+          ko: '끝없이 흘러가는 내용',
+          en: 'Content scrolling steadily past, forever'
+        },
+        path: '/components/motion/animate-marquee',
+        preview: (
+          <Fit>
+            <MPAnimateMarquee speed={40} gap="0.75rem">
+              <MPChip variant="tonal">React</MPChip>
+              <MPChip variant="tonal">Base UI</MPChip>
+              <MPChip variant="tonal">Tailwind</MPChip>
+            </MPAnimateMarquee>
           </Fit>
         )
       }

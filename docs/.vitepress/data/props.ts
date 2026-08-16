@@ -7063,6 +7063,72 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPAnimateMarquee: [
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+      description: {
+        ko: '띠가 어느 방향으로 흐르는지. 세로면 컨테이너에 높이를 주세요',
+        en: 'Which way the strip runs. Give the container a height when it is vertical'
+      }
+    },
+    {
+      name: 'reverse',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '반대로 흘립니다 — 왼쪽에서 오른쪽으로, 또는 아래에서 위로',
+        en: 'Runs it the other way — left to right, or bottom to top'
+      }
+    },
+    {
+      name: 'speed',
+      type: 'number',
+      default: '60',
+      description: {
+        ko: '내용이 흐르는 속도(초당 픽셀). duration이 아니라 속도라서, 넷짜리 띠와 마흔짜리 띠가 같은 속도로 움직입니다',
+        en: 'How fast the content travels, in pixels per second. A speed rather than a duration, so a strip of four and a strip of forty move at the same pace'
+      }
+    },
+    {
+      name: 'gap',
+      type: 'number | string',
+      default: "'2rem'",
+      description: {
+        ko: '항목 사이, 그리고 한 사본의 끝과 다음 사본의 처음 사이의 간격',
+        en: 'The gap between items, and between the last item and the first of the next pass'
+      }
+    },
+    {
+      name: 'copies',
+      type: 'number',
+      default: '2',
+      description: {
+        ko: '내용을 몇 벌 이어 붙일지. 내용이 짧아 뒤에 구멍을 남긴다면 올리세요',
+        en: 'How many copies are laid end to end. Raise it when the content is short enough to leave a hole behind itself'
+      }
+    },
+    {
+      name: 'pauseOnHover',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '포인터가 올라오면 멈춥니다. 장식이 아닙니다 — 지나가는 링크는 아무도 따라갈 수 없습니다',
+        en: 'Stops while the pointer is on it. Not decoration: a link that never stops is a link nobody can follow'
+      }
+    },
+    ...motion,
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '흘러갈 것들. 첫 사본만 읽히고 나머지는 `aria-hidden`입니다',
+        en: 'The things that scroll past. Only the first copy is read out; the rest are `aria-hidden`'
+      }
+    }
+  ],
+
   MPLocaleProvider: [
     {
       name: 'locale',
