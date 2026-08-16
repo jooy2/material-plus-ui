@@ -164,6 +164,154 @@ const errorMessage: PropRow = {
 };
 
 /* ---------------------------------------------------------------------------
+ * Motion
+ *
+ * The eleven `MPAnimate*` components take one set of settings, and it is
+ * written once for the reason `size` is: a `delay` of 200 has to mean the same
+ * thing on a fade and on a marquee, and eleven hand-written tables is how that
+ * stops being true.
+ *
+ * `motion` is the whole set in the order a caller meets them — what it does,
+ * how long, and then what makes it run. A component that genuinely cannot take
+ * one of them filters it out rather than redescribing the rest.
+ * ------------------------------------------------------------------------- */
+
+const EASING =
+  "'linear' | 'standard' | 'standard-decelerate' | 'standard-accelerate' | 'emphasized' | 'emphasized-decelerate' | 'emphasized-accelerate'";
+const TRIGGER = "'mount' | 'visible' | 'hover' | 'manual'";
+const REPEAT = "number | 'infinite'";
+
+const animateDuration: PropRow = {
+  name: 'duration',
+  type: 'number',
+  description: {
+    ko: '한 번 도는 데 걸리는 시간(ms). 비워 두면 그 효과의 머터리얼 duration 토큰을 따르므로, 페이지가 모션 토큰을 바꾸면 같이 움직입니다',
+    en: "How long one run takes, in milliseconds. Left unset it takes the effect's own Material duration token, so it moves when a page retunes its motion"
+  }
+};
+
+const animateDelay: PropRow = {
+  name: 'delay',
+  type: 'number',
+  default: '0',
+  description: {
+    ko: '시작하기 전 기다리는 시간(ms)',
+    en: 'How long before it starts, in milliseconds'
+  }
+};
+
+const animateEasing: PropRow = {
+  name: 'easing',
+  type: EASING,
+  description: {
+    ko: '어떤 머터리얼 이징 곡선을 탈지. 임의의 `cubic-bezier()`는 받지 않습니다 — `emphasized`가 무엇인지 바꾸려면 토큰을 설정하세요',
+    en: 'Which Material easing curve it runs on. Not an arbitrary `cubic-bezier()`: to change what `emphasized` *is*, set the token'
+  }
+};
+
+const animateRepeat: PropRow = {
+  name: 'repeat',
+  type: REPEAT,
+  default: '1',
+  description: {
+    ko: "몇 번 도는지. `Infinity`가 아니라 `'infinite'`입니다 — CSS에 그 단어로 쓰이기 때문입니다",
+    en: "How many times it runs. `'infinite'` rather than `Infinity`, because that is the word it is written into CSS as"
+  }
+};
+
+const animateAlternate: PropRow = {
+  name: 'alternate',
+  type: 'boolean',
+  default: 'false',
+  description: {
+    ko: '한 번 걸러 거꾸로 돌립니다. 반복이 처음으로 튀지 않고 되돌아옵니다',
+    en: 'Runs every other pass backwards, so a repeat returns instead of jumping'
+  }
+};
+
+const animatePaused: PropRow = {
+  name: 'paused',
+  type: 'boolean',
+  default: 'false',
+  description: {
+    ko: '애니메이션을 그 자리에 붙들어 둡니다. 되감지 않습니다',
+    en: 'Holds the animation where it is. It is not rewound'
+  }
+};
+
+const animateTrigger: PropRow = {
+  name: 'trigger',
+  type: TRIGGER,
+  default: "'mount'",
+  description: {
+    ko: '무엇이 시작시키는지 — 화면에 올라올 때, 스크롤로 보일 때, 포인터가 올라올 때, 또는 `play`로만',
+    en: 'What starts it — being on the page, being scrolled into view, the pointer arriving, or nothing but `play`'
+  }
+};
+
+const animatePlay: PropRow = {
+  name: 'play',
+  type: 'boolean',
+  description: {
+    ko: '`trigger="manual"`일 때 이것이 돌립니다. `false` → `true`마다 처음부터 다시 시작합니다',
+    en: 'Runs it when `trigger` is `manual`. Each `false` → `true` starts it over'
+  }
+};
+
+const animateOnce: PropRow = {
+  name: 'once',
+  type: 'boolean',
+  default: 'true',
+  description: {
+    ko: '`trigger="visible"`일 때 처음 한 번만 돌릴지. 끄면 다시 보일 때마다 돕니다',
+    en: 'With `trigger="visible"`, whether it runs only the first time. Off, it runs again on every return'
+  }
+};
+
+const animateThreshold: PropRow = {
+  name: 'threshold',
+  type: 'number',
+  default: '0.2',
+  description: {
+    ko: '`trigger="visible"`일 때 얼마나 보여야 보인 것으로 칠지, `0`부터 `1`까지',
+    en: 'With `trigger="visible"`, how much has to be on screen before it counts, from `0` to `1`'
+  }
+};
+
+/** Every setting an `MPAnimate*` takes, in the order a caller meets them. */
+const motion: PropRow[] = [
+  animateDuration,
+  animateDelay,
+  animateEasing,
+  animateRepeat,
+  animateAlternate,
+  animatePaused,
+  animateTrigger,
+  animatePlay,
+  animateOnce,
+  animateThreshold
+];
+
+const animateRender: PropRow = {
+  name: 'render',
+  type: 'RenderProp',
+  description: {
+    ko: '`<div>` 아닌 것으로 렌더링합니다',
+    en: 'Renders something other than a `<div>`'
+  }
+};
+
+const animateMode: PropRow = {
+  name: 'mode',
+  type: "'in' | 'out'",
+  default: "'in'",
+  description: {
+    ko: '내용이 도착하는지 떠나는지. 나가는 쪽이 더 짧습니다 — 머터리얼이 등장과 퇴장에 서로 다른 길이를 주기 때문입니다',
+    en: 'Whether the content arrives or leaves. An exit is quicker than an entrance, which is the asymmetry Material asks for'
+  }
+};
+
+/* ---------------------------------------------------------------------------
  * The pickers
  *
  * Four components with one vocabulary. Everything below is written once for the
@@ -6582,6 +6730,26 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     id
+  ],
+
+  MPAnimateFade: [
+    animateMode,
+    {
+      name: 'from',
+      type: 'number',
+      default: '0',
+      description: {
+        ko: '어느 불투명도에서 시작할지, `0`과 `1` 사이. 완전히 사라지면 안 되는 내용이면 올리세요',
+        en: 'The opacity it starts from, between `0` and `1`. Raise it for content that should never be completely gone'
+      }
+    },
+    ...motion,
+    animateRender,
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '나타나거나 사라질 것', en: 'What arrives or leaves' }
+    }
   ],
 
   MPLocaleProvider: [

@@ -4,6 +4,7 @@ import {
   MPAccordion,
   MPAccordionItem,
   MPAlert,
+  MPAnimateFade,
   MPAspectRatio,
   MPAvatar,
   MPBadge,
@@ -1443,6 +1444,32 @@ const GROUPS: Group[] = [
         preview: (
           <Fit>
             <PanesPreview />
+          </Fit>
+        )
+      }
+    ]
+  },
+  {
+    title: { ko: '모션', en: 'Motion' },
+    note: {
+      ko: '다른 것을 감싸고 움직이게 하는 것. 스스로는 아무것도 그리지 않습니다.',
+      en: 'It wraps something else and makes it move. None of them draw anything of their own.'
+    },
+    entries: [
+      {
+        name: 'MPAnimateFade',
+        summary: {
+          ko: '불투명도만으로 나타나거나 사라지는 내용',
+          en: 'Content arriving or leaving on opacity alone'
+        },
+        path: '/components/motion/animate-fade',
+        preview: (
+          <Fit>
+            <MPAnimateFade repeat="infinite" alternate from={0.15} duration={1600}>
+              <MPBox size="sm">
+                <MPTypography level="body">Fade</MPTypography>
+              </MPBox>
+            </MPAnimateFade>
           </Fit>
         )
       }
