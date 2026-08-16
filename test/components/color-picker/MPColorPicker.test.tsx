@@ -39,7 +39,10 @@ describe('MPColorPicker', () => {
     });
 
     it('says so when there is no colour at all', async () => {
-      const screen = await render(<Controlled initial="" />);
+      // With the label pinned in the notch there is nothing standing in the
+      // empty state's way. A floating label rests in exactly that spot and holds
+      // it back until it has risen — covered in the floating label suite below.
+      const screen = await render(<Controlled initial="" floatingLabel={false} />);
 
       expect(screen.getByRole('button', { name: 'Tag colour' }).element().textContent).toContain(
         'No colour'

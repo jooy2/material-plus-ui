@@ -231,7 +231,13 @@ export const MPDatePicker = React.forwardRef<HTMLButtonElement, MPDatePickerProp
         readOnly={readOnly}
         disabled={disabled}
         triggerRef={ref}
-        startIcon={startIcon ?? <MPIcon icon={CalendarIcon} size={CONTROL_ICON[size]} />}
+        startIcon={
+          startIcon === undefined ? (
+            <MPIcon icon={CalendarIcon} size={CONTROL_ICON[size]} />
+          ) : (
+            startIcon
+          )
+        }
         display={isValidDate(value) ? formatDate(value, locale, format) : (placeholder ?? '')}
         samples={samples}
         empty={!isValidDate(value)}

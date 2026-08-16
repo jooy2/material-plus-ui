@@ -4,7 +4,7 @@ import { Popover } from '@base-ui/react/popover';
 import { MPIcon } from '../components/icon/MPIcon';
 import { CloseIcon } from '../constants/icons';
 import { accentSlots } from './accent';
-import { MPFieldLabel, MPFieldOutline } from './FieldOutline';
+import { MPFieldLabel, MPFieldOutline, useFloatingLabel } from './FieldOutline';
 import { MPStateLayer } from './StateLayer';
 import { MPSupportingText } from './SupportingText';
 import { MPWidthSizer } from './WidthSizer';
@@ -118,11 +118,22 @@ export interface MPPickerShellProps extends MPStyleProps {
    */
   color?: MPColor;
   /**
-   * Label in the outline's notch. Always drawn there rather than floating over
-   * the value, so a picker with a label and one without sit at the same height
-   * in a form.
+   * Label for the picker, drawn in the outline's notch and — while nothing is
+   * chosen, the popup is shut and there is no leading glyph — resting on the
+   * trigger's own line where the placeholder would be. See `floatingLabel`.
    */
   label?: React.ReactNode;
+  /**
+   * Whether the label rests on the trigger's line while there is nothing to make
+   * room for, and rises into the notch on focus or on the first choice.
+   *
+   * A picker draws its own glyph before the value, and that glyph stands exactly
+   * where a resting label would — so in practice this only takes effect on a
+   * picker asked for without one, `startIcon={null}`. Two things cannot share a
+   * spot, and of the two the glyph is what says the trigger opens a calendar.
+   * @default true
+   */
+  floatingLabel?: boolean;
   /** The line under the control. Replaced by `errorMessage` when there is one. */
   description?: React.ReactNode;
   /**
@@ -131,7 +142,10 @@ export interface MPPickerShellProps extends MPStyleProps {
    * way to render a control that is visibly wrong with no explanation of why.
    */
   errorMessage?: React.ReactNode;
-  /** Content placed before the value. Defaults to the picker's own glyph. */
+  /**
+   * Content placed before the value. Defaults to the picker's own glyph, and
+   * `null` is how that glyph is asked for by name to go away.
+   */
   startIcon?: React.ReactNode;
   /** Marks the picker required, both to assistive technology and to the label. */
   required?: boolean;
@@ -199,6 +213,7 @@ export function MPPickerShell({
   color = 'primary',
   fullWidth = false,
   label,
+  floatingLabel = true,
   description,
   errorMessage,
   startIcon,
@@ -228,6 +243,14 @@ export function MPPickerShell({
   // order; what it loses is the × and the popup.
   const inert = disabled || readOnly;
   const showClear = clearable && !empty && !inert;
+  // The open popup is here for the reason `MPSelect`'s is: focus moves into the
+  // calendar, so the trigger blurs the instant it appears and the label would
+  // fall back down over a picker that is plainly being answered.
+  const { shrunk, focusProps } = useFloatingLabel({
+    floating: floatingLabel && hasContent(label),
+    filled: !empty,
+    pinned: open || hasContent(startIcon)
+  });
 
   return (
     <Field.Root
@@ -242,6 +265,7 @@ export function MPPickerShell({
         .filter(Boolean)
         .join(' ')}
       style={{ ...accentSlots(color), ...style }}
+      {...focusProps}
     >
       <Popover.Root open={open} onOpenChange={onOpenChange}>
         {/*
@@ -295,7 +319,10 @@ export function MPPickerShell({
                   .filter(Boolean)
                   .join(' ')}
               >
-                {display}
+                {/* Withheld while a floating label is resting in the same
+                    place: what a picker shows when it is empty is a hint, and
+                    two greyed strings in one box is not a hint. */}
+                {empty && !shrunk ? null : display}
               </span>
               <MPWidthSizer samples={samples ?? []} />
             </span>
@@ -322,10 +349,16 @@ export function MPPickerShell({
             </button>
           ) : null}
 
-          <MPFieldOutline label={label} required={required} />
+          <MPFieldOutline label={label} required={required} notched={shrunk} />
 
           {hasContent(label) ? (
-            <MPFieldLabel size={size} label={label} required={required} htmlFor={fieldId} />
+            <MPFieldLabel
+              size={size}
+              label={label}
+              required={required}
+              htmlFor={fieldId}
+              shrunk={shrunk}
+            />
           ) : null}
         </div>
 

@@ -249,7 +249,13 @@ export const MPTimePicker = React.forwardRef<HTMLButtonElement, MPTimePickerProp
         readOnly={readOnly}
         disabled={disabled}
         triggerRef={ref}
-        startIcon={startIcon ?? <MPIcon icon={ClockIcon} size={CONTROL_ICON[size]} />}
+        startIcon={
+          startIcon === undefined ? (
+            <MPIcon icon={ClockIcon} size={CONTROL_ICON[size]} />
+          ) : (
+            startIcon
+          )
+        }
         display={
           isValidDate(value) ? formatDate(value, locale, displayFormat) : (placeholder ?? '')
         }

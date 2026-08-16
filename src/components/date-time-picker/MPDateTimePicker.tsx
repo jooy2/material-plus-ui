@@ -252,7 +252,13 @@ export const MPDateTimePicker = React.forwardRef<HTMLButtonElement, MPDateTimePi
         triggerRef={ref}
         // The calendar glyph alone, not both: a control cannot say two things at
         // once, and the date is the part a reader scans for.
-        startIcon={startIcon ?? <MPIcon icon={CalendarIcon} size={CONTROL_ICON[size]} />}
+        startIcon={
+          startIcon === undefined ? (
+            <MPIcon icon={CalendarIcon} size={CONTROL_ICON[size]} />
+          ) : (
+            startIcon
+          )
+        }
         display={
           isValidDate(value) ? formatDate(value, locale, displayFormat) : (placeholder ?? '')
         }

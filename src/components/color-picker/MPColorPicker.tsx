@@ -3,7 +3,7 @@ import { Field } from '@base-ui/react/field';
 import { Popover } from '@base-ui/react/popover';
 import { MPIcon } from '../icon/MPIcon';
 import { CheckIcon, CloseIcon } from '../../constants/icons';
-import { MPFieldLabel, MPFieldOutline } from '../../internal/FieldOutline';
+import { MPFieldLabel, MPFieldOutline, useFloatingLabel } from '../../internal/FieldOutline';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { MPSupportingText } from '../../internal/SupportingText';
 import { CONTROL_ICON, META_TEXT, PROSE_TEXT, STACK_GAP, hasContent } from '../../internal/scale';
@@ -89,8 +89,26 @@ export interface MPColorPickerProps extends MPStyleProps {
    * @default true
    */
   editable?: boolean;
-  /** Label in the outline's notch, or above the panel when `inline`. */
+  /**
+   * Label for the picker, drawn in the outline's notch — or above the panel when
+   * `inline`, which has no notch to draw it in. While nothing is chosen and the
+   * trigger is unfocused it rests on the trigger's own line instead. See
+   * `floatingLabel`.
+   */
   label?: React.ReactNode;
+  /**
+   * Whether the label rests on the trigger's line while there is nothing to make
+   * room for, and rises into the notch on focus or on the first colour.
+   *
+   * The swatch comes down with it. The swatch is the value drawn rather than an
+   * affordance — with no colour in the picker it is an empty ring — so it is the
+   * one leading mark in the library that gives its place up to a resting label
+   * rather than holding the label out of it.
+   *
+   * Ignored when `inline`, which has no trigger for a label to rest on.
+   * @default true
+   */
+  floatingLabel?: boolean;
   /** The line under the control. Replaced by `errorMessage` when there is one. */
   description?: React.ReactNode;
   /**
@@ -629,6 +647,7 @@ export const MPColorPicker = React.forwardRef<HTMLDivElement, MPColorPickerProps
       inline = false,
       editable = true,
       label,
+      floatingLabel = true,
       description,
       errorMessage,
       required = false,
@@ -707,6 +726,13 @@ export const MPColorPicker = React.forwardRef<HTMLDivElement, MPColorPickerProps
     // Whether the × is drawn, decided once: the trigger has to reserve room for
     // it in the same breath, or the value runs underneath it.
     const showClear = clearable && !inert && !empty;
+    // The open panel keeps the label up: focus moves into the popup, so the
+    // trigger blurs the instant it appears.
+    const { shrunk, focusProps } = useFloatingLabel({
+      floating: floatingLabel && hasContent(label),
+      filled: !empty,
+      pinned: isOpen
+    });
 
     const commit = (next: { hsv: MPHsv; alpha: number }, typed?: string) => {
       setModel(next);
@@ -813,6 +839,7 @@ export const MPColorPicker = React.forwardRef<HTMLDivElement, MPColorPickerProps
           .filter(Boolean)
           .join(' ')}
         style={style}
+        {...focusProps}
       >
         <Popover.Root
           open={isOpen}
@@ -846,7 +873,9 @@ export const MPColorPicker = React.forwardRef<HTMLDivElement, MPColorPickerProps
                 .filter(Boolean)
                 .join(' ')}
             >
-              {preview}
+              {/* The swatch is the value drawn, so an empty one has nothing to
+                  say and gives its place up to the resting label. */}
+              {empty && !shrunk ? null : preview}
               <span
                 className={[
                   'min-w-0 flex-1 truncate text-start',
@@ -855,7 +884,7 @@ export const MPColorPicker = React.forwardRef<HTMLDivElement, MPColorPickerProps
                   .filter(Boolean)
                   .join(' ')}
               >
-                {empty ? labels.empty : written}
+                {empty ? (shrunk ? labels.empty : null) : written}
               </span>
             </Popover.Trigger>
 
@@ -886,10 +915,16 @@ export const MPColorPicker = React.forwardRef<HTMLDivElement, MPColorPickerProps
               </button>
             ) : null}
 
-            <MPFieldOutline label={label} required={required} />
+            <MPFieldOutline label={label} required={required} notched={shrunk} />
 
             {hasContent(label) ? (
-              <MPFieldLabel size={size} label={label} required={required} htmlFor={fieldId} />
+              <MPFieldLabel
+                size={size}
+                label={label}
+                required={required}
+                htmlFor={fieldId}
+                shrunk={shrunk}
+              />
             ) : null}
           </div>
 

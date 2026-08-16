@@ -312,7 +312,13 @@ export const MPDateRangePicker = React.forwardRef<HTMLButtonElement, MPDateRange
         readOnly={readOnly}
         disabled={disabled}
         triggerRef={ref}
-        startIcon={startIcon ?? <MPIcon icon={CalendarIcon} size={CONTROL_ICON[size]} />}
+        startIcon={
+          startIcon === undefined ? (
+            <MPIcon icon={CalendarIcon} size={CONTROL_ICON[size]} />
+          ) : (
+            startIcon
+          )
+        }
         display={
           // Neither half is `flex-1`. Two equal halves would size the trigger to
           // twice the *shorter* of the two, which truncates a date next to a
