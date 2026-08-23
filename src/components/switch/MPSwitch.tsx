@@ -239,27 +239,49 @@ export const MPSwitch = React.forwardRef<HTMLElement, MPSwitchProps>(function MP
           {icons ? (
             <>
               {/*
-               * Both glyphs are rendered and one is hidden, rather than one
-               * being chosen in JavaScript: an uncontrolled switch's state lives
-               * in the DOM, so a prop-driven choice would show the wrong glyph
-               * from the first click onwards.
+               * Both glyphs are rendered and one of them is transparent, rather
+               * than one being chosen in JavaScript: an uncontrolled switch's
+               * state lives in the DOM, so a prop-driven choice would show the
+               * wrong glyph from the first click onwards.
                *
-               * The `display` toggle goes on the wrapper rather than on the
-               * glyph. `MPIcon` is `inline-flex`, and both that and `hidden` are
-               * display utilities — so they resolve by their order in the
-               * generated stylesheet, where `inline-flex` sorts after `hidden`
-               * and quietly wins. A wrapper has no display class of its own to
-               * lose to.
+               * `opacity` rather than the `display` toggle this used to be, and
+               * for the only reason that matters: `display` is not an animatable
+               * property. The thumb travels its groove and changes size over
+               * 200ms, and the glyph inside it was cutting from one to the other
+               * in the middle of that — the one part of the control that did not
+               * move with the rest of it.
+               *
+               * Which is why they are stacked rather than laid out side by side.
+               * Two glyphs that are both drawn for the length of a cross-fade
+               * are two glyphs in the flow, and a flex row would put them beside
+               * each other and pull the pair off the thumb's centre. `inset-0`
+               * inside a thumb that is already positioned puts both in the same
+               * place, where a cross-fade is a cross-fade rather than a swap.
+               *
+               * It also retires a hazard: `hidden` and `MPIcon`'s own
+               * `inline-flex` are both display utilities, so which of them won
+               * came down to the order Tailwind sorted them in — which is what
+               * the wrapper was there to work around. Opacity has no such
+               * argument with anything.
                */}
               <span
                 className={[
-                  'hidden items-center group-data-checked:flex',
+                  'absolute inset-0 flex items-center justify-center',
+                  'transition-opacity duration-(--mp-sys-motion-duration-short4)',
+                  'ease-mp-standard opacity-0 group-data-checked:opacity-100',
                   disabled ? 'text-mp-surface-container-highest' : 'text-(--_mp-accent)'
                 ].join(' ')}
               >
                 <MPIcon icon={CheckIcon} size={scale.glyph} strokeWidth={3} />
               </span>
-              <span className="text-mp-surface-container-highest flex items-center group-data-checked:hidden">
+              <span
+                className={[
+                  'absolute inset-0 flex items-center justify-center',
+                  'text-mp-surface-container-highest',
+                  'transition-opacity duration-(--mp-sys-motion-duration-short4)',
+                  'ease-mp-standard group-data-checked:opacity-0'
+                ].join(' ')}
+              >
                 <MPIcon icon={CloseIcon} size={scale.glyph} strokeWidth={3} />
               </span>
             </>

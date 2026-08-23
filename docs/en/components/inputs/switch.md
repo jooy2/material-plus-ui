@@ -47,6 +47,8 @@ Draws a tick in the thumb when it is on and a cross when it is off.
 
 Off by default, and worth turning on wherever the two states are not obviously different in context: the thumb's position and the track's colour are otherwise the only signals, and one of those is a hue.
 
+The two cross-fade in place over the same 200ms the thumb takes to travel its groove, rather than one being swapped for the other partway through. Both are drawn on top of each other for the length of it, which is why they are stacked rather than laid out side by side.
+
 ### errorMessage
 
 A message under the label, which also turns the switch over — the track's edge, the thumb and the message together. `description` is the same slot and is replaced by it.

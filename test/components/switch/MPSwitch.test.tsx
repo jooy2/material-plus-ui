@@ -75,24 +75,29 @@ describe('MPSwitch', () => {
 
     it('shows exactly one glyph, in either state', async () => {
       /*
-       * Measured rather than read off a class. Both `hidden` and the glyph's own
-       * `inline-flex` are display utilities, so which one wins is decided by
-       * their order in the generated stylesheet — and it is `inline-flex`, which
-       * would leave both glyphs stacked on top of each other in the thumb. This
-       * is the assertion that catches that.
+       * Read as opacity rather than as geometry. Both glyphs are laid out, one
+       * on top of the other in the middle of the thumb, because the pair
+       * cross-fades — and for the length of that fade both of them are drawn.
+       * Which one is *shown* is which one is opaque once it has settled.
+       *
+       * The thumb's own children rather than the `.mp-icon` inside them: the
+       * opacity is on the wrapper, which is what a cross-fade needs so that the
+       * two can be stacked.
        */
       const screen = await render(<ControlledSwitch icons />);
-      const shown = () =>
-        [...document.querySelectorAll('.mp-switch__thumb .mp-icon')].filter(
-          (glyph) => glyph.getBoundingClientRect().width > 0
+      const opaque = () =>
+        [...document.querySelectorAll('.mp-switch__thumb > span')].filter(
+          (glyph) => getComputedStyle(glyph).opacity === '1'
         ).length;
 
-      expect(shown()).toBe(1);
+      // The state layer is the third of the thumb's children and is transparent
+      // until the switch is hovered, so a settled thumb has exactly one.
+      expect(opaque()).toBe(1);
 
       await screen.getByRole('switch').click();
       await settled();
 
-      expect(shown()).toBe(1);
+      expect(opaque()).toBe(1);
     });
   });
 

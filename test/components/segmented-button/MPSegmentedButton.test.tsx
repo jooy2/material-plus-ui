@@ -75,18 +75,17 @@ describe('MPSegmentedButton', () => {
 
     it('shows the tick on the chosen segment only', async () => {
       /*
-       * Measured rather than read off a class. Both `hidden` and the glyph's own
-       * `inline-flex` are display utilities, so which one wins is decided by
-       * their order in the generated stylesheet — and it is `inline-flex`, which
-       * would put a tick on every segment including the unchosen ones.
+       * Read as opacity rather than as geometry. The tick and the segment's own
+       * glyph are stacked in one slot and cross-fade between them, so both are
+       * laid out at every moment and only one of them is drawn.
        */
       await render(<ControlledSet initial={['week']} />);
 
-      const shown = [...document.querySelectorAll('.mp-segmented-button .mp-icon')].filter(
-        (glyph) => glyph.getBoundingClientRect().width > 0
+      const drawn = [...document.querySelectorAll('.mp-segmented-button .mp-icon')].filter(
+        (glyph) => getComputedStyle(glyph.parentElement!).opacity === '1'
       );
 
-      expect(shown).toHaveLength(1);
+      expect(drawn).toHaveLength(1);
     });
 
     it('drops the tick when asked', async () => {

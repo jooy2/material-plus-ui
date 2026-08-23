@@ -171,27 +171,49 @@ export const MPSegmentedButton = React.forwardRef<HTMLDivElement, MPSegmentedBut
                   style={{ width: CONTROL_ICON[size], height: CONTROL_ICON[size] }}
                 >
                   {/*
-                   * Both glyphs are in the DOM and one of them is hidden, rather
-                   * than the pair being chosen in JavaScript: an uncontrolled set
-                   * keeps its state in the DOM, so a prop-driven choice would
-                   * show the wrong glyph from the first click onwards.
-                   */}
-                  {/*
-                   * The `display` toggle goes on a wrapper rather than on the
-                   * glyph. `MPIcon` is `inline-flex`, and both that and `hidden`
-                   * are display utilities — so they resolve by their order in the
-                   * generated stylesheet, where `inline-flex` sorts after
-                   * `hidden` and quietly wins. A wrapper has no display class of
-                   * its own to lose to.
+                   * Both glyphs are in the DOM and one of them is transparent,
+                   * rather than the pair being chosen in JavaScript: an
+                   * uncontrolled set keeps its state in the DOM, so a
+                   * prop-driven choice would show the wrong glyph from the first
+                   * click onwards.
+                   *
+                   * `opacity` rather than the `display` toggle this used to be.
+                   * The segment's container and its ink cross to the selected
+                   * treatment over 200ms and the tick was arriving in one frame
+                   * partway through, which read as the glyph being stamped on
+                   * rather than as the segment being chosen. `display` cannot be
+                   * animated at all, so there was nothing to tune.
+                   *
+                   * Stacked rather than laid out beside each other, because for
+                   * the length of the cross-fade both are drawn: `absolute`
+                   * inside the slot that already reserves their space keeps the
+                   * pair in one place, and keeps the label from shifting
+                   * sideways under them.
+                   *
+                   * It also retires a hazard the old wrapper existed to work
+                   * around: `hidden` and `MPIcon`'s own `inline-flex` are both
+                   * display utilities, so which won was decided by the order
+                   * Tailwind sorted them in.
                    */}
                   {showCheck ? (
-                    <span className="hidden items-center group-data-pressed:flex">
+                    <span
+                      className={[
+                        'absolute inset-0 flex items-center justify-center opacity-0',
+                        'transition-opacity duration-(--mp-sys-motion-duration-short4)',
+                        'ease-mp-standard group-data-pressed:opacity-100'
+                      ].join(' ')}
+                    >
                       <MPIcon icon={CheckIcon} size={CONTROL_ICON[size]} />
                     </span>
                   ) : null}
                   {item.icon ? (
                     <span
-                      className={['flex items-center', showCheck ? 'group-data-pressed:hidden' : '']
+                      className={[
+                        'absolute inset-0 flex items-center justify-center',
+                        'transition-opacity duration-(--mp-sys-motion-duration-short4)',
+                        'ease-mp-standard',
+                        showCheck ? 'group-data-pressed:opacity-0' : ''
+                      ]
                         .filter(Boolean)
                         .join(' ')}
                     >
