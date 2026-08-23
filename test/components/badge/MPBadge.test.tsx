@@ -72,9 +72,29 @@ describe('MPBadge', () => {
       const element = screen.getByTestId('badge').element();
 
       expect(element).toHaveClass('invisible');
-      // Nothing left behind: text in a clipped box is text a page search finds.
-      expect(element.textContent).toBe('');
+      expect(getComputedStyle(element).visibility).toBe('hidden');
       expect(element).toHaveAttribute('aria-hidden', 'true');
+    });
+
+    it('keeps the count, because a marker with nothing in it cannot shrink', async () => {
+      // The badge grows in and shrinks out, and an element that is not there has
+      // no size to travel from — it would collapse to an empty pill in one frame
+      // and then animate that. So the count stays, and `visibility: hidden` is
+      // what keeps it out of a page search and out of the accessibility tree
+      // rather than removing it.
+      const screen = await render(<MPBadge content={3} invisible data-testid="badge" />);
+      const element = screen.getByTestId('badge').element();
+
+      expect(element.textContent).toBe('3');
+      expect(getComputedStyle(element).transitionProperty).toBe('opacity, scale, visibility');
+      expect(getComputedStyle(element).scale).toBe('0');
+    });
+
+    it('holds nothing at all when there was never anything to say', async () => {
+      // Not a badge being hidden — a badge that was never there.
+      const screen = await render(<MPBadge data-testid="badge" />);
+
+      expect(screen.getByTestId('badge').element().textContent).toBe('');
     });
   });
 

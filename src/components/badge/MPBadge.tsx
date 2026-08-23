@@ -258,10 +258,30 @@ export const MPBadge = React.forwardRef<HTMLSpanElement, MPBadgeProps>(function 
     anchored ? `absolute ${PLACEMENT[placement]}` : 'relative align-middle',
     anchored ? (asDot ? CORNER_OFFSET[size].dot : CORNER_OFFSET[size].badge) : '',
     anchored && overlap === 'circle' ? CIRCLE_INSET[placement] : '',
-    // Visibility, not opacity: a half-faded badge is a badge you have to squint
-    // at to find out whether it is there. The marker keeps its box either way,
-    // so nothing around it moves when it comes back.
-    hidden ? 'invisible' : '',
+    /*
+     * The marker grows in and shrinks back out, which is MD3's own arrival for
+     * one — a count that appeared would be a count nobody saw change.
+     *
+     * `visibility` is still what hides it, and is in the transition list rather
+     * than replaced by the opacity beside it. Two reasons, and both of them
+     * things opacity alone cannot do.
+     *
+     * A badge parked at `opacity: 0` is still visible to find-on-page, and a
+     * marker that says nothing should not be turning up in a search for "3".
+     * `visibility: hidden` takes its subtree out of that, which is what lets the
+     * count stay in the DOM at all — and it has to stay, because an element
+     * that is not there has no size to shrink from.
+     *
+     * And `visibility` interpolates in exactly the shape this needs: on the way
+     * *in* it flips to `visible` at the first frame, and on the way *out* it
+     * holds `visible` until the last one. So the marker is drawn for the whole
+     * of both animations and hidden for neither.
+     *
+     * The marker keeps its box at every size, so nothing around it moves.
+     */
+    'transition-[opacity,scale,visibility] duration-(--mp-sys-motion-duration-short4)',
+    'ease-mp-standard',
+    hidden ? 'invisible scale-0 opacity-0' : '',
     className ?? ''
   ]
     .filter(Boolean)
@@ -286,10 +306,17 @@ export const MPBadge = React.forwardRef<HTMLSpanElement, MPBadgeProps>(function 
           `label` shows the count and reads the sentence instead. A dot shows
           nothing and reads whichever of the two it was given — the count is
           still in the DOM, just clipped, so a quiet corner is not a silent one.
-          A hidden badge holds none of it: a marker that is not there has nothing
-          to say, and text left behind in a clipped box is text a search on the
-          page still finds. */}
-      {hidden ? null : (
+
+          An `invisible` badge keeps all of it. It has something to draw and is
+          only being asked not to draw it right now, and a marker with nothing
+          inside it has no size to shrink from — it would collapse to an empty
+          pill in one frame and then animate that. `aria-hidden` and the
+          `visibility: hidden` the marker carries are what keep it from being
+          read out or found on the page while it is away.
+
+          A marker with nothing to say holds nothing: that is not a badge being
+          hidden, it is a badge that was never there. */}
+      {empty && !dot ? null : (
         <>
           {asDot || label ? <span className={VISUALLY_HIDDEN}>{label ?? capped}</span> : null}
           {asDot ? null : <span aria-hidden={label ? true : undefined}>{capped}</span>}

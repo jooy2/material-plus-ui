@@ -43,9 +43,13 @@ MD3 has a small badge (a 6dp dot) and a large one (16dp with a label), and that 
 
 `content={0}` hides the badge, because a badge that never goes away stops meaning anything. `showZero` puts it back for the counter that genuinely has to read zero.
 
-`invisible` is the other way to hide one, and it is different: the marker keeps its box, so showing it again does not relayout what it sits on. Both use `visibility` rather than opacity — a half-faded badge is a badge you have to squint at to find out whether it is there.
+`invisible` is the other way to hide one, and it is different: the marker keeps its box, so showing it again does not relayout what it sits on.
 
-A hidden badge holds no text at all. Text left behind in a clipped box is text a search on the page still finds.
+It also **grows in and shrinks back out**, which is MD3's own arrival for a badge — a count that simply appeared would be a count nobody saw change.
+
+`visibility` is still what hides it, alongside the scale rather than replaced by it, and it does two things opacity cannot. A badge parked at `opacity: 0` is still visible to find-on-page, and a marker that says nothing should not turn up in a search for "3". And `visibility` interpolates in exactly the shape this needs: on the way in it becomes visible at the first frame, and on the way out it stays visible until the last — so the marker is drawn for the whole of both animations and hidden for neither.
+
+Which is why an `invisible` badge keeps its count in the DOM: an element with nothing inside it has no size to shrink from, and would collapse to an empty pill in one frame and then animate that. It stays out of a page search and out of the accessibility tree while it is away. A badge with nothing to say holds nothing at all — that is not a badge being hidden, it is a badge that was never there.
 
 ## `label` is the sentence
 
