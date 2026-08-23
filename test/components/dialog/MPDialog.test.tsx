@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { MPButton, MPDialog, MPDialogClose } from 'material-plus-ui';
+import { scaled } from '../../support/style';
 
 function ControlledDialog(props: Record<string, unknown>) {
   const [open, setOpen] = useState(true);
@@ -205,8 +206,11 @@ describe('MPDialog', () => {
 
       const sheet = document.querySelector('.mp-dialog') as HTMLElement;
 
+      // Smaller than it will be, asserted as that rather than as `0.95`: the
+      // grow is 400ms wide and every engine is somewhere different inside it
+      // when asked.
       expect(getComputedStyle(sheet).transitionProperty).toBe('opacity, scale');
-      expect(getComputedStyle(sheet).scale).toBe('0.95');
+      expect(scaled(sheet)).toBeLessThan(1);
       expect(getComputedStyle(sheet).transitionDuration).toBe('0.4s');
 
       await expect.poll(() => getComputedStyle(sheet).scale).toBe('none');

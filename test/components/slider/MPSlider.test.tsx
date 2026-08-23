@@ -170,19 +170,45 @@ describe('MPSlider', () => {
       // repeats faster than 200ms.
       expect(getComputedStyle(handle).transitionDuration).toBe('0.1s');
 
-      const box = control.getBoundingClientRect();
+      // The jump half. An arrow key moves the value, and Base UI writes the new
+      // position onto the handle's inline style in the same commit — so the
+      // *declared* place changes at once and the *drawn* one lags behind it.
+      // That gap is the transition, and it is what is asserted: where the handle
+      // is drawn a moment after the key is not yet where it ends up.
+      //
+      // Compared against its own settled position rather than against a
+      // distance, because the travel is 100ms wide and every engine is somewhere
+      // different inside it. The only way the two can be equal is if nothing
+      // travelled at all.
+      const before = handle.getBoundingClientRect().x;
 
-      handle.dispatchEvent(
-        new PointerEvent('pointerdown', {
-          bubbles: true,
-          pointerId: 1,
-          clientX: box.x + box.width * 0.4,
-          clientY: box.y + box.height / 2,
-          button: 0
-        })
-      );
+      // The `role="slider"` element rather than the handle: Base UI puts a
+      // visually hidden `<input type="range">` inside the thumb, and that is
+      // what the keyboard talks to. Focusing the handle sends the key nowhere.
+      await press(screen.getByRole('slider').element(), 'ArrowRight');
 
-      await expect.poll(() => control.hasAttribute('data-dragging')).toBe(true);
+      const during = handle.getBoundingClientRect().x;
+
+      await expect.poll(() => handle.getBoundingClientRect().x).toBeGreaterThan(before);
+
+      const after = handle.getBoundingClientRect().x;
+
+      expect(during).toBeLessThan(after);
+
+      // `data-dragging` is set rather than a drag being synthesised, and that is
+      // not laziness. A `pointerdown` built by hand carries a `pointerId` no
+      // browser has an active pointer for, and Base UI's own slider calls
+      // `setPointerCapture` with it before doing anything else — which throws
+      // `NotFoundError` in Firefox and left an unhandled error in the run. It is
+      // the same defect this library fixed in `MPPanes`, in code that is not
+      // ours to fix.
+      //
+      // What is being tested is the CSS guard, and the attribute is the contract
+      // it keys off. Base UI puts it on the control, the root and the thumb at
+      // once — the indicator reads the control's through a named group, the
+      // handle carries its own — so both are set here for the same reason.
+      control.setAttribute('data-dragging', '');
+      handle.setAttribute('data-dragging', '');
 
       expect(getComputedStyle(handle).transitionProperty).toBe('none');
       expect(getComputedStyle(indicator).transitionProperty).toBe('none');

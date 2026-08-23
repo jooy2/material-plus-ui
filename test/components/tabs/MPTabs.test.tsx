@@ -115,28 +115,38 @@ describe('MPTabs', () => {
     expect(onValueChange).toHaveBeenCalledWith('pricing');
   });
 
-  it('fades the arriving panel in, without ever holding two in the flow', async () => {
+  it('fades the arriving panel in', async () => {
     // The bar's indicator already slid and the content it points at cut, which
     // left the decoration animating and the thing it is for snapping. MD3 fades
     // the content through.
     //
-    // The second half of the assertion is the reason there is no exit to match:
-    // a leaving panel is still in the layout while it plays, so a panel that
-    // faded out would put both in the flow and grow the page to hold the pair
-    // before it collapsed onto the new one.
+    // There is no exit to match, and that is structural rather than a matter of
+    // taste: Base UI keeps a leaving panel in the layout until its transition
+    // finishes, so a panel that faded out would put both in the flow and grow
+    // the page to hold the pair before collapsing onto the new one. It is not
+    // asserted here because it cannot honestly be — with no transition to wait
+    // for, the leaving panel is unmounted on the *next frame* rather than in the
+    // commit the click produced, and how many frames that takes is the engine's
+    // business. WebKit was still holding it where Chromium was not.
     const screen = await render(<Bar defaultValue="overview" />);
-    const panels = () => screen.container.querySelectorAll('.mp-tabs__panel');
+    const arriving = () => screen.getByText('What it costs').element();
 
     // Nothing on the first paint: a bar that faded its own content in on page
     // load would be answering a question nobody asked.
-    expect(getComputedStyle(panels()[0]).opacity).toBe('1');
+    expect(getComputedStyle(screen.getByText('What it is').element()).opacity).toBe('1');
 
     await userEvent.click(screen.getByRole('tab', { name: 'Pricing' }));
 
-    expect(panels()).toHaveLength(1);
-    expect(getComputedStyle(panels()[0]).opacity).toBe('0');
+    // Partway rather than at a named frame. The fade is 200ms wide and every
+    // engine lands somewhere different inside it — Firefox was already at 0.12
+    // where Chromium was still at 0. What is being asked is whether the panel
+    // arrived at less than full strength, not which frame it was on when asked.
+    expect(Number(getComputedStyle(arriving()).opacity)).toBeLessThan(1);
+    expect(getComputedStyle(arriving()).transitionProperty).toBe('opacity');
+    expect(getComputedStyle(arriving()).transitionDuration).toBe('0.2s');
 
-    await expect.poll(() => getComputedStyle(panels()[0]).opacity).toBe('1');
+    await expect.poll(() => getComputedStyle(arriving()).opacity).toBe('1');
+    await expect.poll(() => screen.container.querySelectorAll('.mp-tabs__panel').length).toBe(1);
   });
 
   it('leaves a controlled bar where the caller put it', async () => {

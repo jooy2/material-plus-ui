@@ -581,8 +581,10 @@ describe('MPDatePicker', () => {
 
       expect(page().style.getPropertyValue('--_mp-calendar-from')).toBe('-1');
       // Restarted rather than left to finish: stepping twice quickly has to play
-      // twice, and re-rendering with the same class would change nothing.
-      expect(page().getAnimations()).toHaveLength(1);
+      // twice, and re-rendering with the same class would change nothing. Read
+      // as "is running" rather than counted at a moment — the animation is 300ms
+      // wide and how far into it a given engine is when asked is its business.
+      await expect.poll(() => page().getAnimations().length).toBe(1);
     });
 
     it('turns only the weeks, leaving the weekday names where they are', async () => {

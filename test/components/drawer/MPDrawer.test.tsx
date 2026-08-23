@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { MPButton, MPDrawer, MPDrawerClose } from 'material-plus-ui';
+import { translation } from '../../support/style';
 
 describe('MPDrawer', () => {
   describe('modal', () => {
@@ -127,12 +128,12 @@ describe('MPDrawer', () => {
 
       const panel = document.querySelector('.mp-drawer') as HTMLElement;
 
-      // A whole panel's width off the left edge, on its way to nothing. Read
-      // as the travel rather than as a frame: `-100%` is where the transition
-      // is going *from*, and it holds for the whole 400ms rather than for one
-      // paint the way a starting style does.
+      // Off the left edge, on its way to nothing. Asserted as which side of
+      // home the panel is on rather than as a distance: the travel is 400ms
+      // wide and which frame a given engine is on when asked is not this test's
+      // business.
       expect(getComputedStyle(panel).transitionProperty).toBe('opacity, translate');
-      expect(getComputedStyle(panel).translate).toBe('-100%');
+      expect(translation(panel).x).toBeLessThan(0);
 
       await expect.poll(() => getComputedStyle(panel).translate).toBe('none');
     });

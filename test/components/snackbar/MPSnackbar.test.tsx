@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { MPButton, MPSnackbarProvider, useMPSnackbar } from 'material-plus-ui';
+import { translation } from '../../support/style';
 import type { MPSnackbarOptions, MPSnackbarProviderProps } from 'material-plus-ui';
 
 /** A button that raises one snackbar, which is the shape a caller actually has. */
@@ -209,11 +210,16 @@ describe('MPSnackbar', () => {
 
       const plate = document.querySelector('.mp-snackbar') as HTMLElement;
 
-      // Below its resting place, on the way up to it. `translate` rather than
-      // `transform`, which Base UI writes a swiped plate's offset onto — a
-      // travel spelled the same way would be wiped out by the first flick.
+      // Below its resting place, on the way up to it — asserted as which side of
+      // home it is on rather than as a distance, because the travel is 200ms
+      // wide and every engine lands somewhere different inside it. Firefox reads
+      // 97.7% where Chromium reads 100%, and both of them mean "below".
+      //
+      // `translate` rather than `transform`, which Base UI writes a swiped
+      // plate's offset onto — a travel spelled the same way would be wiped out
+      // by the first flick.
       expect(getComputedStyle(plate).transitionProperty).toBe('opacity, translate');
-      expect(getComputedStyle(plate).translate).toBe('0px 100%');
+      expect(translation(plate).y).toBeGreaterThan(0);
 
       await expect.poll(() => getComputedStyle(plate).translate).toBe('none');
     });
@@ -230,7 +236,7 @@ describe('MPSnackbar', () => {
 
       const plate = document.querySelector('.mp-snackbar') as HTMLElement;
 
-      expect(getComputedStyle(plate).translate).toBe('0px -100%');
+      expect(translation(plate).y).toBeLessThan(0);
     });
 
     it('updates a snackbar in place when its id is reused', async () => {
