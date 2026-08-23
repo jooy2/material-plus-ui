@@ -65,6 +65,12 @@ Five rungs, and the halo grows with the box rather than staying at 40dp: what th
 
 `color` picks the accent family the ticked box is filled with. It is overridden while the checkbox is invalid, because an error that kept the brand colour would not read as an error.
 
+## The mark arrives
+
+The tick grows into the box over the same 200ms the box's own fill takes, so ticking is one event rather than a container that eases and a glyph that lands on top of it halfway through. It goes back out the same way.
+
+It is drawn from 60% rather than from nothing: a mark that started at zero would spend its first frames as a smudge too small to read as a tick, which the eye takes for a flicker rather than for a stroke. A radio's dot does start at nothing, because a disc at any size is still a disc — see [MPRadioGroup](./radio-group#the-dot-arrives).
+
 ## There is no `children`
 
 `label`, `description` and `errorMessage` are props, and anything a checkbox has to say belongs in one of the three. The arrangement is fixed — tick, label, supporting line — and what a caller actually wants to decide is what goes in each slot.

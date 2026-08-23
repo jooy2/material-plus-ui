@@ -213,7 +213,28 @@ export const MPCheckbox = React.forwardRef<HTMLElement, MPCheckboxProps>(functio
               />
             )}
 
-            <Checkbox.Indicator className="flex items-center justify-center">
+            {/* The mark grows into the box the fill is arriving in, on the same
+                200ms the box's own colour takes — so a tick is one event rather
+                than a container that eases and a glyph that appears on top of
+                it halfway through.
+
+                It is drawn from `scale: 0.6` rather than from nothing, because
+                a mark that starts at zero spends its first frames as a smudge
+                too small to read as a tick, and the eye reads the arrival as a
+                flicker rather than as a stroke.
+
+                Base UI keeps the indicator mounted until this transition has
+                finished, which is what gives the mark a way out as well as a
+                way in — `data-ending-style` is the same frame played backwards. */}
+            <Checkbox.Indicator
+              className={[
+                'flex items-center justify-center',
+                'transition-[opacity,scale] duration-(--mp-sys-motion-duration-short4)',
+                'ease-mp-standard',
+                'data-starting-style:scale-60 data-starting-style:opacity-0',
+                'data-ending-style:scale-60 data-ending-style:opacity-0'
+              ].join(' ')}
+            >
               <MPIcon
                 icon={indeterminate ? RemoveIcon : CheckIcon}
                 size={tick.glyph}

@@ -42,6 +42,12 @@ This is the whole reason a radio group is a component rather than a `<div>` full
 
 Tab into the group above and press the arrow keys.
 
+## The dot arrives
+
+The dot grows out of the centre of the ring over the same 200ms the ring's own border takes to reach the accent, so both halves of "chosen" land together. It leaves the same way.
+
+Unlike a checkbox's tick it starts at nothing rather than at 60%, and the difference is what each of them is. A tick is a stroke and has to stay legible while it arrives; a disc at any size is still a disc. See [MPCheckbox](./checkbox#the-mark-arrives).
+
 ## Examples
 
 ### orientation

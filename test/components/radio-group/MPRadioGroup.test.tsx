@@ -111,6 +111,29 @@ describe('MPRadioGroup', () => {
 
       expect(stops.filter((index) => index === 0)).toHaveLength(1);
     });
+
+    it('grows the dot in and lets it play back out', async () => {
+      // Scoped to one radio: an unchosen one has no indicator at all, so a
+      // query across the set would answer with somebody else's state layer.
+      //
+      // Asserted as the transition plus the delayed unmount rather than as a
+      // sampled frame — see the checkbox suite for why a starting style is not
+      // a thing to read back.
+      const screen = await render(<ControlledGroup initial="express" />);
+      const dot = () =>
+        screen
+          .getByRole('radio', { name: 'Express' })
+          .element()
+          .querySelector('span:not([aria-hidden])');
+
+      expect(getComputedStyle(dot()!).transitionProperty).toBe('opacity, scale');
+      expect(getComputedStyle(dot()!).transitionDuration).toBe('0.2s');
+
+      await screen.getByText('Standard').click();
+
+      expect(dot()).not.toBeNull();
+      await expect.poll(dot).toBeNull();
+    });
   });
 
   describe('states', () => {

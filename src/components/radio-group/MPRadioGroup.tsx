@@ -122,10 +122,23 @@ export const MPRadio = React.forwardRef<HTMLElement, MPRadioProps>(function MPRa
               />
             )}
 
+            {/* Unlike the checkbox's mark this one does start at nothing, and
+                the difference is what each of them is. A tick is a stroke and
+                has to stay legible as it arrives; a dot is a disc, and a disc
+                at any size is still a disc — so it can grow out of the centre
+                of the ring that is taking the accent around it, which is the
+                arrival MD3 draws.
+
+                On the same 200ms as the ring's own border colour, so the two
+                halves of "chosen" land together. */}
             <Radio.Indicator
               className={[
                 'rounded-full',
                 dot.fill,
+                'transition-[opacity,scale] duration-(--mp-sys-motion-duration-short4)',
+                'ease-mp-standard',
+                'data-starting-style:scale-0 data-starting-style:opacity-0',
+                'data-ending-style:scale-0 data-ending-style:opacity-0',
                 disabled ? 'bg-mp-on-surface/38' : 'bg-(--_mp-accent)'
               ].join(' ')}
             />

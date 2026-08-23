@@ -112,6 +112,31 @@ describe('MPCheckbox', () => {
 
       expect(screen.getByRole('checkbox').element()).toHaveAttribute('aria-checked', 'true');
     });
+
+    it('grows the mark in and lets it play back out', async () => {
+      // Two assertions rather than a sampled frame. Which values the mark
+      // travels between is a starting style, and a test that read one back
+      // would be timing the transition rather than asking whether there is one
+      // — the same reason the floating label suite reads `data-mp-shrunk`
+      // instead of measuring a `top` that is mid-interpolation for 200ms.
+      //
+      // What is left is the pair that cannot be true by accident: the mark
+      // carries a transition, and unticking does not take it off the page
+      // immediately. Base UI holds the indicator until the transition
+      // finishes, so a mark still in the DOM one commit after the box was
+      // emptied is a mark that has an exit to play.
+      const screen = await render(<ControlledCheckbox initial />);
+      const mark = () =>
+        screen.container.querySelector('.mp-checkbox__tick > span:not([aria-hidden])');
+
+      expect(getComputedStyle(mark()!).transitionProperty).toBe('opacity, scale');
+      expect(getComputedStyle(mark()!).transitionDuration).toBe('0.2s');
+
+      await screen.getByRole('checkbox').click();
+
+      expect(mark()).not.toBeNull();
+      await expect.poll(mark).toBeNull();
+    });
   });
 
   describe('the third state', () => {
