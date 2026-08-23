@@ -194,6 +194,45 @@ describe('MPSnackbar', () => {
       expect(viewport.className).toContain('items-center');
     });
 
+    it('brings the plate in from the edge it is pinned to', async () => {
+      // The travel and the flick are derived from one fact, and have to agree: a
+      // snackbar that came down from the top and could only be flicked upwards
+      // would be asking to be undone.
+      const screen = await render(
+        <Harness position="bottom-start">
+          <Raise message="Saved" />
+        </Harness>
+      );
+
+      await screen.getByRole('button', { name: 'Raise' }).click();
+      await expect.element(screen.getByText('Saved')).toBeInTheDocument();
+
+      const plate = document.querySelector('.mp-snackbar') as HTMLElement;
+
+      // Below its resting place, on the way up to it. `translate` rather than
+      // `transform`, which Base UI writes a swiped plate's offset onto — a
+      // travel spelled the same way would be wiped out by the first flick.
+      expect(getComputedStyle(plate).transitionProperty).toBe('opacity, translate');
+      expect(getComputedStyle(plate).translate).toBe('0px 100%');
+
+      await expect.poll(() => getComputedStyle(plate).translate).toBe('none');
+    });
+
+    it('brings it down instead when the stack is at the top', async () => {
+      const screen = await render(
+        <Harness position="top-center">
+          <Raise message="Saved" />
+        </Harness>
+      );
+
+      await screen.getByRole('button', { name: 'Raise' }).click();
+      await expect.element(screen.getByText('Saved')).toBeInTheDocument();
+
+      const plate = document.querySelector('.mp-snackbar') as HTMLElement;
+
+      expect(getComputedStyle(plate).translate).toBe('0px -100%');
+    });
+
     it('updates a snackbar in place when its id is reused', async () => {
       function Uploader() {
         const snackbar = useMPSnackbar();

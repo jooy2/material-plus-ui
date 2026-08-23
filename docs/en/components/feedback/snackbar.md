@@ -81,6 +81,10 @@ Reusing an id updates that snackbar in place and restarts its timer, which is wh
 
 `bottom-start` is MD3's own placement. The two halves are written as one word because they are not independent: a snackbar stack is always pinned to the top or the bottom, never to a side.
 
+It also decides which way the plate travels. A snackbar comes in from the edge its stack is pinned to and goes back out to it, over 200ms — the same fact that decides which way it can be flicked away, and the two have to agree: a plate that came down from the top and could only be flicked upwards would be asking to be undone.
+
+A reader who has asked for less motion gets the fade with nowhere to travel from.
+
 ### color
 
 **No default**, and it is the same decision [MPTooltip](./tooltip) makes for the same reason. MD3's snackbar is `inverse-surface` under `inverse-on-surface`: the neutral palette read at the _other_ end of the scheme, so the plate is dark on a light page and light on a dark one.

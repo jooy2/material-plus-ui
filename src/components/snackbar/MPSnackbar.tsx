@@ -5,7 +5,7 @@ import { CloseIcon } from '../../constants/icons';
 import { accentSlots } from '../../internal/accent';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { MPStateLayer } from '../../internal/StateLayer';
-import { FADE, PORTAL_LAYER } from '../../internal/surface';
+import { PORTAL_LAYER } from '../../internal/surface';
 import type { MPAlign, MPColor, MPSize } from '../../types';
 
 /**
@@ -156,6 +156,40 @@ const VIEWPORT: Record<MPSnackbarPosition, string> = {
 };
 
 /**
+ * The plate's own motion, in place of the shared `FADE`.
+ *
+ * A snackbar comes in from the edge its stack is pinned to and goes back out to
+ * it, which is what MD3 draws and the same argument `MPDrawer` makes: a message
+ * that only faded has no direction, and a stack at the top of the window and one
+ * at the bottom are then the same event.
+ *
+ * `translate` rather than `transform`, which is not a stylistic preference here.
+ * Base UI writes a swiped snackbar's offset straight onto the element's inline
+ * `transform`, so a travel written the same way would be overwritten by the
+ * first flick. The two properties compose.
+ *
+ * One duration in both directions, unlike the drawer's asymmetric pair. A
+ * snackbar is a small plate that often arrives behind two others, and an
+ * entrance long enough to read as an arrival is an entrance that makes a queue
+ * of three feel like it is buffering.
+ *
+ * `motion-safe:`, for the reason `MPDrawer`'s `SLIDE` gives: what is left when
+ * the travel is not declared is the plain fade this plate used to have.
+ */
+const PLATE_MOTION = [
+  'transition-[opacity,translate] duration-(--mp-sys-motion-duration-short4)',
+  'ease-mp-standard',
+  'data-starting-style:opacity-0 data-ending-style:opacity-0'
+].join(' ');
+
+/** Which way the plate travels, given the edge its stack is pinned to. */
+const SLIDE: Record<'top' | 'bottom', string> = {
+  top: 'motion-safe:data-starting-style:-translate-y-full motion-safe:data-ending-style:-translate-y-full',
+  bottom:
+    'motion-safe:data-starting-style:translate-y-full motion-safe:data-ending-style:translate-y-full'
+};
+
+/**
  * The supporting text, at MD3's own `body-medium` for `md`.
  *
  * A snackbar does not grow with the control that raised it — it is a message from
@@ -268,6 +302,8 @@ interface SnackbarItemProps {
   closeLabel: string;
   /** Which way it can be flicked away, derived from where the stack is pinned. */
   swipeDirection: ('up' | 'down' | 'left' | 'right')[];
+  /** Which edge the stack is pinned to, and so which way the plate travels. */
+  edge: 'top' | 'bottom';
 }
 
 function SnackbarItem({
@@ -276,7 +312,8 @@ function SnackbarItem({
   size,
   showClose,
   closeLabel,
-  swipeDirection
+  swipeDirection,
+  edge
 }: SnackbarItemProps) {
   const family = toast.data?.color ?? color;
   const glyph = toast.data?.icon;
@@ -312,7 +349,8 @@ function SnackbarItem({
         'bg-(--_mp-plate) text-(--_mp-on-plate) outline-none',
         PLATE[size],
         TEXT[size],
-        FADE,
+        PLATE_MOTION,
+        SLIDE[edge],
         // A snackbar pushed out by the limit is kept in the DOM so it can come
         // back; it just has nothing to say while it waits.
         'data-limited:hidden'
@@ -392,8 +430,13 @@ function SnackbarViewport({
   closeLabel: string;
 }) {
   const { toasts } = Toast.useToastManager<MPSnackbarData>();
+  // The one fact both of these are derived from: which edge the stack is
+  // pinned to. It decides the way a plate is flicked away and the way it
+  // arrives, and the two must agree — a snackbar that came down from the top
+  // and could only be flicked upwards would be asking to be undone.
+  const edge = position.startsWith('top') ? 'top' : 'bottom';
   const swipeDirection: ('up' | 'down' | 'left' | 'right')[] = [
-    position.startsWith('top') ? 'up' : 'down',
+    edge === 'top' ? 'up' : 'down',
     'left',
     'right'
   ];
@@ -416,7 +459,7 @@ function SnackbarViewport({
             className="w-full"
             style={{ maxWidth: typeof width === 'number' ? `${width}px` : width }}
           >
-            <SnackbarItem toast={toast} swipeDirection={swipeDirection} {...rest} />
+            <SnackbarItem toast={toast} swipeDirection={swipeDirection} edge={edge} {...rest} />
           </div>
         ))}
       </Toast.Viewport>
