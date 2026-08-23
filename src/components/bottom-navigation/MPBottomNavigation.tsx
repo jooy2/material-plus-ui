@@ -63,13 +63,30 @@ const BAR_HEIGHT: Record<MPSize, string> = {
  *
  * It is the whole of the selected treatment, and it is why a navigation bar
  * needs no underline, no bold and no second colour to say where you are.
+ *
+ * Three lengths rather than one, because the pill both *is* a size and
+ * *travels* between two of them.
+ *
+ * `box` is the slot the glyph sits in. It never changes: it is what holds the
+ * destination in place, so a row of five would shuffle every time the reader
+ * moved between them if it did.
+ *
+ * `open` and `shut` are the fill's own width, on a layer inside that slot. MD3
+ * expands the indicator horizontally, so the pill grows out of `shut` — a
+ * circle exactly as wide as the slot is tall — into `open`, which is the slot's
+ * full width.
+ *
+ * `width` rather than `scale-x`, because the pill is `corner-full` and a scaled
+ * corner is not a corner: a circle stretched horizontally is an ellipse. A
+ * circle that *widens*, at a radius clamped to half its height, is the pill the
+ * specification draws at every frame in between.
  */
-const INDICATOR: Record<MPSize, string> = {
-  xs: 'h-6 w-12',
-  sm: 'h-7 w-14',
-  md: 'h-8 w-16',
-  lg: 'h-9 w-18',
-  xl: 'h-10 w-20'
+const INDICATOR: Record<MPSize, { box: string; open: string; shut: string }> = {
+  xs: { box: 'h-6 w-12', open: 'w-12', shut: 'w-6' },
+  sm: { box: 'h-7 w-14', open: 'w-14', shut: 'w-7' },
+  md: { box: 'h-8 w-16', open: 'w-16', shut: 'w-8' },
+  lg: { box: 'h-9 w-18', open: 'w-18', shut: 'w-9' },
+  xl: { box: 'h-10 w-20', open: 'w-20', shut: 'w-10' }
 };
 
 /** The glyph, in CSS pixels. MD3's is 24dp. */
@@ -357,16 +374,43 @@ export const MPBottomNavigationItem = React.forwardRef<HTMLElement, MPBottomNavi
             className={[
               'relative flex shrink-0 items-center justify-center overflow-hidden',
               'rounded-mp-full',
-              'transition-[background-color,color] duration-(--mp-sys-motion-duration-short4)',
-              INDICATOR[bar.size],
-              // MD3's active indicator, and the whole of the selected treatment.
-              // The ink goes with it: an `on-secondary-container` glyph on a
-              // `secondary-container` pill.
-              current && !disabled ? 'bg-mp-secondary-container text-mp-on-secondary-container' : ''
+              // The ink only. The pill itself is the layer below, which is what
+              // lets it grow without this box — the one holding the glyph in
+              // place — changing width and shuffling the row.
+              'transition-[color] duration-(--mp-sys-motion-duration-short4)',
+              INDICATOR[bar.size].box,
+              current && !disabled ? 'text-mp-on-secondary-container' : ''
             ]
               .filter(Boolean)
               .join(' ')}
           >
+            {/* MD3's active indicator, and the whole of the selected treatment:
+                it is why a navigation bar needs no underline, no bold and no
+                second colour to say where you are.
+
+                It arrives by widening out of a circle the size of the glyph
+                slot, which is the motion the specification draws — a treatment
+                that only faded would say *that* the destination changed without
+                saying anything about the pill travelling to it.
+
+                The opacity goes with the width rather than the fill being
+                switched on at full size, so a destination the reader is leaving
+                closes rather than blinking out. */}
+            {disabled ? null : (
+              <span
+                aria-hidden="true"
+                className={[
+                  'pointer-events-none absolute inset-y-0 left-1/2 -translate-x-1/2',
+                  'rounded-mp-full bg-mp-secondary-container',
+                  'transition-[width,opacity] duration-(--mp-sys-motion-duration-short4)',
+                  'ease-mp-standard',
+                  current
+                    ? `${INDICATOR[bar.size].open} opacity-100`
+                    : `${INDICATOR[bar.size].shut} opacity-0`
+                ].join(' ')}
+              />
+            )}
+
             {disabled ? null : <MPStateLayer />}
 
             <span

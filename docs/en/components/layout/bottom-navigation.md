@@ -90,6 +90,14 @@ MD3 fills the selected icon and outlines the rest, which is a signal that surviv
 
 It falls back to `icon`, so a set with only one glyph each still works.
 
+## The indicator widens
+
+The pill grows horizontally out of a circle the size of the glyph slot, over 200ms — MD3's own motion, and the thing that makes moving between destinations read as the mark travelling rather than as one pill blinking off and another blinking on.
+
+It is drawn on a layer inside the slot rather than as a fill on the slot itself. The slot is what holds the destination in place; if it were the thing that grew, a row of five would shuffle sideways every time the reader moved between them.
+
+`width` rather than a scale, because the pill is `corner-full`: a circle stretched horizontally is an ellipse, where a circle that widens — at a radius clamped to half its height — is a pill at every frame in between.
+
 ## position and safeArea
 
 `fixed` by default — against the `static` everything else in this library defaults to — because that is what a bottom navigation bar is. `static` puts it back in the flow, which is what a preview or a documentation page wants.

@@ -62,6 +62,10 @@ describe('MPBottomNavigation', () => {
   });
 
   it("marks the current destination with Material's own active indicator", async () => {
+    // The pill is a layer inside the glyph's slot rather than a fill on the
+    // slot itself, which is what lets it widen without the slot changing size —
+    // see the test below. Both destinations carry one; only one of them is
+    // drawn.
     const screen = await render(<Bar defaultValue="home" />);
     const reference = await render(
       <div
@@ -69,13 +73,46 @@ describe('MPBottomNavigation', () => {
         style={{ backgroundColor: 'var(--_mp-color-secondary-container)' }}
       />
     );
-    const indicator = (index: number) =>
-      getComputedStyle(items({ container: screen.container })[index].firstElementChild!);
+    const pill = (index: number) =>
+      getComputedStyle(
+        items({ container: screen.container })[index].querySelector('span[aria-hidden]')!
+      );
 
-    expect(indicator(0).backgroundColor).toBe(
+    expect(pill(0).backgroundColor).toBe(
       getComputedStyle(reference.container.querySelector('.reference')!).backgroundColor
     );
-    expect(indicator(1).backgroundColor).toBe('rgba(0, 0, 0, 0)');
+    expect(pill(0).opacity).toBe('1');
+    expect(pill(1).opacity).toBe('0');
+  });
+
+  it('widens the indicator out of a circle, without moving the destinations', async () => {
+    // MD3 expands the indicator horizontally. The slot the glyph sits in cannot
+    // be the thing that grows — it is what holds the destination in place, and a
+    // row of them would shuffle every time the reader moved between them — so
+    // the pill is a layer inside it, travelling between the slot's full width
+    // and a circle exactly as wide as the slot is tall.
+    //
+    // `width` rather than a scale: a `corner-full` circle stretched
+    // horizontally is an ellipse, where one that widens stays a pill at every
+    // frame.
+    const screen = await render(<Bar defaultValue="home" />);
+    const cells = () => items({ container: screen.container });
+    const pill = (index: number) =>
+      cells()[index].querySelector('span[aria-hidden]')!.getBoundingClientRect().width;
+    const slot = (index: number) => cells()[index].firstElementChild!.getBoundingClientRect().width;
+
+    // MD3's 64×32dp pill, and the circle it grows out of.
+    expect(Math.round(pill(0))).toBe(64);
+    expect(Math.round(pill(1))).toBe(32);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Search' }));
+
+    await expect.poll(() => Math.round(pill(1))).toBe(64);
+    expect(Math.round(pill(0))).toBe(32);
+
+    // The slots never moved.
+    expect(Math.round(slot(0))).toBe(64);
+    expect(Math.round(slot(1))).toBe(64);
   });
 
   it('is 80dp tall, which is the specification’s own', async () => {
