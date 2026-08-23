@@ -115,6 +115,30 @@ describe('MPTabs', () => {
     expect(onValueChange).toHaveBeenCalledWith('pricing');
   });
 
+  it('fades the arriving panel in, without ever holding two in the flow', async () => {
+    // The bar's indicator already slid and the content it points at cut, which
+    // left the decoration animating and the thing it is for snapping. MD3 fades
+    // the content through.
+    //
+    // The second half of the assertion is the reason there is no exit to match:
+    // a leaving panel is still in the layout while it plays, so a panel that
+    // faded out would put both in the flow and grow the page to hold the pair
+    // before it collapsed onto the new one.
+    const screen = await render(<Bar defaultValue="overview" />);
+    const panels = () => screen.container.querySelectorAll('.mp-tabs__panel');
+
+    // Nothing on the first paint: a bar that faded its own content in on page
+    // load would be answering a question nobody asked.
+    expect(getComputedStyle(panels()[0]).opacity).toBe('1');
+
+    await userEvent.click(screen.getByRole('tab', { name: 'Pricing' }));
+
+    expect(panels()).toHaveLength(1);
+    expect(getComputedStyle(panels()[0]).opacity).toBe('0');
+
+    await expect.poll(() => getComputedStyle(panels()[0]).opacity).toBe('1');
+  });
+
   it('leaves a controlled bar where the caller put it', async () => {
     const onValueChange = vi.fn();
     const screen = await render(<Bar value="overview" onValueChange={onValueChange} />);

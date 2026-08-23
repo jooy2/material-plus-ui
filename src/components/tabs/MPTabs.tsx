@@ -514,6 +514,19 @@ export const MPTabPanel = React.forwardRef<HTMLDivElement, MPTabPanelProps>(func
         // than the browser's.
         'rounded-mp-xs outline-mp-secondary focus-visible:outline-2 focus-visible:outline-offset-2',
         'focus-visible:outline-solid outline-none',
+        // The indicator slides and the content did not move at all, which left
+        // the bar animating and the thing the bar is *for* cutting. MD3 fades
+        // the content through, and this is that fade.
+        //
+        // An entrance and no exit, deliberately. A leaving panel is still in the
+        // flow while it plays — Base UI holds it mounted and unhidden until its
+        // transition finishes — so a `data-ending-style` here would put both
+        // panels in the layout at once and the page would grow to hold the pair
+        // before collapsing onto the new one. That is a worse thing than the
+        // snap it would be replacing. With nothing to transition to, the old
+        // panel has no animation to wait for and goes when it always went.
+        'transition-opacity duration-(--mp-sys-motion-duration-short4) ease-mp-standard',
+        'data-starting-style:opacity-0',
         className ?? ''
       ]
         .filter(Boolean)

@@ -64,6 +64,14 @@ The consequence worth knowing: with `fullWidth`, where a tab is much wider than 
 
 It moves by animating `left` and `width` on an empty box — a layout animation on something with no text in it, which is the one kind this library allows.
 
+## The panel fades through
+
+The arriving panel fades in over 200ms, which is MD3's own answer and the other half of the indicator sliding: a bar that animated its decoration while the content it points at cut was animating the wrong thing.
+
+There is no matching fade out, and the reason is structural rather than aesthetic. A leaving panel is still in the layout while a transition on it plays, so a panel that faded out would put both in the flow at once — the page would grow to hold the pair, then collapse onto the new one. A snap is better than that.
+
+Nothing fades on the first paint either. A bar that faded its own content in on page load would be answering a question nobody asked.
+
 ## activateOnFocus
 
 Off by default, so an arrow key moves focus and <kbd>Enter</kbd> or <kbd>Space</kbd> chooses.
