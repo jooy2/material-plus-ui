@@ -596,17 +596,25 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
                     value={entry}
                     disabled={entry.disabled}
                     className={[
-                      'mp-combobox__item rounded-mp-xs relative flex cursor-pointer items-center',
-                      'gap-3 py-2 ps-2 pe-3 select-none outline-none',
-                      // `data-highlighted` rather than `:hover`: it is also where
-                      // the arrow keys are, so the mouse and the keyboard light
-                      // the same row.
-                      'data-highlighted:bg-mp-on-surface/8',
+                      'mp-combobox__item group rounded-mp-xs relative flex cursor-pointer',
+                      'items-center gap-3 py-2 ps-2 pe-3 select-none outline-none',
+                      'transition-[background-color,color]',
+                      'duration-(--mp-sys-motion-duration-short4)',
                       'data-selected:bg-mp-secondary-container',
                       'data-selected:text-mp-on-secondary-container',
                       'data-disabled:text-mp-on-surface/38 data-disabled:cursor-default'
                     ].join(' ')}
                   >
+                    {/* A state layer rather than a background, for the two
+                        reasons `MPSelect`'s list gives: a chosen row already has
+                        a background and a second one would only replace it, and
+                        a layer is a thing that can fade.
+
+                        `data-highlighted` rather than `:hover`: it is also where
+                        the arrow keys are, so the mouse and the keyboard light
+                        the same row. */}
+                    <MPStateLayer className="group-data-highlighted:opacity-8 group-data-disabled:opacity-0" />
+
                     {/* The column is always there and only the mark comes and
                         goes: an indicator that is not rendered at all takes its
                         column with it, and every label in the list shifts

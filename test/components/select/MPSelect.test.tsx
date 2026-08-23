@@ -153,6 +153,30 @@ describe('MPSelect', () => {
       );
     });
 
+    it('washes the cursor over the chosen row rather than under it', async () => {
+      // The highlight is a state layer, so it composites onto whatever the row
+      // is already painted. Written as a background it could only replace the
+      // chosen row's fill — two `background-color` utilities of equal
+      // specificity, with the winner decided by the order Tailwind sorted them
+      // in, and the cursor invisible on the one row it opens on.
+      const screen = await render(<ControlledSelect initial="kr-11" />);
+
+      await open(screen);
+
+      const row = screen.getByRole('option', { name: 'Seoul' }).element() as HTMLElement;
+      const wash = row.querySelector('span[aria-hidden]') as HTMLElement;
+
+      // Both at once: the row is where the cursor is *and* the chosen one.
+      expect(row).toHaveAttribute('data-highlighted');
+      expect(row).toHaveAttribute('data-selected');
+
+      // The fill is still the chosen row's, with the wash on top of it and
+      // fading rather than appearing.
+      expect(getComputedStyle(row).backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
+      expect(getComputedStyle(wash).transitionProperty).toBe('opacity');
+      await expect.poll(() => getComputedStyle(wash).opacity).toBe('0.08');
+    });
+
     it('fades the list in rather than snapping it on', async () => {
       // The same `FADE` every other portalled popup wears. Asserted as the
       // transition rather than by sampling the opacity, which would be timing

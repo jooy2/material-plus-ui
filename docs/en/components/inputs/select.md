@@ -96,6 +96,8 @@ A chosen row is marked with a **tick** as well as a fill, because a highlight is
 
 It fades, on the same 200ms and the same curve as every other popup in the library — the menu, the popover, the combobox's list, the dialog. Opacity and nothing else: a list that slid or scaled would move the row the pointer was already reaching for.
 
+The cursor is a **state layer** rather than a background — the same wash [MPMenu](./menu) puts under a highlighted row. A background could only replace the chosen row's fill, which would leave the cursor invisible on the one row the list most often opens on; a layer composites onto it, and fades rather than appearing.
+
 ## Accessibility
 
 - The trigger is named by the label in the notch, wired by `id`.

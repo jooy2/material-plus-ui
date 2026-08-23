@@ -4,6 +4,7 @@ import { Field } from '@base-ui/react/field';
 import { MPIcon } from '../icon/MPIcon';
 import { CheckIcon, ChevronDownIcon } from '../../constants/icons';
 import { MPFieldLabel, MPFieldOutline, useFloatingLabel } from '../../internal/FieldOutline';
+import { MPStateLayer } from '../../internal/StateLayer';
 import { MPSupportingText } from '../../internal/SupportingText';
 import { CONTROL_ICON, PROSE_TEXT, hasContent } from '../../internal/scale';
 import { FADE, PORTAL_LAYER } from '../../internal/surface';
@@ -300,15 +301,34 @@ export const MPSelect = React.forwardRef<HTMLButtonElement, MPSelectProps>(funct
                     className={[
                       'mp-select__item group rounded-mp-xs relative flex cursor-pointer items-center',
                       'gap-3 py-2 pe-3 ps-2 select-none outline-none',
-                      // `data-highlighted` rather than `:hover`: it is also where
-                      // the arrow keys are, so the mouse and the keyboard light
-                      // the same row.
-                      'data-highlighted:bg-mp-on-surface/8',
+                      'transition-[background-color,color]',
+                      'duration-(--mp-sys-motion-duration-short4)',
                       'data-selected:text-mp-on-secondary-container',
                       'data-selected:bg-mp-secondary-container',
                       'data-disabled:text-mp-on-surface/38 data-disabled:cursor-default'
                     ].join(' ')}
                   >
+                    {/* The highlight is a state layer rather than a background,
+                        which is the same row `MPMenu` draws and for two reasons.
+
+                        A background can only be replaced: the chosen row already
+                        has one, so a highlight written as a second
+                        `background-color` puts two utilities of equal
+                        specificity on the row and leaves which one wins to the
+                        order Tailwind sorted them in — where the selected fill
+                        happened to win, and the cursor became invisible on the
+                        one row it is most often sitting on.
+
+                        And a layer fades. The row's own colours have a
+                        transition of their own now; the wash rides the state
+                        layer's, so a list responds to the arrow keys instead of
+                        flashing at them.
+
+                        `data-highlighted` rather than `:hover`: it is also where
+                        the arrow keys are, so the mouse and the keyboard light
+                        the same row. */}
+                    <MPStateLayer className="group-data-highlighted:opacity-8 group-data-disabled:opacity-0" />
+
                     {/* The box is always there and only the tick comes and goes:
                         an indicator that is not rendered at all takes its column
                         with it, and every label in the list shifts sideways as

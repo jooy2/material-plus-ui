@@ -140,6 +140,23 @@ describe('MPCombobox', () => {
         'true'
       );
     });
+
+    it('washes the cursor over the chosen row rather than under it', async () => {
+      // The same state layer `MPSelect`'s list wears, and for the same two
+      // reasons: a background can only replace the chosen row's fill, and a
+      // layer is a thing that can fade.
+      const screen = await render(<Single initial="apple" />);
+
+      await screen.getByRole('button', { name: 'Fruit' }).click();
+      await expect.element(screen.getByRole('listbox')).toBeInTheDocument();
+
+      const row = screen.getByRole('option', { name: 'Apple' }).element() as HTMLElement;
+      const wash = row.querySelector('span[aria-hidden]') as HTMLElement;
+
+      expect(row).toHaveAttribute('data-selected');
+      expect(getComputedStyle(row).backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
+      expect(getComputedStyle(wash).transitionProperty).toBe('opacity');
+    });
   });
 
   describe('filtering', () => {
