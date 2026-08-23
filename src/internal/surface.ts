@@ -1,14 +1,14 @@
 /**
  * The surfaces, and the two questions they answer.
  *
- * The first is what everything that floats above the page has in common. Eight
+ * The first is what everything that floats above the page has in common. Nine
  * components portal something to the end of `<body>` — the dialog, the drawer,
- * the overlay, the menu, the popover, the snackbar, the combobox's list and the
- * colour picker's panel — and the three strings below are the parts of that
- * which must not differ between them. A dialog opened over an overlay would
- * otherwise show a seam where two scrims of slightly different alpha overlap,
- * and a menu that faded on a different curve from the dialog it was opened
- * inside would read as two libraries.
+ * the overlay, the menu, the popover, the snackbar, the select's list, the
+ * combobox's list and the colour picker's panel — and the three strings below
+ * are the parts of that which must not differ between them. A dialog opened
+ * over an overlay would otherwise show a seam where two scrims of slightly
+ * different alpha overlap, and a menu that faded on a different curve from the
+ * dialog it was opened inside would read as two libraries.
  *
  * The second is what a *container* paints itself at, which is the last section
  * of the file.

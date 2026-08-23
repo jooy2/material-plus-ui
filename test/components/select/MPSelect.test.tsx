@@ -152,6 +152,25 @@ describe('MPSelect', () => {
         'true'
       );
     });
+
+    it('fades the list in rather than snapping it on', async () => {
+      // The same `FADE` every other portalled popup wears. Asserted as the
+      // transition rather than by sampling the opacity, which would be timing
+      // the animation rather than asking whether there is one.
+      //
+      // Polled because Base UI hangs an inline `transition: none` on the popup
+      // for the one frame it is in its starting style — that is what makes the
+      // first frame land at `opacity: 0` instead of transitioning to it — so
+      // reading the moment the list appears reads the frame before the fade.
+      const screen = await render(<ControlledSelect />);
+
+      await open(screen);
+
+      const popup = document.querySelector('.mp-select__popup')!;
+
+      await expect.poll(() => getComputedStyle(popup).transitionProperty).toBe('opacity');
+      expect(getComputedStyle(popup).transitionDuration).toBe('0.2s');
+    });
   });
 
   describe('the floating label', () => {

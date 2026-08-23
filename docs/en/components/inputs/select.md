@@ -94,6 +94,8 @@ Five rungs, the same ones a text field is drawn at. A select beside a field at t
 
 A chosen row is marked with a **tick** as well as a fill, because a highlight is also what the keyboard's cursor looks like: a list where "selected" and "where the arrow keys are" are the same colour is a list you cannot read. The tick's column is reserved on every row, so the labels do not shift sideways as the selection moves down the list.
 
+It fades, on the same 200ms and the same curve as every other popup in the library — the menu, the popover, the combobox's list, the dialog. Opacity and nothing else: a list that slid or scaled would move the row the pointer was already reaching for.
+
 ## Accessibility
 
 - The trigger is named by the label in the notch, wired by `id`.

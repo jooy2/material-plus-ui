@@ -6,6 +6,7 @@ import { CheckIcon, ChevronDownIcon } from '../../constants/icons';
 import { MPFieldLabel, MPFieldOutline, useFloatingLabel } from '../../internal/FieldOutline';
 import { MPSupportingText } from '../../internal/SupportingText';
 import { CONTROL_ICON, PROSE_TEXT, hasContent } from '../../internal/scale';
+import { FADE, PORTAL_LAYER } from '../../internal/surface';
 import type { MPSize, MPStyleProps } from '../../types';
 
 /**
@@ -281,16 +282,13 @@ export const MPSelect = React.forwardRef<HTMLButtonElement, MPSelectProps>(funct
         </div>
 
         <Select.Portal>
-          <Select.Positioner
-            className="z-50 outline-none"
-            sideOffset={4}
-            alignItemWithTrigger={false}
-          >
+          <Select.Positioner className={PORTAL_LAYER} sideOffset={4} alignItemWithTrigger={false}>
             <Select.Popup
               className={[
                 'mp-select__popup rounded-mp-xs shadow-mp-2 bg-mp-surface-container p-2',
                 'text-mp-on-surface min-w-[var(--anchor-width)] outline-none',
-                PROSE_TEXT[size]
+                PROSE_TEXT[size],
+                FADE
               ].join(' ')}
             >
               <Select.List className="max-h-[min(20rem,var(--available-height))] overflow-y-auto overscroll-contain">
