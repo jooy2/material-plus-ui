@@ -200,6 +200,69 @@ const VIEWPORT: Record<MPSide, string> = {
   bottom: 'flex-col justify-end'
 };
 
+/**
+ * Where the panel starts and where it goes back to, written out per side for
+ * the reason `ROUNDED` is: Tailwind only ever sees class names that appear
+ * literally in the source.
+ *
+ * A whole panel's width, not a hint of one. The travel is what says which edge
+ * the drawer belongs to, and a panel that slid in from twenty pixels away has
+ * arrived from nowhere in particular.
+ *
+ * ## `motion-safe:` rather than the `motion-reduce:` everywhere else
+ *
+ * The rest of the library switches a transition *off* for a reader who asked
+ * for less motion, because everywhere else that is one utility to negate. Here
+ * it would be four, and each of them would need a second class of exactly equal
+ * specificity to cancel it — which leaves which one wins to the order Tailwind
+ * happened to sort them in, and that is the one thing this file has been
+ * careful about twice already.
+ *
+ * Asked the other way round there is nothing to cancel: the travel is only ever
+ * declared for a reader who has not asked against it. What is left when it is
+ * not declared is `PANEL_MOTION`'s opacity — the plain fade this panel had
+ * before it could slide, which is the same trade `MPSkeleton` and
+ * `MPAnimateLighting` make. A drawer that arrives without travelling has still
+ * arrived; the reader is told it is there rather than where it came from.
+ */
+const SLIDE: Record<MPSide, string> = {
+  left: 'motion-safe:data-starting-style:-translate-x-full motion-safe:data-ending-style:-translate-x-full',
+  right:
+    'motion-safe:data-starting-style:translate-x-full motion-safe:data-ending-style:translate-x-full',
+  top: 'motion-safe:data-starting-style:-translate-y-full motion-safe:data-ending-style:-translate-y-full',
+  bottom:
+    'motion-safe:data-starting-style:translate-y-full motion-safe:data-ending-style:translate-y-full'
+};
+
+/**
+ * The modal panel's own motion, in place of the shared `FADE`.
+ *
+ * Two things it does that `FADE` cannot. It carries `translate` alongside
+ * `opacity`, which is the slide; and it is **asymmetric** — `medium4` on
+ * `emphasized-decelerate` coming in, `short4` on `emphasized-accelerate` going
+ * out. That is MD3's own pair and the same ladder `internal/animate.ts` sets
+ * for its slide effect: something arriving is being introduced and is given
+ * time to read as an arrival, something leaving has already said what it had to
+ * say.
+ *
+ * `data-ending-style` is what makes the asymmetry one declaration rather than
+ * two states to keep in step: the attribute is on the panel for exactly as long
+ * as it is closing, so the exit's numbers are the ones in force while the exit
+ * runs.
+ *
+ * `translate` stays in the transition list under reduced motion, and costs
+ * nothing when it does: `SLIDE` declines to name a distance, so there is
+ * nothing for it to travel.
+ */
+const PANEL_MOTION = [
+  'transition-[opacity,translate]',
+  'duration-(--mp-sys-motion-duration-medium4)',
+  'ease-(--mp-sys-motion-easing-emphasized-decelerate)',
+  'data-ending-style:duration-(--mp-sys-motion-duration-short4)',
+  'data-ending-style:ease-(--mp-sys-motion-easing-emphasized-accelerate)',
+  'data-starting-style:opacity-0 data-ending-style:opacity-0'
+].join(' ');
+
 const RULE = 'border-mp-outline-variant border-t';
 
 /**
@@ -234,14 +297,33 @@ export const MPDrawerClose = Dialog.Close;
  * scroll lock, the `aria-labelledby` / `aria-describedby` wiring, restoring
  * focus to the trigger, and the inert page behind.
  *
- * ## The surface, and why it does not slide
+ * ## The surface, and why this one does slide
  *
  * `surface-container-low` at elevation 1 for the modal panel and `surface` flat
- * for the standard one — MD3's own two answers. The transition is opacity only,
- * exactly as on the dialog: a drawer is nothing but text and controls, and a
- * panel that slid would drag its own sentences across the screen for the length
- * of the animation. What says the panel came from an edge is that it is
- * *attached* to one: square against the window, cut on the free side.
+ * for the standard one — MD3's own two answers.
+ *
+ * A modal panel comes in from the edge it is attached to. That is the one place
+ * this library parts company with the rule `internal/surface.ts` states for
+ * every other floating surface — that a box full of text should not travel,
+ * because a sentence dragged across the screen is a sentence the reader is
+ * already trying to read.
+ *
+ * The rule holds where it was written. A menu opens next to the row the pointer
+ * is on; a dialog lands in the middle of the page, over the paragraph the
+ * reader was in the middle of. Both arrive *where the reader is looking*, and
+ * both are read the instant they appear.
+ *
+ * A drawer is neither. It arrives at an edge, which is the one part of the
+ * window nobody is reading, and it arrives because somebody pressed a
+ * hamburger and is waiting for it. Nothing is being dragged past anything.
+ * What a fade costs instead is the only thing the panel had left to say while
+ * it was arriving: a fade has no direction, so a left drawer and a right one
+ * are the same event until they have both finished. The shape says which edge
+ * afterwards — square against the window, cut on the free side. The travel is
+ * what says it *during*.
+ *
+ * `SLIDE` gives a reader who asked for less motion the old behaviour exactly:
+ * the fade, with nowhere to travel from.
  */
 export function MPDrawer({
   side = 'left',
@@ -318,7 +400,7 @@ export function MPDrawer({
     PROSE_TEXT[size],
     EDGE[side],
     rounded ? ROUNDED[side] : '',
-    modal ? FADE : '',
+    modal ? `${PANEL_MOTION} ${SLIDE[side]}` : '',
     along
       ? `h-full max-w-full ${extent === undefined ? EXTENT[size] : ''}`
       : `w-full ${extent === undefined ? 'max-h-[85%]' : ''}`,

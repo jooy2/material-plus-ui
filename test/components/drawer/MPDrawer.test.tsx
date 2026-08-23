@@ -115,6 +115,52 @@ describe('MPDrawer', () => {
       expect(panel).toHaveAttribute('data-mp-side', 'bottom');
       expect(panel).toHaveAttribute('data-mp-mode', 'modal');
     });
+
+    it('comes in from the edge it is attached to, and goes back out to it', async () => {
+      const screen = await render(
+        <MPDrawer trigger={<MPButton>Menu</MPButton>} side="left" title="Navigation">
+          Body
+        </MPDrawer>
+      );
+
+      await screen.getByRole('button', { name: 'Menu' }).click();
+
+      const panel = document.querySelector('.mp-drawer') as HTMLElement;
+
+      // A whole panel's width off the left edge, on its way to nothing. Read
+      // as the travel rather than as a frame: `-100%` is where the transition
+      // is going *from*, and it holds for the whole 400ms rather than for one
+      // paint the way a starting style does.
+      expect(getComputedStyle(panel).transitionProperty).toBe('opacity, translate');
+      expect(getComputedStyle(panel).translate).toBe('-100%');
+
+      await expect.poll(() => getComputedStyle(panel).translate).toBe('none');
+    });
+
+    it('leaves faster than it arrived', async () => {
+      // MD3's own pair, and the ladder `internal/animate.ts` sets for a slide:
+      // an arrival is given time to read as one, a departure has already said
+      // what it had to say. `data-ending-style` is on the panel for exactly as
+      // long as it is closing, which is what makes the two one declaration.
+      const screen = await render(
+        <MPDrawer trigger={<MPButton>Menu</MPButton>} title="Navigation">
+          Body
+        </MPDrawer>
+      );
+
+      await screen.getByRole('button', { name: 'Menu' }).click();
+
+      const panel = document.querySelector('.mp-drawer') as HTMLElement;
+
+      expect(getComputedStyle(panel).transitionDuration).toBe('0.4s');
+
+      await screen.getByRole('button', { name: 'Close' }).click();
+
+      expect(document.querySelector('.mp-drawer')).not.toBeNull();
+      expect(getComputedStyle(panel).transitionDuration).toBe('0.2s');
+
+      await expect.poll(() => document.querySelector('.mp-drawer')).toBeNull();
+    });
   });
 
   describe('standard', () => {

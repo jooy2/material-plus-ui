@@ -72,11 +72,19 @@ Two different objects come out of it, and MD3 names both:
 
 The corners against the **window** are always square, and so is the border: a corner cut off something that has no visible end is a corner cut off nothing, and a hairline along the window's edge has nothing on the other side of it to be separated from.
 
-## Why it does not slide
+## Why this one does slide
 
-The transition is opacity only, exactly as on [MPDialog](../feedback/dialog).
+A `modal` panel comes in from the edge it is attached to — 400ms on `emphasized-decelerate` arriving, 200ms on `emphasized-accelerate` leaving, which is MD3's own pair. It is the one floating surface in this library that travels, and every other one — [MPDialog](../feedback/dialog), [MPMenu](../inputs/menu), [MPPopover](../feedback/popover), [MPSelect](../inputs/select)'s list — still only fades.
 
-A drawer is nothing but text and controls, and a panel that slid in would drag its own sentences across the screen for the length of the animation — this is the case the rule was written for, not the exception to it. What says the panel came from an edge is that it is _attached_ to one: square against the window, cut on the free side.
+The rule those follow is that a box full of text should not move, because a sentence dragged across the screen is a sentence the reader is already trying to read. That rule holds where it was written. A menu opens next to the row the pointer is on; a dialog lands in the middle of the page, over the paragraph the reader was in the middle of.
+
+A drawer is neither. It arrives at an edge — the one part of the window nobody is reading — and it arrives because somebody pressed a button and is waiting for it. Nothing is dragged past anything.
+
+What a fade costs instead is the only thing the panel had left to say while it was arriving. A fade has no direction, so a left drawer and a right one are the same event until they have both finished. The shape says which edge afterwards: square against the window, cut on the free side. The travel is what says it _during_.
+
+A reader who has asked for less motion gets the fade with nowhere to travel from, which is exactly what this panel did before.
+
+A `standard` panel does not animate at all, in or out. It is in the layout rather than over it, so "closed" is "not in the layout" — what moves when one opens is the page around it, and moving the page is the application's to do.
 
 ## Why there is no variant or color
 
