@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.2.0 (2026-08-23)
 
 A pass over every component asking one question: when this thing changes, does it _change_, or does it cut? Fourteen places cut. The list below is what each of them does now, and the reasoning where the answer was not simply "add a transition".
 
