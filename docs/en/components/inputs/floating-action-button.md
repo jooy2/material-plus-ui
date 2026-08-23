@@ -51,6 +51,14 @@ Everywhere else a radius is a statement about what kind of object something is r
 
 `color` moves all three onto another family. It is not an arbitrary colour: to change what `primary` is, set the token.
 
+## extended is something you can watch
+
+Turning `extended` on and off makes the disc **become** a stadium rather than be replaced by one, which is what MD3 draws and what a caller extending one on a scroll is asking for.
+
+The width cannot simply be transitioned: there is no interpolating a definite width towards `auto`, and a `max-width` large enough for the longest label anyone might pass would leave every shorter one finishing in the first fraction of the duration and sitting still for the rest. So the distance is split. The button raises its own floor and its padding; the label's track is a single grid column travelling between `0fr` and `1fr`, which resolves to exactly the width the label needs at one end and to nothing at all at the other. Both take the same 200ms, so they arrive together.
+
+The label is therefore in the DOM at both widths — an element that is not there has no width to travel from. While the button is a disc it is clipped to nothing, and it is not read out twice: `aria-label` names the button, and a name replaces its contents rather than adding to them.
+
 ## position
 
 `fixed` by default — against the `static` everything else in this library defaults to — because that is the component. Everything else sits in the page's flow and would be wrong to take out of it; this one is defined by not being part of the page.

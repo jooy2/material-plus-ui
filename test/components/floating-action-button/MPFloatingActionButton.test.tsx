@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { ICONS, MPFloatingActionButton, MPIcon } from 'material-plus-ui';
+import { ICONS, MPButton, MPFloatingActionButton, MPIcon } from 'material-plus-ui';
 import { userEvent } from 'vitest/browser';
 
 const Plus = <MPIcon icon={ICONS.add} />;
@@ -97,10 +98,54 @@ describe('MPFloatingActionButton', () => {
     ).toBeGreaterThan(80);
   });
 
-  it('draws no label while it is a disc', async () => {
+  it('draws no label while it is a disc, and stays square', async () => {
+    // The label is in the DOM at both widths — an element that is not there has
+    // no width to travel from, and travelling is what extending now does. What
+    // makes a disc a disc is that its track is closed to nothing, inside a
+    // button that clips. The name is unaffected either way: `aria-label` names
+    // the button, and a name replaces its contents rather than adding to them.
     const screen = await render(<MPFloatingActionButton icon={Plus} label="Compose" />);
+    const fab = screen.container.querySelector('.mp-fab') as HTMLElement;
+    const track = fab.querySelector('span.grid') as HTMLElement;
 
-    expect(screen.container.querySelector('.mp-fab')!.textContent).toBe('');
+    expect(track.getBoundingClientRect().width).toBe(0);
+
+    const box = fab.getBoundingClientRect();
+
+    expect(Math.round(box.width)).toBe(Math.round(box.height));
+  });
+
+  it('travels between the disc and the stadium rather than swapping one for the other', async () => {
+    // MD3 draws the disc *becoming* a stadium, which is what a caller extending
+    // one on a scroll is asking for. The width cannot be transitioned directly —
+    // there is no interpolating a definite width towards `auto` — so the
+    // distance is split: the button raises its own floor and its padding, and
+    // the label's grid track carries the rest between `0fr` and `1fr`.
+    //
+    // Read one commit after the toggle, where the button has been told to
+    // extend but has not arrived: still near its disc width, with the track
+    // barely open. A component that swapped one width for the other would
+    // already be at its full width here.
+    function Toggling() {
+      const [extended, setExtended] = useState(false);
+
+      return (
+        <>
+          <MPButton onClick={() => setExtended(true)}>Extend</MPButton>
+          <MPFloatingActionButton icon={Plus} label="Compose" extended={extended} />
+        </>
+      );
+    }
+
+    const screen = await render(<Toggling />);
+    const fab = () => screen.container.querySelector('.mp-fab') as HTMLElement;
+    const closed = fab().getBoundingClientRect().width;
+
+    await screen.getByRole('button', { name: 'Extend' }).click();
+
+    expect(fab().getBoundingClientRect().width).toBeLessThan(closed + 20);
+
+    await expect.poll(() => fab().getBoundingClientRect().width).toBeGreaterThan(80);
   });
 
   it('floats over the page by default, and can be pinned to a region instead', async () => {

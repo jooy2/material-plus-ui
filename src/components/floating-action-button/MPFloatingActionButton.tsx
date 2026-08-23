@@ -40,27 +40,39 @@ const SURFACE: Record<MPFloatingActionButtonVariant, string> = {
 };
 
 /**
- * The size ladder, as a square.
+ * The size ladder.
  *
  * MD3 names three floating buttons — small at 40dp, the plain one at 56dp and
  * large at 96dp — and all three are on this ladder: `xs`, `md` and `xl`. The two
  * rungs between them are this library's, for the reason `MPSize` gives.
+ *
+ * The height is the rung, and it is the one dimension the button always has.
+ * The width is whatever the label needs, which is why extending is a thing that
+ * can be *watched* rather than a second component.
  */
-const FAB_SQUARE: Record<MPSize, string> = {
-  xs: 'size-10',
-  sm: 'size-12',
-  md: 'size-14',
-  lg: 'size-18',
-  xl: 'size-24'
-};
-
-/** The same heights, for the extended button, which is as wide as its label. */
 const FAB_HEIGHT: Record<MPSize, string> = {
   xs: 'h-10',
   sm: 'h-12',
   md: 'h-14',
   lg: 'h-18',
   xl: 'h-24'
+};
+
+/**
+ * What makes it a disc: no room beside the glyph, and a floor under the width
+ * at the same rung as the height.
+ *
+ * `min-width` rather than `width`, which is what lets the button travel between
+ * this and `FAB_EXTENDED`. A definite width cannot be interpolated towards one
+ * that is `auto`; a floor can be raised, and the label's own track carries the
+ * rest of the distance.
+ */
+const FAB_SQUARE: Record<MPSize, string> = {
+  xs: 'min-w-10 gap-0 px-0',
+  sm: 'min-w-12 gap-0 px-0',
+  md: 'min-w-14 gap-0 px-0',
+  lg: 'min-w-18 gap-0 px-0',
+  xl: 'min-w-24 gap-0 px-0'
 };
 
 /**
@@ -286,10 +298,21 @@ export const MPFloatingActionButton = React.forwardRef<
         // drawn on top of the fill it is meant to be distinguishable from.
         'outline-mp-secondary focus-visible:outline-2 focus-visible:outline-offset-2',
         'focus-visible:outline-solid outline-none',
-        'transition-[background-color,box-shadow,color]',
-        'duration-(--mp-sys-motion-duration-short4)',
+        // `min-width`, `padding` and `gap` are here because extending is
+        // something a caller *changes*, most often on a scroll — MD3 draws the
+        // disc becoming a stadium rather than being replaced by one. The three
+        // of them are the button's own share of that distance; the label's
+        // track carries the rest, and the two are given the same numbers so
+        // they arrive together.
+        'transition-[background-color,box-shadow,color,min-width,padding,gap]',
+        'duration-(--mp-sys-motion-duration-short4) ease-mp-standard',
         FAB_CORNER[size],
-        extended ? `${FAB_HEIGHT[size]} ${FAB_EXTENDED[size]} ${FAB_TEXT[size]}` : FAB_SQUARE[size],
+        FAB_HEIGHT[size],
+        // Applied at both widths rather than only when there is a label to set,
+        // so the type scale is not a second thing changing while the button is
+        // already travelling.
+        FAB_TEXT[size],
+        extended ? FAB_EXTENDED[size] : FAB_SQUARE[size],
         // An if/else rather than stacked variants: two Tailwind classes of equal
         // specificity resolve by their order in the generated stylesheet.
         disabled
@@ -333,12 +356,40 @@ export const MPFloatingActionButton = React.forwardRef<
       ) : null}
 
       {/*
-       * The label is drawn only when the button is extended, and it is the same
-       * string the button is named by either way. `aria-hidden` on the drawn
-       * copy would be wrong — it *is* the name, and `aria-label` above simply
-       * repeats it so that a disc with no words still has one.
+       * The label, and the track it sits in.
+       *
+       * It is the same string the button is named by either way. `aria-hidden`
+       * on the drawn copy would be wrong — it *is* the name, and `aria-label`
+       * above simply repeats it so that a disc with no words still has one.
+       *
+       * The track is a grid column that travels between `0fr` and `1fr`, which
+       * is the one way to interpolate towards a width nobody knows: `1fr` of a
+       * single-column grid resolves to exactly what the label needs, and `0fr`
+       * to nothing at all, so the two ends are the real widths rather than a
+       * guess big enough to cover them. A `max-width` would have to name a
+       * number large enough for the longest label anyone might pass, and every
+       * shorter one would then finish arriving in the first fraction of the
+       * duration and sit still for the rest.
+       *
+       * `min-w-0` on the label, or a grid item's automatic minimum size would
+       * hold the track open at the width of the word inside it and there would
+       * be nothing to travel.
+       *
+       * The label stays mounted while the button is a disc. It has to: an
+       * element that is not there has no width to animate from. It is clipped
+       * to nothing by a zero-width track inside a button that already carries
+       * `overflow-hidden`, and it is not read twice, because `aria-label` names
+       * the button and a name replaces its contents rather than adding to them.
        */}
-      {extended ? <span className="relative truncate">{label}</span> : null}
+      <span
+        className={[
+          'relative grid transition-[grid-template-columns]',
+          'duration-(--mp-sys-motion-duration-short4) ease-mp-standard',
+          extended ? 'grid-cols-[1fr]' : 'grid-cols-[0fr]'
+        ].join(' ')}
+      >
+        <span className="min-w-0 truncate">{label}</span>
+      </span>
     </BaseUIButton>
   );
 });
