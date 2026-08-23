@@ -42,16 +42,53 @@ export const PORTAL_LAYER = 'mp-portal z-50 outline-none';
 export const SCRIM = 'bg-mp-scrim/32 [backdrop-filter:blur(2px)]';
 
 /**
- * Opacity, and only opacity.
+ * Opacity, and only opacity — what a **popup** arrives on.
  *
- * Everything that uses this is a box full of text. A surface that scales or
- * slides on the way in drags its own sentence across the screen while the reader
- * is already looking at it, and a menu that slides has moved the row the pointer
- * was already reaching for.
+ * A popup opens where the reader is already looking. A menu lands next to the
+ * row the pointer is on; a select's list covers the field that was just pressed;
+ * a tooltip appears under the thing being pointed at. All three are read the
+ * instant they appear, and all three would be moving the target out from under
+ * a pointer that is already travelling towards it. So none of them move.
+ *
+ * The scrim uses it too, which is the other reason it is one string: a dialog
+ * opened over an overlay would otherwise show a seam where two scrims of
+ * slightly different alpha fade in on slightly different curves.
  */
 export const FADE = [
   'transition-opacity duration-(--mp-sys-motion-duration-short4)',
   'ease-mp-standard',
+  'data-starting-style:opacity-0 data-ending-style:opacity-0'
+].join(' ');
+
+/**
+ * The timing a **sheet** arrives on, where `FADE` is the timing a popup arrives
+ * on.
+ *
+ * The dialog and the modal drawer are the two surfaces in this library that
+ * take the whole page rather than a corner of it. They are not opened *at* a
+ * target the way a popup is — nothing is under them that the reader was aiming
+ * for — and both are announcements rather than continuations, so both are given
+ * the specification's own arrival: slower coming in than going out, on the
+ * emphasized pair.
+ *
+ * `medium4` on `emphasized-decelerate` in, `short4` on `emphasized-accelerate`
+ * out. That asymmetry is the ladder `internal/animate.ts` sets out at length:
+ * something arriving is being introduced and is given time to read as an
+ * arrival; something leaving has already said what it had to say.
+ *
+ * `data-ending-style` is what makes it one declaration rather than two states to
+ * keep in step — the attribute is on the surface for exactly as long as it is
+ * closing, so the exit's numbers are the ones in force while the exit runs.
+ *
+ * What is *not* here is the `transition-property` or the travel. A dialog grows
+ * and a drawer slides, and each says so itself; this is only the pair of
+ * timings they must agree on, plus the fade both of them carry underneath.
+ */
+export const SHEET_MOTION = [
+  'duration-(--mp-sys-motion-duration-medium4)',
+  'ease-(--mp-sys-motion-easing-emphasized-decelerate)',
+  'data-ending-style:duration-(--mp-sys-motion-duration-short4)',
+  'data-ending-style:ease-(--mp-sys-motion-easing-emphasized-accelerate)',
   'data-starting-style:opacity-0 data-ending-style:opacity-0'
 ].join(' ');
 

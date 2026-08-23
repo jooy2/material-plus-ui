@@ -35,6 +35,14 @@ import { MPButton, MPDialog, MPDialogClose } from 'material-plus-ui';
 
 There is no `elevation` prop, for the same reason there is no `variant`: a dialog that could be told to sit flat on the page would be a dialog that could be told to stop being a dialog.
 
+It **grows** as it fades in — 400ms on `emphasized-decelerate` arriving, 200ms on `emphasized-accelerate` leaving, which is MD3's own pair and the same timing [MPDrawer](../layout/drawer) travels on.
+
+That makes it one of only two surfaces here that move. The rule the rest follow — a box full of text should not travel — is about opening _at_ something: a menu opens beside the row the pointer is on, a select's list covers the field that was just pressed, and moving either one moves the target out from under a pointer already travelling towards it. A dialog opens at nothing. What the grow adds over a bare fade is a direction, which is the difference between a sheet that arrived and a sheet that was always there and has only now been noticed.
+
+From 95% rather than the specification's 80%. Growing is the one transition in this library that resamples text while it plays, and 80% of a 560dp dialog starts it 56px narrower than it ends — far enough that the words visibly travel outwards and are soft most of the way. At 95% the box moves 14px, which reads as the sheet settling rather than as the sentence inside it moving.
+
+`fullScreen` only fades: a dialog that is already the window has no middle to grow out of. So does any dialog for a reader who has asked for less motion.
+
 ## `MPDialogClose`
 
 An uncontrolled dialog has no `setOpen` for its Cancel button to call, and the alternative — making every dialog controlled — is a piece of state per dialog that exists only to answer a button.

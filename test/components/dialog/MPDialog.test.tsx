@@ -191,6 +191,46 @@ describe('MPDialog', () => {
       expect(sheet.getBoundingClientRect().width).toBeCloseTo(window.innerWidth, 0);
     });
 
+    it('grows in and shrinks back out, faster than it arrived', async () => {
+      // MD3's own arrival for a surface that takes the page. The rule the other
+      // floating surfaces follow — do not move — is about opening *at* something
+      // the reader is aiming for, and a dialog opens at nothing.
+      const screen = await render(
+        <MPDialog trigger={<MPButton>Open</MPButton>} title="Delete project">
+          This cannot be undone.
+        </MPDialog>
+      );
+
+      await screen.getByRole('button', { name: 'Open' }).click();
+
+      const sheet = document.querySelector('.mp-dialog') as HTMLElement;
+
+      expect(getComputedStyle(sheet).transitionProperty).toBe('opacity, scale');
+      expect(getComputedStyle(sheet).scale).toBe('0.95');
+      expect(getComputedStyle(sheet).transitionDuration).toBe('0.4s');
+
+      await expect.poll(() => getComputedStyle(sheet).scale).toBe('none');
+
+      // The other half of `SHEET_MOTION`: a departure has already said what it
+      // had to say, so it is given half the time.
+      sheet.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+
+      await expect.poll(() => getComputedStyle(sheet).transitionDuration).toBe('0.2s');
+    });
+
+    it('only fades when it is full screen, having no middle to grow from', async () => {
+      await render(
+        <MPDialog defaultOpen fullScreen title="Settings">
+          Body
+        </MPDialog>
+      );
+
+      const sheet = document.querySelector('.mp-dialog') as HTMLElement;
+
+      expect(getComputedStyle(sheet).scale).toBe('none');
+      expect(sheet.className).not.toContain('scale-95');
+    });
+
     it('points the accent slots at the family the hero icon reads', async () => {
       await render(<MPDialog defaultOpen color="error" icon={<span>!</span>} title="Delete" />);
 

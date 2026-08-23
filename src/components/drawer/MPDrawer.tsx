@@ -13,7 +13,7 @@ import {
   SHEET_PAD_Y,
   SHEET_TITLE
 } from '../../internal/scale';
-import { FADE, PORTAL_LAYER, SCRIM } from '../../internal/surface';
+import { FADE, PORTAL_LAYER, SCRIM, SHEET_MOTION } from '../../internal/surface';
 import type { MPSide, MPSize } from '../../types';
 
 /**
@@ -235,33 +235,17 @@ const SLIDE: Record<MPSide, string> = {
 };
 
 /**
- * The modal panel's own motion, in place of the shared `FADE`.
+ * The panel's motion: the sheet timings, plus the property the slide needs.
  *
- * Two things it does that `FADE` cannot. It carries `translate` alongside
- * `opacity`, which is the slide; and it is **asymmetric** — `medium4` on
- * `emphasized-decelerate` coming in, `short4` on `emphasized-accelerate` going
- * out. That is MD3's own pair and the same ladder `internal/animate.ts` sets
- * for its slide effect: something arriving is being introduced and is given
- * time to read as an arrival, something leaving has already said what it had to
- * say.
- *
- * `data-ending-style` is what makes the asymmetry one declaration rather than
- * two states to keep in step: the attribute is on the panel for exactly as long
- * as it is closing, so the exit's numbers are the ones in force while the exit
- * runs.
+ * `SHEET_MOTION` is shared with the dialog, which is the other surface in this
+ * library that takes the whole page. What is added here is `translate` — the
+ * travel itself, which `SLIDE` supplies per side.
  *
  * `translate` stays in the transition list under reduced motion, and costs
  * nothing when it does: `SLIDE` declines to name a distance, so there is
  * nothing for it to travel.
  */
-const PANEL_MOTION = [
-  'transition-[opacity,translate]',
-  'duration-(--mp-sys-motion-duration-medium4)',
-  'ease-(--mp-sys-motion-easing-emphasized-decelerate)',
-  'data-ending-style:duration-(--mp-sys-motion-duration-short4)',
-  'data-ending-style:ease-(--mp-sys-motion-easing-emphasized-accelerate)',
-  'data-starting-style:opacity-0 data-ending-style:opacity-0'
-].join(' ');
+const PANEL_MOTION = `transition-[opacity,translate] ${SHEET_MOTION}`;
 
 const RULE = 'border-mp-outline-variant border-t';
 

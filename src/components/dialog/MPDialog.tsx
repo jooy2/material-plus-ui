@@ -6,7 +6,7 @@ import { accentSlots } from '../../internal/accent';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { SHEET_GAP, hasContent } from '../../internal/scale';
-import { FADE, PORTAL_LAYER, SCRIM } from '../../internal/surface';
+import { FADE, PORTAL_LAYER, SCRIM, SHEET_MOTION } from '../../internal/surface';
 import type { MPColor, MPSize } from '../../types';
 
 /**
@@ -145,6 +145,41 @@ const MAX_WIDTH: Record<MPSize, string> = {
   lg: 'max-w-[720px]',
   xl: 'max-w-[960px]'
 };
+
+/** The sheet timings, plus the property the grow needs. */
+const POPUP_MOTION = `transition-[opacity,scale] ${SHEET_MOTION}`;
+
+/**
+ * The grow, and the argument for it.
+ *
+ * `internal/surface.ts` says a floating surface should not move, and it is
+ * right about the surfaces it was written for: a menu, a popover, a select's
+ * list all open *at* something the reader is already looking at, and moving one
+ * moves the target out from under a pointer that is already travelling towards
+ * it. A dialog opens at nothing. It takes the page, it is announced by the
+ * scrim arriving under it, and there is no row underneath it to displace.
+ *
+ * So MD3's own answer applies: the container grows as it fades. What that adds
+ * over a bare fade is a **direction** — outwards, from a centre — which is the
+ * difference between a sheet that arrived and a sheet that was always there and
+ * has only now been noticed.
+ *
+ * 95% rather than the specification's 80%. Growing is the one transition in this
+ * library that resamples text while it plays, and 80% of a 560px dialog starts
+ * it 56px narrower than it ends — far enough that the words visibly travel
+ * outwards and are soft for most of the way. At 95% the box moves 14px, which
+ * reads as the sheet settling rather than as the sentence inside it moving. The
+ * shape of the specification's motion, at a strength a box full of text can
+ * carry.
+ *
+ * `motion-safe:` for the reason `MPDrawer`'s `SLIDE` gives: negating four
+ * `data-*` utilities would need four more of equal specificity, where declining
+ * to declare them needs none. What is left is the plain fade this sheet had.
+ */
+const GROW = [
+  'motion-safe:data-starting-style:scale-95',
+  'motion-safe:data-ending-style:scale-95'
+].join(' ');
 
 /**
  * The room inside the sheet, and deliberately not `SHEET_PAD`.
@@ -335,7 +370,12 @@ export function MPDialog({
                 : `rounded-mp-xl max-h-full ${width === undefined ? MAX_WIDTH[size] : ''}`,
               !fullScreen && !fullWidth ? 'w-auto' : '',
               dividers ? '' : `${PAD_Y[size]} ${SHEET_GAP[size]}`,
-              FADE,
+              POPUP_MOTION,
+              // A full-screen dialog has no middle to grow out of — it *is* the
+              // window — so it only fades. Growing one would mean scaling the
+              // whole page's worth of content by the same fraction, and its
+              // edges are already the window's edges to begin with.
+              fullScreen ? '' : GROW,
               className ?? ''
             ]
               .filter(Boolean)
