@@ -694,6 +694,57 @@ function DayGrid({
     );
   }, [month, weekStartsOn, locale]);
 
+  /*
+   * The page turn.
+   *
+   * A month that swapped in place said which month it was in the header and
+   * nothing at all about which way the reader had gone — forward and back were
+   * the same event, on a control whose whole job is moving between them. MD3
+   * turns the page, and this is that: the arriving weeks come from the side
+   * they were fetched from and settle.
+   *
+   * Only the weeks. The weekday names above them do not change from one month
+   * to the next, and a Monday sliding in to become Monday is motion that says
+   * something happened when nothing did — which is why the two are now separate
+   * `rowgroup`s rather than a header row loose among the weeks. That is also the
+   * arrangement a table has, so the ARIA is more honest than it was.
+   *
+   * Restarted by clearing `animation-name` and putting it back, exactly as
+   * `internal/animate.ts` does and for the same reason: there is no way to
+   * rewind a CSS animation from React, re-rendering with the same class changes
+   * nothing, and a `key` would restart it by unmounting six rows of cells —
+   * taking the focused one with them, in the middle of an arrow-key walk that
+   * crossed a month boundary.
+   *
+   * The direction is a sign rather than a length, so the distance lives in the
+   * stylesheet with the keyframe that reads it. It is flipped under RTL because
+   * `translate` is physical and the header's own chevrons already flip: a
+   * "next" arrow pointing left that turned the page rightwards would be two
+   * halves of one control disagreeing.
+   */
+  const page = React.useRef<HTMLDivElement | null>(null);
+  const previousMonth = React.useRef(month);
+
+  React.useLayoutEffect(() => {
+    const element = page.current;
+    const before = previousMonth.current;
+
+    previousMonth.current = month;
+
+    if (!element || isSameMonth(before, month)) {
+      return;
+    }
+
+    const forward = before.getTime() < month.getTime();
+    const rtl = getComputedStyle(element).direction === 'rtl';
+
+    element.style.setProperty('--_mp-calendar-from', String(forward === rtl ? -1 : 1));
+    element.dataset.mpPaged = 'true';
+    element.style.animationName = 'none';
+    void element.offsetWidth;
+    element.style.animationName = '';
+  }, [month]);
+
   const onKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>, date: Date) => {
     const offsetInWeek = (date.getDay() - weekStartsOn + 7) % 7;
     const moves: Record<string, () => Date> = {
@@ -726,75 +777,79 @@ function DayGrid({
       aria-label={dateFormatter(locale, { year: 'numeric', month: 'long' }).format(month)}
       className="flex h-full flex-col"
     >
-      <div role="row" className="grid grid-cols-7">
-        {narrow.map((label, index) => (
-          <span
-            key={index}
-            role="columnheader"
-            aria-label={long[index]}
-            className={`text-mp-on-surface-variant flex h-(--_mp-cell) items-center justify-center select-none ${META_TEXT}`}
-          >
-            {label}
-          </span>
-        ))}
+      <div role="rowgroup">
+        <div role="row" className="grid grid-cols-7">
+          {narrow.map((label, index) => (
+            <span
+              key={index}
+              role="columnheader"
+              aria-label={long[index]}
+              className={`text-mp-on-surface-variant flex h-(--_mp-cell) items-center justify-center select-none ${META_TEXT}`}
+            >
+              {label}
+            </span>
+          ))}
+        </div>
       </div>
 
-      {cells.map((week, weekIndex) => (
-        <div role="row" key={weekIndex} className="grid grid-cols-7">
-          {week.map(({ date, label }) => {
-            const outside = !isSameMonth(date, month);
+      <div ref={page} role="rowgroup" className="mp-calendar__page flex flex-1 flex-col">
+        {cells.map((week, weekIndex) => (
+          <div role="row" key={weekIndex} className="grid grid-cols-7">
+            {week.map(({ date, label }) => {
+              const outside = !isSameMonth(date, month);
 
-            // A hole the size of a cell rather than a missing one: the grid has
-            // to keep its seven columns and six rows whatever month it is on.
-            if (outside && !showOutsideDays) {
+              // A hole the size of a cell rather than a missing one: the grid has
+              // to keep its seven columns and six rows whatever month it is on.
+              if (outside && !showOutsideDays) {
+                return (
+                  <span
+                    key={date.getTime()}
+                    role="gridcell"
+                    aria-hidden="true"
+                    className="size-(--_mp-cell)"
+                  />
+                );
+              }
+
+              const isChosen = chosen.some((entry) => isSameDay(entry, date));
+              const within =
+                band !== null && compareDay(date, band[0]) >= 0 && compareDay(date, band[1]) <= 0;
+              const atStart = band !== null && within && isSameDay(date, band[0]);
+              const atEnd = band !== null && within && isSameDay(date, band[1]);
+
               return (
-                <span
+                <Cell
                   key={date.getTime()}
-                  role="gridcell"
-                  aria-hidden="true"
-                  className="size-(--_mp-cell)"
-                />
+                  label={label}
+                  selected={isChosen}
+                  inRange={within && !isChosen}
+                  rangeEdge={
+                    !within
+                      ? null
+                      : atStart && atEnd
+                        ? 'both'
+                        : atStart
+                          ? 'start'
+                          : atEnd
+                            ? 'end'
+                            : 'middle'
+                  }
+                  current={isSameDay(date, now) && !isChosen}
+                  muted={outside}
+                  disabled={isDisabled(date)}
+                  focused={isSameDay(date, focusedDate)}
+                  className={`size-(--_mp-cell) ${PROSE_TEXT[size]}`}
+                  onClick={() => onSelect(date)}
+                  onPointerEnter={() => onPreviewChange?.(date)}
+                  onKeyDown={(event) => onKeyDown(event, date)}
+                >
+                  {date.getDate()}
+                </Cell>
               );
-            }
-
-            const isChosen = chosen.some((entry) => isSameDay(entry, date));
-            const within =
-              band !== null && compareDay(date, band[0]) >= 0 && compareDay(date, band[1]) <= 0;
-            const atStart = band !== null && within && isSameDay(date, band[0]);
-            const atEnd = band !== null && within && isSameDay(date, band[1]);
-
-            return (
-              <Cell
-                key={date.getTime()}
-                label={label}
-                selected={isChosen}
-                inRange={within && !isChosen}
-                rangeEdge={
-                  !within
-                    ? null
-                    : atStart && atEnd
-                      ? 'both'
-                      : atStart
-                        ? 'start'
-                        : atEnd
-                          ? 'end'
-                          : 'middle'
-                }
-                current={isSameDay(date, now) && !isChosen}
-                muted={outside}
-                disabled={isDisabled(date)}
-                focused={isSameDay(date, focusedDate)}
-                className={`size-(--_mp-cell) ${PROSE_TEXT[size]}`}
-                onClick={() => onSelect(date)}
-                onPointerEnter={() => onPreviewChange?.(date)}
-                onKeyDown={(event) => onKeyDown(event, date)}
-              >
-                {date.getDate()}
-              </Cell>
-            );
-          })}
-        </div>
-      ))}
+            })}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

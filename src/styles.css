@@ -1528,6 +1528,49 @@
 }
 
 /* ---------------------------------------------------------------------------
+ * The calendar's page turn
+ *
+ * A keyframe rather than a transition, for the reason the indicators above are:
+ * what changes when a month is stepped is the *content* of six rows, and there
+ * are no two states for CSS to interpolate between — the weeks that were there
+ * are gone. An animation on the arriving set is the only thing there is to run.
+ *
+ * `internal/Calendar.tsx` supplies the direction as a sign and restarts the
+ * animation by clearing `animation-name` and putting it back, which is the same
+ * move `internal/animate.ts` makes and for the same reason: React cannot rewind
+ * a CSS animation, and a `key` would restart it by unmounting the cell the
+ * reader's focus is standing on.
+ *
+ * The distance is one cell, which is deliberately short. A full grid's width
+ * would be a filmstrip, and the thing being said is only which way the reader
+ * went — a page that comes from the right and settles says that in the first
+ * hundred milliseconds, and the rest of the animation is the numbers arriving
+ * where they can be read.
+ *
+ * Unlayered, like the keyframes above, and switched off for a reader who asked
+ * for less motion. What is left then is the swap the grid did before, which
+ * loses the direction and nothing else.
+ * ------------------------------------------------------------------------- */
+
+@keyframes mp-calendar-page {
+  from {
+    opacity: 0;
+    translate: calc(var(--_mp-calendar-from, 0) * var(--_mp-cell)) 0;
+  }
+}
+
+.mp-calendar__page[data-mp-paged] {
+  animation: mp-calendar-page var(--mp-sys-motion-duration-medium2)
+    var(--mp-sys-motion-easing-emphasized-decelerate);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mp-calendar__page[data-mp-paged] {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
  * Animation
  *
  * The `MPAnimate*` components. Real CSS for the reason the loading indicators

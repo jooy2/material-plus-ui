@@ -530,5 +530,75 @@ describe('MPDatePicker', () => {
         .element(screen.getByRole('button', { name: 'Choose a month' }))
         .toHaveTextContent('June');
     });
+
+    it('keeps the focused cell through a page turn', async () => {
+      // The page turn is restarted by clearing `animation-name` rather than by
+      // keying the rows, precisely so that this holds: a `key` would unmount six
+      // rows of cells and take the focused one with them, in the middle of an
+      // arrow-key walk that crossed a month boundary.
+      const screen = await render(<Controlled initial={new Date(2026, 6, 1)} />);
+
+      await screen.getByRole('button', { name: 'Due date' }).click();
+
+      const cell = screen
+        .getByRole('gridcell', { name: 'Wednesday, July 1, 2026' })
+        .element() as HTMLElement;
+
+      cell.focus();
+      cell.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true, cancelable: true })
+      );
+
+      await expect
+        .element(screen.getByRole('gridcell', { name: 'Tuesday, June 30, 2026' }))
+        .toHaveFocus();
+    });
+  });
+
+  describe('the page turn', () => {
+    it('turns the weeks from the side they were fetched from', async () => {
+      // A month that swapped in place said which month it was in the header and
+      // nothing about which way the reader went. The sign is what carries that;
+      // the distance lives with the keyframe that reads it.
+      const screen = await render(<Controlled />);
+
+      await screen.getByRole('button', { name: 'Due date' }).click();
+
+      const page = () => document.querySelector('.mp-calendar__page') as HTMLElement;
+
+      // Nothing on the way in — the calendar has only just been opened, and a
+      // grid that turned a page onto its own first month would be answering a
+      // question nobody asked.
+      expect(page().dataset.mpPaged).toBeUndefined();
+      expect(getComputedStyle(page()).animationName).toBe('none');
+
+      await screen.getByRole('button', { name: 'Next month' }).click();
+
+      expect(getComputedStyle(page()).animationName).toBe('mp-calendar-page');
+      expect(page().style.getPropertyValue('--_mp-calendar-from')).toBe('1');
+
+      await screen.getByRole('button', { name: 'Previous month' }).click();
+
+      expect(page().style.getPropertyValue('--_mp-calendar-from')).toBe('-1');
+      // Restarted rather than left to finish: stepping twice quickly has to play
+      // twice, and re-rendering with the same class would change nothing.
+      expect(page().getAnimations()).toHaveLength(1);
+    });
+
+    it('turns only the weeks, leaving the weekday names where they are', async () => {
+      // A Monday sliding in to become Monday is motion that says something
+      // happened when nothing did. The two rowgroups are what separate them —
+      // and are the arrangement a table has anyway.
+      const screen = await render(<Controlled />);
+
+      await screen.getByRole('button', { name: 'Due date' }).click();
+
+      const groups = document.querySelectorAll('.mp-calendar [role="rowgroup"]');
+
+      expect(groups).toHaveLength(2);
+      expect(groups[0].querySelectorAll('[role="columnheader"]')).toHaveLength(7);
+      expect(groups[1]).toHaveClass('mp-calendar__page');
+      expect(groups[1].querySelectorAll('[role="row"]').length).toBeGreaterThan(3);
+    });
   });
 });

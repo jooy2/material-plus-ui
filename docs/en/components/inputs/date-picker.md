@@ -29,6 +29,12 @@ A picker that only steps a month at a time puts a birthday thirty years back a h
 
 The three views are deliberately the same width _and_ the same height. The day view is seven rows counting its header, and the other two stretch four rows and three rows across that same height, so switching view never resizes the popup under the pointer that opened it.
 
+Stepping a month **turns the page**: the arriving weeks come in from the side they were fetched from and settle. A grid that swapped in place said which month it was in the header and nothing at all about which way the reader had gone, on a control whose whole job is moving between them.
+
+Only the weeks turn. The weekday names above them do not change from one month to the next, and a Monday sliding in to become Monday is motion that says something happened when nothing did.
+
+A reader who has asked for less motion gets the swap, which loses the direction and nothing else.
+
 ## No date library, and no typing
 
 Two decisions that are really one.
