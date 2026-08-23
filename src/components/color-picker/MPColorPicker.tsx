@@ -581,18 +581,39 @@ function ColorPanel({
                 className={[
                   'border-mp-outline-variant flex aspect-square items-center justify-center',
                   'rounded-full border',
+                  // The shadow the hover raises has to arrive rather than snap
+                  // on: an elevation that appears in one frame reads as the
+                  // swatch flickering, not as it lifting.
+                  'transition-[box-shadow] duration-(--mp-sys-motion-duration-short4)',
+                  'ease-mp-standard',
                   ring,
                   inert ? 'cursor-default' : 'hover:shadow-mp-1 cursor-pointer'
                 ].join(' ')}
                 style={{ backgroundColor: swatch }}
               >
-                {/* Black or white, decided by what can actually be read on the
+                {/* The tick fades between swatches rather than jumping from one
+                    to the next, which is the whole of what choosing a swatch
+                    looks like — the swatch itself does not change, so the mark
+                    moving *is* the feedback.
+
+                    Always rendered, at zero opacity where it is not the chosen
+                    one: a mark that is not in the DOM has nothing to fade from,
+                    and there is nothing to hide either way, since a swatch is
+                    named by its colour rather than by its state.
+
+                    Black or white, decided by what can actually be read on the
                     swatch — a fixed white tick vanishes on yellow. */}
-                {chosen && parsed ? (
-                  <span style={{ color: readableInk(parsed.hsv) }}>
-                    <MPIcon icon={CheckIcon} size={12} />
-                  </span>
-                ) : null}
+                <span
+                  aria-hidden="true"
+                  className={[
+                    'transition-opacity duration-(--mp-sys-motion-duration-short4)',
+                    'ease-mp-standard',
+                    chosen ? 'opacity-100' : 'opacity-0'
+                  ].join(' ')}
+                  style={parsed ? { color: readableInk(parsed.hsv) } : undefined}
+                >
+                  <MPIcon icon={CheckIcon} size={12} />
+                </span>
               </button>
             );
           })}

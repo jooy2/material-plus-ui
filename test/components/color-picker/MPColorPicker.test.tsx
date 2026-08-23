@@ -197,6 +197,30 @@ describe('MPColorPicker', () => {
       );
     });
 
+    it('fades the tick between swatches rather than jumping it', async () => {
+      // Choosing a swatch does not change the swatch, so the mark moving is the
+      // whole of the feedback. It is drawn on every swatch and transparent on
+      // all but the chosen one — a mark that is not in the DOM has nothing to
+      // fade from, and there is nothing to hide either way, since a swatch is
+      // named by its colour rather than by its state.
+      const screen = await render(
+        <Controlled initial="#00ff00" inline swatches={['#ff0000', '#00ff00']} />
+      );
+      const tick = (name: string) =>
+        getComputedStyle(
+          screen.getByRole('button', { name }).element().querySelector('span[aria-hidden]')!
+        );
+
+      expect(tick('#00ff00').opacity).toBe('1');
+      expect(tick('#ff0000').opacity).toBe('0');
+      expect(tick('#ff0000').transitionProperty).toBe('opacity');
+
+      await screen.getByRole('button', { name: '#ff0000' }).click();
+
+      await expect.poll(() => tick('#ff0000').opacity).toBe('1');
+      await expect.poll(() => tick('#00ff00').opacity).toBe('0');
+    });
+
     it('accepts a value typed into the field', async () => {
       const screen = await render(<Controlled inline />);
 

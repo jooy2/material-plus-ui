@@ -47,6 +47,8 @@ There is no colour library under this. The conversions are a hundred lines of ar
 
 `swatches` puts the handful of colours a product actually uses one click away; `false` draws none.
 
+The tick fades from one swatch to the next rather than jumping. Choosing a swatch does not change the swatch, so the mark moving is the whole of the feedback — and a mark that arrived in one frame would read as a flicker rather than as a choice. A hovered swatch lifts to elevation 1 over the same 200ms.
+
 ### floatingLabel
 
 While there is no colour and the trigger is unfocused, the label rests on the trigger's own line and rises into the notch on focus or on the first colour. See [MPTextField](./text-field#floatinglabel) for the rule in full.
