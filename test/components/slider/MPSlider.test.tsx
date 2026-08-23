@@ -148,6 +148,45 @@ describe('MPSlider', () => {
       // The keyboard commits on every press: there is no drag to end.
       expect(onValueCommitted).toHaveBeenCalledWith(41);
     });
+
+    it('travels to a value it was not dragged to, and never while it is', async () => {
+      // Two ways a slider moves, and only one of them wants a transition. A
+      // keyboard step or a click on the track is a jump, and the handle should
+      // go there rather than appear there. A drag is the handle being *held*,
+      // and a transition would leave it trailing the pointer by its own
+      // duration — the reader would be pushing a spring.
+      const screen = await render(<ControlledSlider initial={40} />);
+      const handle = screen.container.querySelector('.mp-slider__handle') as HTMLElement;
+      const indicator = screen.container.querySelector('.mp-slider__track > *') as HTMLElement;
+      const control = screen.container.querySelector('.mp-slider__control') as HTMLElement;
+
+      // Both axes are named because Base UI places the parts with inline styles
+      // and picks a different property per orientation.
+      expect(getComputedStyle(handle).transitionProperty).toBe('inset-inline-start, bottom');
+      expect(getComputedStyle(indicator).transitionProperty).toBe(
+        'inset-inline-start, width, bottom, height'
+      );
+      // `short2`, not the library's usual `short4`: an arrow key held down
+      // repeats faster than 200ms.
+      expect(getComputedStyle(handle).transitionDuration).toBe('0.1s');
+
+      const box = control.getBoundingClientRect();
+
+      handle.dispatchEvent(
+        new PointerEvent('pointerdown', {
+          bubbles: true,
+          pointerId: 1,
+          clientX: box.x + box.width * 0.4,
+          clientY: box.y + box.height / 2,
+          button: 0
+        })
+      );
+
+      await expect.poll(() => control.hasAttribute('data-dragging')).toBe(true);
+
+      expect(getComputedStyle(handle).transitionProperty).toBe('none');
+      expect(getComputedStyle(indicator).transitionProperty).toBe('none');
+    });
   });
 
   describe('states', () => {

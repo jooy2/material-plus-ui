@@ -958,16 +958,23 @@
     /*
      * Motion.
      *
-     * Six of MD3's sixteen duration tokens and six of its seven easing curves —
-     * the ones something in the library actually reads, on the rule every other
-     * token here follows. `short4` is what a text field's label and outline
-     * transition on; the rest arrived with the `MPAnimate*` components, which
-     * take these as their defaults rather than numbers of their own.
+     * Seven of MD3's sixteen duration tokens and six of its seven easing curves
+     * — the ones something in the library actually reads, on the rule every
+     * other token here follows. `short4` is what a text field's label and
+     * outline transition on; most of the rest arrived with the `MPAnimate*`
+     * components, which take these as their defaults rather than numbers of
+     * their own.
+     *
+     * `short2` is the shortest of them and has one reader: an `MPSlider`'s
+     * handle catching up with a value the keyboard moved. A control the reader
+     * is holding an arrow key on has to arrive before the next press, and 200ms
+     * is longer than a key repeats.
      *
      * Worth knowing if these controls sit beside another library's: 250ms is a
      * common default elsewhere, and a field from here will settle slightly
      * sooner unless `short4` is set to match.
      */
+    --mp-sys-motion-duration-short2: 100ms;
     --mp-sys-motion-duration-short4: 200ms;
     --mp-sys-motion-duration-medium2: 300ms;
     --mp-sys-motion-duration-medium4: 400ms;

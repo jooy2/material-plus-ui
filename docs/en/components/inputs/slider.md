@@ -64,6 +64,16 @@ Material's 2025 revision draws the handle as a tall thin bar with a gap either s
 
 The gap has to be punched out of the track with a colour that matches whatever the slider is sitting on, and a component library does not know what that is. A handle that assumes the page is `surface` leaves a pale notch in the track on every screen that is not — a card, a dialog, a coloured panel. The circle has no such dependency.
 
+## The handle travels, except while you are holding it
+
+A slider moves in two quite different ways, and only one of them wants a transition.
+
+An arrow key, <kbd>Page Up</kbd> or a click on the track is a **jump**, and the handle goes there over 100ms rather than appearing there — the same thing a tab indicator does when a tab is chosen with the keyboard.
+
+A drag is the handle being **held**, and a transition there would leave it trailing the pointer by its own duration: the reader would be pushing a spring. So it is switched off for as long as the control is being dragged.
+
+100ms rather than the 200ms the rest of the library settles on, because an arrow key held down repeats faster than 200ms — a handle on the longer duration would never finish one step before the next began.
+
 ## Accessibility
 
 - Each handle is a real `<input type="range">`, so the range is the native `min` and `max` — an assistive technology reads the same numbers a form does.

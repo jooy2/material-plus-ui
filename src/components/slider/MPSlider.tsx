@@ -25,6 +25,36 @@ const RAIL: Record<
   xl: { thickness: 'h-2', cross: 'w-2', handle: 'size-7', strip: 'h-12', stripCross: 'w-12' }
 };
 
+/**
+ * The handle catching up with a value it did not drag to.
+ *
+ * A slider moves in two quite different ways. Under a pointer it is *being*
+ * dragged, and the one thing it must do then is stay under the finger — so this
+ * is switched off while `data-dragging` is on the control, or the handle would
+ * trail the pointer by the length of the transition and the reader would be
+ * pushing a spring.
+ *
+ * Every other way it moves is a jump: an arrow key, Page Up, a click on the
+ * track. Those are the ones this is for, and it is the same thing the tab
+ * indicator does when a tab is chosen with the keyboard — a mark that travels to
+ * where it is going rather than teleporting there.
+ *
+ * `short2` rather than the library's usual `short4`. An arrow key held down
+ * repeats faster than 200ms, so a handle on the longer duration would never
+ * finish one step before starting the next and would drift behind the value it
+ * is drawing.
+ *
+ * The properties are written out for both orientations because Base UI positions
+ * the parts with inline styles and picks different ones per axis: a horizontal
+ * handle is placed by `inset-inline-start` and a vertical one by `bottom`, and
+ * the indicator grows by `width` or by `height` from a start that is itself one
+ * of the two.
+ */
+const TRAVEL = [
+  'duration-(--mp-sys-motion-duration-short2) ease-mp-standard',
+  'motion-reduce:transition-none'
+].join(' ');
+
 /** The halo, which is the same 40dp target every other tick in the library has. */
 const HALO: Record<MPSize, string> = {
   xs: 'size-8',
@@ -185,7 +215,7 @@ export const MPSlider = React.forwardRef<HTMLDivElement, MPSliderProps>(function
 
       <Slider.Control
         className={[
-          'mp-slider__control flex touch-none items-center justify-center select-none',
+          'mp-slider__control group/rail flex touch-none items-center justify-center select-none',
           vertical ? `${rail.stripCross} h-40 flex-col` : `w-full ${rail.strip}`,
           disabled ? '' : 'cursor-pointer'
         ]
@@ -202,6 +232,9 @@ export const MPSlider = React.forwardRef<HTMLDivElement, MPSliderProps>(function
           <Slider.Indicator
             className={[
               'rounded-mp-full',
+              '[transition-property:inset-inline-start,width,bottom,height]',
+              TRAVEL,
+              'group-data-dragging/rail:transition-none',
               disabled ? 'bg-mp-on-surface/38' : 'bg-(--_mp-accent)'
             ].join(' ')}
           />
@@ -217,6 +250,11 @@ export const MPSlider = React.forwardRef<HTMLDivElement, MPSliderProps>(function
               aria-label={hasContent(label) ? undefined : ariaLabel}
               className={[
                 'mp-slider__handle group rounded-mp-full relative outline-none',
+                '[transition-property:inset-inline-start,bottom]',
+                TRAVEL,
+                // The handle carries `data-dragging` itself, so this needs no
+                // group of its own the way the indicator does.
+                'data-dragging:transition-none',
                 rail.handle,
                 disabled
                   ? 'bg-mp-on-surface/38 cursor-default'
