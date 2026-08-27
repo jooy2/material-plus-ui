@@ -48,6 +48,32 @@ import 'material-plus-ui/styles.css';
 
 This is **finished CSS**: the design tokens and the real rules behind every utility class the components use. There is no build-side configuration, no PostCSS plugin and no `@source`.
 
+### If you only render a few components
+
+The sheet above is every rule the library has, and for most projects that is the right trade: one line, and never a thought about which components are on the page. It is also 109 kB — 15.6 kB compressed — whether the page renders one component or all of them, because Tailwind generates from a file scan and not from your imports.
+
+So the package also ships the same rules cut along the same seams the components are: the tokens once, and a sheet per component.
+
+```ts
+import 'material-plus-ui/styles/tokens.css';
+import 'material-plus-ui/styles/button.css';
+import 'material-plus-ui/styles/text-field.css';
+```
+
+`tokens.css` first, always — it declares the layer order and the colour roles every other sheet reads. The component sheets are named after the directories in the package, which are the kebab-cased component names: `date-range-picker.css`, `animate-fade.css`.
+
+| Components on the page | The whole sheet | Tokens plus a sheet each |
+| ---------------------- | --------------- | ------------------------ |
+| 1                      | 15.6 kB         | 3.8 kB                   |
+| 5                      | 15.6 kB         | 5.5 kB                   |
+| 10                     | 15.6 kB         | 8.0 kB                   |
+| 20                     | 15.6 kB         | 11.9 kB                  |
+| 30 or more             | 15.6 kB         | 15.6 kB and climbing     |
+
+Compressed, as a bundler would concatenate them. The sheets repeat each other — `flex` is in a dozen of them — so their total climbs faster than the whole sheet's does and eventually passes it, at around thirty components. Past that, `styles.css` is both smaller and one line.
+
+Two things this path is not. It is not tree-shaking: nothing drops a sheet you imported and did not use, so the list is yours to keep honest. And it is not for a project running Tailwind — that one generates the utilities in its own pass, and the section below is the whole of its setup.
+
 ### It contains no reset
 
 Material Plus adds no page-level styling of any kind — no Preflight, no baseline, nothing that reaches an element it did not render. A component resets what it owns on the element it owns: a `<button>`'s browser-default grey background, a control's font, which a native form control does not inherit.
@@ -232,13 +258,15 @@ The ladder is the one place the library knowingly goes beyond the specification.
 
 ## What is in the package
 
-| Export                             | What it is                                           |
-| ---------------------------------- | ---------------------------------------------------- |
-| `material-plus-ui`                 | Every component and type                             |
-| `material-plus-ui/types`           | The shared prop vocabulary on its own                |
+| Export | What it is |
+| --- | --- |
+| `material-plus-ui` | Every component and type |
+| `material-plus-ui/types` | The shared prop vocabulary on its own |
 | `material-plus-ui/constants/icons` | The icon set, as named exports and as a lookup table |
-| `material-plus-ui/styles.css`      | Finished CSS, for a project with no Tailwind         |
-| `material-plus-ui/tailwind.css`    | Tokens and `@source`, for a project that has it      |
+| `material-plus-ui/locales` | The eighteen translations, none of them loaded until you ask |
+| `material-plus-ui/styles.css` | Finished CSS, for a project with no Tailwind |
+| `material-plus-ui/styles/*.css` | The same CSS, one sheet per component |
+| `material-plus-ui/tailwind.css` | Tokens and `@source`, for a project that has it |
 
 ## Next
 

@@ -22,7 +22,7 @@ It follows the specification directly rather than wrapping somebody's implementa
 - **It coexists.** Nothing here is page-level — no reset, no provider, no global styling — and it reads the `--md-sys-color-*` tokens your page already has if they are there. A project already running Material keeps its own setup.
 - **IME-safe by construction.** Korean, Japanese and Chinese composition survives whatever your `onChange` does with the value.
 - **Bring your own icons.** `MPIcon` takes a component or an element from any set. `lucide-react` ships with the package, gathered in one readable constants file.
-- **ESM only**, TypeScript declarations included, tree-shakeable — every component compiles to its own module.
+- **ESM only**, TypeScript declarations included, and tree-shakeable for real: one component is 3.4 kB gzipped and five are 7.4 kB, against 64 kB for all ninety-four. The stylesheet splits the same way.
 - **One runtime dependency.** React 18 or 19, Node.js 18 or later.
 
 ## Documentation
@@ -72,6 +72,26 @@ If Tailwind v4 is already in your project, import the token sheet instead:
 @import 'tailwindcss';
 @import 'material-plus-ui/tailwind.css';
 ```
+
+A page that renders a handful of components can take the tokens and a sheet each instead of the whole 109 kB — 3.8 kB gzipped for one component against 15.6 kB for the lot. [The guide](https://material-plus.cdget.com/guide/getting-started#if-you-only-render-a-few-components) has the numbers and where the two paths cross.
+
+```ts
+import 'material-plus-ui/styles/tokens.css';
+import 'material-plus-ui/styles/button.css';
+```
+
+### Languages other than English
+
+The library carries English. Every other translation is a module you hand over, once, at startup:
+
+```ts
+import { registerMPMessages } from 'material-plus-ui';
+import { ko } from 'material-plus-ui/locales';
+
+registerMPMessages(ko);
+```
+
+After that `locale="ko"` resolves the way it always did. Eighteen languages ship; `registerMPMessages(...LOCALES)` takes all of them, a tag nobody registered falls back to English, and a table of your own is a plain object. See [the localisation guide](https://material-plus.cdget.com/design/localization).
 
 ## Usage
 

@@ -30,6 +30,54 @@ The split is deliberate and it is the reason there is no bundled list of month n
 
 So a language this library has no table for is **not a dead end**. The calendar is still in that language; only a handful of words are English, and `labels` fills those in one at a time.
 
+## Registering a language
+
+The library ships English and nothing else. Every other translation is a module you import, and handing it over is one line at startup:
+
+```ts
+import { registerMPMessages } from 'material-plus-ui';
+import { ko } from 'material-plus-ui/locales';
+
+registerMPMessages(ko);
+```
+
+From then on `locale="ko"` — on a provider or on a component — resolves exactly as it would have if the table had been built in, because it is the same table.
+
+This is the one thing on this page that is not free. A table of every string in every language is twenty kilobytes, and a component that says one word held a static import chain down to all of it: `MPButton` says _Loading_, and a page that rendered a button carried Thai to do it. Nothing in the library imports the tables now, so a bundler leaves out the ones you did not ask for. English costs about a kilobyte; each language you register costs about six hundred bytes more.
+
+Register them all if that is what you want — it is the same cost the library used to charge everybody:
+
+```ts
+import { registerMPMessages } from 'material-plus-ui';
+import { LOCALES } from 'material-plus-ui/locales';
+
+registerMPMessages(...LOCALES);
+```
+
+Or take one language on its own path, which is the smallest thing you can import:
+
+```ts
+import { ko } from 'material-plus-ui/locales/ko';
+```
+
+Call it once, before anything renders — it is module-level state, and a table that arrives after a component has resolved its strings only takes effect at the next render.
+
+### A language this library does not ship
+
+`MPLocale` is a plain object, so a table of your own is as good as one of ours:
+
+```ts
+registerMPMessages({
+  locale: 'sv',
+  messages: {
+    common: { close: 'Stäng', clear: 'Rensa' },
+    picker: { today: 'I dag', done: 'Klar' }
+  }
+});
+```
+
+Anything left out falls back to English, a namespace at a time, exactly as a partial shipped translation does. `aliases` is there for the case Chinese needs — `{ locale: 'zh-hant', aliases: ['zh-TW', 'zh-HK'] }` — one table under several tags.
+
 ## Setting it
 
 Three places, in the order they win.
@@ -39,6 +87,8 @@ Three places, in the order they win.
 ```tsx
 <MPDatePicker locale="ja" label="期限" />
 ```
+
+(Registered as above. Everything in this section is about which tag reaches a component; whether there is a table behind that tag is the section before it.)
 
 One control in a different language from the page around it is a real thing — an admin editing a Japanese listing from a Korean dashboard — and a library that cannot draw it has decided the page's language on the caller's behalf.
 
@@ -82,6 +132,8 @@ A locale cannot travel that way. It decides which **string** is rendered, not ho
 ## The languages with a table
 
 Arabic, Chinese (Simplified and Traditional), Dutch, English, French, German, Hindi, Indonesian, Italian, Japanese, Korean, Polish, Portuguese, Russian, Spanish, Thai, Turkish, Vietnamese.
+
+English is the one that is always there. The other eighteen are modules under `material-plus-ui/locales`, exported under their tag with the hyphenated ones camel-cased — `ko`, `ja`, `zhHans`, `zhHant`, `pt` — and each is also its own path, `material-plus-ui/locales/zh-hant`. A tag nobody registered is not an error: it falls back to English exactly the way a tag with no table at all does, so forgetting the line costs you the words and never the render.
 
 Tags are matched broadest-match-last: `pt-BR` asks for `pt-br` and then `pt`; `zh-Hant-TW` asks for `zh-hant`, then `zh-tw`, then `zh`. Chinese is keyed by **script** rather than by region, because that is the axis the words actually differ on — a reader in Taipei asking for `zh-TW` and one in Hong Kong asking for `zh-HK` want the same characters. Bare `zh` resolves to Simplified.
 

@@ -48,6 +48,32 @@ import 'material-plus-ui/styles.css';
 
 이건 **완성된 CSS**입니다. 디자인 토큰과, 컴포넌트가 쓰는 모든 유틸리티 클래스의 실제 규칙이 들어 있습니다. 빌드 측 설정도, PostCSS 플러그인도, `@source`도 필요 없습니다.
 
+### 컴포넌트를 몇 개만 쓴다면
+
+위의 시트는 라이브러리가 가진 모든 규칙입니다. 대부분의 프로젝트에는 그 편이 맞습니다. 한 줄이면 되고, 어떤 컴포넌트가 페이지에 있는지 생각할 일이 없습니다. 동시에 그것은 109 kB — 압축해서 15.6 kB — 이고, 페이지가 컴포넌트를 하나 그리든 전부 그리든 같습니다. Tailwind가 여러분의 import가 아니라 파일 스캔으로 생성하기 때문입니다.
+
+그래서 패키지는 같은 규칙을 컴포넌트가 나뉜 것과 같은 선을 따라 잘라서도 제공합니다. 토큰 한 번, 그리고 컴포넌트마다 시트 하나입니다.
+
+```ts
+import 'material-plus-ui/styles/tokens.css';
+import 'material-plus-ui/styles/button.css';
+import 'material-plus-ui/styles/text-field.css';
+```
+
+`tokens.css`가 항상 먼저입니다. 레이어 순서와, 다른 모든 시트가 읽는 색 역할을 선언하는 파일입니다. 컴포넌트 시트의 이름은 패키지 안의 디렉터리 이름, 즉 케밥 케이스로 쓴 컴포넌트 이름입니다: `date-range-picker.css`, `animate-fade.css`.
+
+| 페이지의 컴포넌트 수 | 전체 시트 | 토큰 + 시트 각각          |
+| -------------------- | --------- | ------------------------- |
+| 1                    | 15.6 kB   | 3.8 kB                    |
+| 5                    | 15.6 kB   | 5.5 kB                    |
+| 10                   | 15.6 kB   | 8.0 kB                    |
+| 20                   | 15.6 kB   | 11.9 kB                   |
+| 30 이상              | 15.6 kB   | 15.6 kB, 그리고 계속 증가 |
+
+번들러가 이어 붙였을 때를 기준으로 압축한 값입니다. 시트끼리는 서로 겹칩니다 — `flex`는 열두 개쯤에 들어 있습니다 — 그래서 합계가 전체 시트보다 빠르게 늘고, 서른 개 언저리에서 앞지릅니다. 그 뒤로는 `styles.css`가 더 작으면서 한 줄입니다.
+
+이 경로가 아닌 것 두 가지. 트리셰이킹이 아닙니다. import해 놓고 쓰지 않은 시트를 떨어뜨려 주는 것은 없으니, 목록은 여러분이 정직하게 관리해야 합니다. 그리고 Tailwind를 쓰는 프로젝트를 위한 것도 아닙니다. 그쪽은 자기 패스에서 유틸리티를 생성하고, 아래 절이 설정의 전부입니다.
+
 ### reset이 들어 있지 않습니다
 
 Material Plus는 페이지 수준 스타일링을 전혀 추가하지 않습니다. Preflight도, baseline도, 자기가 렌더링하지 않은 엘리먼트에 닿는 어떤 것도 없습니다. 컴포넌트는 자기가 소유한 엘리먼트에서 자기가 소유한 것만 리셋합니다 — `<button>`의 브라우저 기본 회색 배경, 그리고 네이티브 폼 컨트롤이 상속하지 않는 글꼴 같은 것들입니다.
@@ -232,13 +258,15 @@ Tailwind의 `dark:` 변형이 기준으로 삼는 `.dark`도 동작합니다. `[
 
 ## 패키지에 들어 있는 것
 
-| Export                             | 내용                                         |
-| ---------------------------------- | -------------------------------------------- |
-| `material-plus-ui`                 | 모든 컴포넌트와 타입                         |
-| `material-plus-ui/types`           | 공유 prop 어휘만                             |
-| `material-plus-ui/constants/icons` | 아이콘 세트. named export와 조회 테이블 형태 |
-| `material-plus-ui/styles.css`      | 완성된 CSS. Tailwind가 없는 프로젝트용       |
-| `material-plus-ui/tailwind.css`    | 토큰과 `@source`. Tailwind가 있는 프로젝트용 |
+| Export                             | 내용                                                 |
+| ---------------------------------- | ---------------------------------------------------- |
+| `material-plus-ui`                 | 모든 컴포넌트와 타입                                 |
+| `material-plus-ui/types`           | 공유 prop 어휘만                                     |
+| `material-plus-ui/constants/icons` | 아이콘 세트. named export와 조회 테이블 형태         |
+| `material-plus-ui/locales`         | 열여덟 개의 번역. 요청하기 전에는 하나도 실리지 않음 |
+| `material-plus-ui/styles.css`      | 완성된 CSS. Tailwind가 없는 프로젝트용               |
+| `material-plus-ui/styles/*.css`    | 같은 CSS를 컴포넌트별 시트로                         |
+| `material-plus-ui/tailwind.css`    | 토큰과 `@source`. Tailwind가 있는 프로젝트용         |
 
 ## 다음
 

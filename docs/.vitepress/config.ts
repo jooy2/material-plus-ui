@@ -448,7 +448,14 @@ const vitePressConfig: UserConfig = {
         // Anchored, so `material-plus-ui/styles.css` is not rewritten into the
         // barrel too. Pointing at the source rather than `dist/` is what lets a
         // component edit show up in the docs without a rebuild.
-        { find: /^material-plus-ui$/, replacement: resolve(rootDir, 'src/index.ts') }
+        { find: /^material-plus-ui$/, replacement: resolve(rootDir, 'src/index.ts') },
+        // The translations, which the package exports separately and no
+        // component imports — see `src/locales/index.ts`. Anchored for the same
+        // reason as above, and pointed at the source for the same reason.
+        {
+          find: /^material-plus-ui\/locales$/,
+          replacement: resolve(rootDir, 'src/locales/index.ts')
+        }
       ]
     },
     css: {

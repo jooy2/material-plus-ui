@@ -1,4 +1,17 @@
 import * as React from 'react';
+import { registerMPMessages } from 'material-plus-ui';
+import { LOCALES } from 'material-plus-ui/locales';
+
+/*
+ * The one line an application writes to be able to say `locale="ko"`.
+ *
+ * The library carries English and nothing else — see the localisation guide for
+ * why — so every preview on the site would otherwise be in English no matter
+ * which tag it was handed, and the locale demo would be a demo of nothing. The
+ * site takes all eighteen because it is a documentation site and shows them
+ * all; an application takes the ones it speaks.
+ */
+registerMPMessages(...LOCALES);
 
 /**
  * The scheme context every preview is rendered inside.

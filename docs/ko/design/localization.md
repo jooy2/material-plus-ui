@@ -30,6 +30,54 @@ order: 3
 
 그래서 이 라이브러리에 표가 없는 언어라도 **막다른 길이 아닙니다**. 달력은 여전히 그 언어이고, 영어인 것은 단어 몇 개뿐이며, `labels`가 그걸 하나씩 채웁니다.
 
+## 언어 등록하기
+
+라이브러리에 들어 있는 언어는 영어뿐입니다. 나머지 번역은 각각 하나의 모듈이고, 넘겨주는 일은 시작할 때 한 줄입니다.
+
+```ts
+import { registerMPMessages } from 'material-plus-ui';
+import { ko } from 'material-plus-ui/locales';
+
+registerMPMessages(ko);
+```
+
+이후로는 `locale="ko"`가 — 프로바이더에 쓰든 컴포넌트에 쓰든 — 표가 라이브러리 안에 들어 있었을 때와 똑같이 해석됩니다. 같은 표이기 때문입니다.
+
+이 페이지에서 공짜가 아닌 것은 이것 하나뿐입니다. 모든 언어의 모든 문자열을 담은 표는 20킬로바이트이고, 단어 하나를 말하는 컴포넌트가 거기까지 이어지는 정적 import 사슬을 쥐고 있었습니다. `MPButton`은 *Loading*이라고 말하는데, 버튼 하나를 그린 페이지가 그것 때문에 태국어를 싣고 있었던 셈입니다. 이제는 라이브러리 안의 어떤 것도 표를 import하지 않으므로, 요청하지 않은 언어는 번들러가 그대로 남깁니다. 영어는 약 1킬로바이트, 등록하는 언어마다 약 600바이트가 더 듭니다.
+
+전부 등록해도 됩니다. 예전에 라이브러리가 모두에게 받아 가던 그 비용과 같습니다.
+
+```ts
+import { registerMPMessages } from 'material-plus-ui';
+import { LOCALES } from 'material-plus-ui/locales';
+
+registerMPMessages(...LOCALES);
+```
+
+한 언어만 그 언어의 경로에서 가져올 수도 있습니다. 가장 작게 import하는 방법입니다.
+
+```ts
+import { ko } from 'material-plus-ui/locales/ko';
+```
+
+무엇이든 렌더링되기 전에 한 번만 호출하세요. 모듈 수준 상태라서, 컴포넌트가 이미 문자열을 해석한 뒤에 도착한 표는 다음 렌더링부터 반영됩니다.
+
+### 이 라이브러리에 없는 언어
+
+`MPLocale`은 평범한 객체입니다. 직접 만든 표도 여기 들어 있는 표와 똑같이 쓰입니다.
+
+```ts
+registerMPMessages({
+  locale: 'sv',
+  messages: {
+    common: { close: 'Stäng', clear: 'Rensa' },
+    picker: { today: 'I dag', done: 'Klar' }
+  }
+});
+```
+
+빠뜨린 항목은 네임스페이스 단위로 영어로 되돌아갑니다. 일부만 채워진 기본 번역과 똑같이 동작합니다. `aliases`는 중국어에 필요한 경우를 위한 것으로 — `{ locale: 'zh-hant', aliases: ['zh-TW', 'zh-HK'] }` — 표 하나를 여러 태그에 달아 줍니다.
+
 ## 지정하는 방법
 
 세 군데이고, 이기는 순서대로입니다.
@@ -82,6 +130,8 @@ const price = new Intl.NumberFormat(locale, { style: 'currency', currency: 'KRW'
 ## 표가 있는 언어
 
 네덜란드어, 독일어, 러시아어, 베트남어, 스페인어, 아랍어, 영어, 이탈리아어, 인도네시아어, 일본어, 중국어(간체·번체), 태국어, 터키어, 포르투갈어, 폴란드어, 프랑스어, 한국어, 힌디어.
+
+이 중 항상 들어 있는 것은 영어입니다. 나머지 열여덟은 `material-plus-ui/locales` 아래의 모듈이고, 태그 이름으로 내보냅니다. 하이픈이 들어가는 것은 카멜 케이스로 바뀝니다 — `ko`, `ja`, `zhHans`, `zhHant`, `pt`. 각각 자기 경로도 있습니다: `material-plus-ui/locales/zh-hant`. 등록하지 않은 태그는 오류가 아니라, 표가 아예 없는 태그와 똑같이 영어로 되돌아갑니다. 한 줄을 잊으면 단어를 잃을 뿐 렌더링이 깨지지는 않습니다.
 
 태그는 넓은 쪽이 나중에 오도록 매칭됩니다. `pt-BR`은 `pt-br`을 먼저, 그다음 `pt`를 찾습니다. `zh-Hant-TW`는 `zh-hant`, `zh-tw`, `zh` 순입니다. 중국어는 지역이 아니라 **문자**로 키를 잡는데, 단어가 실제로 갈리는 축이 그것이기 때문입니다 — 타이베이에서 `zh-TW`를 요청하는 사람과 홍콩에서 `zh-HK`를 요청하는 사람은 같은 글자를 원합니다. 맨 `zh`는 간체로 해석됩니다.
 
