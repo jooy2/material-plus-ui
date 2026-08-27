@@ -4,7 +4,9 @@
   "ie8": false,
   "safari10": false,
   "mangle": {},
-  "output": {},
+  "output": {
+    "preserve_annotations": true
+  },
   "parse": {},
   "rename": {}
 }
