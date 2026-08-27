@@ -1,0 +1,80 @@
+/**
+ * Arabic — العربية.
+ *
+ * One of the tables `material-plus-ui/locales` holds. Nothing in the library
+ * imports it: a translation reaches a component only once the application has
+ * handed it over, which is what keeps eighteen languages out of a bundle that
+ * needs one. See `internal/i18n.ts` for the whole of that reasoning.
+ *
+ *     import { registerMPMessages } from 'material-plus-ui';
+ *     import { ar } from 'material-plus-ui/locales/ar';
+ *
+ *     registerMPMessages(ar);
+ *
+ * Anything this table leaves out falls back to English, a namespace at a time.
+ */
+import type { MPLocale } from '../internal/i18n';
+
+export const ar: MPLocale = {
+  locale: 'ar',
+  messages: {
+    common: {
+      close: 'إغلاق',
+      clear: 'مسح',
+      open: 'فتح',
+      remove: 'إزالة',
+      removeNamed: 'إزالة {label}',
+      loading: 'جارٍ التحميل'
+    },
+    textField: { showPassword: 'إظهار كلمة المرور', hidePassword: 'إخفاء كلمة المرور' },
+    empty: { title: 'لا يوجد شيء هنا' },
+    picker: {
+      previousMonth: 'الشهر السابق',
+      nextMonth: 'الشهر التالي',
+      previousYear: 'السنة السابقة',
+      nextYear: 'السنة التالية',
+      previousYears: 'السنوات السابقة',
+      nextYears: 'السنوات التالية',
+      chooseMonth: 'اختيار شهر',
+      chooseYear: 'اختيار سنة',
+      today: 'اليوم',
+      now: 'الآن',
+      clear: 'مسح',
+      done: 'تم',
+      hour: 'الساعة',
+      minute: 'الدقيقة',
+      second: 'الثانية',
+      meridiem: 'ص/م',
+      start: 'البداية',
+      end: 'النهاية'
+    },
+    alert: { dismiss: 'إغلاق' },
+    chat: {
+      sending: 'جارٍ الإرسال',
+      sent: 'تم الإرسال',
+      delivered: 'تم التسليم',
+      read: 'تمت القراءة',
+      failed: 'لم يتم الإرسال',
+      typing: 'يكتب الآن'
+    },
+    spoiler: {
+      reveal: 'إظهار',
+      hide: 'إخفاء',
+      notice: 'مخفي حتى لا يُقرأ بالخطأ'
+    },
+    pagination: {
+      label: 'ترقيم الصفحات',
+      page: 'الصفحة {page}',
+      status: 'الصفحة {page} من {total}',
+      previous: 'الصفحة السابقة',
+      next: 'الصفحة التالية',
+      first: 'الصفحة الأولى',
+      last: 'الصفحة الأخيرة'
+    },
+    rating: {
+      label: 'التقييم',
+      value: '{value} من {max}',
+      empty: 'بدون تقييم'
+    }
+  }
+};

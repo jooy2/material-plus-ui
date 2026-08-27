@@ -1,0 +1,80 @@
+/**
+ * Turkish — Türkçe.
+ *
+ * One of the tables `material-plus-ui/locales` holds. Nothing in the library
+ * imports it: a translation reaches a component only once the application has
+ * handed it over, which is what keeps eighteen languages out of a bundle that
+ * needs one. See `internal/i18n.ts` for the whole of that reasoning.
+ *
+ *     import { registerMPMessages } from 'material-plus-ui';
+ *     import { tr } from 'material-plus-ui/locales/tr';
+ *
+ *     registerMPMessages(tr);
+ *
+ * Anything this table leaves out falls back to English, a namespace at a time.
+ */
+import type { MPLocale } from '../internal/i18n';
+
+export const tr: MPLocale = {
+  locale: 'tr',
+  messages: {
+    common: {
+      close: 'Kapat',
+      clear: 'Temizle',
+      open: 'Aç',
+      remove: 'Kaldır',
+      removeNamed: '{label} kaldır',
+      loading: 'Yükleniyor'
+    },
+    textField: { showPassword: 'Parolayı göster', hidePassword: 'Parolayı gizle' },
+    empty: { title: 'Burada bir şey yok' },
+    picker: {
+      previousMonth: 'Önceki ay',
+      nextMonth: 'Sonraki ay',
+      previousYear: 'Önceki yıl',
+      nextYear: 'Sonraki yıl',
+      previousYears: 'Önceki yıllar',
+      nextYears: 'Sonraki yıllar',
+      chooseMonth: 'Ay seçin',
+      chooseYear: 'Yıl seçin',
+      today: 'Bugün',
+      now: 'Şimdi',
+      clear: 'Temizle',
+      done: 'Tamam',
+      hour: 'Saat',
+      minute: 'Dakika',
+      second: 'Saniye',
+      meridiem: 'ÖÖ/ÖS',
+      start: 'Başlangıç',
+      end: 'Bitiş'
+    },
+    alert: { dismiss: 'Kapat' },
+    chat: {
+      sending: 'Gönderiliyor',
+      sent: 'Gönderildi',
+      delivered: 'İletildi',
+      read: 'Okundu',
+      failed: 'Gönderilemedi',
+      typing: 'Yazıyor'
+    },
+    spoiler: {
+      reveal: 'Göster',
+      hide: 'Gizle',
+      notice: 'Yanlışlıkla okunmasın diye gizlendi'
+    },
+    pagination: {
+      label: 'Sayfalama',
+      page: 'Sayfa {page}',
+      status: '{total} sayfadan {page}. sayfa',
+      previous: 'Önceki sayfa',
+      next: 'Sonraki sayfa',
+      first: 'İlk sayfa',
+      last: 'Son sayfa'
+    },
+    rating: {
+      label: 'Değerlendirme',
+      value: '{max} üzerinden {value}',
+      empty: 'Değerlendirilmedi'
+    }
+  }
+};

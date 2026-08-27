@@ -1,4 +1,10 @@
 export * from './types';
+export {
+  registerMPMessages,
+  type MPLocale,
+  type MPMessages,
+  type MPPartialMessages
+} from './internal/i18n';
 export * from './constants/icons';
 export * from './components/accordion';
 export * from './components/alert';

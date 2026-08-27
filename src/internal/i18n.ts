@@ -20,11 +20,26 @@
  *
  * Every component that reads this takes a `locale` and an override prop for the
  * strings themselves, so an unsupported language is never a dead end: `locale`
- * gets you a translation for free, `MPLocaleProvider` gets you one for the whole
+ * gets you a translation, `MPLocaleProvider` gets you one for the whole
  * application at once, and the prop gets you one for anything else.
  *
- * Nothing here is exported from `src/index.ts` — the public surface is
- * `MPLocaleProvider` and the per-component `labels` props.
+ * ## Why English is the only table in this file
+ *
+ * The other eighteen live under `src/locales/`, and nothing in the library
+ * imports them. They used to be here, and being here is what made them cost
+ * something: a component that says one word — `MPButton` says *Loading* — held a
+ * static import chain down to a table of every string in every language, and a
+ * bundler cannot drop data that something imports. Twenty kilobytes, on every
+ * consumer, for a word.
+ *
+ * So the table arrives from the outside instead. `registerMPMessages` below is
+ * how, `material-plus-ui/locales` is where from, and the only thing that changed
+ * for a reader is that the application now names the languages it speaks. Once
+ * it has, `locale="ko"` resolves through exactly the path it always did.
+ *
+ * The public surface is `registerMPMessages`, `MPLocaleProvider` and the
+ * per-component `labels` props; `resolveMessages` and `fillMessage` stay
+ * internal.
  */
 
 /**
@@ -213,9 +228,37 @@ export interface MPMessages {
 }
 
 /** A translation may fill in as much or as little of the table as it has. */
-type PartialMessages = {
+export type MPPartialMessages = {
   [Namespace in keyof MPMessages]?: Partial<MPMessages[Namespace]>;
 };
+
+/**
+ * One language, ready to be handed to `registerMPMessages`.
+ *
+ * The tag travels with the table rather than beside it, so registering is
+ * `registerMPMessages(ko)` and not `registerMPMessages('ko', ko)` — one
+ * argument that cannot disagree with itself, and a shape an application can
+ * write by hand for a language this library does not ship.
+ */
+export interface MPLocale {
+  /**
+   * The BCP 47 tag this table answers to, lowercased on the way in.
+   *
+   * Broad rather than narrow: `pt` serves a reader who asked for `pt-BR`, and a
+   * table registered as `pt-BR` would not serve one who asked for `pt`.
+   */
+  locale: string;
+  /**
+   * Other tags that should resolve to this same table.
+   *
+   * What `zh-hant` uses to answer for `zh-TW`, `zh-HK` and `zh-MO`: the same
+   * characters under three names, held once. An alias is registered with the
+   * table and disappears with it.
+   */
+  aliases?: string[];
+  /** The strings. Anything left out falls back to English, a namespace at a time. */
+  messages: MPPartialMessages;
+}
 
 /**
  * English is the base, and the only entry that is complete by construction —
@@ -291,1117 +334,53 @@ const base: MPMessages = {
 };
 
 /**
- * The translations, keyed by the lowercased tag they answer to.
+ * The translations the application has handed over, keyed by the lowercased tag
+ * they answer to.
  *
- * Chinese is keyed by script rather than by region, because that is the axis the
- * words actually differ on — `zh-TW` and `zh-HK` want the same characters as
- * each other and different ones from `zh-CN`. The regions are mapped onto the
- * two scripts by `aliases` below.
+ * Empty until `registerMPMessages` is called, and that emptiness is the point.
+ * The eighteen tables under `src/locales/` used to live in this file, which
+ * meant a static import chain — `MPButton` → `useMPMessages` → here — put every
+ * string in every language into the bundle of anyone who rendered a button. A
+ * table is data, not behaviour, and the only way a bundler can leave data out is
+ * for nothing to import it: so the direction is reversed, and an application
+ * that speaks Korean says so.
+ *
+ * See `src/locales/index.ts` for what registering looks like from the outside.
  */
-const translations: Record<string, PartialMessages> = {
-  ko: {
-    common: {
-      close: '닫기',
-      clear: '지우기',
-      open: '열기',
-      remove: '제거',
-      removeNamed: '{label} 제거',
-      loading: '불러오는 중'
-    },
-    textField: { showPassword: '비밀번호 표시', hidePassword: '비밀번호 숨기기' },
-    empty: { title: '아무것도 없습니다' },
-    picker: {
-      previousMonth: '이전 달',
-      nextMonth: '다음 달',
-      previousYear: '이전 해',
-      nextYear: '다음 해',
-      previousYears: '이전 연도 목록',
-      nextYears: '다음 연도 목록',
-      chooseMonth: '월 선택',
-      chooseYear: '연도 선택',
-      today: '오늘',
-      now: '지금',
-      clear: '지우기',
-      done: '완료',
-      hour: '시',
-      minute: '분',
-      second: '초',
-      meridiem: '오전/오후',
-      start: '시작',
-      end: '종료'
-    },
-    alert: { dismiss: '닫기' },
-    chat: {
-      sending: '보내는 중',
-      sent: '보냄',
-      delivered: '전달됨',
-      read: '읽음',
-      failed: '전송 실패',
-      typing: '입력 중'
-    },
-    spoiler: {
-      reveal: '보기',
-      hide: '가리기',
-      notice: '실수로 읽지 않도록 가려 두었습니다'
-    },
-    pagination: {
-      label: '페이지 매기기',
-      page: '{page}페이지',
-      status: '{total}페이지 중 {page}페이지',
-      previous: '이전 페이지',
-      next: '다음 페이지',
-      first: '첫 페이지',
-      last: '마지막 페이지'
-    },
-    rating: {
-      label: '별점',
-      value: '{max}점 만점에 {value}점',
-      empty: '평가 없음'
-    }
-  },
-  ja: {
-    common: {
-      close: '閉じる',
-      clear: 'クリア',
-      open: '開く',
-      remove: '削除',
-      removeNamed: '{label} を削除',
-      loading: '読み込み中'
-    },
-    textField: { showPassword: 'パスワードを表示', hidePassword: 'パスワードを非表示' },
-    empty: { title: '何もありません' },
-    picker: {
-      previousMonth: '前の月',
-      nextMonth: '次の月',
-      previousYear: '前の年',
-      nextYear: '次の年',
-      previousYears: '前の年の一覧',
-      nextYears: '次の年の一覧',
-      chooseMonth: '月を選択',
-      chooseYear: '年を選択',
-      today: '今日',
-      now: '現在',
-      clear: 'クリア',
-      done: '完了',
-      hour: '時',
-      minute: '分',
-      second: '秒',
-      meridiem: '午前/午後',
-      start: '開始',
-      end: '終了'
-    },
-    alert: { dismiss: '閉じる' },
-    chat: {
-      sending: '送信中',
-      sent: '送信済み',
-      delivered: '配信済み',
-      read: '既読',
-      failed: '送信できませんでした',
-      typing: '入力中'
-    },
-    spoiler: {
-      reveal: '表示する',
-      hide: '隠す',
-      notice: 'うっかり読まないように隠してあります'
-    },
-    pagination: {
-      label: 'ページ送り',
-      page: '{page}ページ',
-      status: '{total}ページ中{page}ページ',
-      previous: '前のページ',
-      next: '次のページ',
-      first: '最初のページ',
-      last: '最後のページ'
-    },
-    rating: {
-      label: '評価',
-      value: '{max}段階中{value}',
-      empty: '未評価'
-    }
-  },
-  'zh-hans': {
-    common: {
-      close: '关闭',
-      clear: '清除',
-      open: '打开',
-      remove: '移除',
-      removeNamed: '移除 {label}',
-      loading: '加载中'
-    },
-    textField: { showPassword: '显示密码', hidePassword: '隐藏密码' },
-    empty: { title: '暂无内容' },
-    picker: {
-      previousMonth: '上个月',
-      nextMonth: '下个月',
-      previousYear: '上一年',
-      nextYear: '下一年',
-      previousYears: '上一页年份',
-      nextYears: '下一页年份',
-      chooseMonth: '选择月份',
-      chooseYear: '选择年份',
-      today: '今天',
-      now: '此刻',
-      clear: '清除',
-      done: '完成',
-      hour: '小时',
-      minute: '分钟',
-      second: '秒',
-      meridiem: '上午/下午',
-      start: '开始',
-      end: '结束'
-    },
-    alert: { dismiss: '关闭' },
-    chat: {
-      sending: '发送中',
-      sent: '已发送',
-      delivered: '已送达',
-      read: '已读',
-      failed: '未发送',
-      typing: '正在输入'
-    },
-    spoiler: {
-      reveal: '显示',
-      hide: '隐藏',
-      notice: '已隐藏，以免不小心读到'
-    },
-    pagination: {
-      label: '分页',
-      page: '第 {page} 页',
-      status: '第 {page} 页，共 {total} 页',
-      previous: '上一页',
-      next: '下一页',
-      first: '第一页',
-      last: '最后一页'
-    },
-    rating: {
-      label: '评分',
-      value: '{max} 分中的 {value} 分',
-      empty: '未评分'
-    }
-  },
-  'zh-hant': {
-    common: {
-      close: '關閉',
-      clear: '清除',
-      open: '開啟',
-      remove: '移除',
-      removeNamed: '移除 {label}',
-      loading: '載入中'
-    },
-    textField: { showPassword: '顯示密碼', hidePassword: '隱藏密碼' },
-    empty: { title: '暫無內容' },
-    picker: {
-      previousMonth: '上個月',
-      nextMonth: '下個月',
-      previousYear: '上一年',
-      nextYear: '下一年',
-      previousYears: '上一頁年份',
-      nextYears: '下一頁年份',
-      chooseMonth: '選擇月份',
-      chooseYear: '選擇年份',
-      today: '今天',
-      now: '此刻',
-      clear: '清除',
-      done: '完成',
-      hour: '小時',
-      minute: '分鐘',
-      second: '秒',
-      meridiem: '上午/下午',
-      start: '開始',
-      end: '結束'
-    },
-    alert: { dismiss: '關閉' },
-    chat: {
-      sending: '傳送中',
-      sent: '已傳送',
-      delivered: '已送達',
-      read: '已讀',
-      failed: '未傳送',
-      typing: '正在輸入'
-    },
-    spoiler: {
-      reveal: '顯示',
-      hide: '隱藏',
-      notice: '已隱藏，以免不小心讀到'
-    },
-    pagination: {
-      label: '分頁',
-      page: '第 {page} 頁',
-      status: '第 {page} 頁，共 {total} 頁',
-      previous: '上一頁',
-      next: '下一頁',
-      first: '第一頁',
-      last: '最後一頁'
-    },
-    rating: {
-      label: '評分',
-      value: '{max} 分中的 {value} 分',
-      empty: '未評分'
-    }
-  },
-  es: {
-    common: {
-      close: 'Cerrar',
-      clear: 'Borrar',
-      open: 'Abrir',
-      remove: 'Quitar',
-      removeNamed: 'Quitar {label}',
-      loading: 'Cargando'
-    },
-    textField: { showPassword: 'Mostrar la contraseña', hidePassword: 'Ocultar la contraseña' },
-    empty: { title: 'No hay nada aquí' },
-    picker: {
-      previousMonth: 'Mes anterior',
-      nextMonth: 'Mes siguiente',
-      previousYear: 'Año anterior',
-      nextYear: 'Año siguiente',
-      previousYears: 'Años anteriores',
-      nextYears: 'Años siguientes',
-      chooseMonth: 'Elegir un mes',
-      chooseYear: 'Elegir un año',
-      today: 'Hoy',
-      now: 'Ahora',
-      clear: 'Borrar',
-      done: 'Listo',
-      hour: 'Hora',
-      minute: 'Minuto',
-      second: 'Segundo',
-      meridiem: 'a. m./p. m.',
-      start: 'Inicio',
-      end: 'Fin'
-    },
-    alert: { dismiss: 'Cerrar' },
-    chat: {
-      sending: 'Enviando',
-      sent: 'Enviado',
-      delivered: 'Entregado',
-      read: 'Leído',
-      failed: 'No enviado',
-      typing: 'Escribiendo'
-    },
-    spoiler: {
-      reveal: 'Mostrar',
-      hide: 'Ocultar',
-      notice: 'Oculto para que no se lea por accidente'
-    },
-    pagination: {
-      label: 'Paginación',
-      page: 'Página {page}',
-      status: 'Página {page} de {total}',
-      previous: 'Página anterior',
-      next: 'Página siguiente',
-      first: 'Primera página',
-      last: 'Última página'
-    },
-    rating: {
-      label: 'Valoración',
-      value: '{value} de {max}',
-      empty: 'Sin valorar'
-    }
-  },
-  pt: {
-    common: {
-      close: 'Fechar',
-      clear: 'Limpar',
-      open: 'Abrir',
-      remove: 'Remover',
-      removeNamed: 'Remover {label}',
-      loading: 'Carregando'
-    },
-    textField: { showPassword: 'Mostrar a senha', hidePassword: 'Ocultar a senha' },
-    empty: { title: 'Não há nada aqui' },
-    picker: {
-      previousMonth: 'Mês anterior',
-      nextMonth: 'Próximo mês',
-      previousYear: 'Ano anterior',
-      nextYear: 'Próximo ano',
-      previousYears: 'Anos anteriores',
-      nextYears: 'Próximos anos',
-      chooseMonth: 'Escolher um mês',
-      chooseYear: 'Escolher um ano',
-      today: 'Hoje',
-      now: 'Agora',
-      clear: 'Limpar',
-      done: 'Concluído',
-      hour: 'Hora',
-      minute: 'Minuto',
-      second: 'Segundo',
-      meridiem: 'AM/PM',
-      start: 'Início',
-      end: 'Fim'
-    },
-    alert: { dismiss: 'Fechar' },
-    chat: {
-      sending: 'Enviando',
-      sent: 'Enviado',
-      delivered: 'Entregue',
-      read: 'Lido',
-      failed: 'Não enviado',
-      typing: 'Digitando'
-    },
-    spoiler: {
-      reveal: 'Mostrar',
-      hide: 'Ocultar',
-      notice: 'Oculto para não ser lido por acidente'
-    },
-    pagination: {
-      label: 'Paginação',
-      page: 'Página {page}',
-      status: 'Página {page} de {total}',
-      previous: 'Página anterior',
-      next: 'Próxima página',
-      first: 'Primeira página',
-      last: 'Última página'
-    },
-    rating: {
-      label: 'Avaliação',
-      value: '{value} de {max}',
-      empty: 'Sem avaliação'
-    }
-  },
-  fr: {
-    common: {
-      close: 'Fermer',
-      clear: 'Effacer',
-      open: 'Ouvrir',
-      remove: 'Supprimer',
-      removeNamed: 'Supprimer {label}',
-      loading: 'Chargement'
-    },
-    textField: {
-      showPassword: 'Afficher le mot de passe',
-      hidePassword: 'Masquer le mot de passe'
-    },
-    empty: { title: "Il n'y a rien ici" },
-    picker: {
-      previousMonth: 'Mois précédent',
-      nextMonth: 'Mois suivant',
-      previousYear: 'Année précédente',
-      nextYear: 'Année suivante',
-      previousYears: 'Années précédentes',
-      nextYears: 'Années suivantes',
-      chooseMonth: 'Choisir un mois',
-      chooseYear: 'Choisir une année',
-      today: "Aujourd'hui",
-      now: 'Maintenant',
-      clear: 'Effacer',
-      done: 'Terminé',
-      hour: 'Heure',
-      minute: 'Minute',
-      second: 'Seconde',
-      meridiem: 'AM/PM',
-      start: 'Début',
-      end: 'Fin'
-    },
-    alert: { dismiss: 'Fermer' },
-    chat: {
-      sending: 'Envoi en cours',
-      sent: 'Envoyé',
-      delivered: 'Distribué',
-      read: 'Lu',
-      failed: 'Non envoyé',
-      typing: "En train d'écrire"
-    },
-    spoiler: {
-      reveal: 'Afficher',
-      hide: 'Masquer',
-      notice: 'Masqué pour ne pas être lu par accident'
-    },
-    pagination: {
-      label: 'Pagination',
-      page: 'Page {page}',
-      status: 'Page {page} sur {total}',
-      previous: 'Page précédente',
-      next: 'Page suivante',
-      first: 'Première page',
-      last: 'Dernière page'
-    },
-    rating: {
-      label: 'Note',
-      value: '{value} sur {max}',
-      empty: 'Non noté'
-    }
-  },
-  de: {
-    common: {
-      close: 'Schließen',
-      clear: 'Löschen',
-      open: 'Öffnen',
-      remove: 'Entfernen',
-      removeNamed: '{label} entfernen',
-      loading: 'Wird geladen'
-    },
-    textField: { showPassword: 'Passwort anzeigen', hidePassword: 'Passwort verbergen' },
-    empty: { title: 'Nichts vorhanden' },
-    picker: {
-      previousMonth: 'Voriger Monat',
-      nextMonth: 'Nächster Monat',
-      previousYear: 'Voriges Jahr',
-      nextYear: 'Nächstes Jahr',
-      previousYears: 'Vorige Jahre',
-      nextYears: 'Nächste Jahre',
-      chooseMonth: 'Monat auswählen',
-      chooseYear: 'Jahr auswählen',
-      today: 'Heute',
-      now: 'Jetzt',
-      clear: 'Löschen',
-      done: 'Fertig',
-      hour: 'Stunde',
-      minute: 'Minute',
-      second: 'Sekunde',
-      meridiem: 'AM/PM',
-      start: 'Beginn',
-      end: 'Ende'
-    },
-    alert: { dismiss: 'Schließen' },
-    chat: {
-      sending: 'Wird gesendet',
-      sent: 'Gesendet',
-      delivered: 'Zugestellt',
-      read: 'Gelesen',
-      failed: 'Nicht gesendet',
-      typing: 'Schreibt'
-    },
-    spoiler: {
-      reveal: 'Anzeigen',
-      hide: 'Verbergen',
-      notice: 'Verborgen, damit es nicht versehentlich gelesen wird'
-    },
-    pagination: {
-      label: 'Seitennummerierung',
-      page: 'Seite {page}',
-      status: 'Seite {page} von {total}',
-      previous: 'Vorherige Seite',
-      next: 'Nächste Seite',
-      first: 'Erste Seite',
-      last: 'Letzte Seite'
-    },
-    rating: {
-      label: 'Bewertung',
-      value: '{value} von {max}',
-      empty: 'Nicht bewertet'
-    }
-  },
-  it: {
-    common: {
-      close: 'Chiudi',
-      clear: 'Cancella',
-      open: 'Apri',
-      remove: 'Rimuovi',
-      removeNamed: 'Rimuovi {label}',
-      loading: 'Caricamento'
-    },
-    textField: { showPassword: 'Mostra la password', hidePassword: 'Nascondi la password' },
-    empty: { title: "Non c'è nulla qui" },
-    picker: {
-      previousMonth: 'Mese precedente',
-      nextMonth: 'Mese successivo',
-      previousYear: 'Anno precedente',
-      nextYear: 'Anno successivo',
-      previousYears: 'Anni precedenti',
-      nextYears: 'Anni successivi',
-      chooseMonth: 'Scegli un mese',
-      chooseYear: 'Scegli un anno',
-      today: 'Oggi',
-      now: 'Adesso',
-      clear: 'Cancella',
-      done: 'Fatto',
-      hour: 'Ora',
-      minute: 'Minuto',
-      second: 'Secondo',
-      meridiem: 'AM/PM',
-      start: 'Inizio',
-      end: 'Fine'
-    },
-    alert: { dismiss: 'Chiudi' },
-    chat: {
-      sending: 'Invio in corso',
-      sent: 'Inviato',
-      delivered: 'Consegnato',
-      read: 'Letto',
-      failed: 'Non inviato',
-      typing: 'Sta scrivendo'
-    },
-    spoiler: {
-      reveal: 'Mostra',
-      hide: 'Nascondi',
-      notice: 'Nascosto per non essere letto per sbaglio'
-    },
-    pagination: {
-      label: 'Impaginazione',
-      page: 'Pagina {page}',
-      status: 'Pagina {page} di {total}',
-      previous: 'Pagina precedente',
-      next: 'Pagina successiva',
-      first: 'Prima pagina',
-      last: 'Ultima pagina'
-    },
-    rating: {
-      label: 'Valutazione',
-      value: '{value} su {max}',
-      empty: 'Non valutato'
-    }
-  },
-  nl: {
-    common: {
-      close: 'Sluiten',
-      clear: 'Wissen',
-      open: 'Openen',
-      remove: 'Verwijderen',
-      removeNamed: '{label} verwijderen',
-      loading: 'Laden'
-    },
-    textField: { showPassword: 'Wachtwoord tonen', hidePassword: 'Wachtwoord verbergen' },
-    empty: { title: 'Hier is niets' },
-    picker: {
-      previousMonth: 'Vorige maand',
-      nextMonth: 'Volgende maand',
-      previousYear: 'Vorig jaar',
-      nextYear: 'Volgend jaar',
-      previousYears: 'Vorige jaren',
-      nextYears: 'Volgende jaren',
-      chooseMonth: 'Kies een maand',
-      chooseYear: 'Kies een jaar',
-      today: 'Vandaag',
-      now: 'Nu',
-      clear: 'Wissen',
-      done: 'Klaar',
-      hour: 'Uur',
-      minute: 'Minuut',
-      second: 'Seconde',
-      meridiem: 'AM/PM',
-      start: 'Begin',
-      end: 'Einde'
-    },
-    alert: { dismiss: 'Sluiten' },
-    chat: {
-      sending: 'Verzenden',
-      sent: 'Verzonden',
-      delivered: 'Bezorgd',
-      read: 'Gelezen',
-      failed: 'Niet verzonden',
-      typing: 'Aan het typen'
-    },
-    spoiler: {
-      reveal: 'Tonen',
-      hide: 'Verbergen',
-      notice: 'Verborgen zodat het niet per ongeluk wordt gelezen'
-    },
-    pagination: {
-      label: 'Paginering',
-      page: 'Pagina {page}',
-      status: 'Pagina {page} van {total}',
-      previous: 'Vorige pagina',
-      next: 'Volgende pagina',
-      first: 'Eerste pagina',
-      last: 'Laatste pagina'
-    },
-    rating: {
-      label: 'Beoordeling',
-      value: '{value} van {max}',
-      empty: 'Niet beoordeeld'
-    }
-  },
-  pl: {
-    common: {
-      close: 'Zamknij',
-      clear: 'Wyczyść',
-      open: 'Otwórz',
-      remove: 'Usuń',
-      removeNamed: 'Usuń {label}',
-      loading: 'Ładowanie'
-    },
-    textField: { showPassword: 'Pokaż hasło', hidePassword: 'Ukryj hasło' },
-    empty: { title: 'Nic tu nie ma' },
-    picker: {
-      previousMonth: 'Poprzedni miesiąc',
-      nextMonth: 'Następny miesiąc',
-      previousYear: 'Poprzedni rok',
-      nextYear: 'Następny rok',
-      previousYears: 'Poprzednie lata',
-      nextYears: 'Następne lata',
-      chooseMonth: 'Wybierz miesiąc',
-      chooseYear: 'Wybierz rok',
-      today: 'Dzisiaj',
-      now: 'Teraz',
-      clear: 'Wyczyść',
-      done: 'Gotowe',
-      hour: 'Godzina',
-      minute: 'Minuta',
-      second: 'Sekunda',
-      meridiem: 'AM/PM',
-      start: 'Początek',
-      end: 'Koniec'
-    },
-    alert: { dismiss: 'Zamknij' },
-    chat: {
-      sending: 'Wysyłanie',
-      sent: 'Wysłano',
-      delivered: 'Dostarczono',
-      read: 'Przeczytano',
-      failed: 'Nie wysłano',
-      typing: 'Pisze'
-    },
-    spoiler: {
-      reveal: 'Pokaż',
-      hide: 'Ukryj',
-      notice: 'Ukryte, aby nie przeczytać przez przypadek'
-    },
-    pagination: {
-      label: 'Paginacja',
-      page: 'Strona {page}',
-      status: 'Strona {page} z {total}',
-      previous: 'Poprzednia strona',
-      next: 'Następna strona',
-      first: 'Pierwsza strona',
-      last: 'Ostatnia strona'
-    },
-    rating: {
-      label: 'Ocena',
-      value: '{value} z {max}',
-      empty: 'Brak oceny'
-    }
-  },
-  ru: {
-    common: {
-      close: 'Закрыть',
-      clear: 'Очистить',
-      open: 'Открыть',
-      remove: 'Удалить',
-      removeNamed: 'Удалить {label}',
-      loading: 'Загрузка'
-    },
-    textField: { showPassword: 'Показать пароль', hidePassword: 'Скрыть пароль' },
-    empty: { title: 'Здесь ничего нет' },
-    picker: {
-      previousMonth: 'Предыдущий месяц',
-      nextMonth: 'Следующий месяц',
-      previousYear: 'Предыдущий год',
-      nextYear: 'Следующий год',
-      previousYears: 'Предыдущие годы',
-      nextYears: 'Следующие годы',
-      chooseMonth: 'Выбрать месяц',
-      chooseYear: 'Выбрать год',
-      today: 'Сегодня',
-      now: 'Сейчас',
-      clear: 'Очистить',
-      done: 'Готово',
-      hour: 'Часы',
-      minute: 'Минуты',
-      second: 'Секунды',
-      meridiem: 'ДП/ПП',
-      start: 'Начало',
-      end: 'Конец'
-    },
-    alert: { dismiss: 'Закрыть' },
-    chat: {
-      sending: 'Отправка',
-      sent: 'Отправлено',
-      delivered: 'Доставлено',
-      read: 'Прочитано',
-      failed: 'Не отправлено',
-      typing: 'Печатает'
-    },
-    spoiler: {
-      reveal: 'Показать',
-      hide: 'Скрыть',
-      notice: 'Скрыто, чтобы не прочитать случайно'
-    },
-    pagination: {
-      label: 'Постраничная навигация',
-      page: 'Страница {page}',
-      status: 'Страница {page} из {total}',
-      previous: 'Предыдущая страница',
-      next: 'Следующая страница',
-      first: 'Первая страница',
-      last: 'Последняя страница'
-    },
-    rating: {
-      label: 'Оценка',
-      value: '{value} из {max}',
-      empty: 'Без оценки'
-    }
-  },
-  tr: {
-    common: {
-      close: 'Kapat',
-      clear: 'Temizle',
-      open: 'Aç',
-      remove: 'Kaldır',
-      removeNamed: '{label} kaldır',
-      loading: 'Yükleniyor'
-    },
-    textField: { showPassword: 'Parolayı göster', hidePassword: 'Parolayı gizle' },
-    empty: { title: 'Burada bir şey yok' },
-    picker: {
-      previousMonth: 'Önceki ay',
-      nextMonth: 'Sonraki ay',
-      previousYear: 'Önceki yıl',
-      nextYear: 'Sonraki yıl',
-      previousYears: 'Önceki yıllar',
-      nextYears: 'Sonraki yıllar',
-      chooseMonth: 'Ay seçin',
-      chooseYear: 'Yıl seçin',
-      today: 'Bugün',
-      now: 'Şimdi',
-      clear: 'Temizle',
-      done: 'Tamam',
-      hour: 'Saat',
-      minute: 'Dakika',
-      second: 'Saniye',
-      meridiem: 'ÖÖ/ÖS',
-      start: 'Başlangıç',
-      end: 'Bitiş'
-    },
-    alert: { dismiss: 'Kapat' },
-    chat: {
-      sending: 'Gönderiliyor',
-      sent: 'Gönderildi',
-      delivered: 'İletildi',
-      read: 'Okundu',
-      failed: 'Gönderilemedi',
-      typing: 'Yazıyor'
-    },
-    spoiler: {
-      reveal: 'Göster',
-      hide: 'Gizle',
-      notice: 'Yanlışlıkla okunmasın diye gizlendi'
-    },
-    pagination: {
-      label: 'Sayfalama',
-      page: 'Sayfa {page}',
-      status: '{total} sayfadan {page}. sayfa',
-      previous: 'Önceki sayfa',
-      next: 'Sonraki sayfa',
-      first: 'İlk sayfa',
-      last: 'Son sayfa'
-    },
-    rating: {
-      label: 'Değerlendirme',
-      value: '{max} üzerinden {value}',
-      empty: 'Değerlendirilmedi'
-    }
-  },
-  ar: {
-    common: {
-      close: 'إغلاق',
-      clear: 'مسح',
-      open: 'فتح',
-      remove: 'إزالة',
-      removeNamed: 'إزالة {label}',
-      loading: 'جارٍ التحميل'
-    },
-    textField: { showPassword: 'إظهار كلمة المرور', hidePassword: 'إخفاء كلمة المرور' },
-    empty: { title: 'لا يوجد شيء هنا' },
-    picker: {
-      previousMonth: 'الشهر السابق',
-      nextMonth: 'الشهر التالي',
-      previousYear: 'السنة السابقة',
-      nextYear: 'السنة التالية',
-      previousYears: 'السنوات السابقة',
-      nextYears: 'السنوات التالية',
-      chooseMonth: 'اختيار شهر',
-      chooseYear: 'اختيار سنة',
-      today: 'اليوم',
-      now: 'الآن',
-      clear: 'مسح',
-      done: 'تم',
-      hour: 'الساعة',
-      minute: 'الدقيقة',
-      second: 'الثانية',
-      meridiem: 'ص/م',
-      start: 'البداية',
-      end: 'النهاية'
-    },
-    alert: { dismiss: 'إغلاق' },
-    chat: {
-      sending: 'جارٍ الإرسال',
-      sent: 'تم الإرسال',
-      delivered: 'تم التسليم',
-      read: 'تمت القراءة',
-      failed: 'لم يتم الإرسال',
-      typing: 'يكتب الآن'
-    },
-    spoiler: {
-      reveal: 'إظهار',
-      hide: 'إخفاء',
-      notice: 'مخفي حتى لا يُقرأ بالخطأ'
-    },
-    pagination: {
-      label: 'ترقيم الصفحات',
-      page: 'الصفحة {page}',
-      status: 'الصفحة {page} من {total}',
-      previous: 'الصفحة السابقة',
-      next: 'الصفحة التالية',
-      first: 'الصفحة الأولى',
-      last: 'الصفحة الأخيرة'
-    },
-    rating: {
-      label: 'التقييم',
-      value: '{value} من {max}',
-      empty: 'بدون تقييم'
-    }
-  },
-  hi: {
-    common: {
-      close: 'बंद करें',
-      clear: 'हटाएँ',
-      open: 'खोलें',
-      remove: 'निकालें',
-      removeNamed: '{label} निकालें',
-      loading: 'लोड हो रहा है'
-    },
-    textField: { showPassword: 'पासवर्ड दिखाएँ', hidePassword: 'पासवर्ड छिपाएँ' },
-    empty: { title: 'यहाँ कुछ नहीं है' },
-    picker: {
-      previousMonth: 'पिछला महीना',
-      nextMonth: 'अगला महीना',
-      previousYear: 'पिछला वर्ष',
-      nextYear: 'अगला वर्ष',
-      previousYears: 'पिछले वर्ष',
-      nextYears: 'अगले वर्ष',
-      chooseMonth: 'महीना चुनें',
-      chooseYear: 'वर्ष चुनें',
-      today: 'आज',
-      now: 'अभी',
-      clear: 'हटाएँ',
-      done: 'हो गया',
-      hour: 'घंटा',
-      minute: 'मिनट',
-      second: 'सेकंड',
-      meridiem: 'AM/PM',
-      start: 'प्रारंभ',
-      end: 'समाप्ति'
-    },
-    alert: { dismiss: 'बंद करें' },
-    chat: {
-      sending: 'भेजा जा रहा है',
-      sent: 'भेजा गया',
-      delivered: 'पहुँच गया',
-      read: 'पढ़ लिया गया',
-      failed: 'नहीं भेजा गया',
-      typing: 'टाइप कर रहे हैं'
-    },
-    spoiler: {
-      reveal: 'दिखाएँ',
-      hide: 'छिपाएँ',
-      notice: 'गलती से न पढ़ लिया जाए इसलिए छिपाया गया है'
-    },
-    pagination: {
-      label: 'पृष्ठ क्रमांकन',
-      page: 'पृष्ठ {page}',
-      status: '{total} में से पृष्ठ {page}',
-      previous: 'पिछला पृष्ठ',
-      next: 'अगला पृष्ठ',
-      first: 'पहला पृष्ठ',
-      last: 'अंतिम पृष्ठ'
-    },
-    rating: {
-      label: 'रेटिंग',
-      value: '{max} में से {value}',
-      empty: 'रेटिंग नहीं दी गई'
-    }
-  },
-  id: {
-    common: {
-      close: 'Tutup',
-      clear: 'Bersihkan',
-      open: 'Buka',
-      remove: 'Hapus',
-      removeNamed: 'Hapus {label}',
-      loading: 'Memuat'
-    },
-    textField: { showPassword: 'Tampilkan kata sandi', hidePassword: 'Sembunyikan kata sandi' },
-    empty: { title: 'Tidak ada apa-apa di sini' },
-    picker: {
-      previousMonth: 'Bulan sebelumnya',
-      nextMonth: 'Bulan berikutnya',
-      previousYear: 'Tahun sebelumnya',
-      nextYear: 'Tahun berikutnya',
-      previousYears: 'Tahun-tahun sebelumnya',
-      nextYears: 'Tahun-tahun berikutnya',
-      chooseMonth: 'Pilih bulan',
-      chooseYear: 'Pilih tahun',
-      today: 'Hari ini',
-      now: 'Sekarang',
-      clear: 'Hapus',
-      done: 'Selesai',
-      hour: 'Jam',
-      minute: 'Menit',
-      second: 'Detik',
-      meridiem: 'AM/PM',
-      start: 'Mulai',
-      end: 'Akhir'
-    },
-    alert: { dismiss: 'Tutup' },
-    chat: {
-      sending: 'Mengirim',
-      sent: 'Terkirim',
-      delivered: 'Diterima',
-      read: 'Dibaca',
-      failed: 'Gagal terkirim',
-      typing: 'Sedang mengetik'
-    },
-    spoiler: {
-      reveal: 'Tampilkan',
-      hide: 'Sembunyikan',
-      notice: 'Disembunyikan agar tidak terbaca tanpa sengaja'
-    },
-    pagination: {
-      label: 'Penomoran halaman',
-      page: 'Halaman {page}',
-      status: 'Halaman {page} dari {total}',
-      previous: 'Halaman sebelumnya',
-      next: 'Halaman berikutnya',
-      first: 'Halaman pertama',
-      last: 'Halaman terakhir'
-    },
-    rating: {
-      label: 'Peringkat',
-      value: '{value} dari {max}',
-      empty: 'Belum dinilai'
-    }
-  },
-  vi: {
-    common: {
-      close: 'Đóng',
-      clear: 'Xóa',
-      open: 'Mở',
-      remove: 'Gỡ bỏ',
-      removeNamed: 'Gỡ bỏ {label}',
-      loading: 'Đang tải'
-    },
-    textField: { showPassword: 'Hiện mật khẩu', hidePassword: 'Ẩn mật khẩu' },
-    empty: { title: 'Không có gì ở đây' },
-    picker: {
-      previousMonth: 'Tháng trước',
-      nextMonth: 'Tháng sau',
-      previousYear: 'Năm trước',
-      nextYear: 'Năm sau',
-      previousYears: 'Các năm trước',
-      nextYears: 'Các năm sau',
-      chooseMonth: 'Chọn tháng',
-      chooseYear: 'Chọn năm',
-      today: 'Hôm nay',
-      now: 'Bây giờ',
-      clear: 'Xóa',
-      done: 'Xong',
-      hour: 'Giờ',
-      minute: 'Phút',
-      second: 'Giây',
-      meridiem: 'SA/CH',
-      start: 'Bắt đầu',
-      end: 'Kết thúc'
-    },
-    alert: { dismiss: 'Đóng' },
-    chat: {
-      sending: 'Đang gửi',
-      sent: 'Đã gửi',
-      delivered: 'Đã nhận',
-      read: 'Đã đọc',
-      failed: 'Chưa gửi được',
-      typing: 'Đang nhập'
-    },
-    spoiler: {
-      reveal: 'Hiện',
-      hide: 'Ẩn',
-      notice: 'Đã ẩn để không vô tình đọc phải'
-    },
-    pagination: {
-      label: 'Phân trang',
-      page: 'Trang {page}',
-      status: 'Trang {page} trên {total}',
-      previous: 'Trang trước',
-      next: 'Trang sau',
-      first: 'Trang đầu',
-      last: 'Trang cuối'
-    },
-    rating: {
-      label: 'Đánh giá',
-      value: '{value} trên {max}',
-      empty: 'Chưa đánh giá'
-    }
-  },
-  th: {
-    common: {
-      close: 'ปิด',
-      clear: 'ล้าง',
-      open: 'เปิด',
-      remove: 'ลบ',
-      removeNamed: 'ลบ {label}',
-      loading: 'กำลังโหลด'
-    },
-    textField: { showPassword: 'แสดงรหัสผ่าน', hidePassword: 'ซ่อนรหัสผ่าน' },
-    empty: { title: 'ไม่มีอะไรที่นี่' },
-    picker: {
-      previousMonth: 'เดือนก่อนหน้า',
-      nextMonth: 'เดือนถัดไป',
-      previousYear: 'ปีก่อนหน้า',
-      nextYear: 'ปีถัดไป',
-      previousYears: 'ชุดปีก่อนหน้า',
-      nextYears: 'ชุดปีถัดไป',
-      chooseMonth: 'เลือกเดือน',
-      chooseYear: 'เลือกปี',
-      today: 'วันนี้',
-      now: 'ตอนนี้',
-      clear: 'ล้าง',
-      done: 'เสร็จสิ้น',
-      hour: 'ชั่วโมง',
-      minute: 'นาที',
-      second: 'วินาที',
-      meridiem: 'AM/PM',
-      start: 'เริ่ม',
-      end: 'สิ้นสุด'
-    },
-    alert: { dismiss: 'ปิด' },
-    chat: {
-      sending: 'กำลังส่ง',
-      sent: 'ส่งแล้ว',
-      delivered: 'ส่งถึงแล้ว',
-      read: 'อ่านแล้ว',
-      failed: 'ส่งไม่สำเร็จ',
-      typing: 'กำลังพิมพ์'
-    },
-    spoiler: {
-      reveal: 'แสดง',
-      hide: 'ซ่อน',
-      notice: 'ซ่อนไว้เพื่อไม่ให้อ่านโดยบังเอิญ'
-    },
-    pagination: {
-      label: 'การแบ่งหน้า',
-      page: 'หน้า {page}',
-      status: 'หน้า {page} จาก {total}',
-      previous: 'หน้าก่อนหน้า',
-      next: 'หน้าถัดไป',
-      first: 'หน้าแรก',
-      last: 'หน้าสุดท้าย'
-    },
-    rating: {
-      label: 'คะแนน',
-      value: '{value} จาก {max}',
-      empty: 'ยังไม่ได้ให้คะแนน'
-    }
-  }
-};
+const registry = new Map<string, MPPartialMessages>();
 
 /**
- * The tags that are a different spelling of an entry above.
+ * Teaches the library a language.
  *
- * Only the Chinese ones for now, and they are the reason the table is keyed by
- * script: a reader in Taipei asking for `zh-TW` and one in Hong Kong asking for
- * `zh-HK` want the same words, and a table keyed by region would hold that pair
- * twice. Bare `zh` resolves to Simplified, which is what every other library
- * that has had to pick one has picked.
+ * Variadic because registering one is the common case and registering four is
+ * the next one, and neither should need a loop at the call site. Call it once,
+ * at startup, before anything renders: it is module-level state, and a table
+ * that arrives after a component has already resolved its strings would be a
+ * table that only takes effect at the next re-render.
+ *
+ * Registering a tag that is already registered replaces it, which is what makes
+ * `registerMPMessages({ locale: 'ko', messages: { common: { close: '나가기' } } })`
+ * a workable way to correct one word without forking a file — although a
+ * component's own `labels` prop is the lighter tool for that.
  */
-const aliases: Record<string, string> = {
-  zh: 'zh-hans',
-  'zh-cn': 'zh-hans',
-  'zh-my': 'zh-hans',
-  'zh-sg': 'zh-hans',
-  'zh-hk': 'zh-hant',
-  'zh-mo': 'zh-hant',
-  'zh-tw': 'zh-hant'
-};
+export function registerMPMessages(...locales: MPLocale[]): void {
+  for (const entry of locales) {
+    registry.set(entry.locale.toLowerCase(), entry.messages);
+
+    for (const alias of entry.aliases ?? []) {
+      registry.set(alias.toLowerCase(), entry.messages);
+    }
+  }
+
+  /*
+   * The resolved cache is keyed by the tag that was asked for, so a tag that
+   * resolved to English before this call would go on resolving to English. Drop
+   * the lot rather than try to work out which entries a new table invalidates:
+   * this runs once at startup, and the merge it throws away is cheap.
+   */
+  resolved.clear();
+  resolved.set('', base);
+}
 
 /**
  * A BCP 47 tag, broadest match last.
@@ -1462,7 +441,7 @@ export function resolveMessages(locale?: string): MPMessages {
   }
 
   const match = candidates(key)
-    .map((candidate) => translations[candidate] ?? translations[aliases[candidate] ?? ''])
+    .map((candidate) => registry.get(candidate))
     .find(Boolean);
 
   /*

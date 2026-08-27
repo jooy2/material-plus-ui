@@ -53,6 +53,16 @@
       "module": "./dist/constants/icons.js",
       "default": "./dist/constants/icons.js"
     },
+    "./locales": {
+      "types": "./dist/locales/index.d.ts",
+      "module": "./dist/locales/index.js",
+      "default": "./dist/locales/index.js"
+    },
+    "./locales/*": {
+      "types": "./dist/locales/*.d.ts",
+      "module": "./dist/locales/*.js",
+      "default": "./dist/locales/*.js"
+    },
     "./styles.css": "./dist/styles.css",
     "./tailwind.css": "./dist/tailwind.css"
   },
