@@ -53,6 +53,11 @@
       "module": "./dist/constants/icons.js",
       "default": "./dist/constants/icons.js"
     },
+    "./components/*": {
+      "types": "./dist/components/*/index.d.ts",
+      "module": "./dist/components/*/index.js",
+      "default": "./dist/components/*/index.js"
+    },
     "./locales": {
       "types": "./dist/locales/index.d.ts",
       "module": "./dist/locales/index.js",
