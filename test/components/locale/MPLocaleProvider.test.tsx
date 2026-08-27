@@ -10,6 +10,7 @@ import {
   MPFilePicker,
   MPLocaleProvider,
   MPTextField,
+  registerMPMessages,
   useMPLocale
 } from 'material-plus-ui';
 
@@ -207,6 +208,83 @@ describe('MPLocaleProvider', () => {
       const screen = await render(
         <MPLocaleProvider locale="!!!">
           <MPAlert onClose={() => {}}>Hello</MPAlert>
+        </MPLocaleProvider>
+      );
+
+      await expect.element(screen.getByRole('button', { name: 'Dismiss' })).toBeInTheDocument();
+    });
+  });
+
+  describe('registering a language', () => {
+    /*
+     * `eo` and not one of the eighteen: `test/setup.ts` registers those on
+     * behalf of every suite, and a test that re-registered one would be a test
+     * about the table it just wrote rather than about the registry. Esperanto is
+     * a tag nothing else in this repository touches, which is what makes it
+     * usable twice in a row below.
+     */
+    it('teaches the library a language it does not ship', async () => {
+      registerMPMessages({ locale: 'eo', messages: { alert: { dismiss: 'Forsendi' } } });
+
+      const screen = await render(
+        <MPLocaleProvider locale="eo">
+          <MPAlert onClose={() => {}}>Saluton</MPAlert>
+        </MPLocaleProvider>
+      );
+
+      await expect.element(screen.getByRole('button', { name: 'Forsendi' })).toBeInTheDocument();
+    });
+
+    it('fills the rest of the table in from English, as a shipped one would be', async () => {
+      registerMPMessages({ locale: 'eo', messages: { alert: { dismiss: 'Forsendi' } } });
+
+      const screen = await render(
+        <MPLocaleProvider locale="eo">
+          <MPButton loading>Sendi</MPButton>
+        </MPLocaleProvider>
+      );
+
+      // `common.loading`, which the table above says nothing about.
+      await expect.element(screen.getByLabelText('Loading')).toBeInTheDocument();
+    });
+
+    it('takes a later table over the one already registered', async () => {
+      registerMPMessages({ locale: 'eo', messages: { alert: { dismiss: 'Forsendi' } } });
+      registerMPMessages({ locale: 'eo', messages: { alert: { dismiss: 'Malaperigi' } } });
+
+      const screen = await render(
+        <MPLocaleProvider locale="eo">
+          <MPAlert onClose={() => {}}>Saluton</MPAlert>
+        </MPLocaleProvider>
+      );
+
+      // The resolved-messages cache is keyed by the tag that was asked for, so
+      // this is the assertion that it was dropped rather than answered from.
+      await expect.element(screen.getByRole('button', { name: 'Malaperigi' })).toBeInTheDocument();
+    });
+
+    it('registers a table under its aliases too', async () => {
+      registerMPMessages({
+        locale: 'eo',
+        aliases: ['eo-XX'],
+        messages: { alert: { dismiss: 'Forsendi' } }
+      });
+
+      const screen = await render(
+        <MPLocaleProvider locale="eo-XX">
+          <MPAlert onClose={() => {}}>Saluton</MPAlert>
+        </MPLocaleProvider>
+      );
+
+      await expect.element(screen.getByRole('button', { name: 'Forsendi' })).toBeInTheDocument();
+    });
+
+    it('leaves a language nobody registered speaking English', async () => {
+      // The whole reason the registry exists: an application that never names a
+      // language carries none of them, and gets English rather than nothing.
+      const screen = await render(
+        <MPLocaleProvider locale="cy">
+          <MPAlert onClose={() => {}}>Helo</MPAlert>
         </MPLocaleProvider>
       );
 
