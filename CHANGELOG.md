@@ -1,5 +1,44 @@
 # Changelog
 
+## 1.3.0 (2026-08-27)
+
+### Changed
+
+- **The package now says `sideEffects`, and that one line is most of this release.** Without the field a bundler has to assume every module in a package might do something on import, so a barrel of `export *` — which is what `src/index.ts` is — pulls all 172 of them in and keeps whatever it cannot prove inert. Measured with esbuild and with Rollup, against React and `@base-ui/react` as externals: importing `MPBox`, which renders a `<div>` with three classes on it, produced a **203-module, 62.3 kB gzipped** bundle. So did importing `MPButton`. So did importing five components, and ten. Using one component out of ninety-four cost 86% of using all of them, which is another way of saying the library was not tree-shakeable at all and had been telling people it was. It is `["**/*.css"]` rather than `false`, because a bare `false` is what lets a bundler drop `import 'material-plus-ui/styles.css'` on the grounds that nothing reads its exports.
+- **The build marks every `React.forwardRef` and `React.createContext` call pure** — 86 of them — and `terser.config.json` keeps the annotations rather than consuming them. `sideEffects` lets a bundler drop a whole module; this is what lets it drop one export from a module that has several. Nine files hold more than one component, and `MPTab` on its own went from 4.48 kB to 2.19 kB. It is `scripts/annotate-pure.mjs` over the emitted JavaScript rather than a comment in the source, because the annotation sits in the middle of a declaration line that is already 87 columns against a limit of 100 — written in `src/`, Prettier's answer to the overflow re-indents thirty component bodies, which is four thousand lines of diff and the blame history of every file it touches in exchange for a comment that says the same thing sixty-eight times. The script counts what it annotated against what the source declares and fails the build if the two disagree.
+- **`resolveMessages` reads a registry instead of a built-in table, and the eighteen translations moved to `src/locales/`.** This is the breaking change. A component that says a single word — `MPButton` says _Loading_ — held a static import chain down to every string in every language, and a bundler cannot drop data that something imports: 32 kB of the 38 kB an `MPButton` bundle weighed was Thai, Hindi and sixteen others. The tables are modules now and nothing in the library imports them, so an application hands over the ones it speaks:
+
+  ```ts
+  import { registerMPMessages } from 'material-plus-ui';
+  import { ko } from 'material-plus-ui/locales';
+
+  registerMPMessages(ko);
+  ```
+
+  After that call `locale="ko"` resolves exactly as it did before, on a provider or on a component, because it is the same table. `registerMPMessages(...LOCALES)` restores the old behaviour in one line and costs exactly what the old behaviour cost. A tag nobody registered falls back to English the way an unsupported tag always has, so the failure mode of forgetting the line is English words and never a broken render — and `MPLocale` is a plain object, so a language this library does not ship is now a supported case rather than eighteen `labels` props.
+
+### Added
+
+- **`material-plus-ui/locales`, and `material-plus-ui/locales/<tag>` for one language at a time.** Named exports under their tags, hyphenated ones camel-cased (`zhHans`, `zhHant`), plus `LOCALES` for all eighteen as an array. English is about a kilobyte and each language after it about six hundred bytes gzipped.
+- **`registerMPMessages`, `MPLocale` and `MPPartialMessages` are public.** The first is the whole of the new API; the other two are what you write a table of your own against. `aliases` on an `MPLocale` is how one table answers to several tags — it is what `zh-hant` uses for `zh-TW`, `zh-HK` and `zh-MO`, and it replaces the alias map that used to live in `internal/i18n.ts`.
+- **`material-plus-ui/components/<name>` reaches a component without going through the barrel.** `import { MPButton } from 'material-plus-ui/components/button'` and the root import now produce byte-identical bundles, so this is insurance rather than a recommendation: a bundler that gets tree-shaking wrong, or a build that does not read `sideEffects`, has a path that cannot go wrong.
+- **`material-plus-ui/styles/tokens.css` and a sheet per component.** `dist/styles.css` is unchanged and is still the right answer for most projects, but it is 109 kB whether a page renders one component or all of them, because Tailwind generates from a file scan and not from an import graph. The same rules are now also cut along the seams the components are: the tokens once, and `material-plus-ui/styles/button.css` beside it. One component is 3.8 kB gzipped against 15.6 kB for the whole sheet, five is 5.5 kB, ten is 8.0 kB. The sheets repeat each other's utilities, so the total climbs faster than the whole sheet's does and passes it at around thirty components — `npm run build` measures where that crossing is and prints it, so the figure in the docs cannot quietly stop being true.
+- **`scripts/build-split-styles.mjs`, which fails the build rather than trusting itself.** A component's sheet is decided from its own import graph and from which `mp-` class names its files spell, both read out of the source. Two things are then checked: that every selector a scan of all the sources produces exists in some split sheet, and that no sheet reads a custom property neither it nor `tokens.css` defines. Both failures would otherwise be invisible — the component renders, the page is merely wrong — and neither can survive a build now.
+
+### Notes on the measurements
+
+Every figure above is gzip, from a real bundler over a real install, with React external. The marginal column is what this library costs on top of `@base-ui/react`; the total column adds Base UI in.
+
+| Scenario        | Before  | After   | Before, with Base UI | After, with Base UI |
+| --------------- | ------- | ------- | -------------------- | ------------------- |
+| `MPBox`         | 62.3 kB | 0.5 kB  | 153.2 kB             | 2.3 kB              |
+| `MPButton`      | 62.3 kB | 3.4 kB  | 153.3 kB             | 6.2 kB              |
+| Five components | 63.1 kB | 7.4 kB  | 154.1 kB             | 33.6 kB             |
+| Ten components  | 64.0 kB | 11.8 kB | 161.6 kB             | 81.1 kB             |
+| All ninety-four | 72.4 kB | 64.3 kB | 202.1 kB             | 193.6 kB            |
+
+The last row is the one that did not move much, and that is the point: nothing was removed. What changed is that the bill is now itemised.
+
 ## 1.2.0 (2026-08-23)
 
 A pass over every component asking one question: when this thing changes, does it _change_, or does it cut? Fourteen places cut. The list below is what each of them does now, and the reasoning where the answer was not simply "add a transition".
