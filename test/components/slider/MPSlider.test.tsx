@@ -173,27 +173,37 @@ describe('MPSlider', () => {
       // The jump half. An arrow key moves the value, and Base UI writes the new
       // position onto the handle's inline style in the same commit — so the
       // *declared* place changes at once and the *drawn* one lags behind it.
-      // That gap is the transition, and it is what is asserted: where the handle
-      // is drawn a moment after the key is not yet where it ends up.
+      // That gap is the transition, and whether it happened is what is asserted.
       //
-      // Compared against its own settled position rather than against a
-      // distance, because the travel is 100ms wide and every engine is somewhere
-      // different inside it. The only way the two can be equal is if nothing
-      // travelled at all.
+      // Asked of the browser rather than measured, and that is the whole point.
+      // Reading the handle's position straight after the key looks like it
+      // answers the question and does not: the travel is 100ms wide, so a
+      // runner that takes longer than that to return from the key press reads
+      // the settled position and compares it against itself — `expected
+      // 507.203125 to be less than 507.203125`, on the one machine in the
+      // matrix slow enough to see it. A frame is not a property, which is the
+      // lesson the rest of these motion tests already learned; here the
+      // property is that a transition ran at all, and there is an event for it.
       const before = handle.getBoundingClientRect().x;
+      let travelled = false;
+
+      handle.addEventListener(
+        'transitionrun',
+        () => {
+          travelled = true;
+        },
+        { once: true }
+      );
 
       // The `role="slider"` element rather than the handle: Base UI puts a
       // visually hidden `<input type="range">` inside the thumb, and that is
       // what the keyboard talks to. Focusing the handle sends the key nowhere.
       await press(screen.getByRole('slider').element(), 'ArrowRight');
 
-      const during = handle.getBoundingClientRect().x;
-
+      // Which property it ran on is already pinned above, and the position it
+      // settles at is the outcome the reader sees.
+      await expect.poll(() => travelled).toBe(true);
       await expect.poll(() => handle.getBoundingClientRect().x).toBeGreaterThan(before);
-
-      const after = handle.getBoundingClientRect().x;
-
-      expect(during).toBeLessThan(after);
 
       // `data-dragging` is set rather than a drag being synthesised, and that is
       // not laziness. A `pointerdown` built by hand carries a `pointerId` no
