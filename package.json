@@ -3,6 +3,9 @@
   "version": "1.2.0",
   "description": "A React component library implementing Material Design 3 — the components other Material libraries do not ship, and wider versions of the ones they do. Built on Base UI and Tailwind CSS v4, themed with CSS custom properties so it can coexist with an existing Material setup. ESM only, types included.",
   "type": "module",
+  "sideEffects": [
+    "**/*.css"
+  ],
   "types": "dist/index.d.ts",
   "author": "CDGet <jooy2.contact@gmail.com>",
   "license": "MIT",
