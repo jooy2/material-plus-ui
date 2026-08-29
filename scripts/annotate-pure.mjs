@@ -36,6 +36,23 @@
  * The count is checked against the source rather than trusted, because the
  * failure this could have — an emitted shape the pattern does not match — is a
  * component that silently stops being separable from the ones beside it.
+ *
+ * ## The second pass
+ *
+ * A long class list is written here as an array of lines joined with a space,
+ * which is a readable way to spell a hundred characters of Tailwind and — to a
+ * bundler — a method call on an array. `['a', 'b'].join(' ')` cannot be proved
+ * harmless any more than `forwardRef(fn)` can, so every such constant in a
+ * module is kept the moment anything in that module is imported.
+ *
+ * `internal/surface.ts` is where that showed: `MPBox` renders a `<div>` and
+ * reads one export from it, and was carrying `FADE` and `SHEET_MOTION` — the
+ * motion classes for the portalled surfaces, which an `MPBox` has none of — for
+ * 60% of its bundle. Annotated, `MPBox` is 0.4 kB against 0.5 kB.
+ *
+ * The array literal is found by matching brackets rather than by a pattern,
+ * because Tailwind's own syntax is full of them: `[&>svg]:size-full` inside a
+ * string would end a naive `\[.*?\]` at the wrong place.
  */
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -97,4 +114,125 @@ if (annotated !== expected) {
   );
 }
 
-console.log(`pure: ${annotated} calls annotated across ${built.length} modules`);
+/**
+ * Every `[` in a module paired with the `]` that closes it, skipping the ones
+ * that are inside a string or a comment, and noting whether anything between
+ * the two was called.
+ *
+ * The strings are the point: a Tailwind class list is `['[&>svg]:block', ...]`,
+ * and three of the four brackets on that line are text.
+ *
+ * The call is the safety. `['a', 'b'].join(' ')` is pure because evaluating the
+ * array does nothing; `[register(), 'b'].join(' ')` is not, and annotating it
+ * would licence a bundler to delete the `register()` along with the string. No
+ * such array exists here — the guard is so that the day one does, it is not
+ * quietly marked harmless.
+ */
+function brackets(code) {
+  const open = [];
+  const pairs = new Map();
+  let calls = 0;
+  let index = 0;
+
+  while (index < code.length) {
+    const character = code[index];
+
+    if (character === '"' || character === "'" || character === '`') {
+      index += 1;
+
+      while (index < code.length) {
+        if (code[index] === '\\') {
+          index += 2;
+          continue;
+        }
+
+        if (code[index] === character) {
+          index += 1;
+          break;
+        }
+
+        index += 1;
+      }
+
+      continue;
+    }
+
+    if (character === '/' && code[index + 1] === '/') {
+      while (index < code.length && code[index] !== '\n') {
+        index += 1;
+      }
+
+      continue;
+    }
+
+    if (character === '/' && code[index + 1] === '*') {
+      index += 2;
+
+      while (index < code.length && !(code[index] === '*' && code[index + 1] === '/')) {
+        index += 1;
+      }
+
+      index += 2;
+      continue;
+    }
+
+    if (character === '(') {
+      calls += 1;
+    } else if (character === '[') {
+      open.push({ index, calls });
+    } else if (character === ']') {
+      const start = open.pop();
+
+      if (start !== undefined && start.calls === calls) {
+        pairs.set(index, start.index);
+      }
+    }
+
+    index += 1;
+  }
+
+  return pairs;
+}
+
+/* `= [...].join(` and `, [...].join(` — an array literal being turned into a
+   string to name a constant. A join anywhere else is somebody's runtime work. */
+const JOINED = /^\]\s*\.join\(/;
+const ASSIGNED = /[=,]\s*$/;
+
+let joined = 0;
+
+for (const file of built) {
+  const before = readFileSync(file, 'utf8');
+  const at = [];
+
+  for (const [close, open] of brackets(before)) {
+    if (!JOINED.test(before.slice(close, close + 8))) {
+      continue;
+    }
+
+    const preceding = before.slice(0, open);
+
+    if (!ASSIGNED.test(preceding) || /@__PURE__/.test(preceding.slice(-40))) {
+      continue;
+    }
+
+    at.push(open);
+  }
+
+  if (at.length === 0) {
+    continue;
+  }
+
+  let after = before;
+
+  for (const index of at.sort((a, b) => b - a)) {
+    after = `${after.slice(0, index)}/*@__PURE__*/${after.slice(index)}`;
+  }
+
+  joined += at.length;
+  writeFileSync(file, after);
+}
+
+console.log(
+  `pure: ${annotated} calls and ${joined} class lists annotated across ${built.length} modules`
+);
