@@ -12,14 +12,14 @@
  *
  * There is deliberately no third source. `navigator.language` is *not* consulted
  * as a fallback, and that is not an oversight — see the note on
- * `resolveMessages` in `internal/i18n.ts`. The runtime's own locale differs
+ * `resolveNamespace` in `internal/i18n.ts`. The runtime's own locale differs
  * between the server that renders the markup and the browser that hydrates it,
  * so reading it would put a hydration mismatch in the one part of the page a
  * reader is looking at. `undefined` therefore means "the platform's default",
  * which `Intl` resolves consistently in both places.
  */
 import * as React from 'react';
-import { resolveMessages, type MPMessages } from './i18n';
+import { resolveNamespace, type MPMessages, type MPNamespace } from './i18n';
 
 /**
  * `undefined` rather than `'en'`, and the distinction matters.
@@ -46,14 +46,19 @@ export function useMPLocale(locale?: string): string | undefined {
  * what makes an unsupported language a partial answer rather than a dead end: a
  * caller supplies the handful of words they care about and everything else is
  * still translated, or still English, rather than blank.
+ *
+ * The namespace is passed as the object from `internal/messages/`, not as its
+ * name: it carries English with it, which is what lets a component that says one
+ * word leave the other eight namespaces out of the bundle entirely. The objects
+ * are module constants, so the identity `useMemo` compares is stable.
  */
-export function useMPMessages<Namespace extends keyof MPMessages>(
-  namespace: Namespace,
+export function useMPMessages<Name extends keyof MPMessages>(
+  namespace: MPNamespace<Name>,
   locale: string | undefined,
-  overrides?: Partial<MPMessages[Namespace]>
-): MPMessages[Namespace] {
+  overrides?: Partial<MPMessages[Name]>
+): MPMessages[Name] {
   return React.useMemo(() => {
-    const messages = resolveMessages(locale)[namespace];
+    const messages = resolveNamespace(namespace, locale);
 
     return overrides ? { ...messages, ...overrides } : messages;
   }, [namespace, locale, overrides]);

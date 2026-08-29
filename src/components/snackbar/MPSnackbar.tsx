@@ -4,6 +4,7 @@ import { MPIcon } from '../icon/MPIcon';
 import { CloseIcon } from '../../constants/icons';
 import { accentSlots } from '../../internal/accent';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
+import { COMMON } from '../../internal/messages/common';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { PORTAL_LAYER } from '../../internal/surface';
 import type { MPAlign, MPColor, MPSize } from '../../types';
@@ -499,7 +500,7 @@ export function MPSnackbarProvider({
   children
 }: MPSnackbarProviderProps) {
   const locale = useMPLocale(localeProp);
-  const messages = useMPMessages('common', locale);
+  const messages = useMPMessages(COMMON, locale);
 
   return (
     <Toast.Provider timeout={timeout} limit={limit}>

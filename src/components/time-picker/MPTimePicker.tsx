@@ -11,6 +11,7 @@ import {
   type MPPickerShellProps
 } from '../../internal/Picker';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
+import { PICKER } from '../../internal/messages/picker';
 import { CONTROL_ICON } from '../../internal/scale';
 import {
   formatDate,
@@ -165,7 +166,7 @@ export const MPTimePicker = React.forwardRef<HTMLButtonElement, MPTimePickerProp
     ref
   ) {
     const locale = useMPLocale(localeProp);
-    const labels = useMPMessages('picker', locale, labelOverrides);
+    const labels = useMPMessages(PICKER, locale, labelOverrides);
     const hour12 = hour12Prop ?? isHour12(locale);
 
     const [uncontrolledValue, setUncontrolledValue] = React.useState<Date | null>(

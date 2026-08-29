@@ -3,6 +3,7 @@ import { MPIcon } from '../icon/MPIcon';
 import { CloseIcon } from '../../constants/icons';
 import { accentSlots } from '../../internal/accent';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
+import { COMMON } from '../../internal/messages/common';
 import { hasContent } from '../../internal/scale';
 import { MPStateLayer } from '../../internal/StateLayer';
 import type { MPColor, MPSize, MPVariant } from '../../types';
@@ -254,7 +255,7 @@ export const MPChip = React.forwardRef<HTMLSpanElement, MPChipProps>(function MP
   ref
 ) {
   const locale = useMPLocale(localeProp);
-  const messages = useMPMessages('common', locale);
+  const messages = useMPMessages(COMMON, locale);
   const interactive = Boolean(onClick) && !disabled;
 
   const shellClasses = [

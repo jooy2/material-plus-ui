@@ -11,6 +11,7 @@ import {
   type MPPickerShellProps
 } from '../../internal/Picker';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
+import { PICKER } from '../../internal/messages/picker';
 import { CONTROL_ICON } from '../../internal/scale';
 import {
   formatDate,
@@ -152,7 +153,7 @@ export const MPDatePicker = React.forwardRef<HTMLButtonElement, MPDatePickerProp
     ref
   ) {
     const locale = useMPLocale(localeProp);
-    const labels = useMPMessages('picker', locale, labelOverrides);
+    const labels = useMPMessages(PICKER, locale, labelOverrides);
     const firstDay = weekStartsOn ?? localeWeekStart(locale);
 
     const [uncontrolledValue, setUncontrolledValue] = React.useState<Date | null>(

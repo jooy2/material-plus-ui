@@ -9,6 +9,7 @@ import {
 import { accentSlots } from '../../internal/accent';
 import { fillMessage, type MPMessages } from '../../internal/i18n';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
+import { PAGINATION } from '../../internal/messages/pagination';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { CONTROL_ICON, CONTROL_TEXT } from '../../internal/scale';
 import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
@@ -238,7 +239,7 @@ export const MPPagination = React.forwardRef<HTMLElement, MPPaginationProps>(fun
   ref
 ) {
   const locale = useMPLocale(localeProp);
-  const messages = useMPMessages('pagination', locale, labels);
+  const messages = useMPMessages(PAGINATION, locale, labels);
 
   const [uncontrolled, setUncontrolled] = React.useState(defaultPage);
   const controlled = pageProp !== undefined;

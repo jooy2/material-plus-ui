@@ -3,6 +3,7 @@ import { MPIcon } from '../icon/MPIcon';
 import { CheckIcon, ClockIcon, ErrorIcon, LinkIcon } from '../../constants/icons';
 import { accentSlots } from '../../internal/accent';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
+import { CHAT } from '../../internal/messages/chat';
 import { hasContent, META_TEXT, PROSE_TEXT } from '../../internal/scale';
 import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
 import type { MPColor, MPSize, MPVariant } from '../../types';
@@ -305,7 +306,7 @@ export const MPChatBubble = React.forwardRef<HTMLDivElement, MPChatBubbleProps>(
     ref
   ) {
     const locale = useMPLocale(localeProp);
-    const messages = useMPMessages('chat', locale);
+    const messages = useMPMessages(CHAT, locale);
     const end = side === 'end';
 
     const hasHeader = hasContent(name) || hasContent(time);

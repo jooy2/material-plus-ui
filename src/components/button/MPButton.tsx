@@ -5,6 +5,7 @@ import { SpinnerIcon } from '../../constants/icons';
 import { accentSlots } from '../../internal/accent';
 import { MPButtonGroupContext } from '../../internal/button-group';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
+import { COMMON } from '../../internal/messages/common';
 import { MPStateLayer } from '../../internal/StateLayer';
 import {
   CONTROL_GAP,
@@ -161,7 +162,7 @@ export const MPButton = React.forwardRef<HTMLButtonElement, MPButtonProps>(funct
   // a row of secondary actions with one destructive button in it is a real thing
   // — and with no group around it the defaults are what they always were.
   const locale = useMPLocale(localeProp);
-  const messages = useMPMessages('common', locale);
+  const messages = useMPMessages(COMMON, locale);
   const group = React.useContext(MPButtonGroupContext);
   const variant = variantProp ?? group?.variant ?? 'filled';
   const size: MPSize = sizeProp ?? group?.size ?? 'md';

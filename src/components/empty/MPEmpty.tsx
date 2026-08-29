@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
+import { EMPTY } from '../../internal/messages/empty';
 import { hasContent, PROSE_TEXT, SHEET_GAP, SHEET_PAD_X, SHEET_TITLE } from '../../internal/scale';
 import { CONTAINER_SURFACE } from '../../internal/surface';
 import type { MPSize, MPVariant } from '../../types';
@@ -163,7 +164,7 @@ export const MPEmpty = React.forwardRef<HTMLDivElement, MPEmptyProps>(function M
   ref
 ) {
   const locale = useMPLocale(localeProp);
-  const messages = useMPMessages('empty', locale);
+  const messages = useMPMessages(EMPTY, locale);
   const heading = title === undefined ? messages.title : title;
   const glyph = icon === undefined ? <TrayIcon /> : icon;
   const titled = hasContent(heading);

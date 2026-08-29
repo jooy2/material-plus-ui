@@ -3,6 +3,7 @@ import { Popover } from '@base-ui/react/popover';
 import { MPIcon } from '../icon/MPIcon';
 import { CloseIcon } from '../../constants/icons';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
+import { COMMON } from '../../internal/messages/common';
 import { MPStateLayer } from '../../internal/StateLayer';
 import {
   hasContent,
@@ -206,7 +207,7 @@ export function MPPopover({
   children
 }: MPPopoverProps) {
   const locale = useMPLocale(localeProp);
-  const messages = useMPMessages('common', locale);
+  const messages = useMPMessages(COMMON, locale);
   const hasHeader = hasContent(title) || hasContent(description);
   const arrowSize = ARROW_SIZE[size];
 

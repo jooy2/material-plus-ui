@@ -4,6 +4,7 @@ import { MPIcon } from '../icon/MPIcon';
 import { MPFieldLabel, MPFieldOutline, useFloatingLabel } from '../../internal/FieldOutline';
 import { VisibilityIcon, VisibilityOffIcon } from '../../constants/icons';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
+import { TEXT_FIELD } from '../../internal/messages/text-field';
 import type { MPMessages } from '../../internal/i18n';
 import type { MPSize, MPStyleProps } from '../../types';
 
@@ -265,7 +266,7 @@ export const MPTextField = React.forwardRef<
   ref
 ) {
   const locale = useMPLocale(localeProp);
-  const messages = useMPMessages('textField', locale, passwordLabels);
+  const messages = useMPMessages(TEXT_FIELD, locale, passwordLabels);
   const inputRef = React.useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
   const [showPassword, setShowPassword] = React.useState(false);
   const [isComposing, setIsComposing] = React.useState(false);

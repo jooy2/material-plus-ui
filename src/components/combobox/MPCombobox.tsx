@@ -7,6 +7,7 @@ import { AddIcon, CheckIcon, ChevronDownIcon, CloseIcon } from '../../constants/
 import { MPFieldLabel, MPFieldOutline, useFloatingLabel } from '../../internal/FieldOutline';
 import { fillMessage } from '../../internal/i18n';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
+import { COMMON } from '../../internal/messages/common';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { MPSupportingText } from '../../internal/SupportingText';
 import { CONTROL_ICON, PROSE_TEXT, hasContent } from '../../internal/scale';
@@ -292,7 +293,7 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
   style
 }: MPComboboxProps<Multiple>) {
   const locale = useMPLocale(localeProp);
-  const messages = useMPMessages('common', locale);
+  const messages = useMPMessages(COMMON, locale);
   const invalid = hasContent(errorMessage);
   const isMultiple = multiple === true;
   const scale = FIELD[size];

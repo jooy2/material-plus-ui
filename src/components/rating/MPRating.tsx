@@ -4,6 +4,7 @@ import { StarIcon } from '../../constants/icons';
 import { accentSlots } from '../../internal/accent';
 import { fillMessage, type MPMessages } from '../../internal/i18n';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
+import { RATING } from '../../internal/messages/rating';
 import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
 import type { MPColor, MPSize } from '../../types';
 
@@ -195,7 +196,7 @@ export const MPRating = React.forwardRef<HTMLDivElement, MPRatingProps>(function
   ref
 ) {
   const locale = useMPLocale(localeProp);
-  const messages = useMPMessages('rating', locale, labels);
+  const messages = useMPMessages(RATING, locale, labels);
 
   const generatedName = React.useId();
   const name = nameProp ?? generatedName;

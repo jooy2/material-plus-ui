@@ -3,6 +3,7 @@ import { Dialog } from '@base-ui/react/dialog';
 import { MPIcon } from '../icon/MPIcon';
 import { CloseIcon } from '../../constants/icons';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
+import { COMMON } from '../../internal/messages/common';
 import { MPStateLayer } from '../../internal/StateLayer';
 import {
   hasContent,
@@ -332,7 +333,7 @@ export function MPDrawer({
   children
 }: MPDrawerProps) {
   const locale = useMPLocale(localeProp);
-  const messages = useMPMessages('common', locale);
+  const messages = useMPMessages(COMMON, locale);
   const modal = mode === 'modal';
   const along = side === 'left' || side === 'right';
   const withClose = showClose ?? modal;

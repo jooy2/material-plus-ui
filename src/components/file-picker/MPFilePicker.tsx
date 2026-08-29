@@ -3,6 +3,7 @@ import { MPIcon } from '../icon/MPIcon';
 import { CloseIcon, UploadIcon } from '../../constants/icons';
 import { fillMessage } from '../../internal/i18n';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
+import { COMMON } from '../../internal/messages/common';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { CONTROL_ICON, META_TEXT, PROSE_TEXT, STACK_GAP, hasContent } from '../../internal/scale';
 import type { MPSize, MPStyleProps } from '../../types';
@@ -212,7 +213,7 @@ export const MPFilePicker = React.forwardRef<HTMLInputElement, MPFilePickerProps
     ref
   ) {
     const locale = useMPLocale(localeProp);
-    const messages = useMPMessages('common', locale);
+    const messages = useMPMessages(COMMON, locale);
     const inputRef = React.useRef<HTMLInputElement>(null);
 
     // Empty deps: the ref this hands over is the same one for the life of the

@@ -3,6 +3,7 @@ import { MPIcon } from '../icon/MPIcon';
 import { CloseIcon, ErrorIcon, InfoIcon } from '../../constants/icons';
 import { accentSlots } from '../../internal/accent';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
+import { ALERT } from '../../internal/messages/alert';
 import { MPStateLayer } from '../../internal/StateLayer';
 import {
   CONTROL_ICON,
@@ -199,7 +200,7 @@ export const MPAlert = React.forwardRef<HTMLDivElement, MPAlertProps>(function M
   ref
 ) {
   const locale = useMPLocale(localeProp);
-  const messages = useMPMessages('alert', locale);
+  const messages = useMPMessages(ALERT, locale);
   const accent = ACCENT[variant];
   const titled = hasContent(title);
   const glyph =

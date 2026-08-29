@@ -23,22 +23,32 @@
  * gets you a translation, `MPLocaleProvider` gets you one for the whole
  * application at once, and the prop gets you one for anything else.
  *
- * ## Why English is the only table in this file
+ * ## Where the words themselves are
  *
- * The other eighteen live under `src/locales/`, and nothing in the library
- * imports them. They used to be here, and being here is what made them cost
- * something: a component that says one word — `MPButton` says *Loading* — held a
- * static import chain down to a table of every string in every language, and a
- * bundler cannot drop data that something imports. Twenty kilobytes, on every
- * consumer, for a word.
+ * Not here. This file is the shape of the table, the registry a translation
+ * arrives through, and the merge — no strings.
  *
- * So the table arrives from the outside instead. `registerMPMessages` below is
- * how, `material-plus-ui/locales` is where from, and the only thing that changed
- * for a reader is that the application now names the languages it speaks. Once
- * it has, `locale="ko"` resolves through exactly the path it always did.
+ * The eighteen translations live under `src/locales/`, and nothing in the
+ * library imports them. They used to be here, and being here is what made them
+ * cost something: a component that says one word — `MPButton` says *Loading* —
+ * held a static import chain down to a table of every string in every language,
+ * and a bundler cannot drop data that something imports. Twenty kilobytes, on
+ * every consumer, for a word. So the table arrives from the outside instead:
+ * `registerMPMessages` below is how, `material-plus-ui/locales` is where from,
+ * and the only thing that changed for a reader is that the application now names
+ * the languages it speaks. Once it has, `locale="ko"` resolves through exactly
+ * the path it always did.
+ *
+ * English left too, for the same reason one step smaller. It is nine modules
+ * under `internal/messages/`, one per namespace, because a bundler that can drop
+ * a module it can also drop an export — and cannot drop a property. Held as one
+ * object, English was 1.75 kB that every component carried whole: `MPButton`
+ * shipped the calendar's eighteen strings to say *Loading*. `resolveNamespace`
+ * is handed the namespace it should merge, so a component pays for the words it
+ * speaks and no others.
  *
  * The public surface is `registerMPMessages`, `MPLocaleProvider` and the
- * per-component `labels` props; `resolveMessages` and `fillMessage` stay
+ * per-component `labels` props; `resolveNamespace` and `fillMessage` stay
  * internal.
  */
 
@@ -261,77 +271,24 @@ export interface MPLocale {
 }
 
 /**
- * English is the base, and the only entry that is complete by construction —
- * every other locale is merged over it, so a missing string is an English one
- * rather than an empty box.
+ * One namespace's English strings, carrying the name they answer to.
+ *
+ * The nine of them live in `internal/messages/`, one to a module, and a
+ * component imports the one it speaks. That is the whole reason this type
+ * exists: `resolveNamespace` below is handed the English table rather than
+ * looking it up, so the eight tables a component does not use are eight modules
+ * nothing imports.
+ *
+ * The name travels with the strings rather than beside them, so a call site is
+ * `useMPMessages(PICKER, locale)` and cannot name one namespace while passing
+ * another's words.
  */
-const base: MPMessages = {
-  common: {
-    close: 'Close',
-    clear: 'Clear',
-    open: 'Open',
-    remove: 'Remove',
-    removeNamed: 'Remove {label}',
-    loading: 'Loading'
-  },
-  textField: {
-    showPassword: 'Show the password',
-    hidePassword: 'Hide the password'
-  },
-  empty: {
-    title: 'Nothing here'
-  },
-  picker: {
-    previousMonth: 'Previous month',
-    nextMonth: 'Next month',
-    previousYear: 'Previous year',
-    nextYear: 'Next year',
-    previousYears: 'Previous years',
-    nextYears: 'Next years',
-    chooseMonth: 'Choose a month',
-    chooseYear: 'Choose a year',
-    today: 'Today',
-    now: 'Now',
-    clear: 'Clear',
-    done: 'Done',
-    hour: 'Hour',
-    minute: 'Minute',
-    second: 'Second',
-    meridiem: 'AM/PM',
-    start: 'Start',
-    end: 'End'
-  },
-  alert: {
-    dismiss: 'Dismiss'
-  },
-  chat: {
-    sending: 'Sending',
-    sent: 'Sent',
-    delivered: 'Delivered',
-    read: 'Read',
-    failed: 'Not sent',
-    typing: 'Typing'
-  },
-  spoiler: {
-    reveal: 'Reveal',
-    hide: 'Hide',
-    notice: 'Hidden so it is not read by accident'
-  },
-  pagination: {
-    label: 'Pagination',
-    page: 'Page {page}',
-    status: 'Page {page} of {total}',
-    previous: 'Previous page',
-    next: 'Next page',
-    first: 'First page',
-    last: 'Last page'
-  },
-  rating: {
-    label: 'Rating',
-    value: '{value} out of {max}',
-    empty: 'Not rated'
-  }
-};
+export interface MPNamespace<Name extends keyof MPMessages> {
+  /** The key this namespace occupies in `MPMessages` and in a translation. */
+  readonly name: Name;
+  /** English, which every other language is merged over. */
+  readonly en: MPMessages[Name];
+}
 
 /**
  * The translations the application has handed over, keyed by the lowercased tag
@@ -379,7 +336,6 @@ export function registerMPMessages(...locales: MPLocale[]): void {
    * this runs once at startup, and the merge it throws away is cheap.
    */
   resolved.clear();
-  resolved.set('', base);
 }
 
 /**
@@ -410,16 +366,20 @@ function candidates(locale: string): string[] {
 }
 
 /**
- * Resolved tables, keyed by the tag that was asked for.
+ * Merged namespaces, keyed by the namespace and the tag that was asked for.
  *
  * A module-level cache rather than a `useMemo` per component: the merge is the
  * same work for every picker on a page, and a filter bar is where this gets
  * called half a dozen times with the same tag.
+ *
+ * Keyed by both halves because the table is no longer resolved all at once —
+ * `picker` in French and `common` in French are two entries, and a page that
+ * renders a date picker beside a button asks for exactly those two.
  */
-const resolved = new Map<string, MPMessages>([['', base]]);
+const resolved = new Map<string, unknown>();
 
 /**
- * The strings for a locale, merged over English.
+ * One namespace's strings for a locale, merged over English.
  *
  * `undefined` is English rather than the runtime's own locale, and that is
  * deliberate: `navigator.language` differs between the server that renders the
@@ -428,43 +388,34 @@ const resolved = new Map<string, MPMessages>([['', base]]);
  * at. A component that should follow the reader is *told* which language to
  * follow — by its own `locale` prop, or by an `MPLocaleProvider` above it.
  *
+ * A namespace at a time, so a language that has one and not another keeps
+ * English for the rest rather than losing both. That was already how the merge
+ * worked; what changed is that the namespaces are no longer merged all at once,
+ * because a component that reads one of them should not carry the other eight.
+ *
  * Note that this is only about the words in the table. The dates themselves are
  * formatted by `Intl` against the same tag, and `Intl` speaks every language the
  * platform does whether or not there is an entry here.
  */
-export function resolveMessages(locale?: string): MPMessages {
-  const key = locale?.trim() ?? '';
-  const cached = resolved.get(key);
+export function resolveNamespace<Name extends keyof MPMessages>(
+  namespace: MPNamespace<Name>,
+  locale?: string
+): MPMessages[Name] {
+  const tag = locale?.trim() ?? '';
+  /* `\0` cannot appear in a BCP 47 tag, so no pair of (namespace, tag) can
+     collide with another by spelling. */
+  const key = `${namespace.name}\0${tag}`;
+  const cached = resolved.get(key) as MPMessages[Name] | undefined;
 
   if (cached) {
     return cached;
   }
 
-  const match = candidates(key)
+  const match = candidates(tag)
     .map((candidate) => registry.get(candidate))
     .find(Boolean);
-
-  /*
-   * Merged a namespace at a time, so a language that has one and not another
-   * keeps English for the rest rather than losing both.
-   *
-   * Every namespace in `MPMessages` has to appear here — the type is what
-   * enforces it, and it is the reason adding one is a compile error until it is
-   * wired rather than a namespace that silently resolves to nothing.
-   */
-  const messages: MPMessages = match
-    ? {
-        common: { ...base.common, ...match.common },
-        textField: { ...base.textField, ...match.textField },
-        empty: { ...base.empty, ...match.empty },
-        picker: { ...base.picker, ...match.picker },
-        alert: { ...base.alert, ...match.alert },
-        chat: { ...base.chat, ...match.chat },
-        pagination: { ...base.pagination, ...match.pagination },
-        rating: { ...base.rating, ...match.rating },
-        spoiler: { ...base.spoiler, ...match.spoiler }
-      }
-    : base;
+  const translated = match?.[namespace.name];
+  const messages = translated ? { ...namespace.en, ...translated } : namespace.en;
 
   resolved.set(key, messages);
 

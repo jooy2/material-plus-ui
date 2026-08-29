@@ -2,6 +2,7 @@ import * as React from 'react';
 import { MPButton } from '../button/MPButton';
 import { inertProps } from '../../internal/inert';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
+import { SPOILER } from '../../internal/messages/spoiler';
 import { hasContent, META_TEXT, SHEET_PAD, SHEET_PAD_X, SHEET_PAD_Y } from '../../internal/scale';
 import { CONTAINER_SURFACE } from '../../internal/surface';
 import type { MPColor, MPSize, MPVariant } from '../../types';
@@ -153,7 +154,7 @@ export const MPSpoiler = React.forwardRef<HTMLDivElement, MPSpoilerProps>(functi
   ref
 ) {
   const locale = useMPLocale(localeProp);
-  const messages = useMPMessages('spoiler', locale);
+  const messages = useMPMessages(SPOILER, locale);
   const contentId = React.useId();
 
   const [uncontrolled, setUncontrolled] = React.useState(defaultRevealed);

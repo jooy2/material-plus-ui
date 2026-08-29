@@ -4,6 +4,7 @@ import { MPIcon } from '../icon/MPIcon';
 import { CloseIcon } from '../../constants/icons';
 import { accentSlots } from '../../internal/accent';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
+import { COMMON } from '../../internal/messages/common';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { SHEET_GAP, hasContent } from '../../internal/scale';
 import { FADE, PORTAL_LAYER, SCRIM, SHEET_MOTION } from '../../internal/surface';
@@ -316,7 +317,7 @@ export function MPDialog({
   children
 }: MPDialogProps) {
   const locale = useMPLocale(localeProp);
-  const messages = useMPMessages('common', locale);
+  const messages = useMPMessages(COMMON, locale);
   const withClose = showClose ?? fullScreen;
   const hasIcon = hasContent(icon);
   const hasHeader = hasContent(title) || hasContent(description) || hasIcon;
