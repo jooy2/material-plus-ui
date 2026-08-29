@@ -256,6 +256,76 @@ Every control takes a `size` from one ladder — `xs`, `sm`, `md`, `lg`, `xl` �
 
 The ladder is the one place the library knowingly goes beyond the specification. Why, and what each rung is, is in [Prop conventions](../design/prop-conventions#size).
 
+## What it weighs
+
+Gzipped, from a real bundler, with React and `@base-ui/react` held external — so this is the library's own contribution rather than the whole download.
+
+| On the page      | JavaScript | Stylesheet, split |
+| ---------------- | ---------- | ----------------- |
+| `MPBox` alone    | 0.4 kB     | 3.8 kB            |
+| `MPButton` alone | 2.9 kB     | 3.8 kB            |
+| Five components  | 7.3 kB     | 5.5 kB            |
+| Ten components   | 11.1 kB    | 8.0 kB            |
+| All ninety-four  | 64.1 kB    | 15.6 kB           |
+
+Two things to read off it. The first column is marginal: a component you did not import is not in it, which is what `sideEffects`, the build's `@__PURE__` annotations and a message table per namespace are all for. The second column is not marginal — a stylesheet is a file you either imported or did not — so it assumes the list of sheets matches what the page renders.
+
+Base UI is the larger half of a real download and is in neither column. Five components come to 18.6 kB with it bundled in and ten to 90.7 kB, but it is a peer dependency: shared with anything else that uses it, and versioned by you.
+
+Both sets of figures are printed by the build rather than remembered, so they cannot quietly stop being true.
+
+## Next.js and React Server Components
+
+Every component in this library carries `"use client"`, so a server component can import and render any of it without a directive of its own:
+
+```tsx
+// app/page.tsx — a server component, no "use client" here
+import { MPBox, MPButton, MPTextField } from 'material-plus-ui';
+
+export default function Page() {
+  return (
+    <MPBox>
+      <MPTextField label="Name" value="" />
+      <MPButton>Save</MPButton>
+    </MPBox>
+  );
+}
+```
+
+The barrel itself is not marked, which is what keeps that cheap: importing `MPBox` from a server component pulls `MPBox` across the boundary and nothing else. Neither is the data — `registerMPMessages`, the locale tables and the shared types run wherever you call them, so the one line an application writes at startup can live in a server file:
+
+```ts
+import { registerMPMessages } from 'material-plus-ui';
+import { ko } from 'material-plus-ui/locales/ko';
+
+registerMPMessages(ko);
+```
+
+The icons work from a server component both ways round — the named export and the lookup table:
+
+```tsx
+import { MPIcon, CheckIcon, ICONS } from 'material-plus-ui';
+
+<MPIcon icon={CheckIcon} />
+<MPIcon icon={ICONS.check} />
+```
+
+What still needs `"use client"` at the top of **your** file is what needs it for any React library:
+
+- **The hooks.** `useMPSnackbar` and `useMPLocale` are hooks, and a hook only runs in a client component. The _providers_ are fine where they are — `MPLocaleProvider`, `MPSnackbarProvider` and `MPTooltipProvider` all render from a server layout.
+- **Anything you pass a callback to.** `onChange`, `onOpenChange`, `onValueChange`: a function cannot cross from a server component into a client one. That is React's rule rather than this library's, and it is the same rule for a bare `<input onChange>`.
+
+### On other bundlers
+
+The directive is inert everywhere else. esbuild, webpack, Vite and Next.js all bundle it away without a word, and the gzipped sizes above are the same with it and without — measured both ways, to the byte. Only a bare Rollup build says anything: `MODULE_LEVEL_DIRECTIVE`, one warning per component. Every library that supports server components produces them, and `onwarn` filters them out:
+
+```js
+onwarn(warning, warn) {
+  if (warning.code === 'MODULE_LEVEL_DIRECTIVE') return;
+  warn(warning);
+}
+```
+
 ## What is in the package
 
 | Export | What it is |

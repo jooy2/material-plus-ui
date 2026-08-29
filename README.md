@@ -22,7 +22,8 @@ It follows the specification directly rather than wrapping somebody's implementa
 - **It coexists.** Nothing here is page-level — no reset, no provider, no global styling — and it reads the `--md-sys-color-*` tokens your page already has if they are there. A project already running Material keeps its own setup.
 - **IME-safe by construction.** Korean, Japanese and Chinese composition survives whatever your `onChange` does with the value.
 - **Bring your own icons.** `MPIcon` takes a component or an element from any set. `lucide-react` ships with the package, gathered in one readable constants file.
-- **ESM only**, TypeScript declarations included, and tree-shakeable for real: one component is 3.4 kB gzipped and five are 7.4 kB, against 64 kB for all ninety-four. The stylesheet splits the same way.
+- **Works in a Next.js server component**, and in any bundler: the components carry `"use client"`, the barrel and the data do not, and every specifier in `dist/` names a file — so webpack, Vite, esbuild, Rollup and plain Node all resolve it.
+- **ESM only**, TypeScript declarations included, and tree-shakeable for real: one component is 2.9 kB gzipped and five are 7.3 kB, against 64 kB for all ninety-four. `npm run measure` prints those numbers off a real bundler, so they cannot quietly stop being true. The stylesheet splits the same way.
 - **One runtime dependency.** React 18 or 19, Node.js 18 or later.
 
 ## Documentation

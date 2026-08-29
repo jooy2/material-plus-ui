@@ -1,5 +1,71 @@
 # Changelog
 
+## 1.3.1 (2026-08-29)
+
+### Fixed
+
+- **The package could not be imported by webpack, or by Node.** `package.json` says `"type": "module"`, which makes every `.js` in `dist/` a strict ES module — and a strict ES module has to name the file it imports. `tsconfig.json` compiles with `module: "Preserve"`, which emits each specifier exactly as the source wrote it, and the source writes them the way TypeScript's own `bundler` resolution reads them: `export * from './components/button'`, no extension. Bundling `MPButton` with webpack 5 produced **78 `Module not found` errors**, one for every specifier it reached, each of them the `fully specified` breaking-change notice — that is Next.js, Rspack and every Create React App descendant. `import('material-plus-ui')` in Node threw `ERR_MODULE_NOT_FOUND` on the first line of `dist/index.js`, which is any server-side render that does not go through a bundler first.
+
+  It survived a release because Vite, esbuild and Rollup-with-`node-resolve` all guess the missing extension, and the documentation site, the test suite and 1.3.0's own measurements are Vite. `scripts/specify-imports.mjs` now rewrites the 884 specifiers in `dist/` — the `.d.ts` files too, which had the same problem for a consumer on `moduleResolution: node16` — and reads the output back afterwards rather than trusting itself, because what this guards against is not a build that crashes. It is a package that installs, type-checks and cannot be imported. webpack goes to zero errors, Node imports all 131 exports, and the three bundlers that already worked produce what they produced before.
+
+- **The package broke a Next.js App Router build the moment a server component imported it.** Not a warning and not a runtime nuisance — the build stopped:
+
+  ```
+  Error: Failed to collect page data for /
+  cause: TypeError: e.createContext is not a function
+  ```
+
+  from a `page.jsx` whose only line was `import { MPButton } from 'material-plus-ui'`. React ships two builds and the one a server component renders against has no `createContext`, no `useState`, no `useContext`, no `useRef` and no `useEffect`; a module that reaches for one has to say `"use client"`, and no module here said it. That is every App Router project, on the component a page starts as.
+
+  `scripts/mark-client.mjs` now derives the set and writes it into `dist/`: **76 of the 200 modules**, which is every module that renders. It runs after `terser`, because `terser` deletes the directive — `compress.directives` is on by default and reads `"use client"` as a redundant prologue.
+
+  Two things it deliberately does not mark. The **barrels**: `dist/index.js` re-exports the whole library, and a directive there would make one import of `MPBox` pull all of it across the boundary — a re-export of a client module from a server one is exactly what a boundary is, and every bundler follows it. And the **data**: `internal/i18n.ts`, the nine message tables and the eighteen locales, so `registerMPMessages` can be called from wherever an application does its setup.
+
+  Verified rather than reasoned: twenty-eight pages, one per component and every one of them a server component, now prerender through a real `next build`. The directive costs nothing — a bundler removes it, and the gzipped figures below are the same to the byte with it and without.
+
+### Changed
+
+- **English is nine modules instead of one object, and a component carries the namespace it speaks.** 1.3.0 moved the eighteen translations out of the library so that a component saying one word did not hold every word in every language. English stayed, as one `MPMessages` object with a namespace per component in it — and one object is indivisible. A bundler can drop a module nobody imports and an export nobody reads; it cannot drop a _property_. So `MPButton`, which says _Loading_, went on shipping the calendar's eighteen strings, the pager's seven and the chat bubble's six: **1.75 kB of table for the 130 bytes of it that got rendered.**
+
+  The strings are `src/internal/messages/`, one module per namespace, and `resolveMessages(locale)[namespace]` is now `resolveNamespace(namespace, locale)` — handed the English table rather than looking it up, which is the whole of why the other eight can be left out. A call site reads `useMPMessages(COMMON, locale)`, and the namespace object carries its own name so it cannot say one namespace while passing another's words. All of this is internal: `registerMPMessages`, `MPLocale`, `MPPartialMessages`, `MPLocaleProvider`, every `labels` prop and every registered translation behave exactly as they did, and the merge is still a namespace at a time so a partial language still falls back to English one namespace at a time.
+
+- **The icons are two modules now, and that is what makes `ICONS` work in a server component.** A component handed to a client component _as a prop_ has to be a client reference — otherwise `<MPIcon icon={CheckIcon} />` in a server component fails with _Functions cannot be passed directly to Client Components_, pointing at a `forwardRef` object, because `lucide-react` marks its `Icon` module and not its icons. But `ICONS` is read with a property access, and a server component cannot read a property off a _client_ module's namespace either: it gets `undefined` and React reports an invalid element type. Whichever way the single file was marked, one of its two halves broke.
+
+  So `constants/glyphs.ts` is the twenty-nine renamed lucide exports and carries the directive, and `constants/icons.ts` re-exports them and holds the table without one — a plain server-side object whose values are client references. `material-plus-ui/constants/icons` is still the path, the named exports are still what the components import, and both halves now work from a server component. Bundles are unchanged: `MPButton` is the same 23 modules and the same 2.9 kB, because `ICONS` is still an export nobody reads.
+
+- **The build marks a class list pure as well as a `forwardRef`.** A long list of Tailwind utilities is written here as an array of lines joined with a space, which is a readable way to spell a hundred characters and — to a bundler — a method call on an array. `['a', 'b'].join(' ')` cannot be proved harmless any more than `forwardRef(fn)` can, so every such constant in a module was kept the moment anything in that module was imported. `internal/surface.ts` is where it showed: `MPBox` renders a `<div>` and reads one export from it, and was carrying `FADE` and `SHEET_MOTION` — the motion classes for the portalled surfaces, which an `MPBox` has none of — for 60% of its bundle. `scripts/annotate-pure.mjs` annotates the 24 of them, finding the array by matching brackets rather than by a pattern, since `[&>svg]:size-full` inside a string would end a naive one in the wrong place. It refuses to annotate an array with a call in it, so the day one has a side effect it is not quietly marked away.
+
+### Added
+
+- **`npm run measure`, and the build runs it.** `scripts/measure-bundle.mjs` bundles `dist/` with esbuild for six fixed scenarios and prints the gzipped size of each, the way `build-split-styles.mjs` already prints where the split stylesheet stops paying. The reason it is a bundler and not `unpackedSize` is 1.3.0: a package with no `sideEffects` field shipped a 62.3 kB bundle for an `MPBox`, and nothing about the published files said so. It also checks that `material-plus-ui/components/button` still costs what the barrel costs — the subpath exports are documented as insurance rather than as a recommendation, and that is only true while the two are the same.
+
+### The measurements
+
+esbuild, gzip, React and `@base-ui/react` external — this library's own contribution, measured on the same harness before and after. Rollup and webpack 5 were run beside it and agree within a few hundred bytes; webpack could not be run against 1.3.0 at all, which is the first entry above.
+
+| Scenario        | 1.3.0   | 1.3.1   |
+| --------------- | ------- | ------- |
+| `MPBox`         | 0.5 kB  | 0.4 kB  |
+| `MPButton`      | 3.4 kB  | 2.9 kB  |
+| `MPTextField`   | 4.6 kB  | 4.1 kB  |
+| `MPDatePicker`  | 10.0 kB | 9.6 kB  |
+| Five components | 7.8 kB  | 7.3 kB  |
+| Ten components  | 11.5 kB | 11.1 kB |
+| Everything      | 64.2 kB | 64.1 kB |
+
+The last row barely moves, and that is the shape of the whole release: nothing was removed, so a project using all of it pays what it paid. What changed is the floor — what a project pays before it has used anything in particular.
+
+### What a server component still cannot do
+
+Two things, and both of them are React's rules rather than this library's. **Hooks** — `useMPSnackbar`, `useMPLocale` — only run in a client component; the providers they belong to render from a server layout perfectly well. And **a callback cannot cross the boundary**: `<MPButton onClick={…} />` needs `"use client"` on the file that writes it, exactly as a bare `<input onChange>` does.
+
+Consumers on a bare Rollup build will see `MODULE_LEVEL_DIRECTIVE` warnings, one per marked module. Every library that supports React Server Components produces them, and `onwarn` filters them. Vite, esbuild, webpack and Next.js emit nothing — checked, not assumed.
+
+### Measured and left alone
+
+- **The six motion tables in `internal/animate.ts`.** `ANIMATION_CLASS`, `DURATION_TOKEN` and `EASING_TOKEN` are keyed by effect, so an `MPAnimateFade` carries all six effects' rows and reads one. Split per effect it is 1.39 kB against 1.29 kB — 102 bytes, on seven components and on nothing else. The three tables are the one place the specification's reasoning is legible as a set: _five of the six decelerate_, _`grow` and `zoom` share a keyframe_. That reasoning is worth more than the hundred bytes.
+- **`lucide-react`'s shared runtime**, which is 1.44 kB on every bundle that draws a glyph — `Icon`, `createLucideIcon`, the context and five case-conversion helpers, for an `MPButton` that draws one spinner. Vendoring the twenty-nine glyphs this library uses would take `MPButton` to 2.2 kB and remove the only runtime dependency there is. It would also mean shipping somebody else's artwork under their notice, and this library's position is that it draws no icons of its own.
+
 ## 1.3.0 (2026-08-27)
 
 ### Changed

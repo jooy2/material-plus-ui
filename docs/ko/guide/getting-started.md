@@ -256,6 +256,76 @@ Tailwind의 `dark:` 변형이 기준으로 삼는 `.dark`도 동작합니다. `[
 
 이 사다리는 라이브러리가 스펙을 알면서 넘어서는 유일한 지점입니다. 이유와 각 단계가 무엇인지는 [Prop 규약](../design/prop-conventions#size)에 있습니다.
 
+## 무게
+
+압축(gzip) 기준이고, 실제 번들러로 잰 값이며, React와 `@base-ui/react`는 external로 뺐습니다. 즉 전체 다운로드가 아니라 이 라이브러리가 더하는 몫입니다.
+
+| 페이지에 올린 것 | JavaScript | 스타일시트(분할) |
+| ---------------- | ---------- | ---------------- |
+| `MPBox` 하나     | 0.4 kB     | 3.8 kB           |
+| `MPButton` 하나  | 2.9 kB     | 3.8 kB           |
+| 컴포넌트 다섯 개 | 7.3 kB     | 5.5 kB           |
+| 컴포넌트 열 개   | 11.1 kB    | 8.0 kB           |
+| 아흔네 개 전부   | 64.1 kB    | 15.6 kB          |
+
+여기서 읽을 것이 두 가지입니다. 첫 번째 열은 한계 비용입니다. import하지 않은 컴포넌트는 여기에 들어 있지 않고, `sideEffects`와 빌드가 붙이는 `@__PURE__` 주석, 네임스페이스마다 하나씩인 메시지 테이블이 전부 그것을 위한 것입니다. 두 번째 열은 한계 비용이 아닙니다. 스타일시트는 import했거나 하지 않았거나 둘 중 하나라서, 위 숫자는 시트 목록이 실제로 그리는 것과 일치한다고 가정합니다.
+
+Base UI는 실제 다운로드의 더 큰 절반이고 두 열 어디에도 들어 있지 않습니다. 함께 번들하면 컴포넌트 다섯 개는 18.6 kB, 열 개는 90.7 kB가 됩니다. 다만 peer dependency이므로 그것을 쓰는 다른 것들과 공유되고, 버전은 여러분이 정합니다.
+
+두 숫자 모두 기억이 아니라 빌드가 찍어 냅니다. 조용히 사실이 아니게 될 수 없습니다.
+
+## Next.js와 React Server Components
+
+이 라이브러리의 모든 컴포넌트에는 `"use client"`가 붙어 있습니다. 서버 컴포넌트에서 지시문 없이 그대로 import해서 렌더링할 수 있습니다.
+
+```tsx
+// app/page.tsx — 서버 컴포넌트입니다. "use client"가 없습니다
+import { MPBox, MPButton, MPTextField } from 'material-plus-ui';
+
+export default function Page() {
+  return (
+    <MPBox>
+      <MPTextField label="이름" value="" />
+      <MPButton>저장</MPButton>
+    </MPBox>
+  );
+}
+```
+
+배럴 자체에는 붙어 있지 않고, 그것이 이 방식이 싸게 먹히는 이유입니다. 서버 컴포넌트에서 `MPBox`를 import하면 경계를 넘는 것은 `MPBox`뿐입니다. 데이터도 마찬가지여서 — `registerMPMessages`와 로케일 테이블, 공용 타입은 부르는 곳에서 그냥 실행됩니다. 애플리케이션이 시작할 때 쓰는 그 한 줄을 서버 파일에 둬도 됩니다.
+
+```ts
+import { registerMPMessages } from 'material-plus-ui';
+import { ko } from 'material-plus-ui/locales/ko';
+
+registerMPMessages(ko);
+```
+
+아이콘은 서버 컴포넌트에서 양쪽 다 동작합니다. 이름 붙은 export도, 조회 테이블도요.
+
+```tsx
+import { MPIcon, CheckIcon, ICONS } from 'material-plus-ui';
+
+<MPIcon icon={CheckIcon} />
+<MPIcon icon={ICONS.check} />
+```
+
+여러분 파일 맨 위에 `"use client"`가 여전히 필요한 것은, 어떤 React 라이브러리에서도 필요한 그것들입니다.
+
+- **훅.** `useMPSnackbar`와 `useMPLocale`은 훅이고, 훅은 클라이언트 컴포넌트에서만 실행됩니다. *프로바이더*는 있던 자리에 그대로 둬도 됩니다 — `MPLocaleProvider`, `MPSnackbarProvider`, `MPTooltipProvider` 모두 서버 레이아웃에서 렌더링됩니다.
+- **콜백을 넘기는 것.** `onChange`, `onOpenChange`, `onValueChange` — 함수는 서버 컴포넌트에서 클라이언트 컴포넌트로 건너갈 수 없습니다. 이건 이 라이브러리의 규칙이 아니라 React의 규칙이고, 맨 `<input onChange>`에도 똑같이 적용됩니다.
+
+### 다른 번들러에서는
+
+지시문은 그 외의 곳에서는 아무 일도 하지 않습니다. esbuild, webpack, Vite, Next.js 모두 아무 말 없이 번들에서 제거하고, 위의 압축 크기는 지시문이 있든 없든 바이트까지 같습니다(양쪽 다 측정했습니다). 뭔가 말하는 것은 Rollup을 그대로 쓰는 빌드뿐입니다. 컴포넌트마다 하나씩 `MODULE_LEVEL_DIRECTIVE` 경고가 찍힙니다. 서버 컴포넌트를 지원하는 라이브러리는 전부 이 경고를 냅니다. `onwarn`으로 걸러 내면 됩니다.
+
+```js
+onwarn(warning, warn) {
+  if (warning.code === 'MODULE_LEVEL_DIRECTIVE') return;
+  warn(warning);
+}
+```
+
 ## 패키지에 들어 있는 것
 
 | Export                             | 내용                                                 |
