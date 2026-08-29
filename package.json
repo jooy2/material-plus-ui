@@ -18,10 +18,11 @@
     "url": "https://github.com/jooy2/material-plus/issues"
   },
   "scripts": {
-    "build": "npm run format:fix && tsc --project tsconfig.prod.json && node scripts/specify-imports.mjs && node scripts/annotate-pure.mjs && npm run minify && node scripts/build-styles.mjs && node scripts/build-split-styles.mjs",
+    "build": "npm run format:fix && tsc --project tsconfig.prod.json && node scripts/specify-imports.mjs && node scripts/annotate-pure.mjs && npm run minify && node scripts/build-styles.mjs && node scripts/build-split-styles.mjs && node scripts/measure-bundle.mjs",
     "lint": "eslint . --ext .js,.ts .",
     "lint:fix": "eslint . --ext .js,.ts --fix .",
     "minify": "terser-glob 'dist/**/*.js' --config-file terser.config.json",
+    "measure": "node scripts/measure-bundle.mjs",
     "prepare": "npm run build",
     "format": "prettier .",
     "format:fix": "prettier . --write",
@@ -128,6 +129,7 @@
     "@vitejs/plugin-react": "^6.1.0",
     "@vitest/browser": "^4.1.11",
     "@vitest/browser-playwright": "^4.1.11",
+    "esbuild": "^0.28.2",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-n": "^18.3.0",
