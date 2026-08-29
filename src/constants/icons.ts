@@ -1,129 +1,68 @@
 /**
- * The one place `lucide-react` is imported.
+ * The glyphs, and the table that names them.
  *
- * Every glyph the library's own components draw is named here and nowhere else,
- * so the whole of the icon set's surface — which icons are in use, and what
- * this project calls each of them — can be read in a single file rather than
- * hunted for across components.
- *
- * ## Why the names are not lucide's names
- *
- * The keys are the roles the components ask for (`visibility`), not the
- * drawings lucide happens to ship (`Eye`). A component asks for the idea, and
- * the drawing behind it can be swapped — or the whole set replaced — without
- * touching a component. It also keeps the vocabulary stable for a caller: the
- * name `visibility` is a promise, `Eye` is an implementation detail.
+ * The glyphs themselves are `constants/glyphs.ts` and are re-exported from here
+ * unchanged — this is the file everything imports, components included, and
+ * `material-plus-ui/constants/icons` is still the path a caller writes.
  *
  * ## Two ways out of this file, and why
  *
  * - **The named exports** (`VisibilityIcon`, …) are what the library's own
  *   components import. A named import of one export lets a bundler drop every
- *   other binding in this module, so a project that only uses `MPTextField`
- *   ships two glyphs rather than all of them.
- * - **`ICONS`** is the same set as a lookup table, for an application that
- *   wants a name-keyed registry of its own — `<MPIcon icon={ICONS.close} />`.
- *   An object literal cannot be tree-shaken property by property, so importing
- *   it pulls in every glyph listed below. That is the trade it exists to make,
- *   and it is why the components never reach for it.
+ *   other binding, so a project that only uses `MPTextField` ships two glyphs
+ *   rather than all of them.
+ * - **`ICONS`** is the same set as a lookup table, for an application that wants
+ *   a name-keyed registry of its own — `<MPIcon icon={ICONS.close} />`. An
+ *   object literal cannot be tree-shaken property by property, so importing it
+ *   pulls in every glyph listed below. That is the trade it exists to make, and
+ *   it is why the components never reach for it.
  *
- * Adding a glyph means adding an import and a line to both lists. Keep the set
- * to what components actually draw: this file's cost is paid by anyone who
- * imports `ICONS`, and an icon nobody renders is bytes nobody asked for.
+ * ## Why the table is here and the glyphs are next door
+ *
+ * Because this module has to stay server-side and that one cannot. `ICONS` is
+ * read with a property access — `ICONS.check` — and a server component cannot
+ * read a property off a client module's namespace; it gets `undefined` and
+ * React reports an invalid element type. Held here, in a module with no
+ * directive on it, the table is a plain object whose values are the client
+ * references `constants/glyphs.ts` produces: a server component reads one out
+ * and passes it to `MPIcon` exactly as it would pass `CheckIcon`.
+ *
+ * Both halves therefore work from a server component, which is not something
+ * either arrangement managed on its own. See `scripts/mark-client.mjs`.
  */
-import {
-  ArrowDown,
-  ArrowRight,
-  ArrowUp,
-  CalendarDays,
-  Check,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-  ChevronUp,
-  CircleAlert,
-  CircleCheck,
-  Clock,
-  Copy,
-  Ellipsis,
-  ExternalLink,
-  Eye,
-  EyeOff,
-  Info,
-  Link,
-  LoaderCircle,
-  Minus,
-  Plus,
-  Search,
-  Star,
-  TriangleAlert,
-  Upload,
-  X
-} from 'lucide-react';
+export * from './glyphs';
 
-/** The glyph a password field shows while the password is legible. */
-export const VisibilityIcon = Eye;
-/** The glyph a password field shows while the password is masked. */
-export const VisibilityOffIcon = EyeOff;
-/** Dismiss: a chip, a dialog, an alert. */
-export const CloseIcon = X;
-/** A ticked option, a completed step. */
-export const CheckIcon = Check;
-/** Disclosure, pointing down. */
-export const ChevronDownIcon = ChevronDown;
-/** Disclosure, pointing up. */
-export const ChevronUpIcon = ChevronUp;
-/** Previous, in a pager or a carousel. */
-export const ChevronLeftIcon = ChevronLeft;
-/** Next, in a pager or a carousel. */
-export const ChevronRightIcon = ChevronRight;
-/** First, in a pager: the stepper that jumps to an end rather than by one. */
-export const ChevronsLeftIcon = ChevronsLeft;
-/** And last. */
-export const ChevronsRightIcon = ChevronsRight;
-/** Search, for a field's leading adornment. */
-export const SearchIcon = Search;
-/** Sorted ascending: the arrow a table's sorted column carries. */
-export const ArrowUpIcon = ArrowUp;
-/** Sorted descending. */
-export const ArrowDownIcon = ArrowDown;
-/** And then: the mark a breadcrumb can put between two steps. */
-export const ArrowRightIcon = ArrowRight;
-/** The trail a breadcrumb hides behind, and any other "there is more here". */
-export const MoreIcon = Ellipsis;
-/** A link that goes somewhere on this site. */
-export const LinkIcon = Link;
-/** A link that takes over the window. */
-export const ExternalLinkIcon = ExternalLink;
-/** Copy to clipboard. */
-export const CopyIcon = Copy;
-/** Severity: something worth knowing. */
-export const InfoIcon = Info;
-/** Severity: it worked. */
-export const SuccessIcon = CircleCheck;
-/** Severity: proceed carefully. */
-export const WarningIcon = TriangleAlert;
-/** Severity: it did not work. */
-export const ErrorIcon = CircleAlert;
-/** One step up: a number field's increment. */
-export const AddIcon = Plus;
-/** One step down: a number field's decrement, and a half-ticked checkbox. */
-export const RemoveIcon = Minus;
-/** Send a file the other way. A file picker's dropzone. */
-export const UploadIcon = Upload;
-/** A day on a calendar: what a date picker's trigger wears. */
-export const CalendarIcon = CalendarDays;
-/** A time of day: what a time picker's trigger wears. */
-export const ClockIcon = Clock;
-/**
- * A score. Drawn as an outline, and filled by whatever is scoring with it —
- * lucide draws it `fill="none"`, and `MPRating` overlays a copy in `fill-current`
- * rather than shipping a second glyph.
- */
-export const StarIcon = Star;
-/** Work in progress, spun by whatever is waiting on it. */
-export const SpinnerIcon = LoaderCircle;
+import {
+  VisibilityIcon,
+  VisibilityOffIcon,
+  CloseIcon,
+  CheckIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ChevronsLeftIcon,
+  ChevronsRightIcon,
+  SearchIcon,
+  ArrowUpIcon,
+  ArrowDownIcon,
+  ArrowRightIcon,
+  MoreIcon,
+  LinkIcon,
+  ExternalLinkIcon,
+  CopyIcon,
+  InfoIcon,
+  SuccessIcon,
+  WarningIcon,
+  ErrorIcon,
+  AddIcon,
+  RemoveIcon,
+  UploadIcon,
+  CalendarIcon,
+  ClockIcon,
+  StarIcon,
+  SpinnerIcon
+} from './glyphs';
 
 /**
  * The same glyphs, keyed by role.
