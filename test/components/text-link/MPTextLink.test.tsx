@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { MPTextLink } from 'material-plus-ui';
+import { parkPointer } from '../../support/pointer';
 
 describe('MPTextLink', () => {
   describe('rendering', () => {
@@ -53,6 +54,10 @@ describe('MPTextLink', () => {
     });
 
     it('holds the line back until hover when asked', async () => {
+      // The one assertion in the file that a stray pointer can answer for — see
+      // `parkPointer`. Everything else here rests where hover does not reach it.
+      await parkPointer();
+
       const screen = await render(
         <MPTextLink href="/docs" underline="hover">
           Docs
