@@ -3,7 +3,7 @@ import { MPIcon } from '../icon/MPIcon';
 import { CheckIcon, ClockIcon, ErrorIcon, LinkIcon } from '../../constants/icons';
 import { accentSlots } from '../../internal/accent';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
-import { linkRel } from '../../internal/link';
+import { linkRel, safeHref } from '../../internal/link';
 import { CHAT } from '../../internal/messages/chat';
 import { hasContent, META_TEXT, PROSE_TEXT } from '../../internal/scale';
 import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
@@ -28,9 +28,22 @@ export type MPChatBubbleSide = 'start' | 'end';
  */
 export type MPChatBubbleStatus = 'sending' | 'sent' | 'delivered' | 'read' | 'failed';
 
-/** What a link inside a message unfurls to. */
+/**
+ * What a link inside a message unfurls to.
+ *
+ * This is the one shape in the library whose contents typically come from
+ * **somebody else** — a preview is attached to a message another person sent —
+ * so `url` is checked before it is rendered rather than trusted. See the note on
+ * `LinkPreview` below.
+ */
 export interface MPChatBubblePreview {
-  /** Where the card goes. */
+  /**
+   * Where the card goes.
+   *
+   * Only `http:`, `https:`, `mailto:`, `tel:` and relative URLs are rendered.
+   * Anything else — `javascript:`, `data:` — draws the card without a link
+   * rather than handing the reader a one-click script execution.
+   */
   url: string;
   /** The page's title. */
   title?: React.ReactNode;
@@ -418,16 +431,42 @@ function TypingDots({ label }: { label: string }) {
   );
 }
 
-/** The unfurled link: a picture, who published it, a title and two lines of summary. */
+/**
+ * The unfurled link: a picture, who published it, a title and two lines of
+ * summary.
+ *
+ * This is the one place in the library where the URL being rendered came from
+ * **somebody else**. Every other `href` here is an address the application wrote
+ * into its own navigation; a preview is attached to a message another person
+ * sent, which makes `url` untrusted input in the ordinary sense. React renders a
+ * `javascript:` href with a development warning and no more, so without
+ * `safeHref` a hostile preview is a one-click script execution in a chat thread
+ * — and `safeHref` is why the anchor may end up with no `href` at all.
+ *
+ * The picture is loaded lazily and with the referrer withheld, for the same
+ * reason and a quieter one: a remote image in a thread is a request the sender
+ * chose, and a bare `<img src>` hands them the address of the page and the
+ * reader's IP the moment the message scrolls near. `width`/`height` are
+ * declared so a thread does not reflow around each one as it arrives.
+ */
 function LinkPreview({ preview }: { preview: MPChatBubblePreview }) {
   const { url, title, description, image, site, newTab = false } = preview;
   const target = newTab ? '_blank' : undefined;
 
   return (
-    <a href={url} target={target} rel={linkRel(target, undefined)} className={PREVIEW}>
+    <a href={safeHref(url)} target={target} rel={linkRel(target, undefined)} className={PREVIEW}>
       {image ? (
         // Decorative: everything the picture is saying is written underneath it.
-        <img src={image} alt="" className="block h-28 w-full object-cover" />
+        <img
+          src={image}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          referrerPolicy="no-referrer"
+          width={640}
+          height={112}
+          className="block h-28 w-full object-cover"
+        />
       ) : null}
       <div className="flex flex-col gap-0.5 p-2">
         {hasContent(site) ? (

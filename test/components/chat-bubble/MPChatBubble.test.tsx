@@ -185,6 +185,66 @@ describe('MPChatBubble', () => {
       expect(link).toHaveAttribute('rel', 'noopener noreferrer');
     });
 
+    /*
+     * A preview's `url` is attached to a message somebody else sent, which makes
+     * it the one URL in this library that is untrusted input in the ordinary
+     * sense. React renders a `javascript:` href with a development warning and
+     * no more, so without a check a hostile preview is a one-click script
+     * execution in a thread.
+     */
+    it('refuses to render a preview URL a reader should not be sent to', async () => {
+      for (const url of [
+        'javascript:alert(1)',
+        'JavaScript:alert(1)',
+        // The characters a URL parser throws away before it reads the scheme,
+        // which is how a check that reads the string as written is walked past.
+        ' java\tscript:alert(1)',
+        'data:text/html,<script>alert(1)</script>',
+        'vbscript:msgbox(1)'
+      ]) {
+        const screen = await render(
+          <MPChatBubble preview={{ url, title: 'Trust me' }}>Have a look</MPChatBubble>
+        );
+        const link = screen.container.querySelector('a')!;
+
+        expect(link, url).not.toHaveAttribute('href');
+        // Still drawn, so the message is not silently missing a card.
+        expect(link.textContent).toContain('Trust me');
+      }
+    });
+
+    it('renders the schemes a link legitimately carries', async () => {
+      for (const url of [
+        'https://example.com',
+        'http://example.com',
+        'mailto:ada@example.com',
+        'tel:+8225550100',
+        // No scheme at all is relative, and a relative URL resolves against the
+        // page it is already on.
+        '/articles/1',
+        '#section'
+      ]) {
+        const screen = await render(
+          <MPChatBubble preview={{ url, title: 'Fine' }}>Have a look</MPChatBubble>
+        );
+
+        expect(screen.container.querySelector('a')!, url).toHaveAttribute('href', url);
+      }
+    });
+
+    it('holds a preview picture back from the network until it is near', async () => {
+      const screen = await render(
+        <MPChatBubble preview={{ url: 'https://example.com', title: 'Out', image: '/shot.png' }}>
+          Have a look
+        </MPChatBubble>
+      );
+      const image = screen.container.querySelector('img')!;
+
+      expect(image).toHaveAttribute('loading', 'lazy');
+      // A remote image in a thread is a request the *sender* chose.
+      expect(image).toHaveAttribute('referrerpolicy', 'no-referrer');
+    });
+
     it('renders the avatar and the actions beside the bubble', async () => {
       const screen = await render(
         <MPChatBubble
