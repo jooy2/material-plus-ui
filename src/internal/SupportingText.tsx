@@ -58,5 +58,12 @@ export function MPSupportingText({
     );
   }
 
-  return null;
+  /*
+   * The same slot with no `match` and nothing in it, which is what lets an error
+   * the field was handed from *outside* reach it: Base UI renders this only when
+   * the field is genuinely invalid, so a control with nothing to say draws
+   * nothing at all — and one an `MPForm`'s `errors` has an answer for says it,
+   * rather than turning red in silence.
+   */
+  return <Field.Error className={`${classNames} text-mp-error`} />;
 }

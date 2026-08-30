@@ -8314,5 +8314,48 @@ export const propTables: Record<string, PropRow[]> = {
       type: NODE,
       description: { ko: '제목 앞의 글리프', en: 'A glyph before the title' }
     }
+  ],
+
+  MPForm: [
+    {
+      name: 'validationMode',
+      type: "'onSubmit' | 'onBlur' | 'onChange'",
+      default: "'onSubmit'",
+      description: {
+        ko: '필드가 언제 검사받는지. `onSubmit`은 제출할 때, 그리고 그 뒤로는 값이 바뀔 때마다입니다 — 아직 이메일 주소를 입력하는 중인 사람에게 틀렸다고 말하지 않는 유일한 모드입니다',
+        en: 'When a field validates. `onSubmit` is on submit and on every change afterwards — the only mode that does not tell somebody their email address is wrong while they are still typing it'
+      }
+    },
+    {
+      name: 'errors',
+      type: 'Record<string, string | string[]>',
+      description: {
+        ko: '브라우저 자신의 검사 밖에서 온 오류 — 서버, 폼 액션, 스키마 — 를 각 메시지가 속한 필드의 `name`으로 키를 붙여 넘깁니다. 페이지 위쪽 배너가 아니라 **필드 위에** 표시되고, 그 필드가 바뀌는 즉시 지워집니다',
+        en: "Errors from outside the browser's own validation — a server, a form action, a schema — keyed by the `name` of the field each belongs to. They are shown **on the field** rather than in a banner at the top, and cleared as soon as that field changes"
+      }
+    },
+    {
+      name: 'onSubmit',
+      type: '(values: Record<string, unknown>) => void',
+      description: {
+        ko: '유효한 제출에서 폼의 값들과 함께 호출됩니다. 네이티브 submit 이벤트는 막히므로 아무 곳으로도 이동하지 않습니다',
+        en: "Called on a valid submit, with the form's values. The native submit event is prevented, so nothing navigates"
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '자식들 사이의 간격. 폼은 스택이고, 이것은 그 스택이 서는 사다리의 단입니다',
+        en: "The gap between the form's children. A form is a stack, and this is which rung of the ladder it stacks on"
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '필드들, 그리고 그것을 제출하는 것',
+        en: 'The fields, and whatever submits them'
+      }
+    }
   ]
 };

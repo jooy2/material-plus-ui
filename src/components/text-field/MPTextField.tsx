@@ -275,6 +275,12 @@ export const MPTextField = React.forwardRef<
   const fieldId = id ?? generatedId;
   const multiline = !!rows;
   const invalid = errorMessage.length > 0;
+  /* The supporting line, shared by the caller's message and the form's. */
+  const support = [
+    'mp-text-field__support text-mp-body-small text-mp-error mt-1 block',
+    SIZES[size].padding,
+    'group-data-disabled:text-mp-on-surface/38'
+  ].join(' ');
   const scale = SIZES[size];
   const shown = isComposing ? innerValue : value;
   const { shrunk, focusProps } = useFloatingLabel({
@@ -500,17 +506,20 @@ export const MPTextField = React.forwardRef<
       </div>
 
       {invalid ? (
-        <Field.Error
-          match={true}
-          className={[
-            'mp-text-field__support text-mp-body-small text-mp-error mt-1 block',
-            scale.padding,
-            'group-data-disabled:text-mp-on-surface/38'
-          ].join(' ')}
-        >
+        <Field.Error match={true} className={support}>
           {errorMessage}
         </Field.Error>
-      ) : null}
+      ) : (
+        /*
+         * The same slot with no `match`, which is what lets an error the field
+         * was handed from *outside* reach it: Base UI renders this only when the
+         * field is genuinely invalid, so it draws nothing until an
+         * `MPForm`'s `errors` — or the browser's own validation — says otherwise.
+         * Without it, a server's answer would set the outline red and say
+         * nothing, which is the one thing `errorMessage` exists to prevent.
+         */
+        <Field.Error className={support} />
+      )}
     </Field.Root>
   );
 });

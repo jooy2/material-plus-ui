@@ -67,6 +67,7 @@ export default defineConfig({
       '@base-ui/react/context-menu',
       '@base-ui/react/dialog',
       '@base-ui/react/field',
+      '@base-ui/react/form',
       '@base-ui/react/menu',
       '@base-ui/react/navigation-menu',
       '@base-ui/react/number-field',

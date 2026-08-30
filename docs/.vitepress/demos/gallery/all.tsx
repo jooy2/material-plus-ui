@@ -46,6 +46,7 @@ import {
   MPFilePicker,
   MPFloatingActionButton,
   MPFooter,
+  MPForm,
   MPGrid,
   MPGridItem,
   MPHeader,
@@ -541,6 +542,28 @@ function TransferPreview() {
   );
 }
 
+function FormPreview() {
+  const [email, setEmail] = useState('');
+
+  return (
+    <MPForm size="sm" onSubmit={() => {}}>
+      <MPTextField
+        name="email"
+        type="email"
+        label="Email"
+        required
+        size="sm"
+        value={email}
+        onChange={setEmail}
+        fullWidth
+      />
+      <MPButton type="submit" size="sm" fullWidth>
+        Save
+      </MPButton>
+    </MPForm>
+  );
+}
+
 const GROUPS: Group[] = [
   {
     title: { ko: '입력', en: 'Inputs' },
@@ -645,6 +668,19 @@ const GROUPS: Group[] = [
         },
         path: '/components/inputs/rating',
         preview: <RatingPreview />
+      },
+      {
+        name: 'MPForm',
+        summary: {
+          ko: '어느 필드가 틀렸는지 아는 `<form>`',
+          en: 'A `<form>` that knows which of its fields is wrong'
+        },
+        path: '/components/inputs/form',
+        preview: (
+          <Fit>
+            <FormPreview />
+          </Fit>
+        )
       },
       {
         name: 'MPTransfer',
