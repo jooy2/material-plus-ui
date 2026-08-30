@@ -452,7 +452,17 @@ export const MPSidebar = React.forwardRef<HTMLElement, MPSidebarProps>(function 
           : sticky
             ? [
                 'self-start sticky [top:var(--_mp-layout-header,0px)]',
-                '[height:calc(100dvh-var(--_mp-layout-header,0px)-var(--_mp-layout-footer,0px))]'
+                /*
+                 * The spaces around the minus signs are written out as `_`, and
+                 * they are load-bearing. Tailwind normalises the operators in a
+                 * `calc()` it has to space itself, and doing that to
+                 * `100dvh-var(--_mp-…)` puts a space after the leading `--` as
+                 * well — so the property becomes `-- mp-layout-header`, the
+                 * declaration is invalid, and the column silently keeps its
+                 * whole-window height. Spacing it here leaves nothing to
+                 * normalise.
+                 */
+                '[height:calc(100dvh_-_var(--_mp-layout-header,0px)_-_var(--_mp-layout-footer,0px))]'
               ].join(' ')
             : '',
         // What holds the first paint together: the server has no window to

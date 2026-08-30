@@ -96,6 +96,37 @@ describe('MPSidebar', () => {
       expect(screen.container.querySelector('.mp-sidebar')!.className).toContain('sticky');
     });
 
+    it('actually resolves the height it holds its place at', async () => {
+      /*
+       * A regression test for a class name rather than for a component. The
+       * height is an arbitrary `calc()` reading two custom properties, and
+       * Tailwind normalising the operators in one it has to space itself puts a
+       * space after the leading `--` too — which leaves the declaration invalid
+       * and the column silently full-window. Nothing about the markup changes
+       * when that happens, so only the computed value catches it.
+       */
+      const bare = await render(
+        <MPPageLayout>
+          <MPSidebar collapseBelow="none">Nav</MPSidebar>
+        </MPPageLayout>
+      );
+      const tall = await render(
+        <MPPageLayout header={<MPHeader brand="Acme" style={{ height: 80 }} />}>
+          <MPSidebar collapseBelow="none">Nav</MPSidebar>
+        </MPPageLayout>
+      );
+
+      const without = parseFloat(
+        getComputedStyle(bare.container.querySelector('.mp-sidebar')!).height
+      );
+      const under = parseFloat(
+        getComputedStyle(tall.container.querySelector('.mp-sidebar')!).height
+      );
+
+      expect(without).toBeGreaterThan(0);
+      expect(without - under).toBeCloseTo(80, 0);
+    });
+
     it('scrolls with the page when told to', async () => {
       const screen = await render(
         <MPSidebar collapseBelow="none" sticky={false}>
