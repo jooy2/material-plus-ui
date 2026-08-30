@@ -17,6 +17,7 @@ import {
   MPAnimateZoom,
   MPAspectRatio,
   MPAvatar,
+  MPAvatarGroup,
   MPBadge,
   MPBlockquote,
   MPBottomNavigation,
@@ -1110,6 +1111,23 @@ const GROUPS: Group[] = [
             <MPAvatar size="sm" name="홍길동" color="tertiary" />
             <MPAvatar size="sm" variant="outlined" />
           </div>
+        )
+      },
+      {
+        name: 'MPAvatarGroup',
+        summary: {
+          ko: '겹쳐 쌓인 얼굴들, 그리고 넘친 만큼의 숫자',
+          en: 'A stack of faces, with the rest as a count'
+        },
+        path: '/components/display/avatar-group',
+        preview: (
+          <Fit>
+            <MPAvatarGroup size="sm" max={3} total={9}>
+              <MPAvatar name="Ada Lovelace" />
+              <MPAvatar name="Alan Turing" />
+              <MPAvatar name="Grace Hopper" />
+            </MPAvatarGroup>
+          </Fit>
         )
       },
       {

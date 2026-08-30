@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Avatar as BaseUIAvatar } from '@base-ui/react/avatar';
 import { accentSlots } from '../../internal/accent';
+import { MPAvatarGroupContext } from '../../internal/avatar-group';
 import { CONTROL_SQUARE, hasContent } from '../../internal/scale';
 import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
 import type { MPColor, MPSize, MPVariant } from '../../types';
@@ -206,10 +207,10 @@ export const MPAvatar = React.forwardRef<HTMLSpanElement, MPAvatarProps>(functio
     alt,
     name,
     initials,
-    shape = 'circle',
-    variant = 'tonal',
-    size = 'md',
-    color = 'primary',
+    shape: shapeProp,
+    variant: variantProp,
+    size: sizeProp,
+    color: colorProp,
     delay,
     imageProps,
     onLoadingStatusChange,
@@ -220,6 +221,15 @@ export const MPAvatar = React.forwardRef<HTMLSpanElement, MPAvatarProps>(functio
   },
   ref
 ) {
+  // A stack sets these once for the whole run. The avatar's own prop still
+  // wins — one face marked out from the rest is a real thing — and with no group
+  // around it the defaults are what they always were.
+  const group = React.useContext(MPAvatarGroupContext);
+  const shape = shapeProp ?? group?.shape ?? 'circle';
+  const variant = variantProp ?? group?.variant ?? 'tonal';
+  const size: MPSize = sizeProp ?? group?.size ?? 'md';
+  const color: MPColor = colorProp ?? group?.color ?? 'primary';
+
   const derived = name ? initialsOf(name) : '';
   const label = alt ?? name;
 

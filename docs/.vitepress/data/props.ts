@@ -8591,5 +8591,71 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'The rows, written exactly as they are inside an [MPMenu](./menu)'
       }
     }
+  ],
+
+  MPAvatarGroup: [
+    {
+      name: 'max',
+      type: 'number',
+      description: {
+        ko: '나머지가 숫자가 되기 전까지 몇 개를 그릴지. 지정하지 않으면 전부 그립니다',
+        en: 'How many avatars are drawn before the rest become a count. Left out, every one of them is drawn'
+      }
+    },
+    {
+      name: 'total',
+      type: 'number',
+      description: {
+        ko: '그룹이 앞의 몇 개만 건네받았을 때, 전부 해서 몇 개인지. 없으면 자식 수로 계산하는데 그건 전부를 넘겼을 때만 맞습니다 — 얼굴 마흔 개짜리 목록이 `<img>` 넷과 숫자 하나만 보내는 것이 이 prop이 있는 이유입니다',
+        en: 'How many there are altogether, when the group was handed only the first few. Without it the count is worked out from the children, which is right only when all of them were passed — and a list of forty faces that ships four `<img>`s and a number is exactly why this exists'
+      }
+    },
+    {
+      name: 'overlap',
+      type: 'number | string',
+      description: {
+        ko: '각 아바타가 앞의 것 아래로 얼마나 들어가는지 — 픽셀 수 또는 임의의 CSS 길이. 지정하지 않으면 `size`의 일정 비율이라, 어느 단에서도 겹침이 같아 보입니다',
+        en: 'How far each avatar sits under the one before it — a number in pixels, or any CSS length. Left out it is a fraction of `size`, which keeps the overlap looking the same at every rung'
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '그룹의 모든 아바타에 전달됩니다. 네 번째 얼굴만 한 단 어긋난 스택은 스택이 아닙니다',
+        en: 'Passed to every avatar in the group. A stack whose fourth face is a rung out is not a stack'
+      }
+    },
+    {
+      name: 'shape',
+      type: "'circle' | 'square'",
+      default: "'circle'",
+      description: {
+        ko: '그룹의 모든 아바타에 전달됩니다',
+        en: 'Passed to every avatar in the group'
+      }
+    },
+    {
+      ...containerVariant,
+      default: "'tonal'",
+      description: {
+        ko: '그룹의 모든 아바타에 전달됩니다. 아바타는 *물들는* 대상이므로 그 컨테이너는 색조를 가져갑니다',
+        en: 'Passed to every avatar in the group. An avatar *is* the thing being coloured, so its container takes the tint'
+      }
+    },
+    {
+      ...color,
+      description: {
+        ko: '그룹의 모든 아바타에 전달됩니다',
+        en: 'Passed to every avatar in the group'
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '아바타들. 첫 번째가 맨 위에 놓입니다 — 시작부터 읽는 스택은 앞에서 뒤로 읽는 스택입니다',
+        en: 'The avatars. The first one is on top: a stack read from the start is read front to back'
+      }
+    }
   ]
 };

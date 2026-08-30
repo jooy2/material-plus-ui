@@ -21,6 +21,7 @@ export * from './components/animate-typing';
 export * from './components/animate-zoom';
 export * from './components/aspect-ratio';
 export * from './components/avatar';
+export * from './components/avatar-group';
 export * from './components/badge';
 export * from './components/blockquote';
 export * from './components/bottom-navigation';
