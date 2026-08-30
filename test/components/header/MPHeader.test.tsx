@@ -169,7 +169,10 @@ describe('MPHeader', () => {
 
     it('takes nothing off a column the bar never covered', async () => {
       const screen = await render(
-        <MPPageLayout headerSpan="content" header={<MPHeader brand="Acme" style={{ height: 56 }} />}>
+        <MPPageLayout
+          headerSpan="content"
+          header={<MPHeader brand="Acme" style={{ height: 56 }} />}
+        >
           Body
         </MPPageLayout>
       );

@@ -369,7 +369,16 @@ export const MPTransfer = React.forwardRef<HTMLDivElement, MPTransferProps>(func
   const canReturn = targetRows.some((item) => !item.disabled && ticked.has(item.value));
   const listHeight = typeof height === 'number' ? `${height}px` : height;
 
-  const panel = { ticked, disabled, height: listHeight, messages, variant, size, color, searchable };
+  const panel = {
+    ticked,
+    disabled,
+    height: listHeight,
+    messages,
+    variant,
+    size,
+    color,
+    searchable
+  };
 
   return (
     <div

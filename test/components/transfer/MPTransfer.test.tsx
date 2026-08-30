@@ -106,9 +106,7 @@ describe('MPTransfer', () => {
     it('are dead until something on their own side is ticked', async () => {
       const screen = await render(<MPTransfer items={ITEMS} defaultValue={['email']} />);
 
-      await expect
-        .element(screen.getByRole('button', { name: 'Move to selected' }))
-        .toBeDisabled();
+      await expect.element(screen.getByRole('button', { name: 'Move to selected' })).toBeDisabled();
 
       await screen.getByRole('checkbox', { name: 'Name' }).click();
 

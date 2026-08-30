@@ -1,10 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import {
-  MPNavigationMenu,
-  MPNavigationMenuItem,
-  MPNavigationMenuLink
-} from 'material-plus-ui';
+import { MPNavigationMenu, MPNavigationMenuItem, MPNavigationMenuLink } from 'material-plus-ui';
 
 function Nav(props: React.ComponentProps<typeof MPNavigationMenu>) {
   return (
@@ -26,9 +22,7 @@ describe('MPNavigationMenu', () => {
     it('is a `<nav>`, which is what a row of destinations is', async () => {
       const screen = await render(<Nav />);
 
-      await expect
-        .element(screen.getByRole('navigation', { name: 'Main' }))
-        .toBeInTheDocument();
+      await expect.element(screen.getByRole('navigation', { name: 'Main' })).toBeInTheDocument();
     });
 
     it('draws an item with an `href` and no children as a real link', async () => {

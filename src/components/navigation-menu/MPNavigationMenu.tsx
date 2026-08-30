@@ -152,46 +152,45 @@ const PANEL_PAD: Record<MPSize, string> = {
  * handler is not in the link list, not on the status bar and not in a crawler's
  * index.
  */
-export const MPNavigationMenuLink = React.forwardRef<
-  HTMLAnchorElement,
-  MPNavigationMenuLinkProps
->(function MPNavigationMenuLink(
-  { href, title, description, startIcon, className, children, ...props },
-  ref
-) {
-  const { size } = React.useContext(MPNavigationMenuContext);
+export const MPNavigationMenuLink = React.forwardRef<HTMLAnchorElement, MPNavigationMenuLinkProps>(
+  function MPNavigationMenuLink(
+    { href, title, description, startIcon, className, children, ...props },
+    ref
+  ) {
+    const { size } = React.useContext(MPNavigationMenuContext);
 
-  return (
-    <NavigationMenu.Link
-      ref={ref}
-      href={href}
-      className={[
-        'mp-navigation-menu__link group text-mp-on-surface rounded-mp-xs relative flex',
-        'min-w-0 cursor-pointer items-start bg-transparent py-2 no-underline outline-none',
-        CONTROL_GAP[size],
-        CONTROL_PAD_X[size],
-        className ?? ''
-      ]
-        .filter(Boolean)
-        .join(' ')}
-      {...props}
-    >
-      <MPStateLayer />
+    return (
+      <NavigationMenu.Link
+        ref={ref}
+        href={href}
+        className={[
+          'mp-navigation-menu__link group text-mp-on-surface rounded-mp-xs relative flex',
+          'min-w-0 cursor-pointer items-start bg-transparent py-2 no-underline outline-none',
+          CONTROL_GAP[size],
+          CONTROL_PAD_X[size],
+          className ?? ''
+        ]
+          .filter(Boolean)
+          .join(' ')}
+        {...props}
+      >
+        <MPStateLayer />
 
-      {hasContent(startIcon) ? (
-        <span className="relative flex h-[1lh] shrink-0 items-center">{startIcon}</span>
-      ) : null}
-
-      <span className="relative flex min-w-0 flex-col gap-0.5">
-        <span className={`font-medium ${CONTROL_TEXT[size]}`}>{title}</span>
-        {hasContent(description) ? (
-          <span className={`text-mp-on-surface-variant ${META_TEXT}`}>{description}</span>
+        {hasContent(startIcon) ? (
+          <span className="relative flex h-[1lh] shrink-0 items-center">{startIcon}</span>
         ) : null}
-        {children}
-      </span>
-    </NavigationMenu.Link>
-  );
-});
+
+        <span className="relative flex min-w-0 flex-col gap-0.5">
+          <span className={`font-medium ${CONTROL_TEXT[size]}`}>{title}</span>
+          {hasContent(description) ? (
+            <span className={`text-mp-on-surface-variant ${META_TEXT}`}>{description}</span>
+          ) : null}
+          {children}
+        </span>
+      </NavigationMenu.Link>
+    );
+  }
+);
 
 /**
  * One word in the row, and what opens under it.
