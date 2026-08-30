@@ -301,9 +301,9 @@ Gzipped, from a real bundler, with React and `@base-ui/react` held external — 
 | ---------------------- | ---------- | ----------------- |
 | `MPBox` alone          | 0.4 kB     | 3.9 kB            |
 | `MPButton` alone       | 2.9 kB     | 4.5 kB            |
-| Five components        | 7.3 kB     | 6.6 kB            |
-| Ten components         | 11.1 kB    | 9.1 kB            |
-| All hundred and eleven | 74.1 kB    | 16.2 kB           |
+| Five components        | 7.4 kB     | 6.6 kB            |
+| Ten components         | 11.2 kB    | 9.1 kB            |
+| All hundred and eleven | 74.2 kB    | 16.2 kB           |
 
 Two things to read off it. The first column is marginal: a component you did not import is not in it, which is what `sideEffects`, the build's `@__PURE__` annotations and a message table per namespace are all for. The second column is not marginal — a stylesheet is a file you either imported or did not — so it assumes the list of sheets matches what the page renders.
 
