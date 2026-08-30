@@ -300,6 +300,29 @@ export const MPTransfer = React.forwardRef<HTMLDivElement, MPTransferProps>(func
   const source = items.filter((item) => !chosen.has(item.value));
   const target = items.filter((item) => chosen.has(item.value));
 
+  /*
+   * Ticks belong to rows, so a row that leaves takes its tick with it.
+   *
+   * The set was only ever added to. A list that is re-fetched, filtered upstream
+   * or paged through left every value it had ever held ticked, for the life of
+   * the component — invisible, because a tick with no row draws nothing, and not
+   * harmless: the same value arriving again came back already ticked, which is a
+   * selection the reader did not make.
+   *
+   * Pruned against `items` rather than on removal, because the component is not
+   * told what left — `items` is a prop, and the only thing it can compare is
+   * what it has now against what it had.
+   */
+  React.useEffect(() => {
+    const live = new Set(items.map((item) => item.value));
+
+    setTicked((current) => {
+      const kept = [...current].filter((value) => live.has(value));
+
+      return kept.length === current.size ? current : new Set(kept);
+    });
+  }, [items]);
+
   const commit = (next: string[]) => {
     if (value === undefined) {
       setUncontrolled(next);

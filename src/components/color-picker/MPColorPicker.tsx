@@ -303,34 +303,94 @@ function ColorPanel({
    */
   const gripRect = React.useRef<DOMRect | null>(null);
 
-  const track = (handler: (at: { x: number; y: number }) => void) => ({
-    onPointerDown: (event: React.PointerEvent<HTMLElement>) => {
-      if (inert) {
+  /**
+   * One update per frame, however fast the pointer reports.
+   *
+   * A pointer sends moves faster than the screen refreshes — a 240Hz mouse sends
+   * four for every frame that can show one — and each was a `setState` that
+   * re-rendered the whole panel, its three rails and its sixteen swatches. Three
+   * quarters of that work was for a picture nobody was ever shown.
+   *
+   * The same coalescing `MPCarousel` does to its scroll handler, and the same
+   * reason: the answer can only change once per frame, so asking more often than
+   * that is asking for a frame that does not exist.
+   *
+   * ## Why a stale handler is safe here
+   *
+   * The callback held across a frame is the one from the render that scheduled
+   * it, so it closes over that render's `hsv` and `alphaValue`. That is fine for
+   * exactly the reason it looks dangerous: the only values it reads are the
+   * channels the gesture in progress is *not* moving. A drag across the square
+   * reads `hsv.h`, which only the hue rail changes; a drag along the hue rail
+   * reads `s` and `v`, which only the square changes. A pointer is captured by
+   * one of them at a time, so nothing a frame is waiting on can move underneath
+   * it.
+   */
+  const pending = React.useRef<{ x: number; y: number } | null>(null);
+  const frame = React.useRef(0);
+
+  React.useEffect(
+    () => () => {
+      if (frame.current) {
+        cancelAnimationFrame(frame.current);
+      }
+    },
+    []
+  );
+
+  const track = (handler: (at: { x: number; y: number }) => void) => {
+    const schedule = (at: { x: number; y: number }) => {
+      pending.current = at;
+
+      if (frame.current) {
         return;
       }
 
-      const rect = event.currentTarget.getBoundingClientRect();
+      frame.current = requestAnimationFrame(() => {
+        frame.current = 0;
 
-      gripRect.current = rect;
-      event.currentTarget.setPointerCapture(event.pointerId);
-      handler(fractionsIn(rect, event.clientX, event.clientY));
-    },
-    onPointerMove: (event: React.PointerEvent<HTMLElement>) => {
-      const rect = gripRect.current;
+        const latest = pending.current;
 
-      if (inert || !rect || !event.currentTarget.hasPointerCapture(event.pointerId)) {
-        return;
+        pending.current = null;
+
+        if (latest) {
+          handler(latest);
+        }
+      });
+    };
+
+    return {
+      onPointerDown: (event: React.PointerEvent<HTMLElement>) => {
+        if (inert) {
+          return;
+        }
+
+        const rect = event.currentTarget.getBoundingClientRect();
+
+        gripRect.current = rect;
+        event.currentTarget.setPointerCapture(event.pointerId);
+        // The press itself is answered now rather than next frame: it is the
+        // reader putting the colour somewhere, and a frame of lag on the first
+        // paint of a drag is the one the eye notices.
+        handler(fractionsIn(rect, event.clientX, event.clientY));
+      },
+      onPointerMove: (event: React.PointerEvent<HTMLElement>) => {
+        const rect = gripRect.current;
+
+        if (inert || !rect || !event.currentTarget.hasPointerCapture(event.pointerId)) {
+          return;
+        }
+
+        schedule(fractionsIn(rect, event.clientX, event.clientY));
+      },
+      onPointerUp: () => {
+        gripRect.current = null;
+      },
+      onPointerCancel: () => {
+        gripRect.current = null;
       }
-
-      handler(fractionsIn(rect, event.clientX, event.clientY));
-    },
-    onPointerUp: () => {
-      gripRect.current = null;
-    },
-    onPointerCancel: () => {
-      gripRect.current = null;
-    }
-  });
+    };
+  };
 
   const railProps = (label: string, now: number, max: number, onStep: (delta: number) => void) => ({
     role: 'slider' as const,

@@ -221,4 +221,42 @@ describe('MPTransfer', () => {
     await expect.element(screen.getByRole('button', { name: 'Move to selected' })).toBeDisabled();
     await expect.element(screen.getByRole('button', { name: 'Move to available' })).toBeDisabled();
   });
+
+  describe('when the list underneath changes', () => {
+    /*
+     * A tick belongs to a row, so a row that leaves takes its tick with it. The
+     * set was only ever added to, which is invisible — a tick with no row draws
+     * nothing — right up until the same value comes back and arrives already
+     * ticked, which is a selection the reader did not make.
+     */
+    it('drops the ticks of rows that are no longer in the list', async () => {
+      const all = [
+        { value: 'a', label: 'Ada' },
+        { value: 'b', label: 'Bea' }
+      ];
+      const screen = await render(<MPTransfer items={all} />);
+
+      await screen.getByRole('checkbox', { name: 'Ada' }).click();
+      expect(screen.getByRole('checkbox', { name: 'Ada' }).element()).toBeChecked();
+
+      // Ada leaves, then comes back.
+      await screen.rerender(<MPTransfer items={[{ value: 'b', label: 'Bea' }]} />);
+      await screen.rerender(<MPTransfer items={all} />);
+
+      expect(screen.getByRole('checkbox', { name: 'Ada' }).element()).not.toBeChecked();
+    });
+
+    it('leaves the ticks of rows that stayed', async () => {
+      const all = [
+        { value: 'a', label: 'Ada' },
+        { value: 'b', label: 'Bea' }
+      ];
+      const screen = await render(<MPTransfer items={all} />);
+
+      await screen.getByRole('checkbox', { name: 'Ada' }).click();
+      await screen.rerender(<MPTransfer items={[...all, { value: 'c', label: 'Cy' }]} />);
+
+      expect(screen.getByRole('checkbox', { name: 'Ada' }).element()).toBeChecked();
+    });
+  });
 });

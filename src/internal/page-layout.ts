@@ -225,11 +225,21 @@ export function useMPCollapsed(collapseBelow: MPPageCollapse): boolean {
  * Read during render, which is safe here for a narrower reason than it looks:
  * the only caller is a sidebar that has already collapsed, and collapsing is a
  * client-side answer. There is no server render of this to disagree with.
+ *
+ * The reading is `document.dir` rather than a computed style, and that is the
+ * whole of the difference between a lookup and a layout. `getComputedStyle`
+ * flushes pending style — during render, on every render of a collapsed sidebar,
+ * for one of two answers. `dir` is an attribute, and reading it costs nothing.
+ *
+ * What it gives up is a direction set in CSS rather than in the markup, which
+ * `direction: rtl` on a stylesheet's `:root` would be. That is a real
+ * arrangement and a rare one, and the fallback is the right way round for it:
+ * the document element's `dir` is what an RTL page sets, and the drawer's own
+ * contents flip on their own either way. What is decided here is only which edge
+ * the panel is attached to.
  */
 export function drawerSide(side: MPSidebarSide): MPSide {
-  const rtl =
-    typeof document !== 'undefined' &&
-    getComputedStyle(document.documentElement).direction === 'rtl';
+  const rtl = typeof document !== 'undefined' && document.documentElement.dir === 'rtl';
 
   if (side === 'start') {
     return rtl ? 'right' : 'left';
