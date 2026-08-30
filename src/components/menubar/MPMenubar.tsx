@@ -50,6 +50,13 @@ export interface MPMenubarMenuProps {
   disabled?: boolean;
   /** The rows, written exactly as they are inside an [MPMenu](./menu). */
   children?: React.ReactNode;
+  /**
+   * Added to the word on the bar — the button that opens the menu — rather than
+   * to the menu it opens. That one takes its own `className` on
+   * [MPMenu](./menu).
+   */
+  className?: string;
+  style?: React.CSSProperties;
 }
 
 /**
@@ -104,7 +111,9 @@ export function MPMenubarMenu({
   label,
   startIcon,
   disabled = false,
-  children
+  children,
+  className,
+  style
 }: MPMenubarMenuProps) {
   const { size, color } = React.useContext(MPMenuContext);
 
@@ -141,8 +150,12 @@ export function MPMenubarMenu({
             TRIGGER_HEIGHT[size],
             TRIGGER_PAD_X[size],
             TRIGGER_TEXT[size],
-            CONTROL_GAP[size]
-          ].join(' ')}
+            CONTROL_GAP[size],
+            className ?? ''
+          ]
+            .filter(Boolean)
+            .join(' ')}
+          style={style}
         >
           {disabled ? null : <MPStateLayer className="group-data-popup-open:opacity-8" />}
           {hasContent(startIcon) ? <span className="relative flex">{startIcon}</span> : null}

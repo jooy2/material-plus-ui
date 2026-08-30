@@ -118,6 +118,12 @@ export interface MPSliderProps {
   name?: string;
   /** The accessible name, for a slider with no visible `label`. */
   'aria-label'?: string;
+  /**
+   * Added to the slider's outermost element, which holds the label row as well
+   * as the track.
+   */
+  className?: string;
+  style?: React.CSSProperties;
 }
 
 /**
@@ -157,7 +163,9 @@ export const MPSlider = React.forwardRef<HTMLDivElement, MPSliderProps>(function
     color = 'primary',
     disabled = false,
     name,
-    'aria-label': ariaLabel
+    'aria-label': ariaLabel,
+    className,
+    style
   },
   ref
 ) {
@@ -188,11 +196,12 @@ export const MPSlider = React.forwardRef<HTMLDivElement, MPSliderProps>(function
       className={[
         'mp-slider flex',
         vertical ? 'w-fit flex-col items-center gap-2' : 'w-full flex-col gap-1',
-        disabled ? 'cursor-default' : ''
+        disabled ? 'cursor-default' : '',
+        className ?? ''
       ]
         .filter(Boolean)
         .join(' ')}
-      style={accentSlots(color)}
+      style={{ ...accentSlots(color), ...style }}
     >
       {hasContent(label) || showValue ? (
         <div className={['flex w-full items-baseline gap-2', META_TEXT].join(' ')}>

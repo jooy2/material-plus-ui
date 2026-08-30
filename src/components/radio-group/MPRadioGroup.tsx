@@ -58,6 +58,12 @@ export interface MPRadioProps {
   disabled?: boolean;
   /** The id put on the control and pointed at by the label. */
   id?: string;
+  /**
+   * Added to the option's outermost element — the box around the dot, its label
+   * and its description, rather than to the dot itself.
+   */
+  className?: string;
+  style?: React.CSSProperties;
 }
 
 /**
@@ -67,7 +73,7 @@ export interface MPRadioProps {
  * the only place they can be set once and mean the same thing for every option.
  */
 export const MPRadio = React.forwardRef<HTMLElement, MPRadioProps>(function MPRadio(
-  { value, label, description, disabled = false, id },
+  { value, label, description, disabled = false, id, className, style },
   ref
 ) {
   const group = React.useContext(MPRadioGroupContext);
@@ -77,7 +83,8 @@ export const MPRadio = React.forwardRef<HTMLElement, MPRadioProps>(function MPRa
 
   return (
     <Field.Root
-      className="mp-radio inline-block align-top"
+      className={['mp-radio inline-block align-top', className ?? ''].filter(Boolean).join(' ')}
+      style={style}
       disabled={disabled}
       data-mp-value={value}
     >
@@ -221,6 +228,12 @@ export interface MPRadioGroupProps {
   name?: string;
   /** The `MPRadio`s. */
   children?: React.ReactNode;
+  /**
+   * Added to the group's outermost element — the box around the set's label, the
+   * options and the supporting line, rather than to the run of options.
+   */
+  className?: string;
+  style?: React.CSSProperties;
 }
 
 /**
@@ -252,7 +265,9 @@ export const MPRadioGroup = React.forwardRef<HTMLDivElement, MPRadioGroupProps>(
       disabled = false,
       readOnly = false,
       name,
-      children
+      children,
+      className,
+      style
     },
     ref
   ) {
@@ -265,12 +280,14 @@ export const MPRadioGroup = React.forwardRef<HTMLDivElement, MPRadioGroupProps>(
     return (
       <MPRadioGroupContext.Provider value={context}>
         <Field.Root
-          className="mp-radio-group flex flex-col gap-2"
+          className={['mp-radio-group flex flex-col gap-2', className ?? '']
+            .filter(Boolean)
+            .join(' ')}
           disabled={disabled}
           invalid={invalid}
           data-mp-size={size}
           data-mp-orientation={orientation}
-          style={accentSlots(family)}
+          style={{ ...accentSlots(family), ...style }}
         >
           {/*
            * A sibling element pointed at by `aria-labelledby`, rather than a

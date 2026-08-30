@@ -155,6 +155,12 @@ export interface MPFilePickerProps extends MPStyleProps {
   name?: string;
   /** The id put on the browse button. */
   id?: string;
+  /**
+   * Added to the picker's outermost element — the box around the label, the drop
+   * zone and the list of files that have been chosen.
+   */
+  className?: string;
+  style?: React.CSSProperties;
 }
 
 /**
@@ -210,7 +216,9 @@ export const MPFilePicker = React.forwardRef<HTMLInputElement, MPFilePickerProps
       disabled = false,
       readOnly = false,
       name,
-      id
+      id,
+      className,
+      style
     },
     ref
   ) {
@@ -302,8 +310,12 @@ export const MPFilePicker = React.forwardRef<HTMLInputElement, MPFilePickerProps
         className={[
           'mp-file-picker flex-col align-top',
           STACK_GAP[size],
-          fullWidth ? 'flex w-full' : 'inline-flex'
-        ].join(' ')}
+          fullWidth ? 'flex w-full' : 'inline-flex',
+          className ?? ''
+        ]
+          .filter(Boolean)
+          .join(' ')}
+        style={style}
         data-mp-size={size}
         data-disabled={disabled || undefined}
         data-invalid={invalid || undefined}

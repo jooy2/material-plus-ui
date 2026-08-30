@@ -64,6 +64,13 @@ export interface MPSegmentedButtonProps extends MPStyleProps {
   disabled?: boolean;
   /** The accessible name of the set. */
   'aria-label'?: string;
+  /**
+   * Added to the set rather than to a segment. A segment carries
+   * `mp-segmented-button__segment`, which is what a descendant selector reaches
+   * one by.
+   */
+  className?: string;
+  style?: React.CSSProperties;
 }
 
 /**
@@ -99,7 +106,9 @@ export const MPSegmentedButton = React.forwardRef<HTMLDivElement, MPSegmentedBut
       size = 'md',
       fullWidth = false,
       disabled = false,
-      'aria-label': ariaLabel
+      'aria-label': ariaLabel,
+      className,
+      style
     },
     ref
   ) {
@@ -120,8 +129,12 @@ export const MPSegmentedButton = React.forwardRef<HTMLDivElement, MPSegmentedBut
           'overflow-hidden border',
           disabled ? 'border-mp-on-surface/12' : 'border-mp-outline',
           fullWidth ? 'flex w-full' : 'inline-flex w-fit',
-          CONTROL_HEIGHT[size]
-        ].join(' ')}
+          CONTROL_HEIGHT[size],
+          className ?? ''
+        ]
+          .filter(Boolean)
+          .join(' ')}
+        style={style}
       >
         {items.map((item, index) => {
           const itemDisabled = disabled || item.disabled;

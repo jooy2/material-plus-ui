@@ -123,6 +123,13 @@ export interface MPNavigationMenuItemProps {
   columns?: number;
   /** The panel's contents — usually `MPNavigationMenuLink`s. */
   children?: React.ReactNode;
+  /**
+   * Added to the word in the row — the link, or the trigger that opens the panel
+   * — rather than to the panel. The panel is portalled out of this element and
+   * carries `mp-navigation-menu__panel`.
+   */
+  className?: string;
+  style?: React.CSSProperties;
 }
 
 export interface MPNavigationMenuLinkProps extends Omit<
@@ -236,7 +243,9 @@ export function MPNavigationMenuItem({
   value,
   disabled = false,
   columns = 1,
-  children
+  children,
+  className,
+  style
 }: MPNavigationMenuItemProps) {
   const { size } = React.useContext(MPNavigationMenuContext);
   const isLink = href !== undefined && !hasContent(children);
@@ -256,8 +265,11 @@ export function MPNavigationMenuItem({
     CONTROL_HEIGHT[size],
     CONTROL_TEXT[size],
     CONTROL_GAP[size],
-    CONTROL_PAD_X[size]
-  ].join(' ');
+    CONTROL_PAD_X[size],
+    className ?? ''
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   return (
     <NavigationMenu.Item value={value}>
@@ -267,6 +279,7 @@ export function MPNavigationMenuItem({
           target={target}
           rel={linkRel(target, rel)}
           className={chrome}
+          style={style}
         >
           <MPStateLayer />
           {hasContent(startIcon) ? <span className="relative flex">{startIcon}</span> : null}
@@ -274,7 +287,7 @@ export function MPNavigationMenuItem({
         </NavigationMenu.Link>
       ) : (
         <>
-          <NavigationMenu.Trigger disabled={disabled} className={chrome}>
+          <NavigationMenu.Trigger disabled={disabled} className={chrome} style={style}>
             {disabled ? null : <MPStateLayer className="group-data-popup-open:opacity-8" />}
             {hasContent(startIcon) ? <span className="relative flex">{startIcon}</span> : null}
             <span className="relative">{label}</span>

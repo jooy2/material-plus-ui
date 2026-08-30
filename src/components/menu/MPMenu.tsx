@@ -149,6 +149,7 @@ export interface MPMenuGroupProps {
   label?: React.ReactNode;
   children?: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 export interface MPMenuCheckboxItemProps extends Omit<
@@ -174,6 +175,7 @@ export interface MPMenuRadioGroupProps {
   disabled?: boolean;
   children?: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 export interface MPMenuRadioItemProps extends Omit<
@@ -490,7 +492,8 @@ export function MPMenuRadioGroup({
   onValueChange,
   disabled = false,
   children,
-  className
+  className,
+  style
 }: MPMenuRadioGroupProps) {
   return (
     <Menu.RadioGroup
@@ -499,6 +502,7 @@ export function MPMenuRadioGroup({
       onValueChange={(next) => onValueChange?.(next as string | number)}
       disabled={disabled}
       className={className}
+      style={style}
     >
       {children}
     </Menu.RadioGroup>
@@ -553,11 +557,11 @@ export function MPMenuRadioItem({
 }
 
 /** A named run of rows. The label is a heading, not a row — it cannot be picked. */
-export function MPMenuGroup({ label, children, className }: MPMenuGroupProps) {
+export function MPMenuGroup({ label, children, className, style }: MPMenuGroupProps) {
   const { size } = React.useContext(MPMenuContext);
 
   return (
-    <Menu.Group className={className}>
+    <Menu.Group className={className} style={style}>
       {hasContent(label) ? (
         <Menu.GroupLabel
           className={`text-mp-on-surface-variant pt-2 pb-1 ${ROW_PAD_X[size]} ${META_TEXT}`}

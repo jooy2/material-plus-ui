@@ -120,6 +120,13 @@ export interface MPSelectProps extends MPStyleProps {
    * left out.
    */
   id?: string;
+  /**
+   * Added to the select's outermost element — the box around the trigger and its
+   * supporting line. It is not the trigger, and it is not the popup: the popup is
+   * portalled out of this element entirely.
+   */
+  className?: string;
+  style?: React.CSSProperties;
 }
 
 /**
@@ -160,7 +167,9 @@ export const MPSelect = React.forwardRef<HTMLButtonElement, MPSelectProps>(funct
     disabled = false,
     readOnly = false,
     name,
-    id
+    id,
+    className,
+    style
   },
   ref
 ) {
@@ -200,8 +209,12 @@ export const MPSelect = React.forwardRef<HTMLButtonElement, MPSelectProps>(funct
     <Field.Root
       className={[
         'mp-select group flex-col align-top',
-        fullWidth ? 'flex w-full' : 'inline-flex w-fit'
-      ].join(' ')}
+        fullWidth ? 'flex w-full' : 'inline-flex w-fit',
+        className ?? ''
+      ]
+        .filter(Boolean)
+        .join(' ')}
+      style={style}
       disabled={disabled}
       invalid={invalid}
       data-mp-size={size}

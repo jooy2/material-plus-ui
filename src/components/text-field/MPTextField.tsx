@@ -176,6 +176,14 @@ export interface MPTextFieldProps extends MPStyleProps {
    * form-level error that a further edit has made stale.
    */
   onFormReset?: () => void;
+  /**
+   * Added to the field's outermost element — the box around the control and its
+   * supporting line, rather than to the `<input>` itself. The control carries a
+   * type scale of its own, so a `text-*` written here does not reach it; that is
+   * what `size` is for.
+   */
+  className?: string;
+  style?: React.CSSProperties;
 }
 
 /**
@@ -273,7 +281,9 @@ export const MPTextField = React.forwardRef<
     resizable = false,
     id,
     locale: localeProp,
-    passwordLabels
+    passwordLabels,
+    className,
+    style
   },
   ref
 ) {
@@ -382,8 +392,12 @@ export const MPTextField = React.forwardRef<
         // `font-size: 0` on the wrapper keeps the label's own `1rem` from
         // inheriting into the absolutely positioned copies unpredictably; each
         // text part sets its own scale from a typescale token.
-        'align-top'
-      ].join(' ')}
+        'align-top',
+        className ?? ''
+      ]
+        .filter(Boolean)
+        .join(' ')}
+      style={style}
       disabled={disabled}
       invalid={invalid}
       data-mp-size={size}

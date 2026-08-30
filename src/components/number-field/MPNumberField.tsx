@@ -128,6 +128,12 @@ export interface MPNumberFieldProps extends MPStyleProps {
   name?: string;
   /** The id put on the control and pointed at by the label. */
   id?: string;
+  /**
+   * Added to the field's outermost element — the box around the control, its
+   * steppers and its supporting line, rather than to the `<input>` itself.
+   */
+  className?: string;
+  style?: React.CSSProperties;
 }
 
 /**
@@ -173,7 +179,9 @@ export function MPNumberField({
   disabled = false,
   readOnly = false,
   name,
-  id
+  id,
+  className,
+  style
 }: MPNumberFieldProps) {
   /*
    * The steppers' names come from the same `locale` the number does.
@@ -245,8 +253,12 @@ export function MPNumberField({
     <Field.Root
       className={[
         'mp-number-field group flex-col align-top',
-        fullWidth ? 'flex w-full' : 'inline-flex w-fit'
-      ].join(' ')}
+        fullWidth ? 'flex w-full' : 'inline-flex w-fit',
+        className ?? ''
+      ]
+        .filter(Boolean)
+        .join(' ')}
+      style={style}
       disabled={disabled}
       invalid={invalid}
       data-mp-size={size}

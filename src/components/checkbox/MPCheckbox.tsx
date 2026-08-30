@@ -85,6 +85,12 @@ export interface MPCheckboxProps {
    * left out.
    */
   id?: string;
+  /**
+   * Added to the outermost element — the box around the tick, its label and its
+   * supporting line, rather than to the tick itself.
+   */
+  className?: string;
+  style?: React.CSSProperties;
 }
 
 /**
@@ -119,7 +125,9 @@ export const MPCheckbox = React.forwardRef<HTMLElement, MPCheckboxProps>(functio
     readOnly = false,
     name,
     value,
-    id
+    id,
+    className,
+    style
   },
   ref
 ) {
@@ -133,11 +141,11 @@ export const MPCheckbox = React.forwardRef<HTMLElement, MPCheckboxProps>(functio
 
   return (
     <Field.Root
-      className="mp-checkbox inline-block align-top"
+      className={['mp-checkbox inline-block align-top', className ?? ''].filter(Boolean).join(' ')}
       disabled={disabled}
       invalid={invalid}
       data-mp-size={size}
-      style={accentSlots(family)}
+      style={{ ...accentSlots(family), ...style }}
     >
       <div className={['flex items-start gap-3', PROSE_TEXT[size]].join(' ')}>
         {/*

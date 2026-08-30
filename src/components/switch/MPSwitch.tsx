@@ -133,6 +133,12 @@ export interface MPSwitchProps {
    * against the far edge. This is what makes a column of settings line up.
    */
   fullWidth?: boolean;
+  /**
+   * Added to the outermost element — the box around the track, its label and its
+   * supporting line, rather than to the track itself.
+   */
+  className?: string;
+  style?: React.CSSProperties;
 }
 
 /**
@@ -164,7 +170,9 @@ export const MPSwitch = React.forwardRef<HTMLElement, MPSwitchProps>(function MP
     readOnly = false,
     name,
     id,
-    fullWidth = false
+    fullWidth = false,
+    className,
+    style
   },
   ref
 ) {
@@ -334,11 +342,13 @@ export const MPSwitch = React.forwardRef<HTMLElement, MPSwitchProps>(function MP
 
   return (
     <Field.Root
-      className={['mp-switch align-top', fullWidth ? 'flex w-full' : 'inline-flex'].join(' ')}
+      className={['mp-switch align-top', fullWidth ? 'flex w-full' : 'inline-flex', className ?? '']
+        .filter(Boolean)
+        .join(' ')}
       disabled={disabled}
       invalid={invalid}
       data-mp-size={size}
-      style={accentSlots(family)}
+      style={{ ...accentSlots(family), ...style }}
     >
       <div className={['flex w-full items-start gap-3', PROSE_TEXT[size]].join(' ')}>
         {labelPlacement === 'start' ? (
