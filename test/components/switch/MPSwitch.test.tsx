@@ -233,4 +233,18 @@ describe('MPSwitch', () => {
       expect(track().height).toBeCloseTo(before.height, 1);
     });
   });
+
+  describe('passthrough', () => {
+    it('keeps caller-supplied class names and styles alongside its own', async () => {
+      await render(
+        <MPSwitch label="Wi-Fi" className="my-own-class" style={{ marginTop: '8px' }} />
+      );
+      const root = document.querySelector('.mp-switch') as HTMLElement;
+
+      expect(root).toHaveClass('my-own-class');
+      expect(root).toHaveClass('mp-switch');
+      expect(root.style.marginTop).toBe('8px');
+      expect(root.style.getPropertyValue('--_mp-accent')).not.toBe('');
+    });
+  });
 });

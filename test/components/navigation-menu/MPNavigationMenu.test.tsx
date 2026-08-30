@@ -226,4 +226,24 @@ describe('MPNavigationMenu', () => {
       expect(down.container.querySelector('nav > *')!.className).toContain('flex-col');
     });
   });
+
+  describe('passthrough', () => {
+    it('puts an item’s class on the word, whether it is a link or a trigger', async () => {
+      await render(
+        <MPNavigationMenu aria-label="Main">
+          <MPNavigationMenuItem label="Docs" href="/docs" className="my-own-link" />
+          <MPNavigationMenuItem label="Product" className="my-own-trigger" style={{ order: 2 }}>
+            <MPNavigationMenuLink href="/overview" title="Overview" />
+          </MPNavigationMenuItem>
+        </MPNavigationMenu>
+      );
+
+      expect(document.querySelector('a.mp-navigation-menu__item')).toHaveClass('my-own-link');
+
+      const trigger = document.querySelector('button.mp-navigation-menu__item') as HTMLElement;
+
+      expect(trigger).toHaveClass('my-own-trigger');
+      expect(trigger.style.order).toBe('2');
+    });
+  });
 });

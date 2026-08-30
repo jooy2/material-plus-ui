@@ -227,4 +227,26 @@ describe('MPSegmentedButton', () => {
       ).toBeLessThanOrEqual(1.5);
     });
   });
+
+  describe('passthrough', () => {
+    it('keeps caller-supplied class names and styles alongside its own', async () => {
+      await render(
+        <MPSegmentedButton
+          items={VIEWS}
+          aria-label="View"
+          className="my-own-class"
+          style={{ width: '20rem' }}
+        />
+      );
+      const root = document.querySelector('.mp-segmented-button') as HTMLElement;
+
+      expect(root).toHaveClass('my-own-class');
+      expect(root).toHaveClass('mp-segmented-button');
+      expect(root.style.width).toBe('20rem');
+      // The set, not a segment.
+      expect(document.querySelector('.mp-segmented-button__segment')).not.toHaveClass(
+        'my-own-class'
+      );
+    });
+  });
 });

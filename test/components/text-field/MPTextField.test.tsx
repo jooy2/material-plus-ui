@@ -911,4 +911,17 @@ describe('MPTextField', () => {
       expect(Number.parseFloat(ring.outlineWidth)).toBeGreaterThan(0);
     });
   });
+
+  describe('passthrough', () => {
+    it('keeps caller-supplied class names and styles alongside its own', async () => {
+      await render(
+        <MPTextField value="" label="Email" className="my-own-class" style={{ width: '20rem' }} />
+      );
+      const root = document.querySelector('.mp-text-field') as HTMLElement;
+
+      expect(root).toHaveClass('my-own-class');
+      expect(root).toHaveClass('mp-text-field');
+      expect(root.style.width).toBe('20rem');
+    });
+  });
 });

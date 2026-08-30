@@ -298,4 +298,18 @@ describe('MPSlider', () => {
       expect(screen.getByRole('slider').element()).not.toHaveAttribute('aria-describedby');
     });
   });
+
+  describe('passthrough', () => {
+    it('keeps caller-supplied class names and styles alongside its own', async () => {
+      await render(
+        <MPSlider aria-label="Volume" className="my-own-class" style={{ marginTop: '8px' }} />
+      );
+      const root = document.querySelector('.mp-slider') as HTMLElement;
+
+      expect(root).toHaveClass('my-own-class');
+      expect(root).toHaveClass('mp-slider');
+      expect(root.style.marginTop).toBe('8px');
+      expect(root.style.getPropertyValue('--_mp-accent')).not.toBe('');
+    });
+  });
 });

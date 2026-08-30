@@ -250,4 +250,20 @@ describe('MPCheckbox', () => {
       ).toBeCloseTo(18, 0);
     });
   });
+
+  describe('passthrough', () => {
+    it('keeps caller-supplied class names and styles alongside its own', async () => {
+      await render(
+        <MPCheckbox label="Agree" className="my-own-class" style={{ marginTop: '8px' }} />
+      );
+      const root = document.querySelector('.mp-checkbox') as HTMLElement;
+
+      expect(root).toHaveClass('my-own-class');
+      expect(root).toHaveClass('mp-checkbox');
+      expect(root.style.marginTop).toBe('8px');
+      // The accent slots were already on this element. A caller's object is
+      // spread over them rather than in place of them.
+      expect(root.style.getPropertyValue('--_mp-accent')).not.toBe('');
+    });
+  });
 });

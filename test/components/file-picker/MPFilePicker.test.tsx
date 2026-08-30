@@ -357,4 +357,17 @@ describe('MPFilePicker', () => {
       expect(onFilesChange).not.toHaveBeenCalled();
     });
   });
+
+  describe('passthrough', () => {
+    it('keeps caller-supplied class names and styles alongside its own', async () => {
+      await render(
+        <MPFilePicker label="Attachments" className="my-own-class" style={{ width: '20rem' }} />
+      );
+      const root = document.querySelector('.mp-file-picker') as HTMLElement;
+
+      expect(root).toHaveClass('my-own-class');
+      expect(root).toHaveClass('mp-file-picker');
+      expect(root.style.width).toBe('20rem');
+    });
+  });
 });

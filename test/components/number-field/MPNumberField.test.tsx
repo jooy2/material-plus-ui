@@ -297,4 +297,17 @@ describe('MPNumberField', () => {
       }
     });
   });
+
+  describe('passthrough', () => {
+    it('keeps caller-supplied class names and styles alongside its own', async () => {
+      await render(
+        <MPNumberField label="Quantity" className="my-own-class" style={{ width: '20rem' }} />
+      );
+      const root = document.querySelector('.mp-number-field') as HTMLElement;
+
+      expect(root).toHaveClass('my-own-class');
+      expect(root).toHaveClass('mp-number-field');
+      expect(root.style.width).toBe('20rem');
+    });
+  });
 });

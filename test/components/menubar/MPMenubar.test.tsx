@@ -168,4 +168,23 @@ describe('MPMenubar', () => {
       expect(document.querySelector('.mp-menu__popup')).toBeNull();
     });
   });
+
+  describe('passthrough', () => {
+    it('puts a menu’s class on the word rather than on the bar', async () => {
+      await render(
+        <MPMenubar className="my-own-bar">
+          <MPMenubarMenu label="File" className="my-own-word" style={{ marginTop: '8px' }}>
+            <MPMenuItem onClick={() => {}}>New</MPMenuItem>
+          </MPMenubarMenu>
+        </MPMenubar>
+      );
+      const bar = document.querySelector('.mp-menubar') as HTMLElement;
+      const word = document.querySelector('.mp-menubar__menu') as HTMLElement;
+
+      expect(bar).toHaveClass('my-own-bar');
+      expect(word).toHaveClass('my-own-word');
+      expect(word).not.toHaveClass('my-own-bar');
+      expect(word.style.marginTop).toBe('8px');
+    });
+  });
 });

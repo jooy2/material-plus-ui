@@ -221,4 +221,23 @@ describe('MPRadioGroup', () => {
       );
     });
   });
+
+  describe('passthrough', () => {
+    it('keeps caller-supplied class names and styles alongside its own', async () => {
+      await render(
+        <MPRadioGroup label="Delivery" className="my-own-group" style={{ marginTop: '8px' }}>
+          <MPRadio value="standard" label="Standard" className="my-own-option" />
+        </MPRadioGroup>
+      );
+      const group = document.querySelector('.mp-radio-group') as HTMLElement;
+      const option = document.querySelector('.mp-radio') as HTMLElement;
+
+      expect(group).toHaveClass('my-own-group');
+      expect(group.style.marginTop).toBe('8px');
+      expect(group.style.getPropertyValue('--_mp-accent')).not.toBe('');
+      // The option takes its own, and the group's does not leak onto it.
+      expect(option).toHaveClass('my-own-option');
+      expect(option).not.toHaveClass('my-own-group');
+    });
+  });
 });
