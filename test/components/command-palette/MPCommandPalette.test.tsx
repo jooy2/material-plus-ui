@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { detectOS } from '../../../src/internal/keys';
 import { MPCommandPalette } from 'material-plus-ui';
 import type { MPCommand } from 'material-plus-ui';
 
@@ -138,16 +139,37 @@ describe('MPCommandPalette', () => {
   });
 
   describe('the key that opens it', () => {
+    /*
+     * The platform's own Mod key, rather than both of them at once.
+     *
+     * Holding Control *and* Command is a different combination from either, and
+     * a shortcut that answered it would be taking a chord the page may have
+     * given to something else — so the test presses what a reader on this
+     * machine would press, and asks the library which key that is through the
+     * same function the component does.
+     */
+    const MOD = detectOS() === 'mac' ? { metaKey: true } : { ctrlKey: true };
+
     it('binds Mod+K on the window by default', async () => {
       await render(<MPCommandPalette items={COMMANDS} />);
 
       expect(document.querySelector('.mp-command-palette')).toBeNull();
 
-      window.dispatchEvent(
-        new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, metaKey: true, bubbles: true })
-      );
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ...MOD, bubbles: true }));
 
       await expect.poll(() => document.querySelector('.mp-command-palette')).not.toBeNull();
+    });
+
+    it('leaves a chord that merely contains it alone', async () => {
+      await render(<MPCommandPalette items={COMMANDS} />);
+
+      window.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'k', ...MOD, shiftKey: true, bubbles: true })
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      expect(document.querySelector('.mp-command-palette')).toBeNull();
     });
 
     it('binds nothing at all when told not to', async () => {

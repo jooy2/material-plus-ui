@@ -3,6 +3,7 @@ import { Autocomplete } from '@base-ui/react/autocomplete';
 import { Dialog } from '@base-ui/react/dialog';
 import { MPShortcut } from '../shortcut/MPShortcut';
 import { accentSlots } from '../../internal/accent';
+import { matchesShortcut, useDetectedOS } from '../../internal/keys';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { COMMAND } from '../../internal/messages/command';
 import { MPStateLayer } from '../../internal/StateLayer';
@@ -161,43 +162,6 @@ function haystack(item: MPCommand): string {
 }
 
 /**
- * `Mod+K` and its friends, as a predicate over a real keyboard event.
- *
- * The same vocabulary [MPShortcut](../display/shortcut) draws, read rather than
- * written. A shortcut a component displays and a shortcut it binds have to be
- * spelled the same way, or the label on the screen is a claim nobody checked.
- */
-function pressed(event: KeyboardEvent, shortcut: string): boolean {
-  const parts = shortcut.toLowerCase().split('+');
-  const key = parts[parts.length - 1];
-  const wanted = new Set(parts.slice(0, -1));
-  const mac = /mac|iphone|ipad/i.test(typeof navigator === 'undefined' ? '' : navigator.userAgent);
-  const mod = mac ? event.metaKey : event.ctrlKey;
-
-  if (wanted.has('mod') !== mod) {
-    return false;
-  }
-
-  if (wanted.has('shift') !== event.shiftKey) {
-    return false;
-  }
-
-  if (wanted.has('alt') !== event.altKey) {
-    return false;
-  }
-
-  if (!wanted.has('mod') && wanted.has('ctrl') !== event.ctrlKey) {
-    return false;
-  }
-
-  if (!wanted.has('mod') && wanted.has('meta') !== event.metaKey) {
-    return false;
-  }
-
-  return event.key.toLowerCase() === key;
-}
-
-/**
  * Everything an application can do, behind one field.
  *
  * The shape a keyboard-first product takes once it has more actions than a menu
@@ -253,6 +217,16 @@ export function MPCommandPalette({
   const locale = useMPLocale(localeProp);
   const messages = useMPMessages(COMMAND, locale);
 
+  /*
+   * The platform the shortcut is *read* on, through the same hook `MPShortcut`
+   * uses to decide how it is *written*.
+   *
+   * The two used to answer separately, and the palette's answer was the weaker
+   * one — `navigator.userAgent` alone, which is the source a browser is most
+   * willing to freeze. A page could draw `⌘K` on a row and bind Ctrl+K to open
+   * the sheet that row is in.
+   */
+  const os = useDetectedOS();
   const [uncontrolled, setUncontrolled] = React.useState(defaultOpen);
   const [query, setQuery] = React.useState('');
 
@@ -287,7 +261,7 @@ export function MPCommandPalette({
     }
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (!pressed(event, shortcut)) {
+      if (!matchesShortcut(event, shortcut, os)) {
         return;
       }
 
@@ -300,7 +274,7 @@ export function MPCommandPalette({
     window.addEventListener('keydown', onKeyDown);
 
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [shortcut, setOpen]);
+  }, [shortcut, os, setOpen]);
 
   const folded = React.useMemo(() => items.map(haystack), [items]);
 

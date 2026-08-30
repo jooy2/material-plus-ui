@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { accentSlots } from '../../internal/accent';
+import { tokenizeShortcut, useDetectedOS, type MPResolvedOS } from '../../internal/keys';
 import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
 import type { MPColor, MPSize, MPVariant } from '../../types';
 
@@ -14,7 +15,7 @@ import type { MPColor, MPSize, MPVariant } from '../../types';
 export type MPShortcutOS = 'auto' | 'mac' | 'windows' | 'linux';
 
 /** The three real platforms, once `auto` has been resolved. */
-type ResolvedOS = Exclude<MPShortcutOS, 'auto'>;
+type ResolvedOS = MPResolvedOS;
 
 export interface MPShortcutProps extends Omit<
   React.ComponentPropsWithoutRef<'span'>,
@@ -198,72 +199,6 @@ function labelFor(token: string, os: ResolvedOS): KeyLabel {
 }
 
 /**
- * Splits the string form. Empty segments are what `'Ctrl++'` leaves behind, and
- * dropping them is why the array form exists for that case.
- */
-function tokenize(keys: string | string[]): string[] {
-  if (Array.isArray(keys)) {
-    return keys.map((key) => key.trim()).filter(Boolean);
-  }
-
-  return keys
-    .split('+')
-    .map((key) => key.trim())
-    .filter(Boolean);
-}
-
-/**
- * What the browser says it is running on.
- *
- * `userAgentData.platform` is the modern spelling and `navigator.platform` the
- * deprecated one that every browser still answers; the user agent string is the
- * last resort. All three are matched at once because the question here is coarse
- * — which of three key caps to print — and getting it slightly wrong is a label,
- * not a bug.
- */
-function detectOS(): ResolvedOS {
-  if (typeof navigator === 'undefined') {
-    return 'windows';
-  }
-
-  const data = (navigator as Navigator & { userAgentData?: { platform?: string } }).userAgentData;
-  const haystack = `${data?.platform ?? ''} ${navigator.platform ?? ''} ${navigator.userAgent ?? ''}`;
-
-  if (/mac|iphone|ipad|ipod/i.test(haystack)) {
-    return 'mac';
-  }
-
-  if (/win/i.test(haystack)) {
-    return 'windows';
-  }
-
-  return 'linux';
-}
-
-/** The platform never changes under a running page, so there is nothing to subscribe to. */
-function subscribe() {
-  return () => {};
-}
-
-function serverOS(): ResolvedOS {
-  return 'windows';
-}
-
-/**
- * `useSyncExternalStore` rather than `useEffect` plus state, and rather than
- * reading `navigator` during render.
- *
- * Reading it during render is a hydration mismatch waiting to happen: the server
- * has no `navigator`, so it would render `Ctrl` and the client would render `⌘`
- * into the same markup. This hook is the one API that tells React the two are
- * *meant* to differ — it hydrates with the server's answer and re-renders with
- * the browser's, which is exactly the sequence a Mac reader sees.
- */
-function useDetectedOS(): ResolvedOS {
-  return React.useSyncExternalStore(subscribe, detectOS, serverOS);
-}
-
-/**
  * A key cap's height, and the same call `MPChip` makes: a token inside a line of
  * text is not a control the line lines up against. `md` is 32px, which is where
  * a two-character cap has a square of its own without becoming a button.
@@ -365,7 +300,7 @@ export const MPShortcut = React.forwardRef<HTMLSpanElement, MPShortcutProps>(fun
   const detected = useDetectedOS();
   const resolved: ResolvedOS = os === 'auto' ? detected : os;
 
-  const tokens = tokenize(keys);
+  const tokens = tokenizeShortcut(keys);
   const labels = tokens.map((token) => labelFor(token, resolved));
 
   // macOS writes a shortcut as a run of symbols with nothing between them; the
