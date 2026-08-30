@@ -4,6 +4,7 @@ import { CloseIcon, UploadIcon } from '../../constants/icons';
 import { fillMessage } from '../../internal/i18n';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { COMMON } from '../../internal/messages/common';
+import { FILE_PICKER } from '../../internal/messages/file-picker';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { CONTROL_ICON, META_TEXT, PROSE_TEXT, STACK_GAP, hasContent } from '../../internal/scale';
 import type { MPSize, MPStyleProps } from '../../types';
@@ -123,7 +124,7 @@ export interface MPFilePickerProps extends MPStyleProps {
   description?: React.ReactNode;
   /** The message under the box, which also turns the picker over. */
   errorMessage?: React.ReactNode;
-  /** The line inside the box. @default 'Drop files here, or click to browse' */
+  /** The line inside the box. Defaults to the wording in `locale`. */
   title?: React.ReactNode;
   /** The line under it — what is accepted, how big, how many. */
   hint?: React.ReactNode;
@@ -139,8 +140,9 @@ export interface MPFilePickerProps extends MPStyleProps {
    */
   removeLabel?: (name: string) => string;
   /**
-   * Which language the remove buttons' default names are written in. Falls back
-   * to the nearest `MPLocaleProvider`, then to English.
+   * Which language the box's own words are written in — the prompt inside it and
+   * the remove buttons' names. Falls back to the nearest `MPLocaleProvider`,
+   * then to English.
    */
   locale?: string;
   /** Marks the field required. */
@@ -214,6 +216,7 @@ export const MPFilePicker = React.forwardRef<HTMLInputElement, MPFilePickerProps
   ) {
     const locale = useMPLocale(localeProp);
     const messages = useMPMessages(COMMON, locale);
+    const words = useMPMessages(FILE_PICKER, locale);
     const inputRef = React.useRef<HTMLInputElement>(null);
 
     // Empty deps: the ref this hands over is the same one for the life of the
@@ -417,7 +420,7 @@ export const MPFilePicker = React.forwardRef<HTMLInputElement, MPFilePickerProps
               <span className={disabled ? '' : 'text-mp-primary'}>{icon}</span>
             ) : null}
 
-            <span className="font-medium">{title ?? 'Drop files here, or click to browse'}</span>
+            <span className="font-medium">{title ?? words.prompt}</span>
 
             {hasContent(hint) ? (
               <span

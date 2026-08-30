@@ -3,6 +3,9 @@ import { MPIconButton } from '../icon-button/MPIconButton';
 import { MPIcon } from '../icon/MPIcon';
 import { ChevronLeftIcon, ChevronRightIcon } from '../../constants/icons';
 import { accentSlots } from '../../internal/accent';
+import { fillMessage } from '../../internal/i18n';
+import { useMPLocale, useMPMessages } from '../../internal/locale';
+import { CAROUSEL } from '../../internal/messages/carousel';
 import { CONTROL_ICON } from '../../internal/scale';
 import { CONTAINER_SURFACE } from '../../internal/surface';
 import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
@@ -73,20 +76,25 @@ export interface MPCarouselProps extends Omit<
    * @default 'primary'
    */
   color?: MPColor;
-  /**
-   * The carousel's accessible name.
-   * @default 'Carousel'
-   */
+  /** The carousel's accessible name. Defaults to the word for it in `locale`. */
   label?: string;
-  /** @default 'Previous slide' */
+  /** Defaults to the wording in `locale`. */
   previousLabel?: string;
-  /** @default 'Next slide' */
+  /** The same. */
   nextLabel?: string;
   /**
    * How one slide is named to a screen reader, and how its mark is labelled.
-   * @default (index, count) => `Slide ${index} of ${count}`
+   * Defaults to the wording in `locale` with the two numbers set into it.
    */
   slideLabel?: (index: number, count: number) => string;
+  /**
+   * Which language the carousel's own names are written in. Falls back to the
+   * nearest `MPLocaleProvider`, then to English.
+   *
+   * Nothing here is ever drawn — the strip is pictures and the arrows are
+   * chevrons — so without it a Korean page reads its slides out in English.
+   */
+  locale?: string;
   /** The slides. Every top-level child becomes one. */
   children?: React.ReactNode;
 }
@@ -118,8 +126,6 @@ const DOT: Record<MPSize, { rest: string; current: string; gap: string }> = {
 
 /** How long a smooth scroll of our own is given to arrive, in milliseconds. */
 const SETTLE_MS = 700;
-
-const defaultSlideLabel = (index: number, count: number) => `Slide ${index} of ${count}`;
 
 /**
  * A strip of slides, one of which is in view.
@@ -168,10 +174,11 @@ export const MPCarousel = React.forwardRef<HTMLDivElement, MPCarouselProps>(func
     variant = 'outlined',
     size = 'md',
     color = 'primary',
-    label = 'Carousel',
-    previousLabel = 'Previous slide',
-    nextLabel = 'Next slide',
-    slideLabel = defaultSlideLabel,
+    label,
+    previousLabel,
+    nextLabel,
+    slideLabel,
+    locale: localeProp,
     className,
     style,
     children,
@@ -179,6 +186,13 @@ export const MPCarousel = React.forwardRef<HTMLDivElement, MPCarouselProps>(func
   },
   ref
 ) {
+  const messages = useMPMessages(CAROUSEL, useMPLocale(localeProp));
+  const name = label ?? messages.label;
+  const describeSlide =
+    slideLabel ??
+    ((index: number, count: number) =>
+      fillMessage(messages.slide, { index: String(index), total: String(count) }));
+
   // `toArray` is what drops the `null`s and `false`s a conditional slide leaves
   // behind, and what gives every remaining child a stable key.
   const slides = React.Children.toArray(children);
@@ -348,7 +362,7 @@ export const MPCarousel = React.forwardRef<HTMLDivElement, MPCarouselProps>(func
       ref={ref}
       role="region"
       aria-roledescription="carousel"
-      aria-label={label}
+      aria-label={name}
       data-mp-size={size}
       data-mp-variant={variant}
       className={['mp-carousel flex w-full flex-col', className ?? ''].filter(Boolean).join(' ')}
@@ -386,7 +400,7 @@ export const MPCarousel = React.forwardRef<HTMLDivElement, MPCarouselProps>(func
           // been.
           tabIndex={0}
           role="group"
-          aria-label={label}
+          aria-label={name}
           className={[
             'flex min-w-0 snap-x snap-mandatory overflow-x-auto scroll-smooth',
             'motion-reduce:scroll-auto',
@@ -410,7 +424,7 @@ export const MPCarousel = React.forwardRef<HTMLDivElement, MPCarouselProps>(func
               }}
               role="group"
               aria-roledescription="slide"
-              aria-label={slideLabel(slideIndex + 1, count)}
+              aria-label={describeSlide(slideIndex + 1, count)}
               // Deliberately *not* `aria-hidden` when off screen. A slide can hold
               // a link or a button, and an `aria-hidden` subtree that is still in
               // the tab order is the exact shape of the bug where a keyboard
@@ -432,7 +446,7 @@ export const MPCarousel = React.forwardRef<HTMLDivElement, MPCarouselProps>(func
               variant="filled"
               size={size}
               color={color}
-              label={previousLabel}
+              label={previousLabel ?? messages.previous}
               disabled={!loop && atStart}
               className="pointer-events-auto"
               // `rtl:rotate-180`, the same treatment the calendar's steppers take:
@@ -452,7 +466,7 @@ export const MPCarousel = React.forwardRef<HTMLDivElement, MPCarouselProps>(func
               variant="filled"
               size={size}
               color={color}
-              label={nextLabel}
+              label={nextLabel ?? messages.next}
               disabled={!loop && atEnd}
               className="pointer-events-auto"
               icon={
@@ -474,7 +488,7 @@ export const MPCarousel = React.forwardRef<HTMLDivElement, MPCarouselProps>(func
             <button
               key={dotIndex}
               type="button"
-              aria-label={slideLabel(dotIndex + 1, count)}
+              aria-label={describeSlide(dotIndex + 1, count)}
               aria-current={dotIndex === index ? 'true' : undefined}
               className={[
                 'rounded-mp-full cursor-pointer appearance-none border-0 p-0',
@@ -499,7 +513,7 @@ export const MPCarousel = React.forwardRef<HTMLDivElement, MPCarouselProps>(func
           says a new slide's name every five seconds is what makes a screen reader
           unusable on a page that has one. */}
       <span className={VISUALLY_HIDDEN} aria-live={autoPlay ? 'off' : 'polite'}>
-        {count > 0 ? slideLabel(index + 1, count) : ''}
+        {count > 0 ? describeSlide(index + 1, count) : ''}
       </span>
     </div>
   );

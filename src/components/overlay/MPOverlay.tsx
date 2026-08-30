@@ -1,5 +1,7 @@
 import * as React from 'react';
 import { Dialog } from '@base-ui/react/dialog';
+import { useMPLocale, useMPMessages } from '../../internal/locale';
+import { OVERLAY } from '../../internal/messages/overlay';
 import { FADE, PORTAL_LAYER, SCRIM } from '../../internal/surface';
 import { SHEET_PAD } from '../../internal/scale';
 import type { MPAlign, MPSize } from '../../types';
@@ -78,9 +80,15 @@ export interface MPOverlayProps {
    * this library does: an overlay that holds nothing readable — a bare spinner, a
    * `clear` sheet — still has to say what it is, and the alternative is a modal
    * region a screen reader announces as nothing at all.
-   * @default 'Overlay'
+   *
+   * Defaults to the word for it in `locale`.
    */
   label?: string;
+  /**
+   * Which language that default is written in. Falls back to the nearest
+   * `MPLocaleProvider`, then to English.
+   */
+  locale?: string;
   /** What sits on top — a spinner, a line of text, a small card. */
   children?: React.ReactNode;
   className?: string;
@@ -121,11 +129,14 @@ export function MPOverlay({
   modal = true,
   align = 'center',
   size = 'md',
-  label = 'Overlay',
+  label,
+  locale: localeProp,
   className,
   style,
   children
 }: MPOverlayProps) {
+  const messages = useMPMessages(OVERLAY, useMPLocale(localeProp));
+
   return (
     <Dialog.Root
       open={open}
@@ -160,7 +171,7 @@ export function MPOverlay({
           ].join(' ')}
         >
           <Dialog.Popup
-            aria-label={label}
+            aria-label={label ?? messages.label}
             data-mp-size={size}
             className={[
               'mp-overlay flex max-h-full max-w-full flex-col items-center justify-center',

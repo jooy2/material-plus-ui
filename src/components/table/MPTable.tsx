@@ -1,5 +1,7 @@
 import * as React from 'react';
 import { accentSlots } from '../../internal/accent';
+import { useMPLocale, useMPMessages } from '../../internal/locale';
+import { TABLE } from '../../internal/messages/table';
 import { META_TEXT } from '../../internal/scale';
 import { CONTAINER_SURFACE } from '../../internal/surface';
 import type { MPAlign, MPColor, MPSize, MPVariant } from '../../types';
@@ -62,10 +64,15 @@ export interface MPTableProps<Row> extends Omit<
   /** Shown above the table, and read out as its accessible name. */
   caption?: React.ReactNode;
   /**
-   * What to show instead of rows when `items` is empty.
-   * @default 'No data'
+   * What to show instead of rows when `items` is empty. Defaults to the wording
+   * in `locale`.
    */
   empty?: React.ReactNode;
+  /**
+   * Which language that line is written in. Falls back to the nearest
+   * `MPLocaleProvider`, then to English.
+   */
+  locale?: string;
   /**
    * Tints every other row. Useful for a wide table where the eye has to track
    * across; noise on a narrow one.
@@ -248,7 +255,8 @@ export function MPTable<Row>({
   items,
   getRowKey,
   caption,
-  empty = 'No data',
+  empty,
+  locale: localeProp,
   striped = false,
   hoverable = false,
   stickyHeader = false,
@@ -260,6 +268,7 @@ export function MPTable<Row>({
   style,
   ...props
 }: MPTableProps<Row>) {
+  const messages = useMPMessages(TABLE, useMPLocale(localeProp));
   const padX = CELL_PAD_X[size];
   const padY = CELL_PAD_Y[size];
   const clickable = Boolean(onRowClick);
@@ -351,7 +360,7 @@ export function MPTable<Row>({
                 className="text-mp-on-surface-variant"
                 style={{ padding: `2rem ${padX}`, textAlign: 'center' }}
               >
-                {empty}
+                {empty ?? messages.empty}
               </td>
             </tr>
           ) : (

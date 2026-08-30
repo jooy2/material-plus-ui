@@ -2,14 +2,22 @@ import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 import {
   MPAlert,
+  MPBreadcrumb,
+  MPBreadcrumbItem,
   MPButton,
+  MPCarousel,
   MPChip,
+  MPCombobox,
   MPDatePicker,
   MPDialog,
   MPEmpty,
   MPFilePicker,
   MPLocaleProvider,
+  MPNumberField,
+  MPOverlay,
+  MPTable,
   MPTextField,
+  MPTextLink,
   registerMPMessages,
   useMPLocale
 } from 'material-plus-ui';
@@ -289,6 +297,165 @@ describe('MPLocaleProvider', () => {
       );
 
       await expect.element(screen.getByRole('button', { name: 'Dismiss' })).toBeInTheDocument();
+    });
+  });
+
+  /*
+   * Eight components used to default a word of their own to English in the
+   * source, where no `locale` and no `MPLocaleProvider` could reach it. Half of
+   * them were *drawn* — a Korean page with a table saying "No data" through the
+   * middle of it, a dropzone giving its one instruction in a language nobody had
+   * asked for.
+   *
+   * One test each, because the failure they share is that the string exists at
+   * all rather than anything about how it is looked up.
+   */
+  describe('the words a component invents', () => {
+    it('translates the number field’s two steppers', async () => {
+      registerMPMessages({
+        locale: 'eo',
+        // Two words rather than one and its own prefix: `Pliigi` is a
+        // substring of `Malpliigi`, and a name match is a substring match.
+        messages: { numberField: { increase: 'Pliigi', decrease: 'Redukti' } }
+      });
+
+      const screen = await render(
+        <MPLocaleProvider locale="eo">
+          <MPNumberField label="Kvanto" />
+        </MPLocaleProvider>
+      );
+
+      await expect.element(screen.getByRole('button', { name: 'Pliigi' })).toBeInTheDocument();
+      await expect.element(screen.getByRole('button', { name: 'Redukti' })).toBeInTheDocument();
+    });
+
+    it('translates the carousel’s names, numbers and all', async () => {
+      registerMPMessages({
+        locale: 'eo',
+        messages: {
+          carousel: {
+            label: 'Karuselo',
+            previous: 'Antaŭa',
+            next: 'Sekva',
+            slide: 'Bildo {index} el {total}'
+          }
+        }
+      });
+
+      const screen = await render(
+        <MPLocaleProvider locale="eo">
+          <MPCarousel>
+            <div>One</div>
+            <div>Two</div>
+          </MPCarousel>
+        </MPLocaleProvider>
+      );
+
+      await expect.element(screen.getByRole('region', { name: 'Karuselo' })).toBeInTheDocument();
+      await expect.element(screen.getByRole('button', { name: 'Sekva' })).toBeInTheDocument();
+      // `{index}` and `{total}` are named rather than positional, so a language
+      // that counts the total first is one this table can serve.
+      await expect.element(screen.getByRole('group', { name: 'Bildo 1 el 2' })).toBeInTheDocument();
+    });
+
+    it('translates the breadcrumb’s two names', async () => {
+      registerMPMessages({
+        locale: 'eo',
+        messages: { breadcrumb: { label: 'Panervojo', expand: 'Montri kaŝitajn' } }
+      });
+
+      const screen = await render(
+        <MPLocaleProvider locale="eo">
+          <MPBreadcrumb maxItems={2}>
+            <MPBreadcrumbItem href="/">A</MPBreadcrumbItem>
+            <MPBreadcrumbItem href="/b">B</MPBreadcrumbItem>
+            <MPBreadcrumbItem href="/c">C</MPBreadcrumbItem>
+            <MPBreadcrumbItem>D</MPBreadcrumbItem>
+          </MPBreadcrumb>
+        </MPLocaleProvider>
+      );
+
+      await expect
+        .element(screen.getByRole('navigation', { name: 'Panervojo' }))
+        .toBeInTheDocument();
+      await expect
+        .element(screen.getByRole('button', { name: 'Montri kaŝitajn' }))
+        .toBeInTheDocument();
+    });
+
+    it('translates the combobox’s two drawn lines', async () => {
+      registerMPMessages({
+        locale: 'eo',
+        messages: { combobox: { empty: 'Neniu trafo', add: 'Aldoni {label}' } }
+      });
+
+      const screen = await render(
+        <MPLocaleProvider locale="eo">
+          <MPCombobox items={[{ value: 'a', label: 'Alpha' }]} label="Etikedo" />
+        </MPLocaleProvider>
+      );
+
+      await screen.getByRole('combobox').fill('zzz');
+
+      await expect.element(screen.getByText('Aldoni zzz')).toBeInTheDocument();
+    });
+
+    it('translates the table’s empty row', async () => {
+      registerMPMessages({ locale: 'eo', messages: { table: { empty: 'Neniuj datumoj' } } });
+
+      const screen = await render(
+        <MPLocaleProvider locale="eo">
+          <MPTable headers={[{ key: 'name', label: 'Nomo' }]} items={[]} />
+        </MPLocaleProvider>
+      );
+
+      await expect.element(screen.getByText('Neniuj datumoj')).toBeInTheDocument();
+    });
+
+    it('translates the file picker’s prompt', async () => {
+      registerMPMessages({
+        locale: 'eo',
+        messages: { filePicker: { prompt: 'Faligu dosierojn' } }
+      });
+
+      const screen = await render(
+        <MPLocaleProvider locale="eo">
+          <MPFilePicker label="Dosieroj" />
+        </MPLocaleProvider>
+      );
+
+      await expect.element(screen.getByText('Faligu dosierojn')).toBeInTheDocument();
+    });
+
+    it('translates the link’s spoken warning', async () => {
+      registerMPMessages({
+        locale: 'eo',
+        messages: { textLink: { newTab: 'Malfermas novan langeton' } }
+      });
+
+      const screen = await render(
+        <MPLocaleProvider locale="eo">
+          <MPTextLink href="https://example.com" newTab>
+            Ekzemplo
+          </MPTextLink>
+        </MPLocaleProvider>
+      );
+
+      await expect
+        .element(screen.getByRole('link', { name: 'Ekzemplo Malfermas novan langeton' }))
+        .toBeInTheDocument();
+    });
+
+    it('translates the overlay’s own name', async () => {
+      registerMPMessages({ locale: 'eo', messages: { overlay: { label: 'Tavolo' } } });
+
+      const screen = await render(
+        <MPLocaleProvider locale="eo">
+          <MPOverlay open>Atendu</MPOverlay>
+        </MPLocaleProvider>
+      );
+
+      await expect.element(screen.getByRole('dialog', { name: 'Tavolo' })).toBeInTheDocument();
     });
   });
 });

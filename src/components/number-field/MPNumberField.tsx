@@ -4,6 +4,8 @@ import { Field } from '@base-ui/react/field';
 import { MPIcon } from '../icon/MPIcon';
 import { AddIcon, RemoveIcon } from '../../constants/icons';
 import { MPFieldLabel, MPFieldOutline, useFloatingLabel } from '../../internal/FieldOutline';
+import { useMPLocale, useMPMessages } from '../../internal/locale';
+import { NUMBER_FIELD } from '../../internal/messages/number-field';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { MPSupportingText } from '../../internal/SupportingText';
 import { CONTROL_ICON, PROSE_TEXT, hasContent } from '../../internal/scale';
@@ -68,16 +70,25 @@ export interface MPNumberFieldProps extends MPStyleProps {
    * report `1240`.
    */
   format?: Intl.NumberFormatOptions;
-  /** Which locale the number is written and parsed in. Defaults to the runtime's. */
+  /**
+   * Which locale the number is written and parsed in. Defaults to the runtime's.
+   *
+   * A plain BCP 47 string also names the language the two steppers are announced
+   * in; anything wider falls back to the nearest `MPLocaleProvider`, then to
+   * English.
+   */
   locale?: Intl.LocalesArgument;
   /**
    * Where the steppers sit, or `none` for a field without them.
    * @default 'end'
    */
   steppers?: MPNumberFieldSteppers;
-  /** The accessible name of the increment button. @default 'Increase' */
+  /**
+   * The accessible name of the increment button. Defaults to the word for it in
+   * `locale`.
+   */
   incrementLabel?: string;
-  /** The accessible name of the decrement button. @default 'Decrease' */
+  /** The same for the decrement button. */
   decrementLabel?: string;
   /**
    * Label for the field, drawn in the outline's notch and — while the field is
@@ -148,8 +159,8 @@ export function MPNumberField({
   format,
   locale,
   steppers = 'end',
-  incrementLabel = 'Increase',
-  decrementLabel = 'Decrease',
+  incrementLabel,
+  decrementLabel,
   label,
   floatingLabel = true,
   description,
@@ -164,6 +175,19 @@ export function MPNumberField({
   name,
   id
 }: MPNumberFieldProps) {
+  /*
+   * The steppers' names come from the same `locale` the number does.
+   *
+   * One prop rather than two, because two would be a caller having to say the
+   * same tag twice — and the second one is the one they would forget. It is
+   * `Intl.LocalesArgument` here, which is wider than a BCP 47 string, so only a
+   * plain string is handed to the table; anything else falls through to the
+   * provider, which is what a component with no `locale` at all does.
+   */
+  const messages = useMPMessages(
+    NUMBER_FIELD,
+    useMPLocale(typeof locale === 'string' ? locale : undefined)
+  );
   const invalid = hasContent(errorMessage);
   const scale = SHELL[size];
   const generatedId = React.useId();
@@ -198,14 +222,20 @@ export function MPNumberField({
   ].join(' ');
 
   const decrement = (
-    <NumberField.Decrement aria-label={decrementLabel} className={stepperClasses}>
+    <NumberField.Decrement
+      aria-label={decrementLabel ?? messages.decrease}
+      className={stepperClasses}
+    >
       <MPStateLayer />
       <MPIcon icon={RemoveIcon} size={CONTROL_ICON[size]} />
     </NumberField.Decrement>
   );
 
   const increment = (
-    <NumberField.Increment aria-label={incrementLabel} className={stepperClasses}>
+    <NumberField.Increment
+      aria-label={incrementLabel ?? messages.increase}
+      className={stepperClasses}
+    >
       <MPStateLayer />
       <MPIcon icon={AddIcon} size={CONTROL_ICON[size]} />
     </NumberField.Increment>

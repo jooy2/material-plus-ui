@@ -7,6 +7,7 @@ import { AddIcon, CheckIcon, ChevronDownIcon, CloseIcon } from '../../constants/
 import { MPFieldLabel, MPFieldOutline, useFloatingLabel } from '../../internal/FieldOutline';
 import { fillMessage } from '../../internal/i18n';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
+import { COMBOBOX } from '../../internal/messages/combobox';
 import { COMMON } from '../../internal/messages/common';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { MPSupportingText } from '../../internal/SupportingText';
@@ -75,7 +76,11 @@ export interface MPComboboxProps<
    * @default true
    */
   allowCustom?: boolean;
-  /** What that row says. Receives the trimmed query. */
+  /**
+   * What that row says. Receives the trimmed query.
+   *
+   * Left out, it is the wording in `locale` with the query set into it.
+   */
   customLabel?: (query: string) => React.ReactNode;
   /**
    * Shows a × that empties the field. Off by default — a field that can be
@@ -84,8 +89,8 @@ export interface MPComboboxProps<
    */
   clearable?: boolean;
   /**
-   * Shown in the popup when nothing matches and no value may be added.
-   * @default 'No matches'
+   * Shown in the popup when nothing matches and no value may be added. Defaults
+   * to the wording in `locale`.
    */
   emptyMessage?: React.ReactNode;
   /** The most rows the list will show at once. `-1` is all of them. @default -1 */
@@ -266,7 +271,7 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
   allowCustom = true,
   customLabel,
   clearable = false,
-  emptyMessage = 'No matches',
+  emptyMessage,
   limit,
   placeholder,
   label,
@@ -294,6 +299,7 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
 }: MPComboboxProps<Multiple>) {
   const locale = useMPLocale(localeProp);
   const messages = useMPMessages(COMMON, locale);
+  const words = useMPMessages(COMBOBOX, locale);
   const invalid = hasContent(errorMessage);
   const isMultiple = multiple === true;
   const scale = FIELD[size];
@@ -590,7 +596,7 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
               ].join(' ')}
             >
               <Combobox.Empty className="text-mp-on-surface-variant px-3 py-2 empty:hidden">
-                {emptyMessage}
+                {emptyMessage ?? words.empty}
               </Combobox.Empty>
 
               <Combobox.List>
@@ -624,13 +630,11 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
                         column with it, and every label in the list shifts
                         sideways as the selection moves down it. */}
                     <span className="flex size-5 shrink-0 items-center justify-center">
-                      {entry.custom ? (
-                        <MPIcon icon={AddIcon} size={18} />
-                      ) : (
-                        <Combobox.ItemIndicator>
-                          <MPIcon icon={CheckIcon} size={18} />
-                        </Combobox.ItemIndicator>
-                      )}
+                      {entry.custom
+                        ? customLabel
+                          ? customLabel(entry.label)
+                          : fillMessage(words.add, { label: entry.label })
+                        : entry.label}
                     </span>
                     <span className="min-w-0 flex-1 truncate">
                       {entry.custom

@@ -4,6 +4,8 @@ import { MPIcon } from '../icon/MPIcon';
 import { ExternalLinkIcon, LinkIcon } from '../../constants/icons';
 import { accentSlots } from '../../internal/accent';
 import { linkRel } from '../../internal/link';
+import { useMPLocale, useMPMessages } from '../../internal/locale';
+import { TEXT_LINK } from '../../internal/messages/text-link';
 import { PROSE_TEXT } from '../../internal/scale';
 import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
 import type { MPColor, MPSize } from '../../types';
@@ -61,9 +63,15 @@ export interface MPTextLinkProps extends Omit<React.ComponentPropsWithoutRef<'a'
   /**
    * What a screen reader hears after the label when `newTab` is on. A link
    * without it says nothing of its own, so this changes nothing there.
-   * @default 'Opens in a new tab'
+   *
+   * Defaults to the wording in `locale`.
    */
   newTabLabel?: string;
+  /**
+   * Which language that wording is in. Falls back to the nearest
+   * `MPLocaleProvider`, then to English.
+   */
+  locale?: string;
   /**
    * Renders something other than an `<a>` — the `Link` a router brings, most of
    * the time. `href` still goes through, so `render={<NextLink href="…" />}`
@@ -144,7 +152,8 @@ export const MPTextLink = React.forwardRef<HTMLAnchorElement, MPTextLinkProps>(f
     size,
     newTab = false,
     icon,
-    newTabLabel = 'Opens in a new tab',
+    newTabLabel,
+    locale: localeProp,
     render,
     className,
     style,
@@ -164,6 +173,7 @@ export const MPTextLink = React.forwardRef<HTMLAnchorElement, MPTextLinkProps>(f
    * window changing under the reader is the one thing about a link that cannot
    * be seen before it happens, whichever prop arranged it.
    */
+  const messages = useMPMessages(TEXT_LINK, useMPLocale(localeProp));
   const target = newTab ? '_blank' : (props.target as string | undefined);
   const opensNewTab = target === '_blank';
 
@@ -217,7 +227,7 @@ export const MPTextLink = React.forwardRef<HTMLAnchorElement, MPTextLinkProps>(f
           {opensNewTab ? (
             <>
               {' '}
-              <span className={VISUALLY_HIDDEN}>{newTabLabel}</span>
+              <span className={VISUALLY_HIDDEN}>{newTabLabel ?? messages.newTab}</span>
             </>
           ) : null}
         </>

@@ -2,6 +2,8 @@ import * as React from 'react';
 import { MPIcon } from '../icon/MPIcon';
 import { ArrowRightIcon, ChevronRightIcon, MoreIcon } from '../../constants/icons';
 import { accentSlots } from '../../internal/accent';
+import { useMPLocale, useMPMessages } from '../../internal/locale';
+import { BREADCRUMB } from '../../internal/messages/breadcrumb';
 import { CONTROL_GAP, hasContent, PROSE_TEXT } from '../../internal/scale';
 import type { MPColor, MPSize } from '../../types';
 
@@ -73,15 +75,21 @@ export interface MPBreadcrumbProps extends Omit<React.ComponentPropsWithoutRef<'
    */
   expandable?: boolean;
   /**
-   * The name the trail is announced by.
-   * @default 'Breadcrumb'
+   * The name the trail is announced by. Defaults to the word for it in `locale`.
    */
   label?: string;
   /**
-   * What the `…` is announced as.
-   * @default 'Show hidden steps'
+   * What the `…` is announced as. Defaults to the wording in `locale`.
    */
   expandLabel?: string;
+  /**
+   * Which language those two are written in. Falls back to the nearest
+   * `MPLocaleProvider`, then to English.
+   *
+   * Neither is ever drawn — the steps are the caller's own words — so without it
+   * a Korean page announces its trail in English.
+   */
+  locale?: string;
   /**
    * Publishes the trail as schema.org `BreadcrumbList` microdata, which is what
    * a search engine reads to draw the trail under a result instead of the bare
@@ -211,8 +219,9 @@ export const MPBreadcrumb = React.forwardRef<HTMLElement, MPBreadcrumbProps>(fun
     itemsBeforeCollapse = 1,
     itemsAfterCollapse = 1,
     expandable = true,
-    label = 'Breadcrumb',
-    expandLabel = 'Show hidden steps',
+    label,
+    expandLabel,
+    locale: localeProp,
     structuredData = false,
     className,
     style,
@@ -221,6 +230,7 @@ export const MPBreadcrumb = React.forwardRef<HTMLElement, MPBreadcrumbProps>(fun
   },
   ref
 ) {
+  const messages = useMPMessages(BREADCRUMB, useMPLocale(localeProp));
   const [unfolded, setUnfolded] = React.useState(false);
 
   const steps = React.Children.toArray(children).filter(
@@ -298,7 +308,7 @@ export const MPBreadcrumb = React.forwardRef<HTMLElement, MPBreadcrumbProps>(fun
   return (
     <nav
       ref={ref}
-      aria-label={label}
+      aria-label={label ?? messages.label}
       data-mp-size={size}
       className={['mp-breadcrumb flex', PROSE_TEXT[size], className ?? '']
         .filter(Boolean)
@@ -339,7 +349,7 @@ export const MPBreadcrumb = React.forwardRef<HTMLElement, MPBreadcrumbProps>(fun
                   <button
                     type="button"
                     className={foldClassNames}
-                    aria-label={expandLabel}
+                    aria-label={expandLabel ?? messages.expand}
                     onClick={() => setUnfolded(true)}
                   >
                     <MPIcon icon={MoreIcon} size="1.1em" />

@@ -152,6 +152,101 @@ export interface MPMessages {
     start: string;
     end: string;
   };
+  /**
+   * MPNumberField.
+   *
+   * The two steppers, which are a plus and a minus and have no words of their
+   * own — the same case the pagination's chevrons and the chat's delivery marks
+   * are in. They are read out and never drawn.
+   */
+  numberField: {
+    increase: string;
+    decrease: string;
+  };
+  /**
+   * MPCarousel.
+   *
+   * Every string here is read out and never drawn: the strip is pictures, the
+   * arrows are chevrons and the marks under it are dots. `{index}` and
+   * `{total}` are filled in by `fillMessage`, and they are named rather than
+   * positional for the reason the pagination's are — a language that counts the
+   * total first is not a language this table can serve with an argument order.
+   */
+  carousel: {
+    /** The name of the `region` the strip is inside. */
+    label: string;
+    /** The two arrows. */
+    previous: string;
+    next: string;
+    /** One slide, and its own position mark. `Slide 2 of 5`. */
+    slide: string;
+  };
+  /**
+   * MPBreadcrumb.
+   *
+   * Both read out and never drawn: a trail's steps are the caller's words, and
+   * these are the two things around them that are not.
+   */
+  breadcrumb: {
+    /** The name of the `<nav>` the trail is inside. */
+    label: string;
+    /** The `…` that puts the folded middle back. */
+    expand: string;
+  };
+  /**
+   * MPCombobox.
+   *
+   * Both **drawn**, which is what makes them belong here rather than in a prop:
+   * a Korean page whose search box says *No matches* has answered in a language
+   * the reader did not ask a question in. `{label}` is the text they typed, and
+   * is filled in by `fillMessage`.
+   */
+  combobox: {
+    /** The line where the rows would be, when nothing matched. */
+    empty: string;
+    /** The row that offers what was typed as a value of its own. */
+    add: string;
+  };
+  /**
+   * MPTable.
+   *
+   * One string, drawn across the whole width where the rows would be. A table
+   * that says *No data* in the middle of a translated page is the one part of it
+   * that was not translated.
+   */
+  table: {
+    empty: string;
+  };
+  /**
+   * MPFilePicker.
+   *
+   * The line inside the box, and the largest piece of text this table holds. It
+   * is drawn, it is an instruction, and it is the whole of what the component
+   * tells a reader to do.
+   */
+  filePicker: {
+    prompt: string;
+  };
+  /**
+   * MPTextLink.
+   *
+   * The sentence after a link that takes over the window. Read out and never
+   * drawn — the arrow says it to a reader who can see it, and this says it to
+   * everybody else.
+   */
+  textLink: {
+    newTab: string;
+  };
+  /**
+   * MPOverlay.
+   *
+   * The name of a modal region that may hold nothing readable at all — a bare
+   * spinner, a `clear` sheet. Without it a screen reader announces the region as
+   * nothing, which is why the component defaults it rather than requiring it.
+   */
+  overlay: {
+    label: string;
+  };
   /** MPAlert. */
   alert: {
     /** The × in the corner, which has no text of its own. */
