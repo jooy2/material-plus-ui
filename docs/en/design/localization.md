@@ -165,7 +165,7 @@ They come from one namespace, so a translation cannot disagree with itself about
 
 A button that removes something is named for **what** it removes — `report.pdf 제거` in Korean, `Remove report.pdf` in English — because a row of five buttons all called "Remove" is a row a screen reader cannot tell apart, and because where the name goes is not the same in every language.
 
-Two of these are worth calling out. `MPTextField`'s reveal toggle is the only string in the library that once had no override at all. And `MPEmpty`'s headline is the only invented string that is **drawn** rather than read out, so a Korean page with an empty list used to say "Nothing here" in the middle of it.
+Most of the invented strings are read out and never drawn: a page button's number is the number, and the word behind it is for the readers the number says nothing to. The ones that are **drawn** are the ones it would be least forgivable to leave in English, and there are five — `MPEmpty`'s headline, `MPSpoiler`'s cover, `MPPageLayout`'s skip link, `MPTransfer`'s two column headings, and `MPCommandPalette`'s placeholder — plus the word `MPColorPicker`'s trigger shows before a colour has been chosen. A Korean page with an empty list should not say "Nothing here" in the middle of it.
 
 ## What it does not translate
 

@@ -76,6 +76,15 @@ export const hi: MPLocale = {
       value: '{max} में से {value}',
       empty: 'रेटिंग नहीं दी गई'
     },
+    colorPicker: {
+      area: 'संतृप्ति और चमक',
+      hue: 'रंग',
+      alpha: 'अपारदर्शिता',
+      value: 'रंग मान',
+      swatches: 'पूर्व निर्धारित रंग',
+      clear: 'साफ़ करें',
+      empty: 'कोई रंग नहीं'
+    },
     transfer: {
       source: 'उपलब्ध',
       target: 'चयनित',

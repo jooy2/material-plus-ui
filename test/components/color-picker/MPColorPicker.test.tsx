@@ -134,6 +134,22 @@ describe('MPColorPicker', () => {
 
       await expect.element(screen.getByRole('slider', { name: '색조' })).toBeInTheDocument();
     });
+
+    it('says them in the language it was told to', async () => {
+      // The names go through the shared table, so a picker in a Korean page is
+      // Korean without seven overrides being written out.
+      const screen = await render(<Controlled inline alpha locale="ko" />);
+
+      await expect.element(screen.getByRole('slider', { name: '색상' })).toBeInTheDocument();
+      await expect.element(screen.getByRole('slider', { name: '불투명도' })).toBeInTheDocument();
+    });
+
+    it('lets one override win over the translation, and leaves the rest translated', async () => {
+      const screen = await render(<Controlled inline alpha locale="ko" labels={{ hue: 'Hue' }} />);
+
+      await expect.element(screen.getByRole('slider', { name: 'Hue' })).toBeInTheDocument();
+      await expect.element(screen.getByRole('slider', { name: '불투명도' })).toBeInTheDocument();
+    });
   });
 
   describe('changing the colour', () => {

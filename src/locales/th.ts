@@ -76,6 +76,15 @@ export const th: MPLocale = {
       value: '{value} จาก {max}',
       empty: 'ยังไม่ได้ให้คะแนน'
     },
+    colorPicker: {
+      area: 'ความอิ่มตัวและความสว่าง',
+      hue: 'เฉดสี',
+      alpha: 'ความทึบ',
+      value: 'ค่าสี',
+      swatches: 'สีที่กำหนดไว้',
+      clear: 'ล้าง',
+      empty: 'ไม่มีสี'
+    },
     transfer: {
       source: 'ที่มีอยู่',
       target: 'ที่เลือก',

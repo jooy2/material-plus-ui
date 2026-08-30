@@ -76,6 +76,15 @@ export const ko: MPLocale = {
       value: '{max}점 만점에 {value}점',
       empty: '평가 없음'
     },
+    colorPicker: {
+      area: '채도와 명도',
+      hue: '색상',
+      alpha: '불투명도',
+      value: '색상 값',
+      swatches: '기본 색상',
+      clear: '지우기',
+      empty: '색상 없음'
+    },
     transfer: {
       source: '선택 가능',
       target: '선택함',

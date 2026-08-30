@@ -76,6 +76,15 @@ export const nl: MPLocale = {
       value: '{value} van {max}',
       empty: 'Niet beoordeeld'
     },
+    colorPicker: {
+      area: 'Verzadiging en helderheid',
+      hue: 'Kleurtoon',
+      alpha: 'Dekking',
+      value: 'Kleurwaarde',
+      swatches: 'Vooraf ingestelde kleuren',
+      clear: 'Wissen',
+      empty: 'Geen kleur'
+    },
     transfer: {
       source: 'Beschikbaar',
       target: 'Geselecteerd',

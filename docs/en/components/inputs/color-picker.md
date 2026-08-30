@@ -73,9 +73,21 @@ Adds a third rail and lets the value carry a fourth channel. The rail is drawn o
 
 The field under the panel. Typing a colour it understands moves the panel; typing anything else leaves the panel exactly where it was and shows the text as written.
 
-### labels
+### locale and labels
 
-The six strings the picker has to invent, because a colour square has nowhere to take a name from. They are collected in one prop because they are a **set**: an application in another language does not want six components each defaulting to English and each needing an override of its own.
+The seven strings the picker has to invent, because a colour square has nowhere to take a name from: the square, the two rails, the value field, the swatch grid, the ×, and the word the trigger shows before a colour has been chosen.
+
+They live in the library's own [message table](../../design/localization) rather than as defaults kept in the component, which is the rule every component that invents a word follows — `locale` gets a translation, `MPLocaleProvider` gets one for a whole application at once, and `labels` gets whatever else:
+
+```tsx
+// Translated.
+<MPColorPicker locale="ko" … />
+
+// And one word of your own, over the top of it.
+<MPColorPicker locale="ko" labels={{ empty: '아직 없음' }} … />
+```
+
+An override wins over the translation, and anything it does not name stays translated.
 
 ## Accessibility
 
@@ -87,3 +99,4 @@ The six strings the picker has to invent, because a colour square has nowhere to
 
 - [MPSelect](./select) — the trigger this borrows.
 - [Colour](../../design/color) — the library's own scheme, which this does not set.
+- [Localization](../../design/localization) — where the picker's own seven words come from.

@@ -76,6 +76,15 @@ export const ar: MPLocale = {
       value: '{value} من {max}',
       empty: 'بدون تقييم'
     },
+    colorPicker: {
+      area: 'التشبع والسطوع',
+      hue: 'درجة اللون',
+      alpha: 'العتامة',
+      value: 'قيمة اللون',
+      swatches: 'ألوان جاهزة',
+      clear: 'مسح',
+      empty: 'بلا لون'
+    },
     transfer: {
       source: 'المتاح',
       target: 'المحدد',

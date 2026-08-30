@@ -76,6 +76,15 @@ export const tr: MPLocale = {
       value: '{max} üzerinden {value}',
       empty: 'Değerlendirilmedi'
     },
+    colorPicker: {
+      area: 'Doygunluk ve parlaklık',
+      hue: 'Renk tonu',
+      alpha: 'Opaklık',
+      value: 'Renk değeri',
+      swatches: 'Hazır renkler',
+      clear: 'Temizle',
+      empty: 'Renk yok'
+    },
     transfer: {
       source: 'Kullanılabilir',
       target: 'Seçili',

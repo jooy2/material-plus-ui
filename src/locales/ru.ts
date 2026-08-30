@@ -76,6 +76,15 @@ export const ru: MPLocale = {
       value: '{value} из {max}',
       empty: 'Без оценки'
     },
+    colorPicker: {
+      area: 'Насыщенность и яркость',
+      hue: 'Оттенок',
+      alpha: 'Непрозрачность',
+      value: 'Значение цвета',
+      swatches: 'Готовые цвета',
+      clear: 'Очистить',
+      empty: 'Без цвета'
+    },
     transfer: {
       source: 'Доступные',
       target: 'Выбранные',

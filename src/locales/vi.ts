@@ -76,6 +76,15 @@ export const vi: MPLocale = {
       value: '{value} trên {max}',
       empty: 'Chưa đánh giá'
     },
+    colorPicker: {
+      area: 'Độ bão hòa và độ sáng',
+      hue: 'Sắc độ',
+      alpha: 'Độ mờ đục',
+      value: 'Giá trị màu',
+      swatches: 'Màu dựng sẵn',
+      clear: 'Xóa',
+      empty: 'Không có màu'
+    },
     transfer: {
       source: 'Có sẵn',
       target: 'Đã chọn',

@@ -76,6 +76,15 @@ export const pt: MPLocale = {
       value: '{value} de {max}',
       empty: 'Sem avaliação'
     },
+    colorPicker: {
+      area: 'Saturação e brilho',
+      hue: 'Matiz',
+      alpha: 'Opacidade',
+      value: 'Valor da cor',
+      swatches: 'Cores predefinidas',
+      clear: 'Limpar',
+      empty: 'Sem cor'
+    },
     transfer: {
       source: 'Disponíveis',
       target: 'Selecionados',

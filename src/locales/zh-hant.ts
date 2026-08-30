@@ -80,6 +80,15 @@ export const zhHant: MPLocale = {
       value: '{max} 分中的 {value} 分',
       empty: '未評分'
     },
+    colorPicker: {
+      area: '飽和度與明度',
+      hue: '色相',
+      alpha: '不透明度',
+      value: '顏色值',
+      swatches: '預設顏色',
+      clear: '清除',
+      empty: '無顏色'
+    },
     transfer: {
       source: '可選',
       target: '已選',

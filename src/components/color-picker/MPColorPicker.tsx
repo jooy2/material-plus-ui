@@ -4,6 +4,9 @@ import { Popover } from '@base-ui/react/popover';
 import { MPIcon } from '../icon/MPIcon';
 import { CheckIcon, CloseIcon } from '../../constants/icons';
 import { MPFieldLabel, MPFieldOutline, useFloatingLabel } from '../../internal/FieldOutline';
+import type { MPMessages } from '../../internal/i18n';
+import { useMPLocale, useMPMessages } from '../../internal/locale';
+import { COLOR_PICKER } from '../../internal/messages/color-picker';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { MPSupportingText } from '../../internal/SupportingText';
 import { CONTROL_ICON, META_TEXT, PROSE_TEXT, STACK_GAP, hasContent } from '../../internal/scale';
@@ -20,42 +23,15 @@ import {
 import type { MPColorFormat, MPHsv } from '../../internal/color';
 import type { MPSize, MPStyleProps } from '../../types';
 
-/** The names for the parts of the picker that have no text on them. */
-export interface MPColorPickerLabels {
-  /** The saturation/brightness square. */
-  area: string;
-  /** The hue rail beside it. */
-  hue: string;
-  /** The opacity rail, when `alpha` is on. */
-  alpha: string;
-  /** The field the value can be typed into. */
-  value: string;
-  /** The grid of ready-made colours. */
-  swatches: string;
-  /** The × that empties the control. */
-  clear: string;
-  /** What the trigger reads before anything has been chosen. */
-  empty: string;
-}
-
 /**
- * The English the picker says on its own behalf.
+ * The names for the parts of the picker that have no text on them.
  *
- * Almost nothing in this library writes text a reader sees — a button says what
- * it was handed — but a colour square has nowhere to take a name from, so these
- * six have to be invented. They are collected rather than scattered because they
- * are a *set*: a product in another language does not want six components each
- * defaulting to English and each needing an override of its own.
+ * A namespace in the shared table rather than a set of defaults kept here, which
+ * is the rule every other component that invents a word follows: `locale` gets a
+ * translation, `MPLocaleProvider` gets one for the whole application at once,
+ * and `labels` gets whatever else. See `internal/i18n.ts`.
  */
-const DEFAULT_LABELS: MPColorPickerLabels = {
-  area: 'Saturation and brightness',
-  hue: 'Hue',
-  alpha: 'Opacity',
-  value: 'Colour value',
-  swatches: 'Swatches',
-  clear: 'Clear',
-  empty: 'No colour'
-};
+export type MPColorPickerLabels = MPMessages['colorPicker'];
 
 export interface MPColorPickerProps extends MPStyleProps {
   /** The colour, as a CSS string. Pass it to drive the picker yourself. */
@@ -132,6 +108,16 @@ export interface MPColorPickerProps extends MPStyleProps {
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
   /** Overrides for the accessible names, one at a time. */
+  /**
+   * Which language the picker's own names are written in — the rails, the
+   * square, the × and the word the trigger shows before a colour has been
+   * chosen. Falls back to the nearest `MPLocaleProvider`, then to English.
+   */
+  locale?: string;
+  /**
+   * Overrides for the words themselves. They win over the translation, and
+   * anything not named stays translated.
+   */
   labels?: Partial<MPColorPickerLabels>;
   /**
    * The id put on the trigger and pointed at by the label. Generated when it is
@@ -679,6 +665,7 @@ export const MPColorPicker = React.forwardRef<HTMLDivElement, MPColorPickerProps
       open,
       defaultOpen = false,
       onOpenChange,
+      locale: localeProp,
       labels: labelOverrides,
       size = 'md',
       fullWidth = false,
@@ -688,10 +675,8 @@ export const MPColorPicker = React.forwardRef<HTMLDivElement, MPColorPickerProps
     },
     ref
   ) {
-    const labels = React.useMemo<MPColorPickerLabels>(
-      () => ({ ...DEFAULT_LABELS, ...labelOverrides }),
-      [labelOverrides]
-    );
+    const locale = useMPLocale(localeProp);
+    const labels = useMPMessages(COLOR_PICKER, locale, labelOverrides);
 
     const invalid = hasContent(errorMessage);
     const scale = TRIGGER[size];

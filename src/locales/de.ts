@@ -76,6 +76,15 @@ export const de: MPLocale = {
       value: '{value} von {max}',
       empty: 'Nicht bewertet'
     },
+    colorPicker: {
+      area: 'Sättigung und Helligkeit',
+      hue: 'Farbton',
+      alpha: 'Deckkraft',
+      value: 'Farbwert',
+      swatches: 'Vorgegebene Farben',
+      clear: 'Löschen',
+      empty: 'Keine Farbe'
+    },
     transfer: {
       source: 'Verfügbar',
       target: 'Ausgewählt',

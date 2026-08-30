@@ -76,6 +76,15 @@ export const id: MPLocale = {
       value: '{value} dari {max}',
       empty: 'Belum dinilai'
     },
+    colorPicker: {
+      area: 'Saturasi dan kecerahan',
+      hue: 'Rona',
+      alpha: 'Opasitas',
+      value: 'Nilai warna',
+      swatches: 'Warna preset',
+      clear: 'Hapus',
+      empty: 'Tanpa warna'
+    },
     transfer: {
       source: 'Tersedia',
       target: 'Terpilih',

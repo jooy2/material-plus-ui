@@ -76,6 +76,15 @@ export const ja: MPLocale = {
       value: '{max}段階中{value}',
       empty: '未評価'
     },
+    colorPicker: {
+      area: '彩度と明度',
+      hue: '色相',
+      alpha: '不透明度',
+      value: 'カラー値',
+      swatches: 'プリセットの色',
+      clear: 'クリア',
+      empty: '色なし'
+    },
     transfer: {
       source: '未選択',
       target: '選択済み',

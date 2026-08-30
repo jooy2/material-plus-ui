@@ -4208,11 +4208,19 @@ export const propTables: Record<string, PropRow[]> = {
       description: { ko: '팝업 상태가 바뀔 때', en: 'Called as the popup opens and closes' }
     },
     {
+      name: 'locale',
+      type: 'string',
+      description: {
+        ko: '피커가 자기 이름들을 말할 언어 — 레일, 사각형, ×, 그리고 색을 고르기 전 트리거가 보여 주는 단어. 가장 가까운 `MPLocaleProvider`, 그다음 영어로 내려갑니다',
+        en: "Which language the picker's own names are written in — the rails, the square, the × and the word the trigger shows before a colour has been chosen. Falls back to the nearest `MPLocaleProvider`, then to English"
+      }
+    },
+    {
       name: 'labels',
       type: 'Partial<MPColorPickerLabels>',
       description: {
-        ko: '접근성 이름의 개별 override. 채도 사각형에는 이름을 가져올 데가 없어 라이브러리가 지어낸 여섯 문자열입니다',
-        en: 'Overrides for the accessible names, one at a time — the six strings the picker has to invent because a colour square has nowhere to take a name from'
+        ko: '단어 자체에 대한 덮어쓰기. 번역보다 우선하고, 지정하지 않은 나머지는 번역된 채로 남습니다. 채도 사각형에는 이름을 가져올 데가 없어 라이브러리가 지어낸 일곱 문자열입니다',
+        en: 'Overrides for the words themselves. They win over the translation, and anything not named stays translated — the seven strings the picker has to invent because a colour square has nowhere to take a name from'
       }
     },
     id

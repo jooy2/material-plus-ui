@@ -81,6 +81,15 @@ export const zhHans: MPLocale = {
       value: '{max} 分中的 {value} 分',
       empty: '未评分'
     },
+    colorPicker: {
+      area: '饱和度和明度',
+      hue: '色相',
+      alpha: '不透明度',
+      value: '颜色值',
+      swatches: '预设颜色',
+      clear: '清除',
+      empty: '无颜色'
+    },
     transfer: {
       source: '可选',
       target: '已选',
