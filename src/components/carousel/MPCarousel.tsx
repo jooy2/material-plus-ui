@@ -198,7 +198,18 @@ export const MPCarousel = React.forwardRef<HTMLDivElement, MPCarouselProps>(func
   // scroll events thrown on the way from slide 0 to slide 2 would each be read as
   // the reader landing on slide 1.
   const settling = React.useRef(false);
-  const [paused, setPaused] = React.useState(false);
+  /*
+   * Two reasons to hold the timer, kept apart.
+   *
+   * They overlap constantly — a reader tabs into a slide they are already
+   * pointing at — and held as one boolean the second one to end cancels the
+   * first: moving focus out of a carousel the pointer is still resting on
+   * started it advancing again, underneath somebody who was reading it. Nothing
+   * about "the pointer left" answers "is the focus still in here".
+   */
+  const [hovered, setHovered] = React.useState(false);
+  const [focusWithin, setFocusWithin] = React.useState(false);
+  const paused = hovered || focusWithin;
 
   /*
    * The two things `go` reads that change on every render, held in refs.
@@ -344,16 +355,16 @@ export const MPCarousel = React.forwardRef<HTMLDivElement, MPCarouselProps>(func
       style={{ ...accentSlots(color), ...style }}
       // Hover and focus both stop the timer. The second is the important one: a
       // keyboard reader who has tabbed into a slide is reading it.
-      onPointerEnter={() => setPaused(true)}
-      onPointerLeave={() => setPaused(false)}
-      onFocus={() => setPaused(true)}
+      onPointerEnter={() => setHovered(true)}
+      onPointerLeave={() => setHovered(false)}
+      onFocus={() => setFocusWithin(true)}
       onBlur={(event) => {
         // Only when the focus actually leaves the carousel. Moving between two
         // controls inside it fires a blur before the next focus, and answering
         // that one would restart the timer for the length of a tab press — in
         // the middle of somebody reading their way through the slides.
         if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
-          setPaused(false);
+          setFocusWithin(false);
         }
       }}
       {...props}

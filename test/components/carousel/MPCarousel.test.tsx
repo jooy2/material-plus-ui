@@ -217,6 +217,40 @@ describe('MPCarousel', () => {
        */
       expect(moved).toHaveBeenCalled();
     });
+
+    /*
+     * The two reasons to pause overlap constantly — a reader tabs into a slide
+     * they are already pointing at — so the one that ends first must not answer
+     * for the other. Held as a single boolean, moving focus out put the carousel
+     * back in motion under a pointer that had never left it.
+     *
+     * The focus is moved with `focus()` rather than with a click, because a
+     * click somewhere else would move the pointer too and there would be nothing
+     * left to prove.
+     */
+    it('stays paused while the pointer is on it, whatever the focus did', async () => {
+      const moved = vi.fn();
+      const screen = await render(
+        <>
+          <MPCarousel autoPlay interval={30} onValueChange={moved}>
+            {SLIDES}
+          </MPCarousel>
+          <button type="button" data-testid="elsewhere">
+            Elsewhere
+          </button>
+        </>
+      );
+
+      await screen.getByRole('region').hover();
+      // Focus in, then out. The pointer never leaves.
+      screen.getByRole('button', { name: 'Next slide' }).element().focus();
+      screen.getByTestId('elsewhere').element().focus();
+
+      moved.mockClear();
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
+      expect(moved).not.toHaveBeenCalled();
+    });
   });
 
   describe('the strip', () => {
