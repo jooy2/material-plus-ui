@@ -126,6 +126,95 @@ describe('MPNavigationMenu', () => {
       // The browser normalises the zero to `0px` on the way in.
       expect(panel.style.gridTemplateColumns).toBe('repeat(2, minmax(0px, 1fr))');
     });
+
+    /*
+     * The count is written into a `repeat()`, so a fraction or a negative is an
+     * invalid declaration — and an invalid `grid-template-columns` is not a
+     * different layout, it is no layout, with every link stacked in one column.
+     */
+    it('rounds and floors a column count it could not write into a repeat()', async () => {
+      const screen = await render(
+        <MPNavigationMenu>
+          <MPNavigationMenuItem value="a" label="Rounded" columns={2.6}>
+            <MPNavigationMenuLink href="/a" title="A" />
+          </MPNavigationMenuItem>
+        </MPNavigationMenu>
+      );
+
+      await screen.getByRole('button', { name: 'Rounded' }).click();
+
+      const panel = document.querySelector('.mp-navigation-menu__panel') as HTMLElement;
+
+      expect(panel.style.gridTemplateColumns).toBe('repeat(3, minmax(0px, 1fr))');
+    });
+  });
+
+  describe('links', () => {
+    /*
+     * `target="_blank"` hands the opened page a `window.opener` back into this
+     * one unless it is told not to. `MPMenuItem`, `MPTextLink` and
+     * `MPChatBubble` all said so; this one had been left out.
+     */
+    it('gives a destination that opens a new tab the rel that goes with it', async () => {
+      const screen = await render(
+        <MPNavigationMenu>
+          <MPNavigationMenuItem value="docs" label="Docs" href="/docs" target="_blank" />
+        </MPNavigationMenu>
+      );
+
+      expect(screen.getByRole('link', { name: 'Docs' }).element()).toHaveAttribute(
+        'rel',
+        'noopener noreferrer'
+      );
+    });
+
+    it('gives a panel row the same rel, wherever its target came from', async () => {
+      const screen = await render(
+        <MPNavigationMenu>
+          <MPNavigationMenuItem value="product" label="Product">
+            <MPNavigationMenuLink href="/a" title="Away" target="_blank" />
+          </MPNavigationMenuItem>
+        </MPNavigationMenu>
+      );
+
+      await screen.getByRole('button', { name: 'Product' }).click();
+
+      expect(document.querySelector('.mp-navigation-menu__link')).toHaveAttribute(
+        'rel',
+        'noopener noreferrer'
+      );
+    });
+
+    // A caller's own `rel` replaces the default rather than extending it, which
+    // is the bargain every link in this library makes.
+    it('lets a caller replace the rel outright', async () => {
+      const screen = await render(
+        <MPNavigationMenu>
+          <MPNavigationMenuItem
+            value="docs"
+            label="Docs"
+            href="/docs"
+            target="_blank"
+            rel="noopener noreferrer nofollow"
+          />
+        </MPNavigationMenu>
+      );
+
+      expect(screen.getByRole('link', { name: 'Docs' }).element()).toHaveAttribute(
+        'rel',
+        'noopener noreferrer nofollow'
+      );
+    });
+
+    it('leaves a same-tab destination without one', async () => {
+      const screen = await render(
+        <MPNavigationMenu>
+          <MPNavigationMenuItem value="docs" label="Docs" href="/docs" />
+        </MPNavigationMenu>
+      );
+
+      expect(screen.getByRole('link', { name: 'Docs' }).element()).not.toHaveAttribute('rel');
+    });
   });
 
   describe('orientation', () => {

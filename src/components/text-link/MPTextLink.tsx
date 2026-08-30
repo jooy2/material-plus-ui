@@ -3,6 +3,7 @@ import { useRender } from '@base-ui/react/use-render';
 import { MPIcon } from '../icon/MPIcon';
 import { ExternalLinkIcon, LinkIcon } from '../../constants/icons';
 import { accentSlots } from '../../internal/accent';
+import { linkRel } from '../../internal/link';
 import { PROSE_TEXT } from '../../internal/scale';
 import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
 import type { MPColor, MPSize } from '../../types';
@@ -202,10 +203,7 @@ export const MPTextLink = React.forwardRef<HTMLAnchorElement, MPTextLinkProps>(f
     props: {
       href,
       target,
-      // `noopener` is what stops the new page reaching back through
-      // `window.opener`; `noreferrer` is kept beside it for the browsers that
-      // still need the pair.
-      rel: opensNewTab ? 'noopener noreferrer' : undefined,
+      rel: linkRel(target, props.rel as string | undefined),
       className: classNames,
       style: color ? { ...accentSlots(color), ...style } : style,
       children: (

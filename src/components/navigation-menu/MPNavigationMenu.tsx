@@ -3,6 +3,7 @@ import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import { MPIcon } from '../icon/MPIcon';
 import { ChevronDownIcon } from '../../constants/icons';
 import { accentSlots } from '../../internal/accent';
+import { linkRel } from '../../internal/link';
 import { MPStateLayer } from '../../internal/StateLayer';
 import {
   CONTROL_GAP,
@@ -84,6 +85,15 @@ export interface MPNavigationMenuItemProps {
   href?: string;
   /** Where the link opens. Ignored without `href`. */
   target?: string;
+  /**
+   * The link's relationship to the page. Ignored without `href`.
+   *
+   * Left unset, a `target="_blank"` destination gets `noopener noreferrer` —
+   * the pair that stops the opened page reaching back through `window.opener`.
+   * Setting it replaces that rather than adding to it, so a destination that
+   * also needs `nofollow` should say `rel="noopener noreferrer nofollow"`.
+   */
+  rel?: string;
   /** A glyph before the label. */
   startIcon?: React.ReactNode;
   /**
@@ -154,7 +164,7 @@ const PANEL_PAD: Record<MPSize, string> = {
  */
 export const MPNavigationMenuLink = React.forwardRef<HTMLAnchorElement, MPNavigationMenuLinkProps>(
   function MPNavigationMenuLink(
-    { href, title, description, startIcon, className, children, ...props },
+    { href, title, description, startIcon, target, rel, className, children, ...props },
     ref
   ) {
     const { size } = React.useContext(MPNavigationMenuContext);
@@ -163,6 +173,11 @@ export const MPNavigationMenuLink = React.forwardRef<HTMLAnchorElement, MPNaviga
       <NavigationMenu.Link
         ref={ref}
         href={href}
+        target={target}
+        // A row in a panel takes its `target` through the rest props like any
+        // other `<a>`, so the `rel` that has to go with it is worked out here
+        // rather than left to whoever wrote the row.
+        rel={linkRel(target, rel)}
         className={[
           'mp-navigation-menu__link group text-mp-on-surface rounded-mp-xs relative flex',
           'min-w-0 cursor-pointer items-start bg-transparent py-2 no-underline outline-none',
@@ -203,6 +218,7 @@ export function MPNavigationMenuItem({
   label,
   href,
   target,
+  rel,
   startIcon,
   value,
   disabled = false,
@@ -211,6 +227,7 @@ export function MPNavigationMenuItem({
 }: MPNavigationMenuItemProps) {
   const { size } = React.useContext(MPNavigationMenuContext);
   const isLink = href !== undefined && !hasContent(children);
+  const panelColumns = Number.isFinite(columns) ? Math.max(1, Math.round(columns)) : 1;
 
   const chrome = [
     'mp-navigation-menu__item group text-mp-on-surface relative inline-flex shrink-0',
@@ -232,7 +249,12 @@ export function MPNavigationMenuItem({
   return (
     <NavigationMenu.Item value={value}>
       {isLink ? (
-        <NavigationMenu.Link href={href} target={target} className={chrome}>
+        <NavigationMenu.Link
+          href={href}
+          target={target}
+          rel={linkRel(target, rel)}
+          className={chrome}
+        >
           <MPStateLayer />
           {hasContent(startIcon) ? <span className="relative flex">{startIcon}</span> : null}
           <span className="relative">{label}</span>
@@ -262,8 +284,12 @@ export function MPNavigationMenuItem({
           <NavigationMenu.Content
             className={`mp-navigation-menu__panel grid gap-1 ${PANEL_PAD[size]}`}
             style={
-              columns > 1
-                ? { gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }
+              // Rounded and floored, for the reason `MPGrid` rounds and floors
+              // its own column count: the number is written into a `repeat()`,
+              // and a `repeat(2.5, …)` or a `repeat(-1, …)` is an invalid
+              // declaration that takes the whole grid down with it.
+              panelColumns > 1
+                ? { gridTemplateColumns: `repeat(${panelColumns}, minmax(0, 1fr))` }
                 : undefined
             }
           >

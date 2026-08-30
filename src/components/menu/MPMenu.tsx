@@ -3,6 +3,7 @@ import { Menu } from '@base-ui/react/menu';
 import { ContextMenu } from '@base-ui/react/context-menu';
 import { MPIcon } from '../icon/MPIcon';
 import { CheckIcon, ChevronRightIcon } from '../../constants/icons';
+import { linkRel } from '../../internal/link';
 import { MPMenuContext } from '../../internal/menu';
 import { accentSlots } from '../../internal/accent';
 import { MPStateLayer } from '../../internal/StateLayer';
@@ -408,11 +409,7 @@ export function MPMenuItem({
       <Menu.LinkItem
         href={href}
         target={target}
-        // `target="_blank"` hands the opened page a `window.opener` back into
-        // this one unless it is told not to. Modern browsers imply `noopener`,
-        // but `noreferrer` is never implied and older ones imply neither — and
-        // the same pair is written out on `MPTextLink` and `MPChatBubble`.
-        rel={rel ?? (target === '_blank' ? 'noopener noreferrer' : undefined)}
+        rel={linkRel(target, rel)}
         label={label}
         closeOnClick={closeOnClick}
         onClick={onClick}

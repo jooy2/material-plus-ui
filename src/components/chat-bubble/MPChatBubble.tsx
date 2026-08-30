@@ -3,6 +3,7 @@ import { MPIcon } from '../icon/MPIcon';
 import { CheckIcon, ClockIcon, ErrorIcon, LinkIcon } from '../../constants/icons';
 import { accentSlots } from '../../internal/accent';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
+import { linkRel } from '../../internal/link';
 import { CHAT } from '../../internal/messages/chat';
 import { hasContent, META_TEXT, PROSE_TEXT } from '../../internal/scale';
 import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
@@ -420,14 +421,10 @@ function TypingDots({ label }: { label: string }) {
 /** The unfurled link: a picture, who published it, a title and two lines of summary. */
 function LinkPreview({ preview }: { preview: MPChatBubblePreview }) {
   const { url, title, description, image, site, newTab = false } = preview;
+  const target = newTab ? '_blank' : undefined;
 
   return (
-    <a
-      href={url}
-      target={newTab ? '_blank' : undefined}
-      rel={newTab ? 'noopener noreferrer' : undefined}
-      className={PREVIEW}
-    >
+    <a href={url} target={target} rel={linkRel(target, undefined)} className={PREVIEW}>
       {image ? (
         // Decorative: everything the picture is saying is written underneath it.
         <img src={image} alt="" className="block h-28 w-full object-cover" />
