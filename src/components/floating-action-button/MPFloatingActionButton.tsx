@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Button as BaseUIButton } from '@base-ui/react/button';
 import { accentSlots } from '../../internal/accent';
+import { cssLength } from '../../internal/length';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { hasContent } from '../../internal/scale';
 import type { MPColor, MPCorner, MPPosition, MPSize } from '../../types';
@@ -338,7 +339,7 @@ export const MPFloatingActionButton = React.forwardRef<
       style={
         {
           ...accentSlots(color),
-          '--_mp-fab-offset': typeof offset === 'number' ? `${offset}px` : offset,
+          '--_mp-fab-offset': cssLength(offset),
           ...style
         } as React.CSSProperties
       }

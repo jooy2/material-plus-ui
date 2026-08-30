@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { MPDrawer } from '../drawer/MPDrawer';
+import { pixelsIn } from '../../internal/length';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { LAYOUT } from '../../internal/messages/layout';
 import {
@@ -167,7 +168,18 @@ const WIDTH: Record<MPSize, string> = {
 /** How far one arrow key press moves the edge. */
 const KEYBOARD_STEP = 16;
 
-/** A length in pixels, for the two bounds a drag is clamped to. */
+/**
+ * A bound in pixels, or the default when it was written in something this cannot
+ * read.
+ *
+ * A bare number is pixels here, which is the library's rule everywhere — and is
+ * the one thing that differs from `MPPanes`, where a bare number is a
+ * *percentage* because that is how a split is described. The units they share
+ * are parsed by `pixelsIn`.
+ *
+ * A percentage is measured against the window, which is what a sidebar's width
+ * is a share of.
+ */
 function toPixels(value: number | string | undefined, fallback: number): number {
   if (value === undefined || value === null) {
     return fallback;
@@ -177,32 +189,7 @@ function toPixels(value: number | string | undefined, fallback: number): number 
     return value;
   }
 
-  const match = /^\s*(-?[\d.]+)\s*(px|rem|em|%)\s*$/.exec(value);
-
-  if (!match) {
-    return fallback;
-  }
-
-  const amount = Number(match[1]);
-
-  if (Number.isNaN(amount)) {
-    return fallback;
-  }
-
-  if (match[2] === 'px') {
-    return amount;
-  }
-
-  if (match[2] === '%') {
-    return typeof window === 'undefined' ? fallback : (window.innerWidth * amount) / 100;
-  }
-
-  const root =
-    typeof document === 'undefined'
-      ? ''
-      : getComputedStyle(document.documentElement).fontSize || '16';
-
-  return amount * (parseFloat(root) || 16);
+  return pixelsIn(value, typeof window === 'undefined' ? undefined : window.innerWidth) ?? fallback;
 }
 
 /**

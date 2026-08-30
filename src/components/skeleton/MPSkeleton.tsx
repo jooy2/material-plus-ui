@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { CONTROL_SQUARE } from '../../internal/scale';
+import { cssLength } from '../../internal/length';
 import type { MPColor, MPSize } from '../../types';
 
 /**
@@ -116,15 +117,6 @@ const BLOCK_HEIGHT: Record<MPSize, string> = {
 const FILL = 'overflow-hidden bg-(--_mp-placeholder)';
 const PULSE = 'animate-pulse motion-reduce:animate-none';
 
-/** Pixels for a bare number, and whatever was written for a string. */
-function toLength(value: number | string | undefined): string | undefined {
-  if (value === undefined) {
-    return undefined;
-  }
-
-  return typeof value === 'number' ? `${value}px` : value;
-}
-
 /**
  * The shape of something that has not loaded yet.
  *
@@ -190,12 +182,12 @@ export const MPSkeleton = React.forwardRef<HTMLDivElement, MPSkeletonProps>(func
         '--_mp-placeholder': color
           ? `var(--_mp-color-${color}-container)`
           : 'var(--_mp-color-surface-container-highest)',
-        width: toLength(width),
+        width: cssLength(width),
         // Not on a stack of lines. There the root is the column that holds them
         // and each bar has the type scale's own height, so a `height` here would
         // squeeze the column rather than set a line — and `overflow` is hidden,
         // so the lines that did not fit would simply be gone.
-        height: stacked ? undefined : toLength(height),
+        height: stacked ? undefined : cssLength(height),
         ...style
       } as React.CSSProperties,
       ...announce,

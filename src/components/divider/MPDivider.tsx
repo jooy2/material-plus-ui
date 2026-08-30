@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Separator } from '@base-ui/react/separator';
 import { hasContent } from '../../internal/scale';
+import { cssLength } from '../../internal/length';
 import type { MPAlign, MPColor, MPOrientation, MPSize } from '../../types';
 
 /** Where the label sits along a labelled divider. Ignored without a label. */
@@ -78,11 +79,6 @@ export interface MPDividerProps extends Omit<
  * what keeps all three the same without threading a value through each.
  */
 const LINE = '[border-color:var(--_mp-line)]';
-
-/** Turns `2` into `2px` and leaves `'0.5rem'` alone. */
-function toLength(value: number | string | undefined): string | undefined {
-  return typeof value === 'number' ? `${value}px` : value;
-}
 
 /**
  * How the line is split around an off-centre label: `[before, after]`. The short
@@ -166,13 +162,13 @@ export const MPDivider = React.forwardRef<HTMLDivElement, MPDividerProps>(functi
   const slots = {
     // `outline-variant` unless an accent was asked for — see `color`.
     '--_mp-line': color ? `var(--_mp-color-${color})` : 'var(--_mp-color-outline-variant)',
-    '--_mp-rule': toLength(thickness) ?? '1px'
+    '--_mp-rule': cssLength(thickness) ?? '1px'
   } as React.CSSProperties;
 
   // The long axis, and only when it was asked for: left alone, a horizontal
   // divider is `w-full` and a vertical one stretches to its flex row, which are
   // the two things a rule between two things should already do.
-  const span = toLength(length);
+  const span = cssLength(length);
   const sizing = span === undefined ? null : vertical ? { height: span } : { width: span };
 
   const rootStyle = { ...slots, ...sizing, ...style };

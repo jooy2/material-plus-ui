@@ -11,6 +11,7 @@ import {
   type MPSidebarSide
 } from '../../internal/page-layout';
 import { hasContent } from '../../internal/scale';
+import { cssLength } from '../../internal/length';
 
 export type {
   MPPageCollapse,
@@ -130,18 +131,6 @@ export interface MPPageLayoutProps extends React.ComponentPropsWithoutRef<'div'>
 
 /** The two slots whose height something else has to start below. */
 const SLOTS: readonly MPPageSlot[] = ['header', 'footer'];
-
-/**
- * A length, or `undefined` for the two named heights that are classes instead.
- * A number is pixels, the way every length in this library is.
- */
-function toLength(value: number | string | undefined): string | undefined {
-  if (value === undefined || value === null) {
-    return undefined;
-  }
-
-  return typeof value === 'number' ? `${value}px` : value;
-}
 
 /**
  * The skeleton a page is hung on: a header, a footer, one sidebar or two, and
@@ -351,7 +340,7 @@ export const MPPageLayout = React.forwardRef<HTMLDivElement, MPPageLayoutProps>(
 
     // The two named heights are two class names; anything else is a length
     // nobody could have generated a class for.
-    const extent = toLength(height === 'viewport' || height === 'auto' ? undefined : height);
+    const extent = cssLength(height === 'viewport' || height === 'auto' ? undefined : height);
     const extentClasses =
       extent !== undefined
         ? ''

@@ -2,6 +2,7 @@ import * as React from 'react';
 import { accentSlots } from '../../internal/accent';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { TABLE } from '../../internal/messages/table';
+import { cssLength } from '../../internal/length';
 import { META_TEXT } from '../../internal/scale';
 import { CONTAINER_SURFACE } from '../../internal/surface';
 import type { MPAlign, MPColor, MPSize, MPVariant } from '../../types';
@@ -195,11 +196,6 @@ const ROW = [
   'transition-[background-color] duration-(--mp-sys-motion-duration-short4)'
 ].join(' ');
 
-/** Pixels for a bare number, and whatever was written for a string. */
-function toLength(value: number | string): string {
-  return typeof value === 'number' ? `${value}px` : value;
-}
-
 /**
  * A cell's raw value, if React can draw it, and nothing if it cannot.
  *
@@ -326,7 +322,7 @@ export function MPTable<Row>({
           {headers.map((column) => (
             <col
               key={column.key}
-              style={column.width === undefined ? undefined : { width: toLength(column.width) }}
+              style={column.width === undefined ? undefined : { width: cssLength(column.width) }}
             />
           ))}
         </colgroup>

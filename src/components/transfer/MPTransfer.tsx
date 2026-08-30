@@ -6,6 +6,7 @@ import { MPIconButton } from '../icon-button/MPIconButton';
 import { MPTextField } from '../text-field/MPTextField';
 import { ArrowRightIcon } from '../../constants/icons';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
+import { cssLength } from '../../internal/length';
 import { TRANSFER } from '../../internal/messages/transfer';
 import type { MPMessages } from '../../internal/i18n';
 import { hasContent, META_TEXT, SHEET_PAD_X } from '../../internal/scale';
@@ -390,7 +391,7 @@ export const MPTransfer = React.forwardRef<HTMLDivElement, MPTransferProps>(func
   const targetRows = target.filter((item) => matches(item, targetSearch));
   const canSend = sourceRows.some((item) => !item.disabled && ticked.has(item.value));
   const canReturn = targetRows.some((item) => !item.disabled && ticked.has(item.value));
-  const listHeight = typeof height === 'number' ? `${height}px` : height;
+  const listHeight = cssLength(height);
 
   const panel = {
     ticked,

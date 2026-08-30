@@ -5,6 +5,7 @@ import { CloseIcon } from '../../constants/icons';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { COMMON } from '../../internal/messages/common';
 import { MPStateLayer } from '../../internal/StateLayer';
+import { cssLength } from '../../internal/length';
 import {
   hasContent,
   META_TEXT,
@@ -373,9 +374,7 @@ export function MPDrawer({
   const hasActions = hasContent(actions);
 
   const sizeStyle =
-    extent === undefined
-      ? null
-      : { [along ? 'width' : 'height']: typeof extent === 'number' ? `${extent}px` : extent };
+    extent === undefined ? null : { [along ? 'width' : 'height']: cssLength(extent) };
 
   const panel = [
     'mp-drawer relative flex flex-col overflow-hidden box-border',

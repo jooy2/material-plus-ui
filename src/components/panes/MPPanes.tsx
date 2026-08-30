@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { accentSlots } from '../../internal/accent';
+import { pixelsIn } from '../../internal/length';
 import type { MPColor, MPOrientation, MPSize } from '../../types';
 
 /**
@@ -61,12 +62,17 @@ const TRACK_PX: Record<MPSize, number> = {
 const KEYBOARD_STEP = 16;
 
 /**
- * A CSS length, in pixels.
+ * A pane's share, in pixels.
  *
- * Only the four units a split is ever written in are accepted; anything else
- * resolves to `undefined`, which every caller here reads as "no constraint"
- * rather than as zero. A bad string should leave a pane unbounded, not pin it
- * shut.
+ * A bare number is a **percentage** here rather than a length, which is what
+ * `MPPaneSize` documents and is the one thing that differs from every other size
+ * in the library: a split is described in shares, and a share keeps its meaning
+ * when the window changes size. The written units are `pixelsIn`'s, shared with
+ * `MPSidebar`'s own bounds.
+ *
+ * `undefined` for anything else, which every caller here reads as "no
+ * constraint" rather than as zero. A bad string should leave a pane unbounded,
+ * not pin it shut.
  */
 function toPixels(value: MPPaneSize | undefined, extent: number, root: Element | null) {
   if (value === undefined || value === null) {
@@ -77,32 +83,7 @@ function toPixels(value: MPPaneSize | undefined, extent: number, root: Element |
     return (extent * value) / 100;
   }
 
-  const match = /^\s*(-?[\d.]+)\s*(px|rem|em|%)\s*$/.exec(value);
-
-  if (!match) {
-    return undefined;
-  }
-
-  const amount = Number(match[1]);
-
-  if (Number.isNaN(amount)) {
-    return undefined;
-  }
-
-  switch (match[2]) {
-    case 'px':
-      return amount;
-    case '%':
-      return (extent * amount) / 100;
-    case 'rem':
-      return (
-        amount * Number.parseFloat(getComputedStyle(document.documentElement).fontSize || '16')
-      );
-    case 'em':
-      return amount * Number.parseFloat((root && getComputedStyle(root).fontSize) || '16');
-    default:
-      return undefined;
-  }
+  return pixelsIn(value, extent, root);
 }
 
 /** Every pane's share of the space, summing to 1. */

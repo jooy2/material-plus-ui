@@ -6,6 +6,7 @@ import { accentSlots } from '../../internal/accent';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { COMMON } from '../../internal/messages/common';
 import { MPStateLayer } from '../../internal/StateLayer';
+import { cssLength } from '../../internal/length';
 import { PORTAL_LAYER } from '../../internal/surface';
 import type { MPAlign, MPColor, MPSize } from '../../types';
 
@@ -455,11 +456,7 @@ function SnackbarViewport({
         ].join(' ')}
       >
         {toasts.map((toast) => (
-          <div
-            key={toast.id}
-            className="w-full"
-            style={{ maxWidth: typeof width === 'number' ? `${width}px` : width }}
-          >
+          <div key={toast.id} className="w-full" style={{ maxWidth: cssLength(width) }}>
             <SnackbarItem toast={toast} swipeDirection={swipeDirection} edge={edge} {...rest} />
           </div>
         ))}

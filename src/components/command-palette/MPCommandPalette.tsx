@@ -3,6 +3,7 @@ import { Autocomplete } from '@base-ui/react/autocomplete';
 import { Dialog } from '@base-ui/react/dialog';
 import { MPShortcut } from '../shortcut/MPShortcut';
 import { accentSlots } from '../../internal/accent';
+import { cssLength } from '../../internal/length';
 import { matchesShortcut, useDetectedOS } from '../../internal/keys';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { COMMAND } from '../../internal/messages/command';
@@ -298,8 +299,8 @@ export function MPCommandPalette({
     setOpen(false);
   };
 
-  const sheetWidth = typeof width === 'number' ? `${width}px` : width;
-  const listHeight = typeof maxHeight === 'number' ? `${maxHeight}px` : maxHeight;
+  const sheetWidth = cssLength(width);
+  const listHeight = cssLength(maxHeight);
 
   return (
     <Dialog.Root open={showing} onOpenChange={setOpen}>

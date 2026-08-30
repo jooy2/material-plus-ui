@@ -3,6 +3,7 @@ import { Popover } from '@base-ui/react/popover';
 import { MPIcon } from '../icon/MPIcon';
 import { CloseIcon } from '../../constants/icons';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
+import { cssLength } from '../../internal/length';
 import { COMMON } from '../../internal/messages/common';
 import { MPStateLayer } from '../../internal/StateLayer';
 import {
@@ -265,9 +266,7 @@ export function MPPopover({
               // The escape hatch, and it has to be an inline style rather than a
               // class: Tailwind finds classes by scanning source text, so an
               // arbitrary `max-w-[720px]` built from a prop generates no rule.
-              ...(width === undefined
-                ? null
-                : { maxWidth: typeof width === 'number' ? `${width}px` : width }),
+              ...(width === undefined ? null : { maxWidth: cssLength(width) }),
               ...style
             }}
           >
