@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.4.0 (2026--)
+## 1.4.0 (2026-08-30)
 
 Seventeen new components, and five of them are one thing: the skeleton a page is hung on. The library could draw a text field and could not draw the page the field was on — there was no `<header>`, no `<nav>`, no `<aside>`, no `<main>` and therefore no way to build a page whose regions a screen reader can list, a reader mode can find or a crawler can tell apart. That is what the first half of this release is. The second half is what kept turning up next to it: two strips of navigation, two form primitives, a toggle, a transfer, a command palette and a stack of faces.
 
