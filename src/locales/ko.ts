@@ -76,6 +76,12 @@ export const ko: MPLocale = {
       value: '{max}점 만점에 {value}점',
       empty: '평가 없음'
     },
-    layout: { skipToContent: '본문으로 건너뛰기' }
+    layout: {
+      skipToContent: '본문으로 건너뛰기',
+      sidebar: '사이드바',
+      openSidebar: '사이드바 열기',
+      closeSidebar: '사이드바 닫기',
+      resizeSidebar: '사이드바 너비 조절'
+    }
   }
 };

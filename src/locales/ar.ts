@@ -76,6 +76,12 @@ export const ar: MPLocale = {
       value: '{value} من {max}',
       empty: 'بدون تقييم'
     },
-    layout: { skipToContent: 'تخطٍ إلى المحتوى' }
+    layout: {
+      skipToContent: 'تخطٍ إلى المحتوى',
+      sidebar: 'الشريط الجانبي',
+      openSidebar: 'فتح الشريط الجانبي',
+      closeSidebar: 'إغلاق الشريط الجانبي',
+      resizeSidebar: 'تغيير عرض الشريط الجانبي'
+    }
   }
 };

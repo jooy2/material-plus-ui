@@ -76,6 +76,12 @@ export const vi: MPLocale = {
       value: '{value} trên {max}',
       empty: 'Chưa đánh giá'
     },
-    layout: { skipToContent: 'Chuyển đến nội dung' }
+    layout: {
+      skipToContent: 'Chuyển đến nội dung',
+      sidebar: 'Thanh bên',
+      openSidebar: 'Mở thanh bên',
+      closeSidebar: 'Đóng thanh bên',
+      resizeSidebar: 'Đổi chiều rộng thanh bên'
+    }
   }
 };

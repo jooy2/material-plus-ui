@@ -7667,5 +7667,206 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'Everything in it. Four columns of links on one site and a single line on the next, which is why this component has slots for nothing'
       }
     }
+  ],
+
+  MPSidebar: [
+    {
+      name: 'side',
+      type: "'start' | 'end'",
+      default: "'start'",
+      description: {
+        ko: '띠의 어느 끝을 가져갈지. 물리적이 아니라 논리적입니다 — `start`는 영어 페이지의 왼쪽이고 아랍어 페이지의 오른쪽입니다. [MPPageLayout](./page-layout) 안에서는 어느 슬롯에 건네졌는지로 이미 정해지므로, 여기서 다시 지정하는 것은 레이아웃과 다투는 방법일 뿐입니다',
+        en: 'Which end of the band it takes. Logical rather than physical — `start` is the left of an English page and the right of an Arabic one. Inside an [MPPageLayout](./page-layout) it is already decided by which slot the sidebar was handed to, and setting it again is only a way of disagreeing with the layout'
+      }
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      description: {
+        ko: '열의 폭 — 픽셀 수 또는 임의의 CSS 길이. 지정하지 않으면 `size`가 함의하는 폭입니다. `resizable`과 함께 쓰면 이것은 *시작* 폭일 뿐이고, 드래그가 그 위에 덮어씁니다',
+        en: 'How wide the column is — a number in pixels or any CSS length. Left out, it is the width `size` implies. With `resizable` it is only the width the column *starts* at: a drag writes over it'
+      }
+    },
+    {
+      name: 'minWidth',
+      type: 'number | string',
+      default: '160',
+      description: { ko: '얼마나 좁게까지 끌 수 있는지', en: 'How narrow it may be dragged' }
+    },
+    {
+      name: 'maxWidth',
+      type: 'number | string',
+      default: '480',
+      description: { ko: '그리고 얼마나 넓게까지', en: 'And how wide' }
+    },
+    {
+      name: 'resizable',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '안쪽 가장자리를 끌어 열의 폭을 바꿀 수 있게 합니다. 기본은 꺼짐입니다 — 크기를 바꿀 수 있는 사이드바는 그 폭이 독자의 것이 된다는 뜻이고, 이걸 켜는 호출자는 보통 `onResizeEnd`가 알려 주는 값을 저장하고 싶어 합니다',
+        en: "Lets the reader drag the inner edge to change the column's width. Off by default: a sidebar that can be resized is a sidebar whose width is the reader's to remember, so a caller who turns this on usually also wants to store what `onResizeEnd` reports"
+      }
+    },
+    {
+      name: 'onResize',
+      type: '(width: number) => void',
+      description: {
+        ko: '가장자리를 끄는 동안 픽셀 단위 폭과 함께 호출됩니다',
+        en: 'Fires with the width in pixels while the edge is being dragged'
+      }
+    },
+    {
+      name: 'onResizeEnd',
+      type: '(width: number) => void',
+      description: {
+        ko: '놓았을 때 같은 숫자와 함께 한 번 호출됩니다',
+        en: 'Fires once, with the same number, when it is let go'
+      }
+    },
+    {
+      name: 'collapseBelow',
+      type: "MPWindowClass | 'none'",
+      description: {
+        ko: '열이 서랍이 되는 윈도우 크기 클래스. [MPPageLayout](./page-layout)의 값을 기본으로 하고, 레이아웃 밖에서는 `none`입니다 — 페이지의 무엇도 되돌릴 수 없는 채로 접힌 사이드바는 독자가 잃어버린 사이드바이기 때문입니다',
+        en: "The window size class below which the column becomes a drawer. Defaults to the [MPPageLayout](./page-layout)'s own, and to `none` outside one: a sidebar that collapsed with nothing on the page able to bring it back would be a sidebar the reader has lost"
+      }
+    },
+    {
+      name: 'open',
+      type: 'boolean',
+      description: {
+        ko: '서랍이 열려 있는지. 접힌 뒤에만 의미가 있습니다 — 열은 여는 것이 아니라 거기 있는 것입니다. [MPPageLayout](./page-layout) 안에서는 레이아웃이 이 값을 들고 있으므로 거기서 제어하세요',
+        en: 'Whether the drawer is open. Only meaningful once the sidebar has collapsed; a column is not opened, it is there. Inside an [MPPageLayout](./page-layout) the layout owns this, so control it there'
+      }
+    },
+    {
+      name: 'defaultOpen',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '레이아웃 밖의 비제어 사이드바가 어느 상태로 시작할지',
+        en: 'Which state it starts in, for an uncontrolled standalone sidebar'
+      }
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: {
+        ko: '어느 쪽이든 그대로 호출됩니다',
+        en: 'Fires either way'
+      }
+    },
+    {
+      name: 'sticky',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '페이지가 옆을 지나 스크롤되는 동안 열이 제자리를 지키는지. 필요 없을 때는 아무 대가도 없습니다 — 내용만 스크롤되는 레이아웃에서는 이미 레이아웃만큼 높으므로 아무것도 달라지지 않습니다',
+        en: 'Whether the column holds its place while the page scrolls past it. It costs nothing when it is not needed: with only the content scrolling the column is already as tall as the layout and this changes nothing'
+      }
+    },
+    {
+      name: 'title',
+      type: NODE,
+      description: {
+        ko: '서랍인 동안에만 그려지는 제목. 열에는 자기가 무엇인지 말해 줄 페이지가 둘러 있지만 페이지를 덮은 패널에는 없고, 제목 없는 다이얼로그에는 접근 가능한 이름이 없습니다 — 그래서 없으면 `label`로, 그다음 `locale`의 "사이드바"라는 단어로 내려갑니다',
+        en: 'The heading, drawn only while the sidebar is a drawer. A column has the page around it to say what it is; a panel that has covered the page does not, and a dialog with no heading has no accessible name — so without one it falls back to `label`, and then to the word for "sidebar" in `locale`'
+      }
+    },
+    {
+      ...containerVariant,
+      default: "'outlined'",
+      description: {
+        ko: '열이 칠하는 표면의 양, **컨테이너**의 사다리로. 사이드바는 절대 물들지 않습니다. 기본값 `outlined`는 페이지 자신의 표면에 내용을 마주 보는 가장자리의 실선 하나입니다. 접힌 뒤에는 [MPDrawer](./drawer)이고, 서랍은 MD3 자신의 navigation drawer 표면을 칠하며 여기서 아무 값도 가져가지 않습니다',
+        en: "How much surface the column paints, on the **container** ladder — a sidebar is never dyed. `outlined`, the default, is the page's own surface with a hairline down the edge that faces the content. Once collapsed it is an [MPDrawer](./drawer), which paints MD3's own navigation drawer surface and takes no weight from here"
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '열의 기본 폭과 내용 주변의 공기. `md`는 360px로 MD3 자신의 navigation drawer이고, [MPDrawer](./drawer)가 그려지는 것과 같은 단입니다',
+        en: "The column's default width and the air around its content. `md` is 360px, MD3's own navigation drawer and the same rung [MPDrawer](./drawer) is drawn at"
+      }
+    },
+    {
+      ...padded,
+      description: { ko: '좌우 여백과 위아래 공기', en: 'The gutter, and the air above and below' }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: {
+        ko: '영역이 불릴 이름. 페이지의 모든 `<aside>`에는 이름이 있어야 하고, 사이드바가 둘인 페이지에는 *반드시* 있어야 합니다. 없으면 스크린 리더가 "complementary"라는 영역을 둘 내놓습니다. 기본값은 `locale`의 "사이드바"입니다',
+        en: 'The name the region is announced by. Every `<aside>` should have one and a page with two sidebars *must*, or a screen reader offers two regions called "complementary". Defaults to the word for "sidebar" in `locale`'
+      }
+    },
+    {
+      name: 'locale',
+      type: 'string',
+      description: {
+        ko: '사이드바가 자기 단어를 말할 언어. [MPPageLayout](./page-layout)의 값, 그다음 가장 가까운 `MPLocaleProvider`, 그다음 영어로 내려갑니다',
+        en: "Which language the sidebar's own words are in. Falls back to the [MPPageLayout](./page-layout)'s, then to the nearest `MPLocaleProvider`, then to English"
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '안의 모든 것 — nav, 필터 패널, 목차',
+        en: 'Everything in it: a nav, a filter panel, a table of contents'
+      }
+    }
+  ],
+
+  MPSidebarTrigger: [
+    {
+      name: 'side',
+      type: "'start' | 'end'",
+      default: "'start'",
+      description: {
+        ko: '레이아웃의 두 사이드바 중 어느 쪽을 여는지',
+        en: "Which of the layout's two sidebars it opens"
+      }
+    },
+    {
+      name: 'collapseBelow',
+      type: "MPWindowClass | 'none'",
+      description: {
+        ko: '버튼이 나타나는 폭. 사이드바가 접히는 것과 같은 값입니다 — 버튼은 열이 없는 동안 정확히 그동안만 존재하니까요. [MPPageLayout](./page-layout)에서 물려받고, 설정할 곳도 거기입니다',
+        en: 'The width below which the button appears — the same one the sidebar collapses at, since the button exists exactly while the column does not. Inherited from the [MPPageLayout](./page-layout), which is where it should be set'
+      }
+    },
+    {
+      name: 'icon',
+      type: NODE,
+      description: {
+        ko: '글리프. 다른 것을 주지 않으면 가로선 셋입니다',
+        en: 'The glyph. Three lines, unless something else is given'
+      }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: {
+        ko: '하는 일을 말로. 기본값은 `locale`의 "사이드바 열기" / "사이드바 닫기"이고, 버튼이 상태에 따라 달라지므로 이름도 함께 달라집니다',
+        en: 'What it does, in words. Defaults to "Open sidebar" / "Close sidebar" in `locale`, and it changes with the state because the button does'
+      }
+    },
+    {
+      name: 'locale',
+      type: 'string',
+      description: {
+        ko: '그 단어의 언어. 레이아웃에서 물려받습니다',
+        en: 'Which language that word is in. Inherited from the layout'
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '버튼의 크기. 나머지 [MPIconButton](../inputs/icon-button) prop도 그대로 통과합니다',
+        en: "The button's size. Every other [MPIconButton](../inputs/icon-button) prop passes straight through too"
+      }
+    }
   ]
 };

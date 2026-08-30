@@ -80,6 +80,12 @@ export const zhHant: MPLocale = {
       value: '{max} 分中的 {value} 分',
       empty: '未評分'
     },
-    layout: { skipToContent: '跳至主要內容' }
+    layout: {
+      skipToContent: '跳至主要內容',
+      sidebar: '側邊欄',
+      openSidebar: '開啟側邊欄',
+      closeSidebar: '關閉側邊欄',
+      resizeSidebar: '調整側邊欄寬度'
+    }
   }
 };

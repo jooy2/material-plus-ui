@@ -76,6 +76,12 @@ export const id: MPLocale = {
       value: '{value} dari {max}',
       empty: 'Belum dinilai'
     },
-    layout: { skipToContent: 'Lewati ke konten' }
+    layout: {
+      skipToContent: 'Lewati ke konten',
+      sidebar: 'Bilah sisi',
+      openSidebar: 'Buka bilah sisi',
+      closeSidebar: 'Tutup bilah sisi',
+      resizeSidebar: 'Ubah lebar bilah sisi'
+    }
   }
 };

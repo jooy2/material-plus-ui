@@ -76,6 +76,12 @@ export const tr: MPLocale = {
       value: '{max} üzerinden {value}',
       empty: 'Değerlendirilmedi'
     },
-    layout: { skipToContent: 'İçeriğe geç' }
+    layout: {
+      skipToContent: 'İçeriğe geç',
+      sidebar: 'Kenar çubuğu',
+      openSidebar: 'Kenar çubuğunu aç',
+      closeSidebar: 'Kenar çubuğunu kapat',
+      resizeSidebar: 'Kenar çubuğunu yeniden boyutlandır'
+    }
   }
 };

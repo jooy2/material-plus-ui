@@ -75,6 +75,7 @@ import {
   MPSegmentedButton,
   MPSelect,
   MPShortcut,
+  MPSidebar,
   MPSkeleton,
   MPSlider,
   MPSnackbarProvider,
@@ -472,6 +473,34 @@ function PageLayoutPreview() {
         }
       >
         <div className="text-mp-on-surface-variant text-mp-body-small p-3">Main</div>
+      </MPPageLayout>
+    </div>
+  );
+}
+
+function SidebarPreview() {
+  return (
+    <div
+      className="border-mp-outline-variant rounded-mp-xs overflow-hidden border"
+      style={{ height: 120, width: '100%' }}
+    >
+      <MPPageLayout
+        height="auto"
+        scroll="content"
+        skipLink={false}
+        collapseBelow="none"
+        sidebar={
+          <MPSidebar size="sm" width={110} label="Sections" sticky={false}>
+            <MPList variant="text" size="sm">
+              <MPListItem selected onClick={() => {}}>
+                Overview
+              </MPListItem>
+              <MPListItem onClick={() => {}}>Reports</MPListItem>
+            </MPList>
+          </MPSidebar>
+        }
+      >
+        <div className="text-mp-on-surface-variant text-mp-body-small p-3">Overview</div>
       </MPPageLayout>
     </div>
   );
@@ -1528,6 +1557,19 @@ const GROUPS: Group[] = [
         preview: (
           <Fit>
             <PageLayoutPreview />
+          </Fit>
+        )
+      },
+      {
+        name: 'MPSidebar',
+        summary: {
+          ko: '본문 옆의 열, 좁아지면 서랍',
+          en: 'A column beside the content, a drawer once it is narrow'
+        },
+        path: '/components/layout/sidebar',
+        preview: (
+          <Fit>
+            <SidebarPreview />
           </Fit>
         )
       },

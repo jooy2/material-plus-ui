@@ -4,6 +4,10 @@ import type { MPNamespace } from '../i18n';
 export const LAYOUT: MPNamespace<'layout'> = {
   name: 'layout',
   en: {
-    skipToContent: 'Skip to content'
+    skipToContent: 'Skip to content',
+    sidebar: 'Sidebar',
+    openSidebar: 'Open sidebar',
+    closeSidebar: 'Close sidebar',
+    resizeSidebar: 'Resize sidebar'
   }
 };

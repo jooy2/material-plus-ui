@@ -76,6 +76,12 @@ export const nl: MPLocale = {
       value: '{value} van {max}',
       empty: 'Niet beoordeeld'
     },
-    layout: { skipToContent: 'Naar inhoud springen' }
+    layout: {
+      skipToContent: 'Naar inhoud springen',
+      sidebar: 'Zijbalk',
+      openSidebar: 'Zijbalk openen',
+      closeSidebar: 'Zijbalk sluiten',
+      resizeSidebar: 'Zijbalk verbreden of versmallen'
+    }
   }
 };

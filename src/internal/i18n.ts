@@ -254,6 +254,21 @@ export interface MPMessages {
      * are the ones who cannot skip it.
      */
     skipToContent: string;
+    /**
+     * What an `MPSidebar` is called when nothing named it.
+     *
+     * Read out and never drawn. Every `<aside>` needs a name and a page with two
+     * of them *must* have one each, or a screen reader offers two regions called
+     * "complementary" — which is exactly why this is a default rather than a
+     * required prop.
+     */
+    sidebar: string;
+    /** The hamburger, which is a drawing and has no word of its own. */
+    openSidebar: string;
+    /** The same button once the drawer is open. */
+    closeSidebar: string;
+    /** The handle on a resizable column's inner edge. */
+    resizeSidebar: string;
   };
 }
 

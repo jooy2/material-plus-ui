@@ -76,6 +76,12 @@ export const hi: MPLocale = {
       value: '{max} में से {value}',
       empty: 'रेटिंग नहीं दी गई'
     },
-    layout: { skipToContent: 'सामग्री पर जाएँ' }
+    layout: {
+      skipToContent: 'सामग्री पर जाएँ',
+      sidebar: 'साइडबार',
+      openSidebar: 'साइडबार खोलें',
+      closeSidebar: 'साइडबार बंद करें',
+      resizeSidebar: 'साइडबार का आकार बदलें'
+    }
   }
 };

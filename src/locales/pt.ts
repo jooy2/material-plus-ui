@@ -76,6 +76,12 @@ export const pt: MPLocale = {
       value: '{value} de {max}',
       empty: 'Sem avaliação'
     },
-    layout: { skipToContent: 'Ir para o conteúdo' }
+    layout: {
+      skipToContent: 'Ir para o conteúdo',
+      sidebar: 'Barra lateral',
+      openSidebar: 'Abrir a barra lateral',
+      closeSidebar: 'Fechar a barra lateral',
+      resizeSidebar: 'Redimensionar a barra lateral'
+    }
   }
 };

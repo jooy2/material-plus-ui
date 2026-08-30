@@ -76,6 +76,12 @@ export const ja: MPLocale = {
       value: '{max}段階中{value}',
       empty: '未評価'
     },
-    layout: { skipToContent: 'コンテンツへスキップ' }
+    layout: {
+      skipToContent: 'コンテンツへスキップ',
+      sidebar: 'サイドバー',
+      openSidebar: 'サイドバーを開く',
+      closeSidebar: 'サイドバーを閉じる',
+      resizeSidebar: 'サイドバーの幅を変更'
+    }
   }
 };

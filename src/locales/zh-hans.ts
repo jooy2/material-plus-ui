@@ -81,6 +81,12 @@ export const zhHans: MPLocale = {
       value: '{max} 分中的 {value} 分',
       empty: '未评分'
     },
-    layout: { skipToContent: '跳转到主要内容' }
+    layout: {
+      skipToContent: '跳转到主要内容',
+      sidebar: '侧边栏',
+      openSidebar: '打开侧边栏',
+      closeSidebar: '关闭侧边栏',
+      resizeSidebar: '调整侧边栏宽度'
+    }
   }
 };

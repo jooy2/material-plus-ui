@@ -62,6 +62,7 @@ import {
   Info,
   Link,
   LoaderCircle,
+  Menu,
   Minus,
   Plus,
   Search,
@@ -133,3 +134,13 @@ export const ClockIcon = Clock;
 export const StarIcon = Star;
 /** Work in progress, spun by whatever is waiting on it. */
 export const SpinnerIcon = LoaderCircle;
+/**
+ * Three lines: the navigation a window has become too narrow to show.
+ *
+ * The one glyph in the set that is a picture of a *menu* rather than a picture
+ * of what pressing it does, and it is here anyway. Thirty years of it have made
+ * it the one shape a reader recognises with no word beside it, which is the only
+ * argument that ever justifies a symbol — and `MPSidebarTrigger` gives it a
+ * name for the readers it still says nothing to.
+ */
+export const MenuIcon = Menu;

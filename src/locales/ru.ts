@@ -76,6 +76,12 @@ export const ru: MPLocale = {
       value: '{value} из {max}',
       empty: 'Без оценки'
     },
-    layout: { skipToContent: 'Перейти к содержимому' }
+    layout: {
+      skipToContent: 'Перейти к содержимому',
+      sidebar: 'Боковая панель',
+      openSidebar: 'Открыть боковую панель',
+      closeSidebar: 'Закрыть боковую панель',
+      resizeSidebar: 'Изменить ширину боковой панели'
+    }
   }
 };
