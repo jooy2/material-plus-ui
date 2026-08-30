@@ -84,6 +84,11 @@ export const th: MPLocale = {
       search: 'ค้นหา',
       empty: 'ไม่มีรายการ'
     },
+    command: {
+      label: 'แผงคำสั่ง',
+      search: 'พิมพ์คำสั่งหรือค้นหา…',
+      empty: 'ไม่พบคำสั่ง'
+    },
     layout: {
       skipToContent: 'ข้ามไปยังเนื้อหา',
       sidebar: 'แถบด้านข้าง',

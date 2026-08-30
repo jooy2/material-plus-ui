@@ -34,6 +34,7 @@ import {
   MPCollapsible,
   MPColorPicker,
   MPCombobox,
+  MPCommandPalette,
   MPContainer,
   MPDatePicker,
   MPDateRangePicker,
@@ -583,6 +584,27 @@ function FieldsetPreview() {
   );
 }
 
+function CommandPalettePreview() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <MPButton variant="outlined" size="sm" onClick={() => setOpen(true)}>
+        <MPShortcut size="xs" keys="Mod+K" />
+      </MPButton>
+      <MPCommandPalette
+        items={[
+          { value: 'new', label: 'New document', group: 'File', shortcut: 'Mod+N' },
+          { value: 'open', label: 'Open…', group: 'File' },
+          { value: 'copy', label: 'Copy link', group: 'Share' }
+        ]}
+        open={open}
+        onOpenChange={setOpen}
+      />
+    </>
+  );
+}
+
 const GROUPS: Group[] = [
   {
     title: { ko: '입력', en: 'Inputs' },
@@ -687,6 +709,19 @@ const GROUPS: Group[] = [
         },
         path: '/components/inputs/rating',
         preview: <RatingPreview />
+      },
+      {
+        name: 'MPCommandPalette',
+        summary: {
+          ko: '애플리케이션이 할 수 있는 모든 것을 필드 하나 뒤에',
+          en: 'Everything an application can do, behind one field'
+        },
+        path: '/components/inputs/command-palette',
+        preview: (
+          <Fit>
+            <CommandPalettePreview />
+          </Fit>
+        )
       },
       {
         name: 'MPFieldset',

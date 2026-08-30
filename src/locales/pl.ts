@@ -84,6 +84,11 @@ export const pl: MPLocale = {
       search: 'Szukaj',
       empty: 'Nic tu nie ma'
     },
+    command: {
+      label: 'Paleta poleceń',
+      search: 'Wpisz polecenie lub wyszukaj…',
+      empty: 'Nie znaleziono poleceń'
+    },
     layout: {
       skipToContent: 'Przejdź do treści',
       sidebar: 'Panel boczny',

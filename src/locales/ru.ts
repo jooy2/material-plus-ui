@@ -84,6 +84,11 @@ export const ru: MPLocale = {
       search: 'Поиск',
       empty: 'Здесь пусто'
     },
+    command: {
+      label: 'Палитра команд',
+      search: 'Введите команду или поиск…',
+      empty: 'Команды не найдены'
+    },
     layout: {
       skipToContent: 'Перейти к содержимому',
       sidebar: 'Боковая панель',

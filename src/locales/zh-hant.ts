@@ -88,6 +88,11 @@ export const zhHant: MPLocale = {
       search: '搜尋',
       empty: '這裡沒有內容'
     },
+    command: {
+      label: '命令面板',
+      search: '輸入命令或搜尋…',
+      empty: '找不到命令'
+    },
     layout: {
       skipToContent: '跳至主要內容',
       sidebar: '側邊欄',

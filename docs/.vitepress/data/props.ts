@@ -8395,5 +8395,116 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'The controls that answer one question together'
       }
     }
+  ],
+
+  MPCommandPalette: [
+    {
+      name: 'items',
+      type: 'readonly MPCommand[]',
+      required: true,
+      description: {
+        ko: '팔레트가 할 수 있는 모든 것. `{ value, label, description?, icon?, shortcut?, group?, keywords?, disabled?, onSelect? }`이고, 주어진 순서대로 그려집니다 — 그룹 제목은 그룹이 바뀔 때마다 나오므로 같은 그룹의 명령은 붙여서 나열해야 합니다',
+        en: 'Everything the palette can do — `{ value, label, description?, icon?, shortcut?, group?, keywords?, disabled?, onSelect? }`. Drawn in the order given, and a group heading appears each time the group changes, so a group’s commands have to be listed together'
+      }
+    },
+    {
+      name: 'open',
+      type: 'boolean',
+      description: {
+        ko: '팔레트가 열려 있는지. `onOpenChange`와 함께 제어합니다',
+        en: 'Whether the palette is open. Use with `onOpenChange` for a controlled one'
+      }
+    },
+    {
+      name: 'defaultOpen',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '비제어 팔레트가 열린 채로 시작할지',
+        en: 'Whether it starts open, for an uncontrolled one'
+      }
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: {
+        ko: '열림 상태가 바뀔 때마다 호출됩니다',
+        en: 'Called whenever the open state changes'
+      }
+    },
+    {
+      name: 'onSelect',
+      type: '(item: MPCommand) => void',
+      description: {
+        ko: '명령이 실행될 때, 그 명령 자신의 `onSelect` 다음에 호출됩니다. 어느 쪽이든 팔레트는 닫힙니다',
+        en: 'Called when a command is run, after its own `onSelect`. The palette closes either way'
+      }
+    },
+    {
+      name: 'shortcut',
+      type: 'string | false',
+      default: "'Mod+K'",
+      description: {
+        ko: '팔레트를 여는 키. 윈도우에 바인딩되고, [MPShortcut](../display/shortcut)이 쓰는 방식 그대로라 `Mod`는 맥에서 Command, 그 밖에서는 Control입니다. `false`면 아무것도 바인딩하지 않습니다',
+        en: 'The keystroke that opens the palette, bound on the window. Written the way [MPShortcut](../display/shortcut) writes them, so `Mod` is Command on a Mac and Control everywhere else. `false` binds nothing'
+      }
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      description: {
+        ko: '시트가 넓어질 수 있는 한계. 픽셀 수 또는 임의의 CSS 길이',
+        en: 'How wide the sheet may get. A number in pixels, or any CSS length'
+      }
+    },
+    {
+      name: 'maxHeight',
+      type: 'number | string',
+      default: '320',
+      description: {
+        ko: '목록이 스크롤되기 전까지 높아질 수 있는 한계',
+        en: 'How tall the list may get before it scrolls'
+      }
+    },
+    {
+      ...size,
+      description: { ko: '행의 높이와 타입 스케일', en: 'The row height and type scale' }
+    },
+    {
+      ...color,
+      description: {
+        ko: '강조된 행과 캐럿이 읽는 강조색 계열',
+        en: 'Which accent family the highlighted row and the caret read'
+      }
+    },
+    {
+      name: 'locale',
+      type: 'string',
+      description: {
+        ko: '플레이스홀더, 빈 줄, 다이얼로그 자신의 이름이 쓰인 언어',
+        en: "Which language the placeholder, the empty line and the dialog's own name are written in"
+      }
+    },
+    {
+      name: 'placeholder',
+      type: 'string',
+      description: { ko: '필드의 플레이스홀더', en: 'The placeholder in the field' }
+    },
+    {
+      name: 'emptyMessage',
+      type: NODE,
+      description: {
+        ko: '아무것도 일치하지 않았을 때 행이 있어야 할 자리의 줄',
+        en: 'The line where the rows would be, when nothing matched'
+      }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: {
+        ko: '다이얼로그의 접근 가능한 이름. 보이는 제목이 없어서 가져올 곳이 없습니다',
+        en: 'The accessible name of the dialog, which has no visible title to take one from'
+      }
+    }
   ]
 };

@@ -84,6 +84,11 @@ export const ja: MPLocale = {
       search: '検索',
       empty: '項目がありません'
     },
+    command: {
+      label: 'コマンドパレット',
+      search: 'コマンドを入力または検索…',
+      empty: 'コマンドが見つかりません'
+    },
     layout: {
       skipToContent: 'コンテンツへスキップ',
       sidebar: 'サイドバー',

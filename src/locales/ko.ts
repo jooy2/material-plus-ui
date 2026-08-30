@@ -84,6 +84,11 @@ export const ko: MPLocale = {
       search: '검색',
       empty: '항목이 없습니다'
     },
+    command: {
+      label: '명령 팔레트',
+      search: '명령을 입력하거나 검색하세요…',
+      empty: '명령을 찾을 수 없습니다'
+    },
     layout: {
       skipToContent: '본문으로 건너뛰기',
       sidebar: '사이드바',

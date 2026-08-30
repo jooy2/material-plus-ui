@@ -84,6 +84,11 @@ export const pt: MPLocale = {
       search: 'Pesquisar',
       empty: 'Nada aqui'
     },
+    command: {
+      label: 'Paleta de comandos',
+      search: 'Digite um comando ou pesquise…',
+      empty: 'Nenhum comando encontrado'
+    },
     layout: {
       skipToContent: 'Ir para o conteúdo',
       sidebar: 'Barra lateral',

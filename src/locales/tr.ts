@@ -84,6 +84,11 @@ export const tr: MPLocale = {
       search: 'Ara',
       empty: 'Burada bir şey yok'
     },
+    command: {
+      label: 'Komut paleti',
+      search: 'Bir komut yazın veya arayın…',
+      empty: 'Komut bulunamadı'
+    },
     layout: {
       skipToContent: 'İçeriğe geç',
       sidebar: 'Kenar çubuğu',

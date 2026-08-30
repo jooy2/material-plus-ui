@@ -84,6 +84,11 @@ export const nl: MPLocale = {
       search: 'Zoeken',
       empty: 'Niets aanwezig'
     },
+    command: {
+      label: 'Opdrachtenpalet',
+      search: 'Typ een opdracht of zoek…',
+      empty: 'Geen opdrachten gevonden'
+    },
     layout: {
       skipToContent: 'Naar inhoud springen',
       sidebar: 'Zijbalk',

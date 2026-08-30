@@ -59,6 +59,7 @@ export default defineConfig({
     // failure for the test file rather than as anything to do with dependencies.
     include: [
       '@base-ui/react/accordion',
+      '@base-ui/react/autocomplete',
       '@base-ui/react/avatar',
       '@base-ui/react/button',
       '@base-ui/react/checkbox',

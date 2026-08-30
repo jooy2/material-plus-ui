@@ -84,6 +84,11 @@ export const id: MPLocale = {
       search: 'Cari',
       empty: 'Tidak ada apa pun'
     },
+    command: {
+      label: 'Palet perintah',
+      search: 'Ketik perintah atau cari…',
+      empty: 'Perintah tidak ditemukan'
+    },
     layout: {
       skipToContent: 'Lewati ke konten',
       sidebar: 'Bilah sisi',

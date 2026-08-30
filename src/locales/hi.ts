@@ -84,6 +84,11 @@ export const hi: MPLocale = {
       search: 'खोजें',
       empty: 'यहाँ कुछ नहीं है'
     },
+    command: {
+      label: 'कमांड पैलेट',
+      search: 'कमांड लिखें या खोजें…',
+      empty: 'कोई कमांड नहीं मिली'
+    },
     layout: {
       skipToContent: 'सामग्री पर जाएँ',
       sidebar: 'साइडबार',

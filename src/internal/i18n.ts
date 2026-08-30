@@ -295,6 +295,21 @@ export interface MPMessages {
     /** What a list with nothing in it says. */
     empty: string;
   };
+  /**
+   * MPCommandPalette.
+   *
+   * Three strings, two of them drawn: a palette that says *Type a command or
+   * search…* to a Korean reader is a palette that has told them, in the first
+   * thing they see, that it is not for them.
+   */
+  command: {
+    /** The dialog's accessible name. It has no visible title to take one from. */
+    label: string;
+    /** The placeholder in the field. */
+    search: string;
+    /** The line where the rows would be, when nothing matched. */
+    empty: string;
+  };
 }
 
 /** A translation may fill in as much or as little of the table as it has. */

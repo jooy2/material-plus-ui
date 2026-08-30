@@ -84,6 +84,11 @@ export const ar: MPLocale = {
       search: 'بحث',
       empty: 'لا شيء هنا'
     },
+    command: {
+      label: 'لوحة الأوامر',
+      search: 'اكتب أمراً أو ابحث…',
+      empty: 'لا توجد أوامر مطابقة'
+    },
     layout: {
       skipToContent: 'تخطٍ إلى المحتوى',
       sidebar: 'الشريط الجانبي',

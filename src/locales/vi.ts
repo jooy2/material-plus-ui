@@ -84,6 +84,11 @@ export const vi: MPLocale = {
       search: 'Tìm kiếm',
       empty: 'Không có gì ở đây'
     },
+    command: {
+      label: 'Bảng lệnh',
+      search: 'Nhập lệnh hoặc tìm kiếm…',
+      empty: 'Không tìm thấy lệnh'
+    },
     layout: {
       skipToContent: 'Chuyển đến nội dung',
       sidebar: 'Thanh bên',

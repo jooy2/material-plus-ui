@@ -89,6 +89,11 @@ export const zhHans: MPLocale = {
       search: '搜索',
       empty: '这里没有内容'
     },
+    command: {
+      label: '命令面板',
+      search: '输入命令或搜索…',
+      empty: '未找到命令'
+    },
     layout: {
       skipToContent: '跳转到主要内容',
       sidebar: '侧边栏',
