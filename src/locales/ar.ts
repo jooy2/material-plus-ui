@@ -76,6 +76,14 @@ export const ar: MPLocale = {
       value: '{value} من {max}',
       empty: 'بدون تقييم'
     },
+    transfer: {
+      source: 'المتاح',
+      target: 'المحدد',
+      toTarget: 'النقل إلى المحدد',
+      toSource: 'الإرجاع إلى المتاح',
+      search: 'بحث',
+      empty: 'لا شيء هنا'
+    },
     layout: {
       skipToContent: 'تخطٍ إلى المحتوى',
       sidebar: 'الشريط الجانبي',

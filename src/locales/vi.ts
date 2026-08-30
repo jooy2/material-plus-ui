@@ -76,6 +76,14 @@ export const vi: MPLocale = {
       value: '{value} trên {max}',
       empty: 'Chưa đánh giá'
     },
+    transfer: {
+      source: 'Có sẵn',
+      target: 'Đã chọn',
+      toTarget: 'Chuyển sang đã chọn',
+      toSource: 'Trả về có sẵn',
+      search: 'Tìm kiếm',
+      empty: 'Không có gì ở đây'
+    },
     layout: {
       skipToContent: 'Chuyển đến nội dung',
       sidebar: 'Thanh bên',

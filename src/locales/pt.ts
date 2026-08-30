@@ -76,6 +76,14 @@ export const pt: MPLocale = {
       value: '{value} de {max}',
       empty: 'Sem avaliação'
     },
+    transfer: {
+      source: 'Disponíveis',
+      target: 'Selecionados',
+      toTarget: 'Mover para selecionados',
+      toSource: 'Devolver para disponíveis',
+      search: 'Pesquisar',
+      empty: 'Nada aqui'
+    },
     layout: {
       skipToContent: 'Ir para o conteúdo',
       sidebar: 'Barra lateral',

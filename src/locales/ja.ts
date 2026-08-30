@@ -76,6 +76,14 @@ export const ja: MPLocale = {
       value: '{max}段階中{value}',
       empty: '未評価'
     },
+    transfer: {
+      source: '未選択',
+      target: '選択済み',
+      toTarget: '選択済みに移動',
+      toSource: '未選択に戻す',
+      search: '検索',
+      empty: '項目がありません'
+    },
     layout: {
       skipToContent: 'コンテンツへスキップ',
       sidebar: 'サイドバー',

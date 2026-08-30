@@ -76,6 +76,14 @@ export const id: MPLocale = {
       value: '{value} dari {max}',
       empty: 'Belum dinilai'
     },
+    transfer: {
+      source: 'Tersedia',
+      target: 'Terpilih',
+      toTarget: 'Pindahkan ke terpilih',
+      toSource: 'Kembalikan ke tersedia',
+      search: 'Cari',
+      empty: 'Tidak ada apa pun'
+    },
     layout: {
       skipToContent: 'Lewati ke konten',
       sidebar: 'Bilah sisi',

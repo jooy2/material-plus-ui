@@ -76,6 +76,14 @@ export const ru: MPLocale = {
       value: '{value} из {max}',
       empty: 'Без оценки'
     },
+    transfer: {
+      source: 'Доступные',
+      target: 'Выбранные',
+      toTarget: 'Переместить в выбранные',
+      toSource: 'Вернуть в доступные',
+      search: 'Поиск',
+      empty: 'Здесь пусто'
+    },
     layout: {
       skipToContent: 'Перейти к содержимому',
       sidebar: 'Боковая панель',

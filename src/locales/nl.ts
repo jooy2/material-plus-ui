@@ -76,6 +76,14 @@ export const nl: MPLocale = {
       value: '{value} van {max}',
       empty: 'Niet beoordeeld'
     },
+    transfer: {
+      source: 'Beschikbaar',
+      target: 'Geselecteerd',
+      toTarget: 'Naar geselecteerd verplaatsen',
+      toSource: 'Terug naar beschikbaar',
+      search: 'Zoeken',
+      empty: 'Niets aanwezig'
+    },
     layout: {
       skipToContent: 'Naar inhoud springen',
       sidebar: 'Zijbalk',

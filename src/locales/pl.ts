@@ -76,6 +76,14 @@ export const pl: MPLocale = {
       value: '{value} z {max}',
       empty: 'Brak oceny'
     },
+    transfer: {
+      source: 'Dostępne',
+      target: 'Wybrane',
+      toTarget: 'Przenieś do wybranych',
+      toSource: 'Przenieś do dostępnych',
+      search: 'Szukaj',
+      empty: 'Nic tu nie ma'
+    },
     layout: {
       skipToContent: 'Przejdź do treści',
       sidebar: 'Panel boczny',

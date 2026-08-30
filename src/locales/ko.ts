@@ -76,6 +76,14 @@ export const ko: MPLocale = {
       value: '{max}점 만점에 {value}점',
       empty: '평가 없음'
     },
+    transfer: {
+      source: '선택 가능',
+      target: '선택함',
+      toTarget: '선택함으로 이동',
+      toSource: '선택 가능으로 되돌리기',
+      search: '검색',
+      empty: '항목이 없습니다'
+    },
     layout: {
       skipToContent: '본문으로 건너뛰기',
       sidebar: '사이드바',

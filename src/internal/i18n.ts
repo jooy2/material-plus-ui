@@ -270,6 +270,31 @@ export interface MPMessages {
     /** The handle on a resizable column's inner edge. */
     resizeSidebar: string;
   };
+  /**
+   * MPTransfer.
+   *
+   * Every string here is **drawn**, which is unusual in this table and is what
+   * makes the namespace necessary: the two headings, the filter's placeholder
+   * and the line an empty list shows are all read off the screen, and a Korean
+   * page with a column headed *Available* is a page the component broke.
+   *
+   * The two arrows are the exception and are read out rather than drawn, for the
+   * reason the pagination's steppers are.
+   */
+  transfer: {
+    /** The heading over the list of things that have not been chosen. */
+    source: string;
+    /** And over the list of things that have. */
+    target: string;
+    /** The arrow that sends the ticked rows across. */
+    toTarget: string;
+    /** And the one that brings them back. */
+    toSource: string;
+    /** The filter above each list. */
+    search: string;
+    /** What a list with nothing in it says. */
+    empty: string;
+  };
 }
 
 /** A translation may fill in as much or as little of the table as it has. */

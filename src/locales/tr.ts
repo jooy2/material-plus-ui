@@ -76,6 +76,14 @@ export const tr: MPLocale = {
       value: '{max} üzerinden {value}',
       empty: 'Değerlendirilmedi'
     },
+    transfer: {
+      source: 'Kullanılabilir',
+      target: 'Seçili',
+      toTarget: 'Seçilenlere taşı',
+      toSource: 'Kullanılabilire geri al',
+      search: 'Ara',
+      empty: 'Burada bir şey yok'
+    },
     layout: {
       skipToContent: 'İçeriğe geç',
       sidebar: 'Kenar çubuğu',

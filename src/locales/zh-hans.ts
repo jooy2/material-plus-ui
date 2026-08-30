@@ -81,6 +81,14 @@ export const zhHans: MPLocale = {
       value: '{max} 分中的 {value} 分',
       empty: '未评分'
     },
+    transfer: {
+      source: '可选',
+      target: '已选',
+      toTarget: '移到已选',
+      toSource: '移回可选',
+      search: '搜索',
+      empty: '这里没有内容'
+    },
     layout: {
       skipToContent: '跳转到主要内容',
       sidebar: '侧边栏',

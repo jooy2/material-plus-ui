@@ -93,6 +93,7 @@ import {
   MPToggleGroup,
   MPTimelineItem,
   MPTooltip,
+  MPTransfer,
   MPTypography,
   useMPSnackbar
 } from 'material-plus-ui';
@@ -519,6 +520,24 @@ function TogglePreview() {
   );
 }
 
+function TransferPreview() {
+  const [chosen, setChosen] = useState<string[]>(['email']);
+
+  return (
+    <MPTransfer
+      size="xs"
+      height={96}
+      items={[
+        { value: 'name', label: 'Name' },
+        { value: 'email', label: 'Email' },
+        { value: 'role', label: 'Role' }
+      ]}
+      value={chosen}
+      onValueChange={setChosen}
+    />
+  );
+}
+
 const GROUPS: Group[] = [
   {
     title: { ko: '입력', en: 'Inputs' },
@@ -623,6 +642,19 @@ const GROUPS: Group[] = [
         },
         path: '/components/inputs/rating',
         preview: <RatingPreview />
+      },
+      {
+        name: 'MPTransfer',
+        summary: {
+          ko: '두 목록과 그 사이의 화살표 — 긴 선택을 위한 모양',
+          en: 'Two lists and the arrows between them, for a long choice'
+        },
+        path: '/components/inputs/transfer',
+        preview: (
+          <Fit width={300}>
+            <TransferPreview />
+          </Fit>
+        )
       },
       {
         name: 'MPToggle',

@@ -8035,5 +8035,117 @@ export const propTables: Record<string, PropRow[]> = {
       type: NODE,
       description: { ko: '`MPToggle`들', en: 'The `MPToggle`s' }
     }
+  ],
+
+  MPTransfer: [
+    {
+      name: 'items',
+      type: 'readonly MPTransferItem[]',
+      required: true,
+      description: {
+        ko: '어느 쪽에든 놓일 수 있는 모든 것. `{ value, label, disabled? }`이고, 두 목록 모두 이 순서로 그립니다 — 그래서 보냈다가 되돌린 행이 원래 자리로 돌아옵니다',
+        en: 'Everything that can be on either side — `{ value, label, disabled? }`. Both lists draw in this order, which is what lands a row sent across and back where it started'
+      }
+    },
+    {
+      name: 'value',
+      type: 'readonly string[]',
+      description: {
+        ko: '뒤쪽에 놓인 것들. `onValueChange`와 함께 제어합니다. 화살표를 누를 때만 바뀝니다 — 체크는 값이 아닙니다',
+        en: 'What is on the trailing side. Use with `onValueChange` for a controlled pair. It changes on an arrow press and never on a tick'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'readonly string[]',
+      description: {
+        ko: '비제어 쌍에서 뒤쪽에 놓인 채 시작할 것들',
+        en: 'What starts there, for an uncontrolled one'
+      }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: string[]) => void',
+      description: {
+        ko: '화살표를 누를 때, `items`의 순서대로 호출됩니다',
+        en: 'Called on an arrow press, in the order of `items`'
+      }
+    },
+    {
+      name: 'sourceLabel',
+      type: NODE,
+      description: {
+        ko: '앞쪽 목록의 제목. 기본값은 `locale`의 단어이고, 이 제목이 그 목록 전체 선택 체크박스의 이름이기도 합니다',
+        en: "The heading over the leading list. Defaults to the word in `locale`, and it is also the name of that list's select-all tick"
+      }
+    },
+    {
+      name: 'targetLabel',
+      type: NODE,
+      description: { ko: '뒤쪽 목록의 제목', en: 'And over the trailing one' }
+    },
+    {
+      name: 'searchable',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '각 목록 위에 필터를 놓습니다. 각 필터는 자기 쪽만 좁히고, 누름은 필터가 여전히 보여 주고 있는 것만 옮깁니다',
+        en: 'Puts a filter above each list. Each one narrows its own side, and a press moves only what the filter is still showing'
+      }
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      default: '220',
+      description: {
+        ko: '각 목록의 높이 — 픽셀 수 또는 임의의 CSS 길이. 두 목록은 어느 쪽이 더 긴지와 무관하게 같은 높이입니다',
+        en: 'How tall each list is — a number in pixels, or any CSS length. Both are the same height whichever side is longer'
+      }
+    },
+    {
+      ...containerVariant,
+      default: "'outlined'",
+      description: {
+        ko: '각 패널이 칠하는 표면의 양, **컨테이너**의 사다리로. 패널은 남의 라벨이 놓인 행을 담으므로 절대 물들지 않습니다',
+        en: 'How much surface each panel paints, on the **container** ladder — the panels hold rows of somebody else’s labels, so they are never dyed'
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '컨트롤 전체의 크기 — 행, 제목, 필터, 두 화살표',
+        en: 'The scale of the whole control: the rows, the headings, the filter and the two arrows'
+      }
+    },
+    {
+      ...color,
+      description: {
+        ko: '체크와 화살표가 읽는 강조색 계열',
+        en: 'Which accent family the ticks and the arrows read'
+      }
+    },
+    {
+      ...disabled,
+      description: {
+        ko: '아무것도 체크하거나 옮길 수 없습니다',
+        en: 'Nothing can be ticked or moved'
+      }
+    },
+    {
+      name: 'locale',
+      type: 'string',
+      description: {
+        ko: '제목, 화살표, 필터가 쓰인 언어. 가장 가까운 `MPLocaleProvider`, 그다음 영어로 내려갑니다',
+        en: 'Which language the headings, the arrows and the filter are written in. Falls back to the nearest `MPLocaleProvider`, then to English'
+      }
+    },
+    {
+      name: 'labels',
+      type: "Partial<MPMessages['transfer']>",
+      description: {
+        ko: '단어 자체에 대한 덮어쓰기. 번역보다 우선하고, 지정하지 않은 나머지는 번역된 채로 남습니다',
+        en: 'Overrides for the words themselves. They win over the translation, and anything not named stays translated'
+      }
+    }
   ]
 };

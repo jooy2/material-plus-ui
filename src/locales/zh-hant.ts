@@ -80,6 +80,14 @@ export const zhHant: MPLocale = {
       value: '{max} 分中的 {value} 分',
       empty: '未評分'
     },
+    transfer: {
+      source: '可選',
+      target: '已選',
+      toTarget: '移到已選',
+      toSource: '移回可選',
+      search: '搜尋',
+      empty: '這裡沒有內容'
+    },
     layout: {
       skipToContent: '跳至主要內容',
       sidebar: '側邊欄',

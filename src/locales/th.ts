@@ -76,6 +76,14 @@ export const th: MPLocale = {
       value: '{value} จาก {max}',
       empty: 'ยังไม่ได้ให้คะแนน'
     },
+    transfer: {
+      source: 'ที่มีอยู่',
+      target: 'ที่เลือก',
+      toTarget: 'ย้ายไปที่เลือก',
+      toSource: 'ย้ายกลับไปที่มีอยู่',
+      search: 'ค้นหา',
+      empty: 'ไม่มีรายการ'
+    },
     layout: {
       skipToContent: 'ข้ามไปยังเนื้อหา',
       sidebar: 'แถบด้านข้าง',

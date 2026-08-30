@@ -76,6 +76,14 @@ export const hi: MPLocale = {
       value: '{max} में से {value}',
       empty: 'रेटिंग नहीं दी गई'
     },
+    transfer: {
+      source: 'उपलब्ध',
+      target: 'चयनित',
+      toTarget: 'चयनित में ले जाएँ',
+      toSource: 'उपलब्ध में वापस भेजें',
+      search: 'खोजें',
+      empty: 'यहाँ कुछ नहीं है'
+    },
     layout: {
       skipToContent: 'सामग्री पर जाएँ',
       sidebar: 'साइडबार',
