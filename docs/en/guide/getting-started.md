@@ -259,26 +259,34 @@ The ladder is the one place the library knowingly goes beyond the specification.
 
 Every component takes a `className` and a `style`. Both land on the element its props table names — the outermost one it draws, except where the visible part is portalled out of the tree the trigger sits in: a dialog's sheet, a menu's popup, a tooltip's plate.
 
+### The class is concatenated, not merged
+
+Yours is appended to the component's own, and nothing is removed to make room for it. Two classes setting the same property both end up on the element, at equal specificity, and **the one that wins is the one the stylesheet happens to put last** — not the one you wrote.
+
+A class for something the component does not already set always works. That is most of what a class is for, and there is nothing more to know about it:
+
 ```tsx
 <MPButton className="mt-4 w-full">Save</MPButton>
 ```
 
-### The class is concatenated, not merged
+Past that it depends on the pair. On the precompiled path it depends on which sheet the application imported second; on the Tailwind path both are generated in one pass and Tailwind's own ordering decides. Measured against this repository's own stylesheet, on an `MPButton` at the default size:
 
-Yours is appended to the component's own, and nothing is removed to make room for it. So **two utilities setting the same property are resolved by the stylesheet rather than by which of them you wrote.**
+| You pass                    | It sets                | Result  |
+| --------------------------- | ---------------------- | ------- |
+| `px-8`                      | `px-6`                 | applies |
+| `px-2`                      | `px-6`                 | ignored |
+| `h-20`                      | `h-14`                 | applies |
+| `h-8`                       | `h-14`                 | ignored |
+| `text-lg`, `text-xs`        | `text-mp-title-medium` | applies |
+| `bg-red-500`                | `bg-(--_mp-accent)`    | applies |
+| `rounded-lg`                | `rounded-mp-full`      | ignored |
+| `shadow-lg`                 | `shadow-mp-1`          | ignored |
+| `p-8`                       | `px-6`                 | ignored |
+| any of the above with a `!` | —                      | applies |
 
-Which one that is depends on how the styles were wired up. On the precompiled path it is whichever sheet the application imported second. On the Tailwind path both are generated in one pass, and Tailwind's own ordering decides — which is per property, and not something to work out at the call site:
+The first four rows are the ones worth staring at. `px-8` works and `px-2` does not, on the same component and the same property, because Tailwind emits a scale in scale order and the larger step is therefore later — so _making a control bigger tends to work and making it smaller tends not to_. The rest is which of two theme keys Tailwind happened to sort first: the library's `--text-mp-*` land before Tailwind's own, so any `text-*` you pass wins, while `--radius-mp-*` and `--shadow-mp-*` land after, so `rounded-*` and `shadow-*` do not.
 
-| You pass     | The component sets    | Which one wins |
-| ------------ | --------------------- | -------------- |
-| `p-8`        | `px-6`                | the component  |
-| `rounded-lg` | `rounded-mp-full`     | the component  |
-| `shadow-lg`  | `shadow-mp-1`         | the component  |
-| `text-lg`    | `text-mp-label-large` | yours          |
-| `bg-red-500` | `bg-mp-primary`       | yours          |
-| `h-20`       | `h-14`                | yours          |
-
-Read the column, not the rows: the answers are what one version of Tailwind happens to emit, and the point is that there is no rule connecting them. `className` is the right tool for what a component does **not** already set — margin, width, grid placement, position, an animation — and the wrong one for taking something over.
+None of that is a promise. It is what one version of Tailwind emits, it is per pair rather than per property, and it can move under you when either side adds a token. Treat `className` as the tool for what the component leaves alone.
 
 ### To take something over
 
