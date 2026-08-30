@@ -182,4 +182,26 @@ describe('MPCommandPalette', () => {
     await expect.poll(() => document.querySelector('.mp-command-palette')).not.toBeNull();
     await expect.element(screen.getByRole('combobox')).toHaveValue('');
   });
+
+  describe('what the query is matched against', () => {
+    /*
+     * The parts a command answers to are folded into one string once per `items`
+     * rather than per keystroke, and joined with a newline rather than a space
+     * so that a query cannot match across the seam between two of them: `copy
+     * link` should not find a command called *Copy* that happens to be tagged
+     * *link*.
+     */
+    it('does not match across the seam between a label and a keyword', async () => {
+      const screen = await render(
+        <MPCommandPalette
+          defaultOpen
+          items={[{ value: 'copy', label: 'Copy', keywords: ['link'] }]}
+        />
+      );
+
+      await screen.getByRole('combobox').fill('copy link');
+
+      expect(screen.getByText('Copy').query()).toBeNull();
+    });
+  });
 });

@@ -141,23 +141,23 @@ const ROW_PAD_Y: Record<MPSize, string> = {
   xl: 'py-3'
 };
 
-/** Does the query appear in anything this command answers to? */
-function matches(item: MPCommand, query: string): boolean {
-  if (query === '') {
-    return true;
-  }
-
-  const needle = query.toLowerCase();
-
-  if (item.label.toLowerCase().includes(needle)) {
-    return true;
-  }
-
-  if (item.group?.toLowerCase().includes(needle)) {
-    return true;
-  }
-
-  return (item.keywords ?? []).some((word) => word.toLowerCase().includes(needle));
+/**
+ * Everything one command answers to, folded once, as a single string.
+ *
+ * The filter used to lower-case the label, the group and every keyword on every
+ * item on every keystroke — five hundred commands with five keywords each is
+ * three thousand throwaway strings per character typed, in the handler of the
+ * one control whose entire job is to keep up with typing.
+ *
+ * None of that depends on the query, so it is done once per `items` and the
+ * keystroke is left with an `includes`.
+ *
+ * The parts are joined with a newline rather than a space, so a query cannot
+ * match across the seam between a label and a keyword — `"copy link"` should not
+ * find a command called *Copy* that happens to be tagged *link*.
+ */
+function haystack(item: MPCommand): string {
+  return [item.label, item.group ?? '', ...(item.keywords ?? [])].join('\n').toLowerCase();
 }
 
 /**
@@ -302,10 +302,17 @@ export function MPCommandPalette({
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [shortcut, setOpen]);
 
-  const filtered = React.useMemo(
-    () => items.filter((item) => matches(item, query)),
-    [items, query]
-  );
+  const folded = React.useMemo(() => items.map(haystack), [items]);
+
+  const filtered = React.useMemo(() => {
+    if (query === '') {
+      return items;
+    }
+
+    const needle = query.toLowerCase();
+
+    return items.filter((_, index) => folded[index].includes(needle));
+  }, [items, folded, query]);
 
   const run = (item: MPCommand) => {
     if (item.disabled) {

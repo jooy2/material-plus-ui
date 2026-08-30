@@ -336,14 +336,43 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
     pinned: !!startIcon
   });
 
+  /**
+   * The options, indexed the two ways the render actually asks for them.
+   *
+   * `byValue` is what a chip is looked up through. It used to be a `find` per
+   * chip, which is fine for three tags against ten options and is O(n·m) for
+   * thirty against three thousand — on every render, including every render a
+   * keystroke causes.
+   *
+   * `known` is what the "add this" row asks: does the list already hold what was
+   * typed? That used to lower-case every label and every value on every
+   * keystroke, which is two throwaway strings per option per character. Neither
+   * question depends on the query, so both are answered once per `items`.
+   */
+  const byValue = React.useMemo(
+    () => new Map(options.map((option) => [option.value, option])),
+    [options]
+  );
+
+  const known = React.useMemo(() => {
+    const folded = new Set<string>();
+
+    for (const option of options) {
+      folded.add(option.label.toLocaleLowerCase());
+      folded.add(String(option.value).toLocaleLowerCase());
+    }
+
+    return folded;
+  }, [options]);
+
   const entryFor = React.useCallback(
     (item: MPComboboxValue): Entry =>
-      options.find((option) => option.value === item) ?? {
+      byValue.get(item) ?? {
         value: item,
         label: String(item),
         custom: true
       },
-    [options]
+    [byValue]
   );
 
   // The row that offers what was typed. It is a real item rather than a special
@@ -354,11 +383,10 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
   const folded = trimmed.toLocaleLowerCase();
   const alreadyKnown =
     trimmed === '' ||
-    options.some(
-      (option) =>
-        option.label.toLocaleLowerCase() === folded ||
-        String(option.value).toLocaleLowerCase() === folded
-    ) ||
+    known.has(folded) ||
+    // The selection is walked rather than indexed: it is the handful of things
+    // chosen so far, and a `Set` rebuilt per keystroke to search five values
+    // costs more than the search.
     selection.some((item) => String(item).toLocaleLowerCase() === folded);
   const customValue = allowCustom && !readOnly && !disabled && !alreadyKnown ? trimmed : null;
 
