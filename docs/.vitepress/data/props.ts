@@ -7868,5 +7868,172 @@ export const propTables: Record<string, PropRow[]> = {
         en: "The button's size. Every other [MPIconButton](../inputs/icon-button) prop passes straight through too"
       }
     }
+  ],
+
+  MPToggle: [
+    {
+      ...containerVariant,
+      default: "'outlined'",
+      description: {
+        ko: '**꺼져 있는 동안** 토글이 칠하는 표면의 양. 켜진 상태는 어떤 무게를 골랐든 언제나 강조색이 자기를 주장하는 쪽입니다',
+        en: 'How much surface the toggle paints while it is **off**. On is always the accent asserting itself, whichever weight was asked for'
+      }
+    },
+    {
+      ...color,
+      description: {
+        ko: '켜졌을 때 읽을 강조색 계열. 꺼진 토글은 절대 이 색을 입지 않습니다 — 그것이 이 신호가 신호로 남는 이유입니다',
+        en: 'Which accent family it turns on in. An unpressed toggle never wears it, which is what keeps the signal a signal'
+      }
+    },
+    {
+      name: 'pressed',
+      type: 'boolean',
+      description: {
+        ko: '켜져 있는지. `onPressedChange`와 함께 제어합니다',
+        en: 'Whether it is on. Use with `onPressedChange` for a controlled toggle'
+      }
+    },
+    {
+      name: 'defaultPressed',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '비제어 토글이 켜진 채로 시작할지',
+        en: 'Whether it starts on, for an uncontrolled one'
+      }
+    },
+    {
+      name: 'onPressedChange',
+      type: '(pressed: boolean) => void',
+      description: {
+        ko: '상태가 바뀔 때마다 호출됩니다',
+        en: 'Called whenever the state changes'
+      }
+    },
+    {
+      name: 'value',
+      type: 'string',
+      description: {
+        ko: '[MPToggleGroup](./toggle#mptogglegroup) 안에서 이 토글을 식별합니다',
+        en: 'Identifies the toggle inside an [MPToggleGroup](./toggle#mptogglegroup)'
+      }
+    },
+    {
+      name: 'startIcon',
+      type: NODE,
+      description: { ko: '라벨 앞의 글리프', en: 'A glyph before the label' }
+    },
+    {
+      name: 'endIcon',
+      type: NODE,
+      description: { ko: '라벨 뒤의 글리프', en: 'A glyph after it' }
+    },
+    {
+      ...size,
+      description: {
+        ko: '토글의 높이와 타입 스케일. [MPButton](./button)과 같은 사다리라서, 한 행에 놓인 버튼과 토글의 높이가 맞습니다',
+        en: "The toggle's height and type scale. The same ladder [MPButton](./button) is on, so a button and a toggle in one row line up"
+      }
+    },
+    fullWidth,
+    disabled,
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '라벨. 비워 두면 받은 글리프를 감싸 정사각형이 됩니다 — 툴바 토글이자 MD3가 *toggle icon button*이라 부르는 것입니다. 아이콘만 있는 토글에도 `aria-label`은 필요합니다',
+        en: 'The label. Left out, the toggle goes square around whatever glyph it was given — which is a toolbar toggle, and what MD3 calls a *toggle icon button*. An icon-only toggle still needs an `aria-label`'
+      }
+    }
+  ],
+
+  MPToggleGroup: [
+    {
+      ...containerVariant,
+      default: "'outlined'",
+      description: {
+        ko: '세트의 모든 토글에 전달됩니다',
+        en: 'Passed to every toggle in the set'
+      }
+    },
+    {
+      ...color,
+      description: {
+        ko: '세트의 모든 토글에 전달됩니다',
+        en: 'Passed to every toggle in the set'
+      }
+    },
+    {
+      name: 'value',
+      type: 'readonly string[]',
+      description: {
+        ko: '어떤 토글이 켜져 있는지, `value` 기준으로. 단일 선택에서도 배열입니다 — [MPSegmentedButton](./segmented-button)과 같은 결정으로, boolean prop 하나에 *타입*이 바뀌는 `value`는 읽기 전에 매번 좁혀야 하는 유니온입니다',
+        en: 'Which toggles are on, by their `value`. An array in both modes, the same decision [MPSegmentedButton](./segmented-button) makes: a `value` whose *type* changed with a boolean prop would be a union every caller has to narrow before they can read it'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'readonly string[]',
+      description: {
+        ko: '비제어 세트에서 어떤 것이 켜진 채 시작할지',
+        en: 'Which start on, for an uncontrolled set'
+      }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: string[]) => void',
+      description: {
+        ko: '켜져 있는 모든 값과 함께 호출됩니다',
+        en: 'Called with every value that is on'
+      }
+    },
+    {
+      name: 'multiple',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '한 번에 둘 이상이 켜질 수 있는지. 꺼져 있으면 하나를 켜는 것이 직전 것을 끕니다 — 그건 하나 고르기이고, 한 번 더 생각할 값어치가 있습니다. 고르는 것이 상태가 아니라 **값**이라면 [MPSegmentedButton](./segmented-button)이나 [MPRadioGroup](./radio-group)입니다',
+        en: 'Whether more than one may be on at a time. Off, turning one on turns the last one off — which is a one-of-a-set, and worth a second thought: if what is being chosen is a **value** rather than a state, that is an [MPSegmentedButton](./segmented-button) or an [MPRadioGroup](./radio-group)'
+      }
+    },
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+      description: { ko: '토글이 놓이는 방향', en: 'Which way the toggles run' }
+    },
+    {
+      ...size,
+      description: { ko: '세트의 모든 토글에 전달됩니다', en: 'Passed to every toggle in the set' }
+    },
+    {
+      ...disabled,
+      description: {
+        ko: '세트 전체를 한 번에 비활성화합니다',
+        en: 'Disables every toggle in the set at once'
+      }
+    },
+    {
+      name: 'loopFocus',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '방향키가 양 끝에서 반대편으로 돌아가는지',
+        en: 'Whether the arrow keys wrap around at the ends'
+      }
+    },
+    {
+      ...fullWidth,
+      description: {
+        ko: '컨테이너 폭까지 늘리고 토글끼리 폭을 균등하게 나눕니다',
+        en: 'Stretches to the container and divides the width evenly between the toggles'
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '`MPToggle`들', en: 'The `MPToggle`s' }
+    }
   ]
 };

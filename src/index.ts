@@ -83,5 +83,7 @@ export * from './components/text-field';
 export * from './components/text-link';
 export * from './components/time-picker';
 export * from './components/timeline';
+export * from './components/toggle';
+export * from './components/toggle-group';
 export * from './components/tooltip';
 export * from './components/typography';

@@ -1,24 +1,10 @@
 import * as React from 'react';
-import { MPButtonGroupContext, type MPButtonGroupContextValue } from '../../internal/button-group';
+import {
+  GROUP_JOIN,
+  MPButtonGroupContext,
+  type MPButtonGroupContextValue
+} from '../../internal/button-group';
 import type { MPColor, MPOrientation, MPStyleProps, MPVariant } from '../../types';
-
-/**
- * The corners that face a neighbour.
- *
- * MD3's connected button group keeps the run's *outer* corners fully round and
- * cuts the inner ones back to `corner-small`, so the row reads as one shape that
- * has been divided rather than as three pills that happen to be adjacent. The
- * seam is a 2px gap rather than a border, which is what lets a filled group work
- * at all: two filled buttons sharing an edge merge into one blob, and a hairline
- * between them would be the only line on the page drawn between two fills.
- *
- * Logical properties (`s`/`e`) rather than left/right: under RTL the first button
- * is on the right, and `rounded-l-none` would flatten the wrong side.
- */
-const JOIN: Record<MPOrientation, string> = {
-  horizontal: '[&>*:not(:first-child)]:rounded-s-mp-sm [&>*:not(:last-child)]:rounded-e-mp-sm',
-  vertical: '[&>*:not(:first-child)]:rounded-t-mp-sm [&>*:not(:last-child)]:rounded-b-mp-sm'
-};
 
 export interface MPButtonGroupProps
   extends MPStyleProps, Omit<React.ComponentPropsWithoutRef<'div'>, 'color'> {
@@ -81,7 +67,7 @@ export const MPButtonGroup = React.forwardRef<HTMLDivElement, MPButtonGroupProps
           className={[
             'mp-button-group inline-flex gap-0.5 align-middle',
             orientation === 'vertical' ? 'flex-col' : 'flex-row',
-            JOIN[orientation],
+            GROUP_JOIN[orientation],
             // The focus ring is drawn outside the button, so a focused button in
             // the middle of a run would be painted under whichever neighbour
             // comes after it in the DOM.

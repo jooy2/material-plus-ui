@@ -89,6 +89,8 @@ import {
   MPTextLink,
   MPTimePicker,
   MPTimeline,
+  MPToggle,
+  MPToggleGroup,
   MPTimelineItem,
   MPTooltip,
   MPTypography,
@@ -506,6 +508,17 @@ function SidebarPreview() {
   );
 }
 
+function TogglePreview() {
+  const [marks, setMarks] = useState<string[]>(['bold']);
+
+  return (
+    <MPToggleGroup size="sm" multiple value={marks} onValueChange={setMarks}>
+      <MPToggle value="bold">Bold</MPToggle>
+      <MPToggle value="italic">Italic</MPToggle>
+    </MPToggleGroup>
+  );
+}
+
 const GROUPS: Group[] = [
   {
     title: { ko: '입력', en: 'Inputs' },
@@ -610,6 +623,19 @@ const GROUPS: Group[] = [
         },
         path: '/components/inputs/rating',
         preview: <RatingPreview />
+      },
+      {
+        name: 'MPToggle',
+        summary: {
+          ko: '눌린 채로 남는 버튼 — 꺼짐은 중립, 켜짐은 강조색',
+          en: 'A button that stays down: neutral off, accent on'
+        },
+        path: '/components/inputs/toggle',
+        preview: (
+          <Fit>
+            <TogglePreview />
+          </Fit>
+        )
       },
       {
         name: 'MPSegmentedButton',
