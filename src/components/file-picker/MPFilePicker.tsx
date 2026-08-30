@@ -326,7 +326,11 @@ export const MPFilePicker = React.forwardRef<HTMLInputElement, MPFilePickerProps
             drop is a gesture over an *area*, and the list of files under the box
             is part of the same area as far as the pointer is concerned. */}
         <div
-          className="flex w-full flex-col"
+          // `relative`, because the real `<input>` below is positioned. Without
+          // a containing block of its own it resolves against whatever ancestor
+          // happens to be positioned — the page, most of the time — and a
+          // clipped one-pixel box lands wherever that turns out to be.
+          className="relative flex w-full flex-col"
           onDragEnter={(event) => {
             if (inert) {
               return;

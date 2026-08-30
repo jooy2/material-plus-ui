@@ -204,7 +204,15 @@ export function MPTooltip({
       open={open}
       defaultOpen={defaultOpen}
       onOpenChange={(next) => {
-        setUncontrolledOpen(next);
+        // Only while nobody else owns the answer. A controlled tooltip's mirror
+        // is read through `open ?? uncontrolledOpen`, so writing to it changes
+        // nothing today — but it leaves a second copy of the state drifting
+        // behind the prop, which is the shape every controlled/uncontrolled bug
+        // in this library has started as.
+        if (open === undefined) {
+          setUncontrolledOpen(next);
+        }
+
         onOpenChange?.(next);
       }}
     >

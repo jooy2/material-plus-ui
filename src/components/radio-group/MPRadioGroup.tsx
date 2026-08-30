@@ -73,7 +73,7 @@ export const MPRadio = React.forwardRef<HTMLElement, MPRadioProps>(function MPRa
   const group = React.useContext(MPRadioGroupContext);
   const dot = DOT[group.size];
   const generatedId = React.useId();
-  const fieldId = id ?? `mp-radio-${generatedId}`;
+  const fieldId = id ?? generatedId;
 
   return (
     <Field.Root
