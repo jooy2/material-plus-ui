@@ -69,6 +69,11 @@ export interface MPDateTimePickerProps extends MPPickerShellProps {
   /** A 12-hour dial with an AM/PM column. Defaults to whatever the locale does. */
   hour12?: boolean;
   showSeconds?: boolean;
+  /**
+   * How far apart the rows of each clock column are. Rounded, and held between 1
+   * and the column's own span — see [MPTimePicker](./time-picker).
+   * @default 1
+   */
   hourStep?: number;
   minuteStep?: number;
   secondStep?: number;

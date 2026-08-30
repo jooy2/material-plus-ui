@@ -95,6 +95,54 @@ describe('MPTimePicker', () => {
         screen.getByRole('listbox', { name: 'Minute' }).getByRole('option').all()
       ).toHaveLength(4);
     });
+
+    /*
+     * A step is the divisor that decides how many rows there are, so the values
+     * that are not a count have to be turned into one before `Array.from` sees
+     * them: `Math.ceil(60 / 0)` is `Infinity`, which it rejects outright.
+     */
+    it('survive a step of nought rather than throwing on it', async () => {
+      const screen = await render(<Controlled minuteStep={0} />);
+
+      await screen.getByRole('button', { name: 'Starts at' }).click();
+
+      expect(
+        screen.getByRole('listbox', { name: 'Minute' }).getByRole('option').all()
+      ).toHaveLength(60);
+    });
+
+    it('survive a negative step rather than drawing an empty column', async () => {
+      const screen = await render(<Controlled minuteStep={-5} />);
+
+      await screen.getByRole('button', { name: 'Starts at' }).click();
+
+      expect(
+        screen.getByRole('listbox', { name: 'Minute' }).getByRole('option').all()
+      ).toHaveLength(60);
+    });
+
+    it('round a fractional step rather than printing one into the clock', async () => {
+      const screen = await render(<Controlled minuteStep={2.5} />);
+
+      await screen.getByRole('button', { name: 'Starts at' }).click();
+
+      const rows = screen.getByRole('listbox', { name: 'Minute' }).getByRole('option').all();
+
+      expect(rows).toHaveLength(20);
+      expect(rows[1].element().textContent).toBe('03');
+    });
+
+    // A step wider than the column leaves the one row it can offer, rather than
+    // none at all.
+    it('hold a step larger than the column to the column', async () => {
+      const screen = await render(<Controlled hourStep={99} />);
+
+      await screen.getByRole('button', { name: 'Starts at' }).click();
+
+      expect(screen.getByRole('listbox', { name: 'Hour' }).getByRole('option').all()).toHaveLength(
+        1
+      );
+    });
   });
 
   describe('choosing a time', () => {

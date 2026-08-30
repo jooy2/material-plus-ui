@@ -1038,6 +1038,34 @@ export interface MPTimeGridProps {
 }
 
 /**
+ * How far apart a column's rows are, as a number the column can be built from.
+ *
+ * A step is arithmetic before it is a preference: it is the divisor that
+ * decides how many rows there are, and `Math.ceil(60 / 0)` is `Infinity` —
+ * which `Array.from` rejects outright, so a `minuteStep={0}` took the whole
+ * picker down with `RangeError: Invalid array length`. A negative one is
+ * quieter and worse: the length comes out negative, `Array.from` reads that
+ * as zero, and the column renders empty with nothing said about why.
+ *
+ * So it is clamped rather than trusted, which is what every other numeric prop
+ * in this library already does — `MPGrid`'s column count, `MPOtpField`'s
+ * length, `MPRating`'s precision. Rounded for the same reason those are: a
+ * column of 2.5-minute rows is not something anybody meant, and it would print
+ * `7.5` into the middle of a clock.
+ *
+ * The ceiling is the column's own span. A step larger than the span leaves one
+ * row — `0`, or `12` on a 12-hour dial — which is a column that offers the
+ * only value it can rather than no values at all.
+ */
+function columnStep(step: number, span: number): number {
+  if (!Number.isFinite(step)) {
+    return 1;
+  }
+
+  return Math.min(span, Math.max(1, Math.round(step)));
+}
+
+/**
  * Brings a row into view *inside its own column*, and nowhere else.
  *
  * `scrollIntoView` walks every scrollable ancestor up to the document, and the
@@ -1129,22 +1157,25 @@ export function MPTimeGrid({
   }, [autoFocus]);
 
   const hours = React.useMemo(() => {
-    const count = Math.ceil((hour12 ? 12 : 24) / hourStep);
-    const raw = Array.from({ length: count }, (_, index) => index * hourStep);
+    const span = hour12 ? 12 : 24;
+    const step = columnStep(hourStep, span);
+    const raw = Array.from({ length: Math.ceil(span / step) }, (_, index) => index * step);
 
     // 12, 1, 2 … 11 — the order a 12-hour dial is read in, not 0…11.
     return hour12 ? raw.map((hour) => (hour === 0 ? 12 : hour)) : raw;
   }, [hour12, hourStep]);
 
-  const minutes = React.useMemo(
-    () => Array.from({ length: Math.ceil(60 / minuteStep) }, (_, index) => index * minuteStep),
-    [minuteStep]
-  );
+  const minutes = React.useMemo(() => {
+    const step = columnStep(minuteStep, 60);
 
-  const seconds = React.useMemo(
-    () => Array.from({ length: Math.ceil(60 / secondStep) }, (_, index) => index * secondStep),
-    [secondStep]
-  );
+    return Array.from({ length: Math.ceil(60 / step) }, (_, index) => index * step);
+  }, [minuteStep]);
+
+  const seconds = React.useMemo(() => {
+    const step = columnStep(secondStep, 60);
+
+    return Array.from({ length: Math.ceil(60 / step) }, (_, index) => index * step);
+  }, [secondStep]);
 
   /** The instant choosing this row would produce. */
   const candidate = (unit: MPTimeUnit, raw: number): Date => {

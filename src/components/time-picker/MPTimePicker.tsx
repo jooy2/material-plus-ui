@@ -68,6 +68,10 @@ export interface MPTimePickerProps extends MPPickerShellProps {
   showSeconds?: boolean;
   /**
    * How far apart the rows of each column are.
+   *
+   * Rounded, and held between 1 and the column's own span: a step of nought has
+   * no number of rows at all, and one wider than the column leaves the single
+   * row it can offer.
    * @default 1
    */
   hourStep?: number;
