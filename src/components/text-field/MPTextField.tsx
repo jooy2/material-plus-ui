@@ -155,8 +155,19 @@ export interface MPTextFieldProps extends MPStyleProps {
    */
   onChange?: (value: string) => void;
   /**
-   * Called when Enter is pressed. On a single-line field Enter is then
-   * swallowed, so a form is submitted once rather than also natively.
+   * Called when Enter is pressed.
+   *
+   * On a single-line field the key is then swallowed, so a surrounding form is
+   * submitted once rather than also natively.
+   *
+   * On a **multiline** field it is not, and both things happen: this fires *and*
+   * a newline is inserted. That is deliberate — the prop reports the keystroke
+   * rather than deciding what the field does with it — but it is worth knowing
+   * before wiring it to something that sends. `disableEnterKey` is what makes
+   * Enter a submission there and nothing else.
+   *
+   * Never called for the Enter that commits an IME composition: that keystroke
+   * belongs to the input method, not to the form.
    */
   onSubmit?: () => void;
   /**
