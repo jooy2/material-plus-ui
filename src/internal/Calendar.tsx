@@ -1200,61 +1200,142 @@ export function MPTimeGrid({
   const pad = (raw: number) => String(raw).padStart(2, '0');
   const displayHour = hour12 ? base.getHours() % 12 || 12 : base.getHours();
 
+  /**
+   * Where each column's single tab stop is.
+   *
+   * A `listbox` owes a keyboard reader one tab stop and the arrow keys inside
+   * it, and this had neither: every row was an ordinary `<button>`, so a clock
+   * was twenty-four plus sixty tab stops and the file's own comment about rows
+   * "a real listbox that arrow keys already reach" was describing something no
+   * browser does. A `role` is a promise about behaviour, not a label.
+   *
+   * Empty until the reader moves: a column with nothing in this falls back to
+   * the row it has chosen, which is what Tab should land on the first time. Once
+   * they have arrowed somewhere, Tab comes back to where they left off — the
+   * listbox pattern's rule, and the reason this is state rather than derived.
+   */
+  const [cursor, setCursor] = React.useState<Partial<Record<MPTimeUnit, number>>>({});
+
   const column = (
     unit: MPTimeUnit,
     name: string,
     rows: number[],
     isChosen: (raw: number) => boolean,
     render: (raw: number) => string
-  ) => (
-    <div
-      key={unit}
-      role="listbox"
-      aria-label={name}
-      className={[
-        'mp-time-grid__column flex flex-col gap-0.5 overflow-y-auto overscroll-contain',
-        // The same height as the calendar beside it, so a date-time picker's
-        // popup is one rectangle rather than two of different heights.
-        'h-[calc(var(--_mp-cell)*7)] w-[calc(var(--_mp-cell)*1.75)]',
-        'scroll-py-0.5 [scrollbar-width:thin]'
-      ].join(' ')}
-    >
-      {rows.map((raw) => {
-        const at = candidate(unit, raw);
-        const chosen = value !== null && isChosen(raw);
-        const disabled = shouldDisableTime?.(at, unit) ?? false;
+  ) => {
+    const chosenRow = value === null ? -1 : rows.findIndex((raw) => isChosen(raw));
+    const at = cursor[unit] ?? (chosenRow >= 0 ? chosenRow : 0);
 
-        return (
-          <button
-            key={raw}
-            type="button"
-            role="option"
-            aria-selected={chosen}
-            aria-disabled={disabled || undefined}
-            data-chosen={chosen ? 'true' : undefined}
-            className={[
-              CELL_BASE,
-              'rounded-mp-full h-(--_mp-cell) w-full shrink-0',
-              PROSE_TEXT[size],
-              disabled
-                ? 'cursor-default text-mp-on-surface/38'
-                : chosen
-                  ? 'bg-(--_mp-accent) text-(--_mp-on-accent)'
-                  : 'text-mp-on-surface'
-            ].join(' ')}
-            onClick={() => {
-              if (!disabled) {
-                onChange(at);
-              }
-            }}
-          >
-            {disabled ? null : <MPStateLayer />}
-            {render(raw)}
-          </button>
-        );
-      })}
-    </div>
-  );
+    /** Moves the tab stop, and the focus with it. */
+    const moveTo = (index: number, column: HTMLElement) => {
+      const next = Math.min(rows.length - 1, Math.max(0, index));
+      const row = column.children[next];
+
+      setCursor((current) => ({ ...current, [unit]: next }));
+
+      if (row instanceof HTMLElement) {
+        // `preventScroll` and then a scroll of our own: the browser's would walk
+        // every scrollable ancestor up to the document, and the popup this runs
+        // in may not have been positioned yet.
+        row.focus({ preventScroll: true });
+        revealInColumn(row);
+      }
+    };
+
+    return (
+      <div
+        key={unit}
+        role="listbox"
+        aria-label={name}
+        className={[
+          'mp-time-grid__column flex flex-col gap-0.5 overflow-y-auto overscroll-contain',
+          // The same height as the calendar beside it, so a date-time picker's
+          // popup is one rectangle rather than two of different heights.
+          'h-[calc(var(--_mp-cell)*7)] w-[calc(var(--_mp-cell)*1.75)]',
+          'scroll-py-0.5 [scrollbar-width:thin]'
+        ].join(' ')}
+        onKeyDown={(event) => {
+          /*
+           * A page is five rows rather than a screenful, which is what the
+           * column happens to show: the number a reader can predict is worth
+           * more here than the one that fills the box, and PageDown on a clock
+           * is "a bit further" rather than "somewhere down there".
+           */
+          const steps: Record<string, number> = {
+            ArrowDown: 1,
+            ArrowUp: -1,
+            PageDown: 5,
+            PageUp: -5
+          };
+
+          const step = steps[event.key];
+          const to =
+            step !== undefined
+              ? at + step
+              : event.key === 'Home'
+                ? 0
+                : event.key === 'End'
+                  ? rows.length - 1
+                  : null;
+
+          if (to === null) {
+            return;
+          }
+
+          // Held rather than let through: ArrowDown in a column would otherwise
+          // scroll the popup out from under the row it just moved to.
+          event.preventDefault();
+          moveTo(to, event.currentTarget);
+        }}
+      >
+        {rows.map((raw, index) => {
+          const candidateAt = candidate(unit, raw);
+          const chosen = value !== null && isChosen(raw);
+          const disabled = shouldDisableTime?.(candidateAt, unit) ?? false;
+
+          return (
+            <button
+              key={raw}
+              type="button"
+              role="option"
+              aria-selected={chosen}
+              aria-disabled={disabled || undefined}
+              data-chosen={chosen ? 'true' : undefined}
+              /*
+               * One tab stop for the column. Not the `disabled` attribute on the
+               * unavailable rows either, for the reason the calendar's cells
+               * give: a disabled button leaves the tab order and takes the arrow
+               * keys' path with it, so a reader walking the column would fall
+               * into a hole at every blocked minute.
+               */
+              tabIndex={index === at ? 0 : -1}
+              className={[
+                CELL_BASE,
+                'rounded-mp-full h-(--_mp-cell) w-full shrink-0',
+                PROSE_TEXT[size],
+                disabled
+                  ? 'cursor-default text-mp-on-surface/38'
+                  : chosen
+                    ? 'bg-(--_mp-accent) text-(--_mp-on-accent)'
+                    : 'text-mp-on-surface'
+              ].join(' ')}
+              // A row reached with the pointer is where the reader is, so Tab
+              // should come back to it as much as to one they arrowed to.
+              onFocus={() => setCursor((current) => ({ ...current, [unit]: index }))}
+              onClick={() => {
+                if (!disabled) {
+                  onChange(candidateAt);
+                }
+              }}
+            >
+              {disabled ? null : <MPStateLayer />}
+              {render(raw)}
+            </button>
+          );
+        })}
+      </div>
+    );
+  };
 
   return (
     <div

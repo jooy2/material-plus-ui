@@ -145,6 +145,85 @@ describe('MPTimePicker', () => {
     });
   });
 
+  /*
+   * A `role="listbox"` is a promise about behaviour rather than a label. Without
+   * the arrow keys and a roving tab stop it is twenty-four plus sixty ordinary
+   * buttons wearing the word.
+   */
+  describe('the columns as a keyboard reader meets them', () => {
+    async function openColumn(screen: Awaited<ReturnType<typeof render>>) {
+      await screen.getByRole('button', { name: 'Starts at' }).click();
+
+      return screen.getByRole('listbox', { name: 'Minute' }).element() as HTMLElement;
+    }
+
+    it('takes one tab stop for the whole column', async () => {
+      const screen = await render(<Controlled />);
+      const column = await openColumn(screen);
+      const stops = [...column.children].filter((row) => (row as HTMLElement).tabIndex === 0);
+
+      expect(stops).toHaveLength(1);
+    });
+
+    it('puts that tab stop on the chosen row', async () => {
+      const screen = await render(<Controlled initial={new Date(2026, 6, 15, 9, 30)} />);
+      const column = await openColumn(screen);
+
+      expect((column.children[30] as HTMLElement).tabIndex).toBe(0);
+    });
+
+    it('moves down and up the column with the arrow keys', async () => {
+      const screen = await render(<Controlled />);
+      const column = await openColumn(screen);
+
+      (column.children[0] as HTMLElement).focus();
+      column.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+      expect(document.activeElement).toBe(column.children[1]);
+
+      column.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
+      expect(document.activeElement).toBe(column.children[0]);
+    });
+
+    it('goes to the ends with Home and End', async () => {
+      const screen = await render(<Controlled />);
+      const column = await openColumn(screen);
+
+      (column.children[0] as HTMLElement).focus();
+      column.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }));
+      expect(document.activeElement).toBe(column.children[59]);
+
+      column.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }));
+      expect(document.activeElement).toBe(column.children[0]);
+    });
+
+    // Held rather than stopped at a boundary: a column has two ends and running
+    // off one should stay put, not wrap into the other.
+    it('stops at the ends rather than wrapping', async () => {
+      const screen = await render(<Controlled />);
+      const column = await openColumn(screen);
+
+      (column.children[0] as HTMLElement).focus();
+      column.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
+
+      expect(document.activeElement).toBe(column.children[0]);
+    });
+
+    it('leaves the keys it does not answer to alone', async () => {
+      const screen = await render(<Controlled />);
+      const column = await openColumn(screen);
+      const event = new KeyboardEvent('keydown', {
+        key: 'Tab',
+        bubbles: true,
+        cancelable: true
+      });
+
+      (column.children[0] as HTMLElement).focus();
+      column.dispatchEvent(event);
+
+      expect(event.defaultPrevented).toBe(false);
+    });
+  });
+
   describe('choosing a time', () => {
     it('hands the parent a Date on the reference day', async () => {
       const onValueChange = vi.fn();
