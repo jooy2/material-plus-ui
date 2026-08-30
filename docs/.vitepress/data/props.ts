@@ -8506,5 +8506,90 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'The accessible name of the dialog, which has no visible title to take one from'
       }
     }
+  ],
+
+  MPMenubar: [
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+      description: {
+        ko: '바가 놓이는 방향. `vertical`은 메뉴가 늘어선 옆 레일의 모양이고, 방향키는 어느 쪽이든 따라갑니다',
+        en: 'Which way the bar runs. `vertical` is the shape a side rail of menus takes; the arrow keys follow it either way'
+      }
+    },
+    {
+      name: 'modal',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '열린 메뉴가 페이지를 가져가는지',
+        en: 'Whether an open menu takes the page away'
+      }
+    },
+    {
+      name: 'loopFocus',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '방향키가 바의 양 끝에서 반대편으로 돌아가는지',
+        en: 'Whether the arrow keys wrap around at the ends of the bar'
+      }
+    },
+    {
+      ...disabled,
+      description: {
+        ko: '바 위의 모든 메뉴를 한 번에 비활성화합니다',
+        en: 'Disables every menu on the bar at once'
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '행의 높이와 타입 스케일. 바 위의 모든 메뉴에 전달됩니다. 컨트롤 사다리보다 한 단 아래입니다 — 메뉴 바는 버튼의 행이 아니라 말의 띠이고, 보통 이미 자기 높이를 가진 무언가 안에 놓입니다',
+        en: 'The row height and type scale, passed to every menu on the bar. A rung below the control ladder: a menu bar is not a row of buttons but a strip of words, and it usually sits inside something that already has a height of its own'
+      }
+    },
+    {
+      ...color,
+      description: {
+        ko: '열린 메뉴의 말이 읽는 강조색 계열이자, 그 안에서 선택된 행이 읽는 계열',
+        en: "Which accent family an open menu's word reads, and which a chosen row inside it reads"
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '`MPMenubarMenu`들', en: 'The `MPMenubarMenu`s' }
+    }
+  ],
+
+  MPMenubarMenu: [
+    {
+      name: 'label',
+      type: NODE,
+      required: true,
+      description: { ko: '바 위의 말', en: 'The word on the bar' }
+    },
+    {
+      name: 'startIcon',
+      type: NODE,
+      description: { ko: '라벨 앞의 글리프', en: 'A glyph before the label' }
+    },
+    {
+      ...disabled,
+      description: {
+        ko: '사용할 수 없습니다. 말은 바에 남고 아무것도 열지 않습니다',
+        en: 'Unavailable. The word stays on the bar and opens nothing'
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '행들. [MPMenu](./menu) 안에서 쓰는 것과 정확히 같습니다',
+        en: 'The rows, written exactly as they are inside an [MPMenu](./menu)'
+      }
+    }
   ]
 };

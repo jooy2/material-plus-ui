@@ -668,7 +668,13 @@ export function MPMenu({
   side = 'bottom',
   align = 'start',
   sideOffset = 4,
-  modal = true,
+  /*
+   * Passed through rather than defaulted here, and Base UI's own default is the
+   * same `true`. The difference shows up inside an `MPMenubar`: a menu on a bar
+   * is a *nested* menu, where the prop has no meaning — and Base UI warns about
+   * a `modal` it was handed and cannot honour, on every menu of every bar.
+   */
+  modal,
   openOnHover = false,
   loopFocus = true,
   disabled = false,

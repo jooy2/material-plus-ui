@@ -60,6 +60,8 @@ import {
   MPMenu,
   MPMenuItem,
   MPMenuSeparator,
+  MPMenubar,
+  MPMenubarMenu,
   MPNavigationMenu,
   MPNavigationMenuItem,
   MPNavigationMenuLink,
@@ -709,6 +711,30 @@ const GROUPS: Group[] = [
         },
         path: '/components/inputs/rating',
         preview: <RatingPreview />
+      },
+      {
+        name: 'MPMenubar',
+        summary: {
+          ko: '각각이 메뉴를 여는, 말들의 띠',
+          en: 'A strip of words, each of which opens a menu'
+        },
+        path: '/components/inputs/menubar',
+        preview: (
+          <Fit>
+            <MPMenubar size="sm">
+              <MPMenubarMenu label="File">
+                <MPMenuItem shortcut="Mod+N" onClick={() => {}}>
+                  New
+                </MPMenuItem>
+                <MPMenuSeparator />
+                <MPMenuItem onClick={() => {}}>Open…</MPMenuItem>
+              </MPMenubarMenu>
+              <MPMenubarMenu label="Edit">
+                <MPMenuItem onClick={() => {}}>Undo</MPMenuItem>
+              </MPMenubarMenu>
+            </MPMenubar>
+          </Fit>
+        )
       },
       {
         name: 'MPCommandPalette',
