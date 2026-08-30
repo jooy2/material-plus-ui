@@ -50,7 +50,7 @@ This is **finished CSS**: the design tokens and the real rules behind every util
 
 ### If you only render a few components
 
-The sheet above is every rule the library has, and for most projects that is the right trade: one line, and never a thought about which components are on the page. It is also 109 kB — 15.6 kB compressed — whether the page renders one component or all of them, because Tailwind generates from a file scan and not from your imports.
+The sheet above is every rule the library has, and for most projects that is the right trade: one line, and never a thought about which components are on the page. It is also 113 kB — 16.1 kB compressed — whether the page renders one component or all of them, because Tailwind generates from a file scan and not from your imports.
 
 So the package also ships the same rules cut along the same seams the components are: the tokens once, and a sheet per component.
 
@@ -64,13 +64,12 @@ import 'material-plus-ui/styles/text-field.css';
 
 | Components on the page | The whole sheet | Tokens plus a sheet each |
 | ---------------------- | --------------- | ------------------------ |
-| 1                      | 15.6 kB         | 3.8 kB                   |
-| 5                      | 15.6 kB         | 5.5 kB                   |
-| 10                     | 15.6 kB         | 8.0 kB                   |
-| 20                     | 15.6 kB         | 11.9 kB                  |
-| 30 or more             | 15.6 kB         | 15.6 kB and climbing     |
+| 1                      | 16.1 kB         | 4.5 kB                   |
+| 5                      | 16.1 kB         | 6.6 kB                   |
+| 10                     | 16.1 kB         | 9.1 kB                   |
+| 31 or more             | 16.1 kB         | 16.1 kB and climbing     |
 
-Compressed, as a bundler would concatenate them. The sheets repeat each other — `flex` is in a dozen of them — so their total climbs faster than the whole sheet's does and eventually passes it, at around thirty components. Past that, `styles.css` is both smaller and one line.
+Compressed, as a bundler would concatenate them, and against the same sets the bundle table below uses. The sheets repeat each other — `flex` is in a dozen of them — so their total climbs faster than the whole sheet's does and eventually passes it, at around thirty-one components. Past that, `styles.css` is both smaller and one line.
 
 Two things this path is not. It is not tree-shaking: nothing drops a sheet you imported and did not use, so the list is yours to keep honest. And it is not for a project running Tailwind — that one generates the utilities in its own pass, and the section below is the whole of its setup.
 
@@ -260,13 +259,13 @@ The ladder is the one place the library knowingly goes beyond the specification.
 
 Gzipped, from a real bundler, with React and `@base-ui/react` held external — so this is the library's own contribution rather than the whole download.
 
-| On the page      | JavaScript | Stylesheet, split |
-| ---------------- | ---------- | ----------------- |
-| `MPBox` alone    | 0.4 kB     | 3.8 kB            |
-| `MPButton` alone | 2.9 kB     | 3.8 kB            |
-| Five components  | 7.3 kB     | 5.5 kB            |
-| Ten components   | 11.1 kB    | 8.0 kB            |
-| All ninety-four  | 64.1 kB    | 15.6 kB           |
+| On the page              | JavaScript | Stylesheet, split |
+| ------------------------ | ---------- | ----------------- |
+| `MPBox` alone            | 0.4 kB     | 3.9 kB            |
+| `MPButton` alone         | 2.9 kB     | 4.5 kB            |
+| Five components          | 7.3 kB     | 6.6 kB            |
+| Ten components           | 11.1 kB    | 9.1 kB            |
+| All hundred and fourteen | 72.7 kB    | 16.1 kB           |
 
 Two things to read off it. The first column is marginal: a component you did not import is not in it, which is what `sideEffects`, the build's `@__PURE__` annotations and a message table per namespace are all for. The second column is not marginal — a stylesheet is a file you either imported or did not — so it assumes the list of sheets matches what the page renders.
 

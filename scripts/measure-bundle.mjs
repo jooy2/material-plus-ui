@@ -11,7 +11,7 @@
  * Because the failure being measured is invisible to a file listing. Up to
  * 1.3.0 this package had no `sideEffects` field, so importing `MPBox` — a
  * `<div>` with three classes on it — produced a 62.3 kB bundle, the same 62.3 kB
- * an import of all ninety-four produced. Nothing about the published files said
+ * an import of all hundred and fourteen produced. Nothing about the published files said
  * so. bundlephobia would not have said so either: it reports what a package
  * weighs, and the thing worth knowing is what *one component* weighs.
  *
