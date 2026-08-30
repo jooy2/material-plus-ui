@@ -69,9 +69,9 @@ describe('the shipped translations', () => {
   for (const locale of LOCALES) {
     describe(locale.locale, () => {
       it('answers every namespace English does', () => {
-        const missing = NAMESPACES.filter(
-          (namespace) => !(namespace.name in locale.messages)
-        ).map((namespace) => namespace.name);
+        const missing = NAMESPACES.filter((namespace) => !(namespace.name in locale.messages)).map(
+          (namespace) => namespace.name
+        );
 
         expect(missing).toEqual([]);
       });

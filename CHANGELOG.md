@@ -56,6 +56,34 @@ The floor did not move. A project that renders one component pays what it paid i
 
 - **`MPMenu` passes `modal` through instead of defaulting it.** Base UI's own default is the same `true`, so nothing renders differently. What it stops is a warning: a menu on an `MPMenubar` is a _nested_ menu, where the prop has no meaning, and Base UI reported a `modal` it had been handed and could not honour on every menu of every bar.
 
+### A pass over every one of the eighty-eight
+
+A survey of the whole public surface — performance, accessibility, security, duplication, correctness and test coverage, one component at a time. Most of it came back clean. What follows is what did not.
+
+**Two of them crashed.** `MPTimePicker` and `MPDateTimePicker` handed `hourStep`, `minuteStep` and `secondStep` straight to `Array.from` as the divisor that decides how many rows a column has, and `Math.ceil(60 / 0)` is `Infinity`, which `Array.from` refuses: `RangeError: Invalid array length`, thrown during render, taking the picker and everything above it down. A negative step was quieter and worse — an empty column with nothing said about why. And `MPTable` threw _Objects are not valid as a React child_ on any cell holding a `Date`, an object or an array, from inside a `.map()` in a `<tbody>`, which is a blank page for one unexpected column in an API response.
+
+**A clock was not a listbox.** `MPTimeGrid`'s columns carried `role="listbox"` and `role="option"` and none of the behaviour either word commits to: every row was an ordinary `<button>`, so a 12-hour clock with seconds was a hundred and fifty-eight tab stops and the arrow keys did nothing at all. The file's own comment said the rows were "a real listbox that arrow keys already reach", which is not something a role does for you — only a native `<select>` gets that free. Each column now takes one tab stop and moves inside it, with the tab stop starting on the chosen row and following the reader after that.
+
+**Four components had one physical value left in.** Every one of them was _written_ to run both ways — the chevrons turn, the paddings are `ps`/`pe`, the badges sit at the `end` — and nothing caught the exceptions because no test had ever set `dir`. The floating label was pinned `left` on every control drawn on the field shell, so under RTL it sat on an unbroken stretch of outline with the notch open beside it. `MPSwitch` moved its thumb along `left`, so the control whose entire meaning is which end the thumb is at pointed backwards. The calendar's arrow keys moved the day cursor against what was drawn. And `MPPanes` flipped for the pointer and not for the keyboard, so one handle answered a drag and an arrow key differently. `test/styles/direction.test.tsx` is the thing that was actually missing: RTL is not a feature a component either has or has not, it is a property that decays one physical value at a time.
+
+**A link could be a script.** `MPChatBubble`'s `preview` is the one shape in this library whose contents typically come from somebody else — a card attached to a message another person sent — and its `url` went straight into an `href`. React renders a `javascript:` href with a development warning and nothing more, so on a page built out of user-generated content that was a one-click script execution in the middle of a thread. `safeHref` allows `http:`, `https:`, `mailto:`, `tel:` and anything with no scheme at all; everything else draws the card with no link. The preview's picture is loaded lazily now, with the referrer withheld and its box declared.
+
+**`MPNavigationMenu` was the one link in the library with no `rel`.** `MPMenuItem`, `MPTextLink` and `MPChatBubble` had each worked out `noopener noreferrer` separately and each written the same pair; the fourth component — the one whose whole purpose is a page's outbound navigation — had been left out of a rule that existed in three copies. It is `internal/link.ts` now, and all four call it.
+
+**Eight components could not say their own words in the page's language.** `numberField`, `carousel`, `breadcrumb`, `combobox`, `table`, `filePicker`, `textLink` and `overlay` are new namespaces, translated into all eighteen languages. Four of them were _drawn_ rather than only announced, which is the half that is hard to defend: a Korean page had a table saying _No data_ through the middle of it and a dropzone giving its one instruction in a language nobody had asked for. `test/locales/completeness.test.ts` now asserts that every table answers every key with the placeholders it was written with — a missing namespace is not a type error and not a runtime error, which is exactly why it went unnoticed.
+
+**Two components spoke about shortcuts and disagreed.** `MPShortcut` draws one and `MPCommandPalette` matches one, both files said at length that the two had to be spelled the same way, and each then answered separately. The palette sniffed `navigator.userAgent` alone where the label reads `userAgentData.platform` first, so a page could draw `⌘K` and bind Ctrl+K. And `Mod` was tested as a fifth modifier when it is a _name for a key_, which meant **`Ctrl+K` matched nothing except on a Mac**. One vocabulary now, in `internal/keys.ts`.
+
+Smaller, in one line each: a carousel's hover-pause and focus-pause shared one boolean, so moving focus out put it back in motion under a pointer that had never left; `MPButton` squared itself for two glyphs and no label; `MPAnimateMarquee` left its `aria-hidden` copies in the tab order where `inert` was called for; `MPSidebar`'s resize handle was a focusable `separator` with no value to read back; `MPTextField`'s reveal toggle indicated focus by colour alone; `MPPageLayout`'s `<main>` could not take the focus its own skip link sent there; `MPSlider`'s description was pointed at by nothing; all three progress indicators reported an `aria-valuenow` on a bar they had just drawn indeterminate; and `MPTransfer` never dropped a tick, so a re-fetched list came back with selections the reader had not made.
+
+**Three things were being done more often than they could matter.** `MPColorPicker` re-rendered its panel once per pointer event where a screen can show one per frame; `MPCommandPalette` lower-cased every command's label, group and keywords on every keystroke; and `MPCombobox` asked the same question of its whole option list twice per character typed. The two caches in `internal/date.ts` also grew without a ceiling, keyed on a `format` that is a caller's prop.
+
+**Some things are one thing now that were several.** `internal/length.ts` states the library's rule about a length — a number is pixels, a string is already a length — which sixteen places had each written out; `internal/link.ts` holds the `rel`; `internal/keys.ts` holds the platform and the shortcut grammar; and `MPTextField` draws its supporting line with the component that was extracted from it.
+
+**`MPAlert` grew a `live` prop and `MPTransfer` learned to stack.** An alert derived its live region from `color` and stopped, so an error summary rendered by the server interrupted a screen reader to say something the reader was about to reach anyway. And a transfer laid itself out as three columns at every width, which on a 375px screen is two lists of 150px each; it now stacks below MD3's medium boundary with the arrows turned a quarter.
+
+**`MPButtonGroup` and `MPToggleGroup` had no tests at all** — the only two of the eighty-eight. Neither of the two things a group does is loud when it breaks: a run that lost its joins is still a run of buttons, and a group whose fourth member is a rung out is still a row.
+
 ### One class name worth knowing about
 
 A sticky `MPSidebar`'s height is an arbitrary `calc()` reading two custom properties, and the first way to write it does not work:
@@ -74,16 +102,18 @@ esbuild, gzip, React and `@base-ui/react` external — this library's own contri
 | --------------- | ------- | ------- |
 | `MPBox`         | 0.4 kB  | 0.4 kB  |
 | `MPButton`      | 2.9 kB  | 2.9 kB  |
-| `MPTextField`   | 4.1 kB  | 4.1 kB  |
+| `MPTextField`   | 4.1 kB  | 4.3 kB  |
 | Five components | 7.3 kB  | 7.3 kB  |
 | Ten components  | 11.1 kB | 11.1 kB |
-| Everything      | 64.1 kB | 72.7 kB |
+| Everything      | 64.1 kB | 74.1 kB |
 
-Only the last row moves, and it moves by roughly what seventeen components weigh. That is the shape this release was supposed to have: `sideEffects`, the build's `@__PURE__` annotations and a message table per namespace are between them why adding a fifth of the library again costs a project using one component exactly nothing.
+Two rows move. The last moves by roughly what seventeen components weigh, plus about 1.4 kB for the audit's eight new message namespaces and its three shared modules. `MPTextField` moves 200 bytes, and it is the one figure here that went up for a _good_ reason: it now draws its supporting line with `internal/SupportingText`, which it had a fifth copy of.
 
-The whole stylesheet goes from 109 kB to 113 kB — 15.6 kB to 16.1 kB gzipped — and the split sheets from 75 to 88. The point the split stops being the smaller download moves from about thirty components to about thirty-one, which `npm run build` measures rather than remembers.
+Everything else is unchanged to the byte, which is the shape this release was supposed to have: `sideEffects`, the build's `@__PURE__` annotations and a message table per namespace are between them why adding a fifth of the library again costs a project using one component exactly nothing.
 
-The suite goes from 1281 tests to 1449 across twelve new files, and the library from ninety-four components to a hundred and eleven.
+The whole stylesheet goes from 109 kB to 113.5 kB — 15.6 kB to 16.2 kB gzipped — and the split sheets from 75 to 88. The point the split stops being the smaller download moves from about thirty components to about thirty-one, which `npm run build` measures rather than remembers.
+
+The suite goes from 1281 tests to 1633 across sixteen new files, and the library from ninety-four components to a hundred and eleven.
 
 ## 1.3.1 (2026-08-29)
 

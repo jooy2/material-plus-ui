@@ -68,17 +68,29 @@ What there is instead: `error`, which is the one severity Material does name, an
 
 ## Which live region it lands in
 
-The family decides, because it is the only thing that knows how urgent the message is:
+The family decides by default, because it is the only thing that knows how urgent the message is:
 
-| `color` | Role | What that does |
+| `color` | `live` | What that does |
 | --- | --- | --- |
-| `error` | `alert` | Interrupts whatever a screen reader is in the middle of |
-| `primary`, `secondary`, `tertiary` | `status` | Waits for a pause |
+| `error` | `assertive` | Interrupts whatever a screen reader is in the middle of |
+| `primary`, `secondary`, `tertiary` | `polite` | Waits for a pause |
 
-"This failed" is worth interrupting for and "Saved" is not. A caller who knows better still wins — `role` is spread after the derived one:
+"This failed" is worth interrupting for and "Saved" is not.
+
+`live` overrides it, and the value worth knowing about is the third one. **A live region is for content that _arrives_.** An alert that was in the markup when the page loaded did not arrive — it is part of the page, and interrupting to read it is interrupting to say something the reader was going to reach anyway:
 
 ```tsx
-<MPAlert role={undefined}>Part of the page on arrival, not an announcement.</MPAlert>
+// An error summary the server rendered. Still an alert on the screen; not an
+// announcement.
+<MPAlert color="error" live="off">
+  Three fields need attention.
+</MPAlert>
+```
+
+And the other way, for a message that is quiet by family and urgent in fact:
+
+```tsx
+<MPAlert live="assertive">Your session ends in one minute.</MPAlert>
 ```
 
 ## Examples
