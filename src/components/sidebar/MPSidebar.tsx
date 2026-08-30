@@ -285,12 +285,49 @@ export const MPSidebar = React.forwardRef<HTMLElement, MPSidebarProps>(function 
     onOpenChange?.(next);
   };
 
-  const width =
+  const declared =
     widthProp === undefined
       ? WIDTH[size]
       : typeof widthProp === 'number'
         ? `${widthProp}px`
         : widthProp;
+
+  /*
+   * What a drag has put in force, and why React has to be told about it.
+   *
+   * `applyWidth` writes the custom property straight onto the element, which is
+   * the whole reason a drag costs no renders. The same property is also declared
+   * in the `style` below, and the two disagreed the moment a drag happened: what
+   * kept the column from snapping back was only that React skips a style key
+   * whose *virtual* value has not changed, so it never looked at the one the
+   * drag had rewritten. That is a real guarantee and an accidental one to be
+   * resting a gesture on — the declaration React makes should say what is on the
+   * element.
+   *
+   * Writing it down also settles the case the accident got wrong: a caller who
+   * changes `width` mid-session used to be at the mercy of whether anything else
+   * in the object had moved.
+   *
+   * A ref rather than state, because a render per pointer move is exactly what
+   * this was avoiding. It is read during render, which is safe here for a narrow
+   * reason: it holds what is already on the element, so the write React makes
+   * from it is a write of the value that is there.
+   */
+  const dragged = React.useRef<string | null>(null);
+  const lastDeclared = React.useRef(declared);
+
+  /*
+   * A `width` the caller changed is an instruction, and it outranks a drag: a
+   * sidebar told to be 320px is 320px, whatever it was last dragged to. Compared
+   * during render rather than in an effect, so the answer is right in the paint
+   * the new prop arrives in rather than one frame later.
+   */
+  if (lastDeclared.current !== declared) {
+    lastDeclared.current = declared;
+    dragged.current = null;
+  }
+
+  const width = dragged.current ?? declared;
 
   const rootRef = React.useRef<HTMLElement | null>(null);
   const setRootRef = React.useCallback(
@@ -328,7 +365,8 @@ export const MPSidebar = React.forwardRef<HTMLElement, MPSidebarProps>(function 
       Math.max(toPixels(minWidth, 160), Math.round(pixels))
     );
 
-    node.style.setProperty('--_mp-sidebar-width', `${sized}px`);
+    dragged.current = `${sized}px`;
+    node.style.setProperty('--_mp-sidebar-width', dragged.current);
 
     return sized;
   };
