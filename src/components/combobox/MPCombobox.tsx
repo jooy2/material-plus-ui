@@ -658,17 +658,19 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
                         column with it, and every label in the list shifts
                         sideways as the selection moves down it. */}
                     <span className="flex size-5 shrink-0 items-center justify-center">
-                      {entry.custom
-                        ? customLabel
-                          ? customLabel(entry.label)
-                          : fillMessage(words.add, { label: entry.label })
-                        : entry.label}
+                      {entry.custom ? (
+                        <MPIcon icon={AddIcon} size={18} />
+                      ) : (
+                        <Combobox.ItemIndicator>
+                          <MPIcon icon={CheckIcon} size={18} />
+                        </Combobox.ItemIndicator>
+                      )}
                     </span>
                     <span className="min-w-0 flex-1 truncate">
                       {entry.custom
                         ? customLabel
                           ? customLabel(entry.label)
-                          : `Add “${entry.label}”`
+                          : fillMessage(words.add, { label: entry.label })
                         : entry.label}
                     </span>
                   </Combobox.Item>

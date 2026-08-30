@@ -317,4 +317,37 @@ describe('MPCombobox', () => {
       await expect.element(screen.getByRole('button', { name: 'Clear' })).toBeInTheDocument();
     });
   });
+
+  describe('the indicator column', () => {
+    /*
+     * The column is always drawn and only the mark inside it comes and goes: an
+     * indicator that is not rendered takes its column with it, and every label
+     * in the list shifts sideways as the selection moves down.
+     */
+    it('marks the chosen row with a tick', async () => {
+      const screen = await render(<Single initial="apple" />);
+
+      await screen.getByRole('combobox').click();
+
+      const chosen = screen
+        .getByRole('option')
+        .all()
+        .find((option) => option.element().getAttribute('data-selected') !== null);
+
+      expect(chosen!.element().querySelector('svg')).not.toBeNull();
+    });
+
+    // The row that offers what was typed is marked with a plus rather than a
+    // tick: it is something to add, not something already chosen.
+    it('marks the add-this row with its own glyph', async () => {
+      const screen = await render(<Single />);
+
+      await screen.getByRole('combobox').fill('Damson');
+
+      const add = screen.getByRole('option').all().at(-1)!;
+
+      expect(add.element().textContent).toContain('Damson');
+      expect(add.element().querySelector('svg')).not.toBeNull();
+    });
+  });
 });
