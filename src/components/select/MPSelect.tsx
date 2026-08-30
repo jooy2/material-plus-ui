@@ -53,7 +53,18 @@ export interface MPSelectProps extends MPStyleProps {
    * The options, as data. There is no `<MPSelect.Option>` to compose: what a
    * caller has is almost always an array already, and the list has to be
    * available to the trigger before the popup has ever been opened — otherwise
-   * a closed select can only show its raw value.
+   * a closed select can only show its raw value.   *
+   * ## How long a list this holds
+   *
+   * Every row is rendered, and there is no windowing. That is the right default
+   * — windowing costs a measured container, a scroll listener and a row height
+   * the component would have to decide for the caller — and it has a ceiling: a
+   * few hundred rows is nothing, a few thousand is a visible pause when the list
+   * opens, and past that the answer is a narrower list rather than a faster one.
+   *
+   * A list somebody has to scroll ten thousand rows of is a list that wanted a
+   * filter. Where it genuinely is that long, window it yourself and pass the
+   * slice.
    */
   items: readonly MPSelectOption[];
   /** The chosen value. Use with `onValueChange` for a controlled select. */

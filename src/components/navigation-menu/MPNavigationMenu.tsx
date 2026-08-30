@@ -68,7 +68,20 @@ export interface MPNavigationMenuProps extends Omit<
    * @default 'primary'
    */
   color?: MPColor;
-  /** The items. */
+  /**
+   * The name the `<nav>` is announced by, through `aria-label` in the rest
+   * props.
+   *
+   * There is deliberately no default. A generic one would say nothing a screen
+   * reader was not already saying — it announces an unnamed `<nav>` as
+   * "navigation" on its own — so a name is only worth having when it
+   * distinguishes this bar from another region on the page.
+   *
+   * Which is exactly when it becomes necessary: a page with a main bar, a
+   * footer's links and a table of contents offers three regions called
+   * "navigation" and no way to tell them apart. Name them the moment there is
+   * more than one.
+   */
   children?: React.ReactNode;
 }
 

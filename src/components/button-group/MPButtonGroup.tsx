@@ -19,6 +19,15 @@ export interface MPButtonGroupProps
   color?: MPColor;
   /** Disables every button in the group at once. */
   disabled?: boolean;
+  /**
+   * The group's name is `aria-label` through the rest props, and is worth
+   * setting whenever the run is a *set* rather than a row that happens to be
+   * adjacent — "Alignment", "Text style".
+   *
+   * A screen reader announces the boundaries of a `role="group"` either way; the
+   * name is what makes crossing that boundary mean something rather than being
+   * an interruption between two buttons.
+   */
   children?: React.ReactNode;
 }
 

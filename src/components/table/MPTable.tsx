@@ -55,7 +55,20 @@ export interface MPTableProps<Row> extends Omit<
 > {
   /** The columns, in the order they appear. */
   headers: readonly MPTableColumn<Row>[];
-  /** The rows. */
+  /**
+   * The rows.   *
+   * ## How long a list this holds
+   *
+   * Every row is rendered, and there is no windowing. That is the right default
+   * — windowing costs a measured container, a scroll listener and a row height
+   * the component would have to decide for the caller — and it has a ceiling: a
+   * few hundred rows is nothing, a few thousand is a visible pause when the list
+   * opens, and past that the answer is a narrower list rather than a faster one.
+   *
+   * A list somebody has to scroll ten thousand rows of is a list that wanted a
+   * filter. Where it genuinely is that long, window it yourself and pass the
+   * slice.
+   */
   items: readonly Row[];
   /**
    * A stable key per row. Defaults to the row's index, which is fine for a
