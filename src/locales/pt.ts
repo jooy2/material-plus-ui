@@ -48,6 +48,19 @@ export const pt: MPLocale = {
       start: 'Início',
       end: 'Fim'
     },
+    numberField: { increase: 'Aumentar', decrease: 'Diminuir' },
+    carousel: {
+      label: 'Carrossel',
+      previous: 'Slide anterior',
+      next: 'Próximo slide',
+      slide: 'Slide {index} de {total}'
+    },
+    breadcrumb: { label: 'Caminho de navegação', expand: 'Mostrar as etapas ocultas' },
+    combobox: { empty: 'Sem correspondências', add: 'Adicionar “{label}”' },
+    table: { empty: 'Sem dados' },
+    filePicker: { prompt: 'Solte os arquivos aqui, ou clique para procurar' },
+    textLink: { newTab: 'Abre em uma nova aba' },
+    overlay: { label: 'Sobreposição' },
     alert: { dismiss: 'Fechar' },
     chat: {
       sending: 'Enviando',

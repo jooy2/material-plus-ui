@@ -48,6 +48,19 @@ export const ja: MPLocale = {
       start: '開始',
       end: '終了'
     },
+    numberField: { increase: '増やす', decrease: '減らす' },
+    carousel: {
+      label: 'カルーセル',
+      previous: '前のスライド',
+      next: '次のスライド',
+      slide: '{total} 枚中 {index} 枚目'
+    },
+    breadcrumb: { label: 'パンくずリスト', expand: '省略された階層を表示' },
+    combobox: { empty: '一致するものがありません', add: '「{label}」を追加' },
+    table: { empty: 'データがありません' },
+    filePicker: { prompt: 'ここにファイルをドロップ、またはクリックして選択' },
+    textLink: { newTab: '新しいタブで開きます' },
+    overlay: { label: 'オーバーレイ' },
     alert: { dismiss: '閉じる' },
     chat: {
       sending: '送信中',

@@ -48,6 +48,19 @@ export const hi: MPLocale = {
       start: 'प्रारंभ',
       end: 'समाप्ति'
     },
+    numberField: { increase: 'बढ़ाएँ', decrease: 'घटाएँ' },
+    carousel: {
+      label: 'कैरोसेल',
+      previous: 'पिछली स्लाइड',
+      next: 'अगली स्लाइड',
+      slide: '{total} में से स्लाइड {index}'
+    },
+    breadcrumb: { label: 'ब्रेडक्रंब', expand: 'छिपे हुए चरण दिखाएँ' },
+    combobox: { empty: 'कोई मेल नहीं', add: '“{label}” जोड़ें' },
+    table: { empty: 'कोई डेटा नहीं' },
+    filePicker: { prompt: 'फ़ाइलें यहाँ छोड़ें, या ब्राउज़ करने के लिए क्लिक करें' },
+    textLink: { newTab: 'नए टैब में खुलता है' },
+    overlay: { label: 'ओवरले' },
     alert: { dismiss: 'बंद करें' },
     chat: {
       sending: 'भेजा जा रहा है',

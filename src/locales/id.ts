@@ -48,6 +48,19 @@ export const id: MPLocale = {
       start: 'Mulai',
       end: 'Akhir'
     },
+    numberField: { increase: 'Tambah', decrease: 'Kurangi' },
+    carousel: {
+      label: 'Karosel',
+      previous: 'Slide sebelumnya',
+      next: 'Slide berikutnya',
+      slide: 'Slide {index} dari {total}'
+    },
+    breadcrumb: { label: 'Remah roti', expand: 'Tampilkan langkah tersembunyi' },
+    combobox: { empty: 'Tidak ada yang cocok', add: 'Tambahkan “{label}”' },
+    table: { empty: 'Tidak ada data' },
+    filePicker: { prompt: 'Letakkan berkas di sini, atau klik untuk menelusuri' },
+    textLink: { newTab: 'Membuka di tab baru' },
+    overlay: { label: 'Hamparan' },
     alert: { dismiss: 'Tutup' },
     chat: {
       sending: 'Mengirim',

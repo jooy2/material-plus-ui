@@ -48,6 +48,19 @@ export const vi: MPLocale = {
       start: 'Bắt đầu',
       end: 'Kết thúc'
     },
+    numberField: { increase: 'Tăng', decrease: 'Giảm' },
+    carousel: {
+      label: 'Băng chuyền',
+      previous: 'Trang trước',
+      next: 'Trang sau',
+      slide: 'Trang {index} trên {total}'
+    },
+    breadcrumb: { label: 'Đường dẫn', expand: 'Hiện các bước đã ẩn' },
+    combobox: { empty: 'Không có kết quả', add: 'Thêm “{label}”' },
+    table: { empty: 'Không có dữ liệu' },
+    filePicker: { prompt: 'Thả tệp vào đây, hoặc bấm để chọn' },
+    textLink: { newTab: 'Mở trong tab mới' },
+    overlay: { label: 'Lớp phủ' },
     alert: { dismiss: 'Đóng' },
     chat: {
       sending: 'Đang gửi',

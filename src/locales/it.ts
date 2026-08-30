@@ -48,6 +48,19 @@ export const it: MPLocale = {
       start: 'Inizio',
       end: 'Fine'
     },
+    numberField: { increase: 'Aumenta', decrease: 'Diminuisci' },
+    carousel: {
+      label: 'Carosello',
+      previous: 'Diapositiva precedente',
+      next: 'Diapositiva successiva',
+      slide: 'Diapositiva {index} di {total}'
+    },
+    breadcrumb: { label: 'Percorso di navigazione', expand: 'Mostra i passaggi nascosti' },
+    combobox: { empty: 'Nessuna corrispondenza', add: 'Aggiungi «{label}»' },
+    table: { empty: 'Nessun dato' },
+    filePicker: { prompt: 'Trascina qui i file, oppure fai clic per sfogliare' },
+    textLink: { newTab: 'Si apre in una nuova scheda' },
+    overlay: { label: 'Sovrapposizione' },
     alert: { dismiss: 'Chiudi' },
     chat: {
       sending: 'Invio in corso',

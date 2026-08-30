@@ -52,6 +52,19 @@ export const zhHant: MPLocale = {
       start: '開始',
       end: '結束'
     },
+    numberField: { increase: '增加', decrease: '減少' },
+    carousel: {
+      label: '輪播',
+      previous: '上一張',
+      next: '下一張',
+      slide: '第 {index} 張，共 {total} 張'
+    },
+    breadcrumb: { label: '麵包屑導覽', expand: '顯示隱藏的層級' },
+    combobox: { empty: '沒有相符項目', add: '新增「{label}」' },
+    table: { empty: '沒有資料' },
+    filePicker: { prompt: '將檔案拖曳到這裡，或點按選擇' },
+    textLink: { newTab: '在新分頁中開啟' },
+    overlay: { label: '覆蓋層' },
     alert: { dismiss: '關閉' },
     chat: {
       sending: '傳送中',

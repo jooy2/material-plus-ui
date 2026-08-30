@@ -48,6 +48,19 @@ export const nl: MPLocale = {
       start: 'Begin',
       end: 'Einde'
     },
+    numberField: { increase: 'Verhogen', decrease: 'Verlagen' },
+    carousel: {
+      label: 'Carrousel',
+      previous: 'Vorige dia',
+      next: 'Volgende dia',
+      slide: 'Dia {index} van {total}'
+    },
+    breadcrumb: { label: 'Kruimelpad', expand: 'Verborgen stappen tonen' },
+    combobox: { empty: 'Geen resultaten', add: '‘{label}’ toevoegen' },
+    table: { empty: 'Geen gegevens' },
+    filePicker: { prompt: 'Sleep bestanden hierheen of klik om te bladeren' },
+    textLink: { newTab: 'Wordt geopend in een nieuw tabblad' },
+    overlay: { label: 'Overlay' },
     alert: { dismiss: 'Sluiten' },
     chat: {
       sending: 'Verzenden',

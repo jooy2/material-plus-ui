@@ -48,6 +48,19 @@ export const ru: MPLocale = {
       start: 'Начало',
       end: 'Конец'
     },
+    numberField: { increase: 'Увеличить', decrease: 'Уменьшить' },
+    carousel: {
+      label: 'Карусель',
+      previous: 'Предыдущий слайд',
+      next: 'Следующий слайд',
+      slide: 'Слайд {index} из {total}'
+    },
+    breadcrumb: { label: 'Навигационная цепочка', expand: 'Показать скрытые шаги' },
+    combobox: { empty: 'Совпадений нет', add: 'Добавить «{label}»' },
+    table: { empty: 'Нет данных' },
+    filePicker: { prompt: 'Перетащите файлы сюда или нажмите, чтобы выбрать' },
+    textLink: { newTab: 'Откроется в новой вкладке' },
+    overlay: { label: 'Наложение' },
     alert: { dismiss: 'Закрыть' },
     chat: {
       sending: 'Отправка',

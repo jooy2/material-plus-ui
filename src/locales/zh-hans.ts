@@ -53,6 +53,19 @@ export const zhHans: MPLocale = {
       start: '开始',
       end: '结束'
     },
+    numberField: { increase: '增加', decrease: '减少' },
+    carousel: {
+      label: '轮播',
+      previous: '上一张',
+      next: '下一张',
+      slide: '第 {index} 张，共 {total} 张'
+    },
+    breadcrumb: { label: '面包屑导航', expand: '显示隐藏的层级' },
+    combobox: { empty: '无匹配项', add: '添加“{label}”' },
+    table: { empty: '暂无数据' },
+    filePicker: { prompt: '将文件拖到此处，或点击选择' },
+    textLink: { newTab: '在新标签页中打开' },
+    overlay: { label: '遮罩层' },
     alert: { dismiss: '关闭' },
     chat: {
       sending: '发送中',

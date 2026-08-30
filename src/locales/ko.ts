@@ -48,6 +48,19 @@ export const ko: MPLocale = {
       start: '시작',
       end: '종료'
     },
+    numberField: { increase: '늘리기', decrease: '줄이기' },
+    carousel: {
+      label: '캐러셀',
+      previous: '이전 슬라이드',
+      next: '다음 슬라이드',
+      slide: '슬라이드 {total}개 중 {index}번째'
+    },
+    breadcrumb: { label: '탐색 경로', expand: '숨겨진 단계 보기' },
+    combobox: { empty: '일치하는 항목이 없습니다', add: '“{label}” 추가' },
+    table: { empty: '데이터가 없습니다' },
+    filePicker: { prompt: '여기에 파일을 놓거나 클릭해서 찾아보세요' },
+    textLink: { newTab: '새 탭에서 열림' },
+    overlay: { label: '오버레이' },
     alert: { dismiss: '닫기' },
     chat: {
       sending: '보내는 중',

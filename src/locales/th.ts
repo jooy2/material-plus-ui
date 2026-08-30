@@ -48,6 +48,19 @@ export const th: MPLocale = {
       start: 'เริ่ม',
       end: 'สิ้นสุด'
     },
+    numberField: { increase: 'เพิ่ม', decrease: 'ลด' },
+    carousel: {
+      label: 'ภาพสไลด์',
+      previous: 'สไลด์ก่อนหน้า',
+      next: 'สไลด์ถัดไป',
+      slide: 'สไลด์ {index} จาก {total}'
+    },
+    breadcrumb: { label: 'เส้นทางนำทาง', expand: 'แสดงขั้นตอนที่ซ่อนอยู่' },
+    combobox: { empty: 'ไม่พบรายการที่ตรงกัน', add: 'เพิ่ม “{label}”' },
+    table: { empty: 'ไม่มีข้อมูล' },
+    filePicker: { prompt: 'วางไฟล์ที่นี่ หรือคลิกเพื่อเลือก' },
+    textLink: { newTab: 'เปิดในแท็บใหม่' },
+    overlay: { label: 'เลเยอร์ซ้อน' },
     alert: { dismiss: 'ปิด' },
     chat: {
       sending: 'กำลังส่ง',

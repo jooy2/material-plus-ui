@@ -48,6 +48,19 @@ export const ar: MPLocale = {
       start: 'البداية',
       end: 'النهاية'
     },
+    numberField: { increase: 'زيادة', decrease: 'إنقاص' },
+    carousel: {
+      label: 'عرض دوّار',
+      previous: 'الشريحة السابقة',
+      next: 'الشريحة التالية',
+      slide: 'الشريحة {index} من {total}'
+    },
+    breadcrumb: { label: 'مسار التنقل', expand: 'إظهار الخطوات المخفية' },
+    combobox: { empty: 'لا توجد نتائج', add: 'إضافة ”{label}“' },
+    table: { empty: 'لا توجد بيانات' },
+    filePicker: { prompt: 'أفلِت الملفات هنا، أو انقر للاستعراض' },
+    textLink: { newTab: 'يُفتح في تبويب جديد' },
+    overlay: { label: 'طبقة تراكب' },
     alert: { dismiss: 'إغلاق' },
     chat: {
       sending: 'جارٍ الإرسال',

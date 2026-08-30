@@ -48,6 +48,19 @@ export const de: MPLocale = {
       start: 'Beginn',
       end: 'Ende'
     },
+    numberField: { increase: 'Erhöhen', decrease: 'Verringern' },
+    carousel: {
+      label: 'Karussell',
+      previous: 'Vorherige Folie',
+      next: 'Nächste Folie',
+      slide: 'Folie {index} von {total}'
+    },
+    breadcrumb: { label: 'Brotkrümelnavigation', expand: 'Ausgeblendete Schritte anzeigen' },
+    combobox: { empty: 'Keine Treffer', add: '„{label}“ hinzufügen' },
+    table: { empty: 'Keine Daten' },
+    filePicker: { prompt: 'Dateien hier ablegen oder zum Auswählen klicken' },
+    textLink: { newTab: 'Wird in einem neuen Tab geöffnet' },
+    overlay: { label: 'Overlay' },
     alert: { dismiss: 'Schließen' },
     chat: {
       sending: 'Wird gesendet',

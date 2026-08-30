@@ -48,6 +48,19 @@ export const tr: MPLocale = {
       start: 'Başlangıç',
       end: 'Bitiş'
     },
+    numberField: { increase: 'Artır', decrease: 'Azalt' },
+    carousel: {
+      label: 'Döngü',
+      previous: 'Önceki slayt',
+      next: 'Sonraki slayt',
+      slide: '{total} slayttan {index}. slayt'
+    },
+    breadcrumb: { label: 'Gezinme yolu', expand: 'Gizli adımları göster' },
+    combobox: { empty: 'Eşleşme yok', add: '“{label}” ekle' },
+    table: { empty: 'Veri yok' },
+    filePicker: { prompt: 'Dosyaları buraya bırakın veya seçmek için tıklayın' },
+    textLink: { newTab: 'Yeni sekmede açılır' },
+    overlay: { label: 'Yer paylaşımı' },
     alert: { dismiss: 'Kapat' },
     chat: {
       sending: 'Gönderiliyor',
