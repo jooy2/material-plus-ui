@@ -198,8 +198,8 @@ function Panel({
             {messages.empty}
           </span>
         ) : (
-          rows.map((row) => (
-            <div key={row.value} className={ROW_PAD_Y[size]}>
+          rows.map((row, index) => (
+            <div key={`${index}:${row.value}`} className={ROW_PAD_Y[size]}>
               <MPCheckbox
                 size={size}
                 color={color}

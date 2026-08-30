@@ -390,7 +390,7 @@ export function MPCommandPalette({
                 style={{ maxHeight: listHeight }}
               >
                 {(item: MPCommand, index: number) => (
-                  <React.Fragment key={item.value}>
+                  <React.Fragment key={`${index}:${item.value}`}>
                     {item.group && item.group !== filtered[index - 1]?.group ? (
                       <div
                         role="presentation"

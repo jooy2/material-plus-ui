@@ -495,9 +495,12 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
                 <Combobox.Value>
                   {(chosen: Entry[]) => (
                     <React.Fragment>
-                      {chosen.map((entry) => (
+                      {chosen.map((entry, index) => (
                         <Combobox.Chip
-                          key={String(entry.value)}
+                          /* Position as well as value, for `MPSelect`'s reason:
+                             a duplicate key reconciles two chips wrongly the
+                             moment the list is reordered. */
+                          key={`${index}:${String(entry.value)}`}
                           render={
                             <MPChip
                               variant={invalid ? 'outlined' : 'tonal'}
@@ -591,9 +594,9 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
               </Combobox.Empty>
 
               <Combobox.List>
-                {(entry: Entry) => (
+                {(entry: Entry, index: number) => (
                   <Combobox.Item
-                    key={`${entry.custom ? 'custom:' : ''}${String(entry.value)}`}
+                    key={`${index}:${entry.custom ? 'custom:' : ''}${String(entry.value)}`}
                     value={entry}
                     disabled={entry.disabled}
                     className={[

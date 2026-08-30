@@ -128,7 +128,7 @@ export const MPSegmentedButton = React.forwardRef<HTMLDivElement, MPSegmentedBut
 
           return (
             <Toggle
-              key={item.value}
+              key={`${index}:${item.value}`}
               value={item.value}
               disabled={item.disabled}
               className={[

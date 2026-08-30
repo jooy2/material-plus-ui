@@ -293,9 +293,15 @@ export const MPSelect = React.forwardRef<HTMLButtonElement, MPSelectProps>(funct
               ].join(' ')}
             >
               <Select.List className="max-h-[min(20rem,var(--available-height))] overflow-y-auto overscroll-contain">
-                {items.map((item) => (
+                {items.map((item, index) => (
                   <Select.Item
-                    key={String(item.value)}
+                    /* The value *and* its place in the list, for the reason
+                       `MPColorPicker`'s swatches are keyed that way: a caller's
+                       array may legitimately hold the same value twice, and a
+                       duplicate key is a React warning plus a reconciliation
+                       that goes wrong the moment the list is reordered — two
+                       rows swapping their state rather than their places. */
+                    key={`${index}:${String(item.value)}`}
                     value={item.value}
                     disabled={item.disabled}
                     className={[
