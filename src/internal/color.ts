@@ -80,9 +80,14 @@ function wrapHue(hue: number): number {
 
 /* ---------------------------------------------------------------------------
  * Conversions
+ *
+ * None of these is exported. They are steps inside `parseColor`, `formatColor`,
+ * `cssColor` and `readableInk` — the four things a picker actually asks for —
+ * and an export nothing imports is a wider module boundary than the file needs,
+ * which is a thing a reader has to check before changing one.
  * ------------------------------------------------------------------------- */
 
-export function hsvToRgb({ h, s, v }: MPHsv): MPRgb {
+function hsvToRgb({ h, s, v }: MPHsv): MPRgb {
   const hue = wrapHue(h) / 60;
   const saturation = clamp(s, 0, 100) / 100;
   const value = clamp(v, 0, 100) / 100;
@@ -110,7 +115,7 @@ export function hsvToRgb({ h, s, v }: MPHsv): MPRgb {
   };
 }
 
-export function rgbToHsv({ r, g, b }: MPRgb): MPHsv {
+function rgbToHsv({ r, g, b }: MPRgb): MPHsv {
   const red = clamp(r, 0, 255) / 255;
   const green = clamp(g, 0, 255) / 255;
   const blue = clamp(b, 0, 255) / 255;
@@ -138,7 +143,7 @@ export function rgbToHsv({ r, g, b }: MPRgb): MPHsv {
   };
 }
 
-export function rgbToHsl({ r, g, b }: MPRgb): MPHsl {
+function rgbToHsl({ r, g, b }: MPRgb): MPHsl {
   const { h, s, v } = rgbToHsv({ r, g, b });
   const value = v / 100;
   const saturation = s / 100;
@@ -153,7 +158,7 @@ export function rgbToHsl({ r, g, b }: MPRgb): MPHsl {
   };
 }
 
-export function hslToRgb({ h, s, l }: MPHsl): MPRgb {
+function hslToRgb({ h, s, l }: MPHsl): MPRgb {
   const lightness = clamp(l, 0, 100) / 100;
   const saturation = clamp(s, 0, 100) / 100;
 
@@ -266,7 +271,7 @@ function hexPair(value: number): string {
   return clamp(Math.round(value), 0, 255).toString(16).padStart(2, '0');
 }
 
-export function rgbToHex({ r, g, b }: MPRgb, alpha = 1): string {
+function rgbToHex({ r, g, b }: MPRgb, alpha = 1): string {
   const base = `#${hexPair(r)}${hexPair(g)}${hexPair(b)}`;
 
   return alpha >= 1 ? base : `${base}${hexPair(alpha * 255)}`;

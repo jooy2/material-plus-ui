@@ -131,7 +131,7 @@ export function easingValue(easing: MPEasing): string {
  * the effect's own Material token, so a page that retunes its motion moves this
  * animation with it.
  */
-export function durationValue(
+function durationValue(
   duration: number | undefined,
   effect: MPAnimation,
   mode: MPAnimateMode = 'in'
@@ -165,7 +165,7 @@ export function isInfinite(repeat: MPAnimateRepeat | undefined): boolean {
  * also why a reversed animation ends held on its own first frame: `fill-mode`
  * is `both`, so a faded-out element stays faded out instead of snapping back.
  */
-export function directionValue(mode: MPAnimateMode, alternate: boolean | undefined): string {
+function directionValue(mode: MPAnimateMode, alternate: boolean | undefined): string {
   if (mode === 'out') {
     return alternate ? 'alternate-reverse' : 'reverse';
   }
