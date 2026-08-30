@@ -1,5 +1,71 @@
 # Changelog
 
+## 1.5.0 (2026-08-30)
+
+Twelve components could not be handed a `className`, and ten of them were the form controls — the ones a page is most likely to want to place. That is this release: the prop, the props tables that never mentioned it, and a section saying what passing one actually does. The last of those turned out to be worth measuring rather than reasoning about, and the measurement corrected the first thing written about it.
+
+Nothing was renamed and nothing was removed. `MPBox`, `MPButton` and `MPTextField` weigh what they weighed in 1.4.0, to the byte.
+
+### Added
+
+- **`className` and `style` on the twelve components that took neither.** `MPTextField`, `MPSelect`, `MPCheckbox`, `MPSwitch`, `MPSlider`, `MPRadioGroup`, `MPRadio`, `MPNumberField`, `MPFilePicker`, `MPSegmentedButton`, `MPMenubarMenu` and `MPNavigationMenuItem`. A hundred of the hundred and seventeen exported prop types already accepted both, by extending `React.ComponentPropsWithoutRef`; these twelve did not, because they do not spread rest props onto an element they own. It is a hundred and twelve now, and the five that still do not are the two mixins and the three providers that render no element at all.
+
+  It was less an oversight than a question nobody had answered. A control that draws a box, a label, an input and a supporting line has four elements a class could land on, where the other seventy-odd components have one. The answer is the outermost element in every case, and each prop says which element that is in its own words, because it is a different element each time: the box around the control and its supporting line for a field, the box around the tick for a checkbox, the **word on the bar** for an `MPMenubarMenu`, and for an `MPNavigationMenuItem` the word in the row — the link, or the trigger that opens the panel — never the panel itself, which is portalled out of the element entirely.
+
+  `style` is the half that carries more weight than it looks. It is inline, so a `--mp-sys-*` token handed to one instance beats every stylesheet no matter how the sheets were ordered, which is what makes it the answer below rather than a convenience. Where a root already carried `accentSlots()` — the checkbox, the switch, the slider, the radio group — the caller's object is spread last, the way every other component in the library already does it, so an accent family survives being given a margin.
+
+  `MPMenuGroup` and `MPMenuRadioGroup` took a `className` and no `style`, which was the same pair half-finished. Both take it now.
+
+### Changed
+
+- **`className` and `style` are in the props tables, on all hundred and five components that accept them.** Neither appeared anywhere before, so the only way to find out whether a component took one was to try. The two rows are derived rather than typed out a hundred and five times — the mechanism the shared `size` and `color` rows already use — and a table describing something with no element behind it is left alone: the two providers, and the three plain objects that are entries in somebody else's array.
+
+  Twelve components get a different sentence, collected in one map. Eleven of them are portalled, and that is the whole reason the map exists: what a reader sees of an `MPTooltip` is its plate, and the plate is not inside the element the trigger sits in, so _the outermost element it draws_ would be naming a box nobody can point at. The twelfth is `MPSegmentedButton`, where the class goes to the set and not to a segment.
+
+### What passing a class actually does
+
+The class is concatenated, not merged. Yours is appended to the component's own and nothing is removed to make room for it, so two classes setting the same property both land on the element at equal specificity and the winner is whichever one the stylesheet put last.
+
+A class for something the component does not already set always applies, and that is most of what a class is for. Past that it depends on the **pair**, which was the surprise. Measured by rendering the components and reading the computed value back, on an `MPButton` at the default size:
+
+| You pass                    | It sets                | Result  |
+| --------------------------- | ---------------------- | ------- |
+| `px-8`                      | `px-6`                 | applies |
+| `px-2`                      | `px-6`                 | ignored |
+| `h-20`                      | `h-14`                 | applies |
+| `h-8`                       | `h-14`                 | ignored |
+| `text-lg`, `text-xs`        | `text-mp-title-medium` | applies |
+| `bg-red-500`                | `bg-(--_mp-accent)`    | applies |
+| `rounded-lg`                | `rounded-mp-full`      | ignored |
+| `shadow-lg`                 | `shadow-mp-1`          | ignored |
+| `p-8`                       | `px-6`                 | ignored |
+| any of the above with a `!` | —                      | applies |
+
+The first four rows are the ones to read. `px-8` works and `px-2` does not, on one component and one property, because Tailwind emits a scale in scale order and the larger step is therefore later — so **making a control bigger tends to work and making it smaller tends not to**. The rest is which of two theme keys sorted first: the library's `--text-mp-*` land before Tailwind's own, so any `text-*` wins; `--radius-mp-*` and `--shadow-mp-*` land after, so `rounded-*` and `shadow-*` do not.
+
+None of it is a promise. It is what one version of Tailwind emits, it is per pair rather than per property, and it moves when either side adds a token. To take something over there are three answers that do hold: the token through `style`, the prop that owns the axis — `size` is a height and a type scale and a set of paddings — and Tailwind's `!`, which took all three of the losing pairs above.
+
+The library ships no class merger of its own, and that is a decision rather than an omission. `tailwind-merge` is the right tool for this and a good one, but it would be a runtime dependency on every component, against 2.9 kB for a button on its own, and its class groups would have to be taught every `mp-` token this package adds, in step with adding them. Merging at the call site is one line and costs the projects that do not need it nothing.
+
+### The measurements
+
+esbuild, gzip, React and `@base-ui/react` external — this library's own contribution, on the same harness as 1.4.0, and with 1.4.0 rebuilt from its own commit rather than quoted, so the difference is the change and not drift.
+
+| Scenario        | 1.4.0   | 1.5.0   |
+| --------------- | ------- | ------- |
+| `MPBox`         | 0.4 kB  | 0.4 kB  |
+| `MPButton`      | 2.9 kB  | 2.9 kB  |
+| `MPTextField`   | 4.3 kB  | 4.3 kB  |
+| Five components | 7.3 kB  | 7.4 kB  |
+| Ten components  | 11.1 kB | 11.2 kB |
+| Everything      | 74.1 kB | 74.2 kB |
+
+A hundred grams of destructuring spread over twelve components. The three single-component rows do not move at all, because none of the twelve is among them.
+
+Every stylesheet figure is unchanged — 113.5 kB whole, 16.2 kB gzipped, eighty-eight split sheets, the crossover still at about thirty-one components. The release added props, not classes, so there was nothing new for Tailwind to generate.
+
+The suite goes from 1633 tests to 1644: one `passthrough` block per component, in the shape `MPEmpty`, `MPTooltip` and `MPShortcut` already used. Four of them assert that the accent slots survive the caller's `style` object, two that a container's class does not leak onto the option or the word inside it, and one that a set's class did not land on a segment.
+
 ## 1.4.0 (2026-08-30)
 
 Seventeen new components, and five of them are one thing: the skeleton a page is hung on. The library could draw a text field and could not draw the page the field was on — there was no `<header>`, no `<nav>`, no `<aside>`, no `<main>` and therefore no way to build a page whose regions a screen reader can list, a reader mode can find or a crawler can tell apart. That is what the first half of this release is. The second half is what kept turning up next to it: two strips of navigation, two form primitives, a toggle, a transfer, a command palette and a stack of faces.
