@@ -2,6 +2,89 @@
 
 ## 1.4.0 (2026--)
 
+Seventeen new components, and five of them are one thing: the skeleton a page is hung on. The library could draw a text field and could not draw the page the field was on — there was no `<header>`, no `<nav>`, no `<aside>`, no `<main>` and therefore no way to build a page whose regions a screen reader can list, a reader mode can find or a crawler can tell apart. That is what the first half of this release is. The second half is what kept turning up next to it: two strips of navigation, two form primitives, a toggle, a transfer, a command palette and a stack of faces.
+
+The floor did not move. A project that renders one component pays what it paid in 1.3.1, to the byte — see the measurements at the end.
+
+### Added
+
+- **`MPPageLayout`, and the four parts that hang off it: `MPHeader`, `MPFooter`, `MPSidebar` and `MPSidebarTrigger`.** The layout contributes exactly one element of its own — a `<div>` with no meaning — plus the `<main>` and the skip link that jumps to it. Every other landmark comes from whatever was handed to a slot, which is why the other three are real `<header>`, `<footer>` and `<aside>` elements rather than styled boxes.
+
+  Everything that decides where a column goes is flexbox and a media query, so the arrangement is right in the first frame the browser paints and right on a page whose JavaScript never arrives. Two things are measured and only two — the header's height and the footer's — because a column that holds its place has to start below a bar whose height nobody but the bar knows, and those numbers are written straight onto the root as custom properties rather than held in state, since a `setState` per resize would re-render the page to change a `top`.
+
+  `collapseBelow` is **`MPWindowClass` rather than a pixel width**, and it defaults to `expanded`, because that is MD3's own answer: the specification gives a standard navigation drawer to an expanded window and puts the same destinations behind a modal drawer below one. An `MPSidebar` is therefore one component in both shapes — a column above the line and an `MPDrawer` below it — with the children existing once either way, so nothing inside is put into the document twice for a screen reader to read twice. Which of the two is showing is answered in CSS for the first paint and by `matchMedia` from then on, because a modal drawer is a portal into `document.body` and there is no body to portal into while the markup is being rendered.
+
+  The sidebar's width ladder is `MPDrawer`'s to the pixel — `md` is MD3's own 360dp navigation drawer — so a column is exactly as wide as the drawer it becomes.
+
+- **`MPNavigationMenu` and `MPMenubar`**, which are the same strip and differ in what a row _is_. The navigation menu holds links, so it is a `<nav>` full of real `<a>` elements — which is what puts a destination in a screen reader's link list, on the status bar, on the middle-click menu and in a crawler's index. The menu bar holds actions, so it is Base UI's `menubar` role with one tab stop for the whole strip. The rule is short: a menu when the row **does** something, this when the row **goes** somewhere.
+
+  Both draw no surface. A menu bar sits _on_ an `MPHeader` or a title bar, and a sheet under a strip that is already on a sheet is two sheets. The navigation menu's panel is MD3's menu surface — `surface-container` at elevation 2 under `corner-extra-small`, the same three decisions `MPMenu` and `MPSelect` make — and it animates its width and height as well as its opacity, because Base UI resizes one open panel into the next rather than closing and reopening it, and animating that is what makes crossing the row read as one surface rather than three sheets flashing.
+
+- **`MPForm` and `MPFieldset`.** The form owns the part that has to live above the fields: a submit collects every field's validity at once, focus lands on the first that failed, and `errors` puts a server's answer back on the field it belongs to rather than in a banner at the top of the page. It is not a form _library_ — there is no schema here and no resolver — because every one of those can already produce `{ [name]: message }`, which is the seam this is built around.
+
+  The fieldset owns the one thing only a real `<fieldset>` can do: `disabled` reaches every control inside it, including ones a component three levels down rendered and never heard of it. That is not something a React context could promise, and it is the whole reason it is a component rather than a `<div>` with a heading over it. Neither draws a surface; a group of fields is a grouping and not a sheet.
+
+- **`MPToggle` and `MPToggleGroup`.** A button that stays down, and the rule that decides how it is drawn is that **off is neutral**. A toggle has to be readable at a glance in a row of eight, and the axis a reader can judge in isolation is hue rather than saturation — a set where off is a paler accent and on is a stronger one is a set nobody can read without holding two of them side by side. It is also what leaves `color` meaning something: on a button the family says what kind of action this is, here it says what "on" looks like.
+
+  The group cuts the corners that face a neighbour out of `MPButtonGroup`'s own table, and it holds the value, so `variant`, `size`, `color` and `disabled` are set once for the run.
+
+- **`MPTransfer`** — two lists and the arrows between them, for a choice long enough that a combobox with forty chips in its field stops being readable and a column of forty checkboxes gives no answer to "what did I pick". The interaction is one sentence: **ticking is not choosing.** `value` is which side a row is on; a tick is a mark saying it should move next time an arrow is pressed. So `onValueChange` fires on the arrow and never on a tick, moving drops the ticks on what moved and keeps the rest, and a press moves only what the filter is still showing — a row that was ticked and then hidden was never part of it.
+
+- **`MPCommandPalette`.** Everything an application can do behind one field, for the point where a product has more actions than a menu bar can hold. What comes back from an `MPCombobox` is a value the caller then does something with; what comes back from here is _something happening_. Its surface is MD3's docked search view — `surface-container-high` at `corner-extra-large` under elevation 3 — which happens to be the same three decisions `MPDialog` makes, and it is pinned near the top of the window rather than centred, because it is opened by somebody who is about to type.
+
+  `Mod+K` is bound on the window and is written in exactly the vocabulary `MPShortcut` **draws**, which is the point: a shortcut a component displays and one it binds have to be spelled the same way, or the label on the screen is a claim nobody checked. A command's own `shortcut` is a label for a binding the application already has — the palette deliberately does not bind it, since a palette that did would be competing with the editor underneath it.
+
+- **`MPAvatarGroup`.** A stack of faces with the ones that did not fit as a count, and the ring between them is not decoration: two circles of similar tone laid over each other have no edge at all and the stack reads as one smeared shape. It is drawn in the page's own `surface`, so what separates the faces is the background showing through rather than a white line on top of them, and it goes dark with the scheme without anybody saying so. `total` is the prop worth reaching for — a list of forty people that ships four `<img>` tags and a number.
+
+- **Four message namespaces and one glyph.** `layout`, `transfer`, `command` and `colorPicker` bring the table to thirteen, each still its own module under `internal/messages/` so a component pays for the words it speaks and no others, and each translated into all eighteen languages. Eight of the new strings are **drawn** rather than only announced — the skip link, the transfer's two headings and its empty line, both placeholders, and the word each of the two pickers shows when there is nothing yet — which is the class of string it would be least forgivable to leave in English. `ICONS` gains a thirtieth glyph, three lines: the one drawing in the set that is a picture of a menu rather than a picture of what pressing it does, and the one shape thirty years have made legible with no word beside it.
+
+### Fixed
+
+- **`MPColorPicker` could not say its own names in anything but English.** Its seven strings — the saturation square, the two rails, the value field, the swatch grid, the ×, and the word the trigger shows before a colour is chosen — were defaults kept inside the component, with no `locale` prop and no route into the message table. Every other component in the library that has to invent a word takes `locale`, and the localisation guide says so, so this was the documentation being wrong about one component rather than a deliberate exception. They are the `colorPicker` namespace now: `locale` gets a translation, `MPLocaleProvider` gets one for a whole application, and `labels` still wins over both. `MPColorPickerLabels` is now an alias of `MPMessages['colorPicker']` and is structurally what it always was.
+
+  One behaviour change, and it is the point of the fix: a picker inside an `MPLocaleProvider` whose language has a registered table now speaks it. English is unchanged to the string.
+
+- **A field could not show an error it had been handed from outside.** Every field here renders its supporting line from its own `errorMessage` prop, and only from that — so an error arriving through Base UI's `Field`, which is how `MPForm`'s `errors` reaches a field, set the outline red and printed nothing at all. A control that is visibly wrong with no explanation of why is the exact failure `errorMessage` exists to prevent, arriving through the other door.
+
+  `MPTextField` and `internal/SupportingText.tsx` now render an empty `Field.Error` in the slot when they have nothing of their own to say. Base UI draws it only when the field is genuinely invalid, so it is inert until something says otherwise: a required field in a plain `<form>` with no `MPForm` around it still shows nothing and is still not marked invalid — checked, not assumed.
+
+### Changed
+
+- **The measure ladder and the connected-group corners moved into `internal/`.** `MEASURE` was `MPContainer`'s and is now `internal/scale.ts`'s, because `MPHeader` and `MPFooter` take a `maxWidth` too and a bar that lined up with the article under it at every width but one would be worse than no `maxWidth` at all. `GROUP_JOIN` was `MPButtonGroup`'s and is now `internal/button-group.ts`'s, so a run of toggles is cut exactly like the run of buttons beside it. Neither is public and neither changes what anything renders.
+
+- **`MPAvatar` reads a group.** `size`, `shape`, `variant` and `color` fall back to an `MPAvatarGroup` above it, on `MPButton`'s arrangement and with `MPButton`'s rule: the group is a _fallback_, so "not set on the group" keeps meaning "use the avatar's own default" rather than turning into one, and an avatar's own prop still wins. Outside a group nothing changes.
+
+- **`MPMenu` passes `modal` through instead of defaulting it.** Base UI's own default is the same `true`, so nothing renders differently. What it stops is a warning: a menu on an `MPMenubar` is a _nested_ menu, where the prop has no meaning, and Base UI reported a `modal` it had been handed and could not honour on every menu of every bar.
+
+### One class name worth knowing about
+
+A sticky `MPSidebar`'s height is an arbitrary `calc()` reading two custom properties, and the first way to write it does not work:
+
+```
+[height:calc(100dvh-var(--_mp-layout-header,0px)-var(--_mp-layout-footer,0px))]
+```
+
+Tailwind normalises the operators in a `calc()` it has to space itself, and doing that puts a space after the leading `--` as well — so the declaration comes out as `var(-- mp-layout-header,0px)`, which is invalid, and the column silently keeps its whole-window height. Nothing about the markup changes when that happens. Spacing the operators in the source (`100dvh_-_var(…)`) leaves nothing to normalise, `npm run build` now compiles the stylesheet with no warnings, and there is a test that reads the computed height rather than the class list, because the class list looked correct the whole time.
+
+### The measurements
+
+esbuild, gzip, React and `@base-ui/react` external — this library's own contribution, on the same harness as 1.3.1.
+
+| Scenario        | 1.3.1   | 1.4.0   |
+| --------------- | ------- | ------- |
+| `MPBox`         | 0.4 kB  | 0.4 kB  |
+| `MPButton`      | 2.9 kB  | 2.9 kB  |
+| `MPTextField`   | 4.1 kB  | 4.1 kB  |
+| Five components | 7.3 kB  | 7.3 kB  |
+| Ten components  | 11.1 kB | 11.1 kB |
+| Everything      | 64.1 kB | 72.7 kB |
+
+Only the last row moves, and it moves by roughly what seventeen components weigh. That is the shape this release was supposed to have: `sideEffects`, the build's `@__PURE__` annotations and a message table per namespace are between them why adding a fifth of the library again costs a project using one component exactly nothing.
+
+The whole stylesheet goes from 109 kB to 113 kB — 15.6 kB to 16.1 kB gzipped — and the split sheets from 75 to 88. The point the split stops being the smaller download moves from about thirty components to about thirty-one, which `npm run build` measures rather than remembers.
+
+The suite goes from 1281 tests to 1449 across twelve new files, and the library from ninety-four components to a hundred and eleven.
+
 ## 1.3.1 (2026-08-29)
 
 ### Fixed
