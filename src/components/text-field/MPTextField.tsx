@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Field } from '@base-ui/react/field';
 import { MPIcon } from '../icon/MPIcon';
 import { MPFieldLabel, MPFieldOutline, useFloatingLabel } from '../../internal/FieldOutline';
+import { MPSupportingText } from '../../internal/SupportingText';
 import { VisibilityIcon, VisibilityOffIcon } from '../../constants/icons';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { TEXT_FIELD } from '../../internal/messages/text-field';
@@ -286,12 +287,6 @@ export const MPTextField = React.forwardRef<
   const fieldId = id ?? generatedId;
   const multiline = !!rows;
   const invalid = errorMessage.length > 0;
-  /* The supporting line, shared by the caller's message and the form's. */
-  const support = [
-    'mp-text-field__support text-mp-body-small text-mp-error mt-1 block',
-    SIZES[size].padding,
-    'group-data-disabled:text-mp-on-surface/38'
-  ].join(' ');
   const scale = SIZES[size];
   const shown = isComposing ? innerValue : value;
   const { shrunk, focusProps } = useFloatingLabel({
@@ -523,21 +518,20 @@ export const MPTextField = React.forwardRef<
         ) : null}
       </div>
 
-      {invalid ? (
-        <Field.Error match={true} className={support}>
-          {errorMessage}
-        </Field.Error>
-      ) : (
-        /*
-         * The same slot with no `match`, which is what lets an error the field
-         * was handed from *outside* reach it: Base UI renders this only when the
-         * field is genuinely invalid, so it draws nothing until an
-         * `MPForm`'s `errors` — or the browser's own validation — says otherwise.
-         * Without it, a server's answer would set the outline red and say
-         * nothing, which is the one thing `errorMessage` exists to prevent.
-         */
-        <Field.Error className={support} />
-      )}
+      {/*
+        The same line every other control in this library draws under itself.
+        It used to be written out here — the classes, the two `Field.Error`
+        slots and the argument for the second one — which is the fifth copy of a
+        component that exists to be the only one.
+
+        `mp-text-field__support` stays on it: it is a styling hook a page may
+        have reached for, and a shared component is not a reason to take a name
+        away.
+      */}
+      <MPSupportingText
+        errorMessage={errorMessage}
+        className={`mp-text-field__support mt-1 ${scale.padding}`}
+      />
     </Field.Root>
   );
 });
