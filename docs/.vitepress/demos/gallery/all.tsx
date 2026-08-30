@@ -43,6 +43,7 @@ import {
   MPDivider,
   MPDrawer,
   MPEmpty,
+  MPFieldset,
   MPFilePicker,
   MPFloatingActionButton,
   MPFooter,
@@ -564,6 +565,24 @@ function FormPreview() {
   );
 }
 
+function FieldsetPreview() {
+  const [street, setStreet] = useState('');
+
+  return (
+    <MPFieldset legend="Billing address" size="sm">
+      <MPTextField
+        name="street"
+        label="Street"
+        size="sm"
+        value={street}
+        onChange={setStreet}
+        fullWidth
+      />
+      <MPCheckbox size="sm" label="Business address" />
+    </MPFieldset>
+  );
+}
+
 const GROUPS: Group[] = [
   {
     title: { ko: '입력', en: 'Inputs' },
@@ -668,6 +687,19 @@ const GROUPS: Group[] = [
         },
         path: '/components/inputs/rating',
         preview: <RatingPreview />
+      },
+      {
+        name: 'MPFieldset',
+        summary: {
+          ko: '하나의 질문에 함께 답하는 컨트롤 묶음',
+          en: 'A group of controls that answer one question together'
+        },
+        path: '/components/inputs/fieldset',
+        preview: (
+          <Fit>
+            <FieldsetPreview />
+          </Fit>
+        )
       },
       {
         name: 'MPForm',

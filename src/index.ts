@@ -44,6 +44,7 @@ export * from './components/dialog';
 export * from './components/divider';
 export * from './components/drawer';
 export * from './components/empty';
+export * from './components/fieldset';
 export * from './components/file-picker';
 export * from './components/floating-action-button';
 export * from './components/footer';

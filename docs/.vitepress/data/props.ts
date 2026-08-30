@@ -8357,5 +8357,43 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'The fields, and whatever submits them'
       }
     }
+  ],
+
+  MPFieldset: [
+    {
+      name: 'legend',
+      type: NODE,
+      description: {
+        ko: '그룹의 이름. 안에 있는 모든 컨트롤의 접근 가능한 이름의 일부가 되므로, 각각의 앞에 놓아도 여전히 말이 되는 구절이어야 합니다 — "어디로 보낼까요?"가 아니라 "청구지 주소"',
+        en: 'What the group is called. It becomes part of the accessible name of every control inside, so it has to be a phrase that still reads correctly in front of each of them — "Billing address", not "Where should we send it?"'
+      }
+    },
+    {
+      name: 'description',
+      type: NODE,
+      description: { ko: '레전드 아래 한 줄', en: 'A line under the legend' }
+    },
+    {
+      ...disabled,
+      description: {
+        ko: '안의 모든 컨트롤을 한 번에 비활성화합니다. `<fieldset>`이 늘 해 온 대로이고, 세 단계 아래의 컴포넌트가 그린, 이 그룹의 존재를 들어 본 적도 없는 컨트롤까지 닿습니다',
+        en: 'Disables every control inside at once, the way a `<fieldset>` always has — including ones a component three levels down rendered and never heard of it'
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '레전드의 타입 스케일과 컨트롤들이 서는 간격',
+        en: "The legend's type scale and the gap the controls stand at"
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '함께 하나의 질문에 답하는 컨트롤들',
+        en: 'The controls that answer one question together'
+      }
+    }
   ]
 };
