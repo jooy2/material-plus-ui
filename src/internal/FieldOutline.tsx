@@ -36,13 +36,22 @@ import type { MPSize } from '../types';
  * over the gap the notch cut. It is the same in both states on purpose: the
  * label rises, it does not also slide, and a label that changed column as it
  * went would read as two labels rather than one.
+ *
+ * `start-*` rather than `left-*`, which it was. Everything else about this shell
+ * is already logical — the `<legend>` that cuts the notch is laid out by the
+ * writing direction, the control's padding is `ps`/`pe`, the adornments sit at
+ * the `end` — so under RTL the notch opened on the right and the label stayed
+ * pinned to the left, sitting on an unbroken stretch of the outline with a gap
+ * beside it. It affected every control drawn on this shell: the text field, the
+ * select, the number field, the combobox, the colour picker and all four
+ * pickers.
  */
 const LABEL_INSET: Record<MPSize, string> = {
-  xs: 'left-1',
-  sm: 'left-2',
-  md: 'left-3',
-  lg: 'left-3',
-  xl: 'left-4'
+  xs: 'start-1',
+  sm: 'start-2',
+  md: 'start-3',
+  lg: 'start-3',
+  xl: 'start-4'
 };
 
 /**

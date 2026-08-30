@@ -27,6 +27,14 @@ export type MPSwitchLabelPlacement = 'start' | 'end';
  * rest is arithmetic, done here rather than in CSS because a `calc()` chain four
  * deep is not more readable than its result.
  *
+ * ## The thumb travels the way the language does
+ *
+ * The offsets are `start-*` rather than `left-*`, so under RTL the thumb rests
+ * against the right-hand end of the groove and travels leftwards to say "on".
+ * A switch that always ran left to right would be the one control on an Arabic
+ * page whose "further along" pointed backwards — and it is a control whose
+ * entire meaning is which end the thumb is at.
+ *
  * ## Why the edge is a ring rather than a border
  *
  * An unselected track carries a 2dp outline and a selected one does not, and a
@@ -38,31 +46,31 @@ export type MPSwitchLabelPlacement = 'start' | 'end';
 const TRACK: Record<MPSize, { track: string; thumb: string; halo: string; glyph: number }> = {
   xs: {
     track: 'h-5 w-8',
-    thumb: 'left-[5px] size-2.5 data-checked:left-[15px] data-checked:size-3.5',
+    thumb: 'start-[5px] size-2.5 data-checked:start-[15px] data-checked:size-3.5',
     halo: 'size-8',
     glyph: 8
   },
   sm: {
     track: 'h-6 w-10',
-    thumb: 'left-1.5 size-3 data-checked:left-[19px] data-checked:size-[18px]',
+    thumb: 'start-1.5 size-3 data-checked:start-[19px] data-checked:size-[18px]',
     halo: 'size-9',
     glyph: 10
   },
   md: {
     track: 'h-8 w-13',
-    thumb: 'left-2 size-4 data-checked:left-6 data-checked:size-6',
+    thumb: 'start-2 size-4 data-checked:start-6 data-checked:size-6',
     halo: 'size-10',
     glyph: 14
   },
   lg: {
     track: 'h-9 w-15',
-    thumb: 'left-[9px] size-[18px] data-checked:left-7 data-checked:size-7',
+    thumb: 'start-[9px] size-[18px] data-checked:start-7 data-checked:size-7',
     halo: 'size-11',
     glyph: 16
   },
   xl: {
     track: 'h-10 w-17',
-    thumb: 'left-2.5 size-5 data-checked:left-[33px] data-checked:size-[30px]',
+    thumb: 'start-2.5 size-5 data-checked:start-[33px] data-checked:size-[30px]',
     halo: 'size-12',
     glyph: 18
   }
@@ -210,7 +218,7 @@ export const MPSwitch = React.forwardRef<HTMLElement, MPSwitchProps>(function MP
           className={[
             'mp-switch__thumb absolute top-1/2 flex -translate-y-1/2 items-center justify-center',
             'rounded-full',
-            'transition-[left,width,height,background-color]',
+            'transition-[inset-inline-start,width,height,background-color]',
             'duration-(--mp-sys-motion-duration-short4) ease-mp-standard',
             scale.thumb,
             disabled

@@ -486,7 +486,7 @@ export const MPTextField = React.forwardRef<
             onMouseUp={handleMouseEventPassword}
             disabled={disabled}
             className={[
-              'text-mp-on-surface-variant -mr-1 flex shrink-0 items-center justify-center',
+              'text-mp-on-surface-variant -me-1 flex shrink-0 items-center justify-center',
               // Reset explicitly. This library ships no page reset — no
               // Preflight, no `CssBaseline` — so a native `<button>` arrives
               // with the browser's own grey background, border and font, and

@@ -630,6 +630,32 @@ export function MPCalendar({
  * The three grids
  * ------------------------------------------------------------------------- */
 
+/**
+ * Which way "right" runs, as a multiplier for a horizontal step.
+ *
+ * A grid in an RTL container flows right to left, so the cell visually to the
+ * right of today is *yesterday*. The arrow keys have to follow what the reader
+ * can see — the ARIA grid pattern is written in terms of the cell "to the
+ * right", and the whole point of a roving cursor is that it goes where the arrow
+ * points.
+ *
+ * This is the one part of the calendar's direction handling that was missing.
+ * The header's chevrons already turn, and so does the page-turn animation, so an
+ * Arabic reader had a control whose buttons ran one way and whose keyboard ran
+ * the other.
+ *
+ * Read off the element the key arrived on rather than off the document: a
+ * calendar inside a `dir="rtl"` section of an otherwise LTR page is a real
+ * thing, and it is the section that decides.
+ *
+ * Home and End are deliberately *not* flipped. They go to the ends of the week
+ * rather than to the ends of the row's geometry, which is a logical question and
+ * has the same answer in both directions.
+ */
+function horizontalStep(element: Element): 1 | -1 {
+  return getComputedStyle(element).direction === 'rtl' ? -1 : 1;
+}
+
 /** The two ends of a band, smallest first, whichever way round they arrived. */
 function orderedRange(a: Date | null, b: Date | null): [Date, Date] | null {
   if (!isValidDate(a) || !isValidDate(b)) {
@@ -747,9 +773,10 @@ function DayGrid({
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>, date: Date) => {
     const offsetInWeek = (date.getDay() - weekStartsOn + 7) % 7;
+    const across = horizontalStep(event.currentTarget);
     const moves: Record<string, () => Date> = {
-      ArrowLeft: () => addDays(date, -1),
-      ArrowRight: () => addDays(date, 1),
+      ArrowLeft: () => addDays(date, -across),
+      ArrowRight: () => addDays(date, across),
       ArrowUp: () => addDays(date, -7),
       ArrowDown: () => addDays(date, 7),
       Home: () => addDays(date, -offsetInWeek),
@@ -888,9 +915,10 @@ function MonthGrid({
   const now = new Date();
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
+    const across = horizontalStep(event.currentTarget);
     const steps: Record<string, number> = {
-      ArrowLeft: -1,
-      ArrowRight: 1,
+      ArrowLeft: -across,
+      ArrowRight: across,
       ArrowUp: -3,
       ArrowDown: 3,
       PageUp: -12,
@@ -963,9 +991,10 @@ function YearGrid({ size, month, chosen, minDate, maxDate, onMoveCursor, onPick 
   const now = new Date().getFullYear();
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
+    const across = horizontalStep(event.currentTarget);
     const steps: Record<string, number> = {
-      ArrowLeft: -1,
-      ArrowRight: 1,
+      ArrowLeft: -across,
+      ArrowRight: across,
       ArrowUp: -4,
       ArrowDown: 4,
       PageUp: -YEAR_PAGE_SIZE,
@@ -1242,6 +1271,22 @@ export function MPTimeGrid({
       }
     };
 
+    /**
+     * Where the walk starts from: the row that actually holds the focus.
+     *
+     * Not `at`, which is React's copy of the same fact and is a render behind
+     * whatever just moved the focus — a click or a `focus()` sets the cursor
+     * through a state update, and a key pressed before that update has been
+     * rendered would step from where the reader *was*. The DOM has no such
+     * delay, and the focused row is the one thing an arrow key is unambiguously
+     * relative to.
+     */
+    const focusedRow = (column: HTMLElement) => {
+      const index = [...column.children].indexOf(document.activeElement as Element);
+
+      return index >= 0 ? index : at;
+    };
+
     return (
       <div
         key={unit}
@@ -1271,7 +1316,7 @@ export function MPTimeGrid({
           const step = steps[event.key];
           const to =
             step !== undefined
-              ? at + step
+              ? focusedRow(event.currentTarget) + step
               : event.key === 'Home'
                 ? 0
                 : event.key === 'End'

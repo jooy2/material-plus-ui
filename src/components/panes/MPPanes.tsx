@@ -584,7 +584,24 @@ export const MPPanes = React.forwardRef<HTMLDivElement, MPPanesProps>(function M
 
                 if (event.key === back || event.key === forward) {
                   event.preventDefault();
-                  nudge(index - 1, event.key === forward ? KEYBOARD_STEP : -KEYBOARD_STEP);
+
+                  /*
+                   * The same flip `beginDrag` makes, which the keyboard was
+                   * missing: a split in an RTL container has its first pane on
+                   * the right, so `resize`'s "toward the end" runs leftwards
+                   * and ArrowRight has to ask for less rather than more. The
+                   * pointer went the way it was pushed and the arrow keys went
+                   * the other, on the same handle.
+                   */
+                  const towardsEnd =
+                    horizontal && getComputedStyle(event.currentTarget).direction === 'rtl'
+                      ? -1
+                      : 1;
+
+                  nudge(
+                    index - 1,
+                    (event.key === forward ? KEYBOARD_STEP : -KEYBOARD_STEP) * towardsEnd
+                  );
 
                   return;
                 }
