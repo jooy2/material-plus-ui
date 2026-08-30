@@ -8147,5 +8147,172 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'Overrides for the words themselves. They win over the translation, and anything not named stays translated'
       }
     }
+  ],
+
+  MPNavigationMenu: [
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+      description: {
+        ko: '행이 놓이는 방향. `vertical`은 패널이 아래가 아니라 옆으로 열리는 레일이고, 방향키도 그에 맞춰 따라갑니다',
+        en: 'Which way the row runs. `vertical` is a rail whose panels open beside it rather than under it; the arrow keys follow either way'
+      }
+    },
+    {
+      name: 'value',
+      type: 'string | null',
+      description: {
+        ko: '어느 아이템의 패널이 열려 있는지, `value` 기준으로. nullish는 닫힘입니다',
+        en: "Which item's panel is open, by its `value`. Nullish is closed"
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'string | null',
+      description: {
+        ko: '비제어 메뉴에서 어느 것이 열린 채 시작할지',
+        en: 'Which starts open, for an uncontrolled menu'
+      }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: string | null) => void',
+      description: {
+        ko: '열린 패널이 바뀔 때마다 호출됩니다',
+        en: 'Called whenever the open panel changes'
+      }
+    },
+    {
+      name: 'delay',
+      type: 'number',
+      description: {
+        ko: '패널이 열리기까지 포인터가 머무는 시간, 밀리초',
+        en: 'How long the pointer rests on an item before its panel opens, in milliseconds'
+      }
+    },
+    {
+      name: 'closeDelay',
+      type: 'number',
+      description: {
+        ko: '포인터가 떠난 뒤 패널이 남아 있는 시간, 밀리초',
+        en: 'And how long a panel stays after the pointer leaves'
+      }
+    },
+    {
+      name: 'sideOffset',
+      type: 'number',
+      default: '8',
+      description: { ko: '행으로부터의 거리, 픽셀', en: 'Distance from the row, in pixels' }
+    },
+    {
+      ...size,
+      description: {
+        ko: '행의 높이와 타입 스케일. 아이템은 컨트롤 높이에 놓입니다 — 헤더에서 옆의 버튼과 줄이 맞습니다',
+        en: "The row's height and type scale. The items sit at control height, so they line up with a button beside them in a header"
+      }
+    },
+    {
+      ...color,
+      description: {
+        ko: '열린 아이템의 라벨이 읽는 강조색 계열. 패널 자체는 MD3의 메뉴 표면처럼 중립으로 남습니다',
+        en: "Which accent family an open item's label reads. The panel itself stays neutral, as MD3's menu surface does"
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '`MPNavigationMenuItem`들', en: 'The `MPNavigationMenuItem`s' }
+    }
+  ],
+
+  MPNavigationMenuItem: [
+    {
+      name: 'label',
+      type: NODE,
+      required: true,
+      description: { ko: '행에 놓이는 말', en: 'The word in the row' }
+    },
+    {
+      name: 'href',
+      type: 'string',
+      description: {
+        ko: '아이템을 패널을 여는 것이 아니라 평범한 링크로 만듭니다. `href`가 있고 자식이 없는 아이템은 **목적지**이고 그렇게 알려집니다 — 사이트 내비게이션이 [MPMenu](./menu)가 아닌 이유의 전부입니다',
+        en: 'Makes the item a plain link rather than something that opens a panel. An item with an `href` and no children is a **destination**, and it is announced as one — which is the whole reason a site’s navigation is not an [MPMenu](./menu)'
+      }
+    },
+    {
+      name: 'target',
+      type: 'string',
+      description: {
+        ko: '링크가 열리는 곳. `href` 없이는 무시됩니다',
+        en: 'Where the link opens. Ignored without `href`'
+      }
+    },
+    {
+      name: 'startIcon',
+      type: NODE,
+      description: { ko: '라벨 앞의 글리프', en: 'A glyph before the label' }
+    },
+    {
+      name: 'value',
+      type: 'string',
+      description: {
+        ko: '제어되는 메뉴에서 아이템을 식별합니다. Base UI가 각 아이템에 자기 정체성을 주므로 비제어 메뉴에는 필요 없습니다',
+        en: 'Identifies the item, for a controlled menu. Base UI gives each item an identity of its own, so an uncontrolled menu needs none'
+      }
+    },
+    {
+      ...disabled,
+      description: {
+        ko: '사용할 수 없습니다. 말은 행에 남고 아무것도 열지 않습니다',
+        en: 'Unavailable. The word stays in the row and opens nothing'
+      }
+    },
+    {
+      name: 'columns',
+      type: 'number',
+      default: '1',
+      description: {
+        ko: '패널이 링크를 몇 개의 열로 배치할지',
+        en: 'How many columns the panel lays its links out in'
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '패널의 내용 — 보통 `MPNavigationMenuLink`들',
+        en: "The panel's contents — usually `MPNavigationMenuLink`s"
+      }
+    }
+  ],
+
+  MPNavigationMenuLink: [
+    {
+      name: 'href',
+      type: 'string',
+      required: true,
+      description: { ko: '어디로 가는지', en: 'Where it goes' }
+    },
+    {
+      name: 'title',
+      type: NODE,
+      required: true,
+      description: { ko: '행의 이름', en: "The row's name" }
+    },
+    {
+      name: 'description',
+      type: NODE,
+      description: {
+        ko: '아래 한 줄. 스케일 한 단계 아래이고 한 톤 물러납니다',
+        en: 'A second line under it, one step down the scale and muted'
+      }
+    },
+    {
+      name: 'startIcon',
+      type: NODE,
+      description: { ko: '제목 앞의 글리프', en: 'A glyph before the title' }
+    }
   ]
 };

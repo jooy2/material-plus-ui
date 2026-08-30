@@ -57,6 +57,9 @@ import {
   MPMenu,
   MPMenuItem,
   MPMenuSeparator,
+  MPNavigationMenu,
+  MPNavigationMenuItem,
+  MPNavigationMenuLink,
   MPNumberField,
   MPOtpField,
   MPOverlay,
@@ -1602,6 +1605,25 @@ const GROUPS: Group[] = [
                 actions={<MPButton size="xs">Sign in</MPButton>}
               />
             </div>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPNavigationMenu',
+        summary: {
+          ko: '패널이 열리는 목적지의 행',
+          en: 'A row of destinations, some of which open a panel'
+        },
+        path: '/components/layout/navigation-menu',
+        preview: (
+          <Fit>
+            <MPNavigationMenu aria-label="Main" size="sm">
+              <MPNavigationMenuItem value="product" label="Product">
+                <MPNavigationMenuLink href="#overview" title="Overview" />
+                <MPNavigationMenuLink href="#pricing" title="Pricing" />
+              </MPNavigationMenuItem>
+              <MPNavigationMenuItem label="Docs" href="#docs" />
+            </MPNavigationMenu>
           </Fit>
         )
       },

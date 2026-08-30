@@ -55,6 +55,7 @@ export * from './components/icon-button';
 export * from './components/list';
 export * from './components/locale';
 export * from './components/menu';
+export * from './components/navigation-menu';
 export * from './components/number-field';
 export * from './components/otp-field';
 export * from './components/overlay';
