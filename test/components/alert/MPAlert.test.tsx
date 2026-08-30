@@ -143,4 +143,37 @@ describe('MPAlert', () => {
       expect(onRetry).toHaveBeenCalled();
     });
   });
+
+  describe('how loudly it announces itself', () => {
+    it('interrupts for an error and waits for everything else', async () => {
+      const loud = await render(<MPAlert color="error">Failed</MPAlert>);
+      const quiet = await render(<MPAlert>Saved</MPAlert>);
+
+      expect(loud.container.querySelector('.mp-alert')).toHaveAttribute('role', 'alert');
+      expect(quiet.container.querySelector('.mp-alert')).toHaveAttribute('role', 'status');
+    });
+
+    /*
+     * A live region is for content that *arrives*. An alert that was on the page
+     * when it loaded did not — it is part of the page, and interrupting to read
+     * it is interrupting to say something the reader was about to reach anyway.
+     */
+    it('can be told to say nothing on its own, for an alert that was always there', async () => {
+      const screen = await render(
+        <MPAlert color="error" live="off">
+          Three fields need attention
+        </MPAlert>
+      );
+
+      expect(screen.container.querySelector('.mp-alert')).not.toHaveAttribute('role');
+      // Still readable, still an alert on the screen — just not one that shouts.
+      await expect.element(screen.getByText('Three fields need attention')).toBeInTheDocument();
+    });
+
+    it('can be made loud for a family that is quiet by default', async () => {
+      const screen = await render(<MPAlert live="assertive">Your session is about to end</MPAlert>);
+
+      expect(screen.container.querySelector('.mp-alert')).toHaveAttribute('role', 'alert');
+    });
+  });
 });

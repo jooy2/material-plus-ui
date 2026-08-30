@@ -386,7 +386,22 @@ export const MPTransfer = React.forwardRef<HTMLDivElement, MPTransferProps>(func
       data-mp-size={size}
       className={[
         'mp-transfer grid w-full items-center gap-3',
-        '[grid-template-columns:minmax(0,1fr)_auto_minmax(0,1fr)]',
+        /*
+         * One column on a phone, three from a medium window up.
+         *
+         * Side by side is what the component *is* — two lists and the traffic
+         * between them — and it is also two lists at 150px each on a 375px
+         * screen, where a row's label truncates to three characters and the
+         * checkbox beside it is most of the width. Stacking is the honest
+         * answer at that size: the same two lists, one under the other, with the
+         * arrows turned a quarter so they still point at the list they move
+         * things into.
+         *
+         * MD3's own medium boundary, which is where `MPGrid` and the layout's
+         * sidebars change their minds too.
+         */
+        '[grid-template-columns:minmax(0,1fr)]',
+        'min-[600px]:[grid-template-columns:minmax(0,1fr)_auto_minmax(0,1fr)]',
         className ?? ''
       ]
         .filter(Boolean)
@@ -404,7 +419,7 @@ export const MPTransfer = React.forwardRef<HTMLDivElement, MPTransferProps>(func
         onSearch={setSourceSearch}
       />
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-row justify-center gap-2 min-[600px]:flex-col">
         <MPIconButton
           size={size}
           color={color}
@@ -412,7 +427,9 @@ export const MPTransfer = React.forwardRef<HTMLDivElement, MPTransferProps>(func
           label={messages.toTarget}
           disabled={disabled || !canSend}
           onClick={() => move(sourceRows, true)}
-          icon={<MPIcon icon={ArrowRightIcon} />}
+          // Turned a quarter while the lists are stacked, so the arrow points at
+          // the list it sends rows to rather than at the edge of the screen.
+          icon={<MPIcon icon={ArrowRightIcon} className="rotate-90 min-[600px]:rotate-0" />}
         />
         <MPIconButton
           size={size}
@@ -424,7 +441,9 @@ export const MPTransfer = React.forwardRef<HTMLDivElement, MPTransferProps>(func
           // The same glyph turned, rather than a second one. `rotate-180` is
           // symmetrical about both axes, so it is also correct under RTL — where
           // the lists have already swapped sides and the arrows swap with them.
-          icon={<MPIcon icon={ArrowRightIcon} className="rotate-180" />}
+          // Stacked, the pair points up and down, which has no direction to get
+          // wrong.
+          icon={<MPIcon icon={ArrowRightIcon} className="-rotate-90 min-[600px]:rotate-180" />}
         />
       </div>
 

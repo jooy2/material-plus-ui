@@ -75,18 +75,38 @@ const DETAIL: Record<MPVariant, string> = {
 };
 
 /**
- * Which live region an alert belongs in.
+ * How loudly an alert announces itself.
  *
- * `alert` interrupts whatever a screen reader is in the middle of saying;
- * `status` waits for a pause. "This failed" is worth interrupting for and
- * "saved" is not, so the family decides — and a caller who knows better still
- * wins, because their props spread after this.
+ * - `assertive` — interrupts whatever a screen reader is in the middle of
+ *   saying. `role="alert"`.
+ * - `polite` — waits for a pause. `role="status"`.
+ * - `off` — announces nothing, and is read only by somebody who walks into it.
+ *
+ * The third is the one worth knowing about. A live region is for content that
+ * *arrives*, and an alert that was on the page when it loaded did not arrive —
+ * it is part of the page, and interrupting to read it is interrupting to say
+ * something the reader was going to reach anyway. A form's list of errors on a
+ * server-rendered page is exactly that case.
  */
-const ROLE: Record<MPColor, 'alert' | 'status'> = {
-  primary: 'status',
-  secondary: 'status',
-  tertiary: 'status',
-  error: 'alert'
+export type MPAlertLive = 'assertive' | 'polite' | 'off';
+
+/**
+ * Which live region an alert belongs in when nobody said.
+ *
+ * "This failed" is worth interrupting for and "saved" is not, so the family
+ * decides. It is a default rather than a rule for the reason `live` exists.
+ */
+const DEFAULT_LIVE: Record<MPColor, MPAlertLive> = {
+  primary: 'polite',
+  secondary: 'polite',
+  tertiary: 'polite',
+  error: 'assertive'
+};
+
+const ROLE: Record<MPAlertLive, 'alert' | 'status' | undefined> = {
+  assertive: 'alert',
+  polite: 'status',
+  off: undefined
 };
 
 export interface MPAlertProps extends Omit<
@@ -142,6 +162,17 @@ export interface MPAlertProps extends Omit<
    * `children` so it stays on the first line while the message wraps.
    */
   action?: React.ReactNode;
+  /**
+   * How loudly it announces itself.
+   *
+   * Defaults to `assertive` for the `error` family and `polite` for the other
+   * three, which is the right split for a message that *appeared*. Reach for
+   * `off` when the alert was on the page before the reader was: an error summary
+   * rendered by the server is not news, and a screen reader interrupting itself
+   * to read it is interrupting to say something the reader was about to reach on
+   * their own.
+   */
+  live?: MPAlertLive;
   /** Passing it is what makes the dismiss button appear. */
   onClose?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   /**
@@ -189,6 +220,7 @@ export const MPAlert = React.forwardRef<HTMLDivElement, MPAlertProps>(function M
     title,
     icon,
     action,
+    live,
     onClose,
     closeLabel,
     locale: localeProp,
@@ -213,7 +245,7 @@ export const MPAlert = React.forwardRef<HTMLDivElement, MPAlertProps>(function M
   return (
     <div
       ref={ref}
-      role={ROLE[color]}
+      role={ROLE[live ?? DEFAULT_LIVE[color]]}
       data-mp-size={size}
       data-mp-variant={variant}
       className={[
