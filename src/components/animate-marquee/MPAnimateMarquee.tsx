@@ -6,6 +6,7 @@ import {
   repeatValue,
   useAnimationRun
 } from '../../internal/animate';
+import { inertProps } from '../../internal/inert';
 import type { MPAnimateProps, MPOrientation } from '../../types';
 
 export interface MPAnimateMarqueeProps
@@ -155,12 +156,27 @@ export const MPAnimateMarquee = React.forwardRef<HTMLDivElement, MPAnimateMarque
     // which browsers read as "finish immediately".
     const runDuration = duration ?? (travel > 0 ? (travel / speed) * 1000 : 12000);
 
+    /*
+     * The copies are scenery, and `aria-hidden` alone does not make them that.
+     *
+     * A marquee is nearly always a row of logos, badges or links, and every one
+     * of those is focusable. Hidden from the accessibility tree but left in the
+     * tab order, the duplicates are the exact shape of the bug where a keyboard
+     * reader lands somewhere their screen reader has been told does not exist —
+     * three times over, at `copies={3}`.
+     *
+     * `inert` is what takes a subtree out of the tab order, out of the tree and
+     * out of a selection, and this library already has it for `MPSpoiler` and
+     * `MPPill`. `aria-hidden` stays beside it for the browsers that do not
+     * support `inert` yet, where it is still better than nothing.
+     */
     const track = (index: number) => (
       <div
         key={index}
         ref={index === 0 ? trackRef : undefined}
         className="mp-marquee-track"
         aria-hidden={index === 0 ? undefined : 'true'}
+        {...inertProps(index !== 0)}
       >
         {children}
       </div>

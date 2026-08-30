@@ -436,6 +436,16 @@ export const MPPageLayout = React.forwardRef<HTMLDivElement, MPPageLayoutProps>(
               <main
                 {...mainProps}
                 id={mainId}
+                /*
+                 * Focusable by script and not by Tab, which is what makes the
+                 * skip link above actually skip. Following a fragment link moves
+                 * the focus only if the target can hold it; on an element that
+                 * cannot, the browser sets a "sequential focus starting point"
+                 * instead — which several screen readers ignore, leaving the
+                 * reader's cursor back in the navigation they just asked to be
+                 * past. One attribute, and the link means what it says.
+                 */
+                tabIndex={mainProps?.tabIndex ?? -1}
                 className={[
                   'mp-page-layout__main min-w-0 flex-1',
                   fills ? 'min-h-0 overflow-y-auto' : '',

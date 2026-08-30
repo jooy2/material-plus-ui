@@ -58,6 +58,36 @@ describe('MPPageLayout', () => {
 
       expect(screen.container.querySelector('.mp-page-layout__skip')).toBeNull();
     });
+
+    /*
+     * Following a fragment link moves the focus only if the target can hold it.
+     * On an element that cannot, the browser sets a "sequential focus starting
+     * point" instead — which several screen readers ignore, leaving the reader's
+     * cursor back in the navigation they just asked to be past.
+     */
+    it('leaves the `<main>` able to take the focus it sends there', async () => {
+      const screen = await render(<MPPageLayout>Body</MPPageLayout>);
+      const main = screen.container.querySelector('main')!;
+
+      expect(main).toHaveAttribute('tabindex', '-1');
+
+      main.focus();
+      expect(document.activeElement).toBe(main);
+    });
+
+    // Not by Tab, though: `<main>` is a landmark rather than a stop on the way
+    // through the page.
+    it('keeps it out of the tab order', async () => {
+      const screen = await render(<MPPageLayout>Body</MPPageLayout>);
+
+      expect((screen.container.querySelector('main') as HTMLElement).tabIndex).toBe(-1);
+    });
+
+    it('lets a caller say otherwise', async () => {
+      const screen = await render(<MPPageLayout mainProps={{ tabIndex: 0 }}>Body</MPPageLayout>);
+
+      expect((screen.container.querySelector('main') as HTMLElement).tabIndex).toBe(0);
+    });
   });
 
   describe('the slots', () => {

@@ -492,7 +492,14 @@ export const MPTextField = React.forwardRef<
               // with the browser's own grey background, border and font, and
               // nothing else is going to take them off.
               'cursor-pointer appearance-none border-0 bg-transparent p-1 font-[inherit]',
-              'rounded-full outline-none',
+              'rounded-full',
+              // The library's own ring, which this was the one control in it to
+              // go without. A focus indicator that is only a change of colour is
+              // one a reader who cannot tell those two colours apart does not
+              // have — and the two here are `on-surface-variant` and `primary`,
+              // which under a monochrome theme are the same ink.
+              'outline-mp-secondary focus-visible:outline-2 focus-visible:outline-offset-1',
+              'focus-visible:outline-solid outline-none',
               'hover:text-mp-on-surface focus-visible:text-mp-primary',
               'disabled:text-mp-on-surface/38 disabled:cursor-default'
             ].join(' ')}

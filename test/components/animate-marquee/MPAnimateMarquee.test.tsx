@@ -129,4 +129,37 @@ describe('MPAnimateMarquee', () => {
 
     expect(getComputedStyle(element.children[0]).animationTimingFunction).toBe('linear');
   });
+
+  /*
+   * A marquee is nearly always a row of logos, badges or links, and all of those
+   * are focusable. Hidden from the accessibility tree but left in the tab order,
+   * the copies are the exact shape of the bug where a keyboard reader lands
+   * somewhere their screen reader has been told does not exist.
+   */
+  describe('the copies', () => {
+    it('are taken out of the tab order as well as out of the tree', async () => {
+      const screen = await render(
+        <MPAnimateMarquee copies={3}>
+          <a href="/one">One</a>
+        </MPAnimateMarquee>
+      );
+      const tracks = [...screen.container.querySelectorAll('.mp-marquee-track')];
+
+      expect(tracks).toHaveLength(3);
+      // The first is the real one and stays reachable.
+      expect(tracks[0].hasAttribute('inert')).toBe(false);
+      expect(tracks.slice(1).every((track) => track.hasAttribute('inert'))).toBe(true);
+    });
+
+    it('leaves the copies hidden from a screen reader too', async () => {
+      const screen = await render(
+        <MPAnimateMarquee copies={2}>
+          <a href="/one">One</a>
+        </MPAnimateMarquee>
+      );
+      const tracks = [...screen.container.querySelectorAll('.mp-marquee-track')];
+
+      expect(tracks[1]).toHaveAttribute('aria-hidden', 'true');
+    });
+  });
 });

@@ -315,6 +315,8 @@ export const MPSidebar = React.forwardRef<HTMLElement, MPSidebarProps>(function 
    */
   const dragged = React.useRef<string | null>(null);
   const lastDeclared = React.useRef(declared);
+  const handleRef = React.useRef<HTMLDivElement | null>(null);
+  const bodyId = React.useId();
 
   /*
    * A `width` the caller changed is an instruction, and it outranks a drag: a
@@ -367,6 +369,10 @@ export const MPSidebar = React.forwardRef<HTMLElement, MPSidebarProps>(function 
 
     dragged.current = `${sized}px`;
     node.style.setProperty('--_mp-sidebar-width', dragged.current);
+    // Beside the width and for the same reason: what a screen reader reads back
+    // has to be what the column is, and a state update per pointer move is what
+    // this path exists to avoid.
+    handleRef.current?.setAttribute('aria-valuenow', String(sized));
 
     return sized;
   };
@@ -515,6 +521,7 @@ export const MPSidebar = React.forwardRef<HTMLElement, MPSidebarProps>(function 
       {...props}
     >
       <div
+        id={bodyId}
         className={[
           'mp-sidebar__body min-h-0 flex-1 overflow-y-auto overscroll-contain',
           padded ? `${SHEET_PAD_X[size]} ${SHEET_PAD_Y[size]}` : ''
@@ -527,9 +534,29 @@ export const MPSidebar = React.forwardRef<HTMLElement, MPSidebarProps>(function 
 
       {resizable ? (
         <div
+          ref={handleRef}
           role="separator"
           aria-orientation="vertical"
           aria-label={messages.resizeSidebar}
+          /*
+           * The three numbers a focusable `separator` is the window-splitter
+           * pattern rather than a decoration, and the region they are about.
+           *
+           * Without them a screen reader announces a separator with nothing to
+           * say — the reader can move it and cannot hear where it went, which is
+           * the one thing the control is for. `MPPanes` publishes all four on its
+           * own handles; this had none, on the same gesture.
+           *
+           * Pixels rather than a percentage, because pixels are what the bounds
+           * are written in and what a drag is clamped to. `applyWidth` keeps
+           * `aria-valuenow` in step as the handle moves, for the reason it writes
+           * the width straight to the element: a render per pointer move is what
+           * this whole path avoids.
+           */
+          aria-valuemin={Math.round(toPixels(minWidth, 160))}
+          aria-valuemax={Math.round(toPixels(maxWidth, 480))}
+          aria-valuenow={Math.round(toPixels(width, toPixels(WIDTH[size], 360)))}
+          aria-controls={bodyId}
           tabIndex={0}
           className={[
             // Straddling the edge rather than sitting inside it: a hairline one

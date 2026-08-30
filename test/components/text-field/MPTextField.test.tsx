@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { userEvent } from 'vitest/browser';
 import { MPIcon, MPTextField, ICONS } from 'material-plus-ui';
 
 /**
@@ -838,6 +839,30 @@ describe('MPTextField', () => {
       expect(lightnessOf(dark)).toBeGreaterThan(lightnessOf(light));
       // The hue does not move with the scheme — only the tone does.
       expect(hueOf(document.querySelector('label')!, 'color')).toBeCloseTo(darkHue, 1);
+    });
+  });
+
+  describe('the reveal toggle', () => {
+    /*
+     * A focus indicator that is only a change of colour is one a reader who
+     * cannot tell those two colours apart does not have — and the two here are
+     * `on-surface-variant` and `primary`, which under a monochrome theme are the
+     * same ink. Every other icon button in the library draws the ring.
+     */
+    it('draws the library’s focus ring rather than only changing colour', async () => {
+      const screen = await render(<MPTextField value="" label="Password" type="password" />);
+      const toggle = screen.getByRole('button', { name: 'Show the password' }).element();
+
+      // Tabbed to rather than focused by script: the ring is `focus-visible`,
+      // and that is exactly the distinction the pseudo-class is drawing.
+      screen.getByRole('textbox').element().focus();
+      await userEvent.tab();
+      expect(document.activeElement).toBe(toggle);
+
+      const ring = getComputedStyle(toggle);
+
+      expect(ring.outlineStyle).not.toBe('none');
+      expect(Number.parseFloat(ring.outlineWidth)).toBeGreaterThan(0);
     });
   });
 });

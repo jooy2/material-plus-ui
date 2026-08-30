@@ -273,4 +273,29 @@ describe('MPSlider', () => {
       expect(strip.height).toBeGreaterThan(rail.height * 4);
     });
   });
+
+  describe('the description', () => {
+    /*
+     * The thumb carries `role="slider"`, so it is the only element a description
+     * means anything on. Drawn under the track and pointed at by nothing, it was
+     * read only by somebody already walking the page in order — never at the
+     * moment they are on the control it is about.
+     */
+    it('is wired to the thumb rather than only drawn under the track', async () => {
+      const screen = await render(
+        <MPSlider aria-label="Volume" description="Applies to this device only." />
+      );
+      const thumb = screen.getByRole('slider').element();
+      const id = thumb.getAttribute('aria-describedby');
+
+      expect(id).toBeTruthy();
+      expect(document.getElementById(id!)!.textContent).toBe('Applies to this device only.');
+    });
+
+    it('leaves the thumb undescribed when there is nothing to say', async () => {
+      const screen = await render(<MPSlider aria-label="Volume" />);
+
+      expect(screen.getByRole('slider').element()).not.toHaveAttribute('aria-describedby');
+    });
+  });
 });

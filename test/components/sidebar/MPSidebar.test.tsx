@@ -157,6 +157,42 @@ describe('MPSidebar', () => {
       expect(handle).toHaveAttribute('aria-label', 'Resize sidebar');
       expect(handle).toHaveAttribute('tabindex', '0');
     });
+
+    /*
+     * A focusable `separator` with no value is a control a reader can move and
+     * cannot hear the result of, which is the one thing it is for. `MPPanes`
+     * publishes all four on its own handles; this had none, on the same gesture.
+     */
+    it('publishes the numbers that make it a window splitter', async () => {
+      const screen = await render(
+        <MPSidebar collapseBelow="none" resizable minWidth={200} maxWidth={400} width={280}>
+          Nav
+        </MPSidebar>
+      );
+      const handle = screen.container.querySelector('.mp-sidebar__handle')!;
+
+      expect(handle).toHaveAttribute('aria-valuemin', '200');
+      expect(handle).toHaveAttribute('aria-valuemax', '400');
+      expect(handle).toHaveAttribute('aria-valuenow', '280');
+      // And the region the number is about.
+      expect(handle.getAttribute('aria-controls')).toBe(
+        screen.container.querySelector('.mp-sidebar__body')!.id
+      );
+    });
+
+    it('keeps the value it reads back in step with the handle', async () => {
+      const screen = await render(
+        <MPSidebar collapseBelow="none" resizable minWidth={200} maxWidth={400} width={280}>
+          Nav
+        </MPSidebar>
+      );
+      const handle = screen.container.querySelector('.mp-sidebar__handle') as HTMLElement;
+
+      handle.focus();
+      handle.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+
+      expect(handle.getAttribute('aria-valuenow')).not.toBe('280');
+    });
   });
 
   describe('as a drawer', () => {

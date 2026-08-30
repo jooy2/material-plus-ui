@@ -163,6 +163,7 @@ export const MPSlider = React.forwardRef<HTMLDivElement, MPSliderProps>(function
 ) {
   const vertical = orientation === 'vertical';
   const rail = RAIL[size];
+  const describedById = React.useId();
 
   // One thumb per value, counted off whichever of the two was given — so an
   // uncontrolled range slider works without being told it is one.
@@ -248,6 +249,14 @@ export const MPSlider = React.forwardRef<HTMLDivElement, MPSliderProps>(function
               // anything on. A visible `label` names them through Base UI
               // instead, which is why this is the fallback rather than the rule.
               aria-label={hasContent(label) ? undefined : ariaLabel}
+              /*
+               * The thumb carries `role="slider"`, so it is the only element a
+               * description means anything on. Drawn under the track it was a
+               * paragraph nobody was pointed at — read out only by somebody
+               * already walking the page in order, and never at the moment they
+               * are actually on the control it is about.
+               */
+              aria-describedby={hasContent(description) ? describedById : undefined}
               className={[
                 'mp-slider__handle group rounded-mp-full relative outline-none',
                 '[transition-property:inset-inline-start,bottom]',
@@ -280,6 +289,7 @@ export const MPSlider = React.forwardRef<HTMLDivElement, MPSliderProps>(function
 
       {hasContent(description) ? (
         <div
+          id={describedById}
           className={[
             META_TEXT,
             disabled ? 'text-mp-on-surface/38' : 'text-mp-on-surface-variant'
