@@ -51,15 +51,39 @@ export function useMPLocale(locale?: string): string | undefined {
  * name: it carries English with it, which is what lets a component that says one
  * word leave the other twelve namespaces out of the bundle entirely. The objects
  * are module constants, so the identity `useMemo` compares is stable.
+ *
+ * ## Why the overrides are keyed on what they say
+ *
+ * Because of how they are written. `labels={{ clear: 'Leeren' }}` is an object
+ * literal in JSX, which is a *new object every render* — so keyed on identity
+ * the memo missed every single time, and every component with a `labels` prop
+ * rebuilt its merged table on every render of its parent.
+ *
+ * That was not expensive on its own; what made it worth fixing is what the table
+ * is used for. It is handed straight back out of this hook, so a fresh object
+ * per render is a fresh prop for everything downstream — and the calendar keeps
+ * `labels` in a `useMemo` dependency of its own, where a new object per render
+ * of the page above meant re-deriving a month's worth of `Intl` names for a
+ * table that had not changed a word.
+ *
+ * `internal/Picker.ts` keys its display samples on `JSON.stringify` for exactly
+ * this reason, with the same trade written out there: two objects whose keys are
+ * in a different order read as two tables. That costs one extra miss and never a
+ * wrong answer.
  */
 export function useMPMessages<Name extends keyof MPMessages>(
   namespace: MPNamespace<Name>,
   locale: string | undefined,
   overrides?: Partial<MPMessages[Name]>
 ): MPMessages[Name] {
+  const key = overrides === undefined ? '' : JSON.stringify(overrides);
+
+  // `key` is the whole of the dependency on `overrides`: it is what the object
+  // amounts to, and it is read from the render the key belongs to, so the two
+  // cannot be stale relative to one another.
   return React.useMemo(() => {
     const messages = resolveNamespace(namespace, locale);
 
     return overrides ? { ...messages, ...overrides } : messages;
-  }, [namespace, locale, overrides]);
+  }, [namespace, locale, key]);
 }
