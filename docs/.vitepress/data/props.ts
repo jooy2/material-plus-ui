@@ -7603,5 +7603,69 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'The middle slot: a row of navigation links, a search field, a headline'
       }
     }
+  ],
+
+  MPFooter: [
+    {
+      name: 'position',
+      type: "'static' | 'absolute' | 'sticky' | 'fixed'",
+      default: "'static'",
+      description: {
+        ko: '시트가 페이지의 스크롤에 어떻게 놓이는지. 기본값 `static`은 [MPHeader](./header)의 것과 반대이고, 그것이 푸터의 정의입니다 — 문서의 끝, 스크롤해서 닿는 것. `sticky`와 `fixed`는 손이 닿는 곳에 남아야 하는 바를 위한 것이고, `fixed`가 흐름에서 빼 가는 높이는 [MPPageLayout](./page-layout)이 비워 둡니다',
+        en: "How the sheet sits in the page's scroll. `static` — the default, and the opposite of [MPHeader](./header)'s — is what a footer *is*: the end of the document, reached by scrolling to it. `sticky` and `fixed` are for the bar that has to stay in reach, and an [MPPageLayout](./page-layout) reserves the height a `fixed` one takes out of the flow"
+      }
+    },
+    {
+      ...containerVariant,
+      default: "'outlined'",
+      description: {
+        ko: '시트가 칠하는 표면의 양, **컨테이너**의 사다리로. 푸터는 절대 물들지 않습니다. 여기 기본값이 `outlined`이고 [MPHeader](./header)의 기본값이 `tonal`인 것은 둘이 서로 다른 것을 마주 보기 때문입니다. 헤더 아래로는 내용이 지나가지만, 푸터 위에는 문서의 끝이 있고 아래에는 아무것도 없어서 실선이 문서가 끝났다고 말하는 전부입니다',
+        en: "How much surface the sheet paints, on the **container** ladder — a footer is never dyed. `outlined` is the default here and `tonal` is [MPHeader](./header)'s, because the two sit against different things: a header has content passing underneath it, while a footer has the end of the document above it and nothing below, so the hairline is the whole of what says the document ended"
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '시트의 좌우 여백과 위아래 공기. [MPBox](./box)에서처럼 여기서의 `size`는 *시트*의 크기입니다 — 높이도 타입 스케일도 정하지 않습니다',
+        en: "The sheet's gutter and the air above and below its content. As on [MPBox](./box), `size` here is the size of the *sheet*: it sets no height and no type scale"
+      }
+    },
+    {
+      name: 'maxWidth',
+      type: "MPSize | 'none'",
+      default: "'none'",
+      description: {
+        ko: '내용을 본문 폭으로 묶고 가운데에 둡니다. 시트 자체는 여전히 창 전체를 덮습니다. [MPContainer](./container)의 `maxWidth`와 같은 사다리입니다',
+        en: "Holds the content to a measure and centres it while the sheet itself still spans the window. The same ladder [MPContainer](./container)'s `maxWidth` uses"
+      }
+    },
+    {
+      ...padded,
+      description: { ko: '좌우 여백과 위아래 공기', en: 'The gutter, and the air above and below' }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: {
+        ko: '영역이 불릴 이름. 한 페이지에 `<footer>`가 둘 이상일 때 — 기사 자신의 것과 사이트의 것 — 쓸 값어치가 있습니다',
+        en: "The name the region is announced by. Worth writing when a page has more than one `<footer>` in it — an article's own and the site's"
+      }
+    },
+    {
+      name: 'render',
+      type: 'RenderProp',
+      description: {
+        ko: '`<footer>` 대신 다른 엘리먼트로 렌더링합니다. 좀처럼 원하는 일이 아닙니다 — 문서 최상위의 그 태그가 `contentinfo` 랜드마크입니다',
+        en: 'Renders something other than a `<footer>`. Rarely what you want: at the top level of a document that tag is the `contentinfo` landmark'
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '안에 들어가는 모든 것. 어떤 사이트에서는 링크 네 열이고 다음 사이트에서는 한 줄입니다 — 그래서 이 컴포넌트에는 슬롯이 하나도 없습니다',
+        en: 'Everything in it. Four columns of links on one site and a single line on the next, which is why this component has slots for nothing'
+      }
+    }
   ]
 };

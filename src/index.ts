@@ -46,6 +46,7 @@ export * from './components/drawer';
 export * from './components/empty';
 export * from './components/file-picker';
 export * from './components/floating-action-button';
+export * from './components/footer';
 export * from './components/grid';
 export * from './components/header';
 export * from './components/highlight';

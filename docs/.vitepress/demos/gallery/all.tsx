@@ -45,6 +45,7 @@ import {
   MPEmpty,
   MPFilePicker,
   MPFloatingActionButton,
+  MPFooter,
   MPGrid,
   MPGridItem,
   MPHeader,
@@ -1475,6 +1476,24 @@ const GROUPS: Group[] = [
                 <MPListItem onClick={() => {}}>Schedule</MPListItem>
               </MPList>
             </MPDrawer>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPFooter',
+        summary: {
+          ko: '문서가 끝났다고 말하는, 페이지 끝의 시트',
+          en: 'The sheet at the end that says the document ended'
+        },
+        path: '/components/layout/footer',
+        preview: (
+          <Fit>
+            <MPFooter size="sm" variant="tonal" className="rounded-mp-xs">
+              <div className="flex items-center justify-between gap-3">
+                <MPTypography level="caption">© 2026 Acme</MPTypography>
+                <MPTextLink href="#terms">Terms</MPTextLink>
+              </div>
+            </MPFooter>
           </Fit>
         )
       },
