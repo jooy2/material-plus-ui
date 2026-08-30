@@ -1,29 +1,7 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
-import { SHEET_PAD_X } from '../../internal/scale';
+import { MEASURE, SHEET_PAD_X } from '../../internal/scale';
 import type { MPSize } from '../../types';
-
-/**
- * The measure ladder, in `rem` and pinned to MD3's window size class
- * boundaries: 600, 840, 1200 and 1600dp, with one rung below them.
- *
- * So `maxWidth="md"` is "never wider than a medium window", which is a sentence
- * about the specification rather than a number somebody liked. Tailwind's own
- * `max-w-*` scale is a different set of numbers — `max-w-lg` is 32rem — and
- * having two ladders called `lg` on one page is how a layout drifts by a few
- * pixels for no reason anybody can find later.
- *
- * Written out as literal class strings because Tailwind finds classes by
- * scanning source text: an interpolated `max-w-[${n}rem]` generates no rule at
- * all.
- */
-const MEASURE: Record<MPSize, string> = {
-  xs: 'max-w-[30rem]',
-  sm: 'max-w-[37.5rem]',
-  md: 'max-w-[52.5rem]',
-  lg: 'max-w-[75rem]',
-  xl: 'max-w-[100rem]'
-};
 
 export interface MPContainerProps extends React.ComponentPropsWithoutRef<'div'> {
   /**

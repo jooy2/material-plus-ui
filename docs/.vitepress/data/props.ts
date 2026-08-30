@@ -7514,5 +7514,94 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'The page. Rendered inside the `<main>`'
       }
     }
+  ],
+
+  MPHeader: [
+    {
+      name: 'brand',
+      type: NODE,
+      description: {
+        ko: '앞쪽 슬롯 — 마크, 제품 이름, 모든 페이지에서 같은 것. 좁은 창에서는 그 앞에 [MPSidebarTrigger](./sidebar#mpsidebartrigger)가 들어갑니다. `children`의 첫 번째가 아니라 독립된 슬롯인 이유는, 가운데를 바의 중심선에 놓으려면 양 끝을 컴포넌트가 재야 하기 때문입니다',
+        en: "The leading slot: the mark, the product's name, the thing that is the same on every page — and, on a narrow window, the [MPSidebarTrigger](./sidebar#mpsidebartrigger) that goes ahead of it. A slot of its own rather than the first of `children` because the middle can only be centred on the bar if the two ends are the component's to measure"
+      }
+    },
+    {
+      name: 'actions',
+      type: NODE,
+      description: {
+        ko: '뒤쪽 슬롯 — 계정 메뉴, 테마 전환, 주요 행동. 끝쪽 정렬로 놓이므로 아이콘 버튼 몇 개에 별도 래퍼가 필요 없습니다',
+        en: 'The trailing slot: the account menu, the theme switch, the call to action. Laid out end-aligned, so a row of icon buttons needs no wrapper of its own'
+      }
+    },
+    {
+      name: 'align',
+      type: "'start' | 'center' | 'end'",
+      default: "'start'",
+      description: {
+        ko: '가운데 슬롯이 어디에 놓이는지. `center`는 MD3 자신의 center-aligned top app bar이고, 남은 공간이 아니라 **바** 자체를 기준으로 가운데입니다 — 양 끝에 같은 몫을 주므로 브랜드가 길어져도 가운데가 움직이지 않습니다',
+        en: "Where the middle slot sits. `center` is MD3's own center-aligned top app bar, and it is centred on the *bar* rather than in the space left over: both ends are given equal shares, so the middle stays on the bar's midline however long the brand is"
+      }
+    },
+    {
+      name: 'position',
+      type: "'static' | 'absolute' | 'sticky' | 'fixed'",
+      default: "'sticky'",
+      description: {
+        ko: '바가 페이지의 스크롤에 어떻게 놓이는지. `sticky`는 흐름 안에 남은 채 창 위쪽에 붙고, `fixed`는 흐름에서 완전히 빠지며 — [MPPageLayout](./page-layout)이 그 높이를 대신 비워 둡니다 — `static`은 함께 스크롤되어 사라집니다',
+        en: 'How the bar sits in the page’s scroll. `sticky` holds it against the top of the window while leaving it in the flow; `fixed` takes it out of the flow entirely, which an [MPPageLayout](./page-layout) answers by reserving its height; `static` lets it scroll away'
+      }
+    },
+    {
+      ...containerVariant,
+      default: "'tonal'",
+      description: {
+        ko: '바가 칠하는 표면의 양, **컨테이너**의 사다리로. 바는 절대 물들지 않습니다. `tonal`은 MD3의 스크롤된 top app bar(`surface-container`), `outlined`는 평평한 쪽 — 페이지 자신의 표면에 끝나는 자리를 알리는 실선 하나 — 이고, `text`는 아무것도 칠하지 않습니다',
+        en: "How much surface the bar paints, on the **container** ladder — a bar is never dyed. `tonal` is MD3's scrolled top app bar (`surface-container`), `outlined` is the flat one — the page's own surface with a hairline where it ends — and `text` paints nothing at all"
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '바의 높이 하한, 좌우 여백, 슬롯 사이의 공기. `md`는 64px로 MD3 자신의 small top app bar입니다. 높이가 아니라 하한인 것은, 가운데 슬롯이 두 줄로 넘어가면 잘려서는 안 되기 때문입니다',
+        en: "The bar's height floor, its gutter and the air between its slots. `md` is 64px, MD3's own small top app bar. A floor rather than a height: a bar whose middle slot wrapped onto a second line would otherwise clip it"
+      }
+    },
+    {
+      name: 'maxWidth',
+      type: "MPSize | 'none'",
+      default: "'none'",
+      description: {
+        ko: '슬롯이 놓인 행을 본문 폭으로 묶고 가운데에 둡니다. 시트 자체는 여전히 창 전체를 덮습니다. [MPContainer](./container)의 `maxWidth`와 같은 사다리라서, 헤더와 그 아래 컨테이너가 같은 선에 맞습니다',
+        en: "Holds the row of slots to a measure and centres it while the sheet itself still spans the window. The same ladder [MPContainer](./container)'s `maxWidth` uses, so a header and the container under it line up on one edge"
+      }
+    },
+    {
+      ...padded,
+      description: { ko: '양옆의 여백', en: 'The gutter down each side of the row' }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: {
+        ko: '바가 불릴 이름. 한 페이지에 `<header>`가 둘 이상일 때 — 기사 자신의 헤더와 사이트의 헤더 — 쓸 값어치가 있습니다. "banner"가 둘이면 어느 쪽이 어느 쪽인지 전혀 알 수 없습니다',
+        en: 'The name the bar is announced by. Worth writing when a page has more than one `<header>` in it — an article’s own and the site’s — because "banner" twice tells a reader which is which not at all'
+      }
+    },
+    {
+      name: 'render',
+      type: 'RenderProp',
+      description: {
+        ko: '`<header>` 대신 다른 엘리먼트로 렌더링합니다. 좀처럼 원하는 일이 아닙니다 — 문서 최상위의 그 태그가 곧 `banner` 랜드마크입니다',
+        en: 'Renders something other than a `<header>`. Rarely what you want: at the top level of a document that tag *is* the `banner` landmark'
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '가운데 슬롯 — 내비게이션 링크 행, 검색 필드, 제목',
+        en: 'The middle slot: a row of navigation links, a search field, a headline'
+      }
+    }
   ]
 };

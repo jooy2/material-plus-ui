@@ -47,6 +47,7 @@ export * from './components/empty';
 export * from './components/file-picker';
 export * from './components/floating-action-button';
 export * from './components/grid';
+export * from './components/header';
 export * from './components/highlight';
 export * from './components/icon';
 export * from './components/icon-button';

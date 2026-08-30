@@ -47,6 +47,7 @@ import {
   MPFloatingActionButton,
   MPGrid,
   MPGridItem,
+  MPHeader,
   MPHighlight,
   MPIcon,
   MPIconButton,
@@ -1474,6 +1475,27 @@ const GROUPS: Group[] = [
                 <MPListItem onClick={() => {}}>Schedule</MPListItem>
               </MPList>
             </MPDrawer>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPHeader',
+        summary: {
+          ko: '페이지 맨 위의 바 — 마크, 가운데, 액션',
+          en: 'The bar across the top: mark, middle, actions'
+        },
+        path: '/components/layout/header',
+        preview: (
+          <Fit>
+            <div className="border-mp-outline-variant rounded-mp-xs w-full overflow-hidden border">
+              <MPHeader
+                position="static"
+                size="xs"
+                variant="outlined"
+                brand="Acme"
+                actions={<MPButton size="xs">Sign in</MPButton>}
+              />
+            </div>
           </Fit>
         )
       },
