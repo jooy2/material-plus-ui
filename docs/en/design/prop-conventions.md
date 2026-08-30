@@ -126,6 +126,8 @@ The library also publishes `data-mp-size` on a component's root, so a consumer c
 <div class="group-data-invalid:border-mp-error">…</div>
 ```
 
+Every component also takes a `className` and a `style`, and each one's props table names the element they land on. What they can and cannot take over is in [Class names and styles](../guide/getting-started#class-names-and-styles).
+
 ## Checklist for a new component
 
 1. `src/components/{lowercase-name}/` with `{PascalCase}.tsx` and an `index.ts` barrel

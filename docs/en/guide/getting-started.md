@@ -226,7 +226,7 @@ Anything you set yourself beats a preset, whatever order the two are imported in
 }
 ```
 
-To change one instance rather than the theme, hand it the token — not a `rounded-*` class. Components concatenate the `className` you pass rather than merging it, so two utilities setting the same property are resolved by their order in the generated stylesheet, which is not something to depend on:
+To change one instance rather than the theme, hand it the token — not a `rounded-*` class. A class you pass is concatenated rather than merged, and [Class names and styles](#class-names-and-styles) is what that costs:
 
 ```tsx
 <MPChip style={{ '--mp-sys-shape-corner-small': '9999px' } as React.CSSProperties}>Filter</MPChip>
@@ -254,6 +254,44 @@ Every control takes a `size` from one ladder — `xs`, `sm`, `md`, `lg`, `xl` �
 ```
 
 The ladder is the one place the library knowingly goes beyond the specification. Why, and what each rung is, is in [Prop conventions](../design/prop-conventions#size).
+
+## Class names and styles
+
+Every component takes a `className` and a `style`. Both land on the element its props table names — the outermost one it draws, except where the visible part is portalled out of the tree the trigger sits in: a dialog's sheet, a menu's popup, a tooltip's plate.
+
+```tsx
+<MPButton className="mt-4 w-full">Save</MPButton>
+```
+
+### The class is concatenated, not merged
+
+Yours is appended to the component's own, and nothing is removed to make room for it. So **two utilities setting the same property are resolved by the stylesheet rather than by which of them you wrote.**
+
+Which one that is depends on how the styles were wired up. On the precompiled path it is whichever sheet the application imported second. On the Tailwind path both are generated in one pass, and Tailwind's own ordering decides — which is per property, and not something to work out at the call site:
+
+| You pass     | The component sets    | Which one wins |
+| ------------ | --------------------- | -------------- |
+| `p-8`        | `px-6`                | the component  |
+| `rounded-lg` | `rounded-mp-full`     | the component  |
+| `shadow-lg`  | `shadow-mp-1`         | the component  |
+| `text-lg`    | `text-mp-label-large` | yours          |
+| `bg-red-500` | `bg-mp-primary`       | yours          |
+| `h-20`       | `h-14`                | yours          |
+
+Read the column, not the rows: the answers are what one version of Tailwind happens to emit, and the point is that there is no rule connecting them. `className` is the right tool for what a component does **not** already set — margin, width, grid placement, position, an animation — and the wrong one for taking something over.
+
+### To take something over
+
+- **Hand it the token.** `style` is inline, so it beats every stylesheet no matter how they were ordered, and it changes the thing the component is actually reading:
+
+  ```tsx
+  <MPChip style={{ '--mp-sys-shape-corner-small': '9999px' } as React.CSSProperties}>Filter</MPChip>
+  ```
+
+- **Use the prop.** A height, a type scale and a set of paddings are what `size` is; an accent is what `color` is. A control resized with utilities is a control that has left the ladder every other control on the page is on.
+- **Say `!`.** Tailwind's important modifier — `px-8!` — wins whatever the order was. It is a call-site override no theme can reach, so keep it for the one-off it is.
+
+The library ships no class merger of its own, deliberately. `tailwind-merge` is the tool for this and it is a good one, but it would be a runtime dependency on every component — against 2.9 kB for a button on its own — and its class groups would have to be taught every `mp-` token this package adds, in step. Merging at the call site is one line and costs the projects that do not need it nothing.
 
 ## What it weighs
 

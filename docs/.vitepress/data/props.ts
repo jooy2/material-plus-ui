@@ -497,7 +497,124 @@ const pickerSteps: PropRow[] = [
   }
 ];
 
-export const propTables: Record<string, PropRow[]> = {
+/**
+ * Where a caller's `className` and `style` land, for the components that draw
+ * one element and put everything else inside it — which is most of them.
+ */
+const OUTERMOST: Text = {
+  ko: '컴포넌트가 그리는 가장 바깥 엘리먼트에, 컴포넌트 자신의 클래스 뒤에 붙습니다',
+  en: "Added to the outermost element the component draws, after the component's own classes"
+};
+
+/**
+ * The components whose class lands somewhere else, and the reason there is a
+ * list of them at all: a popup is **portalled**, so it is not inside the element
+ * the trigger sits in and `OUTERMOST` would be describing a box the caller
+ * cannot see. Where a component draws two things and only one of them is the
+ * thing being styled — the word on a menu bar, the set rather than a segment —
+ * it is named here too.
+ *
+ * This map is the only place to change that sentence. A `className` row written
+ * into a table below is dropped, so that a component cannot end up with two.
+ */
+const CLASS_NAME_LANDS_ON: Record<string, Text> = {
+  MPDialog: {
+    ko: '대화상자의 시트에 붙습니다. 스크림도, 대화상자를 여는 트리거도 아닙니다',
+    en: "Added to the dialog's own sheet — not the scrim, and not the trigger that opens it"
+  },
+  MPDrawer: {
+    ko: '서랍의 패널에 붙습니다. 스크림이 아닙니다',
+    en: "Added to the drawer's panel, not to the scrim"
+  },
+  MPOverlay: {
+    ko: '오버레이의 내용이 가운데 놓이는 박스에 붙습니다. 스크림이 아닙니다',
+    en: "Added to the box the overlay's content is centred in, not to the scrim"
+  },
+  MPCommandPalette: {
+    ko: '팔레트의 패널에 붙습니다',
+    en: "Added to the palette's panel"
+  },
+  MPMenu: {
+    ko: '메뉴의 팝업에 붙습니다. 메뉴를 여는 트리거가 아닙니다',
+    en: "Added to the menu's popup, not to the trigger that opens it"
+  },
+  MPContextMenu: {
+    ko: '메뉴의 팝업에 붙습니다. 오른쪽 클릭을 받는 영역이 아닙니다',
+    en: "Added to the menu's popup, not to the area that takes the right click"
+  },
+  MPMenuSubmenu: {
+    ko: '하위 메뉴의 팝업에 붙습니다. 그것을 여는 행이 아닙니다',
+    en: "Added to the submenu's popup, not to the row that opens it"
+  },
+  MPPopover: {
+    ko: '팝오버의 패널에 붙습니다. 트리거가 아닙니다',
+    en: "Added to the popover's panel, not to the trigger"
+  },
+  MPTooltip: {
+    ko: '툴팁의 판에 붙습니다. 툴팁이 설명하는 엘리먼트가 아닙니다',
+    en: "Added to the tooltip's plate, not to the element it describes"
+  },
+  MPMenubarMenu: {
+    ko: '메뉴 바 위의 단어 — 메뉴를 여는 버튼 — 에 붙습니다. 열리는 메뉴가 아닙니다',
+    en: 'Added to the word on the bar — the button that opens the menu — not to the menu it opens'
+  },
+  MPNavigationMenuItem: {
+    ko: '행 안의 단어 — 링크이거나 패널을 여는 트리거 — 에 붙습니다. 패널이 아닙니다',
+    en: 'Added to the word in the row — the link, or the trigger that opens the panel — not to the panel'
+  },
+  MPSegmentedButton: {
+    ko: '세그먼트 하나가 아니라 세트 전체에 붙습니다',
+    en: 'Added to the set rather than to a segment'
+  }
+};
+
+/**
+ * The caveat that goes on every `className` row, said once.
+ *
+ * It is the one thing about this prop a caller has to know before reaching for
+ * it, and it is not obvious: two Tailwind utilities of equal specificity are
+ * resolved by their order in the generated stylesheet, so passing `px-8` to a
+ * component that already sets `px-6` may or may not do anything.
+ */
+const CONCATENATED: Text = {
+  ko: '병합이 아니라 이어 붙이기입니다 — 같은 속성을 지정하는 두 유틸리티가 어떻게 결정되는지는 시작하기 가이드의 `클래스와 스타일`을 보세요',
+  en: 'Concatenated rather than merged — see `Class names and styles` in the getting started guide for what decides between two utilities that set the same property'
+};
+
+function classNameRow(where: Text): PropRow {
+  return {
+    name: 'className',
+    type: 'string',
+    description: {
+      ko: `${where.ko}. ${CONCATENATED.ko}`,
+      en: `${where.en}. ${CONCATENATED.en}`
+    }
+  };
+}
+
+const styleRow: PropRow = {
+  name: 'style',
+  type: 'React.CSSProperties',
+  description: {
+    ko: '같은 엘리먼트에 붙는 인라인 스타일이며, 컴포넌트가 거기에 지정해 둔 것 위에 덮입니다. 인라인은 어떤 스타일시트보다 우선하므로, 인스턴스 하나에만 토큰을 넘기는 길입니다',
+    en: 'Inline styles for the same element, spread over whatever the component set there. Inline beats any stylesheet, which is what makes this the way to hand a token to one instance rather than to the theme'
+  }
+};
+
+/**
+ * The tables that describe something with no element behind it, and so take
+ * neither prop: two providers that render only their children, and three plain
+ * objects that are entries in somebody else's array.
+ */
+const NO_ELEMENT = new Set([
+  'MPLocaleProvider',
+  'MPSnackbarProvider',
+  'MPSnackbarOptions',
+  'MPTableColumn',
+  'MPComboboxOption'
+]);
+
+const componentTables: Record<string, PropRow[]> = {
   MPIcon: [
     {
       name: 'icon',
@@ -8667,3 +8784,23 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ]
 };
+
+/**
+ * The tables as a page reads them: what is written above, plus the two rows
+ * every component ends up with.
+ *
+ * Appended here rather than typed into a hundred and five tables, for the reason
+ * `size` and `color` are written once — a `className` that says one thing on a
+ * button and another on a chip is exactly the drift this file exists to prevent.
+ */
+export const propTables: Record<string, PropRow[]> = Object.fromEntries(
+  Object.entries(componentTables).map(([name, rows]) => {
+    if (NO_ELEMENT.has(name)) {
+      return [name, rows];
+    }
+
+    const own = rows.filter((row) => row.name !== 'className' && row.name !== 'style');
+
+    return [name, [...own, classNameRow(CLASS_NAME_LANDS_ON[name] ?? OUTERMOST), styleRow]];
+  })
+);

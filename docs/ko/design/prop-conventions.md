@@ -126,6 +126,8 @@ Material UI의 여섯 개가 아닙니다. 스펙의 색상 시스템에는 `inf
 <div class="group-data-invalid:border-mp-error">…</div>
 ```
 
+모든 컴포넌트는 `className`과 `style`도 받으며, 각 컴포넌트의 props 표에 둘이 어느 엘리먼트에 붙는지 적혀 있습니다. 그것으로 무엇을 가져올 수 있고 무엇은 가져올 수 없는지는 [클래스와 스타일](../guide/getting-started#클래스와-스타일)에 있습니다.
+
 ## 새 컴포넌트 체크리스트
 
 1. `src/components/{소문자-이름}/`에 `{PascalCase}.tsx`와 `index.ts` 배럴
