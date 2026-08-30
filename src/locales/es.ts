@@ -75,6 +75,7 @@ export const es: MPLocale = {
       label: 'Valoración',
       value: '{value} de {max}',
       empty: 'Sin valorar'
-    }
+    },
+    layout: { skipToContent: 'Saltar al contenido' }
   }
 };

@@ -80,6 +80,7 @@ export const zhHans: MPLocale = {
       label: '评分',
       value: '{max} 分中的 {value} 分',
       empty: '未评分'
-    }
+    },
+    layout: { skipToContent: '跳转到主要内容' }
   }
 };

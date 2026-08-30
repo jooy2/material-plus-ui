@@ -7340,5 +7340,179 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'The tree that follows this language'
       }
     }
+  ],
+
+  MPPageLayout: [
+    {
+      name: 'header',
+      type: NODE,
+      description: {
+        ko: '맨 위의 바. 보통 [MPHeader](./header)입니다',
+        en: 'The bar across the top. An [MPHeader](./header), usually'
+      }
+    },
+    {
+      name: 'footer',
+      type: NODE,
+      description: {
+        ko: '맨 끝의 시트. 보통 [MPFooter](./footer)입니다',
+        en: 'The sheet at the end. An [MPFooter](./footer), usually'
+      }
+    },
+    {
+      name: 'sidebar',
+      type: NODE,
+      description: {
+        ko: '앞쪽 열 — 영어 페이지의 왼쪽, 아랍어 페이지의 오른쪽. [MPSidebar](./sidebar)를 넣으면 어느 끝에 있는지 스스로 알게 되므로 `side`를 따로 주지 않아도 됩니다',
+        en: 'The leading column — the left of an English page, the right of an Arabic one. An [MPSidebar](./sidebar) put here is told which end it is on and needs no `side` of its own'
+      }
+    },
+    {
+      name: 'endSidebar',
+      type: NODE,
+      description: {
+        ko: '뒤쪽 열. 한쪽에 내비게이션, 반대쪽에 목차나 인스펙터나 필터 패널을 두는 배치를 위한 것입니다',
+        en: 'The trailing column, for the layouts that have two: navigation down one side and a table of contents, an inspector or a filter panel down the other'
+      }
+    },
+    {
+      name: 'headerSpan',
+      type: "'full' | 'content'",
+      default: "'full'",
+      description: {
+        ko: '헤더와 사이드바 중 어느 쪽이 위쪽 모서리를 가져가는지. `full`은 웹사이트의 배치이고, `content`는 사이드바가 창 전체 높이를 차지하고 바가 그 사이에 들어가는 애플리케이션의 배치 — MD3가 standard navigation drawer를 그리는 방식 그대로입니다',
+        en: "Which of the header and the sidebars takes the top corner. `full` is the arrangement of a website; `content` is the arrangement of an application, with the sidebars running the full height of the window and the bar between them — MD3's own drawing of a standard navigation drawer"
+      }
+    },
+    {
+      name: 'footerSpan',
+      type: "'full' | 'content'",
+      default: "'full'",
+      description: {
+        ko: '푸터에 대한 같은 질문. 따로 답할 값어치가 있습니다 — 창 전체 높이의 내비게이션을 둔 대시보드도 저작권 한 줄은 보통 내비게이션 아래가 아니라 본문 아래에 둡니다',
+        en: 'The same question for the footer, and worth answering separately: a dashboard with a full-height navigation drawer still usually wants its copyright line under the content rather than under the drawer'
+      }
+    },
+    {
+      name: 'scroll',
+      type: "'page' | 'content'",
+      default: "'page'",
+      description: {
+        ko: '문서가 스크롤되는지, 바 사이의 영역만 스크롤되는지. `page`는 거의 모든 페이지가 원하는 것입니다 — 휴대폰의 주소 표시줄이 숨고, 뒤로 가기에서 스크롤 위치가 복원됩니다. `content`는 페이지가 문서가 아니라 작업 공간일 때',
+        en: "Whether the document scrolls or only the region between the bars does. `page` is what almost every page wants — a phone's address bar still hides, and the browser restores the scroll position on a back navigation. Reach for `content` when the page is a workspace rather than a document"
+      }
+    },
+    {
+      name: 'height',
+      type: "'viewport' | 'auto' | number | string",
+      default: "'viewport'",
+      description: {
+        ko: '레이아웃의 높이. `viewport`는 창의 높이, `auto`는 부모의 높이(페이지가 아닌 레이아웃용), 길이를 주면 그 길이. 페이지가 스크롤되는 동안에는 하한이고 내용만 스크롤될 때는 정확한 높이입니다',
+        en: "How tall the layout is. `viewport` is the window's, `auto` is its parent's — for a layout that is not the page — and a length is that length. It sets a floor while the page scrolls and an exact height while only the content does"
+      }
+    },
+    {
+      name: 'collapseBelow',
+      type: "MPWindowClass | 'none'",
+      default: "'expanded'",
+      description: {
+        ko: '사이드바가 열이기를 그만두고 서랍이 되는 윈도우 크기 클래스. Tailwind의 중단점이 아니라 MD3 자신의 사다리이고, 기본값이 `expanded`인 것도 MD3의 답 그대로입니다 — 명세는 standard navigation drawer를 expanded 창에 주고 그 아래에는 같은 목적지를 모달 서랍 뒤에 둡니다. `none`은 어느 폭에서도 열로 남깁니다',
+        en: "The window size class below which the sidebars stop being columns and become drawers. MD3's own ladder rather than Tailwind's breakpoints, and `expanded` is MD3's own answer: the specification gives a standard navigation drawer to an expanded window and puts the same destinations behind a modal drawer below one. `none` keeps them columns at every width"
+      }
+    },
+    {
+      name: 'sidebarOpen',
+      type: 'boolean',
+      description: {
+        ko: '앞쪽 사이드바의 서랍이 열려 있는지. `onSidebarOpenChange`와 함께 제어합니다 — 라우트가 바뀌면 뒤에서 닫아야 하는 서랍, 애플리케이션이 이미 들고 있는 상태',
+        en: 'Whether the leading sidebar’s drawer is open. Use with `onSidebarOpenChange` for a controlled layout — a route change that should close the drawer behind it, a state the application already holds'
+      }
+    },
+    {
+      name: 'defaultSidebarOpen',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '어느 상태로 시작할지', en: 'Which state it starts in' }
+    },
+    {
+      name: 'onSidebarOpenChange',
+      type: '(open: boolean) => void',
+      description: {
+        ko: '열림 상태가 바뀔 때마다 호출됩니다',
+        en: 'Called whenever the open state changes'
+      }
+    },
+    {
+      name: 'endSidebarOpen',
+      type: 'boolean',
+      description: {
+        ko: '뒤쪽 사이드바에 대한 같은 셋',
+        en: 'The same three for the trailing sidebar'
+      }
+    },
+    {
+      name: 'defaultEndSidebarOpen',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '어느 상태로 시작할지', en: 'Which state it starts in' }
+    },
+    {
+      name: 'onEndSidebarOpenChange',
+      type: '(open: boolean) => void',
+      description: {
+        ko: '열림 상태가 바뀔 때마다 호출됩니다',
+        en: 'Called whenever the open state changes'
+      }
+    },
+    {
+      name: 'skipLink',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '"본문으로 건너뛰기" 링크를 문서 맨 앞에 두고, 포커스를 가진 동안에만 그립니다. 여기서 유일하게 스타일 결정이 아닌 항목입니다',
+        en: 'Puts a "Skip to content" link first in the document, drawn only while it holds the focus. The one thing here that is not a style decision'
+      }
+    },
+    {
+      name: 'skipLabel',
+      type: 'string',
+      description: {
+        ko: '그 링크가 하는 말. 기본값은 `locale`의 해당 단어입니다',
+        en: 'What that link says. Defaults to the word for it in `locale`'
+      }
+    },
+    {
+      name: 'mainId',
+      type: 'string',
+      default: "'main'",
+      description: {
+        ko: '건너뛰기 링크가 도착하는 `id`. `<main>`에 붙습니다',
+        en: 'The `id` the skip link jumps to, put on the `<main>`'
+      }
+    },
+    {
+      name: 'mainProps',
+      type: "Omit<ComponentPropsWithoutRef<'main'>, 'id' | 'children'>",
+      description: {
+        ko: '`<main>`에 필요한 나머지 — `className`, `aria-label`',
+        en: 'Anything else the `<main>` needs — a `className`, an `aria-label`'
+      }
+    },
+    {
+      name: 'locale',
+      type: 'string',
+      description: {
+        ko: '레이아웃이 자기 단어를 말할 언어. 가장 가까운 `MPLocaleProvider`, 그다음 영어로 내려갑니다. 안의 모든 사이드바와 트리거가 물려받으므로 페이지당 한 번만 씁니다',
+        en: "Which language the layout's own words are in. Falls back to the nearest `MPLocaleProvider`, then to English. Inherited by every sidebar and trigger inside it, so it is written once per page"
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '페이지. `<main>` 안에 렌더링됩니다',
+        en: 'The page. Rendered inside the `<main>`'
+      }
+    }
   ]
 };

@@ -58,6 +58,7 @@ import {
   MPNumberField,
   MPOtpField,
   MPOverlay,
+  MPPageLayout,
   MPPagination,
   MPPane,
   MPPanes,
@@ -438,6 +439,38 @@ function PanesPreview() {
           <div className="text-mp-on-surface-variant text-mp-body-small p-3">Body</div>
         </MPPane>
       </MPPanes>
+    </div>
+  );
+}
+
+function PageLayoutPreview() {
+  return (
+    <div
+      className="border-mp-outline-variant rounded-mp-xs overflow-hidden border"
+      style={{ height: 120, width: '100%' }}
+    >
+      <MPPageLayout
+        height="auto"
+        scroll="content"
+        skipLink={false}
+        header={
+          <header className="bg-mp-surface-container text-mp-on-surface text-mp-label-large flex h-8 shrink-0 items-center px-3">
+            Header
+          </header>
+        }
+        sidebar={
+          <aside className="bg-mp-surface-container-low text-mp-on-surface-variant border-mp-outline-variant text-mp-body-small w-20 shrink-0 border-e px-3 py-2">
+            Nav
+          </aside>
+        }
+        footer={
+          <footer className="border-mp-outline-variant text-mp-on-surface-variant text-mp-body-small flex h-7 shrink-0 items-center border-t px-3">
+            Footer
+          </footer>
+        }
+      >
+        <div className="text-mp-on-surface-variant text-mp-body-small p-3">Main</div>
+      </MPPageLayout>
     </div>
   );
 }
@@ -1441,6 +1474,19 @@ const GROUPS: Group[] = [
                 <MPListItem onClick={() => {}}>Schedule</MPListItem>
               </MPList>
             </MPDrawer>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPPageLayout',
+        summary: {
+          ko: '페이지를 걸어 두는 뼈대 — 그리고 그 랜드마크',
+          en: 'The skeleton a page is hung on, and its landmarks'
+        },
+        path: '/components/layout/page-layout',
+        preview: (
+          <Fit>
+            <PageLayoutPreview />
           </Fit>
         )
       },

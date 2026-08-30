@@ -75,6 +75,7 @@ export const th: MPLocale = {
       label: 'คะแนน',
       value: '{value} จาก {max}',
       empty: 'ยังไม่ได้ให้คะแนน'
-    }
+    },
+    layout: { skipToContent: 'ข้ามไปยังเนื้อหา' }
   }
 };

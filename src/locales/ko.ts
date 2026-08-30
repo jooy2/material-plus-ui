@@ -75,6 +75,7 @@ export const ko: MPLocale = {
       label: '별점',
       value: '{max}점 만점에 {value}점',
       empty: '평가 없음'
-    }
+    },
+    layout: { skipToContent: '본문으로 건너뛰기' }
   }
 };

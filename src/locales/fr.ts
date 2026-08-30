@@ -78,6 +78,7 @@ export const fr: MPLocale = {
       label: 'Note',
       value: '{value} sur {max}',
       empty: 'Non noté'
-    }
+    },
+    layout: { skipToContent: 'Aller au contenu' }
   }
 };

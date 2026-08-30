@@ -56,6 +56,7 @@ export * from './components/menu';
 export * from './components/number-field';
 export * from './components/otp-field';
 export * from './components/overlay';
+export * from './components/page-layout';
 export * from './components/pagination';
 export * from './components/panes';
 export * from './components/pill';

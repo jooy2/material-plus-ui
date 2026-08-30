@@ -75,6 +75,7 @@ export const ja: MPLocale = {
       label: '評価',
       value: '{max}段階中{value}',
       empty: '未評価'
-    }
+    },
+    layout: { skipToContent: 'コンテンツへスキップ' }
   }
 };

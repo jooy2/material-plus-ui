@@ -75,6 +75,7 @@ export const pl: MPLocale = {
       label: 'Ocena',
       value: '{value} z {max}',
       empty: 'Brak oceny'
-    }
+    },
+    layout: { skipToContent: 'Przejdź do treści' }
   }
 };

@@ -79,6 +79,7 @@ export const zhHant: MPLocale = {
       label: '評分',
       value: '{max} 分中的 {value} 分',
       empty: '未評分'
-    }
+    },
+    layout: { skipToContent: '跳至主要內容' }
   }
 };

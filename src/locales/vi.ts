@@ -75,6 +75,7 @@ export const vi: MPLocale = {
       label: 'Đánh giá',
       value: '{value} trên {max}',
       empty: 'Chưa đánh giá'
-    }
+    },
+    layout: { skipToContent: 'Chuyển đến nội dung' }
   }
 };

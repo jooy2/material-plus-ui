@@ -49,7 +49,7 @@ export function useMPLocale(locale?: string): string | undefined {
  *
  * The namespace is passed as the object from `internal/messages/`, not as its
  * name: it carries English with it, which is what lets a component that says one
- * word leave the other eight namespaces out of the bundle entirely. The objects
+ * word leave the other nine namespaces out of the bundle entirely. The objects
  * are module constants, so the identity `useMemo` compares is stable.
  */
 export function useMPMessages<Name extends keyof MPMessages>(

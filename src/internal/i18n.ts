@@ -39,7 +39,7 @@
  * the languages it speaks. Once it has, `locale="ko"` resolves through exactly
  * the path it always did.
  *
- * English left too, for the same reason one step smaller. It is nine modules
+ * English left too, for the same reason one step smaller. It is ten modules
  * under `internal/messages/`, one per namespace, because a bundler that can drop
  * a module it can also drop an export — and cannot drop a property. Held as one
  * object, English was 1.75 kB that every component carried whole: `MPButton`
@@ -235,6 +235,26 @@ export interface MPMessages {
     /** The line above the button, saying why the content is covered. */
     notice: string;
   };
+  /**
+   * MPPageLayout, and the parts of a page it arranges.
+   *
+   * One namespace for the skeleton rather than one per component, for the reason
+   * the pickers share theirs: they are one vocabulary, written by whoever
+   * translates a page's chrome, and a caller who has translated the word for a
+   * sidebar has translated the button that opens it in the same breath.
+   */
+  layout: {
+    /**
+     * The link that jumps past the navigation, drawn only while it holds the
+     * focus.
+     *
+     * Drawn rather than only announced, which makes it one of the few strings
+     * here that a sighted keyboard reader actually sees — and the one it would
+     * be least forgivable to leave in English, because the readers it exists for
+     * are the ones who cannot skip it.
+     */
+    skipToContent: string;
+  };
 }
 
 /** A translation may fill in as much or as little of the table as it has. */
@@ -273,10 +293,10 @@ export interface MPLocale {
 /**
  * One namespace's English strings, carrying the name they answer to.
  *
- * The nine of them live in `internal/messages/`, one to a module, and a
+ * The ten of them live in `internal/messages/`, one to a module, and a
  * component imports the one it speaks. That is the whole reason this type
  * exists: `resolveNamespace` below is handed the English table rather than
- * looking it up, so the eight tables a component does not use are eight modules
+ * looking it up, so the nine tables a component does not use are nine modules
  * nothing imports.
  *
  * The name travels with the strings rather than beside them, so a call site is
@@ -391,7 +411,7 @@ const resolved = new Map<string, unknown>();
  * A namespace at a time, so a language that has one and not another keeps
  * English for the rest rather than losing both. That was already how the merge
  * worked; what changed is that the namespaces are no longer merged all at once,
- * because a component that reads one of them should not carry the other eight.
+ * because a component that reads one of them should not carry the other nine.
  *
  * Note that this is only about the words in the table. The dates themselves are
  * formatted by `Intl` against the same tag, and `Intl` speaks every language the

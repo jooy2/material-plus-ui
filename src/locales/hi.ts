@@ -75,6 +75,7 @@ export const hi: MPLocale = {
       label: 'रेटिंग',
       value: '{max} में से {value}',
       empty: 'रेटिंग नहीं दी गई'
-    }
+    },
+    layout: { skipToContent: 'सामग्री पर जाएँ' }
   }
 };

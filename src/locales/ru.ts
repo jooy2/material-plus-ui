@@ -75,6 +75,7 @@ export const ru: MPLocale = {
       label: 'Оценка',
       value: '{value} из {max}',
       empty: 'Без оценки'
-    }
+    },
+    layout: { skipToContent: 'Перейти к содержимому' }
   }
 };

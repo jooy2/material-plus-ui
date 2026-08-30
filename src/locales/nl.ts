@@ -75,6 +75,7 @@ export const nl: MPLocale = {
       label: 'Beoordeling',
       value: '{value} van {max}',
       empty: 'Niet beoordeeld'
-    }
+    },
+    layout: { skipToContent: 'Naar inhoud springen' }
   }
 };

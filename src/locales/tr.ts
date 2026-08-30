@@ -75,6 +75,7 @@ export const tr: MPLocale = {
       label: 'Değerlendirme',
       value: '{max} üzerinden {value}',
       empty: 'Değerlendirilmedi'
-    }
+    },
+    layout: { skipToContent: 'İçeriğe geç' }
   }
 };

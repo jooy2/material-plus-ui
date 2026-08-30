@@ -75,6 +75,7 @@ export const id: MPLocale = {
       label: 'Peringkat',
       value: '{value} dari {max}',
       empty: 'Belum dinilai'
-    }
+    },
+    layout: { skipToContent: 'Lewati ke konten' }
   }
 };

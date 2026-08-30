@@ -75,6 +75,7 @@ export const ar: MPLocale = {
       label: 'التقييم',
       value: '{value} من {max}',
       empty: 'بدون تقييم'
-    }
+    },
+    layout: { skipToContent: 'تخطٍ إلى المحتوى' }
   }
 };
