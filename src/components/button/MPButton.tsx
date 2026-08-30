@@ -169,9 +169,24 @@ export const MPButton = React.forwardRef<HTMLButtonElement, MPButtonProps>(funct
   const color: MPColor = colorProp ?? group?.color ?? 'primary';
   const disabled = disabledProp ?? group?.disabled ?? false;
 
-  // Nothing to pad against, so the button goes square. `false` and `null` count
-  // as nothing: they are what `condition && <span/>` leaves behind.
-  const iconOnly = !hasContent(children);
+  /*
+   * Square when the button holds exactly one thing, which is what "nothing to
+   * pad against" actually means.
+   *
+   * It used to ask only about `children`, and that was one question short: a
+   * button given both a `startIcon` and an `endIcon` and no label has two
+   * glyphs to lay out and was being drawn in a box the width of its own height,
+   * with the inline padding taken away as well. Two glyphs in a square is not an
+   * icon button, it is an icon button with something else jammed into it.
+   *
+   * The leading slot counts as filled while `loading`, because the spinner is
+   * standing in it whether or not a `startIcon` was ever given.
+   *
+   * `false` and `null` count as nothing throughout: they are what
+   * `condition && <Icon />` leaves behind.
+   */
+  const leading = loading || hasContent(startIcon);
+  const iconOnly = !hasContent(children) && !(leading && hasContent(endIcon));
 
   return (
     <BaseUIButton

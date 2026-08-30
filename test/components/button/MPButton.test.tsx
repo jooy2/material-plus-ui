@@ -99,6 +99,39 @@ describe('MPButton', () => {
       expect(box.width).toBeCloseTo(box.height, 0);
     });
 
+    /*
+     * "No label" is not the same question as "one thing in it". Two glyphs and
+     * no words is a button with something to lay out, and squaring it takes away
+     * the inline padding they need.
+     */
+    it('stays wide for two glyphs and no label', async () => {
+      const screen = await render(
+        <MPButton
+          aria-label="Sort"
+          startIcon={<MPIcon icon={ICONS['arrow-up']} size={20} />}
+          endIcon={<MPIcon icon={ICONS['arrow-down']} size={20} />}
+        />
+      );
+      const box = screen.getByRole('button', { name: 'Sort' }).element().getBoundingClientRect();
+
+      expect(box.width).toBeGreaterThan(box.height);
+    });
+
+    // The spinner stands in the leading slot whether or not a `startIcon` was
+    // ever given, so a loading button with an `endIcon` also holds two things.
+    it('stays wide for a spinner beside an endIcon', async () => {
+      const screen = await render(
+        <MPButton
+          aria-label="Sort"
+          loading
+          endIcon={<MPIcon icon={ICONS['arrow-down']} size={20} />}
+        />
+      );
+      const box = screen.getByRole('button', { name: 'Sort' }).element().getBoundingClientRect();
+
+      expect(box.width).toBeGreaterThan(box.height);
+    });
+
     it('appends a className rather than replacing its own', async () => {
       const screen = await render(<MPButton className="my-own">Save</MPButton>);
       const element = screen.getByRole('button').element();
