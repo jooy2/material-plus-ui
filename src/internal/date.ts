@@ -273,6 +273,48 @@ export function yearPageStart(year: number): number {
  * the month view, and at 42 cells a month that adds up fast.
  * ------------------------------------------------------------------------- */
 
+/**
+ * How many entries a cache here holds before it starts forgetting.
+ *
+ * The caches are keyed on a locale and a `format`, and `format` is a caller's
+ * prop — so how many distinct keys there are is not something this file gets to
+ * decide. A table formatting a date per row against a per-row format would add
+ * an `Intl.DateTimeFormat` to a `Map` that never dropped one, for as long as the
+ * page was open. Nothing has ever reported that, and a cache with no ceiling is
+ * still a leak with a slow fuse.
+ *
+ * Sixty-four is far above what a page uses. A calendar asks for four shapes, a
+ * range picker for the same four, and every picker on a page shares them; the
+ * limit is for the case nobody planned rather than the case everybody has.
+ */
+const CACHE_LIMIT = 64;
+
+/**
+ * Puts an entry in, and drops the oldest if that took the map over the line.
+ *
+ * A `Map` iterates in insertion order, so its first key is its oldest — which
+ * makes the eviction one delete rather than a data structure.
+ *
+ * Not a true LRU: reading an entry does not renew it, so a formatter used on
+ * every render could in principle be evicted by sixty-four newer ones. It would
+ * be rebuilt on the next call, which costs exactly what the miss it already was
+ * cost — and tracking use would mean writing to the map on every *read*, which
+ * is the hot path this whole thing exists to keep cheap.
+ */
+function remember<Value>(cache: Map<string, Value>, key: string, value: Value): Value {
+  cache.set(key, value);
+
+  if (cache.size > CACHE_LIMIT) {
+    const oldest = cache.keys().next();
+
+    if (!oldest.done) {
+      cache.delete(oldest.value);
+    }
+  }
+
+  return value;
+}
+
 const formatterCache = new Map<string, Intl.DateTimeFormat>();
 
 /** A memoised `Intl.DateTimeFormat`. `undefined` locale means the runtime's own. */
@@ -281,14 +323,13 @@ export function dateFormatter(
   options: Intl.DateTimeFormatOptions
 ): Intl.DateTimeFormat {
   const key = `${locale ?? ''} ${JSON.stringify(options)}`;
-  let formatter = formatterCache.get(key);
+  const formatter = formatterCache.get(key);
 
-  if (!formatter) {
-    formatter = new Intl.DateTimeFormat(locale, options);
-    formatterCache.set(key, formatter);
+  if (formatter) {
+    return formatter;
   }
 
-  return formatter;
+  return remember(formatterCache, key, new Intl.DateTimeFormat(locale, options));
 }
 
 /** Formats a date, tolerating the `null` a cleared picker holds. */
@@ -389,7 +430,9 @@ const WEEKDAY_ORIGIN = makeDate(2021, 7, 1);
  * shape asked for, so they are a cache rather than a computation.
  *
  * `string[]` is handed back by reference on a hit, which is what makes it usable
- * as a `useMemo` dependency further up.
+ * as a `useMemo` dependency further up — and is what an eviction costs: the next
+ * call builds a new array, so a `useMemo` keyed on it recomputes once, which is
+ * exactly what the miss it already was cost.
  */
 const nameCache = new Map<string, readonly string[]>();
 
@@ -407,18 +450,21 @@ export function weekdayLabels(
   weekday: 'narrow' | 'short' | 'long' = 'narrow'
 ): readonly string[] {
   const key = `w ${locale ?? ''} ${weekStartsOn} ${weekday}`;
-  let names = nameCache.get(key);
+  const names = nameCache.get(key);
 
-  if (!names) {
-    const formatter = dateFormatter(locale, { weekday });
-
-    names = Array.from({ length: 7 }, (_, index) =>
-      formatter.format(addDays(WEEKDAY_ORIGIN, (weekStartsOn + index) % 7))
-    );
-    nameCache.set(key, names);
+  if (names) {
+    return names;
   }
 
-  return names;
+  const formatter = dateFormatter(locale, { weekday });
+
+  return remember(
+    nameCache,
+    key,
+    Array.from({ length: 7 }, (_, index) =>
+      formatter.format(addDays(WEEKDAY_ORIGIN, (weekStartsOn + index) % 7))
+    )
+  );
 }
 
 /** The twelve month names, January first, in the locale's own words. */
@@ -427,16 +473,19 @@ export function monthLabels(
   month: 'short' | 'long' = 'short'
 ): readonly string[] {
   const key = `m ${locale ?? ''} ${month}`;
-  let names = nameCache.get(key);
+  const names = nameCache.get(key);
 
-  if (!names) {
-    const formatter = dateFormatter(locale, { month });
-
-    names = Array.from({ length: 12 }, (_, index) => formatter.format(makeDate(2021, index, 1)));
-    nameCache.set(key, names);
+  if (names) {
+    return names;
   }
 
-  return names;
+  const formatter = dateFormatter(locale, { month });
+
+  return remember(
+    nameCache,
+    key,
+    Array.from({ length: 12 }, (_, index) => formatter.format(makeDate(2021, index, 1)))
+  );
 }
 
 /**
