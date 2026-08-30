@@ -37,7 +37,11 @@ export interface MPTableColumn<Row> {
   align?: MPTableAlign;
   /**
    * Renders the cell. Without it the cell is `row[key]` rendered as-is, which
-   * covers strings and numbers and nothing else.
+   * covers strings, numbers and elements.
+   *
+   * Anything else — a `Date`, a nested object, an array — draws an empty cell
+   * rather than being handed to React, which would throw. Reach for this the
+   * moment a column holds something that is not already text.
    */
   render?: (row: Row, index: number) => React.ReactNode;
 }
@@ -187,6 +191,40 @@ const ROW = [
 /** Pixels for a bare number, and whatever was written for a string. */
 function toLength(value: number | string): string {
   return typeof value === 'number' ? `${value}px` : value;
+}
+
+/**
+ * A cell's raw value, if React can draw it, and nothing if it cannot.
+ *
+ * Without `render`, a cell is `row[column.key]` — and `Row` is the caller's own
+ * type, so that value is genuinely anything. A `Date`, a nested object, a `Map`:
+ * handed to React each of them throws *Objects are not valid as a React child*,
+ * from inside a `.map()` in a `<tbody>`, which takes down the table and every
+ * boundary above it. One unexpected column in an API response was a blank page.
+ *
+ * A blank cell is the honest answer to "this is not text". The column already
+ * has `render` for the case where it is something else, and the prop docs
+ * already say so — what was missing is that failing to reach for it cost the
+ * whole page rather than one cell.
+ *
+ * The list is what React itself will draw: strings, numbers, bigints, and the
+ * three nothings. `null`, `undefined` and `boolean` are already nothing to
+ * React, and are passed through rather than filtered so that the `false` a
+ * `condition && value` leaves behind stays as harmless here as it is anywhere
+ * else in this library.
+ */
+function drawableCell(value: unknown): React.ReactNode {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  const kind = typeof value;
+
+  if (kind === 'string' || kind === 'number' || kind === 'bigint' || kind === 'boolean') {
+    return value as React.ReactNode;
+  }
+
+  return React.isValidElement(value) ? value : null;
 }
 
 /**
@@ -382,7 +420,7 @@ export function MPTable<Row>({
                   <td key={column.key} style={{ ...cellStyle, textAlign: column.align ?? 'start' }}>
                     {column.render
                       ? column.render(row, index)
-                      : ((row as Record<string, unknown>)[column.key] as React.ReactNode)}
+                      : drawableCell((row as Record<string, unknown>)[column.key])}
                   </td>
                 ))}
               </tr>

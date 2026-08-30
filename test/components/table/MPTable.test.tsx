@@ -64,6 +64,41 @@ describe('MPTable', () => {
 
       expect(screen.getByRole('table', { name: 'Stock' }).query()).not.toBeNull();
     });
+
+    /*
+     * `Row` is the caller's type, so a cell with no `render` is genuinely
+     * anything. Handed to React, a `Date` or an object throws *Objects are not
+     * valid as a React child* from inside a `.map()` in a `<tbody>` — which
+     * takes down the table and every boundary above it. One unexpected column
+     * in an API response was a blank page.
+     */
+    it('draws an empty cell rather than throwing on a value React cannot render', async () => {
+      const columns = [
+        { key: 'name', label: 'Name' },
+        { key: 'when', label: 'When' },
+        { key: 'meta', label: 'Meta' }
+      ] as MPTableColumn<Record<string, unknown>>[];
+      const rows = [{ name: 'Bolt', when: new Date(2026, 6, 15), meta: { a: 1 } }];
+
+      const screen = await render(<MPTable headers={columns} items={rows} />);
+      const cells = screen.getByRole('cell').elements();
+
+      expect(cells.map((cell) => cell.textContent)).toEqual(['Bolt', '', '']);
+    });
+
+    it('still draws the primitives React can render', async () => {
+      const columns = [
+        { key: 'count', label: 'Count' },
+        { key: 'big', label: 'Big' },
+        { key: 'missing', label: 'Missing' }
+      ] as MPTableColumn<Record<string, unknown>>[];
+      const rows = [{ count: 0, big: 9007199254740993n, missing: undefined }];
+
+      const screen = await render(<MPTable headers={columns} items={rows} />);
+      const cells = screen.getByRole('cell').elements();
+
+      expect(cells.map((cell) => cell.textContent)).toEqual(['0', '9007199254740993', '']);
+    });
   });
 
   describe('widths', () => {
