@@ -425,6 +425,52 @@ describe('MPTextField', () => {
       expect(onChange).toHaveBeenLastCalledWith('한');
     });
 
+    /*
+     * The other engine ordering, and the reason `handleCompositionEnd` calls
+     * `onChange` at all.
+     *
+     * Browsers disagree about whether `input` fires before or after
+     * `compositionend`. Chrome and Firefox send it first, which the test above
+     * covers. WebKit has sent them the other way round, and on that path the
+     * `compositionend` handler is the *only* announcement the parent gets — a
+     * field that only listened to `input` would drop the committed syllable
+     * entirely.
+     */
+    it('hands over the committed text when the commit arrives before the input', async () => {
+      const onChange = vi.fn();
+      const screen = await render(<MPTextField value="" label="Name" onChange={onChange} />);
+      const input = screen.getByRole('textbox').element() as HTMLInputElement;
+
+      input.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true }));
+      await tick();
+
+      // The commit first, with the element already holding the syllable.
+      input.value = '한';
+      input.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, data: '한' }));
+      await tick();
+
+      expect(onChange).toHaveBeenCalledWith('한');
+    });
+
+    // The stale form-level error has to be cleared on this path too, or an IME
+    // user keeps an error the ASCII typist beside them does not.
+    it('clears a form-level error on the commit as well as on a keystroke', async () => {
+      const onFormReset = vi.fn();
+      const screen = await render(
+        <MPTextField value="" label="Name" onChange={() => {}} onFormReset={onFormReset} />
+      );
+      const input = screen.getByRole('textbox').element() as HTMLInputElement;
+
+      input.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true }));
+      await tick();
+
+      input.value = '한';
+      input.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, data: '한' }));
+      await tick();
+
+      expect(onFormReset).toHaveBeenCalled();
+    });
+
     it('is controlled again once the composition ends', async () => {
       const screen = await render(<AsciiOnlyField />);
       const input = screen.getByRole('textbox', { name: 'Name' }).element() as HTMLInputElement;
