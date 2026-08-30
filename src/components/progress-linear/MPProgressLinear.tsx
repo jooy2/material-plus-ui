@@ -65,7 +65,17 @@ export const MPProgressLinear = React.forwardRef<HTMLDivElement, MPProgressLinea
     return (
       <Progress.Root
         ref={ref}
-        value={value ?? null}
+        /*
+         * The fraction rather than the raw value, which is the same number
+         * except in the one case they disagree — and there the raw value is
+         * wrong. `progressFraction` answers `null` for a range with nothing in
+         * it (`max <= min`) as well as for a `value` of `null`, because a bar
+         * cannot say how far along something is between ten and ten. The shape
+         * already drew itself indeterminate; Base UI was still being handed the
+         * number, so a screen reader heard "5%" on a bar that was reporting it
+         * did not know.
+         */
+        value={fraction === null ? null : (value ?? null)}
         min={min}
         max={max}
         format={format}
