@@ -22,6 +22,13 @@ export interface MPHighlightProps extends Omit<React.ComponentPropsWithoutRef<'s
    * letters of it. A `RegExp` is used as written, with the global flag forced on;
    * `caseSensitive` and `wholeWord` are ignored for it, because a regular
    * expression already says both of those things itself.
+   *
+   * Strings are escaped, so a search box's contents are safe to pass straight
+   * through however they are spelled. A `RegExp` is **not** — it is run as
+   * written, which is the point of accepting one. Building one out of text
+   * somebody else typed is a denial of service waiting for the input that
+   * backtracks; escape it into a string term instead, or keep the expression a
+   * literal in your own source.
    */
   query: string | string[] | RegExp;
   /**
