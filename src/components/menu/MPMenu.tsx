@@ -42,6 +42,25 @@ export interface MPMenuProps extends MPMenuSurfaceProps {
    * menu opened from elsewhere needs no trigger of its own.
    */
   trigger?: React.ReactElement;
+  /**
+   * Whether that trigger renders a real `<button>`.
+   *
+   * It nearly always does — an [MPButton](./button), an
+   * [MPIconButton](./icon-button), an [MPChip](./chip) with an `onClick` — and
+   * this can be left alone. Set it `false` for a trigger that is deliberately
+   * something else: an avatar, a card, a row of text. Base UI then supplies the
+   * `role`, the tab stop and the Enter/Space handling a `<button>` would have
+   * brought with it, so the trigger is still a button to a screen reader and to
+   * a keyboard.
+   *
+   * The reason it is a prop rather than something inferred: what a trigger
+   * renders is only known once it has rendered, and by then the wiring has
+   * already been decided. Base UI says so in the console when the two disagree,
+   * in either direction — a `false` here on something that *is* a `<button>` is
+   * as wrong as the reverse.
+   * @default true
+   */
+  nativeButton?: boolean;
   /** Whether the menu is open. Use with `onOpenChange` for a controlled menu. */
   open?: boolean;
   /** Whether it starts open, for an uncontrolled one. */
@@ -678,6 +697,7 @@ export function MPMenu({
   modal,
   openOnHover = false,
   loopFocus = true,
+  nativeButton = true,
   disabled = false,
   className,
   style,
@@ -696,7 +716,12 @@ export function MPMenu({
         disabled={disabled}
       >
         {trigger ? (
-          <Menu.Trigger render={trigger} openOnHover={openOnHover} disabled={disabled} />
+          <Menu.Trigger
+            render={trigger}
+            openOnHover={openOnHover}
+            nativeButton={nativeButton}
+            disabled={disabled}
+          />
         ) : null}
 
         <Menu.Portal>

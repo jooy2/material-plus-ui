@@ -200,13 +200,16 @@ const REMOVE = [
 ].join(' ');
 
 /**
- * The label, when the chip is pressable, is its own `<button>` inside the shell
- * rather than the shell itself.
+ * The label as its own `<button>` inside the shell, which is the shape a chip
+ * takes **only when it also carries a delete affordance**.
  *
- * That looks like indirection and is not: a chip can carry a delete affordance,
- * which has to be a button too, and a `<button>` inside a `<button>` is invalid
- * HTML that browsers un-nest on parse. Keeping the shell a `<span>` is what lets
- * "activate this chip" and "remove this chip" both be real, focusable buttons.
+ * That looks like indirection and is not: the × has to be a button too, and a
+ * `<button>` inside a `<button>` is invalid HTML that browsers un-nest on parse.
+ * A `<span>` shell is what lets "activate this chip" and "remove this chip" both
+ * be real, focusable buttons.
+ *
+ * With no `onDelete` there is no second button to make room for, so the shell is
+ * the button — see the component below.
  *
  * `self-stretch` so its hit area is the full height of the chip rather than the
  * height of the words, and `rounded-[inherit]` so the focus ring traces the
@@ -221,19 +224,50 @@ const LABEL_BUTTON = [
 ].join(' ');
 
 /**
+ * What a pressable shell has to say for itself once it is a `<button>` rather
+ * than a `<span>`.
+ *
+ * `appearance-none` and `font-[inherit]` are the whole of it, and they are here
+ * because this library ships no page reset: a bare `<button>` arrives with the
+ * browser's own border, background and 13px Arial, and nothing else is going to
+ * take them off. The surface itself is still `REST`/`SELECTED`'s, unchanged —
+ * a chip does not look different for being pressable.
+ */
+const SHELL_BUTTON = [
+  'group cursor-pointer appearance-none font-[inherit]',
+  'outline-mp-secondary focus-visible:outline-2 focus-visible:outline-offset-2',
+  'focus-visible:outline-solid outline-none'
+].join(' ');
+
+/**
  * A compact token: a tag, a filter, a status, an entity plucked out of a list.
  *
- * The shell is always a `<span>`. What changes is what is inside it: a plain run
- * of content, or — when `onClick` is given — a real `<button>` wrapping that
- * content, plus a second button for `onDelete`. Both are reachable by keyboard,
- * and neither is nested inside the other.
+ * A chip that does nothing is a `<span>`. A chip with an `onClick` is a real
+ * `<button>` — the shell itself, so there is one element, one tab stop, and one
+ * thing for a parent to hang `aria-expanded` on.
+ *
+ * The exception is `onDelete`, which is a second control and cannot be nested
+ * inside the first. A chip with both goes back to a `<span>` shell holding two
+ * sibling buttons: one wrapping the label, one drawing the ×. Both are reachable
+ * by keyboard and neither is inside the other.
  *
  * An inert `<span>` carrying a click handler is the single most common way a
  * component library loses its keyboard users, and a `<button>` inside a
  * `<button>` is the most common way one invents a chip that Chrome silently
- * rewrites. This shape avoids both.
+ * rewrites. Both shapes avoid both.
+ *
+ * ## Why the shell is the button, and not always a span
+ *
+ * Because of what wraps a chip. Base UI's `render` — which is how a chip becomes
+ * an [MPMenu](./menu)'s trigger, a popover's, a tooltip's — merges its handlers
+ * and its ARIA onto the element this component *returns*. With a `<span>` there
+ * that meant `aria-haspopup`, `aria-expanded`, `id` and `tabindex` landing on
+ * something that was not focusable, a second tab stop on the label button
+ * underneath carrying none of it, and Base UI logging that it expected a native
+ * `<button>`. One element is the fix, and it is also simply less markup for the
+ * common case.
  */
-export const MPChip = React.forwardRef<HTMLSpanElement, MPChipProps>(function MPChip(
+export const MPChip = React.forwardRef<HTMLElement, MPChipProps>(function MPChip(
   {
     variant = 'outlined',
     size = 'md',
@@ -257,6 +291,11 @@ export const MPChip = React.forwardRef<HTMLSpanElement, MPChipProps>(function MP
   const locale = useMPLocale(localeProp);
   const messages = useMPMessages(COMMON, locale);
   const interactive = Boolean(onClick) && !disabled;
+  // Which of the two shapes this chip is. The label only gets a button of its
+  // own when the shell cannot be one, and the shell cannot be one when there is
+  // a × inside it.
+  const innerButton = interactive && Boolean(onDelete);
+  const shellButton = interactive && !onDelete;
 
   const shellClasses = [
     'mp-chip relative inline-flex max-w-full shrink-0 items-center',
@@ -270,12 +309,15 @@ export const MPChip = React.forwardRef<HTMLSpanElement, MPChipProps>(function MP
     // An if/else rather than stacked variants: two Tailwind classes of equal
     // specificity resolve by their order in the generated stylesheet.
     disabled ? DISABLED[variant] : selected ? SELECTED[variant] : REST[variant],
-    // With a pressable label the padding belongs to the button, so its hit area
-    // covers the whole chip rather than just the words.
-    interactive ? 'ps-0' : PAD_X[size],
+    // Only when the label has a button of its own does the padding go with it,
+    // so that button's hit area covers the whole chip rather than just the
+    // words. A shell that is itself the button keeps its own padding and is
+    // already the hit area.
+    innerButton ? 'ps-0' : PAD_X[size],
     // The delete button brings its own room; stacking the chip's on top would
     // leave the × floating in the middle of a gap.
-    onDelete ? 'pe-2' : interactive ? 'pe-0' : '',
+    onDelete ? 'pe-2' : '',
+    shellButton ? SHELL_BUTTON : '',
     className ?? ''
   ]
     .filter(Boolean)
@@ -304,23 +346,47 @@ export const MPChip = React.forwardRef<HTMLSpanElement, MPChipProps>(function MP
     </>
   );
 
+  // Everything the shell carries whichever element it turns out to be. The
+  // `ref` is not in here: it is the one prop whose type follows the tag, so each
+  // branch narrows it itself.
+  const shell = {
+    'data-mp-size': size,
+    'data-mp-variant': variant,
+    'data-selected': selected || undefined,
+    className: shellClasses,
+    style: { ...accentSlots(color), ...style },
+    ...props
+  };
+
+  // The shell is the button. One element, one tab stop, and whatever a Base UI
+  // trigger merges onto this component lands on something that can hold it.
+  if (shellButton) {
+    return (
+      <button
+        ref={ref as React.Ref<HTMLButtonElement>}
+        type="button"
+        // Only for a chip that is actually a toggle — which is what passing
+        // `selected` at all is the statement of. An action chip announced as
+        // "not pressed" is a screen reader describing a state it does not have.
+        aria-pressed={selected}
+        onClick={onClick as React.MouseEventHandler<HTMLButtonElement>}
+        {...shell}
+      >
+        <MPStateLayer />
+        {label}
+      </button>
+    );
+  }
+
   return (
     <span
-      ref={ref}
-      data-mp-size={size}
-      data-mp-variant={variant}
-      data-selected={selected || undefined}
-      className={shellClasses}
-      style={{ ...accentSlots(color), ...style }}
+      ref={ref as React.Ref<HTMLSpanElement>}
       aria-disabled={disabled && !interactive ? true : undefined}
-      {...props}
+      {...shell}
     >
-      {interactive ? (
+      {innerButton ? (
         <button
           type="button"
-          // Only for a chip that is actually a toggle — which is what passing
-          // `selected` at all is the statement of. An action chip announced as
-          // "not pressed" is a screen reader describing a state it does not have.
           aria-pressed={selected}
           className={`${LABEL_BUTTON} ${GAP[size]} ${PAD_X[size]}`}
           onClick={onClick as React.MouseEventHandler<HTMLButtonElement>}
