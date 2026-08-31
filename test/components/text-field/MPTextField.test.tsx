@@ -767,6 +767,30 @@ describe('MPTextField', () => {
     });
   });
 
+  describe('type="search"', () => {
+    it('renders a search input', async () => {
+      const screen = await render(<MPTextField value="" label="Find" type="search" />);
+
+      expect(screen.getByRole('searchbox').element()).toHaveAttribute('type', 'search');
+    });
+
+    it('hides the browser’s own clear button', async () => {
+      // WebKit's × sits outside the adornment row, is not in the tab order, and
+      // empties a controlled value without telling React.
+      const screen = await render(<MPTextField value="" label="Find" type="search" />);
+
+      expect(screen.getByRole('searchbox').element().className).toContain(
+        '[&::-webkit-search-cancel-button]:hidden'
+      );
+    });
+
+    it('leaves that rule off every other type', async () => {
+      const screen = await render(<MPTextField value="" label="Name" />);
+
+      expect(screen.getByRole('textbox').element().className).not.toContain('search-cancel-button');
+    });
+  });
+
   describe('states', () => {
     it('shows an error message and marks the field invalid', async () => {
       const screen = await render(
