@@ -189,7 +189,10 @@ describe('MPSnackbar', () => {
       await screen.getByRole('button', { name: 'Raise' }).click();
       await expect.element(screen.getByText('Saved')).toBeInTheDocument();
 
-      const viewport = document.querySelector('.mp-portal.fixed') as HTMLElement;
+      // The stack the snackbar actually landed in, not the first one on the
+      // page: all six are mounted from the start so that each is a live region
+      // the reader's software has already seen.
+      const viewport = screen.getByText('Saved').element().closest('.mp-portal.fixed')!;
 
       expect(viewport.className).toContain('top-0');
       expect(viewport.className).toContain('items-center');

@@ -31,6 +31,25 @@ export type MPSnackbarPosition = `top-${MPAlign}` | `bottom-${MPAlign}`;
 export interface MPSnackbarData {
   color?: MPColor;
   icon?: React.ReactNode | false;
+  /**
+   * Which stack this one joins, overriding the provider's `position`.
+   *
+   * For the message that has to be somewhere else *because of what it is* — a
+   * confirmation pinned under the thing it confirms, an error at the top of a
+   * page whose bottom corner is a toolbar. Not for a preference: an application
+   * whose snackbars all appear in the same wrong place should move the provider.
+   *
+   * All six stacks are on the page from the start whether or not anything is in
+   * them, which is not a detail: a stack is its own `aria-live` region, and a
+   * region added to the document at the same instant as the message inside it is
+   * a region a screen reader has nothing to compare against and does not read.
+   */
+  position?: MPSnackbarPosition;
+  /**
+   * Added to this snackbar's plate — the element that draws the surface, not the
+   * stack around it.
+   */
+  className?: string;
 }
 
 export interface MPSnackbarOptions extends MPSnackbarData {
@@ -232,12 +251,12 @@ const ICON_SIZE: Record<MPSize, number> = {
  * no second line for it to be the heading of.
  */
 function toManagerOptions(options: MPSnackbarOptions) {
-  const { color, icon, message, actionLabel, onAction, ...rest } = options;
+  const { color, icon, position, className, message, actionLabel, onAction, ...rest } = options;
 
   return {
     ...rest,
     title: message,
-    data: { color, icon } satisfies MPSnackbarData,
+    data: { color, icon, position, className } satisfies MPSnackbarData,
     actionProps:
       actionLabel === undefined
         ? undefined
@@ -355,8 +374,11 @@ function SnackbarItem({
         SLIDE[edge],
         // A snackbar pushed out by the limit is kept in the DOM so it can come
         // back; it just has nothing to say while it waits.
-        'data-limited:hidden'
-      ].join(' ')}
+        'data-limited:hidden',
+        toast.data?.className ?? ''
+      ]
+        .filter(Boolean)
+        .join(' ')}
       style={slots}
     >
       {glyph ? <span className="flex shrink-0 items-center">{glyph}</span> : null}
@@ -418,20 +440,43 @@ function SnackbarItem({
   );
 }
 
-/** The stack itself. Rendered by the provider, never by a caller. */
+/** Every stack there is, smallest-to-largest so the order is the reading order. */
+const POSITIONS: readonly MPSnackbarPosition[] = [
+  'top-start',
+  'top-center',
+  'top-end',
+  'bottom-start',
+  'bottom-center',
+  'bottom-end'
+];
+
+/**
+ * One stack. Rendered by the provider, never by a caller.
+ *
+ * All six exist from the first render whatever `position` says, because each one
+ * is its own `aria-live` region and a region that arrives with its first message
+ * is a region a screen reader has nothing to compare and does not read out. An
+ * empty stack is a `pointer-events-none` flex column with no children, so the
+ * five nobody is using cost a `<div>` each and nothing else — including no hover,
+ * which reaches Base UI's timers through a plate rather than through the strip.
+ */
 function SnackbarViewport({
   position,
+  fallback,
   width,
   ...rest
 }: {
   position: MPSnackbarPosition;
+  /** Where a snackbar that named no position of its own belongs. */
+  fallback: MPSnackbarPosition;
   width: number | string;
   color?: MPColor;
   size: MPSize;
   showClose: boolean;
   closeLabel: string;
 }) {
-  const { toasts } = Toast.useToastManager<MPSnackbarData>();
+  const { toasts: all } = Toast.useToastManager<MPSnackbarData>();
+  const toasts = all.filter((toast) => (toast.data?.position ?? fallback) === position);
   // The one fact both of these are derived from: which edge the stack is
   // pinned to. It decides the way a plate is flicked away and the way it
   // arrives, and the two must agree — a snackbar that came down from the top
@@ -502,14 +547,18 @@ export function MPSnackbarProvider({
   return (
     <Toast.Provider timeout={timeout} limit={limit}>
       {children}
-      <SnackbarViewport
-        position={position}
-        width={width}
-        color={color}
-        size={size}
-        showClose={showClose}
-        closeLabel={closeLabel ?? messages.close}
-      />
+      {POSITIONS.map((slot) => (
+        <SnackbarViewport
+          key={slot}
+          position={slot}
+          fallback={position}
+          width={width}
+          color={color}
+          size={size}
+          showClose={showClose}
+          closeLabel={closeLabel ?? messages.close}
+        />
+      ))}
     </Toast.Provider>
   );
 }
