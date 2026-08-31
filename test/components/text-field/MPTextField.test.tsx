@@ -912,6 +912,151 @@ describe('MPTextField', () => {
     });
   });
 
+  /*
+   * The events the field does not already report as something else.
+   *
+   * `onChange` is the text and `onSubmit` is the plain Enter; these are the
+   * keystroke itself, the focus, and the pointer — and they are on the control
+   * rather than on the row, which is the half worth pinning here.
+   */
+  describe('the raw events', () => {
+    /** One key, with whatever modifiers, dispatched the way a browser would. */
+    function press(element: Element, key: string, modifiers: KeyboardEventInit = {}) {
+      const event = new KeyboardEvent('keydown', {
+        key,
+        bubbles: true,
+        cancelable: true,
+        ...modifiers
+      });
+
+      element.dispatchEvent(event);
+
+      return event;
+    }
+
+    it('reports a keystroke, modifiers and all', async () => {
+      const onKeyDown = vi.fn();
+      const screen = await render(<MPTextField value="" label="Message" onKeyDown={onKeyDown} />);
+
+      press(screen.getByRole('textbox').element(), 'Enter', { ctrlKey: true });
+      await tick();
+
+      expect(onKeyDown).toHaveBeenCalledOnce();
+      expect(onKeyDown.mock.calls[0][0].key).toBe('Enter');
+      expect(onKeyDown.mock.calls[0][0].ctrlKey).toBe(true);
+    });
+
+    it('lets a caller take the keystroke away from the field', async () => {
+      // Ctrl+Enter sends the message; the field must not also report the plain
+      // submission it would otherwise have seen on the same key.
+      const onSubmit = vi.fn();
+      const screen = await render(
+        <MPTextField
+          value=""
+          label="Message"
+          onSubmit={onSubmit}
+          onKeyDown={(event) => {
+            if (event.ctrlKey) {
+              event.preventDefault();
+            }
+          }}
+        />
+      );
+
+      press(screen.getByRole('textbox').element(), 'Enter', { ctrlKey: true });
+      await tick();
+
+      expect(onSubmit).not.toHaveBeenCalled();
+    });
+
+    it('still reports the Enter the caller left alone', async () => {
+      const onSubmit = vi.fn();
+      const onKeyDown = vi.fn();
+      const screen = await render(
+        <MPTextField value="" label="Message" onSubmit={onSubmit} onKeyDown={onKeyDown} />
+      );
+
+      press(screen.getByRole('textbox').element(), 'Enter');
+      await tick();
+
+      expect(onKeyDown).toHaveBeenCalledOnce();
+      expect(onSubmit).toHaveBeenCalledOnce();
+    });
+
+    it('reports the focus the control takes, and the one it loses', async () => {
+      const onFocus = vi.fn();
+      const onBlur = vi.fn();
+      const screen = await render(
+        <MPTextField value="" label="Email" onFocus={onFocus} onBlur={onBlur} />
+      );
+      const input = screen.getByRole('textbox').element() as HTMLInputElement;
+
+      input.focus();
+      await tick();
+      input.blur();
+      await tick();
+
+      expect(onFocus).toHaveBeenCalledOnce();
+      expect(onBlur).toHaveBeenCalledOnce();
+    });
+
+    it('does not report the focus the reveal toggle takes', async () => {
+      // On the control rather than on the row: the toggle is a button of its
+      // own beside the input, and the focus it takes is not the field's.
+      const onFocus = vi.fn();
+      const screen = await render(
+        <MPTextField value="hunter2" type="password" label="Password" onFocus={onFocus} />
+      );
+
+      (screen.getByRole('button', { name: 'Show the password' }).element() as HTMLElement).focus();
+      await tick();
+
+      expect(onFocus).not.toHaveBeenCalled();
+    });
+
+    it('reports the pointer, right-click included', async () => {
+      const onClick = vi.fn();
+      const onDoubleClick = vi.fn();
+      const onContextMenu = vi.fn();
+      const screen = await render(
+        <MPTextField
+          value=""
+          label="Email"
+          onClick={onClick}
+          onDoubleClick={onDoubleClick}
+          onContextMenu={onContextMenu}
+        />
+      );
+      const input = screen.getByRole('textbox').element();
+
+      input.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+      input.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, cancelable: true }));
+      input.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
+      await tick();
+
+      expect(onClick).toHaveBeenCalledOnce();
+      expect(onDoubleClick).toHaveBeenCalledOnce();
+      expect(onContextMenu).toHaveBeenCalledOnce();
+    });
+
+    it('leaves the composition alone', async () => {
+      // The Enter that commits a syllable is still the input method's. A caller
+      // hears the keystroke — it is theirs to interpret — but the field does not
+      // turn it into a submission.
+      const onSubmit = vi.fn();
+      const onKeyDown = vi.fn();
+      const screen = await render(
+        <MPTextField value="한" label="Name" onSubmit={onSubmit} onKeyDown={onKeyDown} />
+      );
+
+      press(screen.getByRole('textbox').element(), 'Enter', { isComposing: true });
+      await tick();
+
+      expect(onKeyDown).toHaveBeenCalledOnce();
+      expect(onSubmit).not.toHaveBeenCalled();
+    });
+  });
+
   describe('passthrough', () => {
     it('keeps caller-supplied class names and styles alongside its own', async () => {
       await render(

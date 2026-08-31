@@ -318,6 +318,51 @@ describe('MPCombobox', () => {
     });
   });
 
+  /*
+   * The events the input produces that the combobox does not report as a
+   * choice — Escape that closes something above the field, a shortcut that
+   * belongs to the page — with the list's own keys left where they were.
+   */
+  describe('the raw events', () => {
+    it('reports a keystroke on the input', async () => {
+      const onKeyDown = vi.fn();
+      const screen = await render(<Single onKeyDown={onKeyDown} />);
+
+      screen
+        .getByRole('combobox')
+        .element()
+        .dispatchEvent(
+          new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true, cancelable: true })
+        );
+
+      expect(onKeyDown).toHaveBeenCalledOnce();
+      expect(onKeyDown.mock.calls[0][0].metaKey).toBe(true);
+    });
+
+    it('leaves the arrows that walk the list alone', async () => {
+      const onKeyDown = vi.fn();
+      const screen = await render(<Single onKeyDown={onKeyDown} />);
+      const input = screen.getByRole('combobox').element() as HTMLElement;
+
+      input.focus();
+      input.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true })
+      );
+
+      expect(onKeyDown).toHaveBeenCalledOnce();
+      await expect.element(screen.getByRole('option', { name: 'Apple' })).toBeInTheDocument();
+    });
+
+    it('reports the focus the input takes', async () => {
+      const onFocus = vi.fn();
+      const screen = await render(<Single onFocus={onFocus} />);
+
+      (screen.getByRole('combobox').element() as HTMLElement).focus();
+
+      expect(onFocus).toHaveBeenCalledOnce();
+    });
+  });
+
   describe('the indicator column', () => {
     /*
      * The column is always drawn and only the mark inside it comes and goes: an

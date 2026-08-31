@@ -298,6 +298,46 @@ describe('MPNumberField', () => {
     });
   });
 
+  /*
+   * The events the field does not already report as a number.
+   *
+   * The one worth asserting is `onBlur`, because the field's own commit hangs
+   * off the same event: a handler that replaced Base UI's rather than joining
+   * it would take `onValueCommitted` away, and nothing else here would notice.
+   */
+  describe('the raw events', () => {
+    it('reports a keystroke on the input', async () => {
+      const onKeyDown = vi.fn();
+      const screen = await render(
+        <MPNumberField label="Quantity" defaultValue={1} onKeyDown={onKeyDown} />
+      );
+
+      screen
+        .getByRole('textbox')
+        .element()
+        .dispatchEvent(
+          new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true, cancelable: true })
+        );
+
+      expect(onKeyDown).toHaveBeenCalledOnce();
+      expect(onKeyDown.mock.calls[0][0].metaKey).toBe(true);
+    });
+
+    it('reports a blur without taking the commit off it', async () => {
+      const onBlur = vi.fn();
+      const onValueCommitted = vi.fn();
+      const screen = await render(
+        <MPNumberField label="Quantity" onBlur={onBlur} onValueCommitted={onValueCommitted} />
+      );
+
+      await screen.getByRole('textbox').fill('42');
+      (screen.getByRole('textbox').element() as HTMLInputElement).blur();
+
+      expect(onBlur).toHaveBeenCalledOnce();
+      expect(onValueCommitted).toHaveBeenCalledWith(42);
+    });
+  });
+
   describe('passthrough', () => {
     it('keeps caller-supplied class names and styles alongside its own', async () => {
       await render(

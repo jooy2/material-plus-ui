@@ -309,6 +309,55 @@ describe('MPSelect', () => {
     });
   });
 
+  /*
+   * The events the trigger produces that the select does not report as a
+   * choice — and the assertion that Base UI still answers the keys it owns,
+   * since a handler that replaced its own would leave a select that no longer
+   * opened from the keyboard.
+   */
+  describe('the raw events', () => {
+    it('reports a keystroke on the trigger', async () => {
+      const onKeyDown = vi.fn();
+      const screen = await render(<ControlledSelect onKeyDown={onKeyDown} />);
+
+      screen
+        .getByRole('combobox', { name: 'City' })
+        .element()
+        .dispatchEvent(
+          new KeyboardEvent('keydown', { key: 'Delete', bubbles: true, cancelable: true })
+        );
+
+      expect(onKeyDown).toHaveBeenCalledOnce();
+      expect(onKeyDown.mock.calls[0][0].key).toBe('Delete');
+    });
+
+    it('leaves the keys the list opens on alone', async () => {
+      // Both from the one keystroke: the caller hears it, and Base UI still acts
+      // on it. A handler that replaced its own would leave a select that could
+      // no longer be opened from the keyboard at all.
+      const onKeyDown = vi.fn();
+      const screen = await render(<ControlledSelect onKeyDown={onKeyDown} />);
+      const trigger = screen.getByRole('combobox', { name: 'City' }).element() as HTMLElement;
+
+      trigger.focus();
+      trigger.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true })
+      );
+
+      expect(onKeyDown).toHaveBeenCalledOnce();
+      await expect.element(screen.getByRole('option', { name: 'Seoul' })).toBeInTheDocument();
+    });
+
+    it('reports the focus the trigger takes', async () => {
+      const onFocus = vi.fn();
+      const screen = await render(<ControlledSelect onFocus={onFocus} />);
+
+      (screen.getByRole('combobox', { name: 'City' }).element() as HTMLElement).focus();
+
+      expect(onFocus).toHaveBeenCalledOnce();
+    });
+  });
+
   describe('passthrough', () => {
     it('keeps caller-supplied class names and styles alongside its own', async () => {
       await render(

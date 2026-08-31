@@ -826,6 +826,49 @@ describe('MPDatePicker', () => {
     });
   });
 
+  /*
+   * The trigger's own events, which every picker gets from the shell they share.
+   *
+   * A picker reports the day it was given; these are the keystroke and the
+   * pointer that were not that — Escape while the popup is shut, a right-click
+   * that opens a menu of the caller's own.
+   */
+  describe('the raw events', () => {
+    it('reports a keystroke on the trigger', async () => {
+      const onKeyDown = vi.fn();
+      const screen = await render(<Controlled onKeyDown={onKeyDown} />);
+
+      screen
+        .getByRole('button', { name: 'Due date' })
+        .element()
+        .dispatchEvent(
+          new KeyboardEvent('keydown', { key: 'Delete', bubbles: true, cancelable: true })
+        );
+
+      expect(onKeyDown).toHaveBeenCalledOnce();
+      expect(onKeyDown.mock.calls[0][0].key).toBe('Delete');
+    });
+
+    it('reports the press without swallowing the popup it opens', async () => {
+      const onClick = vi.fn();
+      const screen = await render(<Controlled onClick={onClick} />);
+
+      await screen.getByRole('button', { name: 'Due date' }).click();
+
+      expect(onClick).toHaveBeenCalledOnce();
+      await expect.element(screen.getByRole('grid', { name: 'July 2026' })).toBeInTheDocument();
+    });
+
+    it('reports the focus the trigger takes', async () => {
+      const onFocus = vi.fn();
+      const screen = await render(<Controlled onFocus={onFocus} />);
+
+      (screen.getByRole('button', { name: 'Due date' }).element() as HTMLElement).focus();
+
+      expect(onFocus).toHaveBeenCalledOnce();
+    });
+  });
+
   describe('the page turn', () => {
     it('turns the weeks from the side they were fetched from', async () => {
       // A month that swapped in place said which month it was in the header and
