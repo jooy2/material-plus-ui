@@ -6,6 +6,7 @@ export {
   type MPPartialMessages
 } from './internal/i18n';
 export * from './constants/icons';
+export * from './hooks';
 export * from './components/accordion';
 export * from './components/alert';
 export * from './components/animate-appear';

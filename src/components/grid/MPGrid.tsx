@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
+import { WINDOW_CLASSES } from '../../internal/window-class';
 import type { MPResponsive, MPWindowClass } from '../../types';
 
 /**
@@ -33,15 +34,6 @@ export type MPGridAlignSelf = MPGridAlign | 'auto';
  * contents, which is the useful half of what makes it predictable.
  */
 export type MPGridSpan = number | 'grow';
-
-/** Smallest first, which is also the order the media queries have to be in. */
-const WINDOW_CLASSES: readonly MPWindowClass[] = [
-  'compact',
-  'medium',
-  'expanded',
-  'large',
-  'extra-large'
-];
 
 /**
  * How many columns a row is divided into when nobody says.

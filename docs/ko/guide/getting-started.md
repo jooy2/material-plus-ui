@@ -380,6 +380,7 @@ onwarn(warning, warn) {
 | `material-plus-ui`                 | 모든 컴포넌트와 타입                                 |
 | `material-plus-ui/types`           | 공유 prop 어휘만                                     |
 | `material-plus-ui/constants/icons` | 아이콘 세트. named export와 조회 테이블 형태         |
+| `material-plus-ui/hooks`           | 자기 컴포넌트가 없는 네 개의 훅                      |
 | `material-plus-ui/locales`         | 열여덟 개의 번역. 요청하기 전에는 하나도 실리지 않음 |
 | `material-plus-ui/styles.css`      | 완성된 CSS. Tailwind가 없는 프로젝트용               |
 | `material-plus-ui/styles/*.css`    | 같은 CSS를 컴포넌트별 시트로                         |

@@ -17,6 +17,16 @@ Nothing was renamed and nothing was removed. Every existing prop still means wha
 
 ### Added
 
+- **Four hooks, all of which the library was already running.** `useMPWindowClass`, `useMPReducedMotion`, `useMPShortcut` and `useMPPlatform`, from `material-plus-ui` or from `material-plus-ui/hooks`.
+
+  None of them is new code so much as a name. The window size classes decide how `MPGrid` reflows and where `MPSidebar` collapses; `prefers-reduced-motion` is consulted by all eleven `MPAnimate*` components; the shortcut matcher is what `MPShortcut` draws from and `MPCommandPalette` binds through. A consumer could name any of it in a prop and could not **ask** about any of it — so a page wanting one more decision than a prop covers wrote the breakpoints out again, in numbers that had to match the library's or the layout disagreed with itself at one width.
+
+  `useMPWindowClass` reads the four boundaries through `matchMedia` rather than off `innerWidth`, which is the difference between agreeing with the stylesheet and agreeing with arithmetic: a classic scrollbar is counted by one and not the other, so a 615px window is `medium` to CSS and `compact` to a subtraction. It subscribes to the boundaries rather than to `resize`, so a drag from 500 to 1900 wakes it four times instead of several hundred. Where there is no window it answers its `onServer` argument, `'expanded'` by default — a guess, and an argument because an application usually knows better than the library which way its own first paint should lean.
+
+  `useMPShortcut` takes the spelling `MPShortcut` draws, so `<MPShortcut keys="Mod+K" />` and `useMPShortcut('Mod+K', open)` cannot end up as two different combinations. `preventDefault` is on by default because a page that binds `Mod+K` has said the key is theirs; `ignoreInputs` is off by default because `Mod+K` typed into a search field still means "open the palette", and is there for the bare `/` that would otherwise be taken out of the middle of a sentence.
+
+  `WINDOW_CLASSES` moved out of `MPGrid` on the way, so the grid and the hook read one table.
+
 - **`MPCalendar`, the calendar without the picker in front of it.**
 
   The grid `MPDatePicker` opens was always the larger half of that component — three views on one footprint, a roving tab stop, arrow keys that step the month at an edge, a header where the month name and the year are each a button into a grid of their own — and there was no way to put it on a page. A booking page that shows the month it is talking about, a dashboard with the calendar beside the list it filters, a form with room for it: in all three the popup is the part that is in the way.
@@ -192,15 +202,15 @@ Nothing was renamed and nothing was removed. Every existing prop still means wha
 | `MPTextField`   | 4.3 kB  | 4.4 kB  |
 | Five components | 7.4 kB  | 7.5 kB  |
 | Ten components  | 11.2 kB | 11.4 kB |
-| Everything      | 76.1 kB | 76.9 kB |
+| Everything      | 76.1 kB | 77.3 kB |
 
 Just under two and a half kilobytes across the whole library, and it is spread rather than concentrated: the calendar's `precision`, the slider's ticks, the combobox's filter adapter, the accordion's three transition signals, and a `useRender` call in each of two list components. `MPButton` and `MPTextField` move a tenth each — the button for `render` and `nativeButton`, the field for one conditional class — which is what a minifier leaves of a handful of new names.
 
-The last 0.8 kB is `MPCalendar` and the cell's four extra `bg-transparent` branches, and it is the cheapest kilobyte in the release: the grid the component draws was already in `everything`, so what it costs is its wrapper and nothing else. A page that imports it and no picker pays for the grid once rather than twice.
+The last 1.2 kB is `MPCalendar`, the cell's four extra `bg-transparent` branches, and the four hooks — and it is the cheapest of the release: the grid the calendar draws and the machinery the hooks name were both already in `everything`, so what the two additions cost is a wrapper each. A page that imports `MPCalendar` and no picker pays for the grid once rather than twice, and `material-plus-ui/hooks` is 0.3 kB on its own.
 
 The stylesheet grew from 113.5 kB to 114.6 kB, and 16.2 kB to 16.4 kB gzipped. Fifteen reset declarations on `.mp-grid`, one `overflow-visible`, one search-cancel-button rule and a tick's five sizes are the whole of it; the crossover at about thirty-one components is unchanged. The split sheets go from eighty-eight to eighty-nine — `MPCalendar` gets one of its own, and it holds no hand-written rules because the grid's are in the pickers' sheets already.
 
-The suite goes from 1644 tests to 1773. Nineteen are the date picker's two new units and the raw events, as before. Twenty-seven are `MPCalendar`'s, and three more are the picker's chosen day — the ones that read a computed background rather than a class list. The other eighty are this report, and the ones worth naming are the ones that would have caught the defects rather than described them: a nested grid item measuring 200px instead of 33px, a form actually submitting on Enter, a panel's `overflow` read at four points across its animation in both the controlled and uncontrolled cases, and a chip trigger asserting there is exactly one tab stop rather than two.
+The suite goes from 1644 tests to 1799. Nineteen are the date picker's two new units and the raw events, as before. Twenty-seven are `MPCalendar`'s, twenty-six the hooks', and three more the picker's chosen day — those last ones read a computed background rather than a class list, which is the difference between checking that a rule was written and checking that it applies. The other eighty are this report, and the ones worth naming are the ones that would have caught the defects rather than described them: a nested grid item measuring 200px instead of 33px, a form actually submitting on Enter, a panel's `overflow` read at four points across its animation in both the controlled and uncontrolled cases, and a chip trigger asserting there is exactly one tab stop rather than two.
 
 ## 1.5.0 (2026-08-30)
 

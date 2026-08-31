@@ -54,6 +54,11 @@
       "module": "./dist/constants/icons.js",
       "default": "./dist/constants/icons.js"
     },
+    "./hooks": {
+      "types": "./dist/hooks/index.d.ts",
+      "module": "./dist/hooks/index.js",
+      "default": "./dist/hooks/index.js"
+    },
     "./components/*": {
       "types": "./dist/components/*/index.d.ts",
       "module": "./dist/components/*/index.js",
