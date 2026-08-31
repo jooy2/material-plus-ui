@@ -38,6 +38,8 @@ export const nl: MPLocale = {
       chooseMonth: 'Kies een maand',
       chooseYear: 'Kies een jaar',
       today: 'Vandaag',
+      thisMonth: 'Deze maand',
+      thisYear: 'Dit jaar',
       now: 'Nu',
       clear: 'Wissen',
       done: 'Klaar',

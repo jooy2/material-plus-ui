@@ -38,6 +38,8 @@ export const vi: MPLocale = {
       chooseMonth: 'Chọn tháng',
       chooseYear: 'Chọn năm',
       today: 'Hôm nay',
+      thisMonth: 'Tháng này',
+      thisYear: 'Năm nay',
       now: 'Bây giờ',
       clear: 'Xóa',
       done: 'Xong',

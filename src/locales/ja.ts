@@ -38,6 +38,8 @@ export const ja: MPLocale = {
       chooseMonth: '月を選択',
       chooseYear: '年を選択',
       today: '今日',
+      thisMonth: '今月',
+      thisYear: '今年',
       now: '現在',
       clear: 'クリア',
       done: '完了',

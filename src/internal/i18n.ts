@@ -138,8 +138,17 @@ export interface MPMessages {
     /** The two header buttons that open the month grid and the year grid. */
     chooseMonth: string;
     chooseYear: string;
-    /** The footer's actions. */
+    /**
+     * The footer's actions.
+     *
+     * `today` has two coarser spellings rather than one word doing all three
+     * jobs: the shortcut lands on whatever unit the picker asks for, and a
+     * button that said *Today* on a year picker would be naming a day the
+     * control has no way to choose.
+     */
     today: string;
+    thisMonth: string;
+    thisYear: string;
     now: string;
     clear: string;
     done: string;

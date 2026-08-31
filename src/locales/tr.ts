@@ -38,6 +38,8 @@ export const tr: MPLocale = {
       chooseMonth: 'Ay seçin',
       chooseYear: 'Yıl seçin',
       today: 'Bugün',
+      thisMonth: 'Bu ay',
+      thisYear: 'Bu yıl',
       now: 'Şimdi',
       clear: 'Temizle',
       done: 'Tamam',

@@ -38,6 +38,8 @@ export const ko: MPLocale = {
       chooseMonth: '월 선택',
       chooseYear: '연도 선택',
       today: '오늘',
+      thisMonth: '이번 달',
+      thisYear: '올해',
       now: '지금',
       clear: '지우기',
       done: '완료',

@@ -38,6 +38,8 @@ export const th: MPLocale = {
       chooseMonth: 'เลือกเดือน',
       chooseYear: 'เลือกปี',
       today: 'วันนี้',
+      thisMonth: 'เดือนนี้',
+      thisYear: 'ปีนี้',
       now: 'ตอนนี้',
       clear: 'ล้าง',
       done: 'เสร็จสิ้น',

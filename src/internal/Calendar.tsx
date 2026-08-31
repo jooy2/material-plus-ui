@@ -13,11 +13,11 @@ import {
   calendarWeeks,
   compareDay,
   dateFormatter,
-  daysInMonth,
   isDayOutside,
   isMonthBeforeYear,
   isSameDay,
   isSameMonth,
+  isUnitOutside,
   isValidDate,
   makeDate,
   meridiemLabels,
@@ -117,6 +117,15 @@ const CELL_BASE = [
   'outline-mp-secondary focus-visible:z-10 focus-visible:outline-2',
   'focus-visible:outline-offset-[-2px] focus-visible:outline-solid outline-none'
 ].join(' ');
+
+/**
+ * The three views in the order they get coarser, so two of them can be compared.
+ *
+ * Which is all `precision` needs: a view is reachable when it is at least as
+ * coarse as the unit the picker is asking for, and the day grid of a month
+ * picker is simply the view that is not.
+ */
+const VIEW_RANK: Record<MPCalendarView, number> = { day: 0, month: 1, year: 2 };
 
 /* ---------------------------------------------------------------------------
  * The cell
@@ -432,6 +441,13 @@ export interface MPCalendarProps {
   autoFocus?: boolean;
   showPreviousButton?: boolean;
   showNextButton?: boolean;
+  /**
+   * The finest view the calendar offers, and therefore what a press answers
+   * with. `'month'` never draws a day grid and `'year'` never draws either of
+   * the other two.
+   * @default 'day'
+   */
+  precision?: MPCalendarView;
   labels: MPPickerLabels;
 }
 
@@ -469,9 +485,15 @@ export function MPCalendar({
   autoFocus = false,
   showPreviousButton = true,
   showNextButton = true,
+  precision = 'day',
   labels
 }: MPCalendarProps) {
-  const [view, setView] = React.useState<MPCalendarView>('day');
+  // Opens on the view it answers with, which for a day picker is the day grid
+  // it always opened on. Clamped on the way out rather than only on the way in,
+  // so a picker whose `precision` coarsens while its popup is open cannot be
+  // left showing a grid it no longer has an answer for.
+  const [requestedView, setView] = React.useState<MPCalendarView>(precision);
+  const view = VIEW_RANK[requestedView] < VIEW_RANK[precision] ? precision : requestedView;
   const chosen = React.useMemo(() => selected.filter(isValidDate), [selected]);
 
   // The one cell that carries the tab stop. It starts on the chosen day, or on
@@ -603,7 +625,17 @@ export function MPCalendar({
             maxDate={maxDate}
             onMoveCursor={moveCursor}
             onPick={(index) => {
-              onMonthChange(makeDate(month.getFullYear(), index, 1));
+              const picked = makeDate(month.getFullYear(), index, 1);
+
+              // A month picker's answer, rather than a way down to the days in
+              // it: there is no view below this one to send the reader to.
+              if (precision === 'month') {
+                onSelect(picked);
+
+                return;
+              }
+
+              onMonthChange(picked);
               changeView('day');
             }}
           />
@@ -616,6 +648,12 @@ export function MPCalendar({
             maxDate={maxDate}
             onMoveCursor={moveCursor}
             onPick={(year) => {
+              if (precision === 'year') {
+                onSelect(makeDate(year, 0, 1));
+
+                return;
+              }
+
               onMonthChange(makeDate(year, month.getMonth(), 1));
               changeView('month');
             }}
@@ -910,9 +948,28 @@ function MonthGrid({
   onPick
 }: MonthGridProps) {
   const short = monthLabels(locale, 'short');
-  const long = monthLabels(locale, 'long');
   const year = month.getFullYear();
   const now = new Date();
+
+  /*
+   * The name of each cell: the whole month, written the way the locale writes
+   * it — `January 2026`, `2026년 1월`.
+   *
+   * Asked of `Intl` rather than concatenated out of a month name and a year, for
+   * the reason the header's two buttons are put in the order `Intl` gives rather
+   * than in ours: a Korean reader hearing "1월 2026" is hearing the two halves of
+   * a date in an order their language does not use. It matters more than it
+   * looks, because on a picker whose `precision` is a month this grid is the
+   * whole control and these twelve strings are everything a reader hears.
+   *
+   * Kept until the year or the locale changes, which is the same bargain the day
+   * grid's forty-two names make.
+   */
+  const names = React.useMemo(() => {
+    const formatter = dateFormatter(locale, { year: 'numeric', month: 'long' });
+
+    return Array.from({ length: 12 }, (_, index) => formatter.format(makeDate(year, index, 1)));
+  }, [locale, year]);
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
     const across = horizontalStep(event.currentTarget);
@@ -938,28 +995,27 @@ function MonthGrid({
     // The rows are spread over the height the day view occupies rather than
     // stretched to fill it: the popup keeps its size across a view change, and a
     // month cell stays a cell rather than becoming a panel.
-    <div role="grid" className="flex h-full flex-col justify-evenly">
+    // Named by the year it is showing, for the reason the day grid is named by
+    // its month: on a month picker this *is* the calendar, and a grid announced
+    // as "grid" leaves the reader to work the year out from twelve month names.
+    <div role="grid" aria-label={String(year)} className="flex h-full flex-col justify-evenly">
       {[0, 1, 2, 3].map((row) => (
         <div role="row" key={row} className="grid grid-cols-3 gap-1">
           {[0, 1, 2].map((column) => {
             const index = row * 3 + column;
-            // A month is out of bounds only when every day in it is: the month a
-            // `minDate` falls in is still reachable, it just starts late.
-            const first = makeDate(year, index, 1);
-            const last = makeDate(year, index, daysInMonth(year, index));
 
             return (
               <Cell
                 key={index}
-                label={`${long[index]} ${year}`}
+                label={names[index]}
                 selected={chosen.some(
                   (entry) => entry.getFullYear() === year && entry.getMonth() === index
                 )}
                 current={now.getFullYear() === year && now.getMonth() === index}
-                disabled={
-                  (isValidDate(minDate) && compareDay(last, minDate) < 0) ||
-                  (isValidDate(maxDate) && compareDay(first, maxDate) > 0)
-                }
+                // A month is out of bounds only when every day in it is: the
+                // month a `minDate` falls in is still reachable, it just starts
+                // late. `isUnitOutside` is that rule, stated once.
+                disabled={isUnitOutside(makeDate(year, index, 1), 'month', minDate, maxDate)}
                 focused={index === month.getMonth()}
                 className={`h-(--_mp-cell) w-full ${PROSE_TEXT[size]}`}
                 onClick={() => onPick(index)}
@@ -1011,7 +1067,11 @@ function YearGrid({ size, month, chosen, minDate, maxDate, onMoveCursor, onPick 
   };
 
   return (
-    <div role="grid" className="flex h-full flex-col justify-evenly">
+    <div
+      role="grid"
+      aria-label={`${pageStart}\u2013${pageStart + YEAR_PAGE_SIZE - 1}`}
+      className="flex h-full flex-col justify-evenly"
+    >
       {[0, 1, 2].map((row) => (
         <div role="row" key={row} className="grid grid-cols-4 gap-1">
           {[0, 1, 2, 3].map((column) => {
@@ -1023,10 +1083,7 @@ function YearGrid({ size, month, chosen, minDate, maxDate, onMoveCursor, onPick 
                 label={String(year)}
                 selected={chosen.some((entry) => entry.getFullYear() === year)}
                 current={year === now}
-                disabled={
-                  (isValidDate(minDate) && year < minDate.getFullYear()) ||
-                  (isValidDate(maxDate) && year > maxDate.getFullYear())
-                }
+                disabled={isUnitOutside(makeDate(year, 0, 1), 'year', minDate, maxDate)}
                 focused={year === month.getFullYear()}
                 className={`h-(--_mp-cell) w-full ${PROSE_TEXT[size]}`}
                 onClick={() => onPick(year)}

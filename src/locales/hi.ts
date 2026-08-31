@@ -38,6 +38,8 @@ export const hi: MPLocale = {
       chooseMonth: 'महीना चुनें',
       chooseYear: 'वर्ष चुनें',
       today: 'आज',
+      thisMonth: 'यह महीना',
+      thisYear: 'यह वर्ष',
       now: 'अभी',
       clear: 'हटाएँ',
       done: 'हो गया',

@@ -13,6 +13,8 @@ export const PICKER: MPNamespace<'picker'> = {
     chooseMonth: 'Choose a month',
     chooseYear: 'Choose a year',
     today: 'Today',
+    thisMonth: 'This month',
+    thisYear: 'This year',
     now: 'Now',
     clear: 'Clear',
     done: 'Done',

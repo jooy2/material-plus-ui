@@ -38,6 +38,8 @@ export const id: MPLocale = {
       chooseMonth: 'Pilih bulan',
       chooseYear: 'Pilih tahun',
       today: 'Hari ini',
+      thisMonth: 'Bulan ini',
+      thisYear: 'Tahun ini',
       now: 'Sekarang',
       clear: 'Hapus',
       done: 'Selesai',

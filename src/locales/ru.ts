@@ -38,6 +38,8 @@ export const ru: MPLocale = {
       chooseMonth: 'Выбрать месяц',
       chooseYear: 'Выбрать год',
       today: 'Сегодня',
+      thisMonth: 'Текущий месяц',
+      thisYear: 'Текущий год',
       now: 'Сейчас',
       clear: 'Очистить',
       done: 'Готово',

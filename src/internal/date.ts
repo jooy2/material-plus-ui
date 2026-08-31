@@ -28,6 +28,17 @@ import type { MPWeekday } from '../types';
 /** Which unit the calendar is currently letting you pick. */
 export type MPCalendarView = 'day' | 'month' | 'year';
 
+/**
+ * Which unit a picker asks for at all — the view the calendar stops at.
+ *
+ * The same three words as `MPCalendarView` and deliberately a second name: one
+ * is what is on screen at this moment, the other is what the control is *for*.
+ * A day picker passes through all three views and answers with a day; a month
+ * picker never draws a day grid, and the year view above it is a way of
+ * reaching a month rather than an answer of its own.
+ */
+export type MPDatePrecision = MPCalendarView;
+
 /** How many years one page of the year grid holds. Four columns of three. */
 export const YEAR_PAGE_SIZE = 12;
 
@@ -73,9 +84,40 @@ export function startOfMonth(date: Date): Date {
   return makeDate(date.getFullYear(), date.getMonth(), 1);
 }
 
+/** The first day of the year this date is in, at midnight. */
+export function startOfYear(date: Date): Date {
+  return makeDate(date.getFullYear(), 0, 1);
+}
+
 /** How many days a month has, leap years included. */
 export function daysInMonth(year: number, month: number): number {
   return makeDate(year, month + 1, 0).getDate();
+}
+
+/**
+ * The first instant of the day, month or year a date falls in.
+ *
+ * Which of the three is the picker's question rather than the calendar's. A
+ * control asked for a month holds a `Date` standing for a whole month, and the
+ * only honest one is that month's first day: a picker whose trigger says
+ * *July 2026* and whose form submits the 31st is printing one thing and sending
+ * another.
+ */
+export function startOfUnit(date: Date, unit: MPCalendarView): Date {
+  if (unit === 'year') {
+    return startOfYear(date);
+  }
+
+  return unit === 'month' ? startOfMonth(date) : startOfDay(date);
+}
+
+/** The last day of that same unit, at midnight — the other end of its span. */
+export function endOfUnit(date: Date, unit: MPCalendarView): Date {
+  if (unit === 'year') {
+    return makeDate(date.getFullYear(), 11, 31);
+  }
+
+  return unit === 'month' ? makeDate(date.getFullYear(), date.getMonth() + 1, 0) : startOfDay(date);
 }
 
 /** Today, at midnight. The one place the pickers read the clock for a *date*. */
@@ -161,6 +203,37 @@ export function isDayOutside(date: Date, min?: Date | null, max?: Date | null): 
   }
 
   return isValidDate(max) && compareDay(date, max) > 0;
+}
+
+/**
+ * The same question asked of a whole month or a whole year.
+ *
+ * A unit is outside the span only when *every* day in it is, which is what
+ * leaves July reachable under a `minDate` of 10 July: the bound is about which
+ * months exist, and where inside one it falls is a day grid's problem. It is
+ * the widening `isDayOutside` already applies to the time of day, one rung up —
+ * and it is the rule both the month grid and the year grid were already
+ * spelling out for themselves.
+ *
+ * The day case is handed to `isDayOutside` rather than written as this rule
+ * with a one-day span, because that is the one that runs forty-two times per
+ * calendar per render and it can answer without building either end.
+ */
+export function isUnitOutside(
+  date: Date,
+  unit: MPCalendarView,
+  min?: Date | null,
+  max?: Date | null
+): boolean {
+  if (unit === 'day') {
+    return isDayOutside(date, min, max);
+  }
+
+  if (isValidDate(min) && compareDay(endOfUnit(date, unit), min) < 0) {
+    return true;
+  }
+
+  return isValidDate(max) && compareDay(startOfUnit(date, unit), max) > 0;
 }
 
 /* ---------------------------------------------------------------------------
@@ -390,20 +463,32 @@ export function withPlaceholder(samples: string[], placeholder: unknown): string
 }
 
 /**
- * The three machine-readable spellings, for the hidden input that makes a picker
+ * The machine-readable spellings, for the hidden input that makes a picker
  * submit with a form.
  *
  * Local, not UTC, and that is the whole point: `toISOString()` on a `Date`
  * standing for 27 July in Seoul gives `2026-07-26T15:00:00Z`, and a form field
  * that quietly reports the day before the one on screen is the single most
  * expensive bug a date picker can ship. The shapes are the ones the native
- * `<input type="date">`, `type="time"` and `type="datetime-local"` submit, so a
- * server that already parses those needs no new code.
+ * `<input type="date">`, `type="month"`, `type="time"` and
+ * `type="datetime-local"` submit, so a server that already parses those needs no
+ * new code.
+ *
+ * A year on its own is the one with no input type behind it, and `YYYY` is what
+ * is left of the others once the parts a year picker was never asked about are
+ * taken off. Each spelling is built from the one above it, so there is one
+ * answer to how a year is written and not three.
  */
-export function toISODate(date: Date): string {
-  const pad = (value: number) => String(value).padStart(2, '0');
+export function toISOYear(date: Date): string {
+  return String(date.getFullYear()).padStart(4, '0');
+}
 
-  return `${String(date.getFullYear()).padStart(4, '0')}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+export function toISOMonth(date: Date): string {
+  return `${toISOYear(date)}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+}
+
+export function toISODate(date: Date): string {
+  return `${toISOMonth(date)}-${String(date.getDate()).padStart(2, '0')}`;
 }
 
 export function toISOTime(date: Date, withSeconds = false): string {

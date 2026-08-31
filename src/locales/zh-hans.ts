@@ -43,6 +43,8 @@ export const zhHans: MPLocale = {
       chooseMonth: '选择月份',
       chooseYear: '选择年份',
       today: '今天',
+      thisMonth: '本月',
+      thisYear: '今年',
       now: '此刻',
       clear: '清除',
       done: '完成',

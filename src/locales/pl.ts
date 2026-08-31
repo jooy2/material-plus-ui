@@ -38,6 +38,8 @@ export const pl: MPLocale = {
       chooseMonth: 'Wybierz miesiąc',
       chooseYear: 'Wybierz rok',
       today: 'Dzisiaj',
+      thisMonth: 'Bieżący miesiąc',
+      thisYear: 'Bieżący rok',
       now: 'Teraz',
       clear: 'Wyczyść',
       done: 'Gotowe',

@@ -1,2 +1,2 @@
 export { MPDatePicker } from './MPDatePicker';
-export type { MPDatePickerProps } from './MPDatePicker';
+export type { MPDatePickerProps, MPDatePrecision } from './MPDatePicker';

@@ -15,17 +15,57 @@ import { PICKER } from '../../internal/messages/picker';
 import { CONTROL_ICON } from '../../internal/scale';
 import {
   formatDate,
-  isDayOutside,
+  isUnitOutside,
   isValidDate,
   localeWeekStart,
   mergeDateAndTime,
-  startOfDay,
   startOfMonth,
+  startOfUnit,
   toISODate,
+  toISOMonth,
+  toISOYear,
   today,
-  withPlaceholder
+  withPlaceholder,
+  type MPDatePrecision
 } from '../../internal/date';
 import type { MPWeekday } from '../../types';
+
+/**
+ * Which unit a picker asks for.
+ *
+ * Re-exported so a caller storing the answer can name what they are holding —
+ * a `'month'` picker's value is a month, and the day inside it is an artefact.
+ */
+export type { MPDatePrecision };
+
+/**
+ * How the trigger writes its value when the caller has not said.
+ *
+ * One per precision rather than one for all three, because a default that did
+ * not follow it would print a part the picker never asked about: `medium` on a
+ * month picker reads *Jul 1, 2026*, and that 1 is how a month is stored rather
+ * than anything the reader chose. A `format` of your own still wins over all
+ * three.
+ */
+const TRIGGER_FORMAT: Record<MPDatePrecision, Intl.DateTimeFormatOptions> = {
+  day: { dateStyle: 'medium' },
+  month: { year: 'numeric', month: 'long' },
+  year: { year: 'numeric' }
+};
+
+/**
+ * What the hidden input submits, at the precision that was asked for.
+ *
+ * `YYYY-MM-DD` and `YYYY-MM` are what `<input type="date">` and
+ * `<input type="month">` submit. A year on its own has no input type behind it
+ * and is simply `YYYY` — the same string with the parts nobody chose taken off,
+ * rather than a day the server would have to know to ignore.
+ */
+const TO_ISO: Record<MPDatePrecision, (date: Date) => string> = {
+  day: toISODate,
+  month: toISOMonth,
+  year: toISOYear
+};
 
 export interface MPDatePickerProps extends MPPickerShellProps {
   /** The chosen day. Use with `onValueChange` for a controlled picker. */
@@ -39,17 +79,44 @@ export interface MPDatePickerProps extends MPPickerShellProps {
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
   /**
+   * Which unit the picker asks for.
+   *
+   * `'month'` stops the calendar at its grid of twelve months and answers with
+   * the 1st of the one that is pressed; `'year'` stops at the grid of years and
+   * answers with the 1st of January. A card's expiry, a fiscal year, the month a
+   * report covers — the questions where a day is not something the reader has to
+   * give and the value should not pretend they did.
+   *
+   * The finer views are not hidden so much as absent: a month picker never draws
+   * a day grid, so there is no way through it to a day. What follows the
+   * precision with it is the trigger's default `format`, what the hidden input
+   * submits, and the word on the footer's shortcut.
+   * @default 'day'
+   */
+  precision?: MPDatePrecision;
+  /**
    * Which month the calendar opens on when there is no value.
    * @default this month
    */
   defaultMonth?: Date;
-  /** The earliest day that may be chosen. Day-granular — the time is ignored. */
+  /**
+   * The earliest day that may be chosen. Day-granular — the time is ignored.
+   *
+   * Read at whatever `precision` asks for: a minimum of 10 July still leaves
+   * July pickable on a month picker, because there the bound is about which
+   * months exist.
+   */
   minDate?: Date | null;
   /** The latest day that may be chosen. */
   maxDate?: Date | null;
   /**
    * Blocks individual days that are inside the range but still not available —
    * weekends, holidays, a room that is already booked.
+   *
+   * Asked about days and only about days, so a picker whose `precision` is a
+   * month or a year never consults it: a rule written about weekends has no
+   * answer for "is July available", and inventing one out of the 1st would block
+   * whichever months happened to start on a Sunday.
    */
   shouldDisableDate?: (date: Date) => boolean;
   /**
@@ -67,6 +134,8 @@ export interface MPDatePickerProps extends MPPickerShellProps {
    *
    * An object written inline is fine: what the picker keeps between renders is
    * keyed on what the format *says*, not on the object that says it.
+   *
+   * Left out, it follows `precision`: a medium date, `July 2026`, or `2026`.
    * @default { dateStyle: 'medium' }
    */
   format?: Intl.DateTimeFormatOptions;
@@ -79,6 +148,9 @@ export interface MPDatePickerProps extends MPPickerShellProps {
   clearable?: boolean;
   /**
    * Offers the shortcut to today in the footer.
+   *
+   * It lands on whatever unit is being asked for, and says so: *Today*, *This
+   * month* or *This year*.
    * @default true
    */
   showTodayButton?: boolean;
@@ -92,7 +164,10 @@ export interface MPDatePickerProps extends MPPickerShellProps {
    * given falls back to the translation for `locale`, and then to English.
    */
   labels?: Partial<MPPickerLabels>;
-  /** Identifies the field when a form is submitted, as `YYYY-MM-DD`. */
+  /**
+   * Identifies the field when a form is submitted, as `YYYY-MM-DD` — or as
+   * `YYYY-MM` or `YYYY` when `precision` asks for less.
+   */
   name?: string;
 }
 
@@ -112,6 +187,14 @@ export interface MPDatePickerProps extends MPPickerShellProps {
  * picker, and this is drawn on MD3's own numbers: a 40dp cell, a filled circle
  * for the chosen day, an outlined one for today.
  *
+ * ## A day, a month, or a year
+ *
+ * `precision` decides which of the three the calendar stops at, and it stops by
+ * leaving the finer views out rather than by refusing them: a month picker opens
+ * on the twelve months and has no day grid to reach, a year picker opens on the
+ * years. Everything downstream follows — how the trigger writes the value, what
+ * a form submits, and whether the footer's shortcut says *Today* or *This year*.
+ *
  * ## Every string comes from the platform
  *
  * The month names, the weekday initials, the order of the header's two buttons
@@ -130,13 +213,14 @@ export const MPDatePicker = React.forwardRef<HTMLButtonElement, MPDatePickerProp
       open: openProp,
       defaultOpen,
       onOpenChange,
+      precision = 'day',
       defaultMonth,
       minDate,
       maxDate,
       shouldDisableDate,
       locale: localeProp,
       weekStartsOn,
-      format = { dateStyle: 'medium' },
+      format,
       placeholder,
       clearable = false,
       showTodayButton = true,
@@ -155,6 +239,7 @@ export const MPDatePicker = React.forwardRef<HTMLButtonElement, MPDatePickerProp
     const locale = useMPLocale(localeProp);
     const labels = useMPMessages(PICKER, locale, labelOverrides);
     const firstDay = weekStartsOn ?? localeWeekStart(locale);
+    const display = format ?? TRIGGER_FORMAT[precision];
 
     const [uncontrolledValue, setUncontrolledValue] = React.useState<Date | null>(
       defaultValue ?? null
@@ -202,10 +287,14 @@ export const MPDatePicker = React.forwardRef<HTMLButtonElement, MPDatePickerProp
     };
 
     const select = (date: Date) => {
-      // The day changes; the time of day, if the value had one, does not. A date
+      // Trimmed to the unit that was asked for, so a month picker's value is the
+      // month rather than whichever day the shortcut happened to arrive on. The
+      // grids already hand over the 1st; `Today` does not.
+      const at = startOfUnit(date, precision);
+      // The unit changes; the time of day, if the value had one, does not. A date
       // picker bound to a field that also carries a time should not silently
       // reset it to midnight every time the day is corrected.
-      const next = isValidDate(value) ? mergeDateAndTime(date, value) : startOfDay(date);
+      const next = isValidDate(value) ? mergeDateAndTime(at, value) : at;
 
       commit(next);
       setMonth(startOfMonth(next));
@@ -216,12 +305,22 @@ export const MPDatePicker = React.forwardRef<HTMLButtonElement, MPDatePickerProp
     };
 
     const now = today();
-    const todayBlocked = isDayOutside(now, minDate, maxDate) || (shouldDisableDate?.(now) ?? false);
+    // The bounds at the precision being asked for, and `shouldDisableDate` only
+    // where there are days for it to have an opinion about.
+    const nowBlocked =
+      isUnitOutside(now, precision, minDate, maxDate) ||
+      (precision === 'day' && (shouldDisableDate?.(now) ?? false));
+    const nowLabel =
+      precision === 'year'
+        ? labels.thisYear
+        : precision === 'month'
+          ? labels.thisMonth
+          : labels.today;
     const hasFooter = showTodayButton || clearable;
 
     // Holds the trigger open at the width of the longest date it could show, so
     // choosing the 1st after the 28th does not shrink the field.
-    const samples = withPlaceholder(useDisplaySamples(locale, format), placeholder);
+    const samples = withPlaceholder(useDisplaySamples(locale, display), placeholder);
 
     return (
       <MPPickerShell
@@ -239,7 +338,7 @@ export const MPDatePicker = React.forwardRef<HTMLButtonElement, MPDatePickerProp
             startIcon
           )
         }
-        display={isValidDate(value) ? formatDate(value, locale, format) : (placeholder ?? '')}
+        display={isValidDate(value) ? formatDate(value, locale, display) : (placeholder ?? '')}
         samples={samples}
         empty={!isValidDate(value)}
         clearable={clearable}
@@ -248,7 +347,7 @@ export const MPDatePicker = React.forwardRef<HTMLButtonElement, MPDatePickerProp
         onOpenChange={setOpen}
         labels={labels}
         hiddenValues={
-          name ? [{ name, value: isValidDate(value) ? toISODate(value) : '' }] : undefined
+          name ? [{ name, value: isValidDate(value) ? TO_ISO[precision](value) : '' }] : undefined
         }
       >
         <div className={`flex flex-col ${hasFooter ? 'gap-1.5' : ''}`}>
@@ -264,6 +363,7 @@ export const MPDatePicker = React.forwardRef<HTMLButtonElement, MPDatePickerProp
             minDate={minDate}
             maxDate={maxDate}
             shouldDisableDate={shouldDisableDate}
+            precision={precision}
             labels={labels}
             autoFocus
           />
@@ -288,10 +388,10 @@ export const MPDatePicker = React.forwardRef<HTMLButtonElement, MPDatePickerProp
                   variant="text"
                   size={FOOTER_SIZE[size]}
                   color={color}
-                  disabled={todayBlocked}
+                  disabled={nowBlocked}
                   onClick={() => select(now)}
                 >
-                  {labels.today}
+                  {nowLabel}
                 </MPButton>
               ) : null}
             </MPPickerFooter>

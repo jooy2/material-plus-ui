@@ -38,6 +38,8 @@ export const ar: MPLocale = {
       chooseMonth: 'اختيار شهر',
       chooseYear: 'اختيار سنة',
       today: 'اليوم',
+      thisMonth: 'هذا الشهر',
+      thisYear: 'هذه السنة',
       now: 'الآن',
       clear: 'مسح',
       done: 'تم',
