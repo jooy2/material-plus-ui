@@ -299,6 +299,8 @@ None of that is a promise. It is what one version of Tailwind emits, it is per p
 - **Use the prop.** A height, a type scale and a set of paddings are what `size` is; an accent is what `color` is. A control resized with utilities is a control that has left the ladder every other control on the page is on.
 - **Say `!`.** Tailwind's important modifier — `px-8!` — wins whatever the order was. It is a call-site override no theme can reach, so keep it for the one-off it is.
 
+  One thing to know before reaching for it, because it catches people twice: **`!important` reverses the layer order.** Ordinary declarations outside a layer beat every layered one, which is the rule the theming advice above rests on. Important ones go the other way — the earliest layer wins and unlayered comes last. So an `!` in a plain stylesheet does _not_ beat a page's own `[&_h3]:my-7.5!`, which is a Tailwind utility and therefore inside `@layer utilities`: to win, yours has to carry `!` **and** sit in a layer declared before `utilities`. Two unlayered `!` declarations are back to ordinary specificity and source order.
+
 The library ships no class merger of its own, deliberately. `tailwind-merge` is the tool for this and it is a good one, but it would be a runtime dependency on every component — against 2.9 kB for a button on its own — and its class groups would have to be taught every `mp-` token this package adds, in step. Merging at the call site is one line and costs the projects that do not need it nothing.
 
 ## What it weighs

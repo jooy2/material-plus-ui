@@ -146,6 +146,10 @@ To colour your own markup with one of these, read the Tailwind-facing name, or u
 
 Note the asymmetry: you **write** `--mp-sys-color-*` and **read** `--color-mp-*`. The write name is an override slot that is unset by default, so reading it gives you nothing; the read name is where the resolved value lands.
 
+That first half is worth saying plainly, because the empty read is what sends people the wrong way: **`--mp-sys-color-*` is the public API.** `getComputedStyle(document.documentElement).getPropertyValue('--mp-sys-color-outline')` returns an empty string on an untouched page — the slot exists to be overridden and nothing has overridden it — and a token that reads as empty looks like a token that is not there.
+
+The wrong turn it invites is setting `--color-mp-outline` instead, and that one does not work no matter where you put it. Tailwind declares the derived roles on `*, ::before, ::after` so that a scoped override can reach them, which means every element redeclares its own copy: a `:root { --color-mp-outline: … }` is overwritten on every element under it before anything reads it. Write the `--mp-sys-color-*` slot and the derivation carries it down.
+
 ## Coexisting with an existing Material setup
 
 A project running [Material Web](https://material-web.dev) already has `--md-sys-color-*` on the page. Material Plus **reads those and never writes them**, so it picks up an existing scheme with no configuration — and cannot overwrite a theme it does not own.
