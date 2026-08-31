@@ -355,12 +355,14 @@ export const MPListItem = React.forwardRef<HTMLLIElement, MPListItemProps>(funct
         <span className="flex h-[1lh] shrink-0 items-center">{startIcon}</span>
       ) : null}
 
-      <span className="flex min-w-0 flex-1 flex-col">
-        {hasContent(children) ? <span className="truncate">{children}</span> : null}
+      <span className="mp-list-item__text flex min-w-0 flex-1 flex-col">
+        {hasContent(children) ? (
+          <span className="mp-list-item__label truncate">{children}</span>
+        ) : null}
         {hasContent(description) ? (
           <span
             className={[
-              'truncate',
+              'mp-list-item__description truncate',
               SUPPORT_TEXT[size],
               // On a selected row the supporting line stays inside the container
               // ink at reduced strength rather than switching role, or it would

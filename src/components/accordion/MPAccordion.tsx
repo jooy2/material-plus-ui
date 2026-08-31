@@ -371,12 +371,14 @@ export const MPAccordionItem = React.forwardRef<HTMLDivElement, MPAccordionItemP
               </span>
             ) : null}
 
-            <span className="flex min-w-0 flex-1 flex-col">
+            <span className="mp-accordion__text flex min-w-0 flex-1 flex-col">
               {hasContent(title) ? (
-                <span className={`truncate ${SHEET_TITLE[size]}`}>{title}</span>
+                <span className={`mp-accordion__title truncate ${SHEET_TITLE[size]}`}>{title}</span>
               ) : null}
               {hasContent(subtitle) ? (
-                <span className={`text-mp-on-surface-variant truncate ${META_TEXT}`}>
+                <span
+                  className={`mp-accordion__subtitle text-mp-on-surface-variant truncate ${META_TEXT}`}
+                >
                   {subtitle}
                 </span>
               ) : null}
