@@ -1,3 +1,4 @@
+import type * as React from 'react';
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { MPGrid, MPGridItem } from 'material-plus-ui';
@@ -120,6 +121,92 @@ describe('MPGrid', () => {
 
     expect(width(cell)).toBeCloseTo(400, 0);
     expect(Number.parseFloat(getComputedStyle(cell).marginInlineStart)).toBeCloseTo(400, 0);
+  });
+
+  /*
+   * An item that never asked for an offset used to get the declaration anyway,
+   * resolving to `0px` — and a declaration of nought is still a declaration.
+   * These rules are unlayered and a Tailwind utility is inside `@layer
+   * utilities`, so unlayered wins whatever the source order was, and a caller's
+   * own `m-6` lost its inline-start quarter and kept the other three. The
+   * application that reported it found out when a thumbnail sat against the wall
+   * of the panel it was padded away from.
+   *
+   * The rule is written into `@layer utilities` here rather than passed as a
+   * class, because what is being tested is the layer and not the class: a plain
+   * rule of the same specificity would beat the stylesheet on source order and
+   * would have passed before the fix too.
+   */
+  describe('a margin the caller set', () => {
+    async function withUtility(node: React.ReactElement) {
+      const sheet = document.createElement('style');
+
+      sheet.textContent = '@layer utilities { .mine { margin-inline-start: 24px } }';
+      document.head.append(sheet);
+
+      const screen = await render(node);
+
+      return {
+        margin: Number.parseFloat(
+          getComputedStyle(screen.container.querySelector('.mine')!).marginInlineStart
+        ),
+        item: screen.container.querySelector('.mine')!,
+        done: () => sheet.remove()
+      };
+    }
+
+    it('survives on an item with no offset', async () => {
+      const { margin, item, done } = await withUtility(
+        <div style={{ width: 1200 }}>
+          <MPGrid spacing={0}>
+            <MPGridItem span={6} className="mine">
+              Mine
+            </MPGridItem>
+          </MPGrid>
+        </div>
+      );
+
+      expect(item).not.toHaveAttribute('data-mp-offset');
+      expect(margin).toBeCloseTo(24, 0);
+
+      done();
+    });
+
+    it('gives way on an item that asked for one', async () => {
+      const { margin, item, done } = await withUtility(
+        <div style={{ width: 1200 }}>
+          <MPGrid spacing={0}>
+            <MPGridItem span={4} offset={4} className="mine">
+              Mine
+            </MPGridItem>
+          </MPGrid>
+        </div>
+      );
+
+      expect(item).toHaveAttribute('data-mp-offset');
+      expect(margin).toBeCloseTo(400, 0);
+
+      done();
+    });
+
+    // Naming the property is asking for it, and nought is what the declaration
+    // resolved to anyway — so this is the same answer it has always given.
+    it('gives way on an explicit `offset={0}` too', async () => {
+      const { margin, item, done } = await withUtility(
+        <div style={{ width: 1200 }}>
+          <MPGrid spacing={0}>
+            <MPGridItem span={6} offset={0} className="mine">
+              Mine
+            </MPGridItem>
+          </MPGrid>
+        </div>
+      );
+
+      expect(item).toHaveAttribute('data-mp-offset');
+      expect(margin).toBeCloseTo(0, 0);
+
+      done();
+    });
   });
 
   it('applies the entry for the window class it is being drawn at', async () => {

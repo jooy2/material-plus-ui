@@ -461,6 +461,21 @@ export const MPGridItem = React.forwardRef<HTMLDivElement, MPGridItemProps>(func
       className: ['mp-grid-item', alignSelf ? ALIGN_SELF[alignSelf] : '', className ?? '']
         .filter(Boolean)
         .join(' '),
+      /*
+       * What narrows the `margin-inline-start` rule to the items it is for.
+       *
+       * The offset is a margin, and the stylesheet's declaration is unlayered —
+       * so on every item that had never asked for one it was still winning
+       * against a caller's own `m-6`, silently, on the inline-start side alone.
+       * That is a hard thing to see: three sides of the margin are there and the
+       * fourth is not.
+       *
+       * The arithmetic is unchanged and so is the cascade for anything that did
+       * ask. An explicit `offset={0}` still counts as asking — a caller writing
+       * a zero is naming the property, and it has always been the value the
+       * declaration resolved to anyway.
+       */
+      'data-mp-offset': offset === undefined || offset === null ? undefined : '',
       style: {
         ...spanSlots(span),
         ...responsiveSlots('offset', offset, offsetValue),

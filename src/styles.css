@@ -1303,6 +1303,18 @@
     (1 - var(--_mp-grow)) *
       (var(--_mp-track) * min(var(--_mp-span), var(--_mp-cols, 12)) - var(--_mp-gap-x, 0px))
   );
+}
+
+/* The offset, on the items that asked for one and no others.
+   `MPGridItem` writes the attribute when an `offset` was passed at all, an
+   explicit `0` included.
+
+   Written unconditionally on `.mp-grid-item` this resolved to `0px` for
+   everybody else — and a declaration of nought is still a declaration. These
+   rules are unlayered, so it beat a caller's own `m-6`, on the inline-start side
+   and on that side alone. Three quarters of a margin is about the hardest thing
+   there is to look at and see. */
+.mp-grid-item[data-mp-offset] {
   margin-inline-start: calc(var(--_mp-track) * min(var(--_mp-offset), var(--_mp-cols, 12)));
 }
 

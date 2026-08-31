@@ -100,6 +100,8 @@ Columns left empty _before_ the item — space pushed in ahead of it, not an abs
 
 First in a twelve-column row, `offset={4}` with `span={4}` is the middle third. After an item that already took four columns, the same offset skips four more and lands on the last third. It is responsive in the same way `span` is.
 
+It is a `margin-inline-start`, and the declaration is only written for an item that asked for one. That matters because these rules are unlayered and a Tailwind utility is not: a `.mp-grid-item` that always declared the margin — at `0px`, for every item in every grid — beat a caller's own `m-6` on the inline-start side and left the other three sides standing. Pass an `offset` and the margin is the library's; leave it off and it is yours. An explicit `offset={0}` counts as asking, which is the answer it has always given.
+
 ## Why the widths are real CSS
 
 A column is `(100% + gutter) * span / columns - gutter`, it has to be recomputed at four widths, and it is the width of an element whose column count is declared on its **parent**.
@@ -121,8 +123,6 @@ A span wider than the row is clamped to the row rather than overflowing, which i
 ## Nesting
 
 An `MPGrid` inside an `MPGridItem`, not a grid that is also an item. The inner grid redeclares the column count for its own subtree while the item around it keeps the width the outer grid gave it.
-
-A grid is also where a `span` stops meaning anything, and it says so: `.mp-grid` resets the five span slots and the five offset slots to `initial`. Without that reset an inner item that only declared `compact` would resolve the **outer** item's `large` at every class above compact — `span={12}` coming out a sixth of the row it is actually in — because the slots are inherited custom properties. Nothing to write; it is in the stylesheet.
 
 A grid is also where a `span` stops meaning anything, and it says so: `.mp-grid` resets the five span slots and the five offset slots to `initial`. Without that reset an inner item that only declared `compact` would resolve the **outer** item's `large` at every class above compact — `span={12}` coming out a sixth of the row it is actually in — because the slots are inherited custom properties. Nothing to write; it is in the stylesheet.
 

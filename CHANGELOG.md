@@ -24,6 +24,10 @@ A second report from the application that filed the first one, a day after upgra
 
   Their fills are 10dp and 12dp now — the next even number, 1dp over half, and on the grid. `xs`, `md` and `xl` are unchanged and still exactly half. `MPCheckbox` needed nothing: its mark is drawn rather than boxed.
 
+- **`MPGridItem` quietly ate a caller's left margin.** `.mp-grid-item` declared `margin-inline-start` for every item in every grid, resolving to `0px` for the ones that had never asked for an offset — and a declaration of nought is still a declaration. These rules are unlayered and a Tailwind utility is inside `@layer utilities`, so unlayered wins whatever the source order is: `<MPGridItem className="m-6">` came out with three sides of its margin and not the fourth, which is about the hardest thing there is to look at and see. The application that reported it found out when a thumbnail sat against the wall of the panel it was padded away from.
+
+  `MPGridItem` writes a `data-mp-offset` attribute when an `offset` was passed, and the rule is `.mp-grid-item[data-mp-offset]` now. The arithmetic is untouched and so is every item that did ask. An explicit `offset={0}` counts as asking — naming the property is asking for it, and nought is what the declaration resolved to anyway.
+
 ## 1.6.0 (2026-08-31)
 
 One shape, found twice.
