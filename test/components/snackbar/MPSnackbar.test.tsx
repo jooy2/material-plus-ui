@@ -198,6 +198,61 @@ describe('MPSnackbar', () => {
       expect(viewport.className).toContain('items-center');
     });
 
+    it('mounts every stack up front, and puts a snackbar in only one', async () => {
+      const screen = await render(
+        <Harness position="bottom-start">
+          <Raise message="Saved" />
+        </Harness>
+      );
+
+      const stacks = document.querySelectorAll('.mp-portal.fixed');
+
+      // Six, because a stack is its own `aria-live` region and one that arrives
+      // with its first message is one a screen reader does not read.
+      expect(stacks).toHaveLength(6);
+
+      await screen.getByRole('button', { name: 'Raise' }).click();
+      await expect.element(screen.getByText('Saved')).toBeInTheDocument();
+
+      expect(
+        Array.from(document.querySelectorAll('.mp-snackbar')).map((plate) =>
+          plate.closest('.mp-portal.fixed')!.className.includes('bottom-0')
+        )
+      ).toEqual([true]);
+    });
+
+    it('lets one snackbar leave the stack the provider chose', async () => {
+      const screen = await render(
+        <Harness position="bottom-start">
+          <Raise message="Saved" position="top-end" />
+        </Harness>
+      );
+
+      await screen.getByRole('button', { name: 'Raise' }).click();
+      await expect.element(screen.getByText('Saved')).toBeInTheDocument();
+
+      const viewport = screen.getByText('Saved').element().closest('.mp-portal.fixed')!;
+
+      expect(viewport.className).toContain('top-0');
+      expect(viewport.className).toContain('items-end');
+    });
+
+    it('puts a class on the plate rather than on the stack', async () => {
+      const screen = await render(
+        <Harness>
+          <Raise message="Saved" className="ring-2" />
+        </Harness>
+      );
+
+      await screen.getByRole('button', { name: 'Raise' }).click();
+      await expect.element(screen.getByText('Saved')).toBeInTheDocument();
+
+      const plate = document.querySelector('.mp-snackbar') as HTMLElement;
+
+      expect(plate.className).toContain('ring-2');
+      expect(plate.closest('.mp-portal.fixed')!.className).not.toContain('ring-2');
+    });
+
     it('brings the plate in from the edge it is pinned to', async () => {
       // The travel and the flick are derived from one fact, and have to agree: a
       // snackbar that came down from the top and could only be flicked upwards
