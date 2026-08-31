@@ -256,6 +256,132 @@ describe('MPGrid', () => {
     expect(screen.container.querySelector('.mp-grid-item')!.tagName).toBe('LI');
   });
 
+  describe('nesting', () => {
+    it('does not let an inner item resolve the outer one’s span', async () => {
+      // The slots are inherited custom properties, so an inner item that only
+      // declares `compact` used to resolve the *outer* item's `large` at every
+      // class above it: `span={12}` came out a sixth of the row it was in.
+      const screen = await render(
+        <div style={{ width: 1200 }}>
+          <MPGrid spacing={0}>
+            <MPGridItem span={{ compact: 12, large: 2 }} className="outer">
+              <MPGrid spacing={0}>
+                <MPGridItem span={12} className="inner">
+                  Inner
+                </MPGridItem>
+              </MPGrid>
+            </MPGridItem>
+          </MPGrid>
+        </div>
+      );
+
+      expect(width(screen.container.querySelector('.outer')!)).toBeCloseTo(200, 0);
+      expect(width(screen.container.querySelector('.inner')!)).toBeCloseTo(200, 0);
+    });
+
+    it('clears the offsets at the boundary too', async () => {
+      const screen = await render(
+        <div style={{ width: 1200 }}>
+          <MPGrid spacing={0}>
+            <MPGridItem span={6} offset={{ compact: 0, large: 6 }}>
+              <MPGrid spacing={0}>
+                <MPGridItem span={6} className="inner">
+                  Inner
+                </MPGridItem>
+              </MPGrid>
+            </MPGridItem>
+          </MPGrid>
+        </div>
+      );
+
+      expect(getComputedStyle(screen.container.querySelector('.inner')!).marginInlineStart).toBe(
+        '0px'
+      );
+    });
+  });
+
+  describe('span="grow"', () => {
+    it('takes the width the row has left', async () => {
+      const screen = await render(
+        <div style={{ width: 1200 }}>
+          <MPGrid spacing={0}>
+            <MPGridItem span={3} className="thumb">
+              Thumb
+            </MPGridItem>
+            <MPGridItem span="grow" className="body">
+              Body
+            </MPGridItem>
+          </MPGrid>
+        </div>
+      );
+
+      expect(width(screen.container.querySelector('.thumb')!)).toBeCloseTo(300, 0);
+      expect(width(screen.container.querySelector('.body')!)).toBeCloseTo(900, 0);
+    });
+
+    it('splits the remainder equally between two of them', async () => {
+      const screen = await render(
+        <div style={{ width: 1200 }}>
+          <MPGrid spacing={0}>
+            {/* Not `className="fixed"` — that is Tailwind's `position: fixed`,
+                and an item taken out of the flow is not in the row whose
+                remainder is being measured. */}
+            <MPGridItem span={2} className="anchor">
+              Anchor
+            </MPGridItem>
+            <MPGridItem span="grow" className="one">
+              A much longer run of words than the other one has
+            </MPGridItem>
+            <MPGridItem span="grow" className="two">
+              Short
+            </MPGridItem>
+          </MPGrid>
+        </div>
+      );
+
+      // Equally, and not in proportion to what is inside them: both start from a
+      // width of nought, which is what `flex-basis` would otherwise decide.
+      expect(width(screen.container.querySelector('.one')!)).toBeCloseTo(500, 0);
+      expect(width(screen.container.querySelector('.two')!)).toBeCloseTo(500, 0);
+    });
+
+    it('is responsive like any other span', async () => {
+      // The suite runs in a `large` window, so the `large` entry is the live one
+      // and the `compact` entry is the one it has to override.
+      const screen = await render(
+        <div style={{ width: 1200 }}>
+          <MPGrid spacing={0}>
+            <MPGridItem span={4} className="side">
+              Side
+            </MPGridItem>
+            <MPGridItem span={{ compact: 'grow', large: 2 }} className="cell">
+              Cell
+            </MPGridItem>
+          </MPGrid>
+        </div>
+      );
+
+      // A number at `large` has to switch the growing back off, or the width
+      // below would be multiplied by nought.
+      expect(width(screen.container.querySelector('.cell')!)).toBeCloseTo(200, 0);
+    });
+
+    it('writes no growth slot for a span that never mentions it', async () => {
+      const screen = await render(
+        <MPGrid>
+          <MPGridItem span={{ compact: 12, large: 6 }} className="plain">
+            Plain
+          </MPGridItem>
+        </MPGrid>
+      );
+      const style = (screen.container.querySelector('.plain') as HTMLElement).getAttribute(
+        'style'
+      )!;
+
+      expect(style).not.toContain('--_mp-grow');
+    });
+  });
+
   it('passes through the attributes a div takes', async () => {
     const screen = await render(
       <MPGrid id="layout" aria-label="Dashboard">
