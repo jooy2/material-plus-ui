@@ -6566,13 +6566,22 @@ const componentTables: Record<string, PropRow[]> = {
     pickerPlaceholder,
     description,
     errorMessage,
+    {
+      name: 'precision',
+      type: "'day' | 'month' | 'year'",
+      default: "'day'",
+      description: {
+        ko: '피커가 묻는 단위. `month`는 달력을 열두 달 격자에서 멈추고 누른 달의 1일로, `year`는 연도 격자에서 멈추고 1월 1일로 답합니다. 더 잔 뷰는 숨는 게 아니라 아예 없습니다',
+        en: "Which unit the picker asks for. `'month'` stops the calendar at its grid of twelve months and answers with the 1st of the one pressed; `'year'` stops at the years and answers with 1 January. The finer views are absent rather than hidden"
+      }
+    },
     pickerDefaultMonth,
     {
       name: 'minDate',
       type: 'Date | null',
       description: {
-        ko: '고를 수 있는 가장 이른 날. 날짜 단위라 시각은 무시합니다 — 7월 27일 09:00을 넘겨도 27일은 그대로 고를 수 있습니다',
-        en: 'The earliest day that may be chosen. Day-granular: a bound of 27 July at 09:00 still leaves the 27th pickable'
+        ko: '고를 수 있는 가장 이른 날. 날짜 단위라 시각은 무시합니다 — 7월 27일 09:00을 넘겨도 27일은 그대로 고를 수 있습니다. `precision`이 묻는 단위로 읽히므로 월 피커에서는 7월 10일이 최소여도 7월은 그대로 고를 수 있습니다',
+        en: 'The earliest day that may be chosen. Day-granular: a bound of 27 July at 09:00 still leaves the 27th pickable — and read at whatever `precision` asks for, so a minimum of 10 July still leaves July pickable on a month picker'
       }
     },
     {
@@ -6580,18 +6589,31 @@ const componentTables: Record<string, PropRow[]> = {
       type: 'Date | null',
       description: { ko: '고를 수 있는 가장 늦은 날', en: 'The latest day that may be chosen' }
     },
-    pickerShouldDisableDate,
+    {
+      ...pickerShouldDisableDate,
+      description: {
+        ko: '범위 안에 있지만 고를 수 없는 날을 막습니다 — 주말, 공휴일, 이미 예약된 방. 막힌 날도 지워지지 않고 그대로 그려집니다. 날에 대해서만 묻기 때문에 `precision`이 달이나 해인 피커는 호출하지 않습니다',
+        en: 'Blocks individual days that are inside the range but still unavailable — weekends, holidays, a room already booked. A blocked day is still drawn. Asked about days only, so a picker whose `precision` is a month or a year never consults it'
+      }
+    },
     pickerLocale,
     pickerWeekStartsOn,
-    { ...pickerFormat, default: "{ dateStyle: 'medium' }" },
+    {
+      ...pickerFormat,
+      default: "{ dateStyle: 'medium' }",
+      description: {
+        ko: '트리거가 값을 쓰는 방식. `Intl`에 그대로 넘어갑니다. 비워 두면 `precision`을 따라 중간 길이 날짜, `July 2026`, `2026` 중 하나가 됩니다',
+        en: 'How the trigger writes the value. Passed straight to `Intl`. Left out, it follows `precision` — a medium date, `July 2026`, or `2026`'
+      }
+    },
     pickerClearable,
     {
       name: 'showTodayButton',
       type: 'boolean',
       default: 'true',
       description: {
-        ko: '푸터에 오늘로 가는 단축 버튼을 답니다',
-        en: 'Offers the shortcut to today in the footer'
+        ko: '푸터에 오늘로 가는 단축 버튼을 답니다. 묻는 단위에 따라 "오늘", "이번 달", "올해"로 이름이 바뀝니다',
+        en: 'Offers the shortcut to today in the footer. It is named after the unit it lands on — *Today*, *This month* or *This year*'
       }
     },
     {
@@ -6617,8 +6639,8 @@ const componentTables: Record<string, PropRow[]> = {
     {
       ...name,
       description: {
-        ko: '폼 제출에 쓰이는 이름. 값은 `YYYY-MM-DD`로, UTC가 아니라 로컬 날짜로 나갑니다',
-        en: 'Identifies the field when a form is submitted, as `YYYY-MM-DD` — the local day, not a UTC instant'
+        ko: '폼 제출에 쓰이는 이름. 값은 `YYYY-MM-DD`로, UTC가 아니라 로컬 날짜로 나갑니다. `precision`이 달이면 `YYYY-MM`, 해면 `YYYY`입니다',
+        en: 'Identifies the field when a form is submitted, as `YYYY-MM-DD` — the local day, not a UTC instant. `YYYY-MM` or `YYYY` when `precision` asks for less'
       }
     },
     id

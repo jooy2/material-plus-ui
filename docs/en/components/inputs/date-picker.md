@@ -35,6 +35,33 @@ Only the weeks turn. The weekday names above them do not change from one month t
 
 A reader who has asked for less motion gets the swap, which loses the direction and nothing else.
 
+## A day, a month, or a year
+
+`precision` decides which of the three the calendar stops at.
+
+<Demo src="date-picker/precision" :minHeight="420">
+
+<<< @/.vitepress/demos/date-picker/precision.tsx
+
+</Demo>
+
+A card's expiry, a fiscal year, the month a report covers — the questions where a day is not something the reader has to give, and where a control that asked for one anyway would be recording an answer nobody meant.
+
+It stops by **leaving the finer views out** rather than by refusing them. A `month` picker opens on the grid of twelve months and has no day grid to reach through; a `year` picker opens on the years. The view _above_ the one it answers with is still there, because that is how the other years are reached: pressing the year on a month picker opens the page of years, and choosing one comes back to the months.
+
+What follows the precision with it:
+
+|                         | `'day'`         | `'month'`                | `'year'`      |
+| ----------------------- | --------------- | ------------------------ | ------------- |
+| The value               | the day pressed | the **1st** of the month | **1 January** |
+| The trigger, by default | `Jul 15, 2026`  | `July 2026`              | `2026`        |
+| `name` submits          | `2026-07-15`    | `2026-07`                | `2026`        |
+| The footer's shortcut   | Today           | This month               | This year     |
+
+The value is trimmed to the unit because it stands for the unit. A picker whose trigger says _July 2026_ and whose form submits the 31st is printing one thing and sending another. The time of day survives, exactly as it does at day precision.
+
+`minDate` and `maxDate` are read at the precision too: a minimum of 10 July still leaves July pickable on a month picker, because there the bound is about which months exist. `shouldDisableDate` is the one thing that does **not** carry over — it is asked about days, and a rule written about weekends has no answer for "is July available". Inventing one out of the 1st would block whichever months happened to start on a Sunday, so a coarser picker never consults it.
+
 ## No date library, and no typing
 
 Two decisions that are really one.
