@@ -37,6 +37,7 @@ import {
   MPCombobox,
   MPCommandPalette,
   MPContainer,
+  MPCalendar,
   MPDatePicker,
   MPDateRangePicker,
   MPDateTimePicker,
@@ -402,6 +403,12 @@ function SnackbarPreview() {
  * than a placeholder. Every one of them needs state, and a hook cannot live in
  * the array below.
  */
+function CalendarPreview() {
+  const [value, setValue] = useState<Date | null>(new Date());
+
+  return <MPCalendar size="xs" value={value} onValueChange={setValue} />;
+}
+
 function DatePickerPreview() {
   const [value, setValue] = useState<Date | null>(new Date());
 
@@ -810,6 +817,19 @@ const GROUPS: Group[] = [
         },
         path: '/components/inputs/segmented-button',
         preview: <SegmentedButtonPreview />
+      },
+      {
+        name: 'MPCalendar',
+        summary: {
+          ko: '팝업이 아니라 페이지 위의 한 달',
+          en: 'A month on the page, rather than in a popup'
+        },
+        path: '/components/inputs/calendar',
+        preview: (
+          <Fit>
+            <CalendarPreview />
+          </Fit>
+        )
       },
       {
         name: 'MPDatePicker',

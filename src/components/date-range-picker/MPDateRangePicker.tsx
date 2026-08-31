@@ -2,7 +2,7 @@ import * as React from 'react';
 import { MPButton } from '../button/MPButton';
 import { MPIcon } from '../icon/MPIcon';
 import { ArrowRightIcon, CalendarIcon } from '../../constants/icons';
-import { MPCalendar, type MPPickerLabels } from '../../internal/Calendar';
+import { Calendar, type MPPickerLabels } from '../../internal/Calendar';
 import {
   FOOTER_SIZE,
   MPPickerFooter,
@@ -381,7 +381,7 @@ export const MPDateRangePicker = React.forwardRef<HTMLButtonElement, MPDateRange
               </div>
             ) : null}
 
-            <MPCalendar
+            <Calendar
               {...calendarProps}
               month={month}
               onMonthChange={setMonth}
@@ -390,7 +390,7 @@ export const MPDateRangePicker = React.forwardRef<HTMLButtonElement, MPDateRange
             />
 
             {twoUp ? (
-              <MPCalendar
+              <Calendar
                 {...calendarProps}
                 month={secondMonth}
                 // The right panel is a month ahead, so moving it means moving the

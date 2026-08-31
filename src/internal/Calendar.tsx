@@ -43,7 +43,15 @@ import type { MPColor, MPSize, MPWeekday } from '../types';
  * calendars, so three components need this and none of them should have to
  * import another. The two things it reaches *up* for are `MPButton` and
  * `MPIconButton` — the header's steppers are buttons, they are not a new kind of
- * control. Nothing here is exported from `src/index.ts`.
+ * control.
+ *
+ * Nothing here is exported from `src/index.ts` under its own name. `Calendar` is
+ * reachable from outside through `MPCalendar`, which is a wrapper rather than a
+ * re-export: everything below is fully controlled and takes its `labels` already
+ * resolved, because four callers had already decided those things. A consumer
+ * has not, so the public component is where the state and the translation are
+ * put back. That is also why the name went the other way round — the `MP` prefix
+ * belongs to what a consumer can import.
  *
  * The day cells are deliberately *not* buttons in that sense. A cell has states
  * a button has no vocabulary for — inside a range, at the end of a range, today,
@@ -418,7 +426,7 @@ function Header({
  * The calendar
  * ------------------------------------------------------------------------- */
 
-export interface MPCalendarProps {
+export interface CalendarProps {
   size: MPSize;
   color: MPColor;
   locale?: string;
@@ -478,7 +486,7 @@ export interface MPCalendarProps {
  * grid instead of walking forty-two cells — the pattern the ARIA date-picker
  * practice describes, and the reason none of the cells is a `disabled` button.
  */
-export function MPCalendar({
+export function Calendar({
   size,
   color,
   locale,
@@ -499,7 +507,7 @@ export function MPCalendar({
   showNextButton = true,
   precision = 'day',
   labels
-}: MPCalendarProps) {
+}: CalendarProps) {
   // Opens on the view it answers with, which for a day picker is the day grid
   // it always opened on. Clamped on the way out rather than only on the way in,
   // so a picker whose `precision` coarsens while its popup is open cannot be

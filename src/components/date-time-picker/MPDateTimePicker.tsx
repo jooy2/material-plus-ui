@@ -2,7 +2,7 @@ import * as React from 'react';
 import { MPButton } from '../button/MPButton';
 import { MPIcon } from '../icon/MPIcon';
 import { CalendarIcon } from '../../constants/icons';
-import { MPCalendar, MPTimeGrid, type MPPickerLabels } from '../../internal/Calendar';
+import { Calendar, MPTimeGrid, type MPPickerLabels } from '../../internal/Calendar';
 import {
   FOOTER_SIZE,
   MPPickerDivider,
@@ -283,7 +283,7 @@ export const MPDateTimePicker = React.forwardRef<HTMLButtonElement, MPDateTimePi
       >
         <div className="flex flex-col gap-1.5">
           <div className="flex items-stretch gap-2">
-            <MPCalendar
+            <Calendar
               size={size}
               color={color}
               locale={locale}

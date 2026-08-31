@@ -94,8 +94,12 @@ const TRIGGER: Record<MPSize, { padding: string; height: string }> = {
  * A calendar is already a grid of forty-two padded cells; giving the sheet
  * around it a control's 16px as well would put 24px of nothing between the last
  * column and the edge.
+ *
+ * Exported because `MPCalendar` draws the same grid on a surface of its own, and
+ * a standalone calendar sitting one track wider than the identical calendar in a
+ * picker's popup is the drift a shared table exists to prevent.
  */
-const POPUP_PAD: Record<MPSize, string> = {
+export const POPUP_PAD: Record<MPSize, string> = {
   xs: 'p-1.5',
   sm: 'p-2',
   md: 'p-2.5',

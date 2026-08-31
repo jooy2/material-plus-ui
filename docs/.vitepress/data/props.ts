@@ -6802,6 +6802,161 @@ const componentTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPCalendar: [
+    {
+      name: 'value',
+      type: 'Date | null',
+      description: {
+        ko: '고른 날. `onValueChange`와 함께 쓰면 controlled입니다',
+        en: 'The chosen day. Use with `onValueChange` for a controlled calendar'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'Date | null',
+      description: {
+        ko: '처음 고른 날. uncontrolled일 때 씁니다',
+        en: 'The day the calendar starts on, for an uncontrolled one'
+      }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: Date) => void',
+      description: {
+        ko: '새로 고른 날로 호출됩니다. `MPDatePicker`와 달리 `null`은 오지 않습니다 — 달력에는 ×가 없고, 고른 날을 다시 눌러도 선택이 풀리지 않습니다',
+        en: 'Called with the newly chosen day. Never `null`, unlike `MPDatePicker`: there is no × on a calendar and pressing the chosen day again does not unchoose it'
+      }
+    },
+    {
+      name: 'month',
+      type: 'Date',
+      description: {
+        ko: '화면에 떠 있는 달. `onMonthChange`와 함께 쓰면 헤더를 직접 몹니다',
+        en: 'The month on screen. Use with `onMonthChange` to drive the header yourself'
+      }
+    },
+    {
+      ...pickerDefaultMonth,
+      description: {
+        ko: '값이 없을 때 달력이 여는 달. 값이 있으면 그 달이 이깁니다',
+        en: 'Which month it opens on when there is no value — the month of `value` wins when there is one'
+      }
+    },
+    {
+      name: 'onMonthChange',
+      type: '(month: Date) => void',
+      description: {
+        ko: '헤더가 달을 넘기거나, 달·해를 골라 화면이 옮겨질 때 호출됩니다',
+        en: 'Called when the header steps, or when choosing a month or a year moves it'
+      }
+    },
+    {
+      name: 'precision',
+      type: "'day' | 'month' | 'year'",
+      default: "'day'",
+      description: {
+        ko: '달력이 멈추는 단위이자 누름이 답하는 단위. `month`는 날짜 격자를 아예 그리지 않고 누른 달의 1일로, `year`는 1월 1일로 답합니다',
+        en: 'Which unit the calendar stops at, and therefore what a press answers with. `month` never draws a day grid and answers with the 1st; `year` answers with 1 January'
+      }
+    },
+    {
+      name: 'minDate',
+      type: 'Date | null',
+      description: {
+        ko: '고를 수 있는 가장 이른 날. 날짜 단위라 시각은 무시합니다',
+        en: 'The earliest day that may be chosen. Day-granular — the time is ignored'
+      }
+    },
+    {
+      name: 'maxDate',
+      type: 'Date | null',
+      description: { ko: '고를 수 있는 가장 늦은 날', en: 'The latest day that may be chosen' }
+    },
+    {
+      ...pickerShouldDisableDate,
+      description: {
+        ko: '범위 안에 있지만 고를 수 없는 날을 막습니다 — 주말, 공휴일, 이미 예약된 방. 막힌 날도 지워지지 않고 그대로 그려집니다. 날에 대해서만 묻기 때문에 `precision`이 달이나 해면 호출하지 않습니다',
+        en: 'Blocks individual days that are inside the range but still unavailable — weekends, holidays, a room already booked. A blocked day is still drawn. Asked about days only, so a calendar whose `precision` is a month or a year never consults it'
+      }
+    },
+    {
+      ...pickerLocale,
+      description: {
+        ko: 'BCP 47 태그. 월·요일 이름, 헤더 두 버튼의 순서, 주 시작 요일을 결정합니다. 생략하면 가장 가까운 `MPLocaleProvider`, 그다음 플랫폼 기본값을 따릅니다',
+        en: "A BCP 47 tag deciding the month and weekday names, the order of the header's two buttons, and which day the week starts on. Falls back to the nearest `MPLocaleProvider`, then to the platform's own"
+      }
+    },
+    pickerWeekStartsOn,
+    {
+      name: 'showOutsideDays',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '앞뒤 달에 속한 날들을 흐리게 함께 그립니다',
+        en: 'Draws the leading and trailing days belonging to the neighbouring months'
+      }
+    },
+    {
+      name: 'showPreviousButton',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '헤더의 이전 스텝 버튼을 답니다. 끄면 버튼 크기의 빈칸이 남아 두 달력이 나란히 설 때 제목 중심선이 어긋나지 않습니다',
+        en: "Offers the header's back stepper. Switched off it leaves a hole the size of the button, so two calendars side by side keep their headings on one centre line"
+      }
+    },
+    {
+      name: 'showNextButton',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '헤더의 다음 스텝 버튼을 답니다',
+        en: "Offers the header's forward stepper"
+      }
+    },
+    {
+      name: 'autoFocus',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '마운트하면서 포커스를 가져갑니다. 피커 안에서는 켜져 있고 여기서는 꺼져 있는데, 방금 열린 팝업은 읽는 사람의 현재 용무지만 페이지에 놓인 달력은 아니기 때문입니다',
+        en: "Takes the focus on mount. `true` inside a picker and `false` here: a popup that has just opened is the reader's current business, and a calendar sitting in a page is not"
+      }
+    },
+    {
+      name: 'variant',
+      type: VARIANT,
+      default: "'text'",
+      description: {
+        ko: '아래에 얼마나 면을 칠할지. 기본값 `text`는 아무것도 칠하지 않으며, 그게 이 컴포넌트를 어디든 떨어뜨릴 수 있게 만드는 값입니다 — 독립 달력은 대개 이미 면인 곳(카드, 패널, 직접 만든 팝오버)에 놓이고, 두 번째 면을 칠하는 기본값은 흔한 경우에 상자 안의 상자가 됩니다',
+        en: "How much surface it paints under itself. `'text'` — nothing — is the default and is what makes the component droppable: a standalone calendar almost always lands somewhere that is already a surface, and a default that painted a second one would be a box inside a box in the common case"
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '셀 크기와 타입 스케일. 다른 컨트롤과 같은 사다리라, `size="sm"` 폼 옆의 달력은 같은 무게로 그려집니다',
+        en: 'The cell size and the type scale. The same ladder every control is on, so a calendar beside a `size="sm"` form is drawn at the same weight'
+      }
+    },
+    {
+      ...color,
+      description: {
+        ko: '고른 날을 어떤 강조 색 계열로 칠할지',
+        en: 'Which accent family the chosen day is painted in'
+      }
+    },
+    pickerLabels,
+    {
+      ...name,
+      description: {
+        ko: '폼 제출에 쓰이는 이름. 값은 `YYYY-MM-DD`로, UTC가 아니라 로컬 날짜로 나갑니다. `precision`이 달이면 `YYYY-MM`, 해면 `YYYY`입니다. 지정하지 않으면 hidden input 자체가 없습니다',
+        en: 'Identifies the value when a form is submitted, as `YYYY-MM-DD` — the local day, not a UTC instant. `YYYY-MM` or `YYYY` when `precision` asks for less. Without it there is no hidden input at all'
+      }
+    },
+    id
+  ],
+
   MPDatePicker: [
     {
       name: 'value',

@@ -17,6 +17,22 @@ Nothing was renamed and nothing was removed. Every existing prop still means wha
 
 ### Added
 
+- **`MPCalendar`, the calendar without the picker in front of it.**
+
+  The grid `MPDatePicker` opens was always the larger half of that component — three views on one footprint, a roving tab stop, arrow keys that step the month at an edge, a header where the month name and the year are each a button into a grid of their own — and there was no way to put it on a page. A booking page that shows the month it is talking about, a dashboard with the calendar beside the list it filters, a form with room for it: in all three the popup is the part that is in the way.
+
+  It is a wrapper rather than a re-export, and the wrapper is the whole of the work. `internal/Calendar` is fully controlled and takes its `labels` already resolved, because the four callers it was written for had each decided those things; a consumer has not, so `MPCalendar` is where the value, the month on screen and the translation are put back. The internal component gave up the `MP` prefix in the process — it belongs to what a consumer can import.
+
+  Three decisions that are not the picker's, each for a reason:
+
+  - **`variant` defaults to `'text'`** and paints no surface at all. A standalone calendar almost always lands somewhere that is already one — a card, a panel, a popover of your own — and a default that painted a second would be a box inside a box in the common case. The other four are the container ladder, and they take the popup's padding table so that a calendar standing alone and the identical calendar inside a picker are not one track apart.
+  - **The month on screen stays where the reader left it.** The picker resets it every time the popup opens, because opening says _start again_; a calendar that is always on screen has no such moment, and one that snapped back to July while somebody was reading September would be undoing a navigation they meant. `month` and `onMonthChange` drive it for the cases that want to.
+  - **`onValueChange` never hands over `null`.** There is no × on a calendar, and a control that unchose itself on a second press would lose a value to a double-click.
+
+  `autoFocus` is `false` here and `true` inside a picker, which is the difference between the two in one prop: a popup that has just opened is the reader's current business, and a calendar sitting in a page is not.
+
+  Not a range calendar and not an event calendar — the first is `MPDateRangePicker`'s question, and the second wants a per-cell rendering hook that would stop a cell being a 40dp target.
+
 - **`precision` on `MPDatePicker`** — `'day'`, `'month'` or `'year'`. A card's expiry, a fiscal year, the month a report covers: the questions where a day is not something the reader has to give, and where a control that asked for one anyway would be recording an answer nobody meant.
 
   It stops the calendar by **leaving the finer views out** rather than by refusing them. A month picker opens on the twelve months and has no day grid to reach through, so a press there is the answer instead of a way down; a year picker opens on the years. The view _above_ the one it answers with stays, because that is how the other years are reached — pressing the year on a month picker opens the page of years, and choosing one comes back to the months.
@@ -176,13 +192,15 @@ Nothing was renamed and nothing was removed. Every existing prop still means wha
 | `MPTextField`   | 4.3 kB  | 4.4 kB  |
 | Five components | 7.4 kB  | 7.5 kB  |
 | Ten components  | 11.2 kB | 11.4 kB |
-| Everything      | 76.1 kB | 76.1 kB |
+| Everything      | 76.1 kB | 76.9 kB |
 
-Just under two kilobytes across the whole library, and it is spread rather than concentrated: the calendar's `precision`, the slider's ticks, the combobox's filter adapter, the accordion's three transition signals, and a `useRender` call in each of two list components. `MPButton` and `MPTextField` move a tenth each — the button for `render` and `nativeButton`, the field for one conditional class — which is what a minifier leaves of a handful of new names.
+Just under two and a half kilobytes across the whole library, and it is spread rather than concentrated: the calendar's `precision`, the slider's ticks, the combobox's filter adapter, the accordion's three transition signals, and a `useRender` call in each of two list components. `MPButton` and `MPTextField` move a tenth each — the button for `render` and `nativeButton`, the field for one conditional class — which is what a minifier leaves of a handful of new names.
 
-The stylesheet grew from 113.5 kB to 114.6 kB, and 16.2 kB to 16.4 kB gzipped. Fifteen reset declarations on `.mp-grid`, one `overflow-visible`, one search-cancel-button rule and a tick's five sizes are the whole of it; the eighty-eight split sheets and the crossover at about thirty-one components are unchanged.
+The last 0.8 kB is `MPCalendar` and the cell's four extra `bg-transparent` branches, and it is the cheapest kilobyte in the release: the grid the component draws was already in `everything`, so what it costs is its wrapper and nothing else. A page that imports it and no picker pays for the grid once rather than twice.
 
-The suite goes from 1644 tests to 1743. Nineteen are the date picker's two new units and the raw events, as before. The other eighty are this report, and the ones worth naming are the ones that would have caught the defects rather than described them: a nested grid item measuring 200px instead of 33px, a form actually submitting on Enter, a panel's `overflow` read at four points across its animation in both the controlled and uncontrolled cases, and a chip trigger asserting there is exactly one tab stop rather than two.
+The stylesheet grew from 113.5 kB to 114.6 kB, and 16.2 kB to 16.4 kB gzipped. Fifteen reset declarations on `.mp-grid`, one `overflow-visible`, one search-cancel-button rule and a tick's five sizes are the whole of it; the crossover at about thirty-one components is unchanged. The split sheets go from eighty-eight to eighty-nine — `MPCalendar` gets one of its own, and it holds no hand-written rules because the grid's are in the pickers' sheets already.
+
+The suite goes from 1644 tests to 1773. Nineteen are the date picker's two new units and the raw events, as before. Twenty-seven are `MPCalendar`'s, and three more are the picker's chosen day — the ones that read a computed background rather than a class list. The other eighty are this report, and the ones worth naming are the ones that would have caught the defects rather than described them: a nested grid item measuring 200px instead of 33px, a form actually submitting on Enter, a panel's `overflow` read at four points across its animation in both the controlled and uncontrolled cases, and a chip trigger asserting there is exactly one tab stop rather than two.
 
 ## 1.5.0 (2026-08-30)
 

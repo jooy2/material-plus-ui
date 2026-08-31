@@ -2,7 +2,7 @@ import * as React from 'react';
 import { MPButton } from '../button/MPButton';
 import { MPIcon } from '../icon/MPIcon';
 import { CalendarIcon } from '../../constants/icons';
-import { MPCalendar, type MPPickerLabels } from '../../internal/Calendar';
+import { Calendar, type MPPickerLabels } from '../../internal/Calendar';
 import {
   FOOTER_SIZE,
   MPPickerFooter,
@@ -351,7 +351,7 @@ export const MPDatePicker = React.forwardRef<HTMLButtonElement, MPDatePickerProp
         }
       >
         <div className={`flex flex-col ${hasFooter ? 'gap-1.5' : ''}`}>
-          <MPCalendar
+          <Calendar
             size={size}
             color={color}
             locale={locale}
