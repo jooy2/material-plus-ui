@@ -140,6 +140,33 @@ Enter를 눌렀을 때 호출됩니다.
 
 **조합을 확정하는 Enter**는 여기까지 오지 않습니다. 한글이나 日本語를 입력하면 음절마다 입력기가 가져가는 Enter로 끝나는데, 그것을 제출로 읽는 필드는 문장의 첫 단어에서 폼을 보내버립니다. 이 컴포넌트가 막으려고 존재하는 바로 그 실패가 `value`가 아니라 키 핸들러를 통해 들어오는 셈입니다. 이 키는 삼키지 않고 그대로 둡니다. 브라우저가 확정에 쓰고 있기 때문입니다. 조합 중이 아닐 때 눌린 다음 Enter는 평소대로 제출합니다.
 
+### onKeyDown, 그리고 나머지 날것 이벤트
+
+`onSubmit`은 그냥 누른 Enter입니다. 키보드가 말할 수 있는 나머지 — 조합, Escape, 방향키 — 는 `onKeyDown`으로, 포인터는 `onClick`, `onDoubleClick`, `onContextMenu`로 옵니다.
+
+이들은 주위의 박스가 아니라 **컨트롤**에 붙습니다. 표시 토글에 떨어진 키 입력은 필드에 떨어진 것이 아니고, 토글이 가져가는 포커스도 마찬가지입니다. 당신 것이 **먼저** 실행되며, 필드는 그 키로 자기 일을 하기 전에 `defaultPrevented`를 확인합니다.
+
+```tsx
+<MPTextField
+  value={draft}
+  onChange={setDraft}
+  rows={4}
+  onSubmit={() => {}} // 여기서 Enter는 여전히 줄바꿈입니다
+  onKeyDown={(event) => {
+    if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
+      event.preventDefault(); // ⌘Enter는 당신 것이고, 줄바꿈은 일어나지 않습니다
+      send(draft);
+    }
+  }}
+/>
+```
+
+`onFocus`와 `onBlur`도 같은 묶음에서 오며, 폼 라이브러리의 touched 처리가 기다리는 것이 이 둘입니다.
+
+조합 규칙은 그대로입니다. 음절을 확정하는 Enter는 호출자에게도 들리지만 — 해석은 호출자의 몫입니다 — 필드가 그것을 제출로 바꾸지는 않습니다.
+
+규칙 전체와 이 props를 받는 다른 컴포넌트들은 [Prop 규칙](../../design/prop-conventions#날것-이벤트)에 있습니다.
+
 ### onFormReset
 
 모든 변경 직전, `onChange`보다 먼저 호출됩니다. 수정으로 인해 의미가 없어진 폼 수준 오류를 지우는, 흔한 경우를 위해 있습니다.

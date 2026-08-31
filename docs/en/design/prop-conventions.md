@@ -24,6 +24,16 @@ interface MPStyleProps {
   size?: MPSize; // default 'md'
   fullWidth?: boolean;
 }
+
+interface MPControlEventProps<Element> {
+  onKeyDown?;
+  onKeyUp?; // the keyboard, combinations included
+  onFocus?;
+  onBlur?; // the focus, on the control itself
+  onClick?;
+  onDoubleClick?;
+  onContextMenu?; // the pointer
+}
 ```
 
 A component extends the bundle and adds only what is genuinely its own:
@@ -97,6 +107,7 @@ Arbitrary colour values are not accepted as a prop. To change what a role _is_, 
 - **Booleans are positive.** `disabled` yes, `notDisabled` no.
 - **Filling the container is `fullWidth`.**
 - **Event handlers keep their native names** and are passed straight through — except where the native event cannot be trusted, which so far is exactly one case: `MPTextField`'s `onChange` hands over a string, because mid-composition an event's `target.value` is the provisional text that must not be read.
+- **A named callback reports what the component is _for_.** `onValueChange` is the choice, `onSubmit` is the plain Enter. The raw event underneath it is a separate prop — see [Raw events](#raw-events).
 
 ## State props
 
@@ -127,6 +138,34 @@ The library also publishes `data-mp-size` on a component's root, so a consumer c
 ```
 
 Every component also takes a `className` and a `style`, and each one's props table names the element they land on. What they can and cannot take over is in [Class names and styles](../guide/getting-started#class-names-and-styles).
+
+## Raw events
+
+Most components take every DOM prop already: their props extend `React.ComponentPropsWithoutRef` and spread the rest onto an element they own, so `onKeyDown` on an `MPButton` is the `<button>`'s own.
+
+The controls that draw a box, a label, an input and a supporting line cannot do that — there are four elements a handler could land on, and spreading would pick the wrong one. Those take `MPControlEventProps` instead, and there are two things to know about it.
+
+**They go on the control, not on the box.** Which is the opposite of where `className` goes, and for the reason that makes them different questions: a class describes the whole thing, and an event came from one element. On an `MPTextField` that means `onKeyDown` is a keystroke that landed in the field and never one that landed on the reveal toggle beside it, and `onFocus` is the input taking focus rather than anything in the row taking it. Each props table names the element.
+
+**Yours runs first**, and a control with its own answer for a key checks `defaultPrevented` before giving it:
+
+```tsx
+<MPTextField
+  value={draft}
+  onChange={setDraft}
+  onSubmit={send} // plain Enter
+  onKeyDown={(event) => {
+    if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
+      event.preventDefault(); // ⌘Enter is yours; onSubmit does not also fire
+      sendAndClose();
+    }
+  }}
+/>
+```
+
+A `<div onKeyDown>` wrapped around the control gets the keystroke by bubbling, and that is what a caller had to write before. What it cannot do is go first.
+
+The components that take these are `MPTextField`, `MPNumberField`, `MPSelect`, `MPCombobox` and the four pickers — `MPDatePicker`, `MPDateRangePicker`, `MPDateTimePicker`, `MPTimePicker`, which share one trigger. The rest either take every DOM prop already or have no single element these would belong to: an `MPOtpField` is six inputs, and a `blur` that fired between two of its boxes would be reporting something that did not happen.
 
 ## Checklist for a new component
 

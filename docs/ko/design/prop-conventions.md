@@ -24,6 +24,16 @@ interface MPStyleProps {
   size?: MPSize; // 기본값 'md'
   fullWidth?: boolean;
 }
+
+interface MPControlEventProps<Element> {
+  onKeyDown?;
+  onKeyUp?; // 조합을 포함한 키보드
+  onFocus?;
+  onBlur?; // 컨트롤 자신의 포커스
+  onClick?;
+  onDoubleClick?;
+  onContextMenu?; // 포인터
+}
 ```
 
 컴포넌트는 이 묶음을 확장하고 진짜로 자기 것인 것만 추가합니다.
@@ -97,6 +107,7 @@ Material UI의 여섯 개가 아닙니다. 스펙의 색상 시스템에는 `inf
 - **불리언은 긍정형입니다.** `disabled`는 되고 `notDisabled`는 안 됩니다.
 - **컨테이너를 채우는 것은 `fullWidth`입니다.**
 - **이벤트 핸들러는 네이티브 이름을 유지하고** 그대로 통과시킵니다. 네이티브 이벤트를 신뢰할 수 없는 경우만 예외이고, 지금까지 정확히 한 건입니다 — `MPTextField`의 `onChange`는 문자열을 넘깁니다. 조합 중에는 이벤트의 `target.value`가 읽어서는 안 되는 임시 텍스트이기 때문입니다.
+- **이름 붙은 콜백은 그 컴포넌트가 *무엇을 위한 것인지*를 보고합니다.** `onValueChange`는 선택이고 `onSubmit`은 그냥 누른 Enter입니다. 그 아래의 날것 이벤트는 별도의 prop입니다 — [날것 이벤트](#날것-이벤트)를 보세요.
 
 ## 상태 prop
 
@@ -127,6 +138,34 @@ Material UI의 여섯 개가 아닙니다. 스펙의 색상 시스템에는 `inf
 ```
 
 모든 컴포넌트는 `className`과 `style`도 받으며, 각 컴포넌트의 props 표에 둘이 어느 엘리먼트에 붙는지 적혀 있습니다. 그것으로 무엇을 가져올 수 있고 무엇은 가져올 수 없는지는 [클래스와 스타일](../guide/getting-started#클래스와-스타일)에 있습니다.
+
+## 날것 이벤트
+
+대부분의 컴포넌트는 이미 모든 DOM prop을 받습니다. props가 `React.ComponentPropsWithoutRef`를 확장하고 나머지를 자기가 소유한 엘리먼트에 펼치기 때문에, `MPButton`의 `onKeyDown`은 그 `<button>` 자신의 것입니다.
+
+박스와 라벨과 입력과 보조 줄을 함께 그리는 컨트롤은 그럴 수 없습니다. 핸들러가 붙을 수 있는 엘리먼트가 넷이고, 그대로 펼치면 틀린 하나를 고르게 됩니다. 그런 컨트롤은 대신 `MPControlEventProps`를 받으며, 여기에 알아야 할 것이 둘 있습니다.
+
+**박스가 아니라 컨트롤에 붙습니다.** `className`이 붙는 곳과 정반대이고, 둘이 서로 다른 질문인 이유가 바로 그것입니다. 클래스는 컴포넌트 전체를 설명하고, 이벤트는 엘리먼트 *하나*에서 옵니다. `MPTextField`에서 이는 `onKeyDown`이 필드 안에 떨어진 키 입력이지 그 옆 표시 토글에 떨어진 것이 결코 아니라는 뜻이고, `onFocus`는 그 줄의 무엇이 아니라 입력 자신이 포커스를 가져갈 때라는 뜻입니다. 어느 엘리먼트인지는 각 props 표에 적혀 있습니다.
+
+**당신 것이 먼저 실행되고**, 그 키에 대한 자기 답을 가진 컨트롤은 답하기 전에 `defaultPrevented`를 확인합니다.
+
+```tsx
+<MPTextField
+  value={draft}
+  onChange={setDraft}
+  onSubmit={send} // 그냥 누른 Enter
+  onKeyDown={(event) => {
+    if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
+      event.preventDefault(); // ⌘Enter는 당신 것 — onSubmit은 함께 불리지 않습니다
+      sendAndClose();
+    }
+  }}
+/>
+```
+
+컨트롤을 `<div onKeyDown>`으로 감싸면 버블링으로 키 입력을 받을 수 있고, 지금까지는 그렇게 써야 했습니다. 그렇게 해서 할 수 없는 것이 _먼저_ 가는 일입니다.
+
+이 props를 받는 컴포넌트는 `MPTextField`, `MPNumberField`, `MPSelect`, `MPCombobox`, 그리고 트리거 하나를 공유하는 네 피커 — `MPDatePicker`, `MPDateRangePicker`, `MPDateTimePicker`, `MPTimePicker` 입니다. 나머지는 이미 모든 DOM prop을 받거나, 이것들이 붙을 단 하나의 엘리먼트가 없습니다. `MPOtpField`는 입력이 여섯이고, 그 칸 사이를 옮길 때마다 `blur`가 발생한다면 일어나지 않은 일을 보고하는 셈입니다.
 
 ## 새 컴포넌트 체크리스트
 

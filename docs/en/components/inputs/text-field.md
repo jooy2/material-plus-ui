@@ -140,6 +140,33 @@ On a single-line field Enter is then swallowed, so a surrounding `<form>` is sub
 
 The Enter that **commits a composition** never reaches it. Typing 한글 or 日本語 ends every syllable with an Enter the input method is consuming, and a field that read those as submissions would send the form on the first word of every sentence — the same failure this component exists to prevent, arriving through the key handler instead of through `value`. That keystroke is left alone rather than swallowed, because the browser is using it to commit; the next Enter, once there is nothing being composed, submits as usual.
 
+### onKeyDown, and the rest of the raw events
+
+`onSubmit` is the plain Enter. Anything else the keyboard can say — a combination, Escape, the arrow keys — arrives through `onKeyDown`, and the pointer through `onClick`, `onDoubleClick` and `onContextMenu`.
+
+They are on the **control**, not on the box around it: a keystroke that landed on the reveal toggle is not one that landed in the field, and neither is the focus the toggle takes. Yours runs **first**, and the field checks `defaultPrevented` before doing anything of its own with the key:
+
+```tsx
+<MPTextField
+  value={draft}
+  onChange={setDraft}
+  rows={4}
+  onSubmit={() => {}} // Enter still inserts a newline here
+  onKeyDown={(event) => {
+    if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
+      event.preventDefault(); // ⌘Enter is yours, and the newline does not happen
+      send(draft);
+    }
+  }}
+/>
+```
+
+`onFocus` and `onBlur` come from the same set, which is what a form library's "touched" bookkeeping wants.
+
+The composition rule still holds: a caller hears the Enter that commits a syllable — it is theirs to interpret — but the field does not turn it into a submission.
+
+The whole of the convention, and which other components take these, is in [Prop conventions](../../design/prop-conventions#raw-events).
+
 ### onFormReset
 
 Called before every change, ahead of `onChange`. It exists for the common case of clearing a form-level error that a further edit has made stale:

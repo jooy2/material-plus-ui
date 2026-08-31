@@ -569,6 +569,109 @@ const CLASS_NAME_LANDS_ON: Record<string, Text> = {
 };
 
 /**
+ * Which element each component puts a caller's raw event handlers on, for the
+ * components that take them.
+ *
+ * A separate map from `CLASS_NAME_LANDS_ON` and deliberately so: a class
+ * describes the whole component and lands on its outermost element, and an
+ * event came from *one* element and lands on the control that produced it. On a
+ * text field those are not the same box, which is the whole reason both
+ * sentences have to be written down.
+ *
+ * Being in this map is also what puts the seven rows on a table at all. The
+ * other components either already take every DOM prop — they extend
+ * `React.ComponentPropsWithoutRef` and spread the rest onto an element they own
+ * — or have no single element these would belong to.
+ */
+const EVENTS_LAND_ON: Record<string, Text> = {
+  MPTextField: {
+    ko: '`<input>`(여러 줄이면 `<textarea>`) 자체',
+    en: 'the `<input>` itself — the `<textarea>`, on a multiline field'
+  },
+  MPNumberField: { ko: '숫자가 들어가는 `<input>`', en: 'the `<input>` the number goes into' },
+  MPSelect: { ko: '목록을 여는 트리거 버튼', en: 'the trigger button that opens the list' },
+  MPCombobox: { ko: '질의를 입력하는 `<input>`', en: 'the `<input>` the query is typed into' },
+  MPDatePicker: { ko: '달력을 여는 트리거 버튼', en: 'the trigger button that opens the calendar' },
+  MPDateRangePicker: {
+    ko: '달력을 여는 트리거 버튼',
+    en: 'the trigger button that opens the calendars'
+  },
+  MPDateTimePicker: {
+    ko: '팝업을 여는 트리거 버튼',
+    en: 'the trigger button that opens the popup'
+  },
+  MPTimePicker: { ko: '시계를 여는 트리거 버튼', en: 'the trigger button that opens the clock' }
+};
+
+/**
+ * The seven of them, written once and put on whichever tables `EVENTS_LAND_ON`
+ * names.
+ *
+ * `onKeyDown` carries the sentence the other six do not need: a caller's
+ * handler runs before the component's own, so preventing the event is how a
+ * combination is taken away from the control rather than merely observed.
+ */
+function eventRows(where: Text): PropRow[] {
+  const on = (ko: string, en: string): Text => ({
+    ko: `${where.ko}에서. ${ko}`,
+    en: `${en}, on ${where.en}`
+  });
+
+  return [
+    {
+      name: 'onKeyDown',
+      type: '(event: React.KeyboardEvent) => void',
+      description: on(
+        '수식 키를 포함한 모든 키 입력이라 조합을 다루는 자리입니다. 컴포넌트 자신의 처리보다 먼저 불리므로, `event.preventDefault()`가 그 키를 컴포넌트에게서 가져옵니다',
+        'Every keystroke, modifiers included — the one to reach for for a combination. It runs before the component’s own handling, so `event.preventDefault()` takes the key away from the control'
+      )
+    },
+    {
+      name: 'onKeyUp',
+      type: '(event: React.KeyboardEvent) => void',
+      description: on('같은 키가 떨어질 때', 'The same keystroke released')
+    },
+    {
+      name: 'onFocus',
+      type: '(event: React.FocusEvent) => void',
+      description: on(
+        '컨트롤이 포커스를 가져갈 때. 옆의 버튼이 가져가는 포커스는 여기 오지 않습니다',
+        'The control took the focus — never the button beside it taking it'
+      )
+    },
+    {
+      name: 'onBlur',
+      type: '(event: React.FocusEvent) => void',
+      description: on(
+        '컨트롤이 포커스를 잃을 때. 폼 라이브러리의 touched 처리가 기다리는 짝입니다',
+        'It lost the focus — the half a form library’s "touched" bookkeeping waits for'
+      )
+    },
+    {
+      name: 'onClick',
+      type: '(event: React.MouseEvent) => void',
+      description: on(
+        '누를 때. 컴포넌트 자신의 반응은 그대로 일어납니다',
+        'A press. The component’s own answer to a press still happens'
+      )
+    },
+    {
+      name: 'onDoubleClick',
+      type: '(event: React.MouseEvent) => void',
+      description: on('두 번 누를 때', 'Two presses')
+    },
+    {
+      name: 'onContextMenu',
+      type: '(event: React.MouseEvent) => void',
+      description: on(
+        '오른쪽 클릭. `event.preventDefault()`로 브라우저 메뉴를 자신의 것으로 바꿉니다',
+        'The right-click. `event.preventDefault()` is how the browser’s menu is replaced with one of yours'
+      )
+    }
+  ];
+}
+
+/**
  * The caveat that goes on every `className` row, said once.
  *
  * It is the one thing about this prop a caller has to know before reaching for
@@ -8822,7 +8925,11 @@ export const propTables: Record<string, PropRow[]> = Object.fromEntries(
     }
 
     const own = rows.filter((row) => row.name !== 'className' && row.name !== 'style');
+    const events = EVENTS_LAND_ON[name] ? eventRows(EVENTS_LAND_ON[name]) : [];
 
-    return [name, [...own, classNameRow(CLASS_NAME_LANDS_ON[name] ?? OUTERMOST), styleRow]];
+    return [
+      name,
+      [...own, ...events, classNameRow(CLASS_NAME_LANDS_ON[name] ?? OUTERMOST), styleRow]
+    ];
   })
 );
