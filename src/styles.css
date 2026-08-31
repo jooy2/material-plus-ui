@@ -1194,6 +1194,11 @@
  * `min(span, columns)` is the clamp: `span={99}` fills its row instead of
  * running off the page, which is what the caller meant.
  *
+ * `span="grow"` is the one width that is not this arithmetic. It is the row's
+ * remainder, which nothing here can compute — only the flex algorithm knows what
+ * is left after the other items have been laid out — so a growing item is given
+ * a width of nought and a `flex-grow` of one, and takes the rest.
+ *
  * Every slot cascades upward — each window size class falls back through the
  * ones below it — so `span={{ expanded: 6 }}` sets one custom property and not
  * five. The chains get long at `extra-large`; that is the cost of keeping the
@@ -1226,8 +1231,8 @@
    * A grid is where a span stops meaning anything, so a grid is where the slots
    * are put back to nothing. `initial` on a custom property is the guaranteed-
    * invalid value, which is what makes the `var()` fallbacks below take over
-   * rather than a number from two levels up. Ten declarations once per grid, and
-   * the arithmetic under them is the same as it was.
+   * rather than a number from two levels up. Fifteen declarations, once per
+   * grid, and the arithmetic under them is the same as it was.
    *
    * Written on `.mp-grid` rather than on `.mp-grid-item` because an item that
    * reset its own slots would be resetting the ones it had just been given. */
@@ -1241,23 +1246,43 @@
   --_mp-offset-expanded: initial;
   --_mp-offset-large: initial;
   --_mp-offset-extra-large: initial;
+  --_mp-grow-compact: initial;
+  --_mp-grow-medium: initial;
+  --_mp-grow-expanded: initial;
+  --_mp-grow-large: initial;
+  --_mp-grow-extra-large: initial;
 }
 
 .mp-grid-item {
   --_mp-span: var(--_mp-span-compact, var(--_mp-cols, 12));
   --_mp-offset: var(--_mp-offset-compact, 0);
+  --_mp-grow: var(--_mp-grow-compact, 0);
 
   /* One column plus one gutter. `--_mp-cols` and `--_mp-gap-x` are inherited
      from the grid, so this re-resolves on its own at every window class. */
   --_mp-track: calc((100% + var(--_mp-gap-x, 0px)) / var(--_mp-cols, 12));
 
-  /* Inseparable from the width under them: `flex` stops the row resizing the
-     item, `min-width` stops a long unbroken word doing the same, and
-     `box-sizing` is what makes the percentage mean the whole item. */
+  /* Inseparable from the width under them: the three `flex` longhands stop the
+     row resizing the item, `min-width` stops a long unbroken word doing the
+     same, and `box-sizing` is what makes the percentage mean the whole item.
+
+     Longhands rather than `flex: 0 0 auto` because `--_mp-grow` is the one part
+     of the shorthand that varies, and a shorthand cannot be half a variable. */
   box-sizing: border-box;
-  flex: 0 0 auto;
+  flex-grow: var(--_mp-grow);
+  flex-shrink: 0;
+  flex-basis: auto;
   min-width: 0;
-  width: calc(var(--_mp-track) * min(var(--_mp-span), var(--_mp-cols, 12)) - var(--_mp-gap-x, 0px));
+
+  /* `1 - grow` is the switch, and it is arithmetic rather than a second
+     declaration because a custom property cannot choose between two rules.
+     A growing item measures nought and is then handed the row's remainder by
+     `flex-grow`, which is the only place that remainder is known; every other
+     item multiplies its column count by one and is the width it always was. */
+  width: calc(
+    (1 - var(--_mp-grow)) *
+      (var(--_mp-track) * min(var(--_mp-span), var(--_mp-cols, 12)) - var(--_mp-gap-x, 0px))
+  );
   margin-inline-start: calc(var(--_mp-track) * min(var(--_mp-offset), var(--_mp-cols, 12)));
 }
 
@@ -1271,6 +1296,7 @@
   .mp-grid-item {
     --_mp-span: var(--_mp-span-medium, var(--_mp-span-compact, var(--_mp-cols, 12)));
     --_mp-offset: var(--_mp-offset-medium, var(--_mp-offset-compact, 0));
+    --_mp-grow: var(--_mp-grow-medium, var(--_mp-grow-compact, 0));
   }
 }
 
@@ -1290,6 +1316,7 @@
       --_mp-offset-expanded,
       var(--_mp-offset-medium, var(--_mp-offset-compact, 0))
     );
+    --_mp-grow: var(--_mp-grow-expanded, var(--_mp-grow-medium, var(--_mp-grow-compact, 0)));
   }
 }
 
@@ -1317,6 +1344,10 @@
     --_mp-offset: var(
       --_mp-offset-large,
       var(--_mp-offset-expanded, var(--_mp-offset-medium, var(--_mp-offset-compact, 0)))
+    );
+    --_mp-grow: var(
+      --_mp-grow-large,
+      var(--_mp-grow-expanded, var(--_mp-grow-medium, var(--_mp-grow-compact, 0)))
     );
   }
 }
@@ -1362,6 +1393,13 @@
       var(
         --_mp-offset-large,
         var(--_mp-offset-expanded, var(--_mp-offset-medium, var(--_mp-offset-compact, 0)))
+      )
+    );
+    --_mp-grow: var(
+      --_mp-grow-extra-large,
+      var(
+        --_mp-grow-large,
+        var(--_mp-grow-expanded, var(--_mp-grow-medium, var(--_mp-grow-compact, 0)))
       )
     );
   }

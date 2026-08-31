@@ -19,6 +19,21 @@ export type MPGridAlign = 'start' | 'center' | 'end' | 'stretch' | 'baseline';
 /** The same, for one item overriding the row it is in. */
 export type MPGridAlignSelf = MPGridAlign | 'auto';
 
+/**
+ * How wide one item is: a number of the grid's columns, or `'grow'`.
+ *
+ * `'grow'` is the one value that is not a measurement. It is "whatever the row
+ * has left after everybody else has taken theirs", which is the width a
+ * thumbnail's neighbour wants and the one thing a twelve-column arithmetic
+ * cannot express — the remainder is only known once the other items in *that*
+ * row have been laid out, and no `span` a caller writes down knows what else is
+ * in the row.
+ *
+ * Two growing items in a row split the remainder equally rather than by their
+ * contents, which is the useful half of what makes it predictable.
+ */
+export type MPGridSpan = number | 'grow';
+
 /** Smallest first, which is also the order the media queries have to be in. */
 const WINDOW_CLASSES: readonly MPWindowClass[] = [
   'compact',
@@ -135,6 +150,45 @@ function columnCount(value: number): string {
 /** A span, which has to be at least one column to be a column at all. */
 function spanValue(value: number): string {
   return String(Math.max(1, Math.round(value)));
+}
+
+/**
+ * The two slot families a `span` writes, which is one family more than it looks.
+ *
+ * `'grow'` is not a column count, so it cannot be written as one: the width
+ * declaration multiplies by `1 - grow`, and the grid item that is growing has to
+ * hand the row a `0` there and a `flex-grow: 1` beside it. So a span that
+ * mentions `'grow'` anywhere emits a `--_mp-grow-*` for **every** class it
+ * names, including the numeric ones — a `0` at `expanded` is what stops the
+ * `1` at `compact` cascading up into it, exactly as an explicit span stops a
+ * narrower one.
+ *
+ * A span with no `'grow'` in it emits nothing extra, and that is the point: the
+ * common case is a number and stays one property per class, which is the
+ * arithmetic the whole file is written around.
+ */
+function spanSlots(value: MPResponsive<MPGridSpan> | undefined): React.CSSProperties {
+  const map = classMap(value);
+  const growing = Object.values(map).some((entry) => entry === 'grow');
+  const slots: Record<string, string> = {};
+
+  for (const windowClass of WINDOW_CLASSES) {
+    const entry = map[windowClass];
+
+    if (entry === undefined) {
+      continue;
+    }
+
+    if (entry !== 'grow') {
+      slots[`--_mp-span-${windowClass}`] = spanValue(entry);
+    }
+
+    if (growing) {
+      slots[`--_mp-grow-${windowClass}`] = entry === 'grow' ? '1' : '0';
+    }
+  }
+
+  return slots as React.CSSProperties;
 }
 
 /** An offset, where nought is meaningful and is the default. */
@@ -263,9 +317,17 @@ export interface MPGridItemProps extends React.ComponentPropsWithoutRef<'div'> {
    * own window class up, so two of them usually describe a whole layout.
    *
    * A span wider than the row is clamped to the row rather than overflowing.
+   *
+   * `span="grow"` is the exception to all of the above: it takes the width the
+   * row has left rather than a share of it, which is the layout a thumbnail
+   * beside a body of text wants — `<MPGridItem span={3}>` for the picture and
+   * `<MPGridItem span="grow">` for the words, with no arithmetic to keep in step
+   * when the picture's column count changes. It is responsive like any other
+   * value: `span={{ compact: 12, medium: 'grow' }}` stacks on a phone and fills
+   * the rest of the row from 600dp.
    * @default the grid's full width
    */
-  span?: MPResponsive<number>;
+  span?: MPResponsive<MPGridSpan>;
   /**
    * Columns left empty *before* the item — space pushed in ahead of it, not an
    * absolute position in the row. First in a twelve-column row, `offset={4}` with
@@ -408,7 +470,7 @@ export const MPGridItem = React.forwardRef<HTMLDivElement, MPGridItemProps>(func
         .filter(Boolean)
         .join(' '),
       style: {
-        ...responsiveSlots('span', span, spanValue),
+        ...spanSlots(span),
         ...responsiveSlots('offset', offset, offsetValue),
         ...style
       },
