@@ -260,5 +260,20 @@ describe('MPAccordion', () => {
 
       expect(clip()).toBe('visible');
     });
+
+    it('names the title and the subtitle so a page can reach them', async () => {
+      const screen = await render(
+        <MPAccordion>
+          <MPAccordionItem value="a" title="Account" subtitle="Two devices">
+            Body
+          </MPAccordionItem>
+        </MPAccordion>
+      );
+
+      expect(screen.container.querySelector('.mp-accordion__title')!.textContent).toBe('Account');
+      expect(screen.container.querySelector('.mp-accordion__subtitle')!.textContent).toBe(
+        'Two devices'
+      );
+    });
   });
 });

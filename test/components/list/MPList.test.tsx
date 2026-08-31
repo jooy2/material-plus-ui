@@ -339,5 +339,18 @@ describe('MPListItem', () => {
       // `type` belongs to the button this replaced, not to whatever came instead.
       expect(row).not.toHaveAttribute('type');
     });
+
+    it('names the label and the supporting line so a page can reach them', async () => {
+      const screen = await render(
+        <MPList>
+          <MPListItem description="Two minutes ago">Inbox</MPListItem>
+        </MPList>
+      );
+
+      expect(screen.container.querySelector('.mp-list-item__label')!.textContent).toBe('Inbox');
+      expect(screen.container.querySelector('.mp-list-item__description')!.textContent).toBe(
+        'Two minutes ago'
+      );
+    });
   });
 });
