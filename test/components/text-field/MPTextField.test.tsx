@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
@@ -603,6 +603,70 @@ describe('MPTextField', () => {
       expect(onSubmit).toHaveBeenCalledOnce();
       // Swallowed, so a surrounding form is not also submitted natively.
       expect(event.defaultPrevented).toBe(true);
+    });
+
+    it('leaves the key alone on a single-line field with no onSubmit', async () => {
+      // The whole of the bug this used to be: a field with nothing to submit to
+      // still ate the key, so every `<form onSubmit>` it was dropped into
+      // stopped submitting and said nothing about it.
+      const screen = await render(<MPTextField value="" label="Email" />);
+
+      const event = new KeyboardEvent('keydown', {
+        key: 'Enter',
+        bubbles: true,
+        cancelable: true
+      });
+      screen.getByRole('textbox').element().dispatchEvent(event);
+      await tick();
+
+      expect(event.defaultPrevented).toBe(false);
+    });
+
+    it('submits the form around it natively', async () => {
+      const onFormSubmit = vi.fn((event: FormEvent) => event.preventDefault());
+      const screen = await render(
+        <form onSubmit={onFormSubmit}>
+          <MPTextField value="" label="Email" />
+          <button type="submit">Go</button>
+        </form>
+      );
+
+      await screen.getByRole('textbox').fill('a');
+      await userEvent.keyboard('{Enter}');
+
+      expect(onFormSubmit).toHaveBeenCalledOnce();
+    });
+
+    it('does not submit that form twice when it has an onSubmit of its own', async () => {
+      const onFormSubmit = vi.fn((event: FormEvent) => event.preventDefault());
+      const onSubmit = vi.fn();
+      const screen = await render(
+        <form onSubmit={onFormSubmit}>
+          <MPTextField value="" label="Email" onSubmit={onSubmit} />
+          <button type="submit">Go</button>
+        </form>
+      );
+
+      await screen.getByRole('textbox').fill('a');
+      await userEvent.keyboard('{Enter}');
+
+      expect(onSubmit).toHaveBeenCalledOnce();
+      expect(onFormSubmit).not.toHaveBeenCalled();
+    });
+
+    it('swallows the key on a single-line field when disableEnterKey is set', async () => {
+      const onFormSubmit = vi.fn((event: FormEvent) => event.preventDefault());
+      const screen = await render(
+        <form onSubmit={onFormSubmit}>
+          <MPTextField value="" label="Email" disableEnterKey />
+          <button type="submit">Go</button>
+        </form>
+      );
+
+      await screen.getByRole('textbox').fill('a');
+      await userEvent.keyboard('{Enter}');
+
+      expect(onFormSubmit).not.toHaveBeenCalled();
     });
 
     it('lets Enter through on a multiline field', async () => {
