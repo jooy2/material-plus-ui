@@ -58,6 +58,7 @@ import {
   Ellipsis,
   ExternalLink,
   Eye,
+  ImageOff,
   EyeOff,
   Info,
   Link,
@@ -108,6 +109,8 @@ export const LinkIcon = Link;
 export const ExternalLinkIcon = ExternalLink;
 /** Copy to clipboard. */
 export const CopyIcon = Copy;
+/** A picture that could not be fetched — `MPImage`'s own fallback. */
+export const BrokenImageIcon = ImageOff;
 /** Severity: something worth knowing. */
 export const InfoIcon = Info;
 /** Severity: it worked. */

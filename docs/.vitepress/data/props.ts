@@ -2713,6 +2713,93 @@ const componentTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPImage: [
+    {
+      name: 'src',
+      type: 'string',
+      description: { ko: '그림이 있는 곳', en: 'Where the picture is' }
+    },
+    {
+      name: 'alt',
+      type: 'string',
+      required: true,
+      description: {
+        ko: '그림을 볼 수 없는 사람에게 그림이 하는 말. 여기서 유일하게 필수인 prop이며, `MPIconButton`의 `label`이 필수인 이유와 같습니다 — 텍스트 대체가 없는 그림은 라이브러리가 실제로 도울 수 있는 가장 흔한 접근성 결함이고, 그 도움은 컴파일 거부입니다. 장식이라면 `alt=""`',
+        en: 'What the picture says for a reader who cannot see it. The one required prop here, for the reason `MPIconButton`\'s `label` is required — a picture with no text alternative is the most common accessibility defect a library can help with, and the help is refusing to compile. `alt=""` for decoration'
+      }
+    },
+    {
+      name: 'ratio',
+      type: 'number | string',
+      description: {
+        ko: "상자가 지키는 비율. CSS가 쓰는 대로 숫자(`1.5`)나 비(`'16 / 9'`)로. 생략하면 상자는 그림이 밝혀진 크기가 되고 도착할 때 페이지가 **다시 흐릅니다** — 자리를 잡아 두는 것이 이 prop입니다",
+        en: 'The proportion the box holds, written the way CSS writes it. Left out, the box is whatever the picture turns out to be and the page **reflows** when it arrives — giving a ratio is what reserves the room'
+      }
+    },
+    {
+      name: 'fit',
+      type: "'cover' | 'contain' | 'fill' | 'none'",
+      default: "'cover'",
+      description: {
+        ko: '그림을 상자에 어떻게 맞출지',
+        en: 'How the picture is fitted into that box'
+      }
+    },
+    {
+      name: 'placeholder',
+      type: `${NODE} | false`,
+      description: {
+        ko: '오는 중에 그리는 것. 기본은 반짝임이고, `false`는 아무것도 그리지 않습니다 — 이미 자체 로딩 처리를 가진 것 안의 그림이 원하는 값입니다',
+        en: 'Drawn while the picture is on its way. A shimmer by default; `false` draws nothing, which is what a picture inside something with its own loading treatment wants'
+      }
+    },
+    {
+      name: 'fallback',
+      type: NODE,
+      description: {
+        ko: '도착하지 않았을 때 그림 대신 그리는 것. 기본은 중립 면 위의 깨진 그림 글리프입니다. 이 컴포넌트를 가질 만하게 만드는 prop입니다 — `src`가 404인 맨 `<img>`는 브라우저 자신의 표시를 그리고, 그건 브라우저마다 다르며 어느 것에도 속하지 않습니다',
+        en: "Drawn instead of the picture when it does not arrive. A broken-picture glyph on a neutral surface by default. This is the prop that makes the component worth having: a bare `<img>` whose `src` 404s draws the browser's own mark, which is different in every browser and belongs to none of them"
+      }
+    },
+    {
+      name: 'preview',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '누르면 그림을 스크림 위에 엽니다. 상자가 버튼이 되므로 키보드로 닿고 무엇을 하는지 말합니다. 기본이 꺼짐인 이유는, 페이지의 그림 대부분은 열 가치가 없고 조용히 눌리게 된 것은 아무도 선언하지 않은 컨트롤이기 때문입니다. 실패한 그림은 열리기를 거부합니다',
+        en: 'Opens the picture over a scrim when pressed. The box becomes a button, so it is reachable by keyboard and says what it does. Off by default: most pictures are not worth opening, and one that silently became pressable would be a control nobody declared. A failed picture refuses to open'
+      }
+    },
+    {
+      name: 'previewSrc',
+      type: 'string',
+      default: '`src`',
+      description: {
+        ko: '미리보기가 여는 파일이 `src`와 다를 때 — 썸네일 뒤의 원본. 썸네일을 썸네일답게 만드는 값입니다',
+        en: 'What the preview loads when that is not `src` — the full-resolution file behind a thumbnail'
+      }
+    },
+    {
+      name: 'previewLabel',
+      type: 'string',
+      default: '`alt`',
+      description: {
+        ko: '`preview`가 만든 버튼의 이름',
+        en: 'The label on the button `preview` turns the box into'
+      }
+    },
+    {
+      name: 'onStateChange',
+      type: "(state: 'loading' | 'loaded' | 'error') => void",
+      description: {
+        ko: '상태가 바뀔 때 호출됩니다',
+        en: 'Called when the state changes'
+      }
+    },
+    size,
+    id
+  ],
+
   MPStepper: [
     {
       name: 'active',

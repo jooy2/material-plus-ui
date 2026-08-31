@@ -35,6 +35,18 @@ Nothing was renamed and nothing was removed. Every existing prop still means wha
 
   A note on the implementation, because the first version of it was wrong in a way worth recording: the resolver reads the context **unconditionally**. Written as `prop ?? React.useContext(…)` the context is only read when the prop is absent, so a control handed a `size` on one render and not on the next calls a different number of hooks. React said so out loud in the test run, and the fix was to read first and decide second.
 
+- **`MPImage`** — a picture that says what it is doing.
+
+  A bare `<img>` has three states and shows two of them badly: while it is on its way there is a hole the size of nothing and the page jumps when it lands, and when it fails there is the browser's own broken-image mark, which is different in every browser and belongs to none of them. This draws a placeholder for the first and a `fallback` for the second, and `ratio` reserves the room so that neither one moves the page.
+
+  **The cached case is the one that breaks**, and it is the reason this is a component rather than three lines of `useState` at a call site: an image already in the cache is `complete` _before React attaches anything_, so its `load` event has been and gone. A component that only listened would hold its placeholder over a picture that is fully drawn — on every second page view, which is the view nobody tests because the first one works. `naturalWidth` is what tells the two kinds of `complete` apart.
+
+  `alt` is **required**, for the reason `MPIconButton`'s `label` is: a picture with no text alternative is the most common accessibility defect a library can actually help with, and the help is refusing to compile. `alt=""` is how to say _decoration_.
+
+  `preview` makes the box a button and opens the picture over a scrim — off by default, because one that silently became pressable would be a control nobody declared, and refused outright on a picture that failed. `previewSrc` is what makes a thumbnail worth being one.
+
+  Not a gallery and not a `next/image`: a lightbox that walked between pictures would be a component holding a collection, and `srcset` generation belongs to whatever is serving the file. One new glyph, `broken-image`.
+
 - **`MPStepper` and `MPStep`** — the sequence a reader is _working through_, as opposed to the one `MPTimeline` shows them having finished.
 
   The two draw the same picture, and now from the same table: the bullet, the connector and the ladder they sit on moved to `internal/step.ts`, because a picture kept by two tables is a picture that drifts the first time one of them is edited alone. What makes them two components is that one is read and the other is pressed — and that a stepper mounts **one panel**, which is the half that matters for a form, since keeping the others would mean hidden fields that still submit.
@@ -284,17 +296,17 @@ Nothing was renamed and nothing was removed. Every existing prop still means wha
 | `MPTextField`   | 4.3 kB  | 4.4 kB  |
 | Five components | 7.4 kB  | 7.5 kB  |
 | Ten components  | 11.2 kB | 11.6 kB |
-| Everything      | 76.1 kB | 80.3 kB |
+| Everything      | 76.1 kB | 81.3 kB |
 
 Just under two and a half kilobytes across the whole library, and it is spread rather than concentrated: the calendar's `precision`, the slider's ticks, the combobox's filter adapter, the accordion's three transition signals, and a `useRender` call in each of two list components. `MPButton` and `MPTextField` move a tenth each — the button for `render` and `nativeButton`, the field for one conditional class — which is what a minifier leaves of a handful of new names.
 
-The last 4.2 kB is this report's own — `MPCalendar`, the five hooks, `MPVisuallyHidden`, `MPConfigProvider`, `MPConfirmProvider`, `MPStepper`, and the cell's four extra `bg-transparent` branches. Three of those four are close to free, because the grid the calendar draws and the machinery the hooks name were both already in `everything` and what they cost is a wrapper each: `material-plus-ui/hooks` is 0.3 kB imported on its own, and `MPVisuallyHidden` is one class string.
+The last 5.2 kB is this report's own — `MPCalendar`, the five hooks, `MPVisuallyHidden`, `MPConfigProvider`, `MPConfirmProvider`, `MPStepper`, `MPImage`, and the cell's four extra `bg-transparent` branches. Three of those four are close to free, because the grid the calendar draws and the machinery the hooks name were both already in `everything` and what they cost is a wrapper each: `material-plus-ui/hooks` is 0.3 kB imported on its own, and `MPVisuallyHidden` is one class string.
 
 `MPConfigProvider` is the one that is not free anywhere, and it is worth being explicit about why. Every component that resolves a `size` or a `color` now imports `internal/config`, so the module reaches any bundle holding any of them — which is what moves ten components from 11.2 kB to 11.6 kB, a shade under a tenth of a kilobyte per component and one shared module rather than a per-component cost. `MPButton` alone goes from 23 modules to 24. A page that renders one control pays about 40 bytes for the ability to configure several hundred.
 
 The stylesheet grew from 113.5 kB to 114.6 kB, and 16.2 kB to 16.4 kB gzipped. Fifteen reset declarations on `.mp-grid`, one `overflow-visible`, one search-cancel-button rule and a tick's five sizes are the whole of it; the crossover at about thirty-one components is unchanged. The split sheets go from eighty-eight to ninety-one — `MPCalendar`, `MPVisuallyHidden` and `MPConfigProvider` get one each, and none of the three holds a hand-written rule.
 
-The suite goes from 1644 tests to 1893. Nineteen are the date picker's two new units and the raw events, as before. Twenty-seven are `MPCalendar`'s, forty-five the hooks', ten `MPVisuallyHidden`'s, seventeen `MPConfigProvider`'s, eight the scheme switches, six the direction wiring, fifteen `useMPConfirm`'s, nineteen `MPStepper`'s, and three more the picker's chosen day — those last ones read a computed background rather than a class list, which is the difference between checking that a rule was written and checking that it applies. The other eighty are this report, and the ones worth naming are the ones that would have caught the defects rather than described them: a nested grid item measuring 200px instead of 33px, a form actually submitting on Enter, a panel's `overflow` read at four points across its animation in both the controlled and uncontrolled cases, and a chip trigger asserting there is exactly one tab stop rather than two.
+The suite goes from 1644 tests to 1913. Nineteen are the date picker's two new units and the raw events, as before. Twenty-seven are `MPCalendar`'s, forty-five the hooks', ten `MPVisuallyHidden`'s, seventeen `MPConfigProvider`'s, eight the scheme switches, six the direction wiring, fifteen `useMPConfirm`'s, nineteen `MPStepper`'s, twenty `MPImage`'s, and three more the picker's chosen day — those last ones read a computed background rather than a class list, which is the difference between checking that a rule was written and checking that it applies. The other eighty are this report, and the ones worth naming are the ones that would have caught the defects rather than described them: a nested grid item measuring 200px instead of 33px, a form actually submitting on Enter, a panel's `overflow` read at four points across its animation in both the controlled and uncontrolled cases, and a chip trigger asserting there is exactly one tab stop rather than two.
 
 ## 1.5.0 (2026-08-30)
 

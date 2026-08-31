@@ -60,6 +60,7 @@ export * from './components/header';
 export * from './components/highlight';
 export * from './components/icon';
 export * from './components/icon-button';
+export * from './components/image';
 export * from './components/list';
 export * from './components/locale';
 export * from './components/menu';

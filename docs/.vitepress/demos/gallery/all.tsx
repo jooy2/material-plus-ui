@@ -57,6 +57,7 @@ import {
   MPHighlight,
   MPIcon,
   MPIconButton,
+  MPImage,
   MPList,
   MPListItem,
   MPMenu,
@@ -1225,6 +1226,23 @@ const GROUPS: Group[] = [
           <Fit>
             <TablePreview />
           </Fit>
+        )
+      },
+      {
+        name: 'MPImage',
+        summary: {
+          ko: '오는 중일 때도, 오지 않을 때도 말하는 그림',
+          en: 'A picture that says what it is doing, arriving or not'
+        },
+        path: '/components/display/image',
+        preview: (
+          <div style={{ width: 132 }}>
+            <MPImage
+              src="/mp-gallery-nothing-here.png"
+              alt="A photo that never arrived"
+              ratio="16 / 9"
+            />
+          </div>
         )
       },
       {
