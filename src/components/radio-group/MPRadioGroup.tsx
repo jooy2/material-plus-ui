@@ -14,17 +14,34 @@ import type { MPColor, MPOrientation, MPSize } from '../../types';
  *
  * MD3 draws a 20dp ring with a 10dp fill inside it — the inner dot is exactly
  * half, which is what makes a selected radio read as a ring *containing*
- * something rather than as a smaller ring. Every rung keeps that ratio.
+ * something rather than as a smaller ring.
  *
  * A radio is 20dp where a checkbox is 18dp, and that is the spec's own number
  * rather than a rounding: a circle inscribed in a square looks smaller than the
  * square, so the two have to differ to appear the same size in a column.
+ *
+ * ## Why `sm` and `lg` are not exactly half
+ *
+ * Because the ring has a 2dp border, and the dot is centred in what is left
+ * inside it. Half of `ring - 4 - ring / 2` is a whole number of pixels only when
+ * the ring is a multiple of four, so `sm` and `lg` — 18 and 22, the two rungs
+ * this library interpolates between MD3's own — put the dot at 2.5px and 3.5px
+ * from the border. The geometric centre is exact; the pixel grid is not, and at
+ * DPR 1 the browser rounds outwards, so the dot sits visibly down and to the
+ * right. It was reported twice from one application.
+ *
+ * So those two round the fill up to the next even number instead. It is 1dp off
+ * `ring / 2` and it lands on the grid, which is the better of the two — a dot
+ * half a pixel out of a ring is legible as wrong, and 1dp on a 22dp circle is
+ * not. It also sits nearer the proportion Material UI drew.
+ *
+ * `MPCheckbox` needs none of this: its mark is drawn rather than boxed.
  */
 const DOT: Record<MPSize, { ring: string; fill: string; halo: string }> = {
   xs: { ring: 'size-4', fill: 'size-2', halo: 'size-8' },
-  sm: { ring: 'size-[18px]', fill: 'size-[9px]', halo: 'size-9' },
+  sm: { ring: 'size-[18px]', fill: 'size-[10px]', halo: 'size-9' },
   md: { ring: 'size-5', fill: 'size-2.5', halo: 'size-10' },
-  lg: { ring: 'size-[22px]', fill: 'size-[11px]', halo: 'size-11' },
+  lg: { ring: 'size-[22px]', fill: 'size-3', halo: 'size-11' },
   xl: { ring: 'size-6', fill: 'size-3', halo: 'size-12' }
 };
 
@@ -141,7 +158,7 @@ export const MPRadio = React.forwardRef<HTMLElement, MPRadioProps>(function MPRa
                 halves of "chosen" land together. */}
             <Radio.Indicator
               className={[
-                'rounded-full',
+                'mp-radio__fill rounded-full',
                 dot.fill,
                 'transition-[opacity,scale] duration-(--mp-sys-motion-duration-short4)',
                 'ease-mp-standard',

@@ -48,6 +48,8 @@ The dot grows out of the centre of the ring over the same 200ms the ring's own b
 
 Unlike a checkbox's tick it starts at nothing rather than at 60%, and the difference is what each of them is. A tick is a stroke and has to stay legible while it arrives; a disc at any size is still a disc. See [MPCheckbox](./checkbox#the-mark-arrives).
 
+It is half the ring at `xs`, `md` and `xl`, and 1dp over half at `sm` and `lg`. The border is 2dp and the dot is centred in what is left inside it, so an exact half leaves a gap of 2.5px or 3.5px on those two rungs — and on a 1× screen the browser rounds that outwards, which puts the dot down and to the right of the circle it is meant to be concentric with. A whole pixel of grid is worth more than a whole dp of ratio.
+
 ## Examples
 
 ### orientation

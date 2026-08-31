@@ -220,6 +220,33 @@ describe('MPRadioGroup', () => {
         0
       );
     });
+
+    /*
+     * The dot is centred in what the 2px border leaves inside the ring, so the
+     * gap on one side is `(ring - 4 - fill) / 2` — a whole number of pixels only
+     * while `ring - fill` is even. It was not at `sm` and `lg`, where a fill of
+     * exactly half the ring put the dot 2.5px and 3.5px from the border, and at
+     * DPR 1 a browser rounds that outwards: the dot sat down and to the right of
+     * the ring it is supposed to be concentric with.
+     *
+     * Asserted on the drawn rectangles rather than on the class table, because
+     * the fraction is what the reader sees and the table is only how it got
+     * there.
+     */
+    it('lands the dot on whole pixels at every rung', async () => {
+      const screen = await render(<ControlledGroup initial="standard" size="xs" />);
+
+      for (const size of ['xs', 'sm', 'md', 'lg', 'xl'] as const) {
+        await screen.rerender(<ControlledGroup initial="standard" size={size} />);
+
+        const ring = document.querySelector('.mp-radio__dot')!.getBoundingClientRect();
+        const fill = document.querySelector('.mp-radio__fill')!.getBoundingClientRect();
+        const gap = fill.left - ring.left;
+
+        expect(gap, size).toBeCloseTo(ring.right - fill.right, 5);
+        expect(Math.abs(gap - Math.round(gap)), size).toBeLessThan(0.01);
+      }
+    });
   });
 
   describe('passthrough', () => {

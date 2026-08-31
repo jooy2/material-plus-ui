@@ -4,6 +4,10 @@
 
 A second report from the application that filed the first one, a day after upgrading to 1.6.0.
 
+### Added
+
+- **`mp-radio__fill`** on the dot inside the ring, which had no name of its own.
+
 ### Fixed
 
 - **Eleven modules shipped without `"use client"`, and one of them took a whole site down.** A server component rendering `MPContainer` died with `Attempted to call useMPSize() from the server` — and a page layout that uses `MPContainer` makes that every page of an App Router application. `MPAspectRatio` and `MPAnimateLighting` were the same, and `MPBox`, `MPTypography` and the six `MPAnimate*` components were unmarked beside them, reaching `React.useRef` through Base UI's `useRender` instead.
@@ -13,6 +17,12 @@ A second report from the application that filed the first one, a day after upgra
   The judgement is made on the imports now: **a module that imports a hook is a module that runs where hooks run**, whatever it looks like from the outside. That also caught `useMPColorScheme`, `useMPReducedMotion` and `useMPWindowClass`, which compose client-only hooks out of `internal/` and were unmarked for a related reason. React's own hooks are still read from React's two builds rather than from the name, because that split is finer than a naming convention — `useCallback`, `useMemo` and `useId` are on the server build too, and a module using only those is not client for it.
 
   And because a judgement that missed once can miss again, the build now puts the question to `dist/` as well: a shipped module that imports a hook and does not say `"use client"` stops the build, before it can stop somebody else's. A re-export is deliberately not an import — `export … from` is exactly where a boundary belongs, and the barrels are built on it.
+
+- **A chosen `MPRadio` sat half a pixel down and to the right at `sm` and `lg`.** Reported twice by one application's readers, and reproducible on any 1× screen.
+
+  The dot was exactly half the ring at every rung, which is MD3's own proportion. But the ring has a 2dp border and the dot is centred in what is left inside it, so the gap on one side is `(ring − 4 − ring / 2) / 2` — a whole number of pixels only while the ring is a multiple of four. `sm` and `lg` are 18 and 22, the two rungs this library interpolates between MD3's own, and they came to 2.5px and 3.5px. The geometric centre was exact; the browser then rounded it outwards.
+
+  Their fills are 10dp and 12dp now — the next even number, 1dp over half, and on the grid. `xs`, `md` and `xl` are unchanged and still exactly half. `MPCheckbox` needed nothing: its mark is drawn rather than boxed.
 
 ## 1.6.0 (2026-08-31)
 
