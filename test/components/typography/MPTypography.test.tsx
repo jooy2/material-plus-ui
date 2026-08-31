@@ -143,20 +143,21 @@ describe('MPTypography', () => {
   });
 
   describe('color', () => {
-    it('inherits the surface ink when no family is asked for', async () => {
+    it('declares no colour at all when no family is asked for', async () => {
       const screen = await render(<MPTypography>Body</MPTypography>);
       const element = screen.getByText('Body').element() as HTMLElement;
 
-      expect(element.className).toContain('text-mp-on-surface');
+      // "No default" has to mean no declaration. A colour written here would be
+      // a `[&.mp-typography]` — two classes — and would outrank the page's own
+      // utility, which is the opposite of inheriting.
+      expect(element.className).not.toContain('text-mp-on-surface');
       expect(element.style.getPropertyValue('--_mp-accent')).toBe('');
     });
 
-    it('mutes the two quiet levels', async () => {
+    it('leaves the quiet levels uncoloured too', async () => {
       const screen = await render(<MPTypography level="caption">Caption</MPTypography>);
 
-      expect(screen.getByText('Caption').element().className).toContain(
-        'text-mp-on-surface-variant'
-      );
+      expect(screen.getByText('Caption').element().className).not.toContain('text-mp-on-surface');
     });
 
     it('reads the accent family when one is asked for', async () => {

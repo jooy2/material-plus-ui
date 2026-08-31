@@ -49,6 +49,13 @@ export interface MPTypographyProps extends Omit<
    * has **no default**: prose inherits the surface's own ink unless a role is
    * asked for, because the common case for a paragraph is to look like the
    * paragraphs around it.
+   *
+   * No default means no declaration, not a quiet one. Nothing here writes a
+   * `color` until this prop is passed, so a `text-white` on the dark section
+   * above wins by simply being the only thing that spoke — and a role outside
+   * the four accents is a `className` away: `className="text-mp-on-surface-variant"`
+   * on a `caption` is the muted line this component used to hand out whether or
+   * not it was wanted.
    */
   color?: MPColor;
   /**
@@ -177,14 +184,6 @@ const LEVEL_ELEMENT: Record<MPTypographyLevel, React.ElementType> = {
 };
 
 /**
- * The two quiet levels take `on-surface-variant`, which is MD3's role for text
- * that is *about* the content rather than the content. Everything else takes
- * `on-surface` — a heading that arrived pre-greyed is a heading a designer has
- * to undo.
- */
-const MUTED = new Set<MPTypographyLevel>(['caption', 'overline']);
-
-/**
  * How much room a level leaves under itself when `gutter` is on.
  *
  * The other three sides are zeroed by `MARGIN` below rather than here, so the
@@ -292,11 +291,11 @@ export const MPTypography = React.forwardRef<HTMLElement, MPTypographyProps>(fun
     // Past six the clamp box is doing nothing a scroll container would not do
     // better, so the table stops there rather than growing a row per number.
     lines ? (CLAMP[lines] ?? 'line-clamp-6') : '',
-    color
-      ? '[&.mp-typography]:text-(--_mp-accent)'
-      : MUTED.has(level)
-        ? '[&.mp-typography]:text-mp-on-surface-variant'
-        : '[&.mp-typography]:text-mp-on-surface',
+    // Nothing at all without a `color`, which is the whole of what "no default"
+    // means. A colour written here would be a `[&.mp-typography]` — two classes
+    // — and would therefore outrank the `text-white` on the dark section the
+    // prose was dropped into, which is not a default, it is a decision.
+    color ? '[&.mp-typography]:text-(--_mp-accent)' : '',
     className ?? ''
   ]
     .filter(Boolean)
