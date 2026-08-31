@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import {
   MPButton,
+  MPChip,
   MPMenu,
   MPMenuCheckboxItem,
   MPMenuGroup,
@@ -318,6 +319,67 @@ describe('MPMenu', () => {
       await screen.getByRole('button', { name: 'Actions' }).click();
 
       await expect.element(screen.getByRole('menu')).toHaveAttribute('data-mp-size', 'sm');
+    });
+  });
+
+  describe('the trigger', () => {
+    it('opens from a chip, with the state on the element that holds it', async () => {
+      // Base UI merges its handlers and its ARIA onto the element the trigger
+      // renders. A chip whose shell was a span put `aria-expanded` on something
+      // that was not focusable and left a second tab stop underneath it.
+      const screen = await render(
+        <MPMenu trigger={<MPChip>Filter</MPChip>}>
+          <MPMenuItem>Copy</MPMenuItem>
+        </MPMenu>
+      );
+      const trigger = screen.getByRole('button', { name: 'Filter' }).element();
+
+      expect(trigger.tagName).toBe('BUTTON');
+      expect(trigger).toHaveAttribute('aria-haspopup', 'menu');
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      // One element, so there is nothing underneath to tab to.
+      expect(trigger.querySelectorAll('button')).toHaveLength(0);
+
+      await open(screen, 'Filter');
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    it('says so in the console when the trigger is not a button', async () => {
+      // Base UI's own check, and the reason `nativeButton` is a prop: what a
+      // trigger renders is only known once it has rendered.
+      const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      await render(
+        <MPMenu trigger={<span>Account</span>}>
+          <MPMenuItem>Copy</MPMenuItem>
+        </MPMenu>
+      );
+
+      expect(error.mock.calls.flat().join(' ')).toContain('expected a native <button>');
+      error.mockRestore();
+    });
+
+    it('takes nativeButton={false} for a trigger that is deliberately not one', async () => {
+      const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      const screen = await render(
+        <MPMenu nativeButton={false} trigger={<span>Account</span>}>
+          <MPMenuItem>Copy</MPMenuItem>
+        </MPMenu>
+      );
+
+      expect(error.mock.calls.flat().join(' ')).not.toContain('expected a native');
+      error.mockRestore();
+
+      // And Base UI supplies what a `<button>` would have brought: the role, the
+      // tab stop and the press.
+      const trigger = screen.getByRole('button', { name: 'Account' }).element();
+
+      expect(trigger.tagName).toBe('SPAN');
+      expect(trigger).toHaveAttribute('tabindex', '0');
+
+      await open(screen, 'Account');
     });
   });
 });

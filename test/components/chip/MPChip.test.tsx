@@ -73,6 +73,40 @@ describe('MPChip', () => {
       expect(screen.getByRole('button', { name: 'Draft' }).query()).not.toBeNull();
     });
 
+    it('is the shell itself, so there is one element and one tab stop', async () => {
+      const screen = await render(<MPChip onClick={() => {}}>Draft</MPChip>);
+      const button = screen.getByRole('button', { name: 'Draft' }).element();
+
+      expect(button.tagName).toBe('BUTTON');
+      expect(button).toHaveClass('mp-chip');
+      expect(button.querySelectorAll('button')).toHaveLength(0);
+    });
+
+    it('keeps the surface it has when it is not pressable', async () => {
+      // A chip does not look different for being a button: `appearance-none` is
+      // what takes the browser's own border and background off, and the variant
+      // table is still the only thing painting it.
+      const plain = await render(
+        <MPChip variant="tonal" data-testid="plain">
+          Draft
+        </MPChip>
+      );
+      const resting = getComputedStyle(plain.getByTestId('plain').element());
+
+      const pressable = await render(
+        <MPChip variant="tonal" onClick={() => {}} data-testid="pressable">
+          Draft
+        </MPChip>
+      );
+      const pressed = getComputedStyle(pressable.getByTestId('pressable').element());
+
+      expect(pressed.backgroundColor).toBe(resting.backgroundColor);
+      expect(pressed.color).toBe(resting.color);
+      expect(pressed.height).toBe(resting.height);
+      expect(pressed.paddingInlineStart).toBe(resting.paddingInlineStart);
+      expect(pressed.fontFamily).toBe(resting.fontFamily);
+    });
+
     it('fires on click', async () => {
       const onClick = vi.fn();
       const screen = await render(<MPChip onClick={onClick}>Draft</MPChip>);
@@ -153,16 +187,18 @@ describe('MPChip', () => {
     });
 
     it('adds a second, separate button', async () => {
-      // A `<button>` inside a `<button>` is markup the browser un-nests, so the
-      // shell stays a span and both affordances are siblings.
+      // A `<button>` inside a `<button>` is markup the browser un-nests, so a
+      // chip that also deletes goes back to a span shell and both affordances
+      // are siblings inside it.
       const screen = await render(
-        <MPChip onClick={() => {}} onDelete={() => {}}>
+        <MPChip onClick={() => {}} onDelete={() => {}} data-testid="chip">
           Draft
         </MPChip>
       );
       const label = screen.getByRole('button', { name: 'Draft' }).element();
       const remove = screen.getByRole('button', { name: 'Remove' }).element();
 
+      expect(screen.getByTestId('chip').element().tagName).toBe('SPAN');
       expect(label.contains(remove)).toBe(false);
       expect(remove.contains(label)).toBe(false);
     });
