@@ -2713,6 +2713,133 @@ const componentTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPStepper: [
+    {
+      name: 'active',
+      type: 'number',
+      description: {
+        ko: '지금 밟고 있는 스텝의 인덱스(0부터). 그 앞은 완료, 그 뒤는 아직입니다. 값이 아니라 인덱스인 이유는 `MPTimeline`과 같습니다 — 자기 자리를 들어야 하는 스텝은 잘못 놓일 수 있는 스텝입니다',
+        en: "Which step is being worked on now, counting from zero. Everything before it is complete and everything after is still to come. An index rather than a value, for the reason `MPTimeline`'s is"
+      }
+    },
+    {
+      name: 'defaultActive',
+      type: 'number',
+      default: '0',
+      description: {
+        ko: 'uncontrolled 스테퍼가 시작하는 곳',
+        en: 'Where an uncontrolled stepper starts'
+      }
+    },
+    {
+      name: 'onActiveChange',
+      type: '(active: number) => void',
+      description: {
+        ko: '눌린 스텝으로 호출됩니다. **이걸 빼면 스텝이 눌리지 않게 됩니다** — 핸들러 없는 스테퍼는 진행 표시기이고, 그건 애플리케이션이 자기 Next·Back으로 모는 순서에 맞는 모양입니다',
+        en: 'Called with the step that was pressed. **Leaving it out is what makes the steps unpressable** — a stepper with no handler is a progress indicator, which is the right shape for a sequence the application drives with its own Next and Back'
+      }
+    },
+    {
+      name: 'linear',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '앞 스텝들이 끝나야 다음에 닿을 수 있는지. 뒤로 가는 것은 언제나 허용되며, 거절하는 것은 실제로 도달한 지점보다 앞으로 건너뛰는 것뿐입니다. 그 "도달한"은 현재가 아니라 가장 멀리 간 스텝입니다',
+        en: 'Whether a step can only be reached once the ones before it are done. Going back is always allowed; what it refuses is jumping forward past the step the reader has actually got to — the *furthest* one, not the current one'
+      }
+    },
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+      description: {
+        ko: '순서가 흐르는 방향. 기본이 `MPTimeline`과 반대인 것은 일부러입니다 — 스테퍼는 작업 위쪽을 가로지르는 짧은 라벨 몇 개이고, 타임라인은 각각 할 말이 많은 항목이 임의 개수 있는 것입니다',
+        en: "Which way the sequence runs. The default disagrees with `MPTimeline`'s on purpose: a stepper is a few short labels across the top of a task, a timeline an arbitrary number of entries with an arbitrary amount to say"
+      }
+    },
+    size,
+    color,
+    {
+      name: 'children',
+      type: '`MPStep` elements',
+      description: { ko: '`MPStep` 엘리먼트들', en: '`MPStep` elements' }
+    },
+    id
+  ],
+
+  MPStep: [
+    {
+      name: 'label',
+      type: NODE,
+      description: { ko: '스텝의 이름', en: 'What the step is called' }
+    },
+    {
+      name: 'description',
+      type: NODE,
+      description: {
+        ko: '아래에 붙는 둘째 줄 — 무엇을 위한 스텝인지, 무엇을 기다리는지',
+        en: 'A second line under it — what the step is for, or what it is waiting on'
+      }
+    },
+    {
+      name: 'bullet',
+      type: NODE,
+      description: {
+        ko: '불릿 안에 들어가는 것. 비워 두면 완료는 체크, 실패는 에러 글리프, 나머지는 번호를 그립니다',
+        en: 'What goes inside the bullet. Left out, a complete step draws a tick, a failed one its error glyph, and every other one its number'
+      }
+    },
+    {
+      name: 'error',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '실패한 스텝. `error`로 칠하고 순서 안에 그대로 둡니다 — 구멍 난 순서는 읽는 사람이 셀 수 없습니다',
+        en: 'Marks the step failed. Drawn in `error` and kept in the sequence — a sequence with a hole in it is one the reader cannot count'
+      }
+    },
+    {
+      name: 'optional',
+      type: NODE,
+      description: {
+        ko: '라벨 아래의 한마디 — *Optional*, *건너뜀*, *3 중 2 완료*. boolean이 아니라 노드인 이유는, boolean이면 라이브러리가 그 **단어**를 열여덟 개 언어로 실어야 하기 때문입니다',
+        en: 'A note under the label — *Optional*, *Skipped*, *2 of 3 done*. A node rather than a boolean, because a boolean would mean this library shipping the **word** in eighteen languages'
+      }
+    },
+    {
+      ...disabled,
+      description: {
+        ko: '닿을 수 있는지와 무관하게 누름을 거절합니다',
+        en: 'Refuses the press whatever the reachability rule says'
+      }
+    },
+    {
+      name: 'connector',
+      type: "'solid' | 'dashed' | 'dotted' | 'none'",
+      default: "'solid'",
+      description: {
+        ko: '다음 스텝으로 가는 선을 어떻게 그릴지. 마지막 스텝은 그리지 않습니다',
+        en: 'How the line to the next step is drawn. The last step never draws one'
+      }
+    },
+    {
+      ...color,
+      description: {
+        ko: '이 스텝만의 강조색. `error`가 정하는 것을 덮어씁니다',
+        en: "This step's own accent, overriding what `error` would set"
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '이 스텝의 패널. **활성일 때만** 그려지고, 그때만 마운트됩니다',
+        en: "The step's own panel, drawn — and mounted — **only while the step is active**"
+      }
+    },
+    id
+  ],
+
   MPTimeline: [
     {
       name: 'active',

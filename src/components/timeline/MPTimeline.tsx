@@ -3,6 +3,17 @@ import { useRender } from '@base-ui/react/use-render';
 import { accentSlots } from '../../internal/accent';
 import { hasContent, META_TEXT, PROSE_TEXT, SHEET_TITLE } from '../../internal/scale';
 import { useMPColor, useMPSize } from '../../internal/config';
+import {
+  BORDER_STYLE,
+  BULLET,
+  BULLET_GAP,
+  BULLET_SIZE,
+  CONNECTOR_COLOR,
+  ITEM_GAP,
+  ITEM_GAP_X,
+  TITLE_COLOR
+} from '../../internal/step';
+import type { MPStepConnector, MPStepStatus } from '../../internal/step';
 import type { MPColor, MPOrientation, MPSize } from '../../types';
 
 /**
@@ -13,10 +24,17 @@ import type { MPColor, MPOrientation, MPSize } from '../../types';
  * list. Each gets its own axis — a filled bullet, a filled bullet with a halo
  * around it, an empty one — rather than three shades of the same thing.
  */
-export type MPTimelineStatus = 'complete' | 'current' | 'upcoming';
+/**
+ * How far a step has got.
+ *
+ * The same three `MPStepper` uses, and the same table draws them — see
+ * `internal/step.ts` for why a timeline and a stepper are one picture drawn by
+ * two components.
+ */
+export type MPTimelineStatus = MPStepStatus;
 
 /** How the line between two items is drawn. `none` leaves the gap open. */
-export type MPTimelineConnector = 'solid' | 'dashed' | 'dotted' | 'none';
+export type MPTimelineConnector = MPStepConnector;
 
 interface MPTimelineContextValue {
   size: MPSize;
@@ -96,99 +114,6 @@ export interface MPTimelineItemProps extends Omit<
   /** The body of the step. */
   children?: React.ReactNode;
 }
-
-/**
- * The bullet.
- *
- * Its own ladder rather than a step off `CONTROL_HEIGHT`, for the reason a
- * checkbox's tick has one: a bullet is not a control you can put a label inside.
- * It is a mark beside one, sized against the title next to it.
- *
- * It is written as a custom property rather than as a class because the
- * connector has to know it: the line is centred on the bullet, and centring is
- * arithmetic on this number.
- */
-const BULLET_SIZE: Record<MPSize, string> = {
-  xs: '0.875rem',
-  sm: '1rem',
-  md: '1.25rem',
-  lg: '1.5rem',
-  xl: '1.875rem'
-};
-
-/** Between the bullet column and the content beside it. */
-const BULLET_GAP: Record<MPSize, string> = {
-  xs: 'gap-2',
-  sm: 'gap-2.5',
-  md: 'gap-3',
-  lg: 'gap-3.5',
-  xl: 'gap-4'
-};
-
-/**
- * How far apart two items sit.
- *
- * The floor is set by the item with nothing in it. A step that is only a title
- * and a time is one line tall, so the gap is the *whole* of what separates it
- * from the next one — where a step with a paragraph under it has the paragraph's
- * own leading working for it as well.
- */
-const ITEM_GAP: Record<MPSize, string> = {
-  xs: 'pb-5',
-  sm: 'pb-6',
-  md: 'pb-7',
-  lg: 'pb-8',
-  xl: 'pb-10'
-};
-
-/** The same ladder across, for the horizontal form. */
-const ITEM_GAP_X: Record<MPSize, string> = {
-  xs: 'pe-5',
-  sm: 'pe-6',
-  md: 'pe-7',
-  lg: 'pe-8',
-  xl: 'pe-10'
-};
-
-const BORDER_STYLE: Record<MPTimelineConnector, string> = {
-  solid: 'border-solid',
-  dashed: 'border-dashed',
-  dotted: 'border-dotted',
-  none: ''
-};
-
-/**
- * The bullet at each of the three states.
- *
- * Every one of them is a different axis, never a different opacity: `complete`
- * is filled with the accent under its own ink, `current` is the same fill with a
- * halo of the container tone around it, and `upcoming` is a hairline ring on the
- * page's own surface. A reader who cannot tell the colours apart still has a
- * filled shape, a haloed shape and an empty one.
- */
-const BULLET: Record<MPTimelineStatus, string> = {
-  complete: 'bg-(--_mp-accent) text-(--_mp-on-accent)',
-  current:
-    'bg-(--_mp-accent) text-(--_mp-on-accent) shadow-[0_0_0_0.25rem_var(--_mp-accent-container)]',
-  upcoming: 'border-mp-outline text-mp-on-surface-variant border-2 bg-transparent'
-};
-
-/**
- * The line *after* an item, which is what makes it the item's own property: a
- * connector is coloured by whether the step it leaves has been reached, not by
- * where it arrives.
- */
-const CONNECTOR_COLOR: Record<MPTimelineStatus, string> = {
-  complete: 'border-(--_mp-accent)',
-  current: 'border-mp-outline-variant',
-  upcoming: 'border-mp-outline-variant'
-};
-
-const TITLE_COLOR: Record<MPTimelineStatus, string> = {
-  complete: 'text-mp-on-surface',
-  current: 'text-(--_mp-accent)',
-  upcoming: 'text-mp-on-surface-variant'
-};
 
 /**
  * One step.

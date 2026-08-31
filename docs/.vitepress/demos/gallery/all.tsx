@@ -104,6 +104,8 @@ import {
   MPTimelineItem,
   MPTooltip,
   MPTransfer,
+  MPStep,
+  MPStepper,
   MPTypography,
   MPVisuallyHidden,
   useMPSnackbar
@@ -1223,6 +1225,21 @@ const GROUPS: Group[] = [
           <Fit>
             <TablePreview />
           </Fit>
+        )
+      },
+      {
+        name: 'MPStepper',
+        summary: {
+          ko: '한 번에 한 패널로 밟아 나가는 순서',
+          en: 'A sequence being worked through, one panel at a time'
+        },
+        path: '/components/display/stepper',
+        preview: (
+          <MPStepper active={1} size="xs">
+            <MPStep label="Account" />
+            <MPStep label="Payment" />
+            <MPStep label="Done" />
+          </MPStepper>
         )
       },
       {
