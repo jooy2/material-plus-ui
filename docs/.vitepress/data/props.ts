@@ -6522,6 +6522,107 @@ const componentTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPPopconfirm: [
+    {
+      name: 'trigger',
+      type: 'React.ReactElement',
+      required: true,
+      description: {
+        ko: '묻는 컨트롤이자 질문이 매달리는 곳. 엘리먼트 정확히 하나이며 ref를 받고 prop을 spread할 수 있어야 합니다',
+        en: 'The control that asks, and that the question hangs off. Exactly one element, and it must accept a ref and spread props'
+      }
+    },
+    {
+      name: 'title',
+      type: NODE,
+      description: { ko: '팝업의 제목이 되는 질문', en: "The question, as the popup's heading" }
+    },
+    {
+      name: 'description',
+      type: NODE,
+      description: {
+        ko: '그 아래 한 줄 — 무엇이 일어나고 무엇에 일어나는지',
+        en: 'A line under it — what happens, and to what'
+      }
+    },
+    {
+      name: 'onConfirm',
+      type: '() => void',
+      description: {
+        ko: '읽는 사람이 예라고 했을 때. promise가 아니라 콜백인 것이 `useMPConfirm`과의 차이 전부입니다 — 이건 버튼이 있는 자리에 쓰이므로 이미 거기에 핸들러가 있습니다',
+        en: 'Called when the reader says yes. A callback rather than a promise, which is the whole difference from `useMPConfirm`: this is written where the button is, so there is already a handler there'
+      }
+    },
+    {
+      name: 'onCancel',
+      type: '() => void',
+      description: {
+        ko: '아니오라고 했을 때. Escape와 바깥 누름도 여기로 셉니다 — 여는 것은 답이 아니라 질문이므로 세지 않습니다',
+        en: 'Called when they say no. Escape and a press outside both count; opening does not, because an open is the question rather than an answer'
+      }
+    },
+    {
+      name: 'confirmLabel',
+      type: NODE,
+      default: 'the translation of `Confirm`',
+      description: { ko: '"예" 버튼의 문구', en: 'What the yes button says' }
+    },
+    {
+      name: 'cancelLabel',
+      type: NODE,
+      default: 'the translation of `Cancel`',
+      description: { ko: '"아니오" 버튼의 문구', en: 'What the no button says' }
+    },
+    {
+      ...color,
+      description: {
+        ko: '"예" 버튼만 칠하는 강조색. `error`가 기본이 아닌 이유는 `useMPConfirm`이 대는 것과 같습니다',
+        en: 'The accent the yes button is drawn in. `error` is not the default, for the reason `useMPConfirm` gives'
+      }
+    },
+    {
+      name: 'side',
+      type: "'top' | 'right' | 'bottom' | 'left'",
+      default: "'top'",
+      description: {
+        ko: '트리거의 어느 변에 나타날지',
+        en: 'Which edge of the trigger the question appears on'
+      }
+    },
+    {
+      name: 'align',
+      type: "'start' | 'center' | 'end'",
+      default: "'center'",
+      description: { ko: '그 변을 따라 어디에 맞출지', en: 'Where it lines up along that edge' }
+    },
+    {
+      name: 'arrow',
+      type: 'boolean',
+      default: 'true',
+      description: { ko: '트리거를 가리키는 쐐기', en: 'The wedge pointing back at the trigger' }
+    },
+    size,
+    {
+      name: 'open',
+      type: 'boolean',
+      description: {
+        ko: '열려 있는지. controlled로 쓸 때',
+        en: 'Whether it is open. For a controlled one'
+      }
+    },
+    {
+      name: 'defaultOpen',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '처음 상태', en: 'Where an uncontrolled one starts' }
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: { ko: '열림 상태가 바뀔 때', en: 'Called when the open state changes' }
+    }
+  ],
+
   MPPopover: [
     {
       name: 'trigger',

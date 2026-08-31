@@ -76,6 +76,7 @@ import {
   MPPane,
   MPPanes,
   MPPill,
+  MPPopconfirm,
   MPPopover,
   MPProgressBox,
   MPProgressCircular,
@@ -1426,6 +1427,26 @@ const GROUPS: Group[] = [
               Hover me
             </MPButton>
           </MPTooltip>
+        )
+      },
+      {
+        name: 'MPPopconfirm',
+        summary: {
+          ko: '컨트롤이 있는 자리에 머무는 확인',
+          en: 'A confirmation that stays where the control is'
+        },
+        path: '/components/feedback/popconfirm',
+        preview: (
+          <MPPopconfirm
+            trigger={
+              <MPButton size="sm" color="error" variant="outlined">
+                Delete
+              </MPButton>
+            }
+            title="Delete this row?"
+            confirmLabel="Delete"
+            color="error"
+          />
         )
       },
       {
