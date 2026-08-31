@@ -203,6 +203,10 @@ Nothing was renamed and nothing was removed. Every existing prop still means wha
 
 - **The month grid and the year grid were announced as "grid" and nothing else.** They are named by the year and by the page of years they show, the way the day grid has always been named by its month.
 
+- **Forcing a region back to light did nothing.** The dark block applies to any element carrying the attribute, so a dark section inside a light page has always been one attribute — and the documentation said the reverse worked too. It did not: the light scheme's tone stops lived on `:root` alone, so under a system preference of dark a `[data-mp-scheme='light']` on a section matched no rule at all. The media query had already retuned `:root`, the section inherited that, and nothing put the light stops back.
+
+  The light stops now sit on `:root, [data-mp-scheme='light']`, which makes the two directions symmetrical. `--mp-source-color` stays on `:root` alone and above them, deliberately: repeated on the light block it would override a consumer's own scoped source colour on any element that also asked for light.
+
 - **A picker's chosen day was never painted.** The filled circle MD3 puts under the selected date, the tonal band across a chosen range, and today's outlined ring are all drawn from `--_mp-accent` — and none of the three arrived. Two independent causes, either of which was enough on its own:
 
   The popup is a **portal** into `document.body`, and `MPPickerShell` declared the four accent slots on its root only. Nothing the shell sets reaches a portal, so inside the popup `--_mp-accent` resolved to nothing at all. `MPMenu` had always put them on its own popup; the pickers had not.

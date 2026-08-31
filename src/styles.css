@@ -128,7 +128,27 @@
      * `outline`, and a focus ring then reads as no change at all.
      */
     --mp-source-color: #00639b;
+  }
 
+  /*
+   * The light scheme's own tone stops, on `:root` and on anything that asks for
+   * light by name.
+   *
+   * The second selector is what makes forcing light **scoped** work. The dark
+   * block below applies to any element carrying the attribute, so a dark region
+   * inside a light page has always been one attribute; the reverse was not, and
+   * the documentation said it was. Under a system preference of dark, a
+   * `[data-mp-scheme='light']` on a section matched no rule at all — the media
+   * query had already retuned `:root`, the section inherited it, and nothing
+   * put the light stops back. It came out dark.
+   *
+   * `--mp-source-color` stays on `:root` alone and above this, deliberately.
+   * Repeating it here would freeze it: a consumer scoping a different source
+   * colour to a section would find this rule overriding theirs on any element
+   * that also asked for light.
+   */
+  :root,
+  [data-mp-scheme='light'] {
     /*
      * Tone stops.
      *
