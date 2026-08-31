@@ -1,3 +1,4 @@
+import type * as React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { ICONS, MPBottomNavigation, MPBottomNavigationItem, MPIcon } from 'material-plus-ui';
@@ -250,5 +251,64 @@ describe('MPBottomNavigation', () => {
 
     expect(bar).toHaveAttribute('data-mp-size', 'sm');
     expect(bar).toHaveAttribute('id', 'main');
+  });
+
+  describe('the destination’s own element', () => {
+    it('renders a router’s link in place of the anchor', async () => {
+      const Link = ({ href, children, ...rest }: React.ComponentProps<'a'>) => (
+        <a href={href} data-router="yes" {...rest}>
+          {children}
+        </a>
+      );
+
+      const screen = await render(
+        <MPBottomNavigation value="home">
+          <MPBottomNavigationItem value="home" href="/" render={<Link />}>
+            Home
+          </MPBottomNavigationItem>
+        </MPBottomNavigation>
+      );
+      const link = screen.getByRole('link', { name: 'Home' }).element();
+
+      expect(link).toHaveAttribute('data-router', 'yes');
+      expect(link).toHaveAttribute('href', '/');
+      expect(link).toHaveAttribute('aria-current', 'page');
+    });
+
+    it('carries target through, with the rel a new tab needs', async () => {
+      const screen = await render(
+        <MPBottomNavigation value="home">
+          <MPBottomNavigationItem value="docs" href="https://example.com" target="_blank">
+            Docs
+          </MPBottomNavigationItem>
+        </MPBottomNavigation>
+      );
+      const link = screen.getByRole('link', { name: 'Docs' }).element();
+
+      expect(link).toHaveAttribute('target', '_blank');
+      expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+    });
+
+    it('still tells the bar which destination was chosen', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <MPBottomNavigation value="home" onValueChange={onValueChange}>
+          <MPBottomNavigationItem
+            value="search"
+            href="/search"
+            render={<a />}
+            // The test runs in an iframe the suite has to keep; a real
+            // navigation takes the page the assertions are on with it.
+            onClick={(event) => event.preventDefault()}
+          >
+            Search
+          </MPBottomNavigationItem>
+        </MPBottomNavigation>
+      );
+
+      await screen.getByRole('link', { name: 'Search' }).click();
+
+      expect(onValueChange).toHaveBeenCalledWith('search');
+    });
   });
 });

@@ -1,3 +1,4 @@
+import type * as React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { MPList, MPListItem } from 'material-plus-ui';
@@ -268,6 +269,75 @@ describe('MPListItem', () => {
 
       expect(screen.getByTestId('start').query()).not.toBeNull();
       expect(screen.getByTestId('end').query()).not.toBeNull();
+    });
+  });
+
+  describe('the row’s own element', () => {
+    it('renders a router’s link in place of the anchor', async () => {
+      // The `<li>` stays an `<li>` — it is inside a `<ul>` — and what a caller
+      // actually needs to own is the element inside it.
+      const Link = ({ href, children, ...rest }: React.ComponentProps<'a'>) => (
+        <a href={href} data-router="yes" {...rest}>
+          {children}
+        </a>
+      );
+
+      const screen = await render(
+        <MPList>
+          <MPListItem href="/inbox" render={<Link />}>
+            Inbox
+          </MPListItem>
+        </MPList>
+      );
+      const link = screen.getByRole('link', { name: 'Inbox' }).element();
+
+      expect(link).toHaveAttribute('data-router', 'yes');
+      expect(link).toHaveAttribute('href', '/inbox');
+      expect(link.closest('li')).not.toBeNull();
+    });
+
+    it('carries target through, with the rel a new tab needs', async () => {
+      const screen = await render(
+        <MPList>
+          <MPListItem href="https://example.com" target="_blank">
+            Docs
+          </MPListItem>
+        </MPList>
+      );
+      const link = screen.getByRole('link', { name: 'Docs' }).element();
+
+      expect(link).toHaveAttribute('target', '_blank');
+      expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+    });
+
+    it('lets a caller’s rel replace that one rather than extend it', async () => {
+      const screen = await render(
+        <MPList>
+          <MPListItem href="https://example.com" target="_blank" rel="nofollow">
+            Docs
+          </MPListItem>
+        </MPList>
+      );
+
+      expect(screen.getByRole('link', { name: 'Docs' }).element()).toHaveAttribute(
+        'rel',
+        'nofollow'
+      );
+    });
+
+    it('renders in place of the button when there is no href', async () => {
+      const screen = await render(
+        <MPList>
+          <MPListItem onClick={() => {}} render={<div data-mine="yes" />}>
+            Archive
+          </MPListItem>
+        </MPList>
+      );
+      const row = screen.container.querySelector('[data-mine="yes"]')!;
+
+      expect(row.tagName).toBe('DIV');
+      // `type` belongs to the button this replaced, not to whatever came instead.
+      expect(row).not.toHaveAttribute('type');
     });
   });
 });
