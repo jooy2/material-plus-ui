@@ -55,6 +55,37 @@ const TRAVEL = [
   'motion-reduce:transition-none'
 ].join(' ');
 
+/**
+ * A tick's diameter, which is deliberately smaller than anything else on the
+ * control.
+ *
+ * MD3 draws tick marks as dots *inside* the 4dp track, so a tick can never be
+ * more than the track is thick — and at `md` that is 4px for the rail and 3px
+ * for the dot. They are a texture that says "this slider stops at places", not a
+ * second thing to look at.
+ */
+const TICK: Record<MPSize, string> = {
+  xs: 'size-[2px]',
+  sm: 'size-[2px]',
+  md: 'size-[3px]',
+  lg: 'size-1',
+  xl: 'size-1.5'
+};
+
+/**
+ * The most ticks `marks` will draw for a range it was not given by hand.
+ *
+ * `marks` with `step={1}` over nought to a thousand is a thousand elements
+ * describing a track four hundred pixels wide, which is not a row of ticks — it
+ * is a dotted line, drawn out of a thousand DOM nodes, that says less than no
+ * ticks at all would. Past this the boolean form draws nothing and the array
+ * form is the way to say which ones matter.
+ *
+ * Fifty is where a 400px track has eight pixels between ticks, which is the last
+ * point two of them are still two.
+ */
+const MAX_TICKS = 50;
+
 /** The halo, which is the same 40dp target every other tick in the library has. */
 const HALO: Record<MPSize, string> = {
   xs: 'size-8',
@@ -63,6 +94,16 @@ const HALO: Record<MPSize, string> = {
   lg: 'size-11',
   xl: 'size-12'
 };
+
+export interface MPSliderMark {
+  /** Where on the range it sits. Outside `min`…`max` it is not drawn. */
+  value: number;
+  /**
+   * What is written under it — or beside it on a vertical slider. Left out, the
+   * mark is a tick on the track and nothing else.
+   */
+  label?: React.ReactNode;
+}
 
 export interface MPSliderProps {
   /**
@@ -83,6 +124,24 @@ export interface MPSliderProps {
   max?: number;
   /** How far one arrow key, or one notch of the drag, moves. @default 1 */
   step?: number;
+  /**
+   * The ticks on the track, and optionally what is written under them.
+   *
+   * `true` puts one at every `step`, which is MD3's discrete slider — up to fifty
+   * of them, past which they stop being ticks and become a dotted line (see
+   * `MAX_TICKS`). An array names them instead, and is the form that can carry
+   * labels: `[{ value: 1990, label: '1990' }, …]` for the decade markings under
+   * a year range.
+   *
+   * A tick over the filled part of the track is drawn in the accent's own ink and
+   * one over the groove in `on-surface-variant`, which is the specification's
+   * pairing and the reason a tick stays visible as the handle passes it.
+   *
+   * Labels are laid out from the tick's centre and are not measured, so two that
+   * would collide will overlap — an array with fewer entries is the answer, not a
+   * smaller type scale.
+   */
+  marks?: boolean | readonly MPSliderMark[];
   /** The label above the track. */
   label?: React.ReactNode;
   /** The line under the track. */
@@ -154,6 +213,7 @@ export const MPSlider = React.forwardRef<HTMLDivElement, MPSliderProps>(function
     min = 0,
     max = 100,
     step = 1,
+    marks,
     label,
     description,
     showValue = false,
@@ -178,12 +238,77 @@ export const MPSlider = React.forwardRef<HTMLDivElement, MPSliderProps>(function
   const given = value ?? defaultValue;
   const thumbCount = Array.isArray(given) ? given.length : 1;
 
+  /*
+   * The ticks, resolved once rather than per render of the track.
+   *
+   * A mark outside the range is dropped rather than clamped: two decades pinned
+   * to the same end of a track are two ticks in one place, which reads as one
+   * tick and loses the fact that a value was out of range at all.
+   */
+  const ticks = React.useMemo<MPSliderMark[]>(() => {
+    if (!marks || max <= min) {
+      return [];
+    }
+
+    if (marks !== true) {
+      return marks.filter((mark) => mark.value >= min && mark.value <= max);
+    }
+
+    const count = Math.floor((max - min) / step);
+
+    if (!Number.isFinite(count) || count < 1 || count > MAX_TICKS) {
+      return [];
+    }
+
+    return Array.from({ length: count + 1 }, (_, index) => ({ value: min + index * step }));
+  }, [marks, min, max, step]);
+
+  /*
+   * Which part of the track a tick is over, which is what decides its ink.
+   *
+   * The value is mirrored rather than read back off the DOM, and it has to be:
+   * an uncontrolled slider's value lives inside Base UI, and a tick that could
+   * not see it would be drawn in the groove's colour on top of the accent — the
+   * one place a 3px dot disappears entirely.
+   */
+  const [ownValue, setOwnValue] = React.useState<number | readonly number[] | undefined>(
+    defaultValue
+  );
+  const current = value ?? ownValue;
+  const filled = React.useMemo(() => {
+    const numbers = Array.isArray(current) ? current : current === undefined ? [] : [current];
+
+    if (numbers.length === 0) {
+      return null;
+    }
+
+    // A single value fills from the bottom of the range; a pair fills between
+    // them, which is the same sentence with a different floor.
+    return numbers.length === 1
+      ? { from: min, to: numbers[0] }
+      : { from: Math.min(...numbers), to: Math.max(...numbers) };
+  }, [current, min]);
+
+  /* Along the track, from its start. The percentage is the same number Base UI
+     positions the thumb with, which is what keeps a tick under the handle that
+     stopped on it. */
+  const offsetOf = (at: number) => `${((at - min) / (max - min)) * 100}%`;
+
   return (
     <Slider.Root
       ref={ref}
       value={value as number | number[] | undefined}
       defaultValue={defaultValue as number | number[] | undefined}
-      onValueChange={(next) => onValueChange?.(next)}
+      onValueChange={(next) => {
+        // Only when nobody else is holding it. A slider reports every pointer
+        // move, and a controlled one would be paying for a second state update
+        // per frame that nothing reads.
+        if (value === undefined) {
+          setOwnValue(next);
+        }
+
+        onValueChange?.(next);
+      }}
       onValueCommitted={(next) => onValueCommitted?.(next)}
       min={min}
       max={max}
@@ -249,6 +374,43 @@ export const MPSlider = React.forwardRef<HTMLDivElement, MPSliderProps>(function
             ].join(' ')}
           />
 
+          {/* On the track and under the handle, which is where MD3 draws them.
+              `aria-hidden` throughout: the ticks are a picture of `step`, and a
+              screen reader is already told the step by the range attributes on
+              the thumb. Announcing fifty dots would be reading the ruler out. */}
+          {ticks.map((mark) => {
+            const over = filled !== null && mark.value >= filled.from && mark.value <= filled.to;
+
+            return (
+              <span
+                key={`tick:${mark.value}`}
+                aria-hidden="true"
+                className={[
+                  'mp-slider__tick pointer-events-none absolute rounded-full',
+                  TICK[size],
+                  disabled
+                    ? 'bg-mp-on-surface/38'
+                    : over
+                      ? 'bg-(--_mp-on-accent)'
+                      : 'bg-mp-on-surface-variant'
+                ].join(' ')}
+                style={
+                  vertical
+                    ? {
+                        bottom: offsetOf(mark.value),
+                        insetInlineStart: '50%',
+                        transform: 'translate(-50%, 50%)'
+                      }
+                    : {
+                        insetInlineStart: offsetOf(mark.value),
+                        top: '50%',
+                        transform: 'translate(-50%, -50%)'
+                      }
+                }
+              />
+            );
+          })}
+
           {Array.from({ length: thumbCount }, (_, index) => (
             <Slider.Thumb
               key={index}
@@ -295,6 +457,39 @@ export const MPSlider = React.forwardRef<HTMLDivElement, MPSliderProps>(function
           ))}
         </Slider.Track>
       </Slider.Control>
+
+      {/* The labels, out of the track's flow entirely: they are longer than the
+          ticks they belong to and a track that had to be as tall as its own
+          captions would stop being 4dp. `relative` on the strip is what the
+          percentages below are measured against. */}
+      {ticks.some((mark) => hasContent(mark.label)) ? (
+        <div
+          aria-hidden="true"
+          className={[
+            'mp-slider__marks relative',
+            META_TEXT,
+            vertical ? 'h-full' : 'w-full',
+            disabled ? 'text-mp-on-surface/38' : 'text-mp-on-surface-variant'
+          ].join(' ')}
+          style={vertical ? undefined : { height: '1lh' }}
+        >
+          {ticks.map((mark) =>
+            hasContent(mark.label) ? (
+              <span
+                key={`label:${mark.value}`}
+                className="absolute whitespace-nowrap"
+                style={
+                  vertical
+                    ? { bottom: offsetOf(mark.value), transform: 'translateY(50%)' }
+                    : { insetInlineStart: offsetOf(mark.value), transform: 'translateX(-50%)' }
+                }
+              >
+                {mark.label}
+              </span>
+            ) : null
+          )}
+        </div>
+      ) : null}
 
       {hasContent(description) ? (
         <div
