@@ -110,4 +110,39 @@ describe('MPProgressCircular', () => {
       expect(document.querySelector('.mp-progress-circular svg')).toHaveAttribute('width', '48');
     });
   });
+
+  describe('hideLabel', () => {
+    it('keeps the name for a screen reader and takes it off the screen', async () => {
+      // The third option, and the one the old `aria-label` was: a `progressbar`
+      // announced as "63%" and nothing else is a number with no subject.
+      const screen = await render(<MPProgressCircular value={63} label="Uploading" hideLabel />);
+      const bar = screen.getByRole('progressbar').element();
+      const name = screen.getByText('Uploading').element() as HTMLElement;
+
+      expect(bar).toHaveAccessibleName('Uploading');
+      expect(getComputedStyle(name).clipPath).toBe('inset(50%)');
+    });
+
+    it('costs the row no room and no gap', async () => {
+      const drawn = await render(<MPProgressCircular value={63} label="Uploading" />);
+      const hidden = await render(<MPProgressCircular value={63} label="Uploading" hideLabel />);
+      const bare = await render(<MPProgressCircular value={63} />);
+
+      // The ring and its label are a row rather than a stack, so what a drawn
+      // name costs here is width. Scoped to each render's own container: the
+      // three above are all on the page at once.
+      const width = (screen: { container: Element }) =>
+        screen.container.querySelector('[role="progressbar"]')!.getBoundingClientRect().width;
+
+      expect(width(hidden)).toBeCloseTo(width(bare), 0);
+      expect(width(drawn)).toBeGreaterThan(width(hidden));
+    });
+
+    it('draws the name when it is not asked to hide it', async () => {
+      const screen = await render(<MPProgressCircular value={63} label="Uploading" />);
+      const name = screen.getByText('Uploading').element() as HTMLElement;
+
+      expect(getComputedStyle(name).clipPath).toBe('none');
+    });
+  });
 });

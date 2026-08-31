@@ -119,4 +119,38 @@ describe('MPProgressLinear', () => {
       }
     });
   });
+
+  describe('hideLabel', () => {
+    it('keeps the name for a screen reader and takes it off the screen', async () => {
+      // The third option, and the one the old `aria-label` was: a `progressbar`
+      // announced as "63%" and nothing else is a number with no subject.
+      const screen = await render(<MPProgressLinear value={63} label="Uploading" hideLabel />);
+      const bar = screen.getByRole('progressbar').element();
+      const name = screen.getByText('Uploading').element() as HTMLElement;
+
+      expect(bar).toHaveAccessibleName('Uploading');
+      expect(getComputedStyle(name).clipPath).toBe('inset(50%)');
+    });
+
+    it('costs the stack no line and no gap', async () => {
+      const drawn = await render(<MPProgressLinear value={63} label="Uploading" />);
+      const hidden = await render(<MPProgressLinear value={63} label="Uploading" hideLabel />);
+      const bare = await render(<MPProgressLinear value={63} />);
+
+      // Scoped to each render's own container: the three above are all on the
+      // page at once, and a page-wide role query matches all of them.
+      const height = (screen: { container: Element }) =>
+        screen.container.querySelector('[role="progressbar"]')!.getBoundingClientRect().height;
+
+      expect(height(hidden)).toBeCloseTo(height(bare), 0);
+      expect(height(drawn)).toBeGreaterThan(height(hidden));
+    });
+
+    it('draws the name when it is not asked to hide it', async () => {
+      const screen = await render(<MPProgressLinear value={63} label="Uploading" />);
+      const name = screen.getByText('Uploading').element() as HTMLElement;
+
+      expect(getComputedStyle(name).clipPath).toBe('none');
+    });
+  });
 });
