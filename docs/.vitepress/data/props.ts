@@ -1124,16 +1124,16 @@ const componentTables: Record<string, PropRow[]> = {
       name: 'value',
       type: 'string | number | null',
       description: {
-        ko: '고른 값. `onValueChange`와 함께 쓰면 controlled입니다',
-        en: 'The chosen value. Use with `onValueChange` for a controlled select'
+        ko: '고른 값. `onValueChange`와 함께 쓰면 controlled입니다. **고르지 않음은 `null`**입니다 — `items`에 없는 값은 라벨이 없으므로 값 자체가 그려집니다',
+        en: 'The chosen value. Use with `onValueChange` for a controlled select. **Nothing chosen is `null`** — a value with no entry in `items` has no label to show, so the trigger draws the value itself'
       }
     },
     {
       name: 'defaultValue',
       type: 'string | number | null',
       description: {
-        ko: '처음 고른 값. uncontrolled일 때 씁니다',
-        en: 'The value chosen at the start, for an uncontrolled select'
+        ko: '처음 고른 값. uncontrolled일 때 씁니다. 고르지 않음은 `null`입니다',
+        en: 'The value chosen at the start, for an uncontrolled select. `null` is none'
       }
     },
     {
@@ -3941,16 +3941,16 @@ const componentTables: Record<string, PropRow[]> = {
       name: 'value',
       type: 'MPComboboxValue | MPComboboxValue[] | null',
       description: {
-        ko: '고른 값. `onValueChange`와 함께 controlled로',
-        en: 'The chosen value. Use with `onValueChange` for a controlled combobox'
+        ko: '고른 값. `onValueChange`와 함께 controlled로. **고르지 않음은 `null`**입니다 — `items`에 없는 값은 `allowCustom` 때문에 그대로 그려집니다',
+        en: 'The chosen value. Use with `onValueChange` for a controlled combobox. **Nothing chosen is `null`** — a value with no entry in `items` is drawn as itself, which is what `allowCustom` means'
       }
     },
     {
       name: 'defaultValue',
       type: 'MPComboboxValue | MPComboboxValue[] | null',
       description: {
-        ko: '처음에 고른 값. uncontrolled로 쓸 때',
-        en: 'The initially chosen value, for an uncontrolled combobox'
+        ko: '처음에 고른 값. uncontrolled로 쓸 때. 고르지 않음은 `null`입니다',
+        en: 'The initially chosen value, for an uncontrolled combobox. `null` is none'
       }
     },
     {

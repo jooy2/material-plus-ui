@@ -54,7 +54,8 @@ export interface MPSelectProps extends MPStyleProps, MPControlEventProps<HTMLBut
    * The options, as data. There is no `<MPSelect.Option>` to compose: what a
    * caller has is almost always an array already, and the list has to be
    * available to the trigger before the popup has ever been opened — otherwise
-   * a closed select can only show its raw value.   *
+   * a closed select can only show its raw value.
+   *
    * ## How long a list this holds
    *
    * Every row is rendered, and there is no windowing. That is the right default
@@ -68,9 +69,19 @@ export interface MPSelectProps extends MPStyleProps, MPControlEventProps<HTMLBut
    * slice.
    */
   items: readonly MPSelectOption[];
-  /** The chosen value. Use with `onValueChange` for a controlled select. */
+  /**
+   * The chosen value. Use with `onValueChange` for a controlled select.
+   *
+   * **Nothing chosen is `null`**, and it is worth saying out loud because the
+   * near miss is quiet. A value with no matching entry in `items` has no label
+   * to show, so the trigger draws the value itself: a form holding `0` for "not
+   * picked yet" sits there reading `0`. That is the right answer for a value
+   * that is real and whose row has not arrived yet — the alternative is a field
+   * that says nothing about a value it is holding and will submit — but it is
+   * not the answer anybody wants for a sentinel.
+   */
   value?: MPSelectValue | null;
-  /** The value chosen at the start, for an uncontrolled select. */
+  /** The value chosen at the start, for an uncontrolled select. `null` is none. */
   defaultValue?: MPSelectValue | null;
   /** Called with the newly chosen value — a value, not an event. */
   onValueChange?: (value: MPSelectValue | null) => void;

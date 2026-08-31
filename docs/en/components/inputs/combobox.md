@@ -41,6 +41,8 @@ The typed text is offered as its **own row** at the end of the list rather than 
 
 Turn it off for a field whose values are a closed set.
 
+The same rule decides what a `value` the list does not have looks like: it is drawn as itself, because here that is a value somebody typed rather than a lookup that failed. **So nothing chosen is `null`** — not `0` and not `''`. A sentinel is indistinguishable from a custom value, and the field will show it.
+
 ## Examples
 
 ### multiple

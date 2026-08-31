@@ -89,9 +89,18 @@ export interface MPComboboxProps<Multiple extends boolean | undefined = false>
    * @default false
    */
   multiple?: Multiple;
-  /** The chosen value. Use with `onValueChange` for a controlled combobox. */
+  /**
+   * The chosen value. Use with `onValueChange` for a controlled combobox.
+   *
+   * **Nothing chosen is `null`.** A value with no matching entry in `items` is
+   * drawn as itself, which here is not a fallback but the point — `allowCustom`
+   * is on by default and a value the list never held is a value a reader typed.
+   * The cost is that a sentinel is indistinguishable from one: pass `null` for
+   * "not picked yet" rather than a `0` or an empty string, or the field will
+   * show it.
+   */
   value?: Selection<Multiple> | null;
-  /** The initially chosen value, for an uncontrolled combobox. */
+  /** The initially chosen value, for an uncontrolled combobox. `null` is none. */
   defaultValue?: Selection<Multiple> | null;
   onValueChange?: (value: Selection<Multiple>) => void;
   /** Called as the text in the input changes — the filter query, not the value. */

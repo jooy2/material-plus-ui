@@ -14,6 +14,10 @@ A second report from the application that filed the first one, a day after upgra
 
   The names are not changing: the `__` convention runs through all sixty-seven hooks, and renaming the six that were noticed would leave a library with two conventions and the same trap in the other sixty-one. `getting-started` documents both ways round it instead — `\_\_` in an arbitrary variant, or the plain name in a stylesheet, where a rule that holds for every accordion on a site arguably belonged.
 
+- **"Nothing chosen" is `null`, on `MPSelect` and `MPCombobox`.** A `value` with no matching entry in `items` is drawn as itself, so a form holding `0` for "not picked yet" sits there reading `0` in the field a reader is being asked to fill in. That was in the types and nowhere else, and MUI's `Select` draws a blank in the same situation — which is exactly the sort of difference that survives a migration unnoticed.
+
+  The behaviour is right and is unchanged: a field that stayed blank over a value it is holding, and will submit, is worse — and on `MPCombobox` a value the list does not have is what `allowCustom` is for. It is the sentinel that was undocumented.
+
 ### Fixed
 
 - **Eleven modules shipped without `"use client"`, and one of them took a whole site down.** A server component rendering `MPContainer` died with `Attempted to call useMPSize() from the server` — and a page layout that uses `MPContainer` makes that every page of an App Router application. `MPAspectRatio` and `MPAnimateLighting` were the same, and `MPBox`, `MPTypography` and the six `MPAnimate*` components were unmarked beside them, reaching `React.useRef` through Base UI's `useRender` instead.

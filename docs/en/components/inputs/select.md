@@ -43,6 +43,10 @@ A `string` or a `number`, deliberately — not an arbitrary object.
 
 A select is a form control, its value is what a form submits, and every escape from that (object values, a custom equality, a stringifier for the trigger) buys flexibility by making the common case harder to write. Keep the identifier here and look the object up on the other side.
 
+**Nothing chosen is `null`.** Not `0`, not `''`, not `-1`. A value with no matching entry in `items` has no label to show, so the trigger draws the value itself — a form holding `0` for "not picked yet" sits there reading `0`, in the field a reader is being asked to fill in.
+
+That is the right answer for a value that is real and whose row has not arrived yet: a field that stayed blank over a value it is holding, and will submit, is worse. It is simply not the answer for a sentinel, and MUI's `Select` draws a blank in the same situation, so the difference is easy to walk into on the way across.
+
 ## Examples
 
 ### errorMessage
