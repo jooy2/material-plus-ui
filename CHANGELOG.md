@@ -153,6 +153,14 @@ Nothing was renamed and nothing was removed. Every existing prop still means wha
 
 - **The month grid and the year grid were announced as "grid" and nothing else.** They are named by the year and by the page of years they show, the way the day grid has always been named by its month.
 
+- **A picker's chosen day was never painted.** The filled circle MD3 puts under the selected date, the tonal band across a chosen range, and today's outlined ring are all drawn from `--_mp-accent` — and none of the three arrived. Two independent causes, either of which was enough on its own:
+
+  The popup is a **portal** into `document.body`, and `MPPickerShell` declared the four accent slots on its root only. Nothing the shell sets reaches a portal, so inside the popup `--_mp-accent` resolved to nothing at all. `MPMenu` had always put them on its own popup; the pickers had not.
+
+  And the cell's base carried `bg-transparent` to clear the native button background, in the same class list as the state's `bg-(--_mp-accent)`. Two utilities of equal specificity resolve by their order in the **generated stylesheet**, not by the order they are written in the attribute, and Tailwind emits `.bg-transparent` after `.bg-(--_mp-accent)` — so even where the property did resolve, the reset won. This is the exact hazard the cell's own comment describes and the reason its states are an `if`/`else` chain; the base was a third utility in a race the chain was built to avoid. Every branch now names its own background, including the four that paint none.
+
+  `MPDatePicker`, `MPDateRangePicker`, `MPDateTimePicker` and `MPTimePicker` are all affected, and the clock columns had the second bug too. Three tests now assert the computed background rather than the class list, which is the difference between checking that a rule was written and checking that it applies.
+
 - **A nested `MPGridItem` resolved the outer item's span.** The slots an item lays itself out from are inherited custom properties, which is deliberate — a media query can change one without React hearing about it — but a grid inside an item sits inside that item's `--_mp-span-large`, so an inner item that only declared `compact` resolved the outer one at every class above it. A `span={12}` came out a sixth of the row it was actually in, and the archive card whose title wrapped one letter at a time was 26px inside a 157px box.
 
   A grid is where a span stops meaning anything, so a grid is where the slots go back to nothing: `.mp-grid` resets the five span slots and the five offset slots to `initial`. Fifteen declarations once per grid, and the arithmetic under them is unchanged. The documentation site's own nesting example was affected by this.

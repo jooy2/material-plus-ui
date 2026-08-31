@@ -105,13 +105,21 @@ const HEADER_SIZE: Record<MPSize, MPSize> = {
  * a ring drawn outside a cell is a ring drawn on the two cells either side of
  * it, and in a month view that is a ring that appears to belong to the wrong
  * day.
+ *
+ * **No `bg-transparent` here.** The native button background still has to be
+ * cleared, but it is cleared by the *state* below rather than by the base — the
+ * whole reason the state is an `if`/`else` chain is that two utilities setting
+ * one property resolve by their order in the generated stylesheet, and a base
+ * that also set `background-color` would be a third one in that race. It lost
+ * it: Tailwind emits `.bg-transparent` after `.bg-(--_mp-accent)`, so the chosen
+ * day was drawn with no fill at all.
  */
 const CELL_BASE = [
   'group relative flex cursor-pointer items-center justify-center overflow-hidden',
   // `box-border` explicitly, for the reason `MPButton` gives: this library ships
   // no page reset, so today's 1px outline would otherwise be added *outside* the
   // cell's 40px and today would come out two pixels wider than every other day.
-  'box-border appearance-none bg-transparent font-[inherit] tabular-nums select-none',
+  'box-border appearance-none font-[inherit] tabular-nums select-none',
   'transition-[background-color,border-color,color]',
   'duration-(--mp-sys-motion-duration-short4)',
   'outline-mp-secondary focus-visible:z-10 focus-visible:outline-2',
@@ -193,17 +201,21 @@ function Cell({
   onPointerEnter,
   onKeyDown
 }: CellProps) {
+  // Every branch names a background, including the four that do not paint one.
+  // That is what keeps this an `if`/`else` rather than a cascade: exactly one
+  // `background-color` utility reaches the element, so which branch was taken
+  // decides the fill instead of the stylesheet's own ordering.
   const state = disabled
-    ? 'cursor-default text-mp-on-surface/38'
+    ? 'bg-transparent cursor-default text-mp-on-surface/38'
     : selected
       ? 'bg-(--_mp-accent) text-(--_mp-on-accent)'
       : inRange
         ? 'bg-(--_mp-accent-container) text-(--_mp-on-accent-container)'
         : current
-          ? 'border border-(--_mp-accent) text-(--_mp-accent)'
+          ? 'bg-transparent border border-(--_mp-accent) text-(--_mp-accent)'
           : muted
-            ? 'text-mp-on-surface-variant'
-            : 'text-mp-on-surface';
+            ? 'bg-transparent text-mp-on-surface-variant'
+            : 'bg-transparent text-mp-on-surface';
 
   // Square through the middle of a run and rounded where the run stops, so a
   // week of banded days reads as one shape rather than as seven tokens.
@@ -1416,10 +1428,10 @@ export function MPTimeGrid({
                 'rounded-mp-full h-(--_mp-cell) w-full shrink-0',
                 PROSE_TEXT[size],
                 disabled
-                  ? 'cursor-default text-mp-on-surface/38'
+                  ? 'bg-transparent cursor-default text-mp-on-surface/38'
                   : chosen
                     ? 'bg-(--_mp-accent) text-(--_mp-on-accent)'
-                    : 'text-mp-on-surface'
+                    : 'bg-transparent text-mp-on-surface'
               ].join(' ')}
               // A row reached with the pointer is where the reader is, so Tab
               // should come back to it as much as to one they arrowed to.

@@ -387,6 +387,13 @@ export function MPPickerShell({
               // take it into the grid itself. Its own move would land on the
               // popup element and run *after* the grid's, undoing it.
               initialFocus={false}
+              // The accent slots again, and not a duplicate of the ones on the
+              // root: this popup is a portal into `document.body`, so it does
+              // not inherit anything the shell declares. Without them the
+              // calendar's `--_mp-accent` resolved to nothing and the chosen day
+              // came out unpainted. `MPMenu` does the same thing for the same
+              // reason.
+              style={accentSlots(color)}
               className={[
                 `mp-${slug}__popup rounded-mp-md shadow-mp-2 bg-mp-surface-container`,
                 'text-mp-on-surface outline-none',

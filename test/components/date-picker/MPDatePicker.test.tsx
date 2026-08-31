@@ -225,6 +225,54 @@ describe('MPDatePicker', () => {
     });
   });
 
+  describe('the chosen day is painted', () => {
+    it('fills it with the accent, through the portal', async () => {
+      // Two bugs met here and each on its own left the cell unpainted.
+      //
+      // The popup is a portal into `document.body`, so it inherited none of the
+      // `--_mp-accent` the shell declares on its root — and the cell's base
+      // carried a `bg-transparent` that Tailwind emits *after*
+      // `.bg-(--_mp-accent)`, so even where the property resolved the fill lost
+      // the cascade. A picker's chosen day had no background at all.
+      const screen = await render(<Controlled initial={new Date(2026, 6, 15)} />);
+
+      await screen.getByRole('button', { name: 'Due date' }).click();
+
+      const chosen = screen.getByRole('gridcell', { name: 'Wednesday, July 15, 2026' }).element();
+      const painted = getComputedStyle(chosen).backgroundColor;
+
+      expect(painted).not.toBe('rgba(0, 0, 0, 0)');
+      expect(painted).not.toBe('transparent');
+    });
+
+    it('reads the family the picker was given', async () => {
+      const screen = await render(<Controlled color="error" initial={new Date(2026, 6, 15)} />);
+
+      await screen.getByRole('button', { name: 'Due date' }).click();
+
+      const chosen = screen.getByRole('gridcell', { name: 'Wednesday, July 15, 2026' }).element();
+      const reference = await render(
+        <div className="reference" style={{ backgroundColor: 'var(--_mp-color-error)' }} />
+      );
+
+      expect(getComputedStyle(chosen).backgroundColor).toBe(
+        getComputedStyle(reference.container.querySelector('.reference')!).backgroundColor
+      );
+    });
+
+    it('leaves an unchosen day unpainted', async () => {
+      // The other half of the same claim: one background utility reaches the
+      // cell, so the branch that was taken is what decides the fill.
+      const screen = await render(<Controlled initial={new Date(2026, 6, 15)} />);
+
+      await screen.getByRole('button', { name: 'Due date' }).click();
+
+      const plain = screen.getByRole('gridcell', { name: 'Thursday, July 16, 2026' }).element();
+
+      expect(getComputedStyle(plain).backgroundColor).toBe('rgba(0, 0, 0, 0)');
+    });
+  });
+
   describe('reaching another month', () => {
     it('steps a month at a time', async () => {
       const screen = await render(<Controlled />);
