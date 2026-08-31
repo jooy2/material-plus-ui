@@ -1213,6 +1213,34 @@
   --_mp-cols: var(--_mp-cols-compact, 12);
   --_mp-gap-x: var(--_mp-gap-x-compact, 0px);
   --_mp-gap-y: var(--_mp-gap-y-compact, 0px);
+
+  /* The boundary, and the reason it has to exist.
+   *
+   * An item's slots are inline custom properties, and a custom property
+   * *inherits*. So a grid nested inside an item — which is how nesting is spelled
+   * — sits inside that item's `--_mp-span-large`, and an inner item that only
+   * declared `--_mp-span-compact` resolves the outer one at every class above
+   * compact: `span={12}` comes out a sixth of the row it is actually in, and the
+   * card whose title it holds wraps a letter at a time.
+   *
+   * A grid is where a span stops meaning anything, so a grid is where the slots
+   * are put back to nothing. `initial` on a custom property is the guaranteed-
+   * invalid value, which is what makes the `var()` fallbacks below take over
+   * rather than a number from two levels up. Ten declarations once per grid, and
+   * the arithmetic under them is the same as it was.
+   *
+   * Written on `.mp-grid` rather than on `.mp-grid-item` because an item that
+   * reset its own slots would be resetting the ones it had just been given. */
+  --_mp-span-compact: initial;
+  --_mp-span-medium: initial;
+  --_mp-span-expanded: initial;
+  --_mp-span-large: initial;
+  --_mp-span-extra-large: initial;
+  --_mp-offset-compact: initial;
+  --_mp-offset-medium: initial;
+  --_mp-offset-expanded: initial;
+  --_mp-offset-large: initial;
+  --_mp-offset-extra-large: initial;
 }
 
 .mp-grid-item {
