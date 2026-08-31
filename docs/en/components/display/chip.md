@@ -49,7 +49,9 @@ Selected fills with the family's **container** tone and takes its `on-` ink — 
 
 ### onClick and onDelete
 
-The shell is **always** a `<span>`. What changes is what is inside it: a plain run of content, or — when `onClick` is given — a real `<button>` wrapping that content, plus a second button for `onDelete`.
+A chip that does nothing is a `<span>`. A chip with an `onClick` is a real `<button>` — the shell itself, so there is one element and one tab stop.
+
+The exception is `onDelete`, which is a second control and cannot be nested inside the first. A chip with both goes back to a `<span>` shell holding two sibling buttons:
 
 ```tsx
 <MPChip onClick={toggle} onDelete={remove}>
@@ -57,9 +59,19 @@ The shell is **always** a `<span>`. What changes is what is inside it: a plain r
 </MPChip>
 ```
 
-Both are reachable by keyboard, and neither is nested inside the other. That shape is not tidiness — an inert `<span>` carrying a click handler is the single most common way a component library loses its keyboard users, and a `<button>` inside a `<button>` is the most common way one invents a chip that Chrome silently rewrites on parse.
+Both are reachable by keyboard, and neither is inside the other. That shape is not tidiness — an inert `<span>` carrying a click handler is the single most common way a component library loses its keyboard users, and a `<button>` inside a `<button>` is the most common way one invents a chip that Chrome silently rewrites on parse.
 
-A pressable chip reports `aria-pressed` from `selected`, and its label button owns the padding so its hit area is the whole chip rather than just the words.
+A pressable chip reports `aria-pressed` from `selected`, and whichever element is the button owns the padding, so its hit area is the whole chip rather than just the words.
+
+### Why the shell is the button
+
+Because of what wraps a chip. Base UI's `render` — which is how a chip becomes an [MPMenu](../inputs/menu)'s trigger, a popover's, a tooltip's — merges its handlers and its ARIA onto the element the component returns. With a `<span>` there, `aria-haspopup`, `aria-expanded`, `id` and `tabindex` landed on something that was not focusable, the label button underneath was a second tab stop carrying none of it, and Base UI logged that it expected a native `<button>`. One element is the fix, and it is also simply less markup for the common case.
+
+```tsx
+<MPMenu trigger={<MPChip>Filter</MPChip>}>
+  <MPMenuItem>Newest</MPMenuItem>
+</MPMenu>
+```
 
 `selected` has **no default**, and that is what decides whether the chip is announced as a toggle at all. Passing it either way round — `selected` or `selected={false}` — makes the chip a toggle; leaving it off makes the chip an action, and an action is not announced as "not pressed".
 

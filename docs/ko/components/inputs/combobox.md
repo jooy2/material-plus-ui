@@ -77,6 +77,57 @@ import { MPCombobox } from 'material-plus-ui';
 
 한 번에 보여줄 최대 행 수입니다. 기본값 `-1`은 전부입니다.
 
+### filter
+
+질의를 통과할 행을, 이 컴포넌트가 스스로 하는 매칭 대신 정합니다.
+
+**`null`이면 필터링을 아예 끕니다.** 행이 이미 걸러진 채로 도착하는 경우에 쓸 값입니다.
+
+```tsx
+<MPCombobox items={results} filter={null} onInputValueChange={search} />
+```
+
+키 입력마다 받아 오는 목록은 이쪽이 모르는 것들 — 동의어, 음차, 태그를 비교하기 전에 문장부호를 떼어내는 규칙 — 을 아는 서버가 이미 맞춰 준 것입니다. 여기서 한 번 더 거르면 그 서버가 일치라고 판단한 행을 지우는 일밖에 할 수 없습니다. 이유를 알 수 있는 행이 다음 글자를 치는 순간 사라지는 모습이 그것입니다.
+
+함수는 그 중간입니다. 라벨뿐 아니라 설명까지 비교하거나, collator가 하지 않는 접기를 하고 싶을 때 씁니다.
+
+```tsx
+<MPCombobox items={items} filter={(option, query) => option.label?.startsWith(query) ?? false} />
+```
+
+입력한 값을 제안하는 행은 어느 쪽이든 예외입니다. 그 행의 라벨이 곧 질의이므로, 그것을 감추는 필터는 자기가 받은 질문의 답을 감추는 셈입니다.
+
+### content
+
+자기 라벨보다 많은 것을 그리는 행입니다 — 썸네일, 글리프, 두 번째 줄.
+
+```tsx
+<MPCombobox
+  items={flashes.map((flash) => ({
+    value: flash.id,
+    label: flash.title,
+    content: (
+      <span className="flex items-center gap-2">
+        <img src={flash.thumbnail} alt="" width={24} height={24} />
+        {flash.title}
+      </span>
+    )
+  }))}
+/>
+```
+
+**팝업에서만** 라벨을 대신합니다. 행이 선택되면 입력칸은 여전히 `label`을 받고, 칩도 `label`을 보여주고, 필터도 `label`을 비교합니다. `label`을 `ReactNode`로 넓히는 대신 둘을 따로 둔 이유가 이것입니다. 텍스트 입력의 값은 문자열이고, 자기 문자열이 무엇인지 말할 수 없는 행은 거기에 넣을 것이 없습니다.
+
+### chipVariant와 chipColor
+
+`multiple`일 때 필드 안의 칩이 칠해지는 방식입니다. 기본값은 `primary`의 `tonal`이고, 오류 상태에서는 `error`의 `outlined`입니다.
+
+전체를 `outlined`로 두는 선택은 알아 둘 만합니다. 칠해진 칩 여섯 개가 든 필드는 값이 아니라 버튼 줄로 읽히고, 머터리얼 UI의 autocomplete가 칩을 외곽선으로 그리는 이유가 그것입니다.
+
+```tsx
+<MPCombobox multiple chipVariant="outlined" items={tags} />
+```
+
 ## 접근성
 
 - 필터링과 collator, 팝업의 위치와 뒤집힘, `combobox`/`listbox` 연결, 목록과 칩을 가로지르는 화살표 키 이동, 폼과 함께 제출되게 하는 숨은 입력은 Base UI가 가집니다.

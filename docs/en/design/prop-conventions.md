@@ -165,7 +165,11 @@ The controls that draw a box, a label, an input and a supporting line cannot do 
 
 A `<div onKeyDown>` wrapped around the control gets the keystroke by bubbling, and that is what a caller had to write before. What it cannot do is go first.
 
-The components that take these are `MPTextField`, `MPNumberField`, `MPSelect`, `MPCombobox` and the four pickers — `MPDatePicker`, `MPDateRangePicker`, `MPDateTimePicker`, `MPTimePicker`, which share one trigger. The rest either take every DOM prop already or have no single element these would belong to: an `MPOtpField` is six inputs, and a `blur` that fired between two of its boxes would be reporting something that did not happen.
+The components that take these are `MPTextField`, `MPNumberField`, `MPSelect`, `MPCombobox`, the four pickers — `MPDatePicker`, `MPDateRangePicker`, `MPDateTimePicker`, `MPTimePicker`, which share one trigger — and `MPDialog`.
+
+`MPDialog` is the one that is not a control, and it follows the same rule for the same reason: its props are a closed set rather than a spread, so there was no element a caller could reach at all. The handlers land on the **sheet**, which is where a keystroke inside the dialog arrives by bubbling — the trigger that opened it and the page behind it are both somewhere else. Base UI's own handling of the keys it owns, Escape included, runs alongside rather than being replaced.
+
+The rest either take every DOM prop already or have no single element these would belong to: an `MPOtpField` is six inputs, and a `blur` that fired between two of its boxes would be reporting something that did not happen.
 
 ## Checklist for a new component
 

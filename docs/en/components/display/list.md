@@ -68,6 +68,18 @@ This is the same shape [MPChip](./chip) uses, for the same two reasons: a `<span
 
 `action` sits **outside** the pressable area for exactly that reason — a row that both navigates and holds a toggle has two things to press.
 
+`render` replaces that inner element, which is where a router's `Link` goes:
+
+```tsx
+<MPListItem href="/inbox" render={<Link />}>
+  Inbox
+</MPListItem>
+```
+
+**This is the one `render` in the library that is not the outermost element.** A row's shell is an `<li>` because it is inside a `<ul>`, and swapping that for anything else makes the list stop being a list; what a caller actually wants to replace is the `<a>` inside it, which is the thing a client-side router has to own for a navigation and a prefetch to happen at all. `href`, `target` and the row's classes all go through, so the URL is written once, on the `MPListItem`.
+
+`target` brings its own `rel` — `noopener noreferrer` for `_blank` — and a `rel` of your own **replaces** that rather than extending it, so a row that also needs `nofollow` spells all three out.
+
 ## `selected` says two different things
 
 `aria-current="page"` on a link and `"true"` on a button. The first is "this is the page you are on", the second is "this is the chosen one of these". `aria-pressed` would be a third thing — a toggle — and a selected row is not a toggle.

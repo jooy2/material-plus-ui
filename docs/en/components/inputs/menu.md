@@ -57,6 +57,22 @@ Wrapped in `MPMenuRadioGroup`, which takes `value`, `defaultValue`, `onValueChan
 
 Rows are full-bleed rather than inset tiles: MD3 gives a menu item no corner of its own, so the state layer runs to both edges and the popup's own 4px corner is the only curve in the object.
 
+## The trigger
+
+Anything, and Base UI wires it: `trigger={<MPButton>Actions</MPButton>}`, an [MPIconButton](./icon-button), an [MPChip](../display/chip) with an `onClick`. All three are real `<button>`s, which is what `nativeButton` defaults to `true` for.
+
+Set it `false` for a trigger that is deliberately something else — an avatar, a card, a row of text:
+
+```tsx
+<MPMenu nativeButton={false} trigger={<MPAvatar src={user.photo} />}>
+  <MPMenuItem>Profile</MPMenuItem>
+</MPMenu>
+```
+
+Base UI then supplies the `role`, the tab stop and the Enter/Space handling a `<button>` would have brought with it, so the trigger is still a button to a screen reader and to a keyboard.
+
+It is a prop rather than something inferred because what a trigger renders is only known once it has rendered, and by then the wiring has been decided. Base UI says so in the console when the two disagree — in either direction, so a `false` here on something that _is_ a `<button>` is as wrong as the reverse.
+
 ## Examples
 
 ### Every shape a row takes

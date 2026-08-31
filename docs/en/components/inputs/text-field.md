@@ -43,7 +43,9 @@ This is also why `value` and `onChange` are a plain string rather than an event.
 
 ### type
 
-`text`, `email` and `password`. Only `password` changes behaviour rather than appearance: it grows a reveal toggle in the trailing adornment.
+`text`, `email`, `search` and `password`. Only `password` changes behaviour rather than appearance: it grows a reveal toggle in the trailing adornment.
+
+`search` is here for the keyboard it summons and the autofill it declines — iOS labels the return key "search" for it, and a browser keeps its own history of what was typed into one. It draws exactly as `text` does, and the browser's own × inside it is suppressed: that mark sits outside the adornment row, is not in the tab order, and empties a controlled value without telling React.
 
 <Demo src="text-field/password" :minHeight="72">
 
@@ -136,7 +138,9 @@ Called when Enter is pressed.
 <MPTextField value={query} onChange={setQuery} onSubmit={() => search(query)} />
 ```
 
-On a single-line field Enter is then swallowed, so a surrounding `<form>` is submitted once rather than also natively. On a multiline field it is left alone — there Enter inserts a newline, which is what a textarea is for. `disableEnterKey` swallows it there too, for a multiline field that should submit rather than wrap.
+**Passing it is what makes the field take the key.** With an `onSubmit` on a single-line field Enter is then swallowed, so a surrounding `<form>` is submitted once rather than also natively; with no `onSubmit` the keystroke is left to the browser, which inside a `<form>` is the native submit an `<input>` has always done. A page that already writes `<form onSubmit>` needs nothing here.
+
+On a multiline field Enter is left alone either way — there it inserts a newline, which is what a textarea is for. `disableEnterKey` takes the key away from whatever would otherwise have it: the newline with `rows`, the form's submit without.
 
 The Enter that **commits a composition** never reaches it. Typing 한글 or 日本語 ends every syllable with an Enter the input method is consuming, and a field that read those as submissions would send the form on the first word of every sentence — the same failure this component exists to prevent, arriving through the key handler instead of through `value`. That keystroke is left alone rather than swallowed, because the browser is using it to commit; the next Enter, once there is nothing being composed, submits as usual.
 

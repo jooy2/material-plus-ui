@@ -86,6 +86,10 @@ That is also why there is no `color`: nothing would read it. The sheet is neutra
 
 Each panel's height is animated from Base UI's own measurement, published as `--accordion-panel-height`. Nothing is transformed and no text is resampled — the panel is a window opening onto content that stays still. The duration and the curve are the specification's `short4` and `standard`, and the transition is dropped under `prefers-reduced-motion`.
 
+**The clip belongs to the animation, not to the panel.** `overflow: hidden` is what makes a body mid-open a window rather than a squashed copy of itself, and it is taken off the moment the height has arrived. A settled panel that went on clipping would cut the top off the first thing in it that draws outside its own box — a text field's floating label sits _on_ the field's top edge, which is the panel's top edge, so a form in an accordion arrived with its first label sliced in half and nothing in the console said so. A select's popup, a tooltip and a focus ring are the same bug with different pixels.
+
+Closing puts the clip back before the height moves rather than after, so a panel on its way down never draws outside a shrinking box. A section that starts open, and any section under `prefers-reduced-motion`, is unclipped from the first paint: there is no transition to wait for, and waiting for one would clip it for good.
+
 ## Examples
 
 ### action

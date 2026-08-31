@@ -72,6 +72,28 @@ Four columns and a 16dp gutter in a compact window, twelve columns and 24dp from
 
 It is **not** the default. Twelve columns and a 16dp gutter are, because a default that changed the divisor at 600dp would silently change what `span={6}` means on a phone — and a grid whose arithmetic depends on a width you never wrote down is one you cannot read off the page.
 
+## `span="grow"`
+
+The one width that is not a number of columns: **whatever the row has left** after everybody else has taken theirs.
+
+<Demo src="grid/grow" :minHeight="300">
+
+<<< @/.vitepress/demos/grid/grow.tsx
+
+</Demo>
+
+A thumbnail beside a body of text is the layout it exists for, and the reason a span cannot express it is that the remainder is only known once the other items in _that_ row have been laid out. `span={3}` and `span={9}` is the same picture right up until the thumbnail's column count changes and the two stop adding up.
+
+Two growing items in a row split the remainder equally rather than in proportion to what is inside them, which is the useful half of what makes it predictable.
+
+It is responsive like any other value:
+
+```tsx
+<MPGridItem span={{ compact: 12, medium: 'grow' }} />
+```
+
+Full width on a phone, the rest of the row from 600dp.
+
 ## offset
 
 Columns left empty _before_ the item — space pushed in ahead of it, not an absolute position in the row.
@@ -99,6 +121,10 @@ A span wider than the row is clamped to the row rather than overflowing, which i
 ## Nesting
 
 An `MPGrid` inside an `MPGridItem`, not a grid that is also an item. The inner grid redeclares the column count for its own subtree while the item around it keeps the width the outer grid gave it.
+
+A grid is also where a `span` stops meaning anything, and it says so: `.mp-grid` resets the five span slots and the five offset slots to `initial`. Without that reset an inner item that only declared `compact` would resolve the **outer** item's `large` at every class above compact — `span={12}` coming out a sixth of the row it is actually in — because the slots are inherited custom properties. Nothing to write; it is in the stylesheet.
+
+A grid is also where a `span` stops meaning anything, and it says so: `.mp-grid` resets the five span slots and the five offset slots to `initial`. Without that reset an inner item that only declared `compact` would resolve the **outer** item's `large` at every class above compact — `span={12}` coming out a sixth of the row it is actually in — because the slots are inherited custom properties. Nothing to write; it is in the stylesheet.
 
 ```tsx
 <MPGrid>

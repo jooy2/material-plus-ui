@@ -77,6 +77,57 @@ Off by default: a field that can be cleared in one click is a field that can be 
 
 The most rows the list will show at once. `-1`, the default, is all of them.
 
+### filter
+
+Which rows survive the query, in place of the matching this does on its own.
+
+**`null` turns the filtering off entirely**, and that is the value to reach for when the rows already arrived filtered:
+
+```tsx
+<MPCombobox items={results} filter={null} onInputValueChange={search} />
+```
+
+A list fetched per keystroke has been matched by a server that knows things this does not — synonyms, transliteration, the rule that strips a punctuation mark out of a tag before comparing it — and a second pass here can only remove rows that server decided were hits. A row the reader can see the reason for, disappearing as they type the next character, is what that looks like.
+
+A function is the middle ground, for matching a description as well as a label, or for a fold the collator does not do:
+
+```tsx
+<MPCombobox items={items} filter={(option, query) => option.label?.startsWith(query) ?? false} />
+```
+
+The row that offers what was typed is exempt either way: its label _is_ the query, so a filter that hid it would be hiding the answer to the question it was asked.
+
+### content
+
+A row that draws more than its own label — a thumbnail, a glyph, a second line of detail:
+
+```tsx
+<MPCombobox
+  items={flashes.map((flash) => ({
+    value: flash.id,
+    label: flash.title,
+    content: (
+      <span className="flex items-center gap-2">
+        <img src={flash.thumbnail} alt="" width={24} height={24} />
+        {flash.title}
+      </span>
+    )
+  }))}
+/>
+```
+
+It replaces the label **in the popup only**. The input still receives `label` when the row is chosen, the chip still shows `label`, and the filter still matches against it — which is why the two are separate props rather than `label` being loosened to a `ReactNode`. A text input's value is a string, and a row that could not say what its own string is would have nothing to put there.
+
+### chipVariant and chipColor
+
+How the chips inside a `multiple` field are painted. The default is `tonal` in `primary`, or `outlined` in `error` while the field is in its error state.
+
+`outlined` throughout is worth knowing about: a field holding six filled chips reads as a row of buttons rather than as a value, which is the reason Material UI's own autocomplete draws them outlined.
+
+```tsx
+<MPCombobox multiple chipVariant="outlined" items={tags} />
+```
+
 ## Accessibility
 
 - Base UI owns the filtering and its collator, the popup's positioning and flipping, the `combobox`/`listbox` wiring, arrow-key navigation across both the list and the chips, and the hidden input that makes the whole thing submit with a form.

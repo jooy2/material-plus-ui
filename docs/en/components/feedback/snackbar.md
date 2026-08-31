@@ -85,6 +85,16 @@ It also decides which way the plate travels. A snackbar comes in from the edge i
 
 A reader who has asked for less motion gets the fade with nowhere to travel from.
 
+One snackbar can leave the stack the provider chose, which is the same prop on `add`:
+
+```tsx
+snackbar.add({ message: 'Could not save', position: 'top-center' });
+```
+
+For the message that has to be somewhere else _because of what it is_ — an error at the top of a page whose bottom corner is a toolbar. Not for a preference: an application whose snackbars all appear in the same wrong place should move the provider.
+
+All six stacks are on the page from the first render whether or not anything is in them, and that is not an implementation detail worth hiding. Each stack is its own `aria-live` region, and a region that arrives in the document at the same instant as the message inside it is a region a screen reader has nothing to compare against and does not read out. An empty stack is a `pointer-events-none` flex column with no children, so the five nobody is using cost a `<div>` each.
+
 ### color
 
 **No default**, and it is the same decision [MPTooltip](./tooltip) makes for the same reason. MD3's snackbar is `inverse-surface` under `inverse-on-surface`: the neutral palette read at the _other_ end of the scheme, so the plate is dark on a light page and light on a dark one.

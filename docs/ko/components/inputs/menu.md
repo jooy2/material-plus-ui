@@ -57,6 +57,22 @@ elevation 2의 `surface-container`, `corner-extra-small` — MD3의 세 선택�
 
 행은 안쪽으로 들여 놓인 타일이 아니라 가장자리까지 닿습니다. MD3는 메뉴 아이템에 자기 모서리를 주지 않으므로 state layer가 양 끝까지 흐르고, 팝업 자신의 4px 모서리가 이 물건의 유일한 곡선입니다.
 
+## 트리거
+
+무엇이든 되고, 연결은 Base UI가 합니다. `trigger={<MPButton>작업</MPButton>}`, [MPIconButton](./icon-button), `onClick`이 있는 [MPChip](../display/chip) 모두 진짜 `<button>`이고, `nativeButton`의 기본값이 `true`인 이유가 그것입니다.
+
+아바타, 카드, 글 한 줄처럼 일부러 다른 것을 트리거로 줄 때는 `false`로 두세요.
+
+```tsx
+<MPMenu nativeButton={false} trigger={<MPAvatar src={user.photo} />}>
+  <MPMenuItem>프로필</MPMenuItem>
+</MPMenu>
+```
+
+그러면 Base UI가 `<button>`이 가져왔을 role과 탭 스톱, Enter/Space 처리를 대신 붙여 주므로, 스크린 리더와 키보드에게 그 트리거는 여전히 버튼입니다.
+
+추론이 아니라 prop인 이유는, 트리거가 무엇을 그리는지는 그려 본 뒤에야 알 수 있고 그때는 이미 연결이 정해진 뒤이기 때문입니다. 둘이 어긋나면 Base UI가 콘솔에 적어 줍니다. 양쪽 방향 모두이므로, 진짜 `<button>`에 `false`를 주는 것도 그 반대만큼이나 틀린 일입니다.
+
 ## 예시
 
 ### 행이 가질 수 있는 모든 모양

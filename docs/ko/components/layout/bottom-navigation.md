@@ -74,6 +74,18 @@ import { ICONS, MPBottomNavigation, MPBottomNavigationItem, MPIcon } from 'mater
 
 `disabled`인 목적지는 사용 불가 표시가 붙는 대신 `href`를 잃습니다. `disabled`는 `<a>`가 가질 수 있는 상태가 아니고, 보기에만 사용 불가인 링크는 키보드가 여전히 밟고 크롤러가 여전히 따라가는 링크이기 때문입니다.
 
+`render`는 그 앵커 자리에 라우터의 `Link`를 놓아, 탭 한 번이 전체 페이지 로드가 아니라 클라이언트 내비게이션이 되게 합니다.
+
+```tsx
+<MPBottomNavigationItem value="saved" href="/saved" render={<Link />} icon={…}>
+  저장됨
+</MPBottomNavigationItem>
+```
+
+`href`, `target`, 그리고 바가 정하는 것들은 모두 그대로 전달되고, 바의 `onValueChange`도 어느 쪽이든 불립니다. `href`가 없으면 대신 `<button>` 쪽을 대체하는데, 같은 자리의 같은 엘리먼트입니다.
+
+`target`은 자기 `rel`을 데려옵니다 — `_blank`이면 `noopener noreferrer`입니다. 직접 준 `rel`은 그것을 덧붙이는 게 아니라 대체합니다.
+
 ## activeIcon
 
 MD3는 선택된 아이콘을 채우고 나머지는 외곽선으로 둡니다. 곁눈질로 봐도 살아남는 신호입니다.

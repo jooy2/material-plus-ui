@@ -600,7 +600,13 @@ const EVENTS_LAND_ON: Record<string, Text> = {
     ko: '팝업을 여는 트리거 버튼',
     en: 'the trigger button that opens the popup'
   },
-  MPTimePicker: { ko: '시계를 여는 트리거 버튼', en: 'the trigger button that opens the clock' }
+  MPTimePicker: { ko: '시계를 여는 트리거 버튼', en: 'the trigger button that opens the clock' },
+  /*
+   * The one entry that is not a control. A dialog's sheet is where a keystroke
+   * inside the dialog arrives by bubbling, and the trigger that opened it and
+   * the page behind it are both somewhere else.
+   */
+  MPDialog: { ko: '대화상자의 시트', en: 'the dialog’s sheet' }
 };
 
 /**
@@ -808,11 +814,11 @@ const componentTables: Record<string, PropRow[]> = {
     },
     {
       name: 'type',
-      type: "'email' | 'password' | 'text'",
+      type: "'email' | 'password' | 'search' | 'text'",
       default: "'text'",
       description: {
-        ko: '어떤 컨트롤을 그릴지. `password`는 모양만이 아니라 동작도 달라져서, 끝에 표시/숨김 토글이 생깁니다',
-        en: 'Which control to draw. `password` also changes behaviour: it grows a reveal toggle in the trailing adornment'
+        ko: '어떤 컨트롤을 그릴지. `password`는 모양만이 아니라 동작도 달라져서, 끝에 표시/숨김 토글이 생깁니다. `search`는 소환되는 키보드와 자동완성이 달라지는 것이고 그리는 모습은 `text`와 같습니다 — 브라우저가 넣는 ×는 지워집니다',
+        en: 'Which control to draw. `password` also changes behaviour: it grows a reveal toggle in the trailing adornment. `search` is for the keyboard it summons and the autofill it declines and draws exactly as `text` does — the browser’s own × is suppressed'
       }
     },
     {
@@ -939,8 +945,8 @@ const componentTables: Record<string, PropRow[]> = {
       name: 'onSubmit',
       type: '() => void',
       description: {
-        ko: 'Enter를 눌렀을 때 호출됩니다. 한 줄 필드에서는 Enter가 삼켜지므로 폼이 두 번 제출되지 않습니다',
-        en: 'Called when Enter is pressed. On a single-line field Enter is then swallowed, so a form is submitted once'
+        ko: 'Enter를 눌렀을 때 호출됩니다. **이걸 넘기는 것이 필드가 그 키를 가져가는 조건**이고, 그때만 한 줄 필드에서 Enter가 삼켜져 폼이 두 번 제출되지 않습니다. 넘기지 않으면 Enter는 브라우저의 것 — `<form>` 안이라면 원래대로 폼이 제출됩니다',
+        en: 'Called when Enter is pressed. **Passing it is what makes the field take the key**: only then is Enter swallowed on a single-line field, so a form is submitted once rather than also natively. Without it the keystroke is left to the browser, which inside a `<form>` is the native submit'
       }
     },
     {
@@ -948,8 +954,8 @@ const componentTables: Record<string, PropRow[]> = {
       type: 'boolean',
       default: 'false',
       description: {
-        ko: 'Enter가 줄바꿈을 넣지 못하게 삼킵니다. `rows`가 있을 때만 의미가 있습니다',
-        en: 'Swallows the Enter key instead of letting it insert a newline. Only meaningful with `rows`'
+        ko: 'Enter를 원래 가져갈 쪽에게서 뺏습니다. `rows`가 있으면 줄바꿈이, 한 줄 필드에서는 둘러싼 폼의 제출이 그 대상입니다',
+        en: 'Takes the Enter key away from whatever would otherwise have it — the newline with `rows`, the surrounding form’s submit on a single-line field'
       }
     },
     {
@@ -1030,6 +1036,23 @@ const componentTables: Record<string, PropRow[]> = {
       description: {
         ko: 'native 버튼의 기본값은 `submit`이라 폼 안의 모든 버튼이 폼을 제출하게 됩니다. 그래서 여기서는 `button`입니다',
         en: 'A native button defaults to `submit`, which turns every button inside a form into one that submits it'
+      }
+    },
+    {
+      name: 'render',
+      type: 'ReactElement | ((props, state) => ReactElement)',
+      description: {
+        ko: '`<button>` 대신 다른 엘리먼트를 그리면서 표면은 그대로 둡니다. 버튼처럼 보이는 링크가 이 prop이 있는 이유이고, 그때는 `nativeButton={false}`와 `role="link"`가 함께 필요합니다 — `nativeButton` 참고',
+        en: 'Renders something other than a `<button>` while keeping the whole surface. A link wearing a button is the reason it exists, and that takes `nativeButton={false}` and `role="link"` with it — see `nativeButton`'
+      }
+    },
+    {
+      name: 'nativeButton',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '`render`가 진짜 `<button>`을 그리는지. `false`면 Base UI가 버튼의 semantics를 대신 붙이는데, 여기에는 `role="button"`도 들어갑니다 — 앵커에는 한 가지 과한 가정이라 `role="link"`를 함께 주세요',
+        en: 'Whether `render` produces a real `<button>`. `false` has Base UI supply the button semantics instead, `role="button"` among them — which for an anchor is one assumption too many, so pass `role="link"` alongside it'
       }
     },
     size,
@@ -1592,6 +1615,14 @@ const componentTables: Record<string, PropRow[]> = {
       description: {
         ko: '화살표 키 한 번, 드래그 한 칸이 움직이는 폭',
         en: 'How far one arrow key, or one notch of the drag, moves'
+      }
+    },
+    {
+      name: 'marks',
+      type: 'boolean | { value: number; label?: ReactNode }[]',
+      description: {
+        ko: '트랙 위의 눈금, 그리고 그 아래 쓰일 글자. `true`는 `step`마다 하나씩 — MD3의 discrete 슬라이더 — 이고 쉰 개까지입니다. 배열은 어느 눈금인지 직접 정하는 형태이고, 라벨을 가질 수 있는 쪽입니다: 연도 범위 아래의 십 년 표시가 그것입니다. 채워진 트랙 위의 눈금은 강조 색의 잉크로, 홈 위의 눈금은 `on-surface-variant`로 그려집니다',
+        en: 'The ticks on the track, and optionally what is written under them. `true` puts one at every `step` — MD3’s discrete slider — up to fifty of them. An array names them instead and is the form that can carry labels: the decade markings under a year range. A tick over the filled track is drawn in the accent’s own ink and one over the groove in `on-surface-variant`'
       }
     },
     {
@@ -2468,6 +2499,30 @@ const componentTables: Record<string, PropRow[]> = {
       description: { ko: '행을 링크로 렌더링합니다', en: 'Renders the row as a link' }
     },
     {
+      name: 'target',
+      type: 'string',
+      description: {
+        ko: '링크가 열리는 곳. `_blank`이면 `rel`이 따라 붙습니다',
+        en: 'Where the link opens. `rel` follows on its own for `_blank`'
+      }
+    },
+    {
+      name: 'rel',
+      type: 'string',
+      description: {
+        ko: '`_blank`가 받게 될 `noopener noreferrer`를 **대체합니다** — 덧붙이는 게 아닙니다',
+        en: '**Replaces** the `noopener noreferrer` a `_blank` link would otherwise get rather than extending it'
+      }
+    },
+    {
+      name: 'render',
+      type: 'ReactElement | ((props, state) => ReactElement)',
+      description: {
+        ko: '행에서 누를 수 있는 엘리먼트를 다른 것으로 — 대개 라우터의 `Link`. **라이브러리에서 유일하게 바깥 엘리먼트가 아닌 `render`입니다**: 행의 껍데기는 `<ul>` 안에 있어서 `<li>`여야 하고, 실제로 바꾸고 싶은 것은 그 안의 `<a>`이기 때문입니다',
+        en: 'Renders the row’s pressable element as something else — a router’s `Link`, most of the time. **The one `render` in the library that is not the outermost element**: a row’s shell is an `<li>` because it is inside a `<ul>`, and what you actually want to replace is the `<a>` inside it'
+      }
+    },
+    {
       name: 'startIcon',
       type: NODE,
       description: { ko: '라벨 앞의 내용', en: 'Content before the label' }
@@ -3300,6 +3355,15 @@ const componentTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'hideLabel',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '그 이름을 스크린 리더에는 남기고 화면에서만 뺍니다. 주변이 이미 이름을 말하고 있는 표시기를 위한 것입니다 — 이름을 *지우면* `progressbar`가 "63%"로만 읽히는데, 그것은 주어 없는 숫자입니다',
+        en: 'Keeps that name for a screen reader and takes it off the screen, for the indicator already labelled by what is around it. *Removing* it instead leaves a `progressbar` announced as “63%” and nothing else, which is a number with no subject'
+      }
+    },
+    {
       name: 'showValue',
       type: 'boolean',
       default: 'false',
@@ -3352,6 +3416,15 @@ const componentTables: Record<string, PropRow[]> = {
       name: 'label',
       type: NODE,
       description: { ko: '무엇이 진행 중인지의 이름', en: 'A name for what is loading' }
+    },
+    {
+      name: 'hideLabel',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '그 이름을 스크린 리더에는 남기고 화면에서만 뺍니다. 주변이 이미 이름을 말하고 있는 표시기를 위한 것입니다 — 이름을 *지우면* `progressbar`가 "63%"로만 읽히는데, 그것은 주어 없는 숫자입니다',
+        en: 'Keeps that name for a screen reader and takes it off the screen, for the indicator already labelled by what is around it. *Removing* it instead leaves a `progressbar` announced as “63%” and nothing else, which is a number with no subject'
+      }
     },
     {
       name: 'showValue',
@@ -3412,6 +3485,15 @@ const componentTables: Record<string, PropRow[]> = {
       name: 'label',
       type: NODE,
       description: { ko: '무엇이 진행 중인지의 이름', en: 'A name for what is loading' }
+    },
+    {
+      name: 'hideLabel',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '그 이름을 스크린 리더에는 남기고 화면에서만 뺍니다. 주변이 이미 이름을 말하고 있는 표시기를 위한 것입니다 — 이름을 *지우면* `progressbar`가 "63%"로만 읽히는데, 그것은 주어 없는 숫자입니다',
+        en: 'Keeps that name for a screen reader and takes it off the screen, for the indicator already labelled by what is around it. *Removing* it instead leaves a `progressbar` announced as “63%” and nothing else, which is a number with no subject'
+      }
     },
     {
       name: 'showValue',
@@ -3566,6 +3648,22 @@ const componentTables: Record<string, PropRow[]> = {
       description: { ko: '메시지 앞의 글리프', en: 'A glyph before the message' }
     },
     {
+      name: 'position',
+      type: "`top-${'start' | 'center' | 'end'}` | `bottom-${'start' | 'center' | 'end'}`",
+      description: {
+        ko: '이 스낵바만 다른 줄에 붙입니다. provider의 `position`을 덮어씁니다 — 툴바가 있는 화면 아래쪽을 피해야 하는 오류처럼, 무엇인지 때문에 자리가 달라져야 하는 메시지를 위한 것입니다. 여섯 줄은 처음부터 모두 페이지에 있습니다: 각 줄이 자기 `aria-live` 영역이고, 안의 메시지와 같은 순간에 생긴 영역은 스크린 리더가 읽지 않습니다',
+        en: 'Puts this one in a different stack, overriding the provider’s `position` — for the message that has to be somewhere else because of *what it is*, such as an error on a page whose bottom corner is a toolbar. All six stacks are on the page from the start: each is its own `aria-live` region, and a region added at the same instant as the message inside it is one a screen reader does not read'
+      }
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: {
+        ko: '이 스낵바의 판 — 줄이 아니라 면을 그리는 엘리먼트 — 에 붙습니다',
+        en: 'Added to this snackbar’s plate: the element that draws the surface, not the stack around it'
+      }
+    },
+    {
       name: 'onClose',
       type: '() => void',
       description: {
@@ -3679,6 +3777,30 @@ const componentTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'filter',
+      type: '((option: MPComboboxOption, query: string) => boolean) | null',
+      description: {
+        ko: '질의를 통과할 행을 이 컴포넌트의 매칭 대신 정합니다. **`null`이면 필터링을 아예 끕니다** — 키 입력마다 서버가 이미 골라 준 목록에 여기서 한 번 더 거르면 서버가 일치라고 판단한 행을 지우는 일밖에 할 수 없습니다. 입력한 값을 제안하는 행은 어느 쪽이든 예외입니다',
+        en: 'Which rows survive the query, in place of the matching this does on its own. **`null` turns the filtering off entirely** — for a list already matched per keystroke by a server, where a second pass here can only take away rows that server decided were hits. The row offering what was typed is exempt either way'
+      }
+    },
+    {
+      name: 'chipVariant',
+      type: VARIANT,
+      description: {
+        ko: '`multiple`일 때 필드 안 칩이 칠해지는 방식. 기본값은 `tonal`이고 오류 상태에서는 `outlined`입니다. 칩 여섯 개가 꽉 찬 필드는 값이 아니라 버튼 줄로 읽히니 그때는 `outlined`가 낫습니다',
+        en: 'How the chips inside a `multiple` field are painted. The default is `tonal`, or `outlined` while the field is in its error state — a field holding six filled chips reads as a row of buttons rather than as a value, which is what `outlined` throughout is for'
+      }
+    },
+    {
+      name: 'chipColor',
+      type: COLOR,
+      description: {
+        ko: '그 칩들이 읽는 강조 색 계열. 기본값은 `primary`이고 오류 상태에서는 `error`입니다',
+        en: 'Which accent family those chips read. Defaults to `primary`, or `error` while the field is in its error state'
+      }
+    },
+    {
       name: 'placeholder',
       type: 'string',
       description: {
@@ -3786,7 +3908,15 @@ const componentTables: Record<string, PropRow[]> = {
       type: 'string',
       description: {
         ko: '목록·입력·칩에 보이는 것. 기본값은 값 자체입니다. `MPSelect`와 달리 `ReactNode`가 아닌 `string`인 이유는 이 라벨이 필터가 비교하는 대상이자 텍스트 입력에 써 넣는 값이기 때문입니다',
-        en: 'Shown in the list, in the input and on the chip. Defaults to the value. A `string` rather than a `ReactNode` — the one place this differs from `MPSelect` — because the label is what the filter matches against and what is written into a text input'
+        en: 'Shown in the list, in the input and on the chip. Defaults to the value. A `string` rather than a `ReactNode` — the one place this differs from `MPSelect` — because the label is what the filter matches against and what is written into a text input. `content` is how a row draws as something richer'
+      }
+    },
+    {
+      name: 'content',
+      type: NODE,
+      description: {
+        ko: '팝업의 행이 라벨보다 더 많은 것을 그릴 때 그 내용 — 썸네일, 글리프, 두 번째 줄. **팝업에서만** 라벨을 대신합니다: 입력칸과 칩은 여전히 `label`을 받고 필터도 `label`을 비교합니다',
+        en: 'What the row in the popup draws when that is more than the label — a thumbnail, a glyph, a second line. It replaces the label **in the popup only**: the input and the chip still receive `label`, and the filter still matches against it'
       }
     },
     {
@@ -3921,6 +4051,15 @@ const componentTables: Record<string, PropRow[]> = {
       description: {
         ko: '메뉴를 여는 엘리먼트. Base UI가 연결합니다. 선택 사항입니다 — 다른 곳에서 여는 controlled 메뉴에는 트리거가 필요 없습니다',
         en: 'The element that opens the menu, wired up by Base UI. Optional — a controlled menu opened from elsewhere needs no trigger of its own'
+      }
+    },
+    {
+      name: 'nativeButton',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '트리거가 진짜 `<button>`을 그리는지. 대개 그렇습니다 — `MPButton`, `MPIconButton`, `onClick`이 있는 `MPChip`. 아바타나 카드처럼 일부러 다른 것을 트리거로 줄 때 `false`로 두면 Base UI가 role과 탭 스톱, Enter/Space 처리를 대신 붙여 줍니다',
+        en: 'Whether the trigger renders a real `<button>`. It nearly always does — an `MPButton`, an `MPIconButton`, an `MPChip` with an `onClick`. Set it `false` for a trigger that is deliberately something else, and Base UI supplies the role, the tab stop and the Enter/Space handling a `<button>` would have brought'
       }
     },
     {
@@ -5352,6 +5491,30 @@ const componentTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'target',
+      type: 'string',
+      description: {
+        ko: '링크가 열리는 곳. `_blank`이면 `rel`이 따라 붙습니다',
+        en: 'Where the link opens. `rel` follows on its own for `_blank`'
+      }
+    },
+    {
+      name: 'rel',
+      type: 'string',
+      description: {
+        ko: '`_blank`가 받게 될 `noopener noreferrer`를 **대체합니다** — 덧붙이는 게 아닙니다',
+        en: '**Replaces** the `noopener noreferrer` a `_blank` destination would otherwise get rather than extending it'
+      }
+    },
+    {
+      name: 'render',
+      type: 'ReactElement | ((props, state) => ReactElement)',
+      description: {
+        ko: '목적지를 다른 엘리먼트로 — 라우터의 `Link`를 주면 탭 한 번이 전체 페이지 로드가 아니라 클라이언트 내비게이션이 됩니다. `href`가 없으면 `<button>` 쪽을 대신하며, 어느 쪽이든 바의 `onValueChange`는 그대로 불립니다',
+        en: 'Renders the destination as something else — a router’s `Link`, so a tap is a client-side navigation rather than a full page load. Without an `href` it replaces the `<button>` instead, and the bar’s `onValueChange` fires either way'
+      }
+    },
+    {
       ...disabled,
       description: {
         ko: '사용할 수 없지만 묶음에는 남습니다. `href`가 있었다면 함께 사라집니다 — `disabled`는 `<a>`가 가질 수 있는 상태가 아닙니다',
@@ -5670,10 +5833,10 @@ const componentTables: Record<string, PropRow[]> = {
   MPGridItem: [
     {
       name: 'span',
-      type: 'MPResponsive<number>',
+      type: "MPResponsive<number | 'grow'>",
       description: {
-        ko: '그리드의 열 중 몇 개를 가져갈지. 그리드의 `columns` 기준이라 기본 12열에서 `span={6}`은 절반입니다. `{ compact: 12, medium: 6 }`처럼 윈도우 크기 클래스별로 줄 수 있고, 행보다 넓으면 넘치는 대신 행에 맞춰 잘립니다. 기본값은 행 전체입니다',
-        en: "How many of the grid's columns the item takes, read against `columns` — `span={6}` is half of the default twelve. Responsive as `{ compact: 12, medium: 6 }`, and a span wider than the row is clamped to it rather than overflowing. Defaults to the whole row"
+        ko: "그리드의 열 중 몇 개를 가져갈지. 그리드의 `columns` 기준이라 기본 12열에서 `span={6}`은 절반입니다. `{ compact: 12, medium: 6 }`처럼 윈도우 크기 클래스별로 줄 수 있고, 행보다 넓으면 넘치는 대신 행에 맞춰 잘립니다. `'grow'`는 열의 개수가 아니라 **행에 남은 폭**이라 썸네일 옆 본문이 원하는 값입니다. 기본값은 행 전체입니다",
+        en: "How many of the grid's columns the item takes, read against `columns` — `span={6}` is half of the default twelve. Responsive as `{ compact: 12, medium: 6 }`, and a span wider than the row is clamped to it rather than overflowing. `'grow'` is not a column count but **the width the row has left**, which is what the body of text beside a thumbnail wants. Defaults to the whole row"
       }
     },
     {

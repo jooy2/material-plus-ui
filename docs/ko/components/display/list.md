@@ -68,6 +68,18 @@ import { MPList, MPListItem } from 'material-plus-ui';
 
 `action`이 누를 수 있는 영역 **바깥**에 있는 것도 정확히 그 때문입니다 — 이동도 하고 토글도 가진 행에는 누를 것이 둘입니다.
 
+`render`는 그 안쪽 엘리먼트를 대신하고, 라우터의 `Link`가 들어갈 자리가 여기입니다.
+
+```tsx
+<MPListItem href="/inbox" render={<Link />}>
+  받은편지함
+</MPListItem>
+```
+
+**라이브러리에서 유일하게 바깥 엘리먼트가 아닌 `render`입니다.** 행의 껍데기가 `<li>`인 것은 `<ul>` 안에 있기 때문이고, 그것을 다른 것으로 바꾸면 목록이 목록이기를 그만둡니다. 실제로 바꾸고 싶은 것은 그 안의 `<a>`이고, 클라이언트 라우팅과 prefetch가 일어나려면 라우터가 가져야 하는 것도 그쪽입니다. `href`, `target`, 행의 클래스는 모두 그대로 전달되므로 URL은 `MPListItem`에 한 번만 씁니다.
+
+`target`은 자기 `rel`을 데려옵니다 — `_blank`이면 `noopener noreferrer`입니다. 직접 준 `rel`은 그것을 덧붙이는 게 아니라 **대체**하므로, `nofollow`까지 필요한 행은 셋을 다 적습니다.
+
 ## `selected`는 두 가지를 말합니다
 
 링크에서는 `aria-current="page"`, 버튼에서는 `"true"`입니다. 앞의 것은 "지금 보고 있는 페이지", 뒤의 것은 "이 중에서 고른 것"입니다. `aria-pressed`는 세 번째 것 — 토글 — 이고, 선택된 행은 토글이 아닙니다.

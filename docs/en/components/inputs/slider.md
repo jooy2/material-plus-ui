@@ -58,6 +58,37 @@ Off by default, and worth turning on for anything with units. A slider with no r
 
 A vertical slider has no length of its own, so give it a height. The default is a starting point rather than a rule.
 
+### marks
+
+The ticks on the track, and optionally what is written under them.
+
+`marks` on its own puts one at every `step`, which is MD3's discrete slider:
+
+```tsx
+<MPSlider min={0} max={100} step={25} marks aria-label="Quality" />
+```
+
+An array names them instead, and is the form that can carry labels:
+
+```tsx
+<MPSlider
+  min={1990}
+  max={2030}
+  marks={[
+    { value: 1990, label: '1990' },
+    { value: 2010, label: '2010' },
+    { value: 2030, label: '2030' }
+  ]}
+  aria-label="Year"
+/>
+```
+
+A tick over the filled part of the track is drawn in the accent's own ink and one over the groove in `on-surface-variant`, which is the specification's pairing and the reason a tick stays visible as the handle passes it.
+
+Three things worth knowing before reaching for it. The boolean form draws nothing past **fifty** ticks — at that point they stop being ticks and become a dotted line, out of one DOM node each, saying less than no ticks would; the array form is how you say which ones matter. A mark outside `min`…`max` is dropped rather than clamped, because two of them pinned to the same end read as one. And labels are laid out from each tick's centre and are not measured, so two that would collide will overlap — fewer entries is the answer, not a smaller type scale.
+
+The ticks are `aria-hidden`: they are a picture of `step`, and a screen reader is already told the step by the range attributes on the thumb. Announcing fifty dots would be reading the ruler out.
+
 ## The handle is a circle, not a bar
 
 Material's 2025 revision draws the handle as a tall thin bar with a gap either side of it. This is the earlier one, deliberately.

@@ -79,12 +79,24 @@ MD3의 모든 display, headline, `title-large` 역할은 **굵기 400**이고, `
 
 ## `color`에는 기본값이 없습니다
 
-역할을 지정하지 않으면 글은 면의 잉크 색을 그대로 물려받습니다. 문단의 일반적인 경우는 주변 문단과 같아 보이는 것이기 때문입니다. `caption`과 `overline` 둘만 예외로, 내용 _자체_ 가 아니라 내용에 _대한_ 글을 위한 MD3의 역할인 `on-surface-variant`를 가져갑니다.
+역할을 지정하지 않으면 글은 면의 잉크 색을 그대로 물려받습니다. 문단의 일반적인 경우는 주변 문단과 같아 보이는 것이기 때문입니다.
+
+**기본값이 없다는 것은 선언이 없다는 뜻**이지, 조용한 기본값이 있다는 뜻이 아닙니다. prop을 넘기기 전까지 여기서는 `color`를 쓰지 않으므로, 위쪽 어두운 히어로 섹션에 걸어 둔 `text-white`가 말한 유일한 것으로서 이깁니다. 들리는 것보다 중요한 차이입니다. 이 컴포넌트가 쓰는 다른 모든 규칙은 `[&.mp-typography]`를 거치는데, 그것은 클래스 두 개라 페이지의 유틸리티를 이깁니다 — 색을 거기에 썼다면 아무도 이길 수 없었을 것입니다.
 
 ```tsx
-<MPTypography>on-surface를 물려받습니다</MPTypography>
+<MPTypography>주변의 잉크 색을 물려받습니다</MPTypography>
 <MPTypography color="error">error 계열을 읽습니다</MPTypography>
 ```
+
+네 개의 강조 색 밖에 있는 역할은 `className` 하나로 되고, 되는 이유도 같습니다.
+
+```tsx
+<MPTypography level="caption" className="text-mp-on-surface-variant">
+  2분 전
+</MPTypography>
+```
+
+`caption`과 `overline`이 원하든 원하지 않든 받던 그 흐린 색이 이것입니다. 반대 방향의 같은 버그였습니다. MD3의 `on-surface-variant`는 그 글이 *무엇인가*에 대한 선택이지, 크기가 정할 수 있는 것이 아니기 때문입니다.
 
 ## 함께 보기
 

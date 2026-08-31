@@ -49,7 +49,9 @@ import { MPChip } from 'material-plus-ui';
 
 ### onClick과 onDelete
 
-껍데기는 **항상** `<span>`입니다. 바뀌는 것은 그 안입니다. 평범한 내용이거나, `onClick`이 주어지면 그 내용을 감싼 진짜 `<button>`, 그리고 `onDelete`를 위한 두 번째 버튼입니다.
+아무것도 하지 않는 칩은 `<span>`입니다. `onClick`이 있는 칩은 진짜 `<button>`이고, 그 버튼이 껍데기 자신이라 엘리먼트도 하나, 탭 스톱도 하나입니다.
+
+예외는 `onDelete`입니다. 두 번째 컨트롤이고 첫 번째 안에 들어갈 수 없기 때문입니다. 둘 다 가진 칩은 다시 `<span>` 껍데기가 되어 형제 버튼 둘을 담습니다.
 
 ```tsx
 <MPChip onClick={toggle} onDelete={remove}>
@@ -59,7 +61,17 @@ import { MPChip } from 'material-plus-ui';
 
 둘 다 키보드로 닿을 수 있고, 어느 쪽도 다른 쪽 안에 들어 있지 않습니다. 이 구조는 정갈함의 문제가 아닙니다 — 클릭 핸들러를 단 무기력한 `<span>`은 컴포넌트 라이브러리가 키보드 사용자를 잃는 가장 흔한 방법이고, `<button>` 안의 `<button>`은 크롬이 파싱 시점에 조용히 풀어버리는 칩을 만드는 가장 흔한 방법입니다.
 
-누를 수 있는 칩은 `selected`를 `aria-pressed`로 알리고, 라벨 버튼이 패딩을 소유하므로 클릭 영역이 글자만이 아니라 칩 전체입니다.
+누를 수 있는 칩은 `selected`를 `aria-pressed`로 알리고, 버튼이 된 엘리먼트가 패딩을 소유하므로 클릭 영역이 글자만이 아니라 칩 전체입니다.
+
+### 껍데기가 곧 버튼인 이유
+
+칩을 감싸는 쪽 때문입니다. Base UI의 `render` — 칩이 [MPMenu](../inputs/menu)의 트리거나 popover, tooltip의 트리거가 되는 방법 — 는 자기 핸들러와 ARIA를 컴포넌트가 반환한 엘리먼트에 머지합니다. 거기에 `<span>`이 있으면 `aria-haspopup`, `aria-expanded`, `id`, `tabindex`가 포커스도 못 받는 것에 얹히고, 그 아래 라벨 버튼은 그중 아무것도 지니지 않은 두 번째 탭 스톱이 되며, Base UI는 native `<button>`을 기대했다고 콘솔에 남깁니다. 엘리먼트 하나가 그 해결이고, 흔한 경우에 마크업이 더 적어지기도 합니다.
+
+```tsx
+<MPMenu trigger={<MPChip>필터</MPChip>}>
+  <MPMenuItem>최신순</MPMenuItem>
+</MPMenu>
+```
 
 `selected`에는 **기본값이 없습니다**. 그리고 그것이 이 칩을 토글로 안내할지 여부를 결정합니다. `selected`든 `selected={false}`든 넘기면 토글이 되고, 넘기지 않으면 액션이 됩니다. 액션은 "눌리지 않음"으로 안내되지 않습니다.
 

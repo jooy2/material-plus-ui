@@ -74,6 +74,18 @@ A long press then offers "open in a new tab", the address shows in the status ba
 
 A destination that is `disabled` loses its `href` rather than being marked unavailable, because `disabled` is not something an `<a>` can be: a link that only looks unavailable is one a keyboard still lands on and a crawler still follows.
 
+`render` puts a router's `Link` in that anchor's place, so a tap is a client-side navigation rather than a full page load:
+
+```tsx
+<MPBottomNavigationItem value="saved" href="/saved" render={<Link />} icon={…}>
+  Saved
+</MPBottomNavigationItem>
+```
+
+`href`, `target` and everything the bar decides still go through, and the bar's `onValueChange` fires either way. Without an `href` it replaces the `<button>` instead, which is the same element in the same place.
+
+`target` brings its own `rel` — `noopener noreferrer` for `_blank` — and a `rel` of your own replaces that rather than extending it.
+
 ## activeIcon
 
 MD3 fills the selected icon and outlines the rest, which is a signal that survives being seen out of the corner of an eye:

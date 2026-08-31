@@ -79,12 +79,24 @@ When the two have to differ, `render` breaks the tie:
 
 ## `color` has no default
 
-Prose inherits the surface's own ink unless a role is asked for, because the common case for a paragraph is to look like the paragraphs around it. `caption` and `overline` are the two exceptions: they take `on-surface-variant`, which is MD3's role for text that is _about_ the content rather than the content.
+Prose inherits the surface's own ink unless a role is asked for, because the common case for a paragraph is to look like the paragraphs around it.
+
+**No default means no declaration**, not a quiet one. Nothing here writes a `color` until the prop is passed, so a `text-white` on the dark hero section above wins by being the only thing that spoke. That matters more than it sounds: every other rule this component writes goes through `[&.mp-typography]`, which is two classes and outranks a page's own utility — a colour written there would have been unbeatable.
 
 ```tsx
-<MPTypography>Inherits on-surface</MPTypography>
+<MPTypography>Inherits whatever ink surrounds it</MPTypography>
 <MPTypography color="error">Reads the error family</MPTypography>
 ```
+
+A role outside the four accents is a `className` away, and works for the same reason:
+
+```tsx
+<MPTypography level="caption" className="text-mp-on-surface-variant">
+  Two minutes ago
+</MPTypography>
+```
+
+That is the muted line `caption` and `overline` used to be given whether or not it was wanted — which was the same bug in the other direction, since MD3's `on-surface-variant` is a choice about what the text _is_ and not something a size can decide.
 
 ## See also
 

@@ -165,7 +165,11 @@ Material UI의 여섯 개가 아닙니다. 스펙의 색상 시스템에는 `inf
 
 컨트롤을 `<div onKeyDown>`으로 감싸면 버블링으로 키 입력을 받을 수 있고, 지금까지는 그렇게 써야 했습니다. 그렇게 해서 할 수 없는 것이 _먼저_ 가는 일입니다.
 
-이 props를 받는 컴포넌트는 `MPTextField`, `MPNumberField`, `MPSelect`, `MPCombobox`, 그리고 트리거 하나를 공유하는 네 피커 — `MPDatePicker`, `MPDateRangePicker`, `MPDateTimePicker`, `MPTimePicker` 입니다. 나머지는 이미 모든 DOM prop을 받거나, 이것들이 붙을 단 하나의 엘리먼트가 없습니다. `MPOtpField`는 입력이 여섯이고, 그 칸 사이를 옮길 때마다 `blur`가 발생한다면 일어나지 않은 일을 보고하는 셈입니다.
+이 props를 받는 컴포넌트는 `MPTextField`, `MPNumberField`, `MPSelect`, `MPCombobox`, 트리거 하나를 공유하는 네 피커 — `MPDatePicker`, `MPDateRangePicker`, `MPDateTimePicker`, `MPTimePicker` — 그리고 `MPDialog`입니다.
+
+`MPDialog`는 이 중 유일하게 컨트롤이 아니면서 같은 이유로 같은 규칙을 따릅니다. props가 펼침이 아니라 닫힌 집합이라, 호출자가 닿을 수 있는 엘리먼트가 아예 없었습니다. 핸들러는 **시트**에 붙습니다. 대화상자 안의 키 입력이 버블링으로 도착하는 곳이고, 그것을 연 트리거도 뒤의 페이지도 다른 데 있기 때문입니다. Escape를 포함해 Base UI가 가진 키에 대한 처리는 대체되지 않고 나란히 실행됩니다.
+
+나머지는 이미 모든 DOM prop을 받거나, 이것들이 붙을 단 하나의 엘리먼트가 없습니다. `MPOtpField`는 입력이 여섯이고, 그 칸 사이를 옮길 때마다 `blur`가 발생한다면 일어나지 않은 일을 보고하는 셈입니다.
 
 ## 새 컴포넌트 체크리스트
 

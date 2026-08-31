@@ -43,7 +43,9 @@ controlled `<input>`은 `value` prop으로부터 그려집니다. 그런데 입�
 
 ### type
 
-`text`, `email`, `password`입니다. 이 중 `password`만 모양이 아니라 동작을 바꿉니다. 끝쪽 adornment에 표시/숨김 토글이 생깁니다.
+`text`, `email`, `search`, `password`입니다. 이 중 `password`만 모양이 아니라 동작을 바꿉니다. 끝쪽 adornment에 표시/숨김 토글이 생깁니다.
+
+`search`는 불려 나오는 키보드와 거절하는 자동완성 때문에 있습니다. iOS는 이 타입에서 리턴 키를 "검색"으로 쓰고, 브라우저는 여기에 입력된 것의 기록을 따로 남깁니다. 그리는 모습은 `text`와 같고, 브라우저가 안에 넣는 ×는 지웁니다. 그 표시는 adornment 줄 바깥에 있고, 탭 순서에도 없으며, controlled 값을 React에게 알리지 않고 비웁니다.
 
 <Demo src="text-field/password" :minHeight="72">
 
@@ -136,7 +138,9 @@ Enter를 눌렀을 때 호출됩니다.
 <MPTextField value={query} onChange={setQuery} onSubmit={() => search(query)} />
 ```
 
-한 줄 필드에서는 이후 Enter가 삼켜지므로 감싸고 있는 `<form>`이 native로 한 번 더 제출되지 않습니다. 여러 줄 필드에서는 그대로 둡니다. 거기서 Enter는 줄바꿈이고, 그것이 textarea의 존재 이유입니다. 제출해야 하는 여러 줄 필드라면 `disableEnterKey`로 거기서도 삼킬 수 있습니다.
+**이 prop을 넘기는 것이 필드가 그 키를 가져가는 조건입니다.** 한 줄 필드에 `onSubmit`이 있으면 이후 Enter가 삼켜지므로 감싸고 있는 `<form>`이 native로 한 번 더 제출되지 않습니다. `onSubmit`이 없으면 그 키는 브라우저의 것이고, `<form>` 안이라면 `<input>`이 원래 하던 native 제출이 그대로 일어납니다. 이미 `<form onSubmit>`을 쓰고 있는 페이지는 여기에 아무것도 줄 필요가 없습니다.
+
+여러 줄 필드에서는 어느 쪽이든 Enter를 그대로 둡니다. 거기서 Enter는 줄바꿈이고, 그것이 textarea의 존재 이유입니다. `disableEnterKey`는 Enter를 원래 가져갈 쪽에게서 뺏습니다. `rows`가 있으면 줄바꿈을, 없으면 폼의 제출을 대상으로 합니다.
 
 **조합을 확정하는 Enter**는 여기까지 오지 않습니다. 한글이나 日本語를 입력하면 음절마다 입력기가 가져가는 Enter로 끝나는데, 그것을 제출로 읽는 필드는 문장의 첫 단어에서 폼을 보내버립니다. 이 컴포넌트가 막으려고 존재하는 바로 그 실패가 `value`가 아니라 키 핸들러를 통해 들어오는 셈입니다. 이 키는 삼키지 않고 그대로 둡니다. 브라우저가 확정에 쓰고 있기 때문입니다. 조합 중이 아닐 때 눌린 다음 Enter는 평소대로 제출합니다.
 
