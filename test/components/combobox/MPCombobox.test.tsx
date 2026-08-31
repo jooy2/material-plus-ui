@@ -395,4 +395,134 @@ describe('MPCombobox', () => {
       expect(add.element().querySelector('svg')).not.toBeNull();
     });
   });
+
+  describe('what a row draws', () => {
+    it('draws content in the popup and still filters on the label', async () => {
+      const screen = await render(
+        <MPCombobox
+          label="Flash"
+          items={[
+            {
+              value: 'a',
+              label: 'Alpha',
+              content: (
+                <span>
+                  <img src="data:," alt="" data-thumb="alpha" width={16} height={16} />
+                  Alpha
+                </span>
+              )
+            },
+            { value: 'b', label: 'Beta' }
+          ]}
+        />
+      );
+
+      await screen.getByRole('combobox').fill('Alph');
+
+      await expect.element(screen.getByRole('option', { name: /Alpha/ })).toBeInTheDocument();
+      expect(document.querySelector('[data-thumb="alpha"]')).not.toBeNull();
+      expect(screen.getByRole('option', { name: 'Beta' }).query()).toBeNull();
+    });
+
+    it('puts the label in the input when that row is chosen, not the content', async () => {
+      const screen = await render(
+        <MPCombobox
+          label="Flash"
+          items={[{ value: 'a', label: 'Alpha', content: <b>Alpha, 1998</b> }]}
+        />
+      );
+
+      await screen.getByRole('combobox').click();
+      await screen.getByRole('option', { name: 'Alpha, 1998' }).click();
+
+      expect((screen.getByRole('combobox').element() as HTMLInputElement).value).toBe('Alpha');
+    });
+  });
+
+  describe('filter', () => {
+    it('shows every row when filtering is turned off', async () => {
+      // What a list fetched per keystroke needs: the server has already matched,
+      // and a second pass here can only take rows away that it decided were hits.
+      const screen = await render(
+        <MPCombobox
+          label="Tag"
+          filter={null}
+          items={[
+            { value: 'a', label: 'Alpha' },
+            { value: 'b', label: 'Beta' }
+          ]}
+        />
+      );
+
+      await screen.getByRole('combobox').fill('zzz');
+
+      await expect.element(screen.getByRole('option', { name: 'Alpha' })).toBeInTheDocument();
+      await expect.element(screen.getByRole('option', { name: 'Beta' })).toBeInTheDocument();
+    });
+
+    it('uses a caller’s match in place of its own', async () => {
+      const screen = await render(
+        <MPCombobox
+          label="Tag"
+          allowCustom={false}
+          filter={(option, query) => String(option.value).startsWith(query)}
+          items={[
+            { value: 'alpha', label: 'First' },
+            { value: 'beta', label: 'Second' }
+          ]}
+        />
+      );
+
+      await screen.getByRole('combobox').fill('be');
+
+      await expect.element(screen.getByRole('option', { name: 'Second' })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: 'First' }).query()).toBeNull();
+    });
+
+    it('never hides the row offering what was typed', async () => {
+      // Its label *is* the query, so a filter that hid it would be hiding the
+      // answer to the question it was asked.
+      const screen = await render(
+        <MPCombobox label="Tag" filter={() => false} items={[{ value: 'a', label: 'Alpha' }]} />
+      );
+
+      await screen.getByRole('combobox').fill('new-tag');
+
+      await expect.element(screen.getByRole('option', { name: /new-tag/ })).toBeInTheDocument();
+    });
+  });
+
+  describe('the chips in a multiple field', () => {
+    it('takes the variant and the family it was given', async () => {
+      const screen = await render(
+        <MPCombobox
+          multiple
+          label="Tags"
+          chipVariant="outlined"
+          chipColor="secondary"
+          defaultValue={['a']}
+          items={[{ value: 'a', label: 'Alpha' }]}
+        />
+      );
+      const chip = screen.container.querySelector('.mp-chip') as HTMLElement;
+
+      expect(chip).toHaveAttribute('data-mp-variant', 'outlined');
+      expect(chip.style.getPropertyValue('--_mp-accent')).toBe('var(--_mp-color-secondary)');
+    });
+
+    it('falls back to the tonal primary chip it always drew', async () => {
+      const screen = await render(
+        <MPCombobox
+          multiple
+          label="Tags"
+          defaultValue={['a']}
+          items={[{ value: 'a', label: 'Alpha' }]}
+        />
+      );
+      const chip = screen.container.querySelector('.mp-chip') as HTMLElement;
+
+      expect(chip).toHaveAttribute('data-mp-variant', 'tonal');
+      expect(chip.style.getPropertyValue('--_mp-accent')).toBe('var(--_mp-color-primary)');
+    });
+  });
 });
