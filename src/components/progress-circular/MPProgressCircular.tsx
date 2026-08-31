@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Progress } from '@base-ui/react/progress';
 import { accentSlots } from '../../internal/accent';
+import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
 import { CONTROL_GAP, META_TEXT } from '../../internal/scale';
 import {
   RING_DIAMETER,
@@ -50,6 +51,7 @@ export const MPProgressCircular = React.forwardRef<HTMLDivElement, MPProgressCir
       min = 0,
       max = 100,
       label,
+      hideLabel = false,
       showValue = false,
       format,
       className,
@@ -143,7 +145,12 @@ export const MPProgressCircular = React.forwardRef<HTMLDivElement, MPProgressCir
           />
         </svg>
 
-        {label ? (
+        {hideLabel ? (
+          // Out of flow, so it costs neither a line nor the row's gap.
+          label ? (
+            <Progress.Label className={VISUALLY_HIDDEN}>{label}</Progress.Label>
+          ) : null
+        ) : label ? (
           <Progress.Label className="text-mp-on-surface min-w-0 truncate">{label}</Progress.Label>
         ) : null}
         {showValue ? (

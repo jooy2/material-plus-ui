@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Progress } from '@base-ui/react/progress';
 import { accentSlots } from '../../internal/accent';
+import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
 import { META_TEXT, STACK_GAP } from '../../internal/scale';
 import {
   BAR_THICKNESS,
@@ -49,6 +50,7 @@ export const MPProgressLinear = React.forwardRef<HTMLDivElement, MPProgressLinea
       min = 0,
       max = 100,
       label,
+      hideLabel = false,
       showValue = false,
       format,
       className,
@@ -58,6 +60,9 @@ export const MPProgressLinear = React.forwardRef<HTMLDivElement, MPProgressLinea
   ) {
     const fraction = progressFraction(value, min, max);
     const indeterminate = fraction === null;
+    // Drawn or not, the name is the same name. `hideLabel` decides which of the
+    // two `Progress.Label`s below renders it — never whether one does.
+    const drawnLabel = hideLabel ? null : label;
     const hasFormat = format !== undefined;
 
     const bar = 'absolute inset-y-0 rounded-mp-full bg-(--_mp-accent)';
@@ -86,17 +91,22 @@ export const MPProgressLinear = React.forwardRef<HTMLDivElement, MPProgressLinea
           .join(' ')}
         style={{ ...accentSlots(color), ...style }}
       >
-        {label || showValue ? (
+        {/* Out of flow, so it costs neither a line nor a gap. */}
+        {hideLabel && label ? (
+          <Progress.Label className={VISUALLY_HIDDEN}>{label}</Progress.Label>
+        ) : null}
+
+        {drawnLabel || showValue ? (
           <div
             className={[
               'flex items-baseline gap-2',
-              label ? 'justify-between' : 'justify-end',
+              drawnLabel ? 'justify-between' : 'justify-end',
               META_TEXT
             ].join(' ')}
           >
-            {label ? (
+            {drawnLabel ? (
               <Progress.Label className="text-mp-on-surface min-w-0 truncate">
-                {label}
+                {drawnLabel}
               </Progress.Label>
             ) : null}
             {showValue ? (

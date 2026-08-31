@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Progress } from '@base-ui/react/progress';
 import { accentSlots } from '../../internal/accent';
+import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
 import { META_TEXT, STACK_GAP } from '../../internal/scale';
 import {
   SEGMENT_GAP,
@@ -60,6 +61,7 @@ export const MPProgressBox = React.forwardRef<HTMLDivElement, MPProgressBoxProps
       min = 0,
       max = 100,
       label,
+      hideLabel = false,
       showValue = false,
       format,
       className,
@@ -70,6 +72,9 @@ export const MPProgressBox = React.forwardRef<HTMLDivElement, MPProgressBoxProps
     const fraction = progressFraction(value, min, max);
     const indeterminate = fraction === null;
     const hasFormat = format !== undefined;
+    // Drawn or not, the name is the same name. `hideLabel` decides which of the
+    // two `Progress.Label`s below renders it — never whether one does.
+    const drawnLabel = hideLabel ? null : label;
     // A row of no segments is not an indicator, and a fractional count is a
     // caller who divided something. Both land on one segment rather than none.
     const segments = Math.max(1, Math.floor(count));
@@ -98,17 +103,22 @@ export const MPProgressBox = React.forwardRef<HTMLDivElement, MPProgressBoxProps
           .join(' ')}
         style={{ ...accentSlots(color), ...style }}
       >
-        {label || showValue ? (
+        {/* Out of flow, so it costs neither a line nor the stack's gap. */}
+        {hideLabel && label ? (
+          <Progress.Label className={VISUALLY_HIDDEN}>{label}</Progress.Label>
+        ) : null}
+
+        {drawnLabel || showValue ? (
           <div
             className={[
               'flex items-baseline gap-2',
-              label ? 'justify-between' : 'justify-end',
+              drawnLabel ? 'justify-between' : 'justify-end',
               META_TEXT
             ].join(' ')}
           >
-            {label ? (
+            {drawnLabel ? (
               <Progress.Label className="text-mp-on-surface min-w-0 truncate">
-                {label}
+                {drawnLabel}
               </Progress.Label>
             ) : null}
             {showValue ? (

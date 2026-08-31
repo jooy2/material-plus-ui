@@ -45,6 +45,20 @@ export interface MPProgressProps {
   /** A name for what is loading. Read out with the value by a screen reader. */
   label?: React.ReactNode;
   /**
+   * Keeps that name for a screen reader and takes it off the screen.
+   *
+   * For the indicator that is already labelled by what is around it — a spinner
+   * inside a card whose heading says what is loading, a bar under a filename.
+   * Drawing the name a second time is noise a sighted reader has to skip;
+   * *removing* it leaves a `progressbar` announced as "63%" and nothing else,
+   * which is a number with no subject.
+   *
+   * This is the third option, and it is the one the old `aria-label` was: the
+   * name stays in the accessibility tree and stops taking a line.
+   * @default false
+   */
+  hideLabel?: boolean;
+  /**
    * Shows the value as text beside the shape. A percentage of the range unless
    * `format` says otherwise.
    * @default false
