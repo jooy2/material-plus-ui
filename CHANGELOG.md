@@ -35,6 +35,20 @@ Nothing was renamed and nothing was removed. Every existing prop still means wha
 
   A note on the implementation, because the first version of it was wrong in a way worth recording: the resolver reads the context **unconditionally**. Written as `prop ?? React.useContext(…)` the context is only read when the prop is absent, so a control handed a `size` on one render and not on the next calls a different number of hooks. React said so out loud in the test run, and the fix was to read first and decide second.
 
+- **`useMPColorScheme` and `mpColorSchemeScript`.** The stylesheet has always had the switch — `prefers-color-scheme`, and `data-mp-scheme` for a page that drives it itself — and nothing to drive it _with_. So every application wrote the same three things: a piece of state, a `localStorage` round trip, and a script in the `<head>` to stop the first paint flashing.
+
+  ```tsx
+  const { resolved, toggle } = useMPColorScheme();
+  ```
+
+  **Three states rather than two**, and the third is the point. `'system'` is the absence of a choice, not a scheme — a reader who has never touched the toggle follows their operating system _as it changes_, which is what a two-state hook stops doing at sunset. `scheme` is what was chosen and `resolved` is what is painted; bind a settings control to the first and draw with the second. `toggle` exists separately because a two-way control cannot express "follow the system", and from `'system'` it goes to the opposite of what is on the screen rather than back to the scheme the reader is already looking at.
+
+  The choice lives in a module-level store, so a header's toggle and a settings screen's radio group are looking at the same thing rather than each holding a `useState` and neither hearing the other. `'system'` **removes** the attribute rather than writing the word, which is how the media query gets its say back. `.dark` is deliberately untouched: it is what a project's own Tailwind keys on, and moving a class this library did not put there is editing somebody else's markup.
+
+  `mpColorSchemeScript()` returns the source for the `<head>`, because a hook runs after the browser has already painted and nothing else can run earlier. It reads the same key, writes the same attribute, does nothing when there is no stored choice, and JSON-encodes the key so one containing a quote cannot end the script early. It returns the source rather than the tag so a page under a strict CSP can add a nonce.
+
+  Storage failing is handled rather than assumed away — it throws in a private window in some browsers and behind some cookie policies. The `typeof localStorage` guard is _inside_ the `try` for a reason worth recording: where a policy blocks storage the global is a throwing getter rather than a missing binding, so `typeof` evaluates it like anything else and a guard outside the `try` threw before the `try` could catch it. A test blocking storage is what found that.
+
 - **`MPVisuallyHidden`.** Text for a screen reader and nobody else, which nine components here were already drawing themselves with — `MPPagination`'s live region, `MPRating`'s radios, `MPShortcut`'s key names, `MPCarousel`'s slide announcement — and which an application putting a bare glyph in a button of its own had no way to reach. The library had the rule and not the name.
 
   The rule is Tailwind's `sr-only` written out, and it is written out for the reason the stylesheet ships no Preflight: `sr-only` is _generated_, so a project with a Tailwind `prefix` configured generates it under another name and a component that hardcoded it would come out visible on their page. The arbitrary properties survive any prefix.
@@ -230,17 +244,17 @@ Nothing was renamed and nothing was removed. Every existing prop still means wha
 | `MPTextField`   | 4.3 kB  | 4.4 kB  |
 | Five components | 7.4 kB  | 7.5 kB  |
 | Ten components  | 11.2 kB | 11.6 kB |
-| Everything      | 76.1 kB | 78.1 kB |
+| Everything      | 76.1 kB | 78.6 kB |
 
 Just under two and a half kilobytes across the whole library, and it is spread rather than concentrated: the calendar's `precision`, the slider's ticks, the combobox's filter adapter, the accordion's three transition signals, and a `useRender` call in each of two list components. `MPButton` and `MPTextField` move a tenth each — the button for `render` and `nativeButton`, the field for one conditional class — which is what a minifier leaves of a handful of new names.
 
-The last 2.0 kB is this report's own — `MPCalendar`, the four hooks, `MPVisuallyHidden`, `MPConfigProvider`, and the cell's four extra `bg-transparent` branches. Three of those four are close to free, because the grid the calendar draws and the machinery the hooks name were both already in `everything` and what they cost is a wrapper each: `material-plus-ui/hooks` is 0.3 kB imported on its own, and `MPVisuallyHidden` is one class string.
+The last 2.5 kB is this report's own — `MPCalendar`, the five hooks, `MPVisuallyHidden`, `MPConfigProvider`, and the cell's four extra `bg-transparent` branches. Three of those four are close to free, because the grid the calendar draws and the machinery the hooks name were both already in `everything` and what they cost is a wrapper each: `material-plus-ui/hooks` is 0.3 kB imported on its own, and `MPVisuallyHidden` is one class string.
 
 `MPConfigProvider` is the one that is not free anywhere, and it is worth being explicit about why. Every component that resolves a `size` or a `color` now imports `internal/config`, so the module reaches any bundle holding any of them — which is what moves ten components from 11.2 kB to 11.6 kB, a shade under a tenth of a kilobyte per component and one shared module rather than a per-component cost. `MPButton` alone goes from 23 modules to 24. A page that renders one control pays about 40 bytes for the ability to configure several hundred.
 
 The stylesheet grew from 113.5 kB to 114.6 kB, and 16.2 kB to 16.4 kB gzipped. Fifteen reset declarations on `.mp-grid`, one `overflow-visible`, one search-cancel-button rule and a tick's five sizes are the whole of it; the crossover at about thirty-one components is unchanged. The split sheets go from eighty-eight to ninety-one — `MPCalendar`, `MPVisuallyHidden` and `MPConfigProvider` get one each, and none of the three holds a hand-written rule.
 
-The suite goes from 1644 tests to 1826. Nineteen are the date picker's two new units and the raw events, as before. Twenty-seven are `MPCalendar`'s, twenty-six the hooks', ten `MPVisuallyHidden`'s, seventeen `MPConfigProvider`'s, and three more the picker's chosen day — those last ones read a computed background rather than a class list, which is the difference between checking that a rule was written and checking that it applies. The other eighty are this report, and the ones worth naming are the ones that would have caught the defects rather than described them: a nested grid item measuring 200px instead of 33px, a form actually submitting on Enter, a panel's `overflow` read at four points across its animation in both the controlled and uncontrolled cases, and a chip trigger asserting there is exactly one tab stop rather than two.
+The suite goes from 1644 tests to 1853. Nineteen are the date picker's two new units and the raw events, as before. Twenty-seven are `MPCalendar`'s, forty-five the hooks', ten `MPVisuallyHidden`'s, seventeen `MPConfigProvider`'s, eight the scheme switches, and three more the picker's chosen day — those last ones read a computed background rather than a class list, which is the difference between checking that a rule was written and checking that it applies. The other eighty are this report, and the ones worth naming are the ones that would have caught the defects rather than described them: a nested grid item measuring 200px instead of 33px, a form actually submitting on Enter, a panel's `overflow` read at four points across its animation in both the controlled and uncontrolled cases, and a chip trigger asserting there is exactly one tab stop rather than two.
 
 ## 1.5.0 (2026-08-30)
 

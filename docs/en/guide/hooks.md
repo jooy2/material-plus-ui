@@ -11,6 +11,7 @@ That is the whole of why they are exported. A page that wants one more decision 
 
 | Hook | Answers |
 | --- | --- |
+| [`useMPColorScheme`](#usempcolorscheme) | The page's colour scheme, and how to change it |
 | [`useMPWindowClass`](#usempwindowclass) | Which of Material's five window size classes the window is in |
 | [`useMPReducedMotion`](#usempreducedmotion) | Whether the reader asked for less motion |
 | [`useMPShortcut`](#usempshortcut) | Runs something when a keystroke arrives |
@@ -18,7 +19,85 @@ That is the whole of why they are exported. A page that wants one more decision 
 | [`useMPLocale`](../design/localization.md#3-nothing-at-all) | The language in force at this point in the tree |
 | [`useMPSnackbar`](../components/feedback/snackbar.md) | Raises snackbars from anywhere under the provider |
 
-The last two live with the provider they read, the way a hook that reads a context should. The four above have no component of their own.
+The last two live with the provider they read, the way a hook that reads a context should. The five above have no component of their own.
+
+## `useMPColorScheme`
+
+```tsx
+const { resolved, toggle } = useMPColorScheme();
+
+<MPIconButton
+  icon={<MPIcon icon={resolved === 'dark' ? SunIcon : MoonIcon} />}
+  label="Switch theme"
+  onClick={toggle}
+/>;
+```
+
+<Demo src="hooks/color-scheme" :minHeight="260">
+
+<<< @/.vitepress/demos/hooks/color-scheme.tsx
+
+</Demo>
+
+The stylesheet has always had the switch — `prefers-color-scheme`, and `data-mp-scheme` for a page that drives it itself. What it did not have was anything to drive it _with_, so every application wrote the same three things: a piece of state, a `localStorage` round trip, and a script in the `<head>` to stop the first paint flashing.
+
+| Returns     | Type                            | Meaning                        |
+| ----------- | ------------------------------- | ------------------------------ |
+| `scheme`    | `'light' \| 'dark' \| 'system'` | What was **chosen**            |
+| `resolved`  | `'light' \| 'dark'`             | What is **painted**            |
+| `isSystem`  | `boolean`                       | Whether the choice is `system` |
+| `setScheme` | `(scheme) => void`              | Chooses one                    |
+| `toggle`    | `() => void`                    | The other of the two           |
+
+| Argument             | Type     | Default             | Meaning                        |
+| -------------------- | -------- | ------------------- | ------------------------------ |
+| `options.storageKey` | `string` | `'mp-color-scheme'` | Where the choice is remembered |
+
+### Three states, not two
+
+`'system'` is the **absence of a choice** rather than a third scheme, and keeping it is the point. A reader who has never touched the toggle should follow their operating system _as it changes_ — including at sunset, which is when a two-state hook stops tracking and a page goes light in a dark room.
+
+Bind a settings control to `scheme` and draw with `resolved`. A two-way toggle bound to `scheme` cannot express "follow the system" at all, which is why `toggle` exists separately: from `'system'` it goes to the opposite of what is currently painted, never back to the scheme the reader is already looking at.
+
+### One page, one answer
+
+The choice lives in a module-level store rather than in each caller's state, so a header's toggle and a settings screen's radio group are looking at the same thing. Two components each holding `useState` would show what they last set and neither would hear about the other.
+
+### What it writes
+
+`data-mp-scheme` on `<html>` — and `'system'` **removes** the attribute rather than writing the word, which is how the media query gets its say back.
+
+It deliberately does not touch `.dark`. That class is what a project's own Tailwind keys on, and a library reaching in to toggle a class it did not put there is a library editing somebody else's markup. A page that wants both is one line of its own:
+
+```tsx
+useEffect(() => {
+  document.documentElement.classList.toggle('dark', resolved === 'dark');
+}, [resolved]);
+```
+
+### The first paint
+
+A hook runs **after** the browser has painted, so a reader who chose dark gets a white page for a frame. The only thing that can run earlier is a synchronous script in the `<head>`:
+
+```tsx
+import { mpColorSchemeScript } from 'material-plus-ui';
+
+<head>
+  <script dangerouslySetInnerHTML={{ __html: mpColorSchemeScript() }} />
+</head>;
+```
+
+It reads the same key the hook does, writes the same attribute, and does nothing at all when the stored value is absent or `system` — leaving the media query to answer, which it does before the first paint anyway.
+
+Pass it the **same** `storageKey` you pass the hook. Two different keys is a page that paints one scheme and then corrects itself to the other, which is the flash this exists to remove.
+
+It returns the source rather than the tag, so a page under a Content Security Policy without `unsafe-inline` can give the tag a nonce of its own. It cannot be a `<script src>`: a fetch is exactly the delay being avoided.
+
+### Sharp edges
+
+- **Storage can fail and that is handled.** Reading and writing `localStorage` throws in a private window in some browsers and behind some cookie policies. Both are caught — the toggle works for the visit and the choice is simply not remembered.
+- **An attribute already on the page wins over storage.** A page that ran the script, or rendered `data-mp-scheme` from a cookie on the server, is already painting a scheme; that is the true one, and reporting storage instead would disagree with the screen.
+- **It sets the scheme for the whole document.** For a _region_ — a dark editor panel in a light page — put `data-mp-scheme` on that element yourself. Both directions work; see [Colour](../design/color.md#dark-mode).
 
 ## `useMPWindowClass`
 

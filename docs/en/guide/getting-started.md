@@ -382,7 +382,7 @@ onwarn(warning, warn) {
 | `material-plus-ui` | Every component and type |
 | `material-plus-ui/types` | The shared prop vocabulary on its own |
 | `material-plus-ui/constants/icons` | The icon set, as named exports and as a lookup table |
-| `material-plus-ui/hooks` | The four hooks that have no component of their own |
+| `material-plus-ui/hooks` | The five hooks that have no component of their own |
 | `material-plus-ui/locales` | The eighteen translations, none of them loaded until you ask |
 | `material-plus-ui/styles.css` | Finished CSS, for a project with no Tailwind |
 | `material-plus-ui/styles/*.css` | The same CSS, one sheet per component |

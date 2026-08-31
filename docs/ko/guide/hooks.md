@@ -11,6 +11,7 @@ order: 2
 
 | 훅 | 답하는 것 |
 | --- | --- |
+| [`useMPColorScheme`](#usempcolorscheme) | 페이지의 색 스킴과 그것을 바꾸는 법 |
 | [`useMPWindowClass`](#usempwindowclass) | 창이 머터리얼의 다섯 window size class 중 어디에 있는지 |
 | [`useMPReducedMotion`](#usempreducedmotion) | 읽는 사람이 모션을 줄여 달라고 했는지 |
 | [`useMPShortcut`](#usempshortcut) | 키 입력이 오면 무언가를 실행 |
@@ -18,7 +19,85 @@ order: 2
 | [`useMPLocale`](../design/localization.md#3-nothing-at-all) | 트리의 이 지점에서 유효한 언어 |
 | [`useMPSnackbar`](../components/feedback/snackbar.md) | 프로바이더 아래 어디서든 스낵바 띄우기 |
 
-뒤의 둘은 자기가 읽는 프로바이더 옆에 있습니다 — 컨텍스트를 읽는 훅이 있어야 할 자리입니다. 위의 넷은 자기 컴포넌트가 없습니다.
+뒤의 둘은 자기가 읽는 프로바이더 옆에 있습니다 — 컨텍스트를 읽는 훅이 있어야 할 자리입니다. 위의 다섯은 자기 컴포넌트가 없습니다.
+
+## `useMPColorScheme`
+
+```tsx
+const { resolved, toggle } = useMPColorScheme();
+
+<MPIconButton
+  icon={<MPIcon icon={resolved === 'dark' ? SunIcon : MoonIcon} />}
+  label="Switch theme"
+  onClick={toggle}
+/>;
+```
+
+<Demo src="hooks/color-scheme" :minHeight="260">
+
+<<< @/.vitepress/demos/hooks/color-scheme.tsx
+
+</Demo>
+
+스타일시트에는 스위치가 늘 있었습니다 — `prefers-color-scheme`, 그리고 스스로 모는 페이지를 위한 `data-mp-scheme`. 없던 것은 그걸 _몰_ 무언가였고, 그래서 모든 애플리케이션이 같은 세 가지를 직접 썼습니다. 상태 하나, `localStorage` 왕복, 그리고 첫 페인트가 번쩍이지 않게 하는 `<head>` 스크립트.
+
+| 반환        | 타입                            | 의미                   |
+| ----------- | ------------------------------- | ---------------------- |
+| `scheme`    | `'light' \| 'dark' \| 'system'` | **고른** 것            |
+| `resolved`  | `'light' \| 'dark'`             | **칠해지는** 것        |
+| `isSystem`  | `boolean`                       | 고른 것이 `system`인지 |
+| `setScheme` | `(scheme) => void`              | 하나를 고름            |
+| `toggle`    | `() => void`                    | 둘 중 나머지 하나      |
+
+| 인자                 | 타입     | 기본값              | 의미                    |
+| -------------------- | -------- | ------------------- | ----------------------- |
+| `options.storageKey` | `string` | `'mp-color-scheme'` | 선택을 기억해 두는 자리 |
+
+### 둘이 아니라 셋
+
+`'system'`은 세 번째 스킴이 아니라 **선택하지 않음**이고, 그걸 남겨 두는 것이 핵심입니다. 토글을 한 번도 건드린 적 없는 독자는 운영체제를 _그것이 바뀌는 대로_ 따라야 합니다 — 해 질 무렵을 포함해서. 두 상태짜리 훅이 추적을 멈추는 지점이 바로 거기고, 그때 어두운 방에서 페이지가 하얘집니다.
+
+설정 컨트롤은 `scheme`에 묶고 그리는 것은 `resolved`로 하세요. `scheme`에 묶인 2단 토글은 "시스템을 따름"을 아예 표현하지 못하고, 그래서 `toggle`이 따로 있습니다 — `'system'`에서는 지금 칠해진 것의 반대로 가지, 독자가 이미 보고 있는 스킴으로 돌아가지 않습니다.
+
+### 한 페이지에 답 하나
+
+선택은 각 호출자의 상태가 아니라 모듈 수준 저장소에 삽니다. 헤더의 토글과 설정 화면의 라디오 그룹이 같은 것을 보게 하려고요. 각자 `useState`를 든 컴포넌트 둘은 각자 마지막에 설정한 것을 보여 주고 서로의 소식을 듣지 못합니다.
+
+### 무엇을 쓰는가
+
+`<html>`의 `data-mp-scheme` — 그리고 `'system'`은 그 단어를 쓰는 게 아니라 속성을 **지웁니다**. 미디어 쿼리가 발언권을 되찾는 방법이 그것입니다.
+
+`.dark`는 일부러 건드리지 않습니다. 그 클래스는 프로젝트 _자신의_ Tailwind가 키로 쓰는 것이고, 자기가 붙이지도 않은 클래스를 라이브러리가 손대는 것은 남의 마크업을 편집하는 일입니다. 둘 다 원하는 페이지는 자기 코드 한 줄이면 됩니다.
+
+```tsx
+useEffect(() => {
+  document.documentElement.classList.toggle('dark', resolved === 'dark');
+}, [resolved]);
+```
+
+### 첫 페인트
+
+훅은 브라우저가 이미 그린 **뒤에** 돕니다. 그래서 다크를 고른 독자는 한 프레임 동안 하얀 페이지를 봅니다. 그보다 먼저 돌 수 있는 것은 `<head>` 안의 동기 스크립트뿐입니다.
+
+```tsx
+import { mpColorSchemeScript } from 'material-plus-ui';
+
+<head>
+  <script dangerouslySetInnerHTML={{ __html: mpColorSchemeScript() }} />
+</head>;
+```
+
+훅이 읽는 그 키를 읽고, 같은 속성을 쓰고, 저장된 값이 없거나 `system`이면 아무것도 하지 않습니다 — 미디어 쿼리가 답하도록 두는데, 어차피 그건 첫 페인트 전에 끝납니다.
+
+훅에 준 것과 **같은** `storageKey`를 주세요. 키가 다르면 페이지가 한 스킴을 그렸다가 다른 것으로 스스로를 고치게 되고, 그게 바로 이것이 없애려는 번쩍임입니다.
+
+태그가 아니라 소스를 돌려주므로, `unsafe-inline` 없는 Content Security Policy 아래의 페이지는 태그에 자기 nonce를 달 수 있습니다. `<script src>`가 될 수는 없습니다 — fetch가 바로 피하려는 그 지연이기 때문입니다.
+
+### 날카로운 모서리
+
+- **저장소는 실패할 수 있고, 그건 처리돼 있습니다.** 일부 브라우저의 사생활 보호 창과 일부 쿠키 정책 아래에서는 `localStorage` 읽기·쓰기가 throw합니다. 둘 다 잡습니다 — 토글은 이번 방문 동안 동작하고 선택만 기억되지 않습니다.
+- **이미 페이지에 있는 속성이 저장소를 이깁니다.** 스크립트를 돌렸거나 서버에서 쿠키로 `data-mp-scheme`을 렌더한 페이지는 이미 어떤 스킴을 칠하고 있습니다. 그게 참인 쪽이고, 대신 저장소를 보고하면 화면과 어긋납니다.
+- **문서 전체의 스킴을 정합니다.** _구역_ 하나 — 밝은 페이지 속 어두운 편집기 패널 — 는 그 엘리먼트에 직접 `data-mp-scheme`을 다세요. 양방향 모두 동작합니다. [색](../design/color.md#dark-mode)을 보세요.
 
 ## `useMPWindowClass`
 
