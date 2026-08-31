@@ -13,7 +13,7 @@ import { MPStateLayer } from '../../internal/StateLayer';
 import { MPSupportingText } from '../../internal/SupportingText';
 import { CONTROL_ICON, PROSE_TEXT, hasContent } from '../../internal/scale';
 import { FADE, PORTAL_LAYER } from '../../internal/surface';
-import type { MPControlEventProps, MPSize, MPStyleProps } from '../../types';
+import type { MPColor, MPControlEventProps, MPSize, MPStyleProps, MPVariant } from '../../types';
 
 /**
  * What a combobox's value may be — the same two types `MPSelect` submits, and for
@@ -34,8 +34,24 @@ export interface MPComboboxOption {
    * A `string` rather than a `ReactNode`, which is the one place this differs
    * from `MPSelect`: the label is what the filter matches against and what is
    * written into a text input, and neither of those can be done to an element.
+   * `content` is how a row draws as something richer than its own label.
    */
   label?: string;
+  /**
+   * What the row in the popup draws, when that is more than the label — a
+   * thumbnail beside the title, a glyph, a second line of detail.
+   *
+   * It replaces the label **in the popup only**. The input still receives
+   * `label` when the row is chosen, the chip still shows `label`, and the filter
+   * still matches against `label` — which is the whole reason the two are
+   * separate props rather than `label` being loosened to a `ReactNode`: a text
+   * input's value is a string, and a row that could not say what its own string
+   * is would have nothing to put there.
+   *
+   * So `label` stays required-in-spirit even with this set. It is what the row
+   * is *called*; this is what it looks like.
+   */
+  content?: React.ReactNode;
   /** Unavailable, but still listed — the option exists, it just cannot be picked. */
   disabled?: boolean;
 }
@@ -108,6 +124,39 @@ export interface MPComboboxProps<Multiple extends boolean | undefined = false>
   emptyMessage?: React.ReactNode;
   /** The most rows the list will show at once. `-1` is all of them. @default -1 */
   limit?: number;
+  /**
+   * Which rows survive the query, replacing the matching this does on its own.
+   *
+   * **`null` turns the filtering off entirely**, and that is the value to reach
+   * for when the rows already arrived filtered: a list fetched per keystroke has
+   * been matched by a server that knows things this does not — synonyms,
+   * transliteration, the rule that strips a punctuation mark out of a tag before
+   * comparing it — and a second pass here can only remove rows that server
+   * decided were matches. A row the reader can see the reason for, disappearing
+   * as they type the next character, is what that looks like.
+   *
+   * A function is the middle ground: `(option, query) => …` for matching a
+   * description as well as a label, or for a fold this library's collator does
+   * not do. The row that offers what was typed is exempt either way — its label
+   * *is* the query, so a filter that hid it would be hiding the answer to the
+   * question it was asked.
+   *
+   * Left out, Base UI's own collator-backed match is used, which is what handles
+   * accents and case across eighteen locales.
+   */
+  filter?: ((option: MPComboboxOption, query: string) => boolean) | null;
+  /**
+   * How the chips inside a `multiple` field are painted.
+   *
+   * The default is `tonal`, or `outlined` while the field is in its error state.
+   * `outlined` throughout is worth knowing about: a field holding six filled
+   * chips reads as a row of buttons rather than as a value, which is the reason
+   * Material UI's own autocomplete draws them outlined.
+   */
+  chipVariant?: MPVariant;
+  /** Which accent family those chips read. Defaults to `primary`, or `error`
+   * while the field is in its error state. */
+  chipColor?: MPColor;
   /**
    * Shown in the input while nothing is typed. With a floating label it is held
    * back until the label has risen out of its way.
@@ -203,6 +252,7 @@ export interface MPComboboxProps<Multiple extends boolean | undefined = false>
 interface Entry {
   value: MPComboboxValue;
   label: string;
+  content?: React.ReactNode;
   disabled?: boolean;
   custom?: boolean;
 }
@@ -293,6 +343,9 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
   clearable = false,
   emptyMessage,
   limit,
+  filter,
+  chipVariant,
+  chipColor,
   placeholder,
   label,
   floatingLabel = true,
@@ -331,6 +384,7 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
       items.map((item) => ({
         value: item.value,
         label: item.label ?? String(item.value),
+        content: item.content,
         disabled: item.disabled
       })),
     [items]
@@ -409,6 +463,27 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
     // costs more than the search.
     selection.some((item) => String(item).toLocaleLowerCase() === folded);
   const customValue = allowCustom && !readOnly && !disabled && !alreadyKnown ? trimmed : null;
+
+  /**
+   * The caller's filter, in the shape Base UI asks for.
+   *
+   * Three states rather than two. `undefined` leaves Base UI's own collator
+   * matching in place; `null` is passed straight through and turns filtering
+   * off, which is the whole point of the prop; a function is wrapped, and the
+   * wrapper is one line of exemption — the "add this" row is the query itself,
+   * so a filter is never asked about it.
+   *
+   * `Entry` is handed over as the option it was built from. It carries the same
+   * four public fields plus the `custom` flag the wrapper has just read, so
+   * there is nothing to copy.
+   */
+  const listFilter = React.useMemo(() => {
+    if (filter === null || filter === undefined) {
+      return filter;
+    }
+
+    return (entry: Entry, search: string) => entry.custom === true || filter(entry, search);
+  }, [filter]);
 
   const listItems = React.useMemo<Entry[]>(
     () =>
@@ -527,6 +602,7 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
         itemToStringValue={(entry) => String(entry.value)}
         isItemEqualToValue={(a, b) => a.value === b.value}
         limit={limit}
+        filter={listFilter}
         disabled={disabled}
         readOnly={readOnly}
         required={required}
@@ -568,8 +644,8 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
                           key={`${index}:${String(entry.value)}`}
                           render={
                             <MPChip
-                              variant={invalid ? 'outlined' : 'tonal'}
-                              color={invalid ? 'error' : 'primary'}
+                              variant={chipVariant ?? (invalid ? 'outlined' : 'tonal')}
+                              color={chipColor ?? (invalid ? 'error' : 'primary')}
                               size={CHIP_SIZE[size]}
                               disabled={disabled}
                               endIcon={
@@ -697,12 +773,22 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
                         </Combobox.ItemIndicator>
                       )}
                     </span>
-                    <span className="min-w-0 flex-1 truncate">
+                    {/* `truncate` only for a row that is a line of text. A
+                        `content` is a layout — a thumbnail, two stacked lines —
+                        and `white-space: nowrap` with an ellipsis on it would be
+                        clipping something that was never one line to begin
+                        with. It still gets `min-w-0`, which is what stops it
+                        pushing the tick out of the row. */}
+                    <span
+                      className={
+                        hasContent(entry.content) ? 'min-w-0 flex-1' : 'min-w-0 flex-1 truncate'
+                      }
+                    >
                       {entry.custom
                         ? customLabel
                           ? customLabel(entry.label)
                           : fillMessage(words.add, { label: entry.label })
-                        : entry.label}
+                        : (entry.content ?? entry.label)}
                     </span>
                   </Combobox.Item>
                 )}
