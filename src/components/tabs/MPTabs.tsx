@@ -3,6 +3,7 @@ import { Tabs } from '@base-ui/react/tabs';
 import { accentSlots } from '../../internal/accent';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { CONTROL_GAP, hasContent, SHEET_GAP } from '../../internal/scale';
+import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPColor, MPSize, MPStyleProps } from '../../types';
 
 /**
@@ -302,8 +303,8 @@ function sortChildren(
 export const MPTabs = React.forwardRef<HTMLDivElement, MPTabsProps>(function MPTabs(
   {
     variant = 'primary',
-    color = 'primary',
-    size = 'md',
+    color: colorProp,
+    size: sizeProp,
     value,
     defaultValue,
     onValueChange,
@@ -320,6 +321,8 @@ export const MPTabs = React.forwardRef<HTMLDivElement, MPTabsProps>(function MPT
   },
   ref
 ) {
+  const color = useMPColor(colorProp);
+  const size = useMPSize(sizeProp);
   // The specification's own pairing: a primary tab stacks its glyph, a secondary
   // one keeps it inline. Read from the variant rather than defaulted to one of
   // them, so a bar that changes kind changes shape with it.

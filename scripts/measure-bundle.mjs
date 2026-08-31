@@ -125,6 +125,7 @@ async function bundle(source, { external }) {
     gzip: gzipSync(Buffer.from(output.text), { level: 9 }).length,
     bytes: output.text.length,
     modules: Object.keys(meta.inputs).length,
+    inputs: Object.keys(meta.inputs).sort(),
     exports: meta.exports.length
   };
 }
@@ -178,12 +179,24 @@ const subpath = await bundle(
   { external: [...REACT, ...BASE_UI] }
 );
 
-if (barrel.bytes !== subpath.bytes || barrel.modules !== subpath.modules) {
+/*
+ * The claim is that the two carry the same *modules*, so that is what is
+ * compared. It used to compare bytes, which held until the module graph grew a
+ * node and esbuild ordered the two bundles differently — minified identifiers
+ * are assigned in order, so one of them got a two-character name where the other
+ * got a one-character one and the totals came out a byte apart with nothing
+ * whatsoever between them. A byte count is a proxy for the claim; the input list
+ * is the claim.
+ */
+const onlyInBarrel = barrel.inputs.filter((name) => !subpath.inputs.includes(name));
+const onlyInSubpath = subpath.inputs.filter((name) => !barrel.inputs.includes(name));
+
+if (onlyInBarrel.length > 0 || onlyInSubpath.length > 0) {
   throw new Error(
     'importing MPButton through the barrel no longer costs what importing it through ' +
-      `material-plus-ui/components/button does — ${barrel.modules} modules and ` +
-      `${barrel.bytes} B against ${subpath.modules} and ${subpath.bytes} B. One of them ` +
-      'is carrying something the other is not, and the documentation says they are the same'
+      'material-plus-ui/components/button does, and the documentation says they are the ' +
+      `same. Only in the barrel: ${onlyInBarrel.join(', ') || 'nothing'}. Only in the ` +
+      `subpath: ${onlyInSubpath.join(', ') || 'nothing'}`
   );
 }
 

@@ -10,6 +10,7 @@ import { COMMAND } from '../../internal/messages/command';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { hasContent, META_TEXT, PROSE_TEXT } from '../../internal/scale';
 import { FADE, PORTAL_LAYER, SCRIM, SHEET_MOTION } from '../../internal/surface';
+import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPColor, MPSize } from '../../types';
 
 /** One thing the palette can do. */
@@ -206,8 +207,8 @@ export function MPCommandPalette({
   shortcut = 'Mod+K',
   width,
   maxHeight = 320,
-  size = 'md',
-  color = 'primary',
+  size: sizeProp,
+  color: colorProp,
   locale: localeProp,
   placeholder,
   emptyMessage,
@@ -215,6 +216,8 @@ export function MPCommandPalette({
   className,
   style
 }: MPCommandPaletteProps) {
+  const size = useMPSize(sizeProp);
+  const color = useMPColor(colorProp);
   const locale = useMPLocale(localeProp);
   const messages = useMPMessages(COMMAND, locale);
 

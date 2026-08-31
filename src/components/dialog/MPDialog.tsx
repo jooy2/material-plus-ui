@@ -9,6 +9,7 @@ import { COMMON } from '../../internal/messages/common';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { SHEET_GAP, hasContent } from '../../internal/scale';
 import { FADE, PORTAL_LAYER, SCRIM, SHEET_MOTION } from '../../internal/surface';
+import { useMPSize } from '../../internal/config';
 import type { MPColor, MPControlEventProps, MPSize } from '../../types';
 
 /**
@@ -324,7 +325,7 @@ export function MPDialog({
   fullScreen = false,
   modal = true,
   dismissible = true,
-  size = 'md',
+  size: sizeProp,
   color = 'secondary',
   onKeyDown,
   onKeyUp,
@@ -337,6 +338,7 @@ export function MPDialog({
   style,
   children
 }: MPDialogProps) {
+  const size = useMPSize(sizeProp);
   const locale = useMPLocale(localeProp);
   const messages = useMPMessages(COMMON, locale);
   const withClose = showClose ?? fullScreen;

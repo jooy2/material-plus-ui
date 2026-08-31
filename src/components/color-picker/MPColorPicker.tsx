@@ -4,6 +4,7 @@ import { Popover } from '@base-ui/react/popover';
 import { MPIcon } from '../icon/MPIcon';
 import { CheckIcon, CloseIcon } from '../../constants/icons';
 import { MPFieldLabel, MPFieldOutline, useFloatingLabel } from '../../internal/FieldOutline';
+import { useMPSize } from '../../internal/config';
 import type { MPMessages } from '../../internal/i18n';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { COLOR_PICKER } from '../../internal/messages/color-picker';
@@ -727,7 +728,7 @@ export const MPColorPicker = React.forwardRef<HTMLDivElement, MPColorPickerProps
       onOpenChange,
       locale: localeProp,
       labels: labelOverrides,
-      size = 'md',
+      size: sizeProp,
       fullWidth = false,
       id,
       className,
@@ -735,6 +736,7 @@ export const MPColorPicker = React.forwardRef<HTMLDivElement, MPColorPickerProps
     },
     ref
   ) {
+    const size = useMPSize(sizeProp);
     const locale = useMPLocale(localeProp);
     const labels = useMPMessages(COLOR_PICKER, locale, labelOverrides);
 

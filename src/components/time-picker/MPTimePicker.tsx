@@ -24,6 +24,7 @@ import {
   withTime,
   type MPTimeUnit
 } from '../../internal/date';
+import { useMPColor, useMPSize } from '../../internal/config';
 
 /**
  * Which column of the clock a row belongs to.
@@ -160,8 +161,8 @@ export const MPTimePicker = React.forwardRef<HTMLButtonElement, MPTimePickerProp
       closeOnSelect = false,
       labels: labelOverrides,
       name,
-      size = 'md',
-      color = 'primary',
+      size: sizeProp,
+      color: colorProp,
       readOnly = false,
       disabled = false,
       startIcon,
@@ -169,6 +170,8 @@ export const MPTimePicker = React.forwardRef<HTMLButtonElement, MPTimePickerProp
     },
     ref
   ) {
+    const size = useMPSize(sizeProp);
+    const color = useMPColor(colorProp);
     const locale = useMPLocale(localeProp);
     const labels = useMPMessages(PICKER, locale, labelOverrides);
     const hour12 = hour12Prop ?? isHour12(locale);

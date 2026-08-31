@@ -716,6 +716,7 @@ const styleRow: PropRow = {
  * objects that are entries in somebody else's array.
  */
 const NO_ELEMENT = new Set([
+  'MPConfigProvider',
   'MPLocaleProvider',
   'MPSnackbarProvider',
   'MPSnackbarOptions',
@@ -7908,6 +7909,38 @@ const componentTables: Record<string, PropRow[]> = {
         ko: '칠 텍스트. 텍스트만 쳐집니다 — 엘리먼트는 텍스트만 기여하고 마크업은 기여하지 않습니다',
         en: 'The text to type. Only text is typed — an element contributes its text and nothing about its markup'
       }
+    }
+  ],
+
+  MPConfigProvider: [
+    {
+      name: 'size',
+      type: SIZE,
+      description: {
+        ko: '아래의 모든 컨트롤이 시작하는 크기. 호출 지점의 prop과 그것을 감싼 그룹이 이 값을 이깁니다. `size`만은 CSS custom property가 될 수 없어서 — 리터럴 Tailwind 클래스 문자열로 풀리기 때문에 — 컨텍스트로 나릅니다',
+        en: 'The size every control under this starts at. A prop at the call site and a group around it both beat it. `size` is the one axis that cannot be a custom property — it resolves to literal Tailwind class strings — which is why it travels by context'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      description: {
+        ko: '아래의 모든 컨트롤이 읽는 강조 색 계열. 색이 아니라 역할 이름이라서, `primary`가 무엇인지 바꾸는 것은 여전히 토큰의 일입니다',
+        en: 'The accent family every control under this reads. A role name rather than a colour: changing what `primary` *is* stays a token'
+      }
+    },
+    {
+      name: 'locale',
+      type: 'string',
+      description: {
+        ko: '컴포넌트가 쓰는 언어. `MPLocaleProvider`가 받는 그 값이며, 애플리케이션에 프로바이더가 하나면 되도록 여기 함께 실려 있습니다. 주지 않으면 위에 있는 것을 물려받습니다',
+        en: 'The language the components speak — the same value `MPLocaleProvider` takes, carried here so an application needs one provider rather than two. Left out, it inherits whatever is above it'
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '설정이 적용되는 트리', en: 'The tree the configuration applies to' }
     }
   ],
 

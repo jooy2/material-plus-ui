@@ -17,6 +17,7 @@ import {
   today,
   type MPDatePrecision
 } from '../../internal/date';
+import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPPickerLabels } from '../../internal/Calendar';
 import type { MPColor, MPSize, MPVariant, MPWeekday } from '../../types';
 
@@ -211,8 +212,8 @@ export const MPCalendar = React.forwardRef<HTMLDivElement, MPCalendarProps>(func
     showNextButton = true,
     autoFocus = false,
     variant = 'text',
-    size = 'md',
-    color = 'primary',
+    size: sizeProp,
+    color: colorProp,
     labels: labelOverrides,
     name,
     className,
@@ -221,6 +222,8 @@ export const MPCalendar = React.forwardRef<HTMLDivElement, MPCalendarProps>(func
   },
   ref
 ) {
+  const size = useMPSize(sizeProp);
+  const color = useMPColor(colorProp);
   const locale = useMPLocale(localeProp);
   const labels = useMPMessages(PICKER, locale, labelOverrides);
   const firstDay = weekStartsOn ?? localeWeekStart(locale);

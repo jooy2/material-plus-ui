@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { MPAvatar, type MPAvatarShape } from '../avatar/MPAvatar';
 import { MPAvatarGroupContext, type MPAvatarGroupContextValue } from '../../internal/avatar-group';
+import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPColor, MPSize, MPVariant } from '../../types';
 
 export interface MPAvatarGroupProps extends Omit<React.ComponentPropsWithoutRef<'div'>, 'color'> {
@@ -97,10 +98,10 @@ export const MPAvatarGroup = React.forwardRef<HTMLDivElement, MPAvatarGroupProps
       max,
       total,
       overlap,
-      size = 'md',
+      size: sizeProp,
       shape = 'circle',
       variant = 'tonal',
-      color = 'primary',
+      color: colorProp,
       className,
       style,
       children,
@@ -108,6 +109,8 @@ export const MPAvatarGroup = React.forwardRef<HTMLDivElement, MPAvatarGroupProps
     },
     ref
   ) {
+    const size = useMPSize(sizeProp);
+    const color = useMPColor(colorProp);
     const context = React.useMemo<MPAvatarGroupContextValue>(
       () => ({ size, shape, variant, color }),
       [size, shape, variant, color]

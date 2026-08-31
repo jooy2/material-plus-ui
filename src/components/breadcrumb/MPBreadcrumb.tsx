@@ -5,6 +5,7 @@ import { accentSlots } from '../../internal/accent';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { BREADCRUMB } from '../../internal/messages/breadcrumb';
 import { CONTROL_GAP, hasContent, PROSE_TEXT } from '../../internal/scale';
+import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPColor, MPSize } from '../../types';
 
 /**
@@ -212,8 +213,8 @@ function isSeparatorName(value: unknown): value is MPBreadcrumbSeparator {
  */
 export const MPBreadcrumb = React.forwardRef<HTMLElement, MPBreadcrumbProps>(function MPBreadcrumb(
   {
-    size = 'md',
-    color = 'primary',
+    size: sizeProp,
+    color: colorProp,
     separator = 'chevron',
     maxItems,
     itemsBeforeCollapse = 1,
@@ -230,6 +231,8 @@ export const MPBreadcrumb = React.forwardRef<HTMLElement, MPBreadcrumbProps>(fun
   },
   ref
 ) {
+  const size = useMPSize(sizeProp);
+  const color = useMPColor(colorProp);
   const messages = useMPMessages(BREADCRUMB, useMPLocale(localeProp));
   const [unfolded, setUnfolded] = React.useState(false);
 

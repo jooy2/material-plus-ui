@@ -5,6 +5,7 @@ import { accentSlots } from '../../internal/accent';
 import { MPMenuContext } from '../../internal/menu';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { CONTROL_GAP, hasContent } from '../../internal/scale';
+import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPColor, MPOrientation, MPSize } from '../../types';
 
 export interface MPMenubarProps extends Omit<React.ComponentPropsWithoutRef<'div'>, 'color'> {
@@ -201,8 +202,8 @@ export const MPMenubar = React.forwardRef<HTMLDivElement, MPMenubarProps>(functi
     modal = true,
     loopFocus = true,
     disabled = false,
-    size = 'md',
-    color = 'primary',
+    size: sizeProp,
+    color: colorProp,
     className,
     style,
     children,
@@ -210,6 +211,8 @@ export const MPMenubar = React.forwardRef<HTMLDivElement, MPMenubarProps>(functi
   },
   ref
 ) {
+  const size = useMPSize(sizeProp);
+  const color = useMPColor(colorProp);
   const context = React.useMemo(() => ({ size, color }), [size, color]);
 
   return (

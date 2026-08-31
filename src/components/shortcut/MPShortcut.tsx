@@ -2,6 +2,7 @@ import * as React from 'react';
 import { accentSlots } from '../../internal/accent';
 import { tokenizeShortcut, useDetectedOS, type MPResolvedOS } from '../../internal/keys';
 import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
+import { useMPSize } from '../../internal/config';
 import type { MPColor, MPSize, MPVariant } from '../../types';
 
 /**
@@ -286,7 +287,7 @@ const SURFACE: Record<MPVariant, string> = {
 export const MPShortcut = React.forwardRef<HTMLSpanElement, MPShortcutProps>(function MPShortcut(
   {
     variant = 'outlined',
-    size = 'md',
+    size: sizeProp,
     color = 'secondary',
     keys,
     os = 'auto',
@@ -297,6 +298,7 @@ export const MPShortcut = React.forwardRef<HTMLSpanElement, MPShortcutProps>(fun
   },
   ref
 ) {
+  const size = useMPSize(sizeProp);
   const detected = useDetectedOS();
   const resolved: ResolvedOS = os === 'auto' ? detected : os;
 

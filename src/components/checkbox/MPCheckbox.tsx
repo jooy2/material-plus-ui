@@ -7,6 +7,7 @@ import { accentSlots } from '../../internal/accent';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { MPSupportingText } from '../../internal/SupportingText';
 import { PROSE_TEXT, hasContent } from '../../internal/scale';
+import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPColor, MPSize } from '../../types';
 
 /**
@@ -118,8 +119,8 @@ export const MPCheckbox = React.forwardRef<HTMLElement, MPCheckboxProps>(functio
     label,
     description,
     errorMessage,
-    size = 'md',
-    color = 'primary',
+    size: sizeProp,
+    color: colorProp,
     required = false,
     disabled = false,
     readOnly = false,
@@ -131,6 +132,8 @@ export const MPCheckbox = React.forwardRef<HTMLElement, MPCheckboxProps>(functio
   },
   ref
 ) {
+  const size = useMPSize(sizeProp);
+  const color = useMPColor(colorProp);
   const invalid = hasContent(errorMessage);
   // Invalid re-points the accent family at `error`, so the box, its halo and the
   // message all turn over together rather than the message being the only clue.

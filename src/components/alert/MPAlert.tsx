@@ -14,6 +14,7 @@ import {
   SHEET_TITLE,
   STACK_GAP
 } from '../../internal/scale';
+import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPColor, MPSize, MPVariant } from '../../types';
 
 /**
@@ -215,8 +216,8 @@ export interface MPAlertProps extends Omit<
 export const MPAlert = React.forwardRef<HTMLDivElement, MPAlertProps>(function MPAlert(
   {
     variant = 'tonal',
-    color = 'primary',
-    size = 'md',
+    color: colorProp,
+    size: sizeProp,
     title,
     icon,
     action,
@@ -231,6 +232,8 @@ export const MPAlert = React.forwardRef<HTMLDivElement, MPAlertProps>(function M
   },
   ref
 ) {
+  const color = useMPColor(colorProp);
+  const size = useMPSize(sizeProp);
   const locale = useMPLocale(localeProp);
   const messages = useMPMessages(ALERT, locale);
   const accent = ACCENT[variant];

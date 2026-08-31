@@ -11,7 +11,8 @@ import {
   CONTROL_TEXT,
   hasContent
 } from '../../internal/scale';
-import type { MPColor, MPSize, MPStyleProps, MPVariant } from '../../types';
+import { useMPColor, useMPSize } from '../../internal/config';
+import type { MPColor, MPStyleProps, MPVariant } from '../../types';
 
 /**
  * **Off**, on all five weights.
@@ -159,8 +160,8 @@ export const MPToggle = React.forwardRef<HTMLButtonElement, MPToggleProps>(funct
   // toggle picks up the set it is in either way. Its own prop still wins.
   const group = React.useContext(MPButtonGroupContext);
   const variant = variantProp ?? group?.variant ?? 'outlined';
-  const size: MPSize = sizeProp ?? group?.size ?? 'md';
-  const color: MPColor = colorProp ?? group?.color ?? 'primary';
+  const size = useMPSize(sizeProp ?? group?.size);
+  const color = useMPColor(colorProp ?? group?.color);
   const disabled = disabledProp ?? group?.disabled ?? false;
 
   const iconOnly = !hasContent(children);

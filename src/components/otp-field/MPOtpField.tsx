@@ -3,6 +3,7 @@ import { Field } from '@base-ui/react/field';
 import { OTPField } from '@base-ui/react/otp-field';
 import { MPSupportingText } from '../../internal/SupportingText';
 import { META_TEXT, STACK_GAP, hasContent } from '../../internal/scale';
+import { useMPSize } from '../../internal/config';
 import type { MPSize, MPStyleProps } from '../../types';
 
 /**
@@ -149,7 +150,7 @@ const VALIDATION: Record<MPOtpFieldCharset, 'numeric' | 'alpha' | 'alphanumeric'
  */
 export const MPOtpField = React.forwardRef<HTMLDivElement, MPOtpFieldProps>(function MPOtpField(
   {
-    size = 'md',
+    size: sizeProp,
     fullWidth = false,
     length = 6,
     charset = 'numeric',
@@ -175,6 +176,7 @@ export const MPOtpField = React.forwardRef<HTMLDivElement, MPOtpFieldProps>(func
   },
   ref
 ) {
+  const size = useMPSize(sizeProp);
   const slots = Math.min(MAX_LENGTH, Math.max(MIN_LENGTH, Math.round(length)));
   const invalid = hasContent(errorMessage);
   const every = groupSize && groupSize > 0 ? Math.round(groupSize) : 0;

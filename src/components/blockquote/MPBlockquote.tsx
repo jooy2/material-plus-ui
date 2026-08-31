@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { accentSlots } from '../../internal/accent';
 import { hasContent, META_TEXT, SHEET_PAD } from '../../internal/scale';
+import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPColor, MPSize, MPVariant } from '../../types';
 
 /**
@@ -144,8 +145,8 @@ function QuoteMarkIcon() {
 export const MPBlockquote = React.forwardRef<HTMLElement, MPBlockquoteProps>(function MPBlockquote(
   {
     variant = 'text',
-    size = 'md',
-    color = 'primary',
+    size: sizeProp,
+    color: colorProp,
     author,
     source,
     cite,
@@ -157,6 +158,8 @@ export const MPBlockquote = React.forwardRef<HTMLElement, MPBlockquoteProps>(fun
   },
   ref
 ) {
+  const size = useMPSize(sizeProp);
+  const color = useMPColor(colorProp);
   const attributed = hasContent(author) || hasContent(source);
   const glyph = icon === undefined ? <QuoteMarkIcon /> : icon;
   const painted = variant !== 'text';

@@ -4,6 +4,7 @@ import { linkRel } from '../../internal/link';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { hasContent } from '../../internal/scale';
 import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
+import { useMPSize } from '../../internal/config';
 import type { MPPosition, MPSize } from '../../types';
 
 /** A destination's value. The same restraint `MPTabs` puts on a tab's. */
@@ -274,7 +275,7 @@ export const MPBottomNavigation = React.forwardRef<HTMLElement, MPBottomNavigati
       onValueChange,
       position = 'fixed',
       labels = 'all',
-      size = 'md',
+      size: sizeProp,
       divider = false,
       safeArea = true,
       disabled = false,
@@ -286,6 +287,7 @@ export const MPBottomNavigation = React.forwardRef<HTMLElement, MPBottomNavigati
     },
     ref
   ) {
+    const size = useMPSize(sizeProp);
     const [uncontrolled, setUncontrolled] = React.useState<MPBottomNavigationValue | null>(
       defaultValue
     );

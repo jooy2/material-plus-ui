@@ -4,6 +4,7 @@ import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { EMPTY } from '../../internal/messages/empty';
 import { hasContent, PROSE_TEXT, SHEET_GAP, SHEET_PAD_X, SHEET_TITLE } from '../../internal/scale';
 import { CONTAINER_SURFACE } from '../../internal/surface';
+import { useMPSize } from '../../internal/config';
 import type { MPSize, MPVariant } from '../../types';
 
 export interface MPEmptyProps extends Omit<
@@ -150,7 +151,7 @@ function TrayIcon() {
 export const MPEmpty = React.forwardRef<HTMLDivElement, MPEmptyProps>(function MPEmpty(
   {
     variant = 'text',
-    size = 'md',
+    size: sizeProp,
     title,
     icon,
     action,
@@ -163,6 +164,7 @@ export const MPEmpty = React.forwardRef<HTMLDivElement, MPEmptyProps>(function M
   },
   ref
 ) {
+  const size = useMPSize(sizeProp);
   const locale = useMPLocale(localeProp);
   const messages = useMPMessages(EMPTY, locale);
   const heading = title === undefined ? messages.title : title;

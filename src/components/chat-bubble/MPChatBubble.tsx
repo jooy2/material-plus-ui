@@ -7,6 +7,7 @@ import { linkRel, safeHref } from '../../internal/link';
 import { CHAT } from '../../internal/messages/chat';
 import { hasContent, META_TEXT, PROSE_TEXT } from '../../internal/scale';
 import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
+import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPColor, MPSize, MPVariant } from '../../types';
 
 /**
@@ -310,8 +311,8 @@ export const MPChatBubble = React.forwardRef<HTMLDivElement, MPChatBubbleProps>(
       actions,
       locale: localeProp,
       variant = 'tonal',
-      size = 'md',
-      color = 'primary',
+      size: sizeProp,
+      color: colorProp,
       className,
       style,
       children,
@@ -319,6 +320,8 @@ export const MPChatBubble = React.forwardRef<HTMLDivElement, MPChatBubbleProps>(
     },
     ref
   ) {
+    const size = useMPSize(sizeProp);
+    const color = useMPColor(colorProp);
     const locale = useMPLocale(localeProp);
     const messages = useMPMessages(CHAT, locale);
     const end = side === 'end';

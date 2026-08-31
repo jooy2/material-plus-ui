@@ -14,6 +14,7 @@ import {
   SHEET_TITLE
 } from '../../internal/scale';
 import { CONTAINER_SURFACE } from '../../internal/surface';
+import { useMPSize } from '../../internal/config';
 import type { MPSize, MPVariant } from '../../types';
 
 export interface MPCollapsibleProps extends Omit<
@@ -167,7 +168,7 @@ export const MPCollapsible = React.forwardRef<HTMLDivElement, MPCollapsibleProps
       disabled = false,
       padded = true,
       variant = 'outlined',
-      size = 'md',
+      size: sizeProp,
       hiddenUntilFound = false,
       keepMounted = false,
       className,
@@ -176,6 +177,7 @@ export const MPCollapsible = React.forwardRef<HTMLDivElement, MPCollapsibleProps
     },
     ref
   ) {
+    const size = useMPSize(sizeProp);
     const padX = SHEET_PAD_X[size];
     const padY = SHEET_PAD_Y[size];
 

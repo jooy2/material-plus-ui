@@ -4,6 +4,7 @@ import { accentSlots } from '../../internal/accent';
 import { cssLength } from '../../internal/length';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { hasContent } from '../../internal/scale';
+import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPColor, MPCorner, MPPosition, MPSize } from '../../types';
 
 /**
@@ -269,8 +270,8 @@ export const MPFloatingActionButton = React.forwardRef<
     label,
     extended = false,
     variant = 'tonal',
-    color = 'primary',
-    size = 'md',
+    color: colorProp,
+    size: sizeProp,
     position = 'fixed',
     corner = 'bottom-end',
     offset = 16,
@@ -282,6 +283,8 @@ export const MPFloatingActionButton = React.forwardRef<
   },
   ref
 ) {
+  const color = useMPColor(colorProp);
+  const size = useMPSize(sizeProp);
   return (
     <BaseUIButton
       ref={ref}

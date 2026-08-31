@@ -5,6 +5,7 @@ import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { SPOILER } from '../../internal/messages/spoiler';
 import { hasContent, META_TEXT, SHEET_PAD, SHEET_PAD_X, SHEET_PAD_Y } from '../../internal/scale';
 import { CONTAINER_SURFACE } from '../../internal/surface';
+import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPColor, MPSize, MPVariant } from '../../types';
 
 export interface MPSpoilerProps extends Omit<
@@ -145,14 +146,16 @@ export const MPSpoiler = React.forwardRef<HTMLDivElement, MPSpoilerProps>(functi
     blur = 10,
     padded = true,
     variant = 'outlined',
-    size = 'md',
-    color = 'primary',
+    size: sizeProp,
+    color: colorProp,
     className,
     children,
     ...props
   },
   ref
 ) {
+  const size = useMPSize(sizeProp);
+  const color = useMPColor(colorProp);
   const locale = useMPLocale(localeProp);
   const messages = useMPMessages(SPOILER, locale);
   const contentId = React.useId();

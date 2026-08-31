@@ -5,6 +5,7 @@ import { TABLE } from '../../internal/messages/table';
 import { cssLength } from '../../internal/length';
 import { META_TEXT } from '../../internal/scale';
 import { CONTAINER_SURFACE } from '../../internal/surface';
+import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPAlign, MPColor, MPSize, MPVariant } from '../../types';
 
 /** Which edge the text in a column lines up against. */
@@ -271,12 +272,14 @@ export function MPTable<Row>({
   stickyHeader = false,
   onRowClick,
   variant = 'outlined',
-  size = 'md',
-  color = 'primary',
+  size: sizeProp,
+  color: colorProp,
   className,
   style,
   ...props
 }: MPTableProps<Row>) {
+  const size = useMPSize(sizeProp);
+  const color = useMPColor(colorProp);
   const messages = useMPMessages(TABLE, useMPLocale(localeProp));
   const padX = CELL_PAD_X[size];
   const padY = CELL_PAD_Y[size];

@@ -7,6 +7,7 @@ import { COMMON } from '../../internal/messages/common';
 import { FILE_PICKER } from '../../internal/messages/file-picker';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { CONTROL_ICON, META_TEXT, PROSE_TEXT, STACK_GAP, hasContent } from '../../internal/scale';
+import { useMPSize } from '../../internal/config';
 import type { MPSize, MPStyleProps } from '../../types';
 
 /** Why a file was turned away. One reason per file, in the order they are checked. */
@@ -210,7 +211,7 @@ export const MPFilePicker = React.forwardRef<HTMLInputElement, MPFilePickerProps
       showList = true,
       removeLabel,
       locale: localeProp,
-      size = 'md',
+      size: sizeProp,
       fullWidth = true,
       required = false,
       disabled = false,
@@ -222,6 +223,7 @@ export const MPFilePicker = React.forwardRef<HTMLInputElement, MPFilePickerProps
     },
     ref
   ) {
+    const size = useMPSize(sizeProp);
     const locale = useMPLocale(localeProp);
     const messages = useMPMessages(COMMON, locale);
     const words = useMPMessages(FILE_PICKER, locale);

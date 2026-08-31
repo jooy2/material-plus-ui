@@ -11,6 +11,7 @@ import {
   CONTROL_PAD_X,
   CONTROL_TEXT
 } from '../../internal/scale';
+import { useMPSize } from '../../internal/config';
 import type { MPStyleProps } from '../../types';
 
 export interface MPSegment {
@@ -103,7 +104,7 @@ export const MPSegmentedButton = React.forwardRef<HTMLDivElement, MPSegmentedBut
       onValueChange,
       multiple = false,
       showCheck = true,
-      size = 'md',
+      size: sizeProp,
       fullWidth = false,
       disabled = false,
       'aria-label': ariaLabel,
@@ -112,6 +113,7 @@ export const MPSegmentedButton = React.forwardRef<HTMLDivElement, MPSegmentedBut
     },
     ref
   ) {
+    const size = useMPSize(sizeProp);
     return (
       <ToggleGroup
         ref={ref}

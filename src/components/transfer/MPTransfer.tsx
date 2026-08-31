@@ -8,6 +8,7 @@ import { ArrowRightIcon } from '../../constants/icons';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { cssLength } from '../../internal/length';
 import { TRANSFER } from '../../internal/messages/transfer';
+import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPMessages } from '../../internal/i18n';
 import { hasContent, META_TEXT, SHEET_PAD_X } from '../../internal/scale';
 import type { MPColor, MPSize, MPVariant } from '../../types';
@@ -278,8 +279,8 @@ export const MPTransfer = React.forwardRef<HTMLDivElement, MPTransferProps>(func
     height = 220,
     disabled = false,
     variant = 'outlined',
-    size = 'md',
-    color = 'primary',
+    size: sizeProp,
+    color: colorProp,
     locale: localeProp,
     labels,
     className,
@@ -287,6 +288,8 @@ export const MPTransfer = React.forwardRef<HTMLDivElement, MPTransferProps>(func
   },
   ref
 ) {
+  const size = useMPSize(sizeProp);
+  const color = useMPColor(colorProp);
   const locale = useMPLocale(localeProp);
   const messages = useMPMessages(TRANSFER, locale, labels);
 

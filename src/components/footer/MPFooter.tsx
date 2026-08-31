@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { BAR_SURFACE, MPPageLayoutContext } from '../../internal/page-layout';
 import { MEASURE, SHEET_PAD_X, SHEET_PAD_Y } from '../../internal/scale';
+import { useMPSize } from '../../internal/config';
 import type { MPPosition, MPSize, MPVariant } from '../../types';
 
 export interface MPFooterProps extends Omit<React.ComponentPropsWithoutRef<'footer'>, 'title'> {
@@ -106,7 +107,7 @@ export const MPFooter = React.forwardRef<HTMLElement, MPFooterProps>(function MP
   {
     position = 'static',
     variant = 'outlined',
-    size = 'md',
+    size: sizeProp,
     maxWidth = 'none',
     padded = true,
     label,
@@ -117,6 +118,7 @@ export const MPFooter = React.forwardRef<HTMLElement, MPFooterProps>(function MP
   },
   ref
 ) {
+  const size = useMPSize(sizeProp);
   const { register } = React.useContext(MPPageLayoutContext);
 
   const setRef = React.useCallback(

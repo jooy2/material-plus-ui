@@ -13,6 +13,7 @@ import { PAGINATION } from '../../internal/messages/pagination';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { CONTROL_ICON, CONTROL_TEXT } from '../../internal/scale';
 import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
+import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPColor, MPSize, MPStyleProps } from '../../types';
 
 /** The words the row says on its own behalf. */
@@ -225,8 +226,8 @@ export const MPPagination = React.forwardRef<HTMLElement, MPPaginationProps>(fun
     boundaryCount = 1,
     showEdges = false,
     showArrows = true,
-    size = 'md',
-    color = 'primary',
+    size: sizeProp,
+    color: colorProp,
     fullWidth = false,
     disabled = false,
     getPageHref,
@@ -238,6 +239,8 @@ export const MPPagination = React.forwardRef<HTMLElement, MPPaginationProps>(fun
   },
   ref
 ) {
+  const size = useMPSize(sizeProp);
+  const color = useMPColor(colorProp);
   const locale = useMPLocale(localeProp);
   const messages = useMPMessages(PAGINATION, locale, labels);
 

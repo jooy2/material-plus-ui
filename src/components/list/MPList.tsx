@@ -5,6 +5,7 @@ import { linkRel } from '../../internal/link';
 import { CONTROL_GAP, hasContent, PROSE_TEXT, SHEET_PAD_X } from '../../internal/scale';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { CONTAINER_SURFACE } from '../../internal/surface';
+import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPColor, MPSize, MPVariant } from '../../types';
 
 /**
@@ -196,8 +197,8 @@ const DIVIDERS = '[&>li+li]:border-mp-outline-variant [&>li+li]:border-t';
 export const MPList = React.forwardRef<HTMLUListElement, MPListProps>(function MPList(
   {
     variant = 'outlined',
-    size = 'md',
-    color = 'primary',
+    size: sizeProp,
+    color: colorProp,
     dividers = false,
     render,
     className,
@@ -207,6 +208,8 @@ export const MPList = React.forwardRef<HTMLUListElement, MPListProps>(function M
   },
   ref
 ) {
+  const size = useMPSize(sizeProp);
+  const color = useMPColor(colorProp);
   const context = React.useMemo(() => ({ size, color, dividers }), [size, color, dividers]);
 
   const classNames = [

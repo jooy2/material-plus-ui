@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { BAR_SURFACE, MPPageLayoutContext } from '../../internal/page-layout';
 import { hasContent, MEASURE, SHEET_PAD_X } from '../../internal/scale';
+import { useMPSize } from '../../internal/config';
 import type { MPAlign, MPPosition, MPSize, MPVariant } from '../../types';
 
 export interface MPHeaderProps extends Omit<React.ComponentPropsWithoutRef<'header'>, 'title'> {
@@ -222,7 +223,7 @@ export const MPHeader = React.forwardRef<HTMLElement, MPHeaderProps>(function MP
     align = 'start',
     position = 'sticky',
     variant = 'tonal',
-    size = 'md',
+    size: sizeProp,
     maxWidth = 'none',
     padded = true,
     label,
@@ -233,6 +234,7 @@ export const MPHeader = React.forwardRef<HTMLElement, MPHeaderProps>(function MP
   },
   ref
 ) {
+  const size = useMPSize(sizeProp);
   const { register } = React.useContext(MPPageLayoutContext);
 
   const setRef = React.useCallback(

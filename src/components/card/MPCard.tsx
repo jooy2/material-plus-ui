@@ -9,6 +9,7 @@ import {
   SHEET_PAD_Y,
   SHEET_TITLE
 } from '../../internal/scale';
+import { useMPSize } from '../../internal/config';
 
 export interface MPCardProps extends Omit<MPBoxProps, 'title' | 'padded'> {
   /**
@@ -89,7 +90,7 @@ const RULE = 'border-mp-outline-variant border-t';
  */
 export const MPCard = React.forwardRef<HTMLDivElement, MPCardProps>(function MPCard(
   {
-    size = 'md',
+    size: sizeProp,
     title,
     subtitle,
     headerAction,
@@ -102,6 +103,7 @@ export const MPCard = React.forwardRef<HTMLDivElement, MPCardProps>(function MPC
   },
   ref
 ) {
+  const size = useMPSize(sizeProp);
   const padX = SHEET_PAD_X[size];
   const padY = SHEET_PAD_Y[size];
   // With dividers the lines have to reach both edges, so the sheet gives up its

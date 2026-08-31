@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { MEASURE, SHEET_PAD_X } from '../../internal/scale';
+import { useMPSize } from '../../internal/config';
 import type { MPSize } from '../../types';
 
 export interface MPContainerProps extends React.ComponentPropsWithoutRef<'div'> {
@@ -79,7 +80,7 @@ export const MPContainer = React.forwardRef<HTMLDivElement, MPContainerProps>(fu
   {
     maxWidth = 'none',
     padded = true,
-    size = 'md',
+    size: sizeProp,
     centered = true,
     render,
     className,
@@ -88,6 +89,7 @@ export const MPContainer = React.forwardRef<HTMLDivElement, MPContainerProps>(fu
   },
   ref
 ) {
+  const size = useMPSize(sizeProp);
   return useRender({
     render,
     ref,

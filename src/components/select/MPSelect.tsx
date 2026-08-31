@@ -8,6 +8,7 @@ import { MPStateLayer } from '../../internal/StateLayer';
 import { MPSupportingText } from '../../internal/SupportingText';
 import { CONTROL_ICON, PROSE_TEXT, hasContent } from '../../internal/scale';
 import { FADE, PORTAL_LAYER } from '../../internal/surface';
+import { useMPSize } from '../../internal/config';
 import type { MPControlEventProps, MPSize, MPStyleProps } from '../../types';
 
 /**
@@ -168,7 +169,7 @@ export const MPSelect = React.forwardRef<HTMLButtonElement, MPSelectProps>(funct
     description,
     errorMessage,
     startIcon,
-    size = 'md',
+    size: sizeProp,
     fullWidth = false,
     required = false,
     disabled = false,
@@ -180,6 +181,7 @@ export const MPSelect = React.forwardRef<HTMLButtonElement, MPSelectProps>(funct
   },
   ref
 ) {
+  const size = useMPSize(sizeProp);
   const invalid = hasContent(errorMessage);
   const scale = TRIGGER[size];
   const generatedId = React.useId();

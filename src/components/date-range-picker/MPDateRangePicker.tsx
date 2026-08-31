@@ -26,6 +26,7 @@ import {
   today,
   withPlaceholder
 } from '../../internal/date';
+import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPWeekday } from '../../types';
 
 /**
@@ -150,8 +151,8 @@ export const MPDateRangePicker = React.forwardRef<HTMLButtonElement, MPDateRange
       closeOnSelect = true,
       labels: labelOverrides,
       name,
-      size = 'md',
-      color = 'primary',
+      size: sizeProp,
+      color: colorProp,
       readOnly = false,
       disabled = false,
       startIcon,
@@ -159,6 +160,8 @@ export const MPDateRangePicker = React.forwardRef<HTMLButtonElement, MPDateRange
     },
     ref
   ) {
+    const size = useMPSize(sizeProp);
+    const color = useMPColor(colorProp);
     const locale = useMPLocale(localeProp);
     const labels = useMPMessages(PICKER, locale, labelOverrides);
     const firstDay = weekStartsOn ?? localeWeekStart(locale);

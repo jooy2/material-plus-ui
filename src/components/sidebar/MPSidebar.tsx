@@ -14,6 +14,7 @@ import {
   type MPSidebarSide
 } from '../../internal/page-layout';
 import { SHEET_PAD_X, SHEET_PAD_Y } from '../../internal/scale';
+import { useMPSize } from '../../internal/config';
 import type { MPSize, MPVariant } from '../../types';
 
 export type { MPPageCollapse, MPSidebarSide } from '../../internal/page-layout';
@@ -236,7 +237,7 @@ export const MPSidebar = React.forwardRef<HTMLElement, MPSidebarProps>(function 
     sticky = true,
     title,
     variant = 'outlined',
-    size = 'md',
+    size: sizeProp,
     padded = true,
     label,
     locale: localeProp,
@@ -247,6 +248,7 @@ export const MPSidebar = React.forwardRef<HTMLElement, MPSidebarProps>(function 
   },
   ref
 ) {
+  const size = useMPSize(sizeProp);
   const layout = React.useContext(MPPageLayoutContext);
   const slotSide = React.useContext(MPSidebarSideContext);
   const side = sideProp ?? slotSide ?? 'start';

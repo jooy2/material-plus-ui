@@ -9,6 +9,7 @@ import { accentSlots } from '../../internal/accent';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { CONTROL_ICON, META_TEXT, hasContent } from '../../internal/scale';
 import { FADE, PORTAL_LAYER } from '../../internal/surface';
+import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPAlign, MPColor, MPSide, MPSize } from '../../types';
 
 /**
@@ -679,8 +680,8 @@ export function MPMenuSubmenu({
  * spelled as a discriminated union.
  */
 export function MPMenu({
-  size = 'md',
-  color = 'primary',
+  size: sizeProp,
+  color: colorProp,
   trigger,
   open,
   defaultOpen,
@@ -703,6 +704,8 @@ export function MPMenu({
   style,
   children
 }: MPMenuProps) {
+  const size = useMPSize(sizeProp);
+  const color = useMPColor(colorProp);
   const context = React.useMemo(() => ({ size, color }), [size, color]);
 
   return (
@@ -756,8 +759,8 @@ export function MPMenu({
  * screen at all.
  */
 export function MPContextMenu({
-  size = 'md',
-  color = 'primary',
+  size: sizeProp,
+  color: colorProp,
   content,
   children,
   open,
@@ -768,6 +771,8 @@ export function MPContextMenu({
   className,
   style
 }: MPContextMenuProps) {
+  const size = useMPSize(sizeProp);
+  const color = useMPColor(colorProp);
   const context = React.useMemo(() => ({ size, color }), [size, color]);
 
   return (

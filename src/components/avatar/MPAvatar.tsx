@@ -4,6 +4,7 @@ import { accentSlots } from '../../internal/accent';
 import { MPAvatarGroupContext } from '../../internal/avatar-group';
 import { CONTROL_SQUARE, hasContent } from '../../internal/scale';
 import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
+import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPColor, MPSize, MPVariant } from '../../types';
 
 /** What Base UI reports about the picture as it loads. */
@@ -227,8 +228,8 @@ export const MPAvatar = React.forwardRef<HTMLSpanElement, MPAvatarProps>(functio
   const group = React.useContext(MPAvatarGroupContext);
   const shape = shapeProp ?? group?.shape ?? 'circle';
   const variant = variantProp ?? group?.variant ?? 'tonal';
-  const size: MPSize = sizeProp ?? group?.size ?? 'md';
-  const color: MPColor = colorProp ?? group?.color ?? 'primary';
+  const size = useMPSize(sizeProp ?? group?.size);
+  const color = useMPColor(colorProp ?? group?.color);
 
   const derived = name ? initialsOf(name) : '';
   const label = alt ?? name;

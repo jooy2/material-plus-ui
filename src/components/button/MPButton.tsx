@@ -19,7 +19,8 @@ import {
   CONTROL_TEXT,
   hasContent
 } from '../../internal/scale';
-import type { MPColor, MPSize, MPStyleProps, MPVariant } from '../../types';
+import { useMPColor, useMPSize } from '../../internal/config';
+import type { MPColor, MPStyleProps, MPVariant } from '../../types';
 
 /**
  * What the button is made of, at rest.
@@ -215,8 +216,8 @@ export const MPButton = React.forwardRef<HTMLButtonElement, MPButtonProps>(funct
   const messages = useMPMessages(COMMON, locale);
   const group = React.useContext(MPButtonGroupContext);
   const variant = variantProp ?? group?.variant ?? 'filled';
-  const size: MPSize = sizeProp ?? group?.size ?? 'md';
-  const color: MPColor = colorProp ?? group?.color ?? 'primary';
+  const size = useMPSize(sizeProp ?? group?.size);
+  const color = useMPColor(colorProp ?? group?.color);
   const disabled = disabledProp ?? group?.disabled ?? false;
 
   /*

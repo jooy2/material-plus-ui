@@ -8,6 +8,7 @@ import { COMMON } from '../../internal/messages/common';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { cssLength } from '../../internal/length';
 import { PORTAL_LAYER } from '../../internal/surface';
+import { useMPSize } from '../../internal/config';
 import type { MPAlign, MPColor, MPSize } from '../../types';
 
 /**
@@ -535,12 +536,13 @@ export function MPSnackbarProvider({
   timeout = 5000,
   limit = 3,
   width = 600,
-  size = 'md',
+  size: sizeProp,
   showClose = true,
   closeLabel,
   locale: localeProp,
   children
 }: MPSnackbarProviderProps) {
+  const size = useMPSize(sizeProp);
   const locale = useMPLocale(localeProp);
   const messages = useMPMessages(COMMON, locale);
 

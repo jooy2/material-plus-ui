@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
+import { useMPSize } from '../../internal/config';
 import type { MPSize } from '../../types';
 
 /**
@@ -119,7 +120,7 @@ export const MPAspectRatio = React.forwardRef<HTMLDivElement, MPAspectRatioProps
       ratio = 1,
       fit = 'cover',
       rounded = false,
-      size = 'md',
+      size: sizeProp,
       render,
       className,
       style,
@@ -128,6 +129,7 @@ export const MPAspectRatio = React.forwardRef<HTMLDivElement, MPAspectRatioProps
     },
     ref
   ) {
+    const size = useMPSize(sizeProp);
     const classNames = [
       // `overflow-hidden` is not decoration: without it a `cover` image spills
       // out of the proportion it was just given, and the box would only be

@@ -10,6 +10,7 @@ import {
   progressText,
   type MPProgressProps
 } from '../../internal/progress';
+import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPColor, MPSize } from '../../types';
 
 export interface MPProgressLinearProps extends MPProgressProps {
@@ -44,8 +45,8 @@ export interface MPProgressLinearProps extends MPProgressProps {
 export const MPProgressLinear = React.forwardRef<HTMLDivElement, MPProgressLinearProps>(
   function MPProgressLinear(
     {
-      size = 'md',
-      color = 'primary',
+      size: sizeProp,
+      color: colorProp,
       value = null,
       min = 0,
       max = 100,
@@ -58,6 +59,8 @@ export const MPProgressLinear = React.forwardRef<HTMLDivElement, MPProgressLinea
     },
     ref
   ) {
+    const size = useMPSize(sizeProp);
+    const color = useMPColor(colorProp);
     const fraction = progressFraction(value, min, max);
     const indeterminate = fraction === null;
     // Drawn or not, the name is the same name. `hideLabel` decides which of the

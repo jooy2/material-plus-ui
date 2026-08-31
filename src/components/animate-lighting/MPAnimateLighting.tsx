@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { accentSlots } from '../../internal/accent';
 import { isInfinite, repeatValue, useAnimationRun } from '../../internal/animate';
+import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPAnimateProps, MPColor, MPSize } from '../../types';
 
 export interface MPAnimateLightingProps
@@ -102,8 +103,8 @@ export const MPAnimateLighting = React.forwardRef<HTMLDivElement, MPAnimateLight
       play,
       once = true,
       threshold = 0.2,
-      color = 'primary',
-      size = 'md',
+      color: colorProp,
+      size: sizeProp,
       spread = 3,
       arc = 50,
       blur = 4,
@@ -116,6 +117,8 @@ export const MPAnimateLighting = React.forwardRef<HTMLDivElement, MPAnimateLight
     },
     ref
   ) {
+    const color = useMPColor(colorProp);
+    const size = useMPSize(sizeProp);
     const run = useAnimationRun({
       trigger,
       play,

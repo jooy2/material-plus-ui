@@ -11,6 +11,7 @@ import {
   PROSE_TEXT,
   SHEET_PAD_X
 } from '../../internal/scale';
+import { useMPSize } from '../../internal/config';
 import type { MPColor, MPSize, MPVariant } from '../../types';
 
 /**
@@ -231,7 +232,7 @@ export const MPPill = React.forwardRef<HTMLDivElement, MPPillProps>(function MPP
     side = 'top',
     onClick,
     variant = 'filled',
-    size = 'md',
+    size: sizeProp,
     color = 'secondary',
     className,
     style,
@@ -240,6 +241,7 @@ export const MPPill = React.forwardRef<HTMLDivElement, MPPillProps>(function MPP
   },
   ref
 ) {
+  const size = useMPSize(sizeProp);
   const detailsRef = React.useRef<HTMLDivElement>(null);
   const detailsId = React.useId();
   const [detailsHeight, setDetailsHeight] = React.useState(0);

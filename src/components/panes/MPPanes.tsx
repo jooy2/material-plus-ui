@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { accentSlots } from '../../internal/accent';
 import { pixelsIn } from '../../internal/length';
+import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPColor, MPOrientation, MPSize } from '../../types';
 
 /**
@@ -194,8 +195,8 @@ export const MPPanes = React.forwardRef<HTMLDivElement, MPPanesProps>(function M
   {
     orientation = 'horizontal',
     resizable = true,
-    color = 'primary',
-    size = 'md',
+    color: colorProp,
+    size: sizeProp,
     onResize,
     onResizeEnd,
     className,
@@ -205,6 +206,8 @@ export const MPPanes = React.forwardRef<HTMLDivElement, MPPanesProps>(function M
   },
   ref
 ) {
+  const color = useMPColor(colorProp);
+  const size = useMPSize(sizeProp);
   const items = React.Children.toArray(children).filter(
     React.isValidElement
   ) as React.ReactElement<MPPaneProps>[];

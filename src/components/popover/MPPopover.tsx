@@ -15,6 +15,7 @@ import {
   SHEET_TITLE
 } from '../../internal/scale';
 import { FADE, PORTAL_LAYER } from '../../internal/surface';
+import { useMPSize } from '../../internal/config';
 import type { MPAlign, MPSide, MPSize } from '../../types';
 
 /**
@@ -202,11 +203,12 @@ export function MPPopover({
   closeLabel,
   locale: localeProp,
   width,
-  size = 'md',
+  size: sizeProp,
   className,
   style,
   children
 }: MPPopoverProps) {
+  const size = useMPSize(sizeProp);
   const locale = useMPLocale(localeProp);
   const messages = useMPMessages(COMMON, locale);
   const hasHeader = hasContent(title) || hasContent(description);

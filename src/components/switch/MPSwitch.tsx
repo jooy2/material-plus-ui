@@ -7,6 +7,7 @@ import { accentSlots } from '../../internal/accent';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { MPSupportingText } from '../../internal/SupportingText';
 import { PROSE_TEXT, hasContent } from '../../internal/scale';
+import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPColor, MPSize } from '../../types';
 
 /** Which side of the track the label sits on. */
@@ -163,8 +164,8 @@ export const MPSwitch = React.forwardRef<HTMLElement, MPSwitchProps>(function MP
     errorMessage,
     icons = false,
     labelPlacement = 'end',
-    size = 'md',
-    color = 'primary',
+    size: sizeProp,
+    color: colorProp,
     required = false,
     disabled = false,
     readOnly = false,
@@ -176,6 +177,8 @@ export const MPSwitch = React.forwardRef<HTMLElement, MPSwitchProps>(function MP
   },
   ref
 ) {
+  const size = useMPSize(sizeProp);
+  const color = useMPColor(colorProp);
   const invalid = hasContent(errorMessage);
   const family: MPColor = invalid ? 'error' : color;
   const scale = TRACK[size];

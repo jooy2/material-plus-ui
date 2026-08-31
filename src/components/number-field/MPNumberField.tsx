@@ -9,6 +9,7 @@ import { NUMBER_FIELD } from '../../internal/messages/number-field';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { MPSupportingText } from '../../internal/SupportingText';
 import { CONTROL_ICON, PROSE_TEXT, hasContent } from '../../internal/scale';
+import { useMPSize } from '../../internal/config';
 import type { MPControlEventProps, MPSize, MPStyleProps } from '../../types';
 
 /**
@@ -180,7 +181,7 @@ export function MPNumberField({
   errorMessage,
   placeholder,
   startIcon,
-  size = 'md',
+  size: sizeProp,
   fullWidth = false,
   required = false,
   disabled = false,
@@ -190,6 +191,7 @@ export function MPNumberField({
   className,
   style
 }: MPNumberFieldProps) {
+  const size = useMPSize(sizeProp);
   /*
    * The steppers' names come from the same `locale` the number does.
    *

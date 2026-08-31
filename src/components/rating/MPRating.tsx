@@ -6,6 +6,7 @@ import { fillMessage, type MPMessages } from '../../internal/i18n';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { RATING } from '../../internal/messages/rating';
 import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
+import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPColor, MPSize } from '../../types';
 
 /** The words the control says on its own behalf. */
@@ -183,8 +184,8 @@ export const MPRating = React.forwardRef<HTMLDivElement, MPRatingProps>(function
     disabled = false,
     name: nameProp,
     required = false,
-    size = 'md',
-    color = 'primary',
+    size: sizeProp,
+    color: colorProp,
     locale: localeProp,
     labels,
     structuredData = false,
@@ -195,6 +196,8 @@ export const MPRating = React.forwardRef<HTMLDivElement, MPRatingProps>(function
   },
   ref
 ) {
+  const size = useMPSize(sizeProp);
+  const color = useMPColor(colorProp);
   const locale = useMPLocale(localeProp);
   const messages = useMPMessages(RATING, locale, labels);
 

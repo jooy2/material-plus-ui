@@ -14,6 +14,7 @@ import {
   SHEET_TITLE
 } from '../../internal/scale';
 import { CONTAINER_SURFACE } from '../../internal/surface';
+import { useMPSize } from '../../internal/config';
 import type { MPSize, MPVariant } from '../../types';
 
 /**
@@ -242,7 +243,7 @@ export const MPAccordion = React.forwardRef<HTMLDivElement, MPAccordionProps>(fu
     dividers = true,
     disabled = false,
     variant = 'outlined',
-    size = 'md',
+    size: sizeProp,
     hiddenUntilFound = false,
     keepMounted = false,
     className,
@@ -251,6 +252,7 @@ export const MPAccordion = React.forwardRef<HTMLDivElement, MPAccordionProps>(fu
   },
   ref
 ) {
+  const size = useMPSize(sizeProp);
   const context = React.useMemo(() => ({ size, dividers }), [size, dividers]);
 
   return (

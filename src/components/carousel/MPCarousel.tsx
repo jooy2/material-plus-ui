@@ -9,6 +9,7 @@ import { CAROUSEL } from '../../internal/messages/carousel';
 import { CONTROL_ICON } from '../../internal/scale';
 import { CONTAINER_SURFACE } from '../../internal/surface';
 import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
+import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPColor, MPSize, MPVariant } from '../../types';
 
 export interface MPCarouselProps extends Omit<
@@ -172,8 +173,8 @@ export const MPCarousel = React.forwardRef<HTMLDivElement, MPCarouselProps>(func
     arrows = true,
     indicators = true,
     variant = 'outlined',
-    size = 'md',
-    color = 'primary',
+    size: sizeProp,
+    color: colorProp,
     label,
     previousLabel,
     nextLabel,
@@ -186,6 +187,8 @@ export const MPCarousel = React.forwardRef<HTMLDivElement, MPCarouselProps>(func
   },
   ref
 ) {
+  const size = useMPSize(sizeProp);
+  const color = useMPColor(colorProp);
   const messages = useMPMessages(CAROUSEL, useMPLocale(localeProp));
   const name = label ?? messages.label;
   const describeSlide =

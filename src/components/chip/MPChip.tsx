@@ -6,6 +6,7 @@ import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { COMMON } from '../../internal/messages/common';
 import { hasContent } from '../../internal/scale';
 import { MPStateLayer } from '../../internal/StateLayer';
+import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPColor, MPSize, MPVariant } from '../../types';
 
 export interface MPChipProps extends Omit<React.ComponentPropsWithoutRef<'span'>, 'color'> {
@@ -270,8 +271,8 @@ const SHELL_BUTTON = [
 export const MPChip = React.forwardRef<HTMLElement, MPChipProps>(function MPChip(
   {
     variant = 'outlined',
-    size = 'md',
-    color = 'primary',
+    size: sizeProp,
+    color: colorProp,
     startIcon,
     endIcon,
     count,
@@ -288,6 +289,8 @@ export const MPChip = React.forwardRef<HTMLElement, MPChipProps>(function MPChip
   },
   ref
 ) {
+  const size = useMPSize(sizeProp);
+  const color = useMPColor(colorProp);
   const locale = useMPLocale(localeProp);
   const messages = useMPMessages(COMMON, locale);
   const interactive = Boolean(onClick) && !disabled;

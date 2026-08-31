@@ -16,6 +16,7 @@ import {
   SHEET_TITLE
 } from '../../internal/scale';
 import { FADE, PORTAL_LAYER, SCRIM, SHEET_MOTION } from '../../internal/surface';
+import { useMPSize } from '../../internal/config';
 import type { MPSide, MPSize } from '../../types';
 
 /**
@@ -328,11 +329,12 @@ export function MPDrawer({
   extent,
   rounded = true,
   dismissible = true,
-  size = 'md',
+  size: sizeProp,
   className,
   style,
   children
 }: MPDrawerProps) {
+  const size = useMPSize(sizeProp);
   const locale = useMPLocale(localeProp);
   const messages = useMPMessages(COMMON, locale);
   const modal = mode === 'modal';

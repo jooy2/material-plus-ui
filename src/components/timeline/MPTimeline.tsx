@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { accentSlots } from '../../internal/accent';
 import { hasContent, META_TEXT, PROSE_TEXT, SHEET_TITLE } from '../../internal/scale';
+import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPColor, MPOrientation, MPSize } from '../../types';
 
 /**
@@ -353,8 +354,8 @@ export const MPTimelineItem = React.forwardRef<HTMLLIElement, MPTimelineItemProp
 export const MPTimeline = React.forwardRef<HTMLOListElement, MPTimelineProps>(function MPTimeline(
   {
     active,
-    size = 'md',
-    color = 'primary',
+    size: sizeProp,
+    color: colorProp,
     orientation = 'vertical',
     render,
     className,
@@ -364,6 +365,8 @@ export const MPTimeline = React.forwardRef<HTMLOListElement, MPTimelineProps>(fu
   },
   ref
 ) {
+  const size = useMPSize(sizeProp);
+  const color = useMPColor(colorProp);
   // `toArray` is what drops the `null`s and `false`s a conditional step leaves
   // behind, so `active={2}` counts the steps that are actually on the page.
   const items = React.Children.toArray(children);

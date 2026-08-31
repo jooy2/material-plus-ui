@@ -6,6 +6,7 @@ import { accentSlots } from '../../internal/accent';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { MPSupportingText } from '../../internal/SupportingText';
 import { META_TEXT, PROSE_TEXT, hasContent } from '../../internal/scale';
+import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPColor, MPOrientation, MPSize } from '../../types';
 
 /**
@@ -259,8 +260,8 @@ export const MPRadioGroup = React.forwardRef<HTMLDivElement, MPRadioGroupProps>(
       description,
       errorMessage,
       orientation = 'vertical',
-      size = 'md',
-      color = 'primary',
+      size: sizeProp,
+      color: colorProp,
       required = false,
       disabled = false,
       readOnly = false,
@@ -271,6 +272,8 @@ export const MPRadioGroup = React.forwardRef<HTMLDivElement, MPRadioGroupProps>(
     },
     ref
   ) {
+    const size = useMPSize(sizeProp);
+    const color = useMPColor(colorProp);
     const invalid = hasContent(errorMessage);
     const family: MPColor = invalid ? 'error' : color;
     const labelId = React.useId();

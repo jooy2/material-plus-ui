@@ -4,6 +4,7 @@ import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { OVERLAY } from '../../internal/messages/overlay';
 import { FADE, PORTAL_LAYER, SCRIM } from '../../internal/surface';
 import { SHEET_PAD } from '../../internal/scale';
+import { useMPSize } from '../../internal/config';
 import type { MPAlign, MPSize } from '../../types';
 
 /**
@@ -128,13 +129,14 @@ export function MPOverlay({
   dismissible = false,
   modal = true,
   align = 'center',
-  size = 'md',
+  size: sizeProp,
   label,
   locale: localeProp,
   className,
   style,
   children
 }: MPOverlayProps) {
+  const size = useMPSize(sizeProp);
   const messages = useMPMessages(OVERLAY, useMPLocale(localeProp));
 
   return (

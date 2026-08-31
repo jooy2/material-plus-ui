@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { CONTROL_SQUARE } from '../../internal/scale';
 import { cssLength } from '../../internal/length';
+import { useMPSize } from '../../internal/config';
 import type { MPColor, MPSize } from '../../types';
 
 /**
@@ -133,7 +134,7 @@ export const MPSkeleton = React.forwardRef<HTMLDivElement, MPSkeletonProps>(func
   {
     shape = 'line',
     lines = 1,
-    size = 'md',
+    size: sizeProp,
     color,
     width,
     height,
@@ -146,6 +147,7 @@ export const MPSkeleton = React.forwardRef<HTMLDivElement, MPSkeletonProps>(func
   },
   ref
 ) {
+  const size = useMPSize(sizeProp);
   const pulse = animated ? PULSE : '';
 
   const shapeClasses =

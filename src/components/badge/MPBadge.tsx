@@ -2,6 +2,7 @@ import * as React from 'react';
 import { accentSlots } from '../../internal/accent';
 import { hasContent } from '../../internal/scale';
 import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
+import { useMPSize } from '../../internal/config';
 import type { MPColor, MPCorner, MPSize, MPVariant } from '../../types';
 
 export interface MPBadgeProps extends Omit<
@@ -226,7 +227,7 @@ function capContent(content: React.ReactNode, max: number): React.ReactNode {
 export const MPBadge = React.forwardRef<HTMLSpanElement, MPBadgeProps>(function MPBadge(
   {
     variant = 'filled',
-    size = 'md',
+    size: sizeProp,
     color = 'error',
     content,
     max = 99,
@@ -243,6 +244,7 @@ export const MPBadge = React.forwardRef<HTMLSpanElement, MPBadgeProps>(function 
   },
   ref
 ) {
+  const size = useMPSize(sizeProp);
   const anchored = hasContent(children);
   // `0` is content, and `hasContent` would agree — this is the one place the
   // library asks a second question, because a count of nothing is not news.

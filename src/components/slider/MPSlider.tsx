@@ -3,6 +3,7 @@ import { Slider } from '@base-ui/react/slider';
 import { accentSlots } from '../../internal/accent';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { META_TEXT, hasContent } from '../../internal/scale';
+import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPColor, MPOrientation, MPSize } from '../../types';
 
 /**
@@ -219,8 +220,8 @@ export const MPSlider = React.forwardRef<HTMLDivElement, MPSliderProps>(function
     showValue = false,
     format,
     orientation = 'horizontal',
-    size = 'md',
-    color = 'primary',
+    size: sizeProp,
+    color: colorProp,
     disabled = false,
     name,
     'aria-label': ariaLabel,
@@ -229,6 +230,8 @@ export const MPSlider = React.forwardRef<HTMLDivElement, MPSliderProps>(function
   },
   ref
 ) {
+  const size = useMPSize(sizeProp);
+  const color = useMPColor(colorProp);
   const vertical = orientation === 'vertical';
   const rail = RAIL[size];
   const describedById = React.useId();

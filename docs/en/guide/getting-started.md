@@ -255,6 +255,8 @@ Every control takes a `size` from one ladder — `xs`, `sm`, `md`, `lg`, `xl` �
 
 The ladder is the one place the library knowingly goes beyond the specification. Why, and what each rung is, is in [Prop conventions](../design/prop-conventions#size).
 
+To run a whole product at one rung, set it once rather than at every call site — see [App-wide defaults](./config).
+
 ## Class names and styles
 
 Every component takes a `className` and a `style`. Both land on the element its props table names — the outermost one it draws, except where the visible part is portalled out of the tree the trigger sits in: a dialog's sheet, a menu's popup, a tooltip's plate.

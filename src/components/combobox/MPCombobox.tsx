@@ -13,6 +13,7 @@ import { MPStateLayer } from '../../internal/StateLayer';
 import { MPSupportingText } from '../../internal/SupportingText';
 import { CONTROL_ICON, PROSE_TEXT, hasContent } from '../../internal/scale';
 import { FADE, PORTAL_LAYER } from '../../internal/surface';
+import { useMPSize } from '../../internal/config';
 import type { MPColor, MPControlEventProps, MPSize, MPStyleProps, MPVariant } from '../../types';
 
 /**
@@ -352,7 +353,7 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
   description,
   errorMessage,
   startIcon,
-  size = 'md',
+  size: sizeProp,
   fullWidth = false,
   required = false,
   disabled = false,
@@ -370,6 +371,7 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
   className,
   style
 }: MPComboboxProps<Multiple>) {
+  const size = useMPSize(sizeProp);
   const locale = useMPLocale(localeProp);
   const messages = useMPMessages(COMMON, locale);
   const words = useMPMessages(COMBOBOX, locale);

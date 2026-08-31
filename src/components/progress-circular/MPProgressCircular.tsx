@@ -11,6 +11,7 @@ import {
   progressText,
   type MPProgressProps
 } from '../../internal/progress';
+import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPColor, MPSize } from '../../types';
 
 export interface MPProgressCircularProps extends MPProgressProps {
@@ -45,8 +46,8 @@ export interface MPProgressCircularProps extends MPProgressProps {
 export const MPProgressCircular = React.forwardRef<HTMLDivElement, MPProgressCircularProps>(
   function MPProgressCircular(
     {
-      size = 'md',
-      color = 'primary',
+      size: sizeProp,
+      color: colorProp,
       value = null,
       min = 0,
       max = 100,
@@ -59,6 +60,8 @@ export const MPProgressCircular = React.forwardRef<HTMLDivElement, MPProgressCir
     },
     ref
   ) {
+    const size = useMPSize(sizeProp);
+    const color = useMPColor(colorProp);
     const fraction = progressFraction(value, min, max);
     const indeterminate = fraction === null;
     const hasFormat = format !== undefined;

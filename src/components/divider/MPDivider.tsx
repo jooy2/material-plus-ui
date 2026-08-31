@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Separator } from '@base-ui/react/separator';
 import { hasContent } from '../../internal/scale';
 import { cssLength } from '../../internal/length';
+import { useMPSize } from '../../internal/config';
 import type { MPAlign, MPColor, MPOrientation, MPSize } from '../../types';
 
 /** Where the label sits along a labelled divider. Ignored without a label. */
@@ -145,7 +146,7 @@ export const MPDivider = React.forwardRef<HTMLDivElement, MPDividerProps>(functi
   {
     orientation = 'horizontal',
     color,
-    size = 'md',
+    size: sizeProp,
     length,
     thickness,
     textAlign = 'center',
@@ -156,6 +157,7 @@ export const MPDivider = React.forwardRef<HTMLDivElement, MPDividerProps>(functi
   },
   ref
 ) {
+  const size = useMPSize(sizeProp);
   const vertical = orientation === 'vertical';
   const hasLabel = hasContent(children);
 

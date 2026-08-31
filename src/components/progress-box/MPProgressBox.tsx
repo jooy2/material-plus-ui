@@ -12,6 +12,7 @@ import {
   progressText,
   type MPProgressProps
 } from '../../internal/progress';
+import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPColor, MPSize } from '../../types';
 
 export interface MPProgressBoxProps extends MPProgressProps {
@@ -54,8 +55,8 @@ export interface MPProgressBoxProps extends MPProgressProps {
 export const MPProgressBox = React.forwardRef<HTMLDivElement, MPProgressBoxProps>(
   function MPProgressBox(
     {
-      size = 'md',
-      color = 'primary',
+      size: sizeProp,
+      color: colorProp,
       count = 4,
       value = null,
       min = 0,
@@ -69,6 +70,8 @@ export const MPProgressBox = React.forwardRef<HTMLDivElement, MPProgressBoxProps
     },
     ref
   ) {
+    const size = useMPSize(sizeProp);
+    const color = useMPColor(colorProp);
     const fraction = progressFraction(value, min, max);
     const indeterminate = fraction === null;
     const hasFormat = format !== undefined;

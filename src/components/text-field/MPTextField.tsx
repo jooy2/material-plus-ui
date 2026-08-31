@@ -6,6 +6,7 @@ import { MPSupportingText } from '../../internal/SupportingText';
 import { VisibilityIcon, VisibilityOffIcon } from '../../constants/icons';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { TEXT_FIELD } from '../../internal/messages/text-field';
+import { useMPSize } from '../../internal/config';
 import type { MPMessages } from '../../internal/i18n';
 import type { MPControlEventProps, MPSize, MPStyleProps } from '../../types';
 
@@ -304,7 +305,7 @@ export const MPTextField = React.forwardRef<
     fullWidth = false,
     readOnly = false,
     autoFocus = false,
-    size = 'md',
+    size: sizeProp,
     disabled = false,
     disableEnterKey = false,
     rows,
@@ -319,6 +320,7 @@ export const MPTextField = React.forwardRef<
   },
   ref
 ) {
+  const size = useMPSize(sizeProp);
   const locale = useMPLocale(localeProp);
   const messages = useMPMessages(TEXT_FIELD, locale, passwordLabels);
   const inputRef = React.useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);

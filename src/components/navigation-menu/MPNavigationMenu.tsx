@@ -15,6 +15,7 @@ import {
   META_TEXT
 } from '../../internal/scale';
 import { PORTAL_LAYER } from '../../internal/surface';
+import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPColor, MPOrientation, MPSize } from '../../types';
 
 /**
@@ -367,8 +368,8 @@ export const MPNavigationMenu = React.forwardRef<HTMLElement, MPNavigationMenuPr
       delay,
       closeDelay,
       sideOffset = 8,
-      size = 'md',
-      color = 'primary',
+      size: sizeProp,
+      color: colorProp,
       className,
       style,
       children,
@@ -376,6 +377,8 @@ export const MPNavigationMenu = React.forwardRef<HTMLElement, MPNavigationMenuPr
     },
     ref
   ) {
+    const size = useMPSize(sizeProp);
+    const color = useMPColor(colorProp);
     const context = React.useMemo(() => ({ size }), [size]);
 
     return (
