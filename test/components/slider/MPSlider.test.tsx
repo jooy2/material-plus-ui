@@ -312,4 +312,90 @@ describe('MPSlider', () => {
       expect(root.style.getPropertyValue('--_mp-accent')).not.toBe('');
     });
   });
+
+  describe('marks', () => {
+    const ticks = (screen: { container: Element }) =>
+      Array.from(screen.container.querySelectorAll('.mp-slider__tick'));
+
+    it('draws nothing without them', async () => {
+      const screen = await render(<MPSlider defaultValue={50} aria-label="Volume" />);
+
+      expect(ticks(screen)).toHaveLength(0);
+    });
+
+    it('puts one at every step', async () => {
+      const screen = await render(
+        <MPSlider defaultValue={50} min={0} max={100} step={25} marks aria-label="Volume" />
+      );
+
+      expect(ticks(screen)).toHaveLength(5);
+    });
+
+    it('refuses to draw a dotted line', async () => {
+      // Past fifty they stop being ticks; the array form is how a caller says
+      // which ones matter.
+      const screen = await render(
+        <MPSlider defaultValue={50} min={0} max={1000} step={1} marks aria-label="Volume" />
+      );
+
+      expect(ticks(screen)).toHaveLength(0);
+    });
+
+    it('lays a named mark out at its own share of the track', async () => {
+      const screen = await render(
+        <MPSlider
+          defaultValue={2000}
+          min={1990}
+          max={2030}
+          marks={[
+            { value: 1990, label: '1990' },
+            { value: 2010, label: '2010' },
+            { value: 2030, label: '2030' }
+          ]}
+          aria-label="Year"
+        />
+      );
+      const labels = Array.from(screen.container.querySelectorAll('.mp-slider__marks span'));
+
+      expect(labels.map((label) => label.textContent)).toEqual(['1990', '2010', '2030']);
+      expect((labels[1] as HTMLElement).style.insetInlineStart).toBe('50%');
+    });
+
+    it('drops a mark that is off the range rather than pinning it to the end', async () => {
+      const screen = await render(
+        <MPSlider
+          defaultValue={50}
+          min={0}
+          max={100}
+          marks={[{ value: 50 }, { value: 900 }]}
+          aria-label="Volume"
+        />
+      );
+
+      expect(ticks(screen)).toHaveLength(1);
+    });
+
+    it('reads a tick over the filled track in the accent’s own ink', async () => {
+      const screen = await render(
+        <MPSlider defaultValue={50} min={0} max={100} step={50} marks aria-label="Volume" />
+      );
+      const [low, middle, high] = ticks(screen).map(
+        (tick) => getComputedStyle(tick).backgroundColor
+      );
+
+      // Nought and fifty are under the fill, a hundred is over the groove — and
+      // a 3px dot in the groove's own colour on top of the accent is a dot that
+      // is not there.
+      expect(low).toBe(middle);
+      expect(high).not.toBe(middle);
+    });
+
+    it('draws no label row when no mark carries one', async () => {
+      const screen = await render(
+        <MPSlider defaultValue={50} min={0} max={100} step={50} marks aria-label="Volume" />
+      );
+
+      expect(screen.container.querySelector('.mp-slider__marks')).toBeNull();
+    });
+  });
 });
