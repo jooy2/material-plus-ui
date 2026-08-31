@@ -262,6 +262,257 @@ describe('MPDatePicker', () => {
     });
   });
 
+  /*
+   * A picker that asks for less than a day.
+   *
+   * The calendar stops at the grid it answers with rather than refusing the ones
+   * below it: a month picker has no day grid to reach, so the assertions here
+   * are as much about what is absent as about what a press produces.
+   */
+  describe('precision', () => {
+    it('opens a month picker on the twelve months, with no way down to a day', async () => {
+      const screen = await render(<Controlled precision="month" />);
+
+      await screen.getByRole('button', { name: 'Due date' }).click();
+
+      await expect.element(screen.getByRole('gridcell', { name: 'July 2026' })).toBeInTheDocument();
+      expect(screen.getByRole('gridcell', { name: 'Wednesday, July 15, 2026' }).query()).toBeNull();
+    });
+
+    it('names the month grid by the year it is showing', async () => {
+      // On a month picker this *is* the calendar, and a grid announced as "grid"
+      // leaves the reader to work the year out from twelve month names.
+      const screen = await render(<Controlled precision="month" defaultOpen />);
+
+      await expect.element(screen.getByRole('grid', { name: '2026' })).toBeInTheDocument();
+    });
+
+    it('answers with the first of the month that was pressed', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <MPDatePicker
+          label="Due date"
+          locale="en-US"
+          defaultMonth={JULY}
+          precision="month"
+          onValueChange={onValueChange}
+        />
+      );
+
+      await screen.getByRole('button', { name: 'Due date' }).click();
+      await screen.getByRole('gridcell', { name: 'November 2026' }).click();
+
+      const [chosen] = onValueChange.mock.calls[0];
+
+      expect(chosen.getFullYear()).toBe(2026);
+      expect(chosen.getMonth()).toBe(10);
+      // The month is the answer; the 1 is how a month is stored. A picker whose
+      // trigger says November 2026 and whose value is the 30th would be printing
+      // one thing and holding another.
+      expect(chosen.getDate()).toBe(1);
+    });
+
+    it('writes the month rather than a medium date', async () => {
+      const screen = await render(<Controlled precision="month" initial={new Date(2026, 6, 15)} />);
+
+      expect(screen.getByRole('button', { name: 'Due date' }).element().textContent).toContain(
+        'July 2026'
+      );
+    });
+
+    it('still reaches another year through the view above it', async () => {
+      const screen = await render(<Controlled precision="month" />);
+
+      await screen.getByRole('button', { name: 'Due date' }).click();
+      await screen.getByRole('button', { name: 'Choose a year' }).click();
+      await screen.getByRole('gridcell', { name: '2020' }).click();
+
+      // Back to the months, which is where the answer comes from — the year grid
+      // is a way of reaching one rather than an answer of its own.
+      await expect
+        .element(screen.getByRole('gridcell', { name: 'November 2020' }))
+        .toBeInTheDocument();
+    });
+
+    it('opens a year picker on the years, with no way down to a month', async () => {
+      const screen = await render(<Controlled precision="year" />);
+
+      await screen.getByRole('button', { name: 'Due date' }).click();
+
+      await expect.element(screen.getByRole('grid', { name: '2016–2027' })).toBeInTheDocument();
+      expect(screen.getByRole('gridcell', { name: 'July 2026' }).query()).toBeNull();
+    });
+
+    it('answers with the first of January', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <MPDatePicker
+          label="Due date"
+          locale="en-US"
+          defaultMonth={JULY}
+          precision="year"
+          onValueChange={onValueChange}
+        />
+      );
+
+      await screen.getByRole('button', { name: 'Due date' }).click();
+      await screen.getByRole('gridcell', { name: '2020' }).click();
+
+      const [chosen] = onValueChange.mock.calls[0];
+
+      expect(chosen.getFullYear()).toBe(2020);
+      expect(chosen.getMonth()).toBe(0);
+      expect(chosen.getDate()).toBe(1);
+    });
+
+    it('writes the year on its own', async () => {
+      const screen = await render(<Controlled precision="year" initial={new Date(2026, 6, 15)} />);
+
+      expect(screen.getByRole('button', { name: 'Due date' }).element().textContent).toContain(
+        '2026'
+      );
+      expect(screen.getByRole('button', { name: 'Due date' }).element().textContent).not.toContain(
+        'Jul'
+      );
+    });
+
+    it('keeps a format it was given rather than the one the precision implies', async () => {
+      const screen = await render(
+        <Controlled
+          precision="month"
+          initial={new Date(2026, 6, 15)}
+          format={{ year: 'numeric', month: 'short' }}
+        />
+      );
+
+      expect(screen.getByRole('button', { name: 'Due date' }).element().textContent).toContain(
+        'Jul 2026'
+      );
+    });
+
+    it('keeps the time of day the value already carried', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <MPDatePicker
+          label="Due date"
+          locale="en-US"
+          defaultMonth={JULY}
+          precision="month"
+          value={new Date(2026, 6, 10, 14, 30)}
+          onValueChange={onValueChange}
+        />
+      );
+
+      await screen.getByRole('button', { name: 'Due date' }).click();
+      await screen.getByRole('gridcell', { name: 'November 2026' }).click();
+
+      const [chosen] = onValueChange.mock.calls[0];
+
+      expect(chosen.getHours()).toBe(14);
+      expect(chosen.getMinutes()).toBe(30);
+    });
+
+    it('reads the bounds at the unit it is asking for', async () => {
+      // A minimum of 10 July leaves July pickable on a month picker: the bound
+      // is about which months exist, and where inside one it falls is a day
+      // grid's problem. June, whose every day is before it, is gone.
+      const screen = await render(<Controlled precision="month" minDate={new Date(2026, 6, 10)} />);
+
+      await screen.getByRole('button', { name: 'Due date' }).click();
+
+      expect(screen.getByRole('gridcell', { name: 'July 2026' }).element()).not.toHaveAttribute(
+        'aria-disabled'
+      );
+      expect(screen.getByRole('gridcell', { name: 'June 2026' }).element()).toHaveAttribute(
+        'aria-disabled',
+        'true'
+      );
+    });
+
+    it('does not ask shouldDisableDate about a month', async () => {
+      // A rule written about weekends has no answer for "is July available", and
+      // inventing one out of the 1st would block whichever months happened to
+      // start on a Sunday.
+      const shouldDisableDate = vi.fn(() => true);
+      const screen = await render(
+        <Controlled precision="month" shouldDisableDate={shouldDisableDate} />
+      );
+
+      await screen.getByRole('button', { name: 'Due date' }).click();
+
+      await expect.element(screen.getByRole('gridcell', { name: 'July 2026' })).toBeInTheDocument();
+      expect(screen.getByRole('gridcell', { name: 'July 2026' }).element()).not.toHaveAttribute(
+        'aria-disabled'
+      );
+      expect(shouldDisableDate).not.toHaveBeenCalled();
+    });
+
+    it('names the footer shortcut after the month it lands on', async () => {
+      const screen = await render(<Controlled precision="month" defaultOpen />);
+
+      await expect.element(screen.getByRole('button', { name: 'This month' })).toBeInTheDocument();
+      // A button that said Today on a picker with no day grid would be naming
+      // something the control has no way to choose.
+      expect(screen.getByRole('button', { name: 'Today' }).query()).toBeNull();
+    });
+
+    it('names it after the year instead when that is the unit', async () => {
+      const screen = await render(<Controlled precision="year" defaultOpen />);
+
+      await expect.element(screen.getByRole('button', { name: 'This year' })).toBeInTheDocument();
+    });
+
+    it('lands the shortcut on the whole unit rather than on today', async () => {
+      const screen = await render(<Controlled precision="month" />);
+      const now = new Date();
+
+      await screen.getByRole('button', { name: 'Due date' }).click();
+      await screen.getByRole('button', { name: 'This month' }).click();
+
+      const chosen = new Date(screen.getByTestId('model').element().textContent ?? '');
+
+      expect(chosen.getMonth()).toBe(now.getMonth());
+      expect(chosen.getDate()).toBe(1);
+    });
+
+    it('submits a month as `YYYY-MM`, the way an input of that type does', async () => {
+      const screen = await render(
+        <Controlled precision="month" name="due" initial={new Date(2026, 6, 15)} />
+      );
+
+      expect(screen.container.querySelector('input[type="hidden"][name="due"]')).toHaveValue(
+        '2026-07'
+      );
+    });
+
+    it('submits a year as `YYYY`', async () => {
+      // No input type behind this one — it is the same string with the parts
+      // nobody chose taken off, rather than a day a server has to know to
+      // ignore.
+      const screen = await render(
+        <Controlled precision="year" name="due" initial={new Date(2026, 6, 15)} />
+      );
+
+      expect(screen.container.querySelector('input[type="hidden"][name="due"]')).toHaveValue(
+        '2026'
+      );
+    });
+
+    it('says this month in the language the picker is in', async () => {
+      const screen = await render(
+        <MPDatePicker
+          label="마감일"
+          locale="ko"
+          defaultMonth={JULY}
+          precision="month"
+          defaultOpen
+        />
+      );
+
+      await expect.element(screen.getByRole('button', { name: '이번 달' })).toBeInTheDocument();
+    });
+  });
+
   describe('what cannot be chosen', () => {
     it('blocks the days before minDate without removing them', async () => {
       // Marked rather than dropped: a grid with holes in it is a grid a reader
@@ -469,6 +720,26 @@ describe('MPDatePicker', () => {
         .element(screen.getByRole('button', { name: '월 선택' }))
         .toHaveTextContent('7월');
       await expect.element(screen.getByRole('button', { name: '오늘' })).toBeInTheDocument();
+    });
+
+    it('names a month cell the way the locale writes a month', async () => {
+      // Not a month name with a year stuck on the end: a Korean reader hearing
+      // "7월 2026" is hearing the two halves of a date in an order their language
+      // does not use. On a month picker this grid is the whole control, so these
+      // twelve strings are everything a reader hears.
+      const screen = await render(
+        <MPDatePicker
+          label="마감일"
+          locale="ko"
+          defaultMonth={JULY}
+          precision="month"
+          defaultOpen
+        />
+      );
+
+      await expect
+        .element(screen.getByRole('gridcell', { name: '2026년 7월' }))
+        .toBeInTheDocument();
     });
 
     it('follows a provider when it has no locale of its own', async () => {
