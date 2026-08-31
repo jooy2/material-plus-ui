@@ -1863,6 +1863,26 @@ const componentTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPVisuallyHidden: [
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '화면 낭독기만 읽을 내용. 보이는 표시가 축약인 자리에 그 문장을 그대로 둡니다',
+        en: 'What a screen reader reads and nobody else sees — the sentence the visible mark is shorthand for'
+      }
+    },
+    {
+      name: 'render',
+      type: 'useRender.RenderProp',
+      description: {
+        ko: '`<span>` 대신 다른 것을 렌더합니다. Base UI의 탈출구이며, 숨은 제목이 필요할 때 `<h2>` 같은 것으로 바꿉니다',
+        en: "Renders something other than a `<span>` — Base UI's own escape hatch, for a hidden heading and the like"
+      }
+    },
+    id
+  ],
+
   MPTypography: [
     {
       name: 'level',

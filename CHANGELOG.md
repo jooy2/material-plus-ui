@@ -17,6 +17,12 @@ Nothing was renamed and nothing was removed. Every existing prop still means wha
 
 ### Added
 
+- **`MPVisuallyHidden`.** Text for a screen reader and nobody else, which nine components here were already drawing themselves with — `MPPagination`'s live region, `MPRating`'s radios, `MPShortcut`'s key names, `MPCarousel`'s slide announcement — and which an application putting a bare glyph in a button of its own had no way to reach. The library had the rule and not the name.
+
+  The rule is Tailwind's `sr-only` written out, and it is written out for the reason the stylesheet ships no Preflight: `sr-only` is _generated_, so a project with a Tailwind `prefix` configured generates it under another name and a component that hardcoded it would come out visible on their page. The arbitrary properties survive any prefix.
+
+  `render` takes it to another element — a hidden `<h2>` naming a landmark is the usual reason. Everything else is passed through, `aria-live` included, which is how the components above use it.
+
 - **Four hooks, all of which the library was already running.** `useMPWindowClass`, `useMPReducedMotion`, `useMPShortcut` and `useMPPlatform`, from `material-plus-ui` or from `material-plus-ui/hooks`.
 
   None of them is new code so much as a name. The window size classes decide how `MPGrid` reflows and where `MPSidebar` collapses; `prefers-reduced-motion` is consulted by all eleven `MPAnimate*` components; the shortcut matcher is what `MPShortcut` draws from and `MPCommandPalette` binds through. A consumer could name any of it in a prop and could not **ask** about any of it — so a page wanting one more decision than a prop covers wrote the breakpoints out again, in numbers that had to match the library's or the layout disagreed with itself at one width.
@@ -202,15 +208,15 @@ Nothing was renamed and nothing was removed. Every existing prop still means wha
 | `MPTextField`   | 4.3 kB  | 4.4 kB  |
 | Five components | 7.4 kB  | 7.5 kB  |
 | Ten components  | 11.2 kB | 11.4 kB |
-| Everything      | 76.1 kB | 77.3 kB |
+| Everything      | 76.1 kB | 77.4 kB |
 
 Just under two and a half kilobytes across the whole library, and it is spread rather than concentrated: the calendar's `precision`, the slider's ticks, the combobox's filter adapter, the accordion's three transition signals, and a `useRender` call in each of two list components. `MPButton` and `MPTextField` move a tenth each — the button for `render` and `nativeButton`, the field for one conditional class — which is what a minifier leaves of a handful of new names.
 
-The last 1.2 kB is `MPCalendar`, the cell's four extra `bg-transparent` branches, and the four hooks — and it is the cheapest of the release: the grid the calendar draws and the machinery the hooks name were both already in `everything`, so what the two additions cost is a wrapper each. A page that imports `MPCalendar` and no picker pays for the grid once rather than twice, and `material-plus-ui/hooks` is 0.3 kB on its own.
+The last 1.3 kB is this report's own three — `MPCalendar`, the four hooks and `MPVisuallyHidden`, plus the cell's four extra `bg-transparent` branches — and it is the cheapest of the release, because all three were already in `everything` and what they cost is a wrapper each. `material-plus-ui/hooks` is 0.3 kB imported on its own, and `MPVisuallyHidden` is one class string.
 
-The stylesheet grew from 113.5 kB to 114.6 kB, and 16.2 kB to 16.4 kB gzipped. Fifteen reset declarations on `.mp-grid`, one `overflow-visible`, one search-cancel-button rule and a tick's five sizes are the whole of it; the crossover at about thirty-one components is unchanged. The split sheets go from eighty-eight to eighty-nine — `MPCalendar` gets one of its own, and it holds no hand-written rules because the grid's are in the pickers' sheets already.
+The stylesheet grew from 113.5 kB to 114.6 kB, and 16.2 kB to 16.4 kB gzipped. Fifteen reset declarations on `.mp-grid`, one `overflow-visible`, one search-cancel-button rule and a tick's five sizes are the whole of it; the crossover at about thirty-one components is unchanged. The split sheets go from eighty-eight to ninety — `MPCalendar` and `MPVisuallyHidden` get one each, and neither holds a hand-written rule.
 
-The suite goes from 1644 tests to 1799. Nineteen are the date picker's two new units and the raw events, as before. Twenty-seven are `MPCalendar`'s, twenty-six the hooks', and three more the picker's chosen day — those last ones read a computed background rather than a class list, which is the difference between checking that a rule was written and checking that it applies. The other eighty are this report, and the ones worth naming are the ones that would have caught the defects rather than described them: a nested grid item measuring 200px instead of 33px, a form actually submitting on Enter, a panel's `overflow` read at four points across its animation in both the controlled and uncontrolled cases, and a chip trigger asserting there is exactly one tab stop rather than two.
+The suite goes from 1644 tests to 1809. Nineteen are the date picker's two new units and the raw events, as before. Twenty-seven are `MPCalendar`'s, twenty-six the hooks', ten `MPVisuallyHidden`'s, and three more the picker's chosen day — those last ones read a computed background rather than a class list, which is the difference between checking that a rule was written and checking that it applies. The other eighty are this report, and the ones worth naming are the ones that would have caught the defects rather than described them: a nested grid item measuring 200px instead of 33px, a form actually submitting on Enter, a panel's `overflow` read at four points across its animation in both the controlled and uncontrolled cases, and a chip trigger asserting there is exactly one tab stop rather than two.
 
 ## 1.5.0 (2026-08-30)
 

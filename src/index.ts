@@ -96,3 +96,4 @@ export * from './components/toggle-group';
 export * from './components/tooltip';
 export * from './components/transfer';
 export * from './components/typography';
+export * from './components/visually-hidden';

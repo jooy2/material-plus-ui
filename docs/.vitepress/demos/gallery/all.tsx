@@ -105,6 +105,7 @@ import {
   MPTooltip,
   MPTransfer,
   MPTypography,
+  MPVisuallyHidden,
   useMPSnackbar
 } from 'material-plus-ui';
 import type { MPComboboxValue, MPSelectValue } from 'material-plus-ui';
@@ -1092,6 +1093,25 @@ const GROUPS: Group[] = [
             <MPIcon icon={ICONS.info} size={26} color="var(--color-mp-on-surface)" label="Info" />
             <MPIcon icon={ICONS.error} size={30} color="var(--color-mp-error)" label="Failed" />
           </div>
+        )
+      },
+      {
+        name: 'MPVisuallyHidden',
+        summary: {
+          ko: '화면 낭독기만 읽는 문장. 자리는 차지하지 않습니다',
+          en: 'A sentence only a screen reader gets, taking up no room'
+        },
+        path: '/components/display/visually-hidden',
+        preview: (
+          <button
+            type="button"
+            style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}
+          >
+            <span aria-hidden="true" style={{ fontSize: 20, lineHeight: 1 }}>
+              ×
+            </span>
+            <MPVisuallyHidden>Close this dialog</MPVisuallyHidden>
+          </button>
         )
       },
       {
