@@ -318,7 +318,7 @@ export const MPHighlight = React.forwardRef<HTMLSpanElement, MPHighlightProps>(f
     query instanceof RegExp
       ? `re ${query.source} ${query.flags}`
       : Array.isArray(query)
-        ? `a ${query.join(' ')}`
+        ? `a ${query.join('\u0000')}`
         : `s ${query}`;
 
   // `queryKey` and `caseSensitive` are the whole dependency: they are what
