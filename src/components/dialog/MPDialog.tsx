@@ -9,7 +9,7 @@ import { COMMON } from '../../internal/messages/common';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { SHEET_GAP, hasContent } from '../../internal/scale';
 import { FADE, PORTAL_LAYER, SCRIM, SHEET_MOTION } from '../../internal/surface';
-import type { MPColor, MPSize } from '../../types';
+import type { MPColor, MPControlEventProps, MPSize } from '../../types';
 
 /**
  * A dialog takes `size` and `color` and stops there.
@@ -18,7 +18,20 @@ import type { MPColor, MPSize } from '../../types';
  * paint against the page around it", and a modal has already taken the page.
  * There is no `elevation` prop either — see the note on the sheet below.
  */
-export interface MPDialogProps {
+/**
+ * A dialog's sheet, which is where an event handler lands.
+ *
+ * The same rule the eight controls follow, applied to the one component that had
+ * no element a caller could reach at all: a class describes the whole dialog and
+ * lands on its outermost element, an event came from somewhere inside the sheet
+ * and lands on the sheet. So `onKeyDown` is a keystroke inside the dialog and
+ * never one on the trigger that opened it, and never one on the page behind.
+ *
+ * It is the popup rather than the backdrop deliberately. A key pressed while the
+ * dialog holds focus reaches the popup by bubbling; a click on the scrim does
+ * not, which is `dismissible`'s job and not this one's.
+ */
+export interface MPDialogProps extends MPControlEventProps<HTMLElement> {
   /** The dialog is shown. Use with `onOpenChange` for a controlled dialog. */
   open?: boolean;
   /** Whether the dialog starts open, for an uncontrolled one. */
@@ -313,6 +326,13 @@ export function MPDialog({
   dismissible = true,
   size = 'md',
   color = 'secondary',
+  onKeyDown,
+  onKeyUp,
+  onFocus,
+  onBlur,
+  onClick,
+  onDoubleClick,
+  onContextMenu,
   className,
   style,
   children
@@ -364,6 +384,17 @@ export function MPDialog({
         >
           <Dialog.Popup
             data-mp-size={size}
+            // The caller's, on the sheet. Base UI's own handling of the keys it
+            // owns — Escape, the focus trap's Tab — runs alongside rather than
+            // being replaced, so a dialog stays dismissible whatever is written
+            // here.
+            onKeyDown={onKeyDown}
+            onKeyUp={onKeyUp}
+            onFocus={onFocus}
+            onBlur={onBlur}
+            onClick={onClick}
+            onDoubleClick={onDoubleClick}
+            onContextMenu={onContextMenu}
             className={[
               'mp-dialog relative flex w-full flex-col overflow-hidden',
               'bg-mp-surface-container-high text-mp-on-surface shadow-mp-3 outline-none',
