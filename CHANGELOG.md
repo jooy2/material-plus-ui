@@ -2,16 +2,22 @@
 
 ## 1.6.0 (2026-08-31)
 
-Two additions of the same shape — a control that had the answer to a question nobody could put to it — and then a report from an application that moved off Material UI, which turned out to be about the same shape of hole in twenty more places.
+One shape, found twice.
 
-The calendar could already draw a grid of months and a grid of years, and there was no way to say "stop there and hand me that". Eight controls were producing keystrokes and focus changes every second they were used, and no prop took delivery of one. A row could be a link but not a router's link; a chip could be pressed but could not be a menu's trigger; a grid item could be six columns wide but not "the rest of the row"; a panel finished opening and went on clipping the thing inside it.
+It started as two additions of a kind — a control that had the answer to a question nobody could put to it — then a report from an application that moved off Material UI, which turned out to be the same hole in twenty more places. The calendar could already draw a grid of months and a grid of years, and there was no way to say "stop there and hand me that". Eight controls were producing keystrokes and focus changes every second they were used, and no prop took delivery of one. A row could be a link but not a router's link; a chip could be pressed but could not be a menu's trigger; a grid item could be six columns wide but not "the rest of the row".
 
-Four of the twenty were not gaps but **defects**, and three of those change what an existing page draws. They are in `Changed` below rather than in `Fixed`, because that is the section people read before upgrading:
+Then the library was audited against MUI, Ant Design, Chakra, Mantine, Radix and PrimeReact — and the finding was the same sentence again, now about **the library talking to itself**. A complete calendar lived in `internal/`. So did a window-class store, a reduced-motion store, a shortcut matcher and the rule for screen-reader-only text. Nine components drew themselves with that last one and no application could reach it. Almost everything in `Added` below is a name being given to something that was already running.
+
+The one genuinely new thing is `MPConfigProvider`, and it is the item that was costing the most — not because it was hard, but because it was costing at **every call site**: a design that runs at `size="sm"` had to say so on several hundred controls, each of them a place it could be forgotten.
+
+Ten defects were found on the way, and finding them is the argument for auditing by _running_ rather than by reading. Four change what an existing page draws and are in `Changed` rather than `Fixed`, because that is the section people read before upgrading:
 
 - `MPTextField` swallowed Enter on every single-line field, so a `<form>` it was dropped into stopped submitting.
 - `MPTypography` painted `on-surface` when its own documentation said it inherits.
-- `MPGridItem`'s span leaked into nested grids.
-- `MPChip` could not be a Base UI trigger.
+- A pressable `MPChip` was a `<span>` holding a `<button>`, so it could not be a Base UI trigger.
+- An `MPAccordion` panel went on clipping its contents after it had finished opening.
+
+The six in `Fixed` include three that had been shipping in plain sight. **A picker's chosen day was never painted at all** — two independent causes, either one enough on its own. **Base UI was never told which way the page runs**, so a slider's handle sat exactly one handle-width from the value it reported under RTL, at every value. And **forcing a region back to light did nothing**, which the documentation had been promising since the scheme switches were written. Not one of the three was visible in a class name; each took measuring a computed style.
 
 Nothing was renamed and nothing was removed. Every existing prop still means what it meant in 1.5.0.
 
