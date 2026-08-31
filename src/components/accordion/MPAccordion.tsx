@@ -153,6 +153,8 @@ const ITEM_RADIUS = 'rounded-mp-sm';
  * is transformed and no text is resampled — the panel is a window opening onto
  * content that never moves relative to it, which is why this is not the thing
  * `FADE` was written against.
+ *
+ * The clip is only true while the height is moving — see `PANEL_OPEN`.
  */
 const PANEL = [
   'h-(--accordion-panel-height) overflow-hidden',
@@ -160,6 +162,43 @@ const PANEL = [
   'motion-reduce:transition-none',
   'data-starting-style:h-0 data-ending-style:h-0'
 ].join(' ');
+
+/**
+ * What a panel that has finished opening stops doing.
+ *
+ * `overflow: hidden` is the animation's, not the panel's. It exists so a body
+ * mid-open is a window rather than a squashed copy of itself, and it has no
+ * business surviving the animation: a settled panel that goes on clipping cuts
+ * the top off the first thing in it that draws outside its own box. A text
+ * field's floating label is exactly that — it sits *on* the field's top edge,
+ * which is the panel's top edge — so a form in an accordion arrived with its
+ * first label sliced in half, and nothing in the console said so.
+ *
+ * A select's popup, a tooltip and a focus ring are the same bug with different
+ * pixels.
+ *
+ * Why it cannot be a `data-open:` variant: `data-open` is set for the whole of
+ * the opening animation, which is the part that has to clip. The state this
+ * needs is "open **and** no longer moving", and nothing in the DOM says that —
+ * so `MPAccordionItem` below works it out from the transition itself.
+ */
+const PANEL_OPEN = 'data-open:overflow-visible';
+
+/**
+ * Whether a height transition is actually going to run on this panel.
+ *
+ * `data-starting-style` says the panel is about to grow from nothing, and a
+ * duration says the growing will be animated. A section that started open has
+ * neither, and a reader who asked for reduced motion has only the first — in
+ * both cases no `transitionend` is coming, so a panel that waited for one would
+ * stay clipped for good.
+ */
+function willMove(panel: HTMLElement): boolean {
+  return (
+    panel.hasAttribute('data-starting-style') &&
+    parseFloat(getComputedStyle(panel).transitionDuration) > 0
+  );
+}
 
 /** The space under a body: `SHEET_PAD_Y`'s track on one edge only. */
 const PANEL_PAD_BOTTOM: Record<MPSize, string> = {
@@ -268,6 +307,35 @@ export const MPAccordionItem = React.forwardRef<HTMLDivElement, MPAccordionItemP
     const padX = SHEET_PAD_X[size];
     const padY = SHEET_PAD_Y[size];
 
+    /*
+     * Whether the panel has finished opening, which is what decides the clip —
+     * see `PANEL_OPEN`.
+     *
+     * Three signals, because no one of them covers every way a panel arrives:
+     *
+     * - `onOpenChange` fires as the fold is asked to move, before anything has
+     *   moved. That is where the clip goes back *on*, and it is the only one of
+     *   the three early enough to.
+     * - The height's `transitionend` takes it off again. Base UI's
+     *   `transitionStatus` cannot: it marks the first frame and the last, and
+     *   what is needed here is the stretch between them.
+     * - The callback ref covers the two panels that never transition at all — a
+     *   section that started open, and any section under reduced motion — both
+     *   of which would otherwise wait for an end that is not coming. It runs
+     *   during the commit, before the browser paints, so a panel opening the
+     *   ordinary way is clipped by the time there is anything to see.
+     */
+    const panelRef = React.useRef<HTMLDivElement | null>(null);
+    const [settled, setSettled] = React.useState(false);
+
+    const attachPanel = React.useCallback((node: HTMLDivElement | null) => {
+      panelRef.current = node;
+
+      if (node) {
+        setSettled(node.hasAttribute('data-open') && !willMove(node));
+      }
+    }, []);
+
     return (
       <Accordion.Item
         ref={ref}
@@ -334,7 +402,18 @@ export const MPAccordionItem = React.forwardRef<HTMLDivElement, MPAccordionItemP
           ) : null}
         </Accordion.Header>
 
-        <Accordion.Panel className={PANEL}>
+        <Accordion.Panel
+          ref={attachPanel}
+          className={[PANEL, settled ? PANEL_OPEN : ''].filter(Boolean).join(' ')}
+          onTransitionEnd={(event) => {
+            // The panel's own height and not a transition that bubbled up out of
+            // the content: a button inside it changing colour would otherwise
+            // unclip a panel that is still closing.
+            if (event.target === panelRef.current && event.propertyName === 'height') {
+              setSettled(panelRef.current.hasAttribute('data-open'));
+            }
+          }}
+        >
           <div
             className={[
               'min-w-0',
