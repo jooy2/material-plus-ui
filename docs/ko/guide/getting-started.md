@@ -305,6 +305,34 @@ Tailwind의 `dark:` 변형이 기준으로 삼는 `.dark`도 동작합니다. `[
 
 이 라이브러리는 클래스 머저를 싣지 않으며, 그것은 의도된 선택입니다. `tailwind-merge`가 이 일을 위한 도구이고 좋은 도구이지만, 모든 컴포넌트에 걸리는 런타임 의존성이 됩니다 — 버튼 하나가 2.9 kB인 것에 비하면 작지 않습니다 — 그리고 이 패키지가 추가하는 모든 `mp-` 토큰을 그쪽 클래스 그룹에 계속 맞춰 가르쳐야 합니다. 호출부에서 병합하는 것은 한 줄이고, 필요 없는 프로젝트에는 아무 비용도 지우지 않습니다.
 
+### 클래스 훅과 Tailwind의 밑줄
+
+모든 컴포넌트는 자신이 그리는 엘리먼트에 고유한 클래스를 답니다 — `mp-button`, `mp-list-item`, `mp-accordion` — 그리고 그 안쪽 부분들은 BEM으로 이름 지어져 있습니다. `mp-list-item__label`, `mp-accordion__title`, `mp-card__header` 같은 것들입니다. 어떤 prop으로도 `className`으로도 닿을 수 없는 부분에 접근하는 안정적인 방법입니다.
+
+**Tailwind의 arbitrary variant 안에서는 이스케이프가 필요하며, 하지 않으면 조용히 실패합니다.** Tailwind는 대괄호 안의 `_`를 공백으로 읽기 때문에, BEM의 `__`가 후손 결합자로 바뀌어 아무도 쓴 적 없는 엘리먼트를 찾아 나섭니다.
+
+```
+[&_.mp-accordion__title]:text-lg
+  ↓
+.mp-accordion title { … }     /* .mp-accordion 안의 <title> 엘리먼트 */
+```
+
+아무것도 맞지 않고, 아무도 그렇다고 말해 주지 않습니다. 밑줄을 `\_\_`로 쓰세요.
+
+```tsx
+<MPAccordion className="[&_.mp-accordion\_\_title]:text-lg" />
+```
+
+JSX 속성이라 백슬래시가 그대로 들어갑니다. JavaScript 문자열 안에서는 — `clsx('[&_.mp-accordion\\_\\_title]:text-lg')` — 두 번 써야 합니다.
+
+또는 규칙을 스타일시트에 쓰세요. 거기서는 이름에 이스케이프가 전혀 필요 없고, 사이트의 모든 아코디언에 적용되는 규칙이라면 애초에 그쪽이 있을 자리이기도 합니다.
+
+```css
+.mp-accordion__title {
+  font-size: 1.125rem;
+}
+```
+
 ## 무게
 
 압축(gzip) 기준이고, 실제 번들러로 잰 값이며, React와 `@base-ui/react`는 external로 뺐습니다. 즉 전체 다운로드가 아니라 이 라이브러리가 더하는 몫입니다.

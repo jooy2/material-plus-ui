@@ -8,6 +8,12 @@ A second report from the application that filed the first one, a day after upgra
 
 - **`mp-radio__fill`** on the dot inside the ring, which had no name of its own.
 
+### Documentation
+
+- **The class hooks, and why one of them silently does nothing in Tailwind.** `mp-list-item__label`, `mp-accordion__title` and the sixty-five others are named in BEM, and **Tailwind reads `_` inside square brackets as a space** — so `[&_.mp-accordion__title]:text-lg` compiles to `.mp-accordion title`, a `<title>` element inside an accordion, and matches nothing. No warning, no rule, no clue.
+
+  The names are not changing: the `__` convention runs through all sixty-seven hooks, and renaming the six that were noticed would leave a library with two conventions and the same trap in the other sixty-one. `getting-started` documents both ways round it instead — `\_\_` in an arbitrary variant, or the plain name in a stylesheet, where a rule that holds for every accordion on a site arguably belonged.
+
 ### Fixed
 
 - **Eleven modules shipped without `"use client"`, and one of them took a whole site down.** A server component rendering `MPContainer` died with `Attempted to call useMPSize() from the server` — and a page layout that uses `MPContainer` makes that every page of an App Router application. `MPAspectRatio` and `MPAnimateLighting` were the same, and `MPBox`, `MPTypography` and the six `MPAnimate*` components were unmarked beside them, reaching `React.useRef` through Base UI's `useRender` instead.

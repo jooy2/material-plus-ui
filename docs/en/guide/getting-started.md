@@ -305,6 +305,34 @@ None of that is a promise. It is what one version of Tailwind emits, it is per p
 
 The library ships no class merger of its own, deliberately. `tailwind-merge` is the tool for this and it is a good one, but it would be a runtime dependency on every component — against 2.9 kB for a button on its own — and its class groups would have to be taught every `mp-` token this package adds, in step. Merging at the call site is one line and costs the projects that do not need it nothing.
 
+### The class hooks, and Tailwind's underscore
+
+Every component puts a class of its own on the element it draws — `mp-button`, `mp-list-item`, `mp-accordion` — and names the parts inside it in BEM: `mp-list-item__label`, `mp-accordion__title`, `mp-card__header`. Those are the stable way to reach a part that no prop and no `className` can land on.
+
+**In a Tailwind arbitrary variant they have to be escaped, and without it they fail silently.** Tailwind reads `_` inside square brackets as a space, so BEM's `__` becomes a descendant combinator and the selector goes looking for an element nobody wrote:
+
+```
+[&_.mp-accordion__title]:text-lg
+  ↓
+.mp-accordion title { … }     /* a <title> element inside .mp-accordion */
+```
+
+Nothing matches, and nothing says so. Spell the underscores `\_\_`:
+
+```tsx
+<MPAccordion className="[&_.mp-accordion\_\_title]:text-lg" />
+```
+
+That is a JSX attribute, where a backslash is literal. Inside a JavaScript string — `clsx('[&_.mp-accordion\\_\\_title]:text-lg')` — they have to be doubled.
+
+Or write the rule in a stylesheet, where the name needs no escaping at all, and where a rule that holds for every accordion on the site is arguably where it belonged:
+
+```css
+.mp-accordion__title {
+  font-size: 1.125rem;
+}
+```
+
 ## What it weighs
 
 Gzipped, from a real bundler, with React and `@base-ui/react` held external — so this is the library's own contribution rather than the whole download.
