@@ -119,6 +119,11 @@ export const ja: MPLocale = {
       openSidebar: 'サイドバーを開く',
       closeSidebar: 'サイドバーを閉じる',
       resizeSidebar: 'サイドバーの幅を変更'
+    },
+    confirm: {
+      confirm: '確認',
+      cancel: 'キャンセル',
+      ok: 'OK'
     }
   }
 };

@@ -119,6 +119,11 @@ export const ru: MPLocale = {
       openSidebar: 'Открыть боковую панель',
       closeSidebar: 'Закрыть боковую панель',
       resizeSidebar: 'Изменить ширину боковой панели'
+    },
+    confirm: {
+      confirm: 'Подтвердить',
+      cancel: 'Отмена',
+      ok: 'ОК'
     }
   }
 };

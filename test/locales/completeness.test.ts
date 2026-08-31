@@ -8,6 +8,7 @@ import { COLOR_PICKER } from '../../src/internal/messages/color-picker';
 import { COMBOBOX } from '../../src/internal/messages/combobox';
 import { COMMAND } from '../../src/internal/messages/command';
 import { COMMON } from '../../src/internal/messages/common';
+import { CONFIRM } from '../../src/internal/messages/confirm';
 import { EMPTY } from '../../src/internal/messages/empty';
 import { FILE_PICKER } from '../../src/internal/messages/file-picker';
 import { LAYOUT } from '../../src/internal/messages/layout';
@@ -38,6 +39,7 @@ import { TRANSFER } from '../../src/internal/messages/transfer';
  */
 const NAMESPACES = [
   ALERT,
+  CONFIRM,
   BREADCRUMB,
   CAROUSEL,
   CHAT,

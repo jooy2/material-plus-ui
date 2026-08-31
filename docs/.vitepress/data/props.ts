@@ -717,6 +717,8 @@ const styleRow: PropRow = {
  */
 const NO_ELEMENT = new Set([
   'MPConfigProvider',
+  'MPConfirmProvider',
+  'MPConfirmOptions',
   'MPLocaleProvider',
   'MPSnackbarProvider',
   'MPSnackbarOptions',
@@ -7949,6 +7951,91 @@ const componentTables: Record<string, PropRow[]> = {
       name: 'children',
       type: NODE,
       description: { ko: '설정이 적용되는 트리', en: 'The tree the configuration applies to' }
+    }
+  ],
+
+  MPConfirmProvider: [
+    {
+      name: 'defaults',
+      type: "Omit<MPConfirmOptions, 'title' | 'description' | 'children'>",
+      description: {
+        ko: '이 아래에서 올라오는 모든 확인의 기본값 — 애플리케이션에 맞춘 `size`, 강조색, 직접 쓴 `cancelLabel`. 각 호출은 필요한 것을 여전히 말하고 그쪽이 이깁니다',
+        en: 'Defaults for every confirmation raised under this — a `size` to match the application, an accent, a `cancelLabel` in your own words. Each call still says whatever it needs to and wins'
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '`useMPConfirm`을 쓸 수 있는 트리',
+        en: 'The tree `useMPConfirm` can be called from'
+      }
+    }
+  ],
+
+  MPConfirmOptions: [
+    {
+      name: 'title',
+      type: NODE,
+      description: { ko: '제목으로 놓이는 질문', en: 'The question, as a heading' }
+    },
+    {
+      name: 'description',
+      type: NODE,
+      description: {
+        ko: '그 아래 한 문장 — 무엇이 일어나고 무엇에 일어나는지',
+        en: 'The sentence under it — what happens, and to what'
+      }
+    },
+    {
+      name: 'icon',
+      type: NODE,
+      description: {
+        ko: '`MPDialog`가 그리는 방식대로 제목 위에 놓이는 글리프',
+        en: 'A glyph above the title, the way `MPDialog` draws one'
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '다이얼로그가 담을 그 밖의 것 — 필드, 지워질 목록, "다시 묻지 않기" 체크박스',
+        en: 'Anything else the dialog should hold — a field, a list of what is about to be deleted, a "do not ask again" checkbox'
+      }
+    },
+    {
+      name: 'confirmLabel',
+      type: NODE,
+      default: 'the translation of `Confirm`',
+      description: {
+        ko: '"예" 버튼의 문구. *Delete*라고 적힌 버튼은 무엇을 하려는지 말해 주고, *Confirm*은 기억해 내라고 요구합니다',
+        en: 'What the yes button says. A button that says *Delete* tells the reader what they are about to do; one that says *Confirm* asks them to remember'
+      }
+    },
+    {
+      name: 'cancelLabel',
+      type: NODE,
+      default: 'the translation of `Cancel`',
+      description: { ko: '"아니오" 버튼의 문구', en: 'What the no button says' }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      description: {
+        ko: '확인 버튼을 칠하는 강조색. 파괴적인 확인은 `error`를 원하고, 그게 기본이 아닌 이유는 대부분의 확인이 파괴적이지 않기 때문입니다 — 전부에 빨간 버튼을 달면 더 이상 경고가 아닙니다',
+        en: 'The accent the yes button is drawn in. `error` is what a destructive confirmation wants, and it is not the default: most confirmations are not destructive, and a red button on every one of them stops being a warning'
+      }
+    },
+    { ...size, default: "'md'" },
+    {
+      name: 'dismissible',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: 'Escape와 바깥 누름이 **아니오**로 답하는지. 켜져 있는 이유는 나갈 수 없는 다이얼로그가 덫이고, "정말인가요"의 안전한 답이 아니오이기 때문입니다',
+        en: 'Whether Escape and a press outside answer **no**. On by default, because a dialog a reader cannot leave is a trap and because the safe answer to "are you sure" is no'
+      }
     }
   ],
 

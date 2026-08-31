@@ -119,6 +119,11 @@ export const ar: MPLocale = {
       openSidebar: 'فتح الشريط الجانبي',
       closeSidebar: 'إغلاق الشريط الجانبي',
       resizeSidebar: 'تغيير عرض الشريط الجانبي'
+    },
+    confirm: {
+      confirm: 'تأكيد',
+      cancel: 'إلغاء',
+      ok: 'حسنًا'
     }
   }
 };

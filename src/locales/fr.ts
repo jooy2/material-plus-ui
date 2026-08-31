@@ -122,6 +122,11 @@ export const fr: MPLocale = {
       openSidebar: 'Ouvrir la barre latérale',
       closeSidebar: 'Fermer la barre latérale',
       resizeSidebar: 'Redimensionner la barre latérale'
+    },
+    confirm: {
+      confirm: 'Confirmer',
+      cancel: 'Annuler',
+      ok: 'OK'
     }
   }
 };

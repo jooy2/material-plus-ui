@@ -35,6 +35,26 @@ Nothing was renamed and nothing was removed. Every existing prop still means wha
 
   A note on the implementation, because the first version of it was wrong in a way worth recording: the resolver reads the context **unconditionally**. Written as `prop ?? React.useContext(…)` the context is only read when the prop is absent, so a control handed a `size` on one render and not on the next calls a different number of hooks. React said so out loud in the test run, and the fix was to read first and decide second.
 
+- **`MPConfirmProvider` and `useMPConfirm`** — "are you sure?" as a promise.
+
+  ```tsx
+  const sure = await confirm({
+    title: 'Delete this project?',
+    confirmLabel: 'Delete',
+    color: 'error'
+  });
+  ```
+
+  The dialog was never the hard part. A confirmation needs a piece of open state, a second piece for _what_ is being confirmed, two handlers, and an `MPDialog` kept mounted somewhere it does not belong — per call site. What a caller has at that moment is a click handler, and what they want back is a boolean. It is the trade `useMPSnackbar` already makes, run the other way: a snackbar is something to say, this is something to ask.
+
+  **Every answer that is not the confirm button is `false`** — cancel, Escape, a press outside — and the promise never rejects, so a call site writes one `if` rather than a `try` and a default. `alert()` is the one-button form and resolves `void`: an acknowledgement has nothing to refuse, and a boolean nobody can vary is a value a caller would have to learn to ignore.
+
+  One at a time rather than a queue. A second `confirm()` raised while one is open replaces it and answers the first `false`, because a queue would ask about something the reader has already moved past and the answer to a stale question is not information.
+
+  `color` is not defaulted to `error`, deliberately: most confirmations are not destructive and a red button on every one of them stops being a warning. A new `confirm` namespace carries _Confirm_, _Cancel_ and _OK_ in all eighteen languages — a namespace of its own rather than three more entries in `common`, which is the glyph labels rather than the words on buttons.
+
+  Calling the hook with no provider **throws**. A promise that never settles is the hardest possible way to be told a provider is missing.
+
 - **`useMPColorScheme` and `mpColorSchemeScript`.** The stylesheet has always had the switch — `prefers-color-scheme`, and `data-mp-scheme` for a page that drives it itself — and nothing to drive it _with_. So every application wrote the same three things: a piece of state, a `localStorage` round trip, and a script in the `<head>` to stop the first paint flashing.
 
   ```tsx
@@ -250,17 +270,17 @@ Nothing was renamed and nothing was removed. Every existing prop still means wha
 | `MPTextField`   | 4.3 kB  | 4.4 kB  |
 | Five components | 7.4 kB  | 7.5 kB  |
 | Ten components  | 11.2 kB | 11.6 kB |
-| Everything      | 76.1 kB | 78.7 kB |
+| Everything      | 76.1 kB | 79.3 kB |
 
 Just under two and a half kilobytes across the whole library, and it is spread rather than concentrated: the calendar's `precision`, the slider's ticks, the combobox's filter adapter, the accordion's three transition signals, and a `useRender` call in each of two list components. `MPButton` and `MPTextField` move a tenth each — the button for `render` and `nativeButton`, the field for one conditional class — which is what a minifier leaves of a handful of new names.
 
-The last 2.6 kB is this report's own — `MPCalendar`, the five hooks, `MPVisuallyHidden`, `MPConfigProvider`, and the cell's four extra `bg-transparent` branches. Three of those four are close to free, because the grid the calendar draws and the machinery the hooks name were both already in `everything` and what they cost is a wrapper each: `material-plus-ui/hooks` is 0.3 kB imported on its own, and `MPVisuallyHidden` is one class string.
+The last 3.2 kB is this report's own — `MPCalendar`, the five hooks, `MPVisuallyHidden`, `MPConfigProvider`, `MPConfirmProvider`, and the cell's four extra `bg-transparent` branches. Three of those four are close to free, because the grid the calendar draws and the machinery the hooks name were both already in `everything` and what they cost is a wrapper each: `material-plus-ui/hooks` is 0.3 kB imported on its own, and `MPVisuallyHidden` is one class string.
 
 `MPConfigProvider` is the one that is not free anywhere, and it is worth being explicit about why. Every component that resolves a `size` or a `color` now imports `internal/config`, so the module reaches any bundle holding any of them — which is what moves ten components from 11.2 kB to 11.6 kB, a shade under a tenth of a kilobyte per component and one shared module rather than a per-component cost. `MPButton` alone goes from 23 modules to 24. A page that renders one control pays about 40 bytes for the ability to configure several hundred.
 
 The stylesheet grew from 113.5 kB to 114.6 kB, and 16.2 kB to 16.4 kB gzipped. Fifteen reset declarations on `.mp-grid`, one `overflow-visible`, one search-cancel-button rule and a tick's five sizes are the whole of it; the crossover at about thirty-one components is unchanged. The split sheets go from eighty-eight to ninety-one — `MPCalendar`, `MPVisuallyHidden` and `MPConfigProvider` get one each, and none of the three holds a hand-written rule.
 
-The suite goes from 1644 tests to 1859. Nineteen are the date picker's two new units and the raw events, as before. Twenty-seven are `MPCalendar`'s, forty-five the hooks', ten `MPVisuallyHidden`'s, seventeen `MPConfigProvider`'s, eight the scheme switches, six the direction wiring, and three more the picker's chosen day — those last ones read a computed background rather than a class list, which is the difference between checking that a rule was written and checking that it applies. The other eighty are this report, and the ones worth naming are the ones that would have caught the defects rather than described them: a nested grid item measuring 200px instead of 33px, a form actually submitting on Enter, a panel's `overflow` read at four points across its animation in both the controlled and uncontrolled cases, and a chip trigger asserting there is exactly one tab stop rather than two.
+The suite goes from 1644 tests to 1874. Nineteen are the date picker's two new units and the raw events, as before. Twenty-seven are `MPCalendar`'s, forty-five the hooks', ten `MPVisuallyHidden`'s, seventeen `MPConfigProvider`'s, eight the scheme switches, six the direction wiring, fifteen `useMPConfirm`'s, and three more the picker's chosen day — those last ones read a computed background rather than a class list, which is the difference between checking that a rule was written and checking that it applies. The other eighty are this report, and the ones worth naming are the ones that would have caught the defects rather than described them: a nested grid item measuring 200px instead of 33px, a form actually submitting on Enter, a panel's `overflow` read at four points across its animation in both the controlled and uncontrolled cases, and a chip trigger asserting there is exactly one tab stop rather than two.
 
 ## 1.5.0 (2026-08-30)
 

@@ -124,6 +124,11 @@ export const zhHans: MPLocale = {
       openSidebar: '打开侧边栏',
       closeSidebar: '关闭侧边栏',
       resizeSidebar: '调整侧边栏宽度'
+    },
+    confirm: {
+      confirm: '确认',
+      cancel: '取消',
+      ok: '好'
     }
   }
 };

@@ -119,6 +119,11 @@ export const it: MPLocale = {
       openSidebar: 'Apri la barra laterale',
       closeSidebar: 'Chiudi la barra laterale',
       resizeSidebar: 'Ridimensiona la barra laterale'
+    },
+    confirm: {
+      confirm: 'Conferma',
+      cancel: 'Annulla',
+      ok: 'OK'
     }
   }
 };

@@ -441,6 +441,22 @@ export interface MPMessages {
     /** What the trigger reads before anything has been chosen. */
     empty: string;
   };
+  /**
+   * The two buttons on a confirmation, and the one on an acknowledgement.
+   *
+   * A namespace of its own rather than three more entries in `common`, because
+   * `common` is the glyph labels — the × that is read out as *close* — and these
+   * are the words on the buttons themselves. A caller who wants *Delete* rather
+   * than *Confirm* passes a label; these are what is drawn when they do not.
+   */
+  confirm: {
+    /** The button that says yes. */
+    confirm: string;
+    /** The button that says no, and what a dismissal counts as. */
+    cancel: string;
+    /** The single button on an acknowledgement, which has nothing to refuse. */
+    ok: string;
+  };
 }
 
 /** A translation may fill in as much or as little of the table as it has. */

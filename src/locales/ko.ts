@@ -119,6 +119,11 @@ export const ko: MPLocale = {
       openSidebar: '사이드바 열기',
       closeSidebar: '사이드바 닫기',
       resizeSidebar: '사이드바 너비 조절'
+    },
+    confirm: {
+      confirm: '확인',
+      cancel: '취소',
+      ok: '확인'
     }
   }
 };

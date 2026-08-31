@@ -119,6 +119,11 @@ export const tr: MPLocale = {
       openSidebar: 'Kenar çubuğunu aç',
       closeSidebar: 'Kenar çubuğunu kapat',
       resizeSidebar: 'Kenar çubuğunu yeniden boyutlandır'
+    },
+    confirm: {
+      confirm: 'Onayla',
+      cancel: 'İptal',
+      ok: 'Tamam'
     }
   }
 };

@@ -119,6 +119,11 @@ export const hi: MPLocale = {
       openSidebar: 'साइडबार खोलें',
       closeSidebar: 'साइडबार बंद करें',
       resizeSidebar: 'साइडबार का आकार बदलें'
+    },
+    confirm: {
+      confirm: 'पुष्टि करें',
+      cancel: 'रद्द करें',
+      ok: 'ठीक है'
     }
   }
 };

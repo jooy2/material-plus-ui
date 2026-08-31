@@ -123,6 +123,11 @@ export const zhHant: MPLocale = {
       openSidebar: '開啟側邊欄',
       closeSidebar: '關閉側邊欄',
       resizeSidebar: '調整側邊欄寬度'
+    },
+    confirm: {
+      confirm: '確認',
+      cancel: '取消',
+      ok: '好'
     }
   }
 };

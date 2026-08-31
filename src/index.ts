@@ -38,6 +38,7 @@ export * from './components/checkbox';
 export * from './components/chip';
 export * from './components/collapsible';
 export * from './components/config';
+export * from './components/confirm';
 export * from './components/color-picker';
 export * from './components/combobox';
 export * from './components/command-palette';

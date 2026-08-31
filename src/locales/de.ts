@@ -119,6 +119,11 @@ export const de: MPLocale = {
       openSidebar: 'Seitenleiste öffnen',
       closeSidebar: 'Seitenleiste schließen',
       resizeSidebar: 'Seitenleiste anpassen'
+    },
+    confirm: {
+      confirm: 'Bestätigen',
+      cancel: 'Abbrechen',
+      ok: 'OK'
     }
   }
 };

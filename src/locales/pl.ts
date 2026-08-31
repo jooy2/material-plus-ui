@@ -119,6 +119,11 @@ export const pl: MPLocale = {
       openSidebar: 'Otwórz panel boczny',
       closeSidebar: 'Zamknij panel boczny',
       resizeSidebar: 'Zmień szerokość panelu bocznego'
+    },
+    confirm: {
+      confirm: 'Potwierdź',
+      cancel: 'Anuluj',
+      ok: 'OK'
     }
   }
 };

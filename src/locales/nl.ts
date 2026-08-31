@@ -119,6 +119,11 @@ export const nl: MPLocale = {
       openSidebar: 'Zijbalk openen',
       closeSidebar: 'Zijbalk sluiten',
       resizeSidebar: 'Zijbalk verbreden of versmallen'
+    },
+    confirm: {
+      confirm: 'Bevestigen',
+      cancel: 'Annuleren',
+      ok: 'OK'
     }
   }
 };

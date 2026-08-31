@@ -119,6 +119,11 @@ export const vi: MPLocale = {
       openSidebar: 'Mở thanh bên',
       closeSidebar: 'Đóng thanh bên',
       resizeSidebar: 'Đổi chiều rộng thanh bên'
+    },
+    confirm: {
+      confirm: 'Xác nhận',
+      cancel: 'Huỷ',
+      ok: 'OK'
     }
   }
 };

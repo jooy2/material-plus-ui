@@ -119,6 +119,11 @@ export const th: MPLocale = {
       openSidebar: 'เปิดแถบด้านข้าง',
       closeSidebar: 'ปิดแถบด้านข้าง',
       resizeSidebar: 'ปรับความกว้างแถบด้านข้าง'
+    },
+    confirm: {
+      confirm: 'ยืนยัน',
+      cancel: 'ยกเลิก',
+      ok: 'ตกลง'
     }
   }
 };

@@ -119,6 +119,11 @@ export const id: MPLocale = {
       openSidebar: 'Buka bilah sisi',
       closeSidebar: 'Tutup bilah sisi',
       resizeSidebar: 'Ubah lebar bilah sisi'
+    },
+    confirm: {
+      confirm: 'Konfirmasi',
+      cancel: 'Batal',
+      ok: 'OK'
     }
   }
 };
