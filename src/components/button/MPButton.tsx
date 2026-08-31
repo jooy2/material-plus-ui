@@ -1,5 +1,8 @@
 import * as React from 'react';
-import { Button as BaseUIButton } from '@base-ui/react/button';
+import {
+  Button as BaseUIButton,
+  type ButtonProps as BaseUIButtonProps
+} from '@base-ui/react/button';
 import { MPIcon } from '../icon/MPIcon';
 import { SpinnerIcon } from '../../constants/icons';
 import { accentSlots } from '../../internal/accent';
@@ -108,6 +111,43 @@ export interface MPButtonProps
    * @default 'button'
    */
   type?: 'button' | 'submit' | 'reset';
+  /**
+   * Renders something other than a `<button>` while keeping every part of the
+   * surface. Base UI's own escape hatch, so it behaves here exactly as it does
+   * on every Base UI primitive.
+   *
+   * **A link wearing a button is the reason this exists**, and it is three props
+   * rather than one:
+   *
+   * ```tsx
+   * <MPButton render={<a href="/pricing" />} nativeButton={false} role="link">
+   *   Pricing
+   * </MPButton>
+   * ```
+   *
+   * `nativeButton={false}` tells Base UI the element is not a `<button>`, and
+   * `role` puts back the one thing it then assumes — see `nativeButton`. Without
+   * the `role` the anchor is announced as a button, which is exactly the lie the
+   * "no `href`" rule below exists to prevent.
+   */
+  render?: BaseUIButtonProps['render'];
+  /**
+   * Whether `render` produces a real `<button>`.
+   *
+   * Only meaningful alongside `render`, and then it is not optional: an `<a>` has
+   * no `disabled`, is not in a form's submit chain, and is activated by Enter but
+   * not by Space, so Base UI has to be told which set of behaviours to supply. It
+   * says so in the console when the two disagree, in either direction.
+   *
+   * What it also does is assume the element is *acting* as a button, and give it
+   * `role="button"` and a tab stop to say so. For an anchor that is one assumption
+   * too many — a link announced as a button is a link a reader will not expect to
+   * open in a new tab — so pass `role="link"` alongside it. Anything else that is
+   * genuinely a button (a `<div>`, a `<span>`) wants the role Base UI supplies and
+   * should leave it alone.
+   * @default true
+   */
+  nativeButton?: boolean;
   children?: React.ReactNode;
 }
 
@@ -129,9 +169,17 @@ export interface MPButtonProps
  *
  * **No `href`.** A button that navigates is a link, and the difference is not
  * cosmetic: a link is announced as one, opens in a new tab on the middle button,
- * and shows its destination in the status bar. Wrap an `<a>` in the styling, or
- * pass `render={<a href="…" />}` — Base UI's own escape hatch — rather than
- * teaching the button to lie about what it is.
+ * and shows its destination in the status bar. So a link that looks like a button
+ * is written as a link:
+ *
+ * ```tsx
+ * <MPButton render={<a href="/pricing" />} nativeButton={false} role="link">
+ *   Pricing
+ * </MPButton>
+ * ```
+ *
+ * All three parts matter, and `render`'s own note says why. Teaching the button
+ * to take an `href` instead would be teaching it to lie about what it is.
  *
  * **No ripple.** MD3 dropped it: the state layer below is what replaced it, and
  * it says the same thing without an animation that has to finish before the
@@ -150,6 +198,8 @@ export const MPButton = React.forwardRef<HTMLButtonElement, MPButtonProps>(funct
     locale: localeProp,
     fullWidth = false,
     type = 'button',
+    render,
+    nativeButton = true,
     className,
     style,
     children,
@@ -191,7 +241,13 @@ export const MPButton = React.forwardRef<HTMLButtonElement, MPButtonProps>(funct
   return (
     <BaseUIButton
       ref={ref}
-      type={type}
+      render={render}
+      nativeButton={nativeButton}
+      // Withheld from anything that is not a button, where it is not an
+      // attribute at all: `<a type="button">` is markup a validator rejects and
+      // a browser ignores, and `render` is the whole reason this element might
+      // not be a `<button>`.
+      type={nativeButton ? type : undefined}
       disabled={disabled}
       // Announced, and honoured: the click below is swallowed while it is set.
       // `disabled` would do both, and would also take the focus off a button the
