@@ -188,4 +188,77 @@ describe('MPAccordion', () => {
       expect(trigger.className).toContain('rounded-mp-sm');
     });
   });
+
+  describe('the panel’s clip', () => {
+    const panels = () => Array.from(document.querySelectorAll('[role="region"]'));
+    const clip = (index = 0) => getComputedStyle(panels()[index] as HTMLElement).overflow;
+
+    it('clips a closed panel and a panel on its way open', async () => {
+      const screen = await render(
+        <MPAccordion keepMounted>
+          <MPAccordionItem value="a" title="Account">
+            <div style={{ height: 120 }}>Body</div>
+          </MPAccordionItem>
+        </MPAccordion>
+      );
+
+      expect(clip()).toBe('hidden');
+
+      await screen.getByRole('button', { name: 'Account' }).click();
+
+      // Still moving: `overflow: hidden` is what makes the panel a window
+      // rather than a squashed copy of its own content.
+      expect(clip()).toBe('hidden');
+    });
+
+    it('stops clipping once the height has arrived', async () => {
+      // A text field's floating label sits *on* the field's top edge, which is
+      // the panel's top edge — so a panel that went on clipping cut it in half
+      // and nothing in the console said so.
+      const screen = await render(
+        <MPAccordion keepMounted>
+          <MPAccordionItem value="a" title="Account">
+            <div style={{ height: 120 }}>Body</div>
+          </MPAccordionItem>
+        </MPAccordion>
+      );
+
+      await screen.getByRole('button', { name: 'Account' }).click();
+      await new Promise((resolve) => setTimeout(resolve, 700));
+
+      expect(clip()).toBe('visible');
+    });
+
+    it('clips again the moment it is asked to close', async () => {
+      const screen = await render(
+        <MPAccordion keepMounted>
+          <MPAccordionItem value="a" title="Account">
+            <div style={{ height: 120 }}>Body</div>
+          </MPAccordionItem>
+        </MPAccordion>
+      );
+
+      await screen.getByRole('button', { name: 'Account' }).click();
+      await new Promise((resolve) => setTimeout(resolve, 700));
+      await screen.getByRole('button', { name: 'Account' }).click();
+
+      // Before the height has moved, not after: a panel that unclipped on the
+      // way down would draw its content outside a shrinking box.
+      expect(clip()).toBe('hidden');
+    });
+
+    it('does not clip a section that started open', async () => {
+      // Nothing transitions, so there is no `transitionend` coming and a panel
+      // that waited for one would stay clipped for good.
+      await render(
+        <MPAccordion defaultValue={['a']} keepMounted>
+          <MPAccordionItem value="a" title="Account">
+            <div style={{ height: 120 }}>Body</div>
+          </MPAccordionItem>
+        </MPAccordion>
+      );
+
+      expect(clip()).toBe('visible');
+    });
+  });
 });
