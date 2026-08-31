@@ -166,6 +166,71 @@ export interface MPStyleProps {
 }
 
 /**
+ * The raw events a control produces, for the handling its own callbacks do not
+ * cover.
+ *
+ * Every control here reports what it is *for* — an `MPTextField` hands over its
+ * text, an `MPSelect` its choice, an `MPDatePicker` its day — and that named
+ * callback is what a caller should reach for first. These are the other half:
+ * the keystroke that was not a change, the combination that means something to
+ * the page rather than to the field, the right-click that opens a menu of your
+ * own.
+ *
+ * ## They go on the control, not on the box
+ *
+ * Which is the opposite of where `className` goes, and for the reason that
+ * makes them different questions: a class describes the whole thing, and an
+ * event came from one element. So `onKeyDown` is a keystroke that landed in the
+ * field and never one that landed on the reveal toggle beside it, and `onFocus`
+ * is the control taking focus rather than anything in the row taking it.
+ *
+ * A `<div onKeyDown>` wrapped around a control gets some of this by bubbling,
+ * and that is what a caller had to write before. What it cannot do is go
+ * *first*.
+ *
+ * ## Yours runs first
+ *
+ * And a control that has its own answer for a key checks `defaultPrevented`
+ * before giving it. That is what makes `event.preventDefault()` a real answer
+ * rather than a suggestion: Ctrl+Enter can send a message without the field
+ * also reporting the plain submission it would otherwise have seen.
+ *
+ * `Element` is whichever element the component says it puts these on — an
+ * `<input>`, a trigger button — so `event.currentTarget` is typed as the thing
+ * it actually is.
+ */
+export interface MPControlEventProps<Element extends HTMLElement = HTMLElement> {
+  /**
+   * Every keystroke that reaches the control, modifiers included — which makes
+   * this the one to reach for for a combination. It is also the only one of
+   * these where `preventDefault` still means anything.
+   */
+  onKeyDown?: React.KeyboardEventHandler<Element>;
+  /** The same keystroke released. */
+  onKeyUp?: React.KeyboardEventHandler<Element>;
+  /**
+   * The control took the focus.
+   *
+   * On the control itself rather than on the row, so it does not fire again for
+   * the button beside it — and it is what a form library wants for its "touched"
+   * bookkeeping, together with `onBlur`.
+   */
+  onFocus?: React.FocusEventHandler<Element>;
+  /** The control lost it. */
+  onBlur?: React.FocusEventHandler<Element>;
+  /** A press. The component's own answer to a press still happens. */
+  onClick?: React.MouseEventHandler<Element>;
+  /** Two presses. Selecting a field's whole value is the usual reason. */
+  onDoubleClick?: React.MouseEventHandler<Element>;
+  /**
+   * The right-click, or whatever opens a context menu on the platform.
+   * `event.preventDefault()` is how the browser's own menu is replaced with one
+   * of yours.
+   */
+  onContextMenu?: React.MouseEventHandler<Element>;
+}
+
+/**
  * The props a glyph component is handed when Material Plus renders one.
  *
  * Deliberately the shape `lucide-react` icons already take, which is also the

@@ -8,7 +8,7 @@ import { MPStateLayer } from '../../internal/StateLayer';
 import { MPSupportingText } from '../../internal/SupportingText';
 import { CONTROL_ICON, PROSE_TEXT, hasContent } from '../../internal/scale';
 import { FADE, PORTAL_LAYER } from '../../internal/surface';
-import type { MPSize, MPStyleProps } from '../../types';
+import type { MPControlEventProps, MPSize, MPStyleProps } from '../../types';
 
 /**
  * What a select's value may be.
@@ -48,7 +48,7 @@ const TRIGGER: Record<MPSize, { padding: string; height: string }> = {
   xl: { padding: 'px-5', height: 'h-18' }
 };
 
-export interface MPSelectProps extends MPStyleProps {
+export interface MPSelectProps extends MPStyleProps, MPControlEventProps<HTMLButtonElement> {
   /**
    * The options, as data. There is no `<MPSelect.Option>` to compose: what a
    * caller has is almost always an array already, and the list has to be
@@ -155,6 +155,13 @@ export const MPSelect = React.forwardRef<HTMLButtonElement, MPSelectProps>(funct
     value,
     defaultValue,
     onValueChange,
+    onKeyDown,
+    onKeyUp,
+    onFocus,
+    onBlur,
+    onClick,
+    onDoubleClick,
+    onContextMenu,
     placeholder,
     label,
     floatingLabel = true,
@@ -243,6 +250,16 @@ export const MPSelect = React.forwardRef<HTMLButtonElement, MPSelectProps>(funct
         <div className="relative w-full">
           <Select.Trigger
             ref={ref}
+            // The caller's, on the trigger — the element that has the focus and
+            // takes the keystrokes — rather than on the field around it. Base UI
+            // still answers the keys it owns, unless one of these prevents it.
+            onKeyDown={onKeyDown}
+            onKeyUp={onKeyUp}
+            onFocus={onFocus}
+            onBlur={onBlur}
+            onClick={onClick}
+            onDoubleClick={onDoubleClick}
+            onContextMenu={onContextMenu}
             className={[
               'relative flex w-full items-center gap-2 select-none',
               'appearance-none bg-transparent font-[inherit] outline-none',

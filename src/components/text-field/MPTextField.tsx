@@ -7,7 +7,7 @@ import { VisibilityIcon, VisibilityOffIcon } from '../../constants/icons';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { TEXT_FIELD } from '../../internal/messages/text-field';
 import type { MPMessages } from '../../internal/i18n';
-import type { MPSize, MPStyleProps } from '../../types';
+import type { MPControlEventProps, MPSize, MPStyleProps } from '../../types';
 
 /** The input modes this field is built for. */
 export type MPTextFieldType = 'email' | 'password' | 'text';
@@ -49,7 +49,8 @@ const SIZES: Record<
   xl: { padding: 'px-5', control: 'py-6', text: 'text-mp-body-large', icon: 24 }
 };
 
-export interface MPTextFieldProps extends MPStyleProps {
+export interface MPTextFieldProps
+  extends MPStyleProps, MPControlEventProps<HTMLInputElement | HTMLTextAreaElement> {
   /**
    * The field's text. This is a controlled component: what is shown is what is
    * passed, except during composition — see `onChange`.
@@ -169,6 +170,10 @@ export interface MPTextFieldProps extends MPStyleProps {
    *
    * Never called for the Enter that commits an IME composition: that keystroke
    * belongs to the input method, not to the form.
+   *
+   * An `onKeyDown` of your own runs before this and can take the keystroke: an
+   * `event.preventDefault()` there means no submission is reported and the
+   * field does nothing further with the key.
    */
   onSubmit?: () => void;
   /**
@@ -267,6 +272,13 @@ export const MPTextField = React.forwardRef<
     onChange,
     onFormReset,
     onSubmit,
+    onKeyDown,
+    onKeyUp,
+    onFocus,
+    onBlur,
+    onClick,
+    onDoubleClick,
+    onContextMenu,
     errorMessage = '',
     required = false,
     fullWidth = false,
@@ -464,7 +476,26 @@ export const MPTextField = React.forwardRef<
           onCompositionStart={handleCompositionStart}
           onCompositionUpdate={handleCompositionUpdate}
           onCompositionEnd={handleCompositionEnd}
+          // The caller's, on the control rather than on the row around it: a
+          // keystroke that landed on the reveal toggle is not one that landed in
+          // the field, and neither is the focus the toggle takes.
+          onKeyUp={onKeyUp}
+          onFocus={onFocus}
+          onBlur={onBlur}
+          onClick={onClick}
+          onDoubleClick={onDoubleClick}
+          onContextMenu={onContextMenu}
           onKeyDown={(event) => {
+            onKeyDown?.(event);
+
+            // Theirs first, and theirs wins. A caller who has answered this
+            // keystroke — Ctrl+Enter that sends, Escape that closes something
+            // above the field — has said so by preventing it, and a field that
+            // then also reported a submission would be sending twice.
+            if (event.defaultPrevented) {
+              return;
+            }
+
             if (event.key === 'Enter') {
               // Left alone rather than swallowed. While an IME is composing the
               // browser is using Enter to commit the syllable, and a

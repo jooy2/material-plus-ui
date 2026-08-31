@@ -13,7 +13,7 @@ import { MPStateLayer } from '../../internal/StateLayer';
 import { MPSupportingText } from '../../internal/SupportingText';
 import { CONTROL_ICON, PROSE_TEXT, hasContent } from '../../internal/scale';
 import { FADE, PORTAL_LAYER } from '../../internal/surface';
-import type { MPSize, MPStyleProps } from '../../types';
+import type { MPControlEventProps, MPSize, MPStyleProps } from '../../types';
 
 /**
  * What a combobox's value may be — the same two types `MPSelect` submits, and for
@@ -45,9 +45,8 @@ type Selection<Multiple extends boolean | undefined> = Multiple extends true
   ? MPComboboxValue[]
   : MPComboboxValue | null;
 
-export interface MPComboboxProps<
-  Multiple extends boolean | undefined = false
-> extends MPStyleProps {
+export interface MPComboboxProps<Multiple extends boolean | undefined = false>
+  extends MPStyleProps, MPControlEventProps<HTMLInputElement> {
   /**
    * The options, as data — the same shape `MPSelect` takes, and for the same
    * reason: what a caller has is almost always an array already.   *
@@ -282,6 +281,13 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
   defaultValue,
   onValueChange,
   onInputValueChange,
+  onKeyDown,
+  onKeyUp,
+  onFocus,
+  onBlur,
+  onClick,
+  onDoubleClick,
+  onContextMenu,
   allowCustom = true,
   customLabel,
   clearable = false,
@@ -459,6 +465,17 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
       id={fieldId}
       // Withheld while a floating label is resting in the same place.
       placeholder={shrunk ? placeholder : undefined}
+      // The caller's, on the input rather than on the field: a keystroke that
+      // landed on the chevron or on a chip's × is not one that landed in the
+      // query. Base UI still answers the keys it owns — the arrows that walk the
+      // list, the Enter that takes a row — unless one of these prevents it.
+      onKeyDown={onKeyDown}
+      onKeyUp={onKeyUp}
+      onFocus={onFocus}
+      onBlur={onBlur}
+      onClick={onClick}
+      onDoubleClick={onDoubleClick}
+      onContextMenu={onContextMenu}
       className={
         isMultiple ? `${inputClasses} min-w-16 ${afterChips ? 'ms-1.5' : ''}` : inputClasses
       }

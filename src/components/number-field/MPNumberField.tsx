@@ -9,7 +9,7 @@ import { NUMBER_FIELD } from '../../internal/messages/number-field';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { MPSupportingText } from '../../internal/SupportingText';
 import { CONTROL_ICON, PROSE_TEXT, hasContent } from '../../internal/scale';
-import type { MPSize, MPStyleProps } from '../../types';
+import type { MPControlEventProps, MPSize, MPStyleProps } from '../../types';
 
 /**
  * Where the two steppers sit.
@@ -35,7 +35,7 @@ const SHELL: Record<MPSize, { padding: string; height: string; stepper: string }
   xl: { padding: 'px-5', height: 'h-18', stepper: 'size-12' }
 };
 
-export interface MPNumberFieldProps extends MPStyleProps {
+export interface MPNumberFieldProps extends MPStyleProps, MPControlEventProps<HTMLInputElement> {
   /** The number. Use with `onValueChange` for a controlled field. */
   value?: number | null;
   /** The starting number, for an uncontrolled field. */
@@ -156,6 +156,13 @@ export function MPNumberField({
   defaultValue,
   onValueChange,
   onValueCommitted,
+  onKeyDown,
+  onKeyUp,
+  onFocus,
+  onBlur,
+  onClick,
+  onDoubleClick,
+  onContextMenu,
   min,
   max,
   step,
@@ -320,6 +327,16 @@ export function MPNumberField({
             <NumberField.Input
               // Withheld while a floating label is resting in the same place.
               placeholder={shrunk ? placeholder : undefined}
+              // The caller's handlers, on the input rather than on the shell
+              // around it: a keystroke that landed on a stepper is not one that
+              // landed in the number.
+              onKeyDown={onKeyDown}
+              onKeyUp={onKeyUp}
+              onFocus={onFocus}
+              onBlur={onBlur}
+              onClick={onClick}
+              onDoubleClick={onDoubleClick}
+              onContextMenu={onContextMenu}
               className={[
                 'w-full min-w-0 flex-1 tabular-nums',
                 PROSE_TEXT[size],

@@ -12,7 +12,7 @@ import { displaySamples } from './date';
 import { CONTROL_ICON, hasContent, PROSE_TEXT } from './scale';
 import { FADE, PORTAL_LAYER } from './surface';
 import type { MPPickerLabels } from './Calendar';
-import type { MPColor, MPSize, MPStyleProps } from '../types';
+import type { MPColor, MPControlEventProps, MPSize, MPStyleProps } from '../types';
 
 /**
  * The strings a trigger is held open by, kept across renders that did not
@@ -110,7 +110,7 @@ const POPUP_PAD: Record<MPSize, string> = {
  * the rows a reader of the docs is actually looking at — every one of the four
  * pickers lists them, and they mean the same thing on all four.
  */
-export interface MPPickerShellProps extends MPStyleProps {
+export interface MPPickerShellProps extends MPStyleProps, MPControlEventProps<HTMLButtonElement> {
   /**
    * Which accent family the popup reads: the chosen day's fill, the band across
    * a range, today's outline, the footer's confirm button.
@@ -223,6 +223,13 @@ export function MPPickerShell({
   id,
   className,
   style,
+  onKeyDown,
+  onKeyUp,
+  onFocus,
+  onBlur,
+  onClick,
+  onDoubleClick,
+  onContextMenu,
   display,
   samples,
   empty,
@@ -279,6 +286,17 @@ export function MPPickerShell({
             ref={triggerRef}
             disabled={disabled}
             nativeButton
+            // The caller's, on the trigger rather than on the field around it —
+            // the trigger is what holds the focus, and the × beside it is a
+            // button of its own whose presses are not the picker's. Base UI
+            // still opens the popup on a press unless `onClick` prevents it.
+            onKeyDown={onKeyDown}
+            onKeyUp={onKeyUp}
+            onFocus={onFocus}
+            onBlur={onBlur}
+            onClick={onClick}
+            onDoubleClick={onDoubleClick}
+            onContextMenu={onContextMenu}
             className={[
               'relative flex w-full items-center gap-2 select-none',
               'appearance-none bg-transparent font-[inherit] outline-none',
