@@ -398,4 +398,63 @@ describe('MPButtonGroup', () => {
 
     expect(a).toBeCloseTo(b, 0);
   });
+
+  describe('render', () => {
+    it('wears the whole surface on an anchor', async () => {
+      // The escape hatch the "no `href`" rule points at, which until now the
+      // doc comment described and the prop table did not have.
+      const screen = await render(
+        <MPButton render={<a href="/pricing" />} nativeButton={false} role="link">
+          Pricing
+        </MPButton>
+      );
+      const link = screen.getByRole('link', { name: 'Pricing' }).element();
+
+      expect(link.tagName).toBe('A');
+      expect(link).toHaveAttribute('href', '/pricing');
+      expect(link).toHaveClass('mp-button');
+      // `type` is an attribute an `<a>` has no use for.
+      expect(link).not.toHaveAttribute('type');
+    });
+
+    it('still paints the variant it was given', async () => {
+      const plain = await render(<MPButton variant="tonal">Go</MPButton>);
+      const resting = getComputedStyle(plain.getByRole('button', { name: 'Go' }).element());
+
+      const linked = await render(
+        <MPButton variant="tonal" render={<a href="/go" />} nativeButton={false} role="link">
+          Go
+        </MPButton>
+      );
+      const painted = getComputedStyle(linked.getByRole('link', { name: 'Go' }).element());
+
+      expect(painted.backgroundColor).toBe(resting.backgroundColor);
+      expect(painted.height).toBe(resting.height);
+    });
+
+    it('announces the anchor as a button without the role, which is the trap', async () => {
+      // Base UI's `nativeButton={false}` assumes the element is *acting* as a
+      // button and says so. On a link that is the lie the "no `href`" rule
+      // exists to prevent, which is why the recipe above carries `role`.
+      const screen = await render(
+        <MPButton render={<a href="/pricing" />} nativeButton={false}>
+          Pricing
+        </MPButton>
+      );
+
+      expect(screen.getByRole('button', { name: 'Pricing' }).element()).toHaveAttribute(
+        'role',
+        'button'
+      );
+    });
+
+    it('keeps type="button" on the button it renders by default', async () => {
+      const screen = await render(<MPButton>Go</MPButton>);
+
+      expect(screen.getByRole('button', { name: 'Go' }).element()).toHaveAttribute(
+        'type',
+        'button'
+      );
+    });
+  });
 });
