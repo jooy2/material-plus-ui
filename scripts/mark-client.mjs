@@ -47,6 +47,12 @@
  * module that only holds data is not** — which is where Base UI, MUI and Radix
  * all landed.
  *
+ * Recognising a module that renders is the harder half, and looking for markup
+ * is not enough on its own: a component built on Base UI's `useRender` writes no
+ * element down at all. That is read off the imports instead — a module that
+ * imports a hook runs where hooks run — and the same question is put to `dist/`
+ * at the end, so a heuristic that misses cannot ship. See both rules below.
+ *
  * There is a second rule, and the icons are the whole of why. A component that
  * will be handed to a client component **as a prop** has to be a client
  * reference itself, or `<MPIcon icon={CheckIcon} />` written in a server
@@ -195,6 +201,8 @@ function code(text) {
 
 /** Markup, as opposed to a `.tsx` that turned out to hold only types. */
 const RENDERS = /<[A-Za-z][\w.]*[\s/>]/;
+/** Any import at all, relative or not, with its clause and where it came from. */
+const IMPORTED = /import\s+(?!type\s)([\s\S]*?)\s+from\s+['"]([^'"]+)['"]/g;
 /** `import { Check } from 'lucide-react'` — a value out of somebody else's package. */
 const FOREIGN = /import\s+(?!type\s)([\s\S]*?)\s+from\s+['"]([^.'"][^'"]*)['"]/g;
 /** `export const CheckIcon = Check;` — that value, handed on under a new name. */
@@ -202,6 +210,29 @@ const PASSED_ON =
   /export\s+(?:const|let|var)\s+[A-Za-z_$][\w$]*\s*(?::[^=]*)?=\s*([A-Za-z_$][\w$]*)\s*;/g;
 const NAMESPACED = /\b([A-Za-z_$][\w$]*)\.([A-Za-z_$][\w$]*)/g;
 const NAMED_FROM_REACT = /import\s*\{([^}]*)\}\s*from\s*['"]react['"]/g;
+/** `useRender`, `useMPSize` — React's own naming rule, which is a lint rule. */
+const HOOK = /^use[A-Z]/;
+
+/**
+ * What an import clause asked the other module for, before any `as`.
+ *
+ * The exported name rather than the local one, because the exported name is the
+ * one that says what the thing *is* — `terser` renames every local binding to a
+ * letter, and `import { useMPSize as a }` is still an import of a hook.
+ */
+function imported(clause) {
+  return clause
+    .replace(/[{}*]/g, ',')
+    .split(',')
+    .map((part) =>
+      part
+        .trim()
+        .replace(/^type\s+/, '')
+        .split(/\s+as\s+/)[0]
+        .trim()
+    )
+    .filter((name) => /^[A-Za-z_$][\w$]*$/.test(name));
+}
 
 const files = walk(src).filter((file) => /\.tsx?$/.test(file) && !file.endsWith('.d.ts'));
 const client = new Set();
@@ -212,6 +243,33 @@ for (const file of files) {
   if (file.endsWith('.tsx') && RENDERS.test(text)) {
     client.add(file);
     continue;
+  }
+
+  /*
+   * And the modules that render without writing an element down.
+   *
+   * `RENDERS` looks for markup, and a component drawn with Base UI's
+   * `useRender` contains none: it hands over a props object and the element
+   * comes back. `MPContainer`, `MPAspectRatio` and the seven animate components
+   * are that shape, and every one of them shipped 1.6.0 unmarked — invisible
+   * until `useMPSize` gave them a context to read, at which point an App Router
+   * page rendering one died with *Attempted to call useMPSize() from the
+   * server*.
+   *
+   * So the rule is asked the other way round. A hook is a thing that only runs
+   * where hooks run, and a module that imports one is a module that runs there
+   * too — whether it is a component, a hook of our own, or something that will
+   * only become one later. It also needs no module graph: the import names the
+   * hook, and the name is the whole of the evidence.
+   *
+   * `react` is excluded because React's own split above is finer than a naming
+   * convention — `useCallback`, `useMemo` and `useId` are on the server build
+   * too, and a module using only those is not client for it.
+   */
+  for (const [, clause, specifier] of text.matchAll(IMPORTED)) {
+    if (specifier !== 'react' && imported(clause).some((name) => HOOK.test(name))) {
+      client.add(file);
+    }
   }
 
   /*
@@ -312,6 +370,48 @@ for (const file of SERVER_SIDE) {
         'would pull more across the boundary than the module it was meant for'
     );
   }
+}
+
+/*
+ * And then the same question asked of the shipped files rather than of the
+ * source, which is the check that would have caught 1.6.0.
+ *
+ * Everything above is a judgement about a `.tsx`, and a judgement can be
+ * wrong quietly: the `RENDERS` regex was, for eleven modules, and nothing said
+ * so until an application's build did. This reads `dist/` — the thing a
+ * consumer actually runs — and asks one structural question with no heuristic
+ * in it. A module that imports a hook and does not say `"use client"` is a
+ * module whose first render on a server throws, so the build stops here rather
+ * than in somebody else's `next build`.
+ *
+ * A re-export is not an import and is deliberately not matched: `export { … }
+ * from` is exactly where a boundary belongs, and the barrels are built on it.
+ */
+const DIST_IMPORT = /\bimport\s*([^;'"]*?)\s*from\s*['"]([^'"]+)['"]/g;
+const unmarked = [];
+
+for (const file of walk(dist).filter((file) => file.endsWith('.js'))) {
+  const text = readFileSync(file, 'utf8');
+
+  if (/^\s*(['"])use client\1/.test(text)) {
+    continue;
+  }
+
+  for (const [, clause, specifier] of text.matchAll(DIST_IMPORT)) {
+    const hooks = specifier === 'react' ? [] : imported(clause).filter((name) => HOOK.test(name));
+
+    if (hooks.length > 0) {
+      unmarked.push(`${relative(dist, file)} (${hooks.join(', ')} from ${specifier})`);
+      break;
+    }
+  }
+}
+
+if (unmarked.length > 0) {
+  throw new Error(
+    'these built modules import a hook and carry no "use client", so a server ' +
+      `component rendering one would throw: ${unmarked.join(', ')}`
+  );
 }
 
 console.log(

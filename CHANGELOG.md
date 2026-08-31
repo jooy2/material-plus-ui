@@ -1,5 +1,19 @@
 # Changelog
 
+## vNext (2026--)
+
+A second report from the application that filed the first one, a day after upgrading to 1.6.0.
+
+### Fixed
+
+- **Eleven modules shipped without `"use client"`, and one of them took a whole site down.** A server component rendering `MPContainer` died with `Attempted to call useMPSize() from the server` — and a page layout that uses `MPContainer` makes that every page of an App Router application. `MPAspectRatio` and `MPAnimateLighting` were the same, and `MPBox`, `MPTypography` and the six `MPAnimate*` components were unmarked beside them, reaching `React.useRef` through Base UI's `useRender` instead.
+
+  It arrived in 1.6.0 and the cause is worth writing down, because it is a judgement rather than a typo. The build marks a module by looking for markup, on the rule that **a module that renders is a client module** — and a component drawn with `useRender` writes no element down at all, so the regular expression never saw one. Those eleven had nothing to fail on until `useMPSize()` and `useMPColor()` gave them a context to read, and then all of them did at once.
+
+  The judgement is made on the imports now: **a module that imports a hook is a module that runs where hooks run**, whatever it looks like from the outside. That also caught `useMPColorScheme`, `useMPReducedMotion` and `useMPWindowClass`, which compose client-only hooks out of `internal/` and were unmarked for a related reason. React's own hooks are still read from React's two builds rather than from the name, because that split is finer than a naming convention — `useCallback`, `useMemo` and `useId` are on the server build too, and a module using only those is not client for it.
+
+  And because a judgement that missed once can miss again, the build now puts the question to `dist/` as well: a shipped module that imports a hook and does not say `"use client"` stops the build, before it can stop somebody else's. A re-export is deliberately not an import — `export … from` is exactly where a boundary belongs, and the barrels are built on it.
+
 ## 1.6.0 (2026-08-31)
 
 One shape, found twice.
