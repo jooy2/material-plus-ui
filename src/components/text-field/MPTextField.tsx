@@ -9,8 +9,18 @@ import { TEXT_FIELD } from '../../internal/messages/text-field';
 import type { MPMessages } from '../../internal/i18n';
 import type { MPControlEventProps, MPSize, MPStyleProps } from '../../types';
 
-/** The input modes this field is built for. */
-export type MPTextFieldType = 'email' | 'password' | 'text';
+/**
+ * The input modes this field is built for.
+ *
+ * `search` is here for the keyboard it summons and the autofill it declines
+ * rather than for anything visual: iOS labels the return key "search" for it,
+ * and a browser keeps its own history of what was typed into one. The field
+ * draws exactly as `text` does — the browser's own clear button is suppressed by
+ * the same reset every other control in the library gets — because a search box
+ * that came with a second × next to `MPTextField`'s adornments would be two
+ * affordances doing one job.
+ */
+export type MPTextFieldType = 'email' | 'password' | 'search' | 'text';
 
 /**
  * What each rung of the ladder is, in one table.
@@ -475,6 +485,11 @@ export const MPTextField = React.forwardRef<
             scale.control,
             multiline ? 'py-0' : '',
             multiline && resizable ? 'resize-y' : 'resize-none',
+            // WebKit draws its own × inside a `search` input, and it is not the
+            // one this field would draw: it sits outside the adornment row, it
+            // is not in the tab order, and it empties a controlled value without
+            // telling React. `appearance-none` above does not reach it.
+            type === 'search' ? '[&::-webkit-search-cancel-button]:hidden' : '',
             // The spec's disabled content opacity, on the text and on the
             // placeholder alike.
             'group-data-disabled:text-mp-on-surface/38',
