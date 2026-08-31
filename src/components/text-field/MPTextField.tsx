@@ -110,10 +110,17 @@ export interface MPTextFieldProps
    */
   readOnly?: boolean;
   /**
-   * Swallows the Enter key instead of letting it insert a newline. Only
-   * meaningful with `rows`, since a single-line field has no newline to insert
-   * — there, Enter is already prevented so it cannot submit a surrounding form
-   * twice.
+   * Takes the Enter key away from whatever would otherwise have it.
+   *
+   * With `rows` that is the newline, which is the usual reason to reach for
+   * this: a multiline field wired to `onSubmit` where Enter should send rather
+   * than wrap.
+   *
+   * On a single-line field it is the *form* — Enter in an `<input>` inside a
+   * `<form>` submits it — so this is how a field opts out of a submission it
+   * has no part in. A field with an `onSubmit` already opts out, because
+   * answering the key twice is the same accident spelled differently.
+   * @default false
    */
   disableEnterKey?: boolean;
   /**
@@ -160,13 +167,16 @@ export interface MPTextFieldProps
    * Called when Enter is pressed.
    *
    * On a single-line field the key is then swallowed, so a surrounding form is
-   * submitted once rather than also natively.
+   * submitted once rather than also natively. **Passing this is what makes the
+   * field take the key at all**: without it Enter is left to the browser, which
+   * inside a `<form>` means the native submit an `<input>` has always done. A
+   * page that already writes `<form onSubmit>` needs nothing here.
    *
-   * On a **multiline** field it is not, and both things happen: this fires *and*
-   * a newline is inserted. That is deliberate — the prop reports the keystroke
-   * rather than deciding what the field does with it — but it is worth knowing
-   * before wiring it to something that sends. `disableEnterKey` is what makes
-   * Enter a submission there and nothing else.
+   * On a **multiline** field it is not swallowed, and both things happen: this
+   * fires *and* a newline is inserted. That is deliberate — the prop reports the
+   * keystroke rather than deciding what the field does with it — but it is worth
+   * knowing before wiring it to something that sends. `disableEnterKey` is what
+   * makes Enter a submission there and nothing else.
    *
    * Never called for the Enter that commits an IME composition: that keystroke
    * belongs to the input method, not to the form.
@@ -507,10 +517,22 @@ export const MPTextField = React.forwardRef<
 
               onSubmit?.();
 
-              // A single-line field has no newline to insert, so Enter is
-              // always swallowed there — leaving it through would submit a
-              // surrounding form on top of whatever `onSubmit` just did.
-              if (!multiline || disableEnterKey) {
+              // Swallowed only when something here has already answered the
+              // key.
+              //
+              // On a single-line field an `onSubmit` is that answer, and
+              // letting the key through as well would submit a surrounding form
+              // on top of whatever it just did. With no `onSubmit` the
+              // keystroke is the browser's, and on a single-line field inside a
+              // `<form>` the browser's answer is a native submit — a field that
+              // ate it would have broken every form it was dropped into, which
+              // is exactly what this used to do.
+              //
+              // On a multiline field the answer is a newline, and only
+              // `disableEnterKey` takes it away. `onSubmit` there reports the
+              // keystroke without deciding what the field does with it, which
+              // is what its documentation has always said.
+              if (disableEnterKey || (onSubmit && !multiline)) {
                 event.preventDefault();
               }
             }
