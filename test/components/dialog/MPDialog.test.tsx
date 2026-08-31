@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { userEvent } from 'vitest/browser';
 import { MPButton, MPDialog, MPDialogClose } from 'material-plus-ui';
 import { scaled } from '../../support/style';
 
@@ -241,6 +242,55 @@ describe('MPDialog', () => {
       const sheet = document.querySelector('.mp-dialog') as HTMLElement;
 
       expect(sheet.style.getPropertyValue('--_mp-accent')).toBe('var(--_mp-color-error)');
+    });
+  });
+
+  describe('the raw events', () => {
+    it('reports a keystroke inside the sheet', async () => {
+      // The Ctrl+A that selects everything in a dialog's own body, which until
+      // now had to be caught on a wrapper outside the component.
+      const onKeyDown = vi.fn();
+      const screen = await render(
+        <MPDialog defaultOpen title="Rename" onKeyDown={onKeyDown}>
+          <MPButton>Inside</MPButton>
+        </MPDialog>
+      );
+
+      await screen.getByRole('button', { name: 'Inside' }).click();
+      await userEvent.keyboard('{Control>}a{/Control}');
+
+      expect(onKeyDown).toHaveBeenCalled();
+      expect(onKeyDown.mock.calls.at(-1)![0].key).toBe('a');
+      expect(onKeyDown.mock.calls.at(-1)![0].ctrlKey).toBe(true);
+    });
+
+    it('leaves the keys Base UI owns working', async () => {
+      const onKeyDown = vi.fn();
+      const onOpenChange = vi.fn();
+      const screen = await render(
+        <MPDialog defaultOpen title="Rename" onKeyDown={onKeyDown} onOpenChange={onOpenChange}>
+          <MPButton>Inside</MPButton>
+        </MPDialog>
+      );
+
+      await screen.getByRole('button', { name: 'Inside' }).click();
+      await userEvent.keyboard('{Escape}');
+
+      expect(onKeyDown).toHaveBeenCalled();
+      expect(onOpenChange).toHaveBeenCalledWith(false);
+    });
+
+    it('reports a press on the sheet', async () => {
+      const onClick = vi.fn();
+      const screen = await render(
+        <MPDialog defaultOpen title="Rename" onClick={onClick}>
+          <MPButton>Inside</MPButton>
+        </MPDialog>
+      );
+
+      await screen.getByRole('button', { name: 'Inside' }).click();
+
+      expect(onClick).toHaveBeenCalled();
     });
   });
 });
