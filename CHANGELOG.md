@@ -2,9 +2,18 @@
 
 ## 1.6.0 (2026-08-31)
 
-Two additions, and they are the same shape of hole: a control that had the answer to a question nobody could put to it. The calendar could already draw a grid of months and a grid of years, and there was no way to say "stop there and hand me that". Eight controls were producing keystrokes and focus changes every second they were used, and no prop took delivery of one.
+Two additions of the same shape — a control that had the answer to a question nobody could put to it — and then a report from an application that moved off Material UI, which turned out to be about the same shape of hole in twenty more places.
 
-Nothing was renamed and nothing was removed. Every existing prop means what it meant in 1.5.0, and a picker asked for nothing new still asks for a day.
+The calendar could already draw a grid of months and a grid of years, and there was no way to say "stop there and hand me that". Eight controls were producing keystrokes and focus changes every second they were used, and no prop took delivery of one. A row could be a link but not a router's link; a chip could be pressed but could not be a menu's trigger; a grid item could be six columns wide but not "the rest of the row"; a panel finished opening and went on clipping the thing inside it.
+
+Four of the twenty were not gaps but **defects**, and three of those change what an existing page draws. They are in `Changed` below rather than in `Fixed`, because that is the section people read before upgrading:
+
+- `MPTextField` swallowed Enter on every single-line field, so a `<form>` it was dropped into stopped submitting.
+- `MPTypography` painted `on-surface` when its own documentation said it inherits.
+- `MPGridItem`'s span leaked into nested grids.
+- `MPChip` could not be a Base UI trigger.
+
+Nothing was renamed and nothing was removed. Every existing prop still means what it meant in 1.5.0.
 
 ### Added
 
@@ -56,6 +65,86 @@ Nothing was renamed and nothing was removed. Every existing prop means what it m
 
   `MPOtpField` is deliberately not among the eight. It is six inputs rather than one, and a `blur` that fired every time the caret moved between two of its boxes would be reporting something that did not happen.
 
+  `MPDialog` joins them, and it is the one that is not a control. Its props are a closed set rather than a spread, so there was no element a caller could reach at all — a Ctrl+A that belongs to the dialog's own body had to be caught on a wrapper outside the component. The handlers land on the **sheet**, which is where a keystroke inside the dialog arrives by bubbling; the trigger that opened it and the page behind it are both somewhere else. Base UI's own handling of the keys it owns, Escape included, runs alongside rather than being replaced.
+
+- **`span="grow"` on `MPGridItem`.** The one width that is not a number of columns: whatever the row has left after everybody else has taken theirs.
+
+  A thumbnail beside a body of text is the layout it exists for, and the reason a `span` could not express it is that the remainder is only known once the other items in _that_ row have been laid out. `span={3}` and `span={9}` is the same picture right up until the thumbnail's column count changes and the two stop adding up. Two growing items split the remainder equally rather than in proportion to their contents, and it is responsive like any other value — `{ compact: 12, medium: 'grow' }`.
+
+  The arithmetic is a switch rather than a second rule, because a custom property cannot choose between two of those: the width declaration multiplies by `1 - grow`, so a growing item measures nought and is handed the row's remainder by `flex-grow`, which is the only place that remainder is known. A `span` that never mentions `'grow'` emits no extra property, so the common case is the one inline value it always was.
+
+- **`marks` on `MPSlider`.** The ticks on the track, and optionally what is written under them. `true` puts one at every `step`, which is MD3's discrete slider; an array names them instead and is the form that can carry labels — `[{ value: 1990, label: '1990' }, …]` for the decade markings under a year range.
+
+  A tick over the filled part of the track takes the accent's own ink and one over the groove takes `on-surface-variant`, which is the specification's pairing and the reason a tick stays visible as the handle passes it. That needs the current value, so the slider now mirrors it — an uncontrolled slider's value lives inside Base UI, and a tick that could not see it would be drawn in the groove's colour on top of the accent, which is the one place a 3px dot disappears entirely.
+
+  Three limits, all of them stated rather than silent. The boolean form draws nothing past **fifty** ticks, at which point they are a dotted line built out of one DOM node each and say less than no ticks would. A mark outside `min`…`max` is dropped rather than clamped, because two pinned to the same end read as one. And labels are laid out from each tick's centre and are not measured, so two that would collide overlap.
+
+- **`filter` on `MPCombobox`.** Which rows survive the query, in place of the matching the component does on its own — and **`null` turns the filtering off entirely**.
+
+  That is the value the prop exists for. A list fetched per keystroke has been matched by a server that knows things this does not — synonyms, transliteration, the rule that strips a punctuation mark out of a tag before comparing it — and a second pass here can only remove rows that server decided were hits. A row the reader can see the reason for, disappearing as they type the next character, is what that looks like. A function is the middle ground. The row that offers what was typed is exempt either way: its label _is_ the query, so a filter that hid it would be hiding the answer to the question it was asked.
+
+- **`chipVariant` and `chipColor` on `MPCombobox`**, and **`content` on `MPComboboxOption`.**
+
+  The chips in a `multiple` field were `tonal` in `primary` with no way to say otherwise, and a field holding six of those reads as a row of buttons rather than as a value — which is why Material UI's own autocomplete draws them outlined. The defaults are unchanged; there are now two props instead of a stylesheet override.
+
+  `content` is what a row draws when that is more than its label: a thumbnail, a glyph, a second line. It replaces the label **in the popup only** — the input still receives `label` when the row is chosen, the chip still shows `label`, and the filter still matches against it. That is why it is a second prop rather than `label` being loosened to a `ReactNode`: a text input's value is a string, and a row that could not say what its own string is would have nothing to put there.
+
+- **`render` on `MPButton`**, which its own documentation had been recommending since 1.0 and which `MPButtonProps` did not have. A link wearing a button is what it is for, and it is three props rather than one:
+
+  ```tsx
+  <MPButton render={<a href="/pricing" />} nativeButton={false} role="link">
+    Pricing
+  </MPButton>
+  ```
+
+  `nativeButton` is Base UI's, passed through, and `role` puts back the one thing it then assumes: `false` is taken to mean the element is _acting_ as a button, so Base UI gives it `role="button"` to say so. For an anchor that is one assumption too many, and without the third prop the link is announced as a button — exactly the lie the component's "no `href`" rule exists to prevent. The rule's own paragraph now spells all three out instead of pointing at a prop that was not there.
+
+- **`render`, `target` and `rel` on `MPListItem` and `MPBottomNavigationItem`.** Both drew a plain `<a>` with no way to reach it, so a Next or React Router application could not have a client-side navigation or a prefetch on a row, and an external link could not open in a new tab without being turned into a button.
+
+  `render` on a list row is **the one `render` in the library that is not the outermost element**, and that is worth stating rather than discovering. A row's shell is an `<li>` because it is inside a `<ul>`, and swapping that makes the list stop being a list; what a caller wants to replace is the `<a>` inside it, which is the element a router has to own. `target` brings the `rel` a new tab needs, and a `rel` of your own replaces it rather than extending it — the bargain the other four link components already documented.
+
+- **`nativeButton` on `MPMenu`.** For the trigger that is deliberately not a `<button>`: an avatar, a card, a row of text. Base UI then supplies the role, the tab stop and the Enter/Space handling, so the trigger is still a button to a screen reader and to a keyboard. It is a prop rather than something inferred because what a trigger renders is only known once it has rendered, and by then the wiring has been decided.
+
+- **`hideLabel` on the three progress indicators.** The name stays in the accessibility tree and stops taking a line, which is what the `aria-label` it replaced used to do.
+
+  There were two options before this and both were wrong for the indicator that is already labelled by what is around it — a spinner inside a card whose heading says what is loading. Drawing the name a second time is noise a sighted reader has to skip; _removing_ it leaves a `progressbar` announced as "63%" and nothing else, which is a number with no subject.
+
+- **`type="search"` on `MPTextField`.** For the keyboard it summons and the autofill it declines: iOS labels the return key "search" for it, and a browser keeps its own history of what was typed into one. It draws exactly as `text` does, and WebKit's own × inside it is suppressed — that mark sits outside the adornment row, is not in the tab order, and empties a controlled value without telling React.
+
+- **`position` and `className` per snackbar.** `position` was a property of the provider, so a message that had to be somewhere else because of _what it is_ — an error at the top of a page whose bottom corner is a toolbar — had nowhere to go.
+
+  All six stacks are now on the page from the first render whether or not anything is in them, and that is the part worth knowing: a stack is its own `aria-live` region, and a region added to the document at the same instant as the message inside it is one a screen reader has nothing to compare against and does not read. An empty stack is a `pointer-events-none` flex column with no children.
+
+- **Class hooks on the labels that had none.** `mp-list-item__label`, `mp-list-item__description`, `mp-list-item__text`, `mp-accordion__title`, `mp-accordion__subtitle` and `mp-accordion__text`. A page that wanted to resize a row's title had `.truncate` to aim at, which is a utility on hundreds of other elements.
+
+### Changed
+
+- **`MPTextField` no longer swallows Enter on every single-line field.** It swallows it when there is an `onSubmit` to have answered it, or when `disableEnterKey` says so outright, and otherwise leaves the key to the browser — which inside a `<form>` is the native submit an `<input>` has always done.
+
+  The old behaviour was defensible one field at a time and indefensible in aggregate: the comment explaining it says "so a surrounding form is not submitted on top of whatever `onSubmit` just did", which is a good reason that applied whether or not there was an `onSubmit`. A page that already wrote `<form onSubmit>` — the ordinary way to write a form — got a field that silently stopped it. No type error, no console warning, and nothing to see until somebody pressed Enter.
+
+  `disableEnterKey` now means the same sentence on both shapes of field: take the key away from whatever would otherwise have it. The newline with `rows`, the form's submit without. Multiline behaviour is otherwise unchanged, including that `onSubmit` there reports the keystroke without deciding what the field does with it.
+
+- **`MPTypography` declares no colour at all unless `color` is passed.** Which is what its own prop documentation has said since it shipped — "no default: prose inherits the surface's own ink unless a role is asked for" — and not what it did.
+
+  It wrote `[&.mp-typography]:text-mp-on-surface`, and `caption` and `overline` got `on-surface-variant`. The doubled selector is two classes, so a page could not win: prose dropped into a dark hero section with `text-white` on it came out `on-surface`, and the way out was to stop using the component. "No default" has to mean no declaration, because a default written at that specificity is not a default, it is a decision.
+
+  What goes with it: `caption` and `overline` are no longer muted for you. That was a choice about what the text _is_ rather than something a size can decide, and it is a `className="text-mp-on-surface-variant"` away — which now works, for the same reason the rest of this entry does.
+
+- **A pressable `MPChip` is a `<button>` rather than a `<span>` holding one.** One element, one tab stop, and one thing for a parent to hang `aria-expanded` on.
+
+  The old shape was there for a real reason and it still is: a chip with `onDelete` has two controls, and a `<button>` inside a `<button>` is markup the browser un-nests on parse. So a chip with both keeps the span shell and two sibling buttons. Everything else — which is the common case — collapses to one.
+
+  What it fixes is the chip as a trigger. Base UI's `render` merges its handlers and its ARIA onto the element the component returns, so `aria-haspopup`, `aria-expanded`, `id` and `tabindex` were landing on a `<span>` that was not focusable while the real button underneath was a second tab stop carrying none of it — and Base UI logged that it expected a native `<button>`. `<MPMenu trigger={<MPChip>Filter</MPChip>}>` now works, and is less markup than it was.
+
+  The surface is unchanged at every variant, size and state: `appearance-none` takes the browser's button styling off, and the variant table is still the only thing painting a chip.
+
+- **An `MPAccordion` panel stops clipping once it has finished opening.** `overflow: hidden` is the animation's, not the panel's — it exists so a body mid-open is a window rather than a squashed copy of itself.
+
+  A settled panel that went on clipping cut the top off the first thing in it that draws outside its own box. A text field's floating label is exactly that: it sits _on_ the field's top edge, which is the panel's top edge, so a form in an accordion arrived with its first label sliced in half and nothing in the console said so. A select's popup, a tooltip and a focus ring are the same bug with different pixels.
+
+  Three signals decide it, because no one of them covers every way a panel arrives. `onOpenChange` puts the clip back _before_ the height moves, which is the only one early enough to. The height's `transitionend` takes it off again — Base UI's `transitionStatus` cannot, because it marks the first frame and the last rather than the stretch between them. And a callback ref covers the two panels that never transition at all, a section that started open and any section under reduced motion, both of which would otherwise wait for an end that is not coming.
+
 ### Fixed
 
 - **A month cell told a Korean reader `7월 2026`.** The month grid's cells were named by sticking the year on the end of a month name, which is the order English uses and one that Korean and Japanese do not. They are `Intl`'s now — `2026년 7월`, `January 2026` — which is the ordering the header's two buttons have always been put in and for the reason they are: a date in the wrong order reads as broken to exactly the readers it is wrong for.
@@ -64,6 +153,10 @@ Nothing was renamed and nothing was removed. Every existing prop means what it m
 
 - **The month grid and the year grid were announced as "grid" and nothing else.** They are named by the year and by the page of years they show, the way the day grid has always been named by its month.
 
+- **A nested `MPGridItem` resolved the outer item's span.** The slots an item lays itself out from are inherited custom properties, which is deliberate — a media query can change one without React hearing about it — but a grid inside an item sits inside that item's `--_mp-span-large`, so an inner item that only declared `compact` resolved the outer one at every class above it. A `span={12}` came out a sixth of the row it was actually in, and the archive card whose title wrapped one letter at a time was 26px inside a 157px box.
+
+  A grid is where a span stops meaning anything, so a grid is where the slots go back to nothing: `.mp-grid` resets the five span slots and the five offset slots to `initial`. Fifteen declarations once per grid, and the arithmetic under them is unchanged. The documentation site's own nesting example was affected by this.
+
 ### The measurements
 
 `npm run measure`, against a build of this release and a build of `af10fcc` for the baseline, so the difference is the change and not drift.
@@ -71,17 +164,17 @@ Nothing was renamed and nothing was removed. Every existing prop means what it m
 | Scenario        | 1.5.0   | 1.6.0   |
 | --------------- | ------- | ------- |
 | `MPBox`         | 0.4 kB  | 0.4 kB  |
-| `MPButton`      | 2.9 kB  | 2.9 kB  |
-| `MPTextField`   | 4.3 kB  | 4.3 kB  |
-| Five components | 7.4 kB  | 7.4 kB  |
-| Ten components  | 11.2 kB | 11.3 kB |
-| Everything      | 74.2 kB | 74.8 kB |
+| `MPButton`      | 2.9 kB  | 3.0 kB  |
+| `MPTextField`   | 4.3 kB  | 4.4 kB  |
+| Five components | 7.4 kB  | 7.5 kB  |
+| Ten components  | 11.2 kB | 11.4 kB |
+| Everything      | 76.1 kB | 76.1 kB |
 
-Six hundred grams, and almost all of it is the calendar: `precision` adds a view floor, two grids' worth of naming and three date helpers to a file every picker imports. `MPTextField` does not move at the tenth even though it grew seven props, because seven names in a destructuring and seven attributes on an element is what a minifier is for. The three single-component rows are unchanged.
+Just under two kilobytes across the whole library, and it is spread rather than concentrated: the calendar's `precision`, the slider's ticks, the combobox's filter adapter, the accordion's three transition signals, and a `useRender` call in each of two list components. `MPButton` and `MPTextField` move a tenth each — the button for `render` and `nativeButton`, the field for one conditional class — which is what a minifier leaves of a handful of new names.
 
-Every stylesheet figure is unchanged — 113.5 kB whole, 16.2 kB gzipped, eighty-eight split sheets, the crossover still at about thirty-one components. The release added props and prose, not classes.
+The stylesheet grew from 113.5 kB to 114.6 kB, and 16.2 kB to 16.4 kB gzipped. Fifteen reset declarations on `.mp-grid`, one `overflow-visible`, one search-cancel-button rule and a tick's five sizes are the whole of it; the eighty-eight split sheets and the crossover at about thirty-one components are unchanged.
 
-The suite goes from 1644 tests to 1681. Nineteen are the two units a date picker can now be asked for, and the two worth naming are the ones about what is _absent_: a month picker has no day grid in it and a year picker has no month grid, which is the half a caller is trusting. The other eighteen are the raw events, where the two that matter are the ordering — a `preventDefault` in a caller's `onKeyDown` leaves `onSubmit` uncalled — and the four asserting that Base UI merges rather than replaces, so a caller's `onBlur` does not quietly take `onValueCommitted` off an `MPNumberField`.
+The suite goes from 1644 tests to 1743. Nineteen are the date picker's two new units and the raw events, as before. The other eighty are this report, and the ones worth naming are the ones that would have caught the defects rather than described them: a nested grid item measuring 200px instead of 33px, a form actually submitting on Enter, a panel's `overflow` read at four points across its animation in both the controlled and uncontrolled cases, and a chip trigger asserting there is exactly one tab stop rather than two.
 
 ## 1.5.0 (2026-08-30)
 
