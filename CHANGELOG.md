@@ -31,7 +31,7 @@ Nothing was renamed and nothing was removed. Every existing prop still means wha
 
   The same rule decides which components read it: **the provider supplies the library's default, not a component's answer.** `MPBadge` keeps `error`, `MPTooltip` keeps `sm`, and `MPDialog`, `MPPill` and `MPShortcut` keep `secondary` — those are decisions rather than unfilled defaults. A prop with no default at all, like `MPSkeleton`'s `color`, is left unset too.
 
-  It carries `locale` so an application needs one provider rather than two. `MPLocaleProvider` is unchanged and still the narrow one; nesting merges per field, so an inner provider naming only a colour keeps the size from above.
+  It also carries `dir`, which is the RTL wiring — see `Fixed` for what was not connected. And it carries `locale` so an application needs one provider rather than two. `MPLocaleProvider` is unchanged and still the narrow one; nesting merges per field, so an inner provider naming only a colour keeps the size from above.
 
   A note on the implementation, because the first version of it was wrong in a way worth recording: the resolver reads the context **unconditionally**. Written as `prop ?? React.useContext(…)` the context is only read when the prop is absent, so a control handed a `size` on one render and not on the next calls a different number of hooks. React said so out loud in the test run, and the fix was to read first and decide second.
 
@@ -217,6 +217,12 @@ Nothing was renamed and nothing was removed. Every existing prop still means wha
 
 - **The month grid and the year grid were announced as "grid" and nothing else.** They are named by the year and by the page of years they show, the way the day grid has always been named by its month.
 
+- **Base UI was never told which way the page runs.** Every padding, margin, corner and icon slot here is already a logical property, so the _stylesheet_ half of RTL has worked from a `dir` anywhere above a component since the beginning. Base UI answers the same question from a React context, and nothing in this library was providing one — so all seven of its parts that read it (the slider, menu, select, combobox, navigation menu, OTP field and scroll area) were being told the page ran left to right, whatever the DOM said.
+
+  The slider is where it showed. Its thumb is placed with `inset-inline-start` and a **physical** `translate: -50%`: under RTL the inset measures from the right and the translate still moves left, so the handle sat exactly one handle-width from the value it was reporting — at every value, and off the end of the track at 0 and at 100. That is the shape the direction test file's own preamble warns about: RTL decays one physical value at a time, and the only thing that holds it is asking.
+
+  `dir` on `MPConfigProvider` is the wiring, and it sets **both** halves: the attribute on a `display: contents` element, which takes part in no layout, and the same value in Base UI's own `DirectionProvider`. Left out, nothing is rendered and nothing is claimed.
+
 - **Forcing a region back to light did nothing.** The dark block applies to any element carrying the attribute, so a dark section inside a light page has always been one attribute — and the documentation said the reverse worked too. It did not: the light scheme's tone stops lived on `:root` alone, so under a system preference of dark a `[data-mp-scheme='light']` on a section matched no rule at all. The media query had already retuned `:root`, the section inherited that, and nothing put the light stops back.
 
   The light stops now sit on `:root, [data-mp-scheme='light']`, which makes the two directions symmetrical. `--mp-source-color` stays on `:root` alone and above them, deliberately: repeated on the light block it would override a consumer's own scoped source colour on any element that also asked for light.
@@ -244,17 +250,17 @@ Nothing was renamed and nothing was removed. Every existing prop still means wha
 | `MPTextField`   | 4.3 kB  | 4.4 kB  |
 | Five components | 7.4 kB  | 7.5 kB  |
 | Ten components  | 11.2 kB | 11.6 kB |
-| Everything      | 76.1 kB | 78.6 kB |
+| Everything      | 76.1 kB | 78.7 kB |
 
 Just under two and a half kilobytes across the whole library, and it is spread rather than concentrated: the calendar's `precision`, the slider's ticks, the combobox's filter adapter, the accordion's three transition signals, and a `useRender` call in each of two list components. `MPButton` and `MPTextField` move a tenth each — the button for `render` and `nativeButton`, the field for one conditional class — which is what a minifier leaves of a handful of new names.
 
-The last 2.5 kB is this report's own — `MPCalendar`, the five hooks, `MPVisuallyHidden`, `MPConfigProvider`, and the cell's four extra `bg-transparent` branches. Three of those four are close to free, because the grid the calendar draws and the machinery the hooks name were both already in `everything` and what they cost is a wrapper each: `material-plus-ui/hooks` is 0.3 kB imported on its own, and `MPVisuallyHidden` is one class string.
+The last 2.6 kB is this report's own — `MPCalendar`, the five hooks, `MPVisuallyHidden`, `MPConfigProvider`, and the cell's four extra `bg-transparent` branches. Three of those four are close to free, because the grid the calendar draws and the machinery the hooks name were both already in `everything` and what they cost is a wrapper each: `material-plus-ui/hooks` is 0.3 kB imported on its own, and `MPVisuallyHidden` is one class string.
 
 `MPConfigProvider` is the one that is not free anywhere, and it is worth being explicit about why. Every component that resolves a `size` or a `color` now imports `internal/config`, so the module reaches any bundle holding any of them — which is what moves ten components from 11.2 kB to 11.6 kB, a shade under a tenth of a kilobyte per component and one shared module rather than a per-component cost. `MPButton` alone goes from 23 modules to 24. A page that renders one control pays about 40 bytes for the ability to configure several hundred.
 
 The stylesheet grew from 113.5 kB to 114.6 kB, and 16.2 kB to 16.4 kB gzipped. Fifteen reset declarations on `.mp-grid`, one `overflow-visible`, one search-cancel-button rule and a tick's five sizes are the whole of it; the crossover at about thirty-one components is unchanged. The split sheets go from eighty-eight to ninety-one — `MPCalendar`, `MPVisuallyHidden` and `MPConfigProvider` get one each, and none of the three holds a hand-written rule.
 
-The suite goes from 1644 tests to 1853. Nineteen are the date picker's two new units and the raw events, as before. Twenty-seven are `MPCalendar`'s, forty-five the hooks', ten `MPVisuallyHidden`'s, seventeen `MPConfigProvider`'s, eight the scheme switches, and three more the picker's chosen day — those last ones read a computed background rather than a class list, which is the difference between checking that a rule was written and checking that it applies. The other eighty are this report, and the ones worth naming are the ones that would have caught the defects rather than described them: a nested grid item measuring 200px instead of 33px, a form actually submitting on Enter, a panel's `overflow` read at four points across its animation in both the controlled and uncontrolled cases, and a chip trigger asserting there is exactly one tab stop rather than two.
+The suite goes from 1644 tests to 1859. Nineteen are the date picker's two new units and the raw events, as before. Twenty-seven are `MPCalendar`'s, forty-five the hooks', ten `MPVisuallyHidden`'s, seventeen `MPConfigProvider`'s, eight the scheme switches, six the direction wiring, and three more the picker's chosen day — those last ones read a computed background rather than a class list, which is the difference between checking that a rule was written and checking that it applies. The other eighty are this report, and the ones worth naming are the ones that would have caught the defects rather than described them: a nested grid item measuring 200px instead of 33px, a form actually submitting on Enter, a panel's `overflow` read at four points across its animation in both the controlled and uncontrolled cases, and a chip trigger asserting there is exactly one tab stop rather than two.
 
 ## 1.5.0 (2026-08-30)
 

@@ -1,7 +1,15 @@
 import type * as React from 'react';
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { MPDatePicker, MPPane, MPPanes, MPSwitch, MPTextField } from 'material-plus-ui';
+import {
+  MPConfigProvider,
+  MPDatePicker,
+  MPPane,
+  MPPanes,
+  MPSlider,
+  MPSwitch,
+  MPTextField
+} from 'material-plus-ui';
 
 /**
  * What the library does when the page runs the other way.
@@ -200,6 +208,131 @@ describe('under RTL', () => {
       // went where the key pointed".
       expect(await widthAfter('ArrowRight', 'ltr')).toBeGreaterThan(0);
       expect(await widthAfter('ArrowRight', 'rtl')).toBeLessThan(0);
+    });
+  });
+
+  /*
+   * The half of the direction that is not CSS.
+   *
+   * Every padding, margin and corner here is already a logical property, so a
+   * `dir` attribute anywhere above a component has always been enough for the
+   * *stylesheet*. Base UI answers the same question from a React context, and
+   * nothing was putting one there — seven of its parts read it, and all seven
+   * were being told the page ran left to right no matter what the DOM said.
+   *
+   * The slider is where that was visible. Its thumb is placed by Base UI with
+   * `inset-inline-start` and a **physical** `translate: -50%`: under RTL the
+   * inset measures from the right and the translate still moves left, so the
+   * handle landed exactly one handle-width away from the value it was
+   * reporting, at every value, and hung off the end of the track at the
+   * extremes.
+   */
+  describe('the slider', () => {
+    /** Where the middle of an element sits, measured from the reading edge. */
+    function centreFromStart(frame: HTMLElement, element: HTMLElement, rtl: boolean) {
+      const f = frame.getBoundingClientRect();
+      const e = element.getBoundingClientRect();
+
+      return Math.round(rtl ? f.right - (e.right - e.width / 2) : e.left + e.width / 2 - f.left);
+    }
+
+    /**
+     * Where the filled part of the track ends, from the same edge.
+     *
+     * The fill always starts at the reading edge, so its width *is* that
+     * distance — and the fill is the half that was already right in both
+     * directions, which is what makes it the thing to measure the handle
+     * against rather than a percentage worked out here.
+     */
+    function fillEnd(frame: HTMLElement) {
+      const fill = frame.querySelector('.mp-slider__track > div') as HTMLElement;
+
+      return Math.round(fill.getBoundingClientRect().width);
+    }
+
+    it('puts the handle on the value in an LTR page', async () => {
+      const screen = await render(
+        <Ltr>
+          <MPSlider value={25} />
+        </Ltr>
+      );
+      const frame = screen.container.querySelector('div[dir]') as HTMLElement;
+      const handle = frame.querySelector('.mp-slider__handle') as HTMLElement;
+
+      expect(centreFromStart(frame, handle, false)).toBe(fillEnd(frame));
+    });
+
+    it('puts it on the value in an RTL page too, once the direction is wired', async () => {
+      const screen = await render(
+        <Rtl>
+          <MPConfigProvider dir="rtl">
+            <MPSlider value={25} />
+          </MPConfigProvider>
+        </Rtl>
+      );
+      const frame = screen.container.querySelector('div[dir]') as HTMLElement;
+      const handle = frame.querySelector('.mp-slider__handle') as HTMLElement;
+
+      expect(centreFromStart(frame, handle, true)).toBe(fillEnd(frame));
+    });
+
+    it('keeps the handle on the track at both ends', async () => {
+      for (const value of [0, 100]) {
+        const screen = await render(
+          <Rtl>
+            <MPConfigProvider dir="rtl">
+              <MPSlider value={value} />
+            </MPConfigProvider>
+          </Rtl>
+        );
+        const frame = screen.container.querySelector('div[dir]') as HTMLElement;
+        const handle = frame.querySelector('.mp-slider__handle') as HTMLElement;
+
+        expect(centreFromStart(frame, handle, true)).toBe(fillEnd(frame));
+      }
+    });
+  });
+
+  describe('the direction wiring', () => {
+    it('sets the DOM attribute the stylesheet reads', async () => {
+      const screen = await render(
+        <MPConfigProvider dir="rtl">
+          <MPTextField value="" label="Name" />
+        </MPConfigProvider>
+      );
+      const field = screen.container.querySelector('.mp-text-field') as HTMLElement;
+
+      expect(getComputedStyle(field).direction).toBe('rtl');
+    });
+
+    it('takes part in no layout while doing it', async () => {
+      // `display: contents`, so the element it renders can sit between a flex
+      // container and its children without becoming the only flex item.
+      const screen = await render(
+        <div style={{ display: 'flex', gap: 0, width: 300 }} data-testid="row">
+          <MPConfigProvider dir="ltr">
+            <span data-testid="a" style={{ width: 100 }} />
+            <span data-testid="b" style={{ width: 100 }} />
+          </MPConfigProvider>
+        </div>
+      );
+
+      const a = screen.getByTestId('a').element().getBoundingClientRect();
+      const b = screen.getByTestId('b').element().getBoundingClientRect();
+
+      // Two flex items side by side, not one wrapper holding both.
+      expect(Math.round(b.left - a.right)).toBe(0);
+      expect(Math.round(a.width)).toBe(100);
+    });
+
+    it('renders nothing at all when no direction is asked for', async () => {
+      const screen = await render(
+        <MPConfigProvider size="sm">
+          <span data-testid="child" />
+        </MPConfigProvider>
+      );
+
+      expect(screen.getByTestId('child').element().parentElement).toBe(screen.container);
     });
   });
 });

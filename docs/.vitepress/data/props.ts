@@ -7938,6 +7938,14 @@ const componentTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'dir',
+      type: "'ltr' | 'rtl'",
+      description: {
+        ko: '아래의 글이 흐르는 방향. 여기서 유일하게 **두** 시스템에 닿는 prop입니다 — 스타일시트는 DOM의 `dir`을 읽고(패딩·마진·모서리가 전부 논리 속성이라 예전부터 동작했습니다), Base UI는 React 컨텍스트를 읽는데 그걸 넣어 주는 것이 없었습니다. 이걸 주면 `display: contents` 엘리먼트에 속성이 붙고 같은 값이 Base UI의 `DirectionProvider`로 들어갑니다. 주지 않으면 아무것도 렌더하지 않습니다',
+        en: "Which way the text runs below. The one prop here that reaches **two** systems: the stylesheet reads the DOM's `dir` — every padding, margin and corner is already logical, so that half always worked — and Base UI reads a React context that nothing was putting there. Given, the attribute goes on a `display: contents` element and the same value goes into Base UI's own `DirectionProvider`. Left out, nothing is rendered"
+      }
+    },
+    {
       name: 'children',
       type: NODE,
       description: { ko: '설정이 적용되는 트리', en: 'The tree the configuration applies to' }

@@ -117,6 +117,46 @@ For a wrapper component of your own around one of these, so it resolves a prop t
 - **It is not `defaultProps`.** There is no per-component override map, and adding one would mean a second, name-keyed way to say the same thing. Two props cover the case that comes up; anything narrower is a wrapper component of your own.
 - **It re-renders what is under it.** The value is memoised on the fields rather than the object, so a parent re-rendering with the same configuration costs nothing — but _changing_ `size` at runtime does re-render every consumer, which is what the demo above is doing. That is a settings screen's job, not a scroll handler's.
 
+## Right to left
+
+Every padding, margin, corner and icon slot in this library is already a **logical** property — `ps`/`pe` rather than `pl`/`pr`, `startIcon`/`endIcon` rather than left and right, `MPCorner`'s `top-start` rather than `top-left`. So the stylesheet half of RTL has always worked from a `dir` anywhere above a component, and a `dir="rtl"` section inside an otherwise LTR page is a supported arrangement rather than an accident.
+
+What was missing was the other half.
+
+```tsx
+<MPConfigProvider dir="rtl">
+  <App />
+</MPConfigProvider>
+```
+
+### Two systems, one prop
+
+The direction is answered in two places and they have to agree:
+
+|                | Reads               | Was it wired? |
+| -------------- | ------------------- | ------------- |
+| The stylesheet | the DOM's own `dir` | Yes, always   |
+| Base UI        | a React context     | **No**        |
+
+Seven Base UI parts consult that context — the slider, menu, select, combobox, navigation menu, OTP field and scroll area — and with nothing providing it they were all being told the page ran left to right, whatever the DOM said.
+
+The slider is where it showed. Its thumb is placed with `inset-inline-start` and a **physical** `translate: -50%`: under RTL the inset measures from the right and the translate still moves left, so the handle landed exactly one handle-width away from the value it was reporting — at every value, and hanging off the end of the track at 0 and at 100.
+
+`dir` sets both. The attribute goes on a `display: contents` element, which takes part in no layout at all, so the provider does not become a box between a flex container and its children. The same value goes into Base UI's own `DirectionProvider`.
+
+Left out, nothing is rendered and nothing is claimed: a page that sets `dir` on `<html>` and never mounts this still gets the CSS half and not the other one.
+
+### What still belongs to you
+
+- **`<html dir>` and `lang`.** Setting `dir` on the provider covers everything under it, but the document element is the browser's own business — scrollbar placement and native form controls read it there. Set both.
+- **A font.** Arabic and Hebrew need one, and the library does not ship fonts.
+- **`MPSide` stays physical.** `top`/`right`/`bottom`/`left` on a popup are physical on purpose: a tooltip above its trigger is above it in every writing direction. `MPAlign` and `MPCorner` are the logical ones.
+
+### Sharp edges
+
+- **Mixed-direction pages need the provider where the direction changes**, not only at the root — the Base UI context follows the tree, and the CSS follows the DOM, so put them together.
+- **`display: contents` renders an element.** It participates in no layout, but it is in the DOM: a `> *` selector of your own counts it.
+
 ## Next
 
 - [Prop conventions](../design/prop-conventions.md) — what `size` and `color` mean.

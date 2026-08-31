@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { MPConfigContext, useMPConfig, type MPConfigValue } from '../../internal/config';
 import { MPLocaleContext, useMPLocale } from '../../internal/locale';
 import type { MPColor, MPSize } from '../../types';
@@ -25,6 +26,29 @@ export interface MPConfigProviderProps {
    * carried here so an application needs one provider rather than two.
    */
   locale?: string;
+  /**
+   * Which way the text runs, for everything under it.
+   *
+   * This is the one prop here that reaches **two** systems, because the
+   * direction is answered in two places and they have to agree:
+   *
+   * - **The stylesheet** reads the DOM's own `dir`. Every padding, margin and
+   *   corner in this library is already a logical property, so the CSS half of
+   *   RTL has always worked from a `dir` attribute anywhere above a component.
+   * - **Base UI** reads a React context, and there was nothing putting one
+   *   there. Seven of its parts consult it — the slider, menu, select, combobox,
+   *   navigation menu, OTP field and scroll area — and without it they were all
+   *   being told the page ran left to right. The visible one was the slider,
+   *   whose handle sat exactly one handle-width off the value it was reporting,
+   *   at every value, and hung off the end of the track at the extremes.
+   *
+   * Given here, both are set: the attribute goes on a `display: contents`
+   * element, which takes part in no layout at all, and the same value goes into
+   * Base UI's own `DirectionProvider`. Left out, nothing is rendered and nothing
+   * is claimed — a page that sets `dir` on `<html>` and never mounts this still
+   * gets the CSS half and not the other one.
+   */
+  dir?: 'ltr' | 'rtl';
   children?: React.ReactNode;
 }
 
@@ -87,7 +111,7 @@ export interface MPConfigProviderProps {
  * </MPConfigProvider>
  * ```
  */
-export function MPConfigProvider({ size, color, locale, children }: MPConfigProviderProps) {
+export function MPConfigProvider({ size, color, locale, dir, children }: MPConfigProviderProps) {
   const outer = useMPConfig();
   const outerLocale = useMPLocale();
 
@@ -102,10 +126,27 @@ export function MPConfigProvider({ size, color, locale, children }: MPConfigProv
 
   const resolvedLocale = locale ?? outerLocale;
 
-  return (
+  const content = (
     <MPConfigContext.Provider value={value}>
       <MPLocaleContext.Provider value={resolvedLocale}>{children}</MPLocaleContext.Provider>
     </MPConfigContext.Provider>
+  );
+
+  if (!dir) {
+    return content;
+  }
+
+  // `display: contents` rather than a plain wrapper, so that one prop can set
+  // both halves of the direction without the provider becoming a box. The
+  // element takes part in no layout: its children are laid out as though it were
+  // not there, which is what lets this go around a flex or grid child without
+  // becoming one.
+  return (
+    <DirectionProvider direction={dir}>
+      <div dir={dir} style={{ display: 'contents' }}>
+        {content}
+      </div>
+    </DirectionProvider>
   );
 }
 
