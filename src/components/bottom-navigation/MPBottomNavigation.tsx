@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
+import { linkRel } from '../../internal/link';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { hasContent } from '../../internal/scale';
 import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
@@ -213,6 +214,23 @@ export interface MPBottomNavigationItemProps extends Omit<
    * a `<button>` that calls `router.push` can do. `onValueChange` still fires.
    */
   href?: string;
+  /** Where that link opens. `rel` follows on its own for `_blank` — see `rel`. */
+  target?: string;
+  /**
+   * Overrides the `rel` a `_blank` destination would otherwise get, which is
+   * `noopener noreferrer`. Writing one **replaces** it rather than adding to it.
+   */
+  rel?: string;
+  /**
+   * Renders the destination as something else — a router's `Link`, so tapping it
+   * is a client-side navigation rather than a full page load. `href`, `target`
+   * and everything the bar decides still go through, so `render={<NextLink />}`
+   * needs the URL written once, here.
+   *
+   * With no `href` this replaces the `<button>` instead, which is the same
+   * element in the same place — the bar's own `onValueChange` fires either way.
+   */
+  render?: useRender.RenderProp;
   /** Unavailable, but still part of the set. */
   disabled?: boolean;
   /** The destination's name. Read out even when `labels` keeps it undrawn. */
@@ -336,6 +354,9 @@ export const MPBottomNavigationItem = React.forwardRef<HTMLElement, MPBottomNavi
       icon,
       activeIcon,
       href,
+      target,
+      rel,
+      render,
       disabled: itemDisabled = false,
       className,
       children,
@@ -445,38 +466,66 @@ export const MPBottomNavigationItem = React.forwardRef<HTMLElement, MPBottomNavi
 
     if (href) {
       return (
-        <a
-          ref={ref as React.Ref<HTMLAnchorElement>}
-          // A link with nowhere to go is not a link. `disabled` is not something
-          // an `<a>` can be, and one that only looks unavailable is one a
-          // keyboard still lands on and a crawler still follows.
-          href={disabled ? undefined : href}
-          aria-current={current ? 'page' : undefined}
-          aria-disabled={disabled || undefined}
-          className={classNames}
-          onClick={press}
-          {...(props as React.ComponentPropsWithoutRef<'a'>)}
-        >
-          {body}
-        </a>
+        <Destination
+          render={render}
+          props={{
+            ref,
+            // A link with nowhere to go is not a link. `disabled` is not
+            // something an `<a>` can be, and one that only looks unavailable is
+            // one a keyboard still lands on and a crawler still follows.
+            href: disabled ? undefined : href,
+            target,
+            rel: linkRel(target, rel),
+            'aria-current': current ? 'page' : undefined,
+            'aria-disabled': disabled || undefined,
+            className: classNames,
+            onClick: press,
+            children: body,
+            ...props
+          }}
+        />
       );
     }
 
     return (
-      <button
-        ref={ref as React.Ref<HTMLButtonElement>}
-        type="button"
-        disabled={disabled}
-        // `aria-current="page"` rather than `aria-selected`: a navigation bar
-        // moves between pages, and the destination you are on is a page. The
-        // other spelling would promise a tab list.
-        aria-current={current ? 'page' : undefined}
-        className={classNames}
-        onClick={press}
-        {...props}
-      >
-        {body}
-      </button>
+      <Destination
+        render={render}
+        props={{
+          ref,
+          // Only when the element is this component's own — `type` on whatever a
+          // caller rendered is an attribute that element may have no use for.
+          type: render ? undefined : 'button',
+          disabled,
+          // `aria-current="page"` rather than `aria-selected`: a navigation bar
+          // moves between pages, and the destination you are on is a page. The
+          // other spelling would promise a tab list.
+          'aria-current': current ? 'page' : undefined,
+          className: classNames,
+          onClick: press,
+          children: body,
+          ...props
+        }}
+      />
     );
   }
 );
+
+/**
+ * One destination's element, which is where `render` lands.
+ *
+ * A component rather than a `useRender` call in each branch, for the reason
+ * `MPList`'s `RowControl` is one: `useRender` is a hook and the branches are an
+ * early return.
+ */
+function Destination({
+  render,
+  props
+}: {
+  render: useRender.RenderProp | undefined;
+  props: Record<string, unknown>;
+}) {
+  return useRender({
+    render: render ?? (props.href ? <a /> : <button />),
+    props
+  });
+}

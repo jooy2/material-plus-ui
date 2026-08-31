@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { accentSlots } from '../../internal/accent';
+import { linkRel } from '../../internal/link';
 import { CONTROL_GAP, hasContent, PROSE_TEXT, SHEET_PAD_X } from '../../internal/scale';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { CONTAINER_SURFACE } from '../../internal/surface';
@@ -96,6 +97,31 @@ export interface MPListItemProps extends Omit<
   action?: React.ReactNode;
   /** Renders the row as a link. Mutually exclusive with `onClick` in practice. */
   href?: string;
+  /**
+   * Where that link opens. `rel` follows on its own for `_blank` — see `rel`.
+   */
+  target?: string;
+  /**
+   * Overrides the `rel` a `_blank` row would otherwise get, which is
+   * `noopener noreferrer`. Writing one **replaces** it rather than adding to it,
+   * so a row that also needs `nofollow` spells all three out.
+   */
+  rel?: string;
+  /**
+   * Renders the row's pressable element as something else — a router's `Link`,
+   * most of the time. `href`, `target` and the row's classes still go through,
+   * so `render={<NextLink />}` needs the URL written once, on the `MPListItem`.
+   *
+   * **This is the one `render` in the library that is not the outermost
+   * element.** A row's shell is an `<li>` because it is inside a `<ul>`, and
+   * swapping that for anything else makes the list stop being a list; what a
+   * caller actually wants to replace is the `<a>` *inside* it, which is the
+   * thing App Router has to own for a client-side navigation and a prefetch to
+   * happen at all. So that is what this replaces. Without `href` or `onClick`
+   * the row is not pressable and there is nothing here to render — this is
+   * ignored rather than wrapping inert content in a link.
+   */
+  render?: useRender.RenderProp;
   /** Marks the row as the chosen one — the open page, the current filter. */
   selected?: boolean;
   /** Unavailable. Drops the accent family, as everywhere else in the library. */
@@ -224,6 +250,27 @@ export const MPList = React.forwardRef<HTMLUListElement, MPListProps>(function M
 });
 
 /**
+ * The pressable element inside a row, which is where `render` lands.
+ *
+ * A component rather than a `useRender` call in the branch that needs it,
+ * because `useRender` is a hook and the branches are a ternary: a row that is
+ * not pressable has no control to build, and a hook cannot be the thing that
+ * decides that.
+ */
+function RowControl({
+  render,
+  props
+}: {
+  render: useRender.RenderProp | undefined;
+  props: Record<string, unknown>;
+}) {
+  return useRender({
+    render: render ?? (props.href ? <a /> : <button />),
+    props
+  });
+}
+
+/**
  * One row.
  *
  * The shell is always an `<li>`. What changes is what is inside it: a plain run
@@ -232,6 +279,9 @@ export const MPList = React.forwardRef<HTMLUListElement, MPListProps>(function M
  * control. This is the same shape `MPChip` uses, for the same two reasons: a
  * `<span>` carrying a click handler is invisible to a keyboard, and a `<button>`
  * inside a `<button>` is markup Chrome silently un-nests.
+ *
+ * That inner element is what `render` replaces — a router's `Link`, so a row in
+ * a navigation list is a client-side navigation rather than a full page load.
  */
 export const MPListItem = React.forwardRef<HTMLLIElement, MPListItemProps>(function MPListItem(
   {
@@ -240,6 +290,9 @@ export const MPListItem = React.forwardRef<HTMLLIElement, MPListItemProps>(funct
     description,
     action,
     href,
+    target,
+    rel,
+    render,
     selected = false,
     disabled = false,
     className,
@@ -339,23 +392,33 @@ export const MPListItem = React.forwardRef<HTMLLIElement, MPListItemProps>(funct
         // "this is the page you are on", the second is "this is the chosen one
         // of these". `aria-pressed` would be a third thing — a toggle — and a
         // selected row is not a toggle.
-        <a
-          href={href}
-          className={bodyClassNames}
-          aria-current={selected ? 'page' : undefined}
-          onClick={onClick}
-        >
-          {body}
-        </a>
+        <RowControl
+          render={render}
+          props={{
+            href,
+            target,
+            rel: linkRel(target, rel),
+            className: bodyClassNames,
+            'aria-current': selected ? 'page' : undefined,
+            onClick,
+            children: body
+          }}
+        />
       ) : interactive ? (
-        <button
-          type="button"
-          className={bodyClassNames}
-          aria-current={selected ? true : undefined}
-          onClick={onClick}
-        >
-          {body}
-        </button>
+        <RowControl
+          render={render}
+          props={{
+            // Only when the element is this component's own. A caller's
+            // `render` decides what it is, and `type` on anything that is not a
+            // button is an attribute the browser ignores and a validator does
+            // not.
+            type: render ? undefined : 'button',
+            className: bodyClassNames,
+            'aria-current': selected ? true : undefined,
+            onClick,
+            children: body
+          }}
+        />
       ) : (
         <div className={bodyClassNames} aria-disabled={disabled || undefined}>
           {body}
