@@ -1,5 +1,88 @@
 # Changelog
 
+## 1.6.0 (2026-08-31)
+
+Two additions, and they are the same shape of hole: a control that had the answer to a question nobody could put to it. The calendar could already draw a grid of months and a grid of years, and there was no way to say "stop there and hand me that". Eight controls were producing keystrokes and focus changes every second they were used, and no prop took delivery of one.
+
+Nothing was renamed and nothing was removed. Every existing prop means what it meant in 1.5.0, and a picker asked for nothing new still asks for a day.
+
+### Added
+
+- **`precision` on `MPDatePicker`** — `'day'`, `'month'` or `'year'`. A card's expiry, a fiscal year, the month a report covers: the questions where a day is not something the reader has to give, and where a control that asked for one anyway would be recording an answer nobody meant.
+
+  It stops the calendar by **leaving the finer views out** rather than by refusing them. A month picker opens on the twelve months and has no day grid to reach through, so a press there is the answer instead of a way down; a year picker opens on the years. The view _above_ the one it answers with stays, because that is how the other years are reached — pressing the year on a month picker opens the page of years, and choosing one comes back to the months.
+
+  Everything downstream follows the same word, which is the part worth having in a table:
+
+  |                         | `'day'`         | `'month'`                | `'year'`      |
+  | ----------------------- | --------------- | ------------------------ | ------------- |
+  | The value               | the day pressed | the **1st** of the month | **1 January** |
+  | The trigger, by default | `Jul 15, 2026`  | `July 2026`              | `2026`        |
+  | `name` submits          | `2026-07-15`    | `2026-07`                | `2026`        |
+  | The footer's shortcut   | Today           | This month               | This year     |
+
+  The value is trimmed to the unit because it stands for the unit: a picker whose trigger says _July 2026_ and whose form submits the 31st is printing one thing and sending another. The time of day survives, exactly as it already did at day precision.
+
+  `minDate` and `maxDate` are read at the precision too, which is the rule the month grid and the year grid were each already spelling out for themselves — `isUnitOutside` in `internal/date.ts` states it once and both now ask it. A minimum of 10 July leaves July pickable on a month picker, because there the bound is about which months exist. `shouldDisableDate` is the one thing that does **not** carry over: it is asked about days, and a rule written about weekends has no answer for "is July available". Inventing one out of the 1st would block whichever months happened to start on a Sunday, so a coarser picker never calls it.
+
+  Two new strings, `thisMonth` and `thisYear`, in the `picker` namespace and in all eighteen translations.
+
+- **`MPControlEventProps`, on the eight controls that could not take an event handler at all.** `onKeyDown`, `onKeyUp`, `onFocus`, `onBlur`, `onClick`, `onDoubleClick` and `onContextMenu`, on `MPTextField`, `MPNumberField`, `MPSelect`, `MPCombobox` and the four date and time pickers.
+
+  Seventy-four of the hundred and fourteen exported prop types already accepted every one of these, by extending `React.ComponentPropsWithoutRef` and spreading the rest onto an element they own. The forty that did not are the same shape of component `className` was missing from in 1.5.0, and for the same reason: a control that draws a box, a label, an input and a supporting line has four elements a handler could land on, and spreading would pick one of them by accident.
+
+  So the rule is written down instead, and it is **the opposite of where a class goes**. A class describes the whole component and lands on its outermost element; an event came from one element and lands on the control that produced it. On an `MPTextField` that means `onKeyDown` is a keystroke that landed in the field and never one that landed on the reveal toggle beside it, and `onFocus` is the input taking focus rather than anything in the row taking it. Each props table names the element.
+
+  The other half is ordering. **Yours runs first**, and a control with its own answer for a key checks `defaultPrevented` before giving it:
+
+  ```tsx
+  <MPTextField
+    value={draft}
+    onChange={setDraft}
+    rows={4}
+    onSubmit={send} // plain Enter
+    onKeyDown={(event) => {
+      if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
+        event.preventDefault(); // ⌘Enter is yours — and no newline is inserted
+        sendAndClose();
+      }
+    }}
+  />
+  ```
+
+  A `<div onKeyDown>` wrapped around the control gets the keystroke by bubbling, which is what a caller had to write before. What it cannot do is go first.
+
+  `MPTextField`'s composition rule is unchanged: the Enter that commits a syllable is reported to a caller, because interpreting it is theirs to do, and is still never turned into a submission.
+
+  `MPOtpField` is deliberately not among the eight. It is six inputs rather than one, and a `blur` that fired every time the caret moved between two of its boxes would be reporting something that did not happen.
+
+### Fixed
+
+- **A month cell told a Korean reader `7월 2026`.** The month grid's cells were named by sticking the year on the end of a month name, which is the order English uses and one that Korean and Japanese do not. They are `Intl`'s now — `2026년 7월`, `January 2026` — which is the ordering the header's two buttons have always been put in and for the reason they are: a date in the wrong order reads as broken to exactly the readers it is wrong for.
+
+  Tolerable while that grid was the middle of a day picker's journey. Not tolerable now: on a picker whose `precision` is a month, those twelve strings are everything a reader hears.
+
+- **The month grid and the year grid were announced as "grid" and nothing else.** They are named by the year and by the page of years they show, the way the day grid has always been named by its month.
+
+### The measurements
+
+`npm run measure`, against a build of this release and a build of `af10fcc` for the baseline, so the difference is the change and not drift.
+
+| Scenario        | 1.5.0   | 1.6.0   |
+| --------------- | ------- | ------- |
+| `MPBox`         | 0.4 kB  | 0.4 kB  |
+| `MPButton`      | 2.9 kB  | 2.9 kB  |
+| `MPTextField`   | 4.3 kB  | 4.3 kB  |
+| Five components | 7.4 kB  | 7.4 kB  |
+| Ten components  | 11.2 kB | 11.3 kB |
+| Everything      | 74.2 kB | 74.8 kB |
+
+Six hundred grams, and almost all of it is the calendar: `precision` adds a view floor, two grids' worth of naming and three date helpers to a file every picker imports. `MPTextField` does not move at the tenth even though it grew seven props, because seven names in a destructuring and seven attributes on an element is what a minifier is for. The three single-component rows are unchanged.
+
+Every stylesheet figure is unchanged — 113.5 kB whole, 16.2 kB gzipped, eighty-eight split sheets, the crossover still at about thirty-one components. The release added props and prose, not classes.
+
+The suite goes from 1644 tests to 1681. Nineteen are the two units a date picker can now be asked for, and the two worth naming are the ones about what is _absent_: a month picker has no day grid in it and a year picker has no month grid, which is the half a caller is trusting. The other eighteen are the raw events, where the two that matter are the ordering — a `preventDefault` in a caller's `onKeyDown` leaves `onSubmit` uncalled — and the four asserting that Base UI merges rather than replaces, so a caller's `onBlur` does not quietly take `onValueCommitted` off an `MPNumberField`.
+
 ## 1.5.0 (2026-08-30)
 
 Twelve components could not be handed a `className`, and ten of them were the form controls — the ones a page is most likely to want to place. That is this release: the prop, the props tables that never mentioned it, and a section saying what passing one actually does. The last of those turned out to be worth measuring rather than reasoning about, and the measurement corrected the first thing written about it.
