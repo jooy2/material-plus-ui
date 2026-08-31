@@ -160,6 +160,23 @@ describe('MPTypography', () => {
       expect(screen.getByText('Caption').element().className).not.toContain('text-mp-on-surface');
     });
 
+    it('takes the ink of the surface it is dropped into', async () => {
+      const screen = await render(
+        <div className="text-mp-primary">
+          <MPTypography>Body</MPTypography>
+          <MPTypography level="caption">Caption</MPTypography>
+        </div>
+      );
+
+      const ink = getComputedStyle(
+        document.querySelector('.text-mp-primary') as HTMLElement
+      ).getPropertyValue('color');
+
+      for (const text of ['Body', 'Caption']) {
+        expect(getComputedStyle(screen.getByText(text).element()).color).toBe(ink);
+      }
+    });
+
     it('reads the accent family when one is asked for', async () => {
       const screen = await render(<MPTypography color="error">Failed</MPTypography>);
       const element = screen.getByText('Failed').element() as HTMLElement;
