@@ -57,6 +57,20 @@ CSS `transform-origin`이면 무엇이든 됩니다. 기본값은 한가운데�
 
 도착에는 켜고, 회전에는 끄세요. prop 하나를 따로 둘 만한 세 번째 답은 없습니다.
 
+## 하나의 효과를 집합 전체에
+
+`stagger`는 효과를 자식 단위로 바꿉니다. 상자가 도는 대신 자식 하나하나가 자기 순서만큼 늦게 그렇게 합니다. `durationStep`은 각 자식에게 앞의 것보다 길거나 짧은 시간을 주고, `reverse`는 집합을 끝에서부터 재생합니다.
+
+```tsx
+<MPAnimateRotate stagger={60}>
+  {items.map((item) => (
+    <Item key={item.id} {...item} />
+  ))}
+</MPAnimateRotate>
+```
+
+`stagger`가 설정되면 상자 자신은 아무것도 재생하지 않습니다. 같은 내용을 두 번 재생하면 아무도 요청하지 않은 세 번째 곡선이 되기 때문입니다. 세 prop의 근거는 [MPAnimateFade](./animate-fade#하나의-효과를-집합-전체에)에 자세히 적혀 있고, [MPAnimateAppear](./animate-appear)는 `stagger`가 이미 켜져 있는 이것입니다.
+
 ## 접근성
 
 - `prefers-reduced-motion`에서는 아무것도 돌지 않고 내용이 `to` 각도에 놓입니다 — 기본값이면 똑바로 선 상태이고, 회전이면 호출자가 끝이라고 말한 자리입니다.

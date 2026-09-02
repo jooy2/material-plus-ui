@@ -57,6 +57,20 @@ Like [MPAnimateGrow](./animate-grow), this reaches the standalone `rotate` prope
 
 On for an arrival, off for a spin. There is no third answer worth a prop of its own.
 
+## One effect across a set
+
+`stagger` turns the effect into a per-child one: instead of the box turning, each child does, held back by its position. `durationStep` gives each a longer or shorter run than the last, and `reverse` runs the set from the end.
+
+```tsx
+<MPAnimateRotate stagger={60}>
+  {items.map((item) => (
+    <Item key={item.id} {...item} />
+  ))}
+</MPAnimateRotate>
+```
+
+The box itself animates nothing while a `stagger` is set — the same content played twice over is neither of the two curves anybody asked for. The three props are argued in full at [MPAnimateFade](./animate-fade#one-effect-across-a-set), and [MPAnimateAppear](./animate-appear) is this with `stagger` already on.
+
 ## Accessibility
 
 - Under `prefers-reduced-motion` nothing turns and the content sits at its `to` angle — which for the default is upright, and for a spin is wherever the caller said the turn ends.

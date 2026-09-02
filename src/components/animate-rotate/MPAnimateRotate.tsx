@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { isInfinite, useAnimateElement } from '../../internal/animate';
-import type { MPAnimateMode, MPAnimateProps } from '../../types';
+import type { MPAnimateMode, MPAnimateProps, MPAnimateStaggerProps } from '../../types';
 
 export interface MPAnimateRotateProps
-  extends MPAnimateProps, React.ComponentPropsWithoutRef<'div'> {
+  extends MPAnimateProps, MPAnimateStaggerProps, React.ComponentPropsWithoutRef<'div'> {
   /**
    * Whether the content turns into place or out of it.
    * @default 'in'
@@ -70,6 +70,9 @@ export const MPAnimateRotate = React.forwardRef<HTMLDivElement, MPAnimateRotateP
       play,
       once = true,
       threshold = 0.2,
+      stagger = 0,
+      durationStep,
+      reverse,
       mode = 'in',
       from = -180,
       to = 0,
@@ -99,7 +102,11 @@ export const MPAnimateRotate = React.forwardRef<HTMLDivElement, MPAnimateRotateP
       once,
       threshold,
       paused,
-      infinite: isInfinite(repeat)
+      infinite: isInfinite(repeat),
+      stagger,
+      durationStep,
+      reverse,
+      children
     });
 
     return useRender({
@@ -110,7 +117,7 @@ export const MPAnimateRotate = React.forwardRef<HTMLDivElement, MPAnimateRotateP
         className: [animate.className, className].filter(Boolean).join(' '),
         style: { transformOrigin: origin, ...animate.style, ...style },
         ...animate.props,
-        children
+        children: animate.children
       }
     });
   }

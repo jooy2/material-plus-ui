@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { isInfinite, useAnimateElement } from '../../internal/animate';
-import type { MPAnimateMode, MPAnimateProps } from '../../types';
+import type { MPAnimateMode, MPAnimateProps, MPAnimateStaggerProps } from '../../types';
 
-export interface MPAnimateZoomProps extends MPAnimateProps, React.ComponentPropsWithoutRef<'div'> {
+export interface MPAnimateZoomProps
+  extends MPAnimateProps, MPAnimateStaggerProps, React.ComponentPropsWithoutRef<'div'> {
   /**
    * Whether the content comes forward or falls away. An exit is quicker than an
    * entrance — MD3's `short4` against `medium4` — unless `duration` says
@@ -57,6 +58,9 @@ export const MPAnimateZoom = React.forwardRef<HTMLDivElement, MPAnimateZoomProps
       play,
       once = true,
       threshold = 0.2,
+      stagger = 0,
+      durationStep,
+      reverse,
       mode = 'in',
       from = 0.4,
       fade = true,
@@ -83,7 +87,11 @@ export const MPAnimateZoom = React.forwardRef<HTMLDivElement, MPAnimateZoomProps
       once,
       threshold,
       paused,
-      infinite: isInfinite(repeat)
+      infinite: isInfinite(repeat),
+      stagger,
+      durationStep,
+      reverse,
+      children
     });
 
     return useRender({
@@ -97,7 +105,7 @@ export const MPAnimateZoom = React.forwardRef<HTMLDivElement, MPAnimateZoomProps
         // turn this into a grow.
         style: { transformOrigin: 'center', ...animate.style, ...style },
         ...animate.props,
-        children
+        children: animate.children
       }
     });
   }

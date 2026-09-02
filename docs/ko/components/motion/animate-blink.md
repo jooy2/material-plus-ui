@@ -42,6 +42,20 @@ import { MPAnimateBlink } from 'material-plus-ui';
 
 `duration`은 도착까지 걸리는 시간이 아니라 한 **주기** — `extra-long4`, 1초 — 입니다. 곡선도 다섯 개의 도착이 쓰는 emphasized decelerate가 아니라 `standard`입니다. 맥동에는 감속해 들어갈 목적지가 없고, 곧바로 떠날 프레임으로 부드럽게 들어가는 것은 더듬거림으로 읽힙니다.
 
+## 하나의 효과를 집합 전체에
+
+`stagger`는 효과를 자식 단위로 바꿉니다. 상자가 맥동하는 대신 자식 하나하나가 자기 순서만큼 늦게 그렇게 합니다. `durationStep`은 각 자식에게 앞의 것보다 길거나 짧은 시간을 주고, `reverse`는 집합을 끝에서부터 재생합니다.
+
+```tsx
+<MPAnimateBlink stagger={60}>
+  {items.map((item) => (
+    <Item key={item.id} {...item} />
+  ))}
+</MPAnimateBlink>
+```
+
+`stagger`가 설정되면 상자 자신은 아무것도 재생하지 않습니다. 같은 내용을 두 번 재생하면 아무도 요청하지 않은 세 번째 곡선이 되기 때문입니다. 세 prop의 근거는 [MPAnimateFade](./animate-fade#하나의-효과를-집합-전체에)에 자세히 적혀 있고, [MPAnimateAppear](./animate-appear)는 `stagger`가 이미 켜져 있는 이것입니다.
+
 ## 접근성
 
 - `prefers-reduced-motion`에서는 맥동이 완전히 멈추고 내용이 완전한 불투명도로 놓입니다.

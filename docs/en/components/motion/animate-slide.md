@@ -57,6 +57,20 @@ A CSS length, or a number in pixels. `'100%'` is out of frame; something short â
 
 `out` leaves by the same edge it would have come from, so a panel that arrived from the left goes back to the left. It is also quicker, because Material asks an exit to be.
 
+## One effect across a set
+
+`stagger` turns the effect into a per-child one: instead of the box travelling, each child does, held back by its position. `durationStep` gives each a longer or shorter run than the last, and `reverse` runs the set from the end.
+
+```tsx
+<MPAnimateSlide stagger={60}>
+  {items.map((item) => (
+    <Item key={item.id} {...item} />
+  ))}
+</MPAnimateSlide>
+```
+
+The box itself animates nothing while a `stagger` is set â€” the same content played twice over is neither of the two curves anybody asked for. The three props are argued in full at [MPAnimateFade](./animate-fade#one-effect-across-a-set), and [MPAnimateAppear](./animate-appear) is this with `stagger` already on.
+
 ## Accessibility
 
 - Under `prefers-reduced-motion` nothing travels and the content is simply there in its final position.

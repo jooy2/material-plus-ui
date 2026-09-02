@@ -42,6 +42,20 @@ A keyframe that went from full to faint and stopped would leave the element perm
 
 `duration` here is one **cycle** — `extra-long4`, a second — rather than the time something takes to arrive. And the curve is `standard` rather than the emphasized decelerate the five arrivals take: a pulse has no destination to decelerate into, and easing into a frame it immediately leaves reads as a stutter.
 
+## One effect across a set
+
+`stagger` turns the effect into a per-child one: instead of the box pulsing, each child does, held back by its position. `durationStep` gives each a longer or shorter run than the last, and `reverse` runs the set from the end.
+
+```tsx
+<MPAnimateBlink stagger={60}>
+  {items.map((item) => (
+    <Item key={item.id} {...item} />
+  ))}
+</MPAnimateBlink>
+```
+
+The box itself animates nothing while a `stagger` is set — the same content played twice over is neither of the two curves anybody asked for. The three props are argued in full at [MPAnimateFade](./animate-fade#one-effect-across-a-set), and [MPAnimateAppear](./animate-appear) is this with `stagger` already on.
+
 ## Accessibility
 
 - Under `prefers-reduced-motion` the pulse stops entirely and the content sits at full opacity.

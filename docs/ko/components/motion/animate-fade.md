@@ -41,6 +41,32 @@ import { MPAnimateFade } from 'material-plus-ui';
 
 사라진 요소는 사라진 채로 **붙들립니다**. `animation-fill-mode`가 `both`라서 애니메이션이 끝나는 순간 다시 튀어나오지 않습니다.
 
+## 하나의 효과를 집합 전체에
+
+`stagger`는 효과를 자식 단위로 바꿉니다. 상자가 페이드하는 대신 자식 하나하나가, 자기 순서만큼 늦게 페이드합니다. 그래서 도착하는 것은 **집합**이고, 읽혀야 하는 순서대로 도착합니다.
+
+```tsx
+<MPAnimateFade stagger={60}>
+  {rows.map((row) => (
+    <Row key={row.id} {...row} />
+  ))}
+</MPAnimateFade>
+```
+
+`MPAnimateStagger` 같은 컴포넌트는 일부러 없습니다. 차례로 자리를 잡는 목록은 페이드와 다른 효과가 아니라, 언제 시작할지를 들은 같은 페이드입니다. 래퍼를 두면 이 여섯이 이미 하는 일의 두 번째 철자가 되고, 호출하는 쪽은 import 시점에 "페이드"와 "하나씩 페이드" 중에 골라야 합니다.
+
+**`stagger`가 설정되면 상자 자신은 아무것도 재생하지 않습니다.** 여덟 자식이 페이드하는 위에서 상자도 페이드하면 같은 내용을 두 번 페이드하는 것입니다. 독자가 보는 것은 두 불투명도의 곱이고, 그것은 아무도 요청하지 않은 세 번째 곡선입니다.
+
+단계는 **자식마다**이므로, 무엇을 넘기는지가 곧 조절 손잡이입니다. 여덟 자식은 여덟 단계이고, 여덟 개를 담은 자식 하나는 한 단계입니다. 집합의 일부를 순서에서 빼는 방법도 그것입니다 — 묶으세요.
+
+`durationStep`은 각 자식에게 앞의 것보다 길거나 짧은 시간을 줍니다. 집합이 착지하면서 퍼지거나 모이는 것으로 읽힙니다. 음수도 되고 0에서 멈추므로, 긴 목록이 음수 duration을 요청해 스타일시트의 기본값으로 되돌아가는 일은 없습니다.
+
+`reverse`는 마지막 자식부터 첫 자식 순으로 재생합니다. 뒤집히는 것은 **순서**뿐이고 각 자식은 그대로 앞으로 재생됩니다. 그 점이 `mode="out"`과 다릅니다.
+
+`paused`는 여전히 집합 전체를 붙잡고, `trigger`도 여전히 전체를 한 번에 시작합니다. 재생 상태는 상자가 유지하는 유일한 것이고, 상속으로 자식에게 닿습니다.
+
+이 셋은 요소 자신에게 걸린 `@keyframes` 하나인 여섯 효과에만 있습니다. [MPAnimateMarquee](./animate-marquee)는 자식을 복제하고, [MPAnimateHeadline](./animate-headline)은 자식 사이를 교체하고, [MPAnimateTyping](./animate-typing)은 자식의 글자를 셉니다. 셋 다 임의의 자식에게 애니메이션을 건넬 수 없습니다. [MPAnimateLighting](./animate-lighting)은 움직임을 자식에게는 대응물이 없는 pseudo-element에 둡니다. [MPAnimateAppear](./animate-appear)는 `stagger`가 80ms로 이미 켜져 있는 이것이고, 같은 코드 위에서 돕니다.
+
 ## 예제
 
 <Demo src="animate-fade/triggers" :minHeight="360">

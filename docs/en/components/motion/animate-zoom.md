@@ -55,6 +55,20 @@ Very low values — under about `0.2` — cross so much distance that the conten
 
 On by default, and worth keeping for an arrival: the opacity is what makes the first frames read as _not there yet_ rather than as _tiny_.
 
+## One effect across a set
+
+`stagger` turns the effect into a per-child one: instead of the box arriving, each child does, held back by its position. `durationStep` gives each a longer or shorter run than the last, and `reverse` runs the set from the end.
+
+```tsx
+<MPAnimateZoom stagger={60}>
+  {items.map((item) => (
+    <Item key={item.id} {...item} />
+  ))}
+</MPAnimateZoom>
+```
+
+The box itself animates nothing while a `stagger` is set — the same content played twice over is neither of the two curves anybody asked for. The three props are argued in full at [MPAnimateFade](./animate-fade#one-effect-across-a-set), and [MPAnimateAppear](./animate-appear) is this with `stagger` already on.
+
 ## Accessibility
 
 - Under `prefers-reduced-motion` nothing scales and the content is simply there at its final size.

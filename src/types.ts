@@ -393,3 +393,49 @@ export interface MPAnimateProps {
    */
   threshold?: number;
 }
+
+/**
+ * Spreading one effect across a set rather than playing it on the box.
+ *
+ * Three props rather than an `MPAnimateStagger` component, and that is the
+ * whole design: a list settling in is not a different effect from a fade, it is
+ * the same fade told when to start. A wrapper component would be a second
+ * spelling of something the effects already do, and a caller would have to
+ * choose between "fade" and "fade one at a time" at the import.
+ *
+ * They belong to the effects that are **one `@keyframes` on the element
+ * itself**, which is these six. `MPAnimateMarquee` duplicates its children,
+ * `MPAnimateHeadline` swaps between them and `MPAnimateTyping` counts their
+ * characters; none of the three can hand an arbitrary child an animation, and
+ * `MPAnimateLighting` puts its movement on a pseudo-element that a child has
+ * no equivalent of. `MPAnimateAppear` is this with `stagger` already on and a
+ * default of 80ms, and runs on the same code.
+ */
+export interface MPAnimateStaggerProps {
+  /**
+   * How long after one child the next one starts, in milliseconds.
+   *
+   * This is what turns the effect into a per-child one. At `0` — the default —
+   * the box itself animates, which is what these components have always done
+   * and what is right for a single subject.
+   *
+   * The step is per **child**, so what you pass matters: eight children are
+   * eight steps and one child holding eight things is one step. That is also
+   * how to opt part of a set out — group it.
+   * @default 0
+   */
+  stagger?: number;
+  /**
+   * How much longer each child takes than the one before it, in milliseconds.
+   * Negative shortens instead, clamped at zero. Only read alongside `stagger`.
+   * @default 0
+   */
+  durationStep?: number;
+  /**
+   * Runs the set from the last child to the first. Only the order is reversed —
+   * each child still plays forwards, which is what separates this from
+   * `mode="out"`.
+   * @default false
+   */
+  reverse?: boolean;
+}

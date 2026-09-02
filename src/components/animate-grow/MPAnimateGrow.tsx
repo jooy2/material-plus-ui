@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { isInfinite, useAnimateElement } from '../../internal/animate';
-import type { MPAnimateMode, MPAnimateProps } from '../../types';
+import type { MPAnimateMode, MPAnimateProps, MPAnimateStaggerProps } from '../../types';
 
-export interface MPAnimateGrowProps extends MPAnimateProps, React.ComponentPropsWithoutRef<'div'> {
+export interface MPAnimateGrowProps
+  extends MPAnimateProps, MPAnimateStaggerProps, React.ComponentPropsWithoutRef<'div'> {
   /**
    * Whether the content unfolds or folds away. An exit is quicker than an
    * entrance — MD3's `short4` against `medium4` — unless `duration` says
@@ -65,6 +66,9 @@ export const MPAnimateGrow = React.forwardRef<HTMLDivElement, MPAnimateGrowProps
       play,
       once = true,
       threshold = 0.2,
+      stagger = 0,
+      durationStep,
+      reverse,
       mode = 'in',
       from = 0.8,
       origin = 'center',
@@ -92,7 +96,11 @@ export const MPAnimateGrow = React.forwardRef<HTMLDivElement, MPAnimateGrowProps
       once,
       threshold,
       paused,
-      infinite: isInfinite(repeat)
+      infinite: isInfinite(repeat),
+      stagger,
+      durationStep,
+      reverse,
+      children
     });
 
     return useRender({
@@ -103,7 +111,7 @@ export const MPAnimateGrow = React.forwardRef<HTMLDivElement, MPAnimateGrowProps
         className: [animate.className, className].filter(Boolean).join(' '),
         style: { transformOrigin: origin, ...animate.style, ...style },
         ...animate.props,
-        children
+        children: animate.children
       }
     });
   }

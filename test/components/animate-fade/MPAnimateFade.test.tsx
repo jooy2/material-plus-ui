@@ -201,6 +201,141 @@ describe('MPAnimateFade', () => {
     });
   });
 
+  /*
+   * `stagger` is the same effect written onto the children instead of onto the
+   * box. These are about which element carries what, because that is the part
+   * an implementation gets wrong: a box that goes on fading over eight fading
+   * children shows the content at one opacity multiplied by the other.
+   */
+  describe('stagger', () => {
+    function Set(props: React.ComponentProps<typeof MPAnimateFade>) {
+      return (
+        <MPAnimateFade data-testid="fade" {...props}>
+          <p data-testid="one">One</p>
+          <p data-testid="two">Two</p>
+          <p data-testid="three">Three</p>
+        </MPAnimateFade>
+      );
+    }
+
+    it('leaves the box with no animation of its own', async () => {
+      const screen = await render(<Set stagger={60} />);
+      const box = screen.getByTestId('fade').element() as HTMLElement;
+
+      expect(box).not.toHaveClass('mp-anim');
+      expect(getComputedStyle(box).animationName).toBe('none');
+      // And no slots either, other than the one the children inherit.
+      expect(box.style.getPropertyValue('--_mp-anim-duration')).toBe('');
+    });
+
+    it('runs the effect on each child, held back by its position', async () => {
+      const screen = await render(<Set stagger={60} />);
+      const children = ['one', 'two', 'three'].map(
+        (id) => screen.getByTestId(id).element() as HTMLElement
+      );
+
+      for (const child of children) {
+        expect(getComputedStyle(child).animationName).toBe('mp-anim-fade');
+      }
+
+      expect(children.map((child) => getComputedStyle(child).animationDelay)).toEqual([
+        '0s',
+        '0.06s',
+        '0.12s'
+      ]);
+    });
+
+    it('holds the whole set with one play state, by inheritance', async () => {
+      const screen = await render(<Set stagger={60} paused />);
+      const child = screen.getByTestId('two').element() as HTMLElement;
+
+      expect(getComputedStyle(child).animationPlayState).toBe('paused');
+    });
+
+    it('counts from the end when reversed, without playing anything backwards', async () => {
+      const screen = await render(<Set stagger={60} reverse />);
+      const children = ['one', 'two', 'three'].map(
+        (id) => screen.getByTestId(id).element() as HTMLElement
+      );
+
+      expect(children.map((child) => getComputedStyle(child).animationDelay)).toEqual([
+        '0.12s',
+        '0.06s',
+        '0s'
+      ]);
+      // Only the order. Each child still arrives rather than leaving.
+      expect(getComputedStyle(children[0]!).animationDirection).toBe('normal');
+    });
+
+    it('steps the duration through the set, from the token nobody set', async () => {
+      const screen = await render(<Set stagger={60} durationStep={100} />);
+      const children = ['one', 'two', 'three'].map(
+        (id) => screen.getByTestId(id).element() as HTMLElement
+      );
+
+      // The base is `medium2`, which is 300ms.
+      expect(children.map((child) => getComputedStyle(child).animationDuration)).toEqual([
+        '0.3s',
+        '0.4s',
+        '0.5s'
+      ]);
+    });
+
+    it('clamps a negative step at zero rather than dropping the declaration', async () => {
+      const screen = await render(<Set stagger={60} durationStep={-200} />);
+      const children = ['one', 'two', 'three'].map(
+        (id) => screen.getByTestId(id).element() as HTMLElement
+      );
+
+      // A third child at −400ms would be an invalid duration, and an invalid
+      // declaration is dropped — the child would run at the stylesheet's own
+      // `medium4` default, which is longer than any of the other two.
+      expect(children.map((child) => getComputedStyle(child).animationDuration)).toEqual([
+        '0.3s',
+        '0.1s',
+        '0s'
+      ]);
+    });
+
+    it('keeps a child’s own class and style', async () => {
+      const screen = await render(
+        <MPAnimateFade stagger={60} data-testid="fade">
+          <p data-testid="one" className="mine" style={{ color: 'rgb(1, 2, 3)' }}>
+            One
+          </p>
+        </MPAnimateFade>
+      );
+      const child = screen.getByTestId('one').element() as HTMLElement;
+
+      expect(child).toHaveClass('mine');
+      expect(child).toHaveClass('mp-anim');
+      expect(child.style.color).toBe('rgb(1, 2, 3)');
+    });
+
+    it('wraps a bare string, which has no element to write onto', async () => {
+      const screen = await render(
+        <MPAnimateFade stagger={60} data-testid="fade">
+          Bare
+        </MPAnimateFade>
+      );
+      const box = screen.getByTestId('fade').element() as HTMLElement;
+      const wrapper = box.firstElementChild as HTMLElement;
+
+      expect(wrapper.tagName).toBe('SPAN');
+      expect(wrapper).toHaveClass('mp-anim');
+      expect(wrapper.textContent).toBe('Bare');
+    });
+
+    it('animates the box again at a stagger of nought', async () => {
+      const screen = await render(<Set />);
+      const box = screen.getByTestId('fade').element() as HTMLElement;
+      const child = screen.getByTestId('one').element() as HTMLElement;
+
+      expect(getComputedStyle(box).animationName).toBe('mp-anim-fade');
+      expect(getComputedStyle(child).animationName).toBe('none');
+    });
+  });
+
   it('keeps the caller’s own class and style', async () => {
     const screen = await render(
       <MPAnimateFade className="custom" style={{ color: 'rgb(1, 2, 3)' }} data-testid="fade">

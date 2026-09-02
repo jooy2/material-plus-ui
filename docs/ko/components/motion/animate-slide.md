@@ -57,6 +57,20 @@ CSS 길이 또는 픽셀 숫자입니다. `'100%'`는 화면 밖이고, `'1.5rem
 
 `out`은 들어왔을 가장자리로 되돌아 나갑니다. 왼쪽에서 도착한 패널은 왼쪽으로 갑니다. 또한 더 짧습니다. 머터리얼이 퇴장에 그렇게 요구하기 때문입니다.
 
+## 하나의 효과를 집합 전체에
+
+`stagger`는 효과를 자식 단위로 바꿉니다. 상자가 이동하는 대신 자식 하나하나가 자기 순서만큼 늦게 그렇게 합니다. `durationStep`은 각 자식에게 앞의 것보다 길거나 짧은 시간을 주고, `reverse`는 집합을 끝에서부터 재생합니다.
+
+```tsx
+<MPAnimateSlide stagger={60}>
+  {items.map((item) => (
+    <Item key={item.id} {...item} />
+  ))}
+</MPAnimateSlide>
+```
+
+`stagger`가 설정되면 상자 자신은 아무것도 재생하지 않습니다. 같은 내용을 두 번 재생하면 아무도 요청하지 않은 세 번째 곡선이 되기 때문입니다. 세 prop의 근거는 [MPAnimateFade](./animate-fade#하나의-효과를-집합-전체에)에 자세히 적혀 있고, [MPAnimateAppear](./animate-appear)는 `stagger`가 이미 켜져 있는 이것입니다.
+
 ## 접근성
 
 - `prefers-reduced-motion`에서는 아무것도 이동하지 않고 내용이 최종 위치에 그대로 있습니다.

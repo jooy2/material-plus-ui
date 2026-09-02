@@ -292,6 +292,42 @@ const motion: PropRow[] = [
   animateThreshold
 ];
 
+/**
+ * The three that spread one effect across a set instead of playing it on the
+ * box. Shared by the six effects that are one `@keyframes` on the element
+ * itself, and by nothing else — the components that read what their children
+ * *are* cannot hand an arbitrary child an animation.
+ */
+const stagger: PropRow[] = [
+  {
+    name: 'stagger',
+    type: 'number',
+    default: '0',
+    description: {
+      ko: '한 자식 뒤에 다음 자식이 시작하기까지의 밀리초. 이것이 효과를 자식 단위로 바꿉니다. `0`이면 상자 자체가 재생됩니다. 단계는 **자식마다**이므로, 여덟 자식은 여덟 단계이고 여덟 개를 담은 자식 하나는 한 단계입니다',
+      en: 'How long after one child the next one starts, in milliseconds. This is what turns the effect into a per-child one; at `0` the box itself animates. The step is per **child**, so eight children are eight steps and one child holding eight things is one step'
+    }
+  },
+  {
+    name: 'durationStep',
+    type: 'number',
+    default: '0',
+    description: {
+      ko: '자식마다 앞의 것보다 얼마나 더 오래 걸리는지, 밀리초. 음수는 짧아지며 0에서 멈춥니다. `stagger`와 함께일 때만 읽힙니다',
+      en: 'How much longer each child takes than the one before it, in milliseconds. Negative shortens instead, clamped at zero. Only read alongside `stagger`'
+    }
+  },
+  {
+    name: 'reverse',
+    type: 'boolean',
+    default: 'false',
+    description: {
+      ko: '마지막 자식부터 첫 자식 순으로 재생합니다. 순서만 뒤집히고 각 자식은 그대로 앞으로 재생됩니다',
+      en: 'Runs the set from the last child to the first. Only the order is reversed — each child still plays forwards'
+    }
+  }
+];
+
 const animateRender: PropRow = {
   name: 'render',
   type: 'RenderProp',
@@ -7712,6 +7748,7 @@ const componentTables: Record<string, PropRow[]> = {
       }
     },
     ...motion,
+    ...stagger,
     animateRender,
     {
       name: 'children',
@@ -7750,6 +7787,7 @@ const componentTables: Record<string, PropRow[]> = {
       }
     },
     ...motion,
+    ...stagger,
     animateRender,
     {
       name: 'children',
@@ -7779,6 +7817,7 @@ const componentTables: Record<string, PropRow[]> = {
       }
     },
     ...motion,
+    ...stagger,
     animateRender,
     {
       name: 'children',
@@ -7817,6 +7856,7 @@ const componentTables: Record<string, PropRow[]> = {
       }
     },
     ...motion,
+    ...stagger,
     animateRender,
     {
       name: 'children',
@@ -7864,6 +7904,7 @@ const componentTables: Record<string, PropRow[]> = {
       }
     },
     ...motion,
+    ...stagger,
     animateRender,
     {
       name: 'children',
@@ -7902,6 +7943,7 @@ const componentTables: Record<string, PropRow[]> = {
             }
           : row
     ),
+    ...stagger,
     animateRender,
     {
       name: 'children',

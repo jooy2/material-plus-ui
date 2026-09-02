@@ -41,6 +41,58 @@ Reversing also fixes the curve for free. CSS mirrors the timing function along w
 
 A faded-out element is **held** faded out. `animation-fill-mode` is `both`, so it does not snap back into view the moment the animation finishes.
 
+## One effect across a set
+
+`stagger` turns the effect into a per-child one. Instead of the box fading, each child fades, held back by its position — so what arrives is the **set**, in the order it should be read.
+
+```tsx
+<MPAnimateFade stagger={60}>
+  {rows.map((row) => (
+    <Row key={row.id} {...row} />
+  ))}
+</MPAnimateFade>
+```
+
+There is deliberately no `MPAnimateStagger` component. A list settling in is not a different effect from a fade; it is the same fade told when to start, and a wrapper would be a second spelling of something these six already do — a caller would have to choose between "fade" and "fade one at a time" at the import.
+
+**The box itself animates nothing while a `stagger` is set.** Eight children fading in under a box that is also fading in is the same content faded twice: what a reader sees is one opacity multiplied by the other, which is neither of the two curves anybody asked for.
+
+The step is per **child**, so what you pass is the dial. Eight children are eight steps; one child holding eight things is one step. That is also how to opt part of a set out of the sequence — group it.
+
+`durationStep` gives each child a longer or shorter run than the one before it, which reads as the set spreading out or drawing together as it lands. Negative is allowed and is clamped at zero, so a long list cannot ask for a negative duration and get the default instead.
+
+`reverse` runs the set from the last child to the first. Only the **order** is reversed — each child still plays forwards, which is what separates it from `mode="out"`.
+
+`paused` still holds the whole set, and a `trigger` still starts all of it at once: the play state is the one thing the box keeps, and it reaches the children by inheritance.
+
+The three are on the six effects that are a single `@keyframes` on the element itself. [MPAnimateMarquee](./animate-marquee) duplicates its children, [MPAnimateHeadline](./animate-headline) swaps between them and [MPAnimateTyping](./animate-typing) counts their characters, so none of the three can hand an arbitrary child an animation; [MPAnimateLighting](./animate-lighting) puts its movement on a pseudo-element a child has no equivalent of. [MPAnimateAppear](./animate-appear) is this with `stagger` already on at 80ms, and runs on the same code.
+
+## One effect across a set
+
+`stagger` turns the effect into a per-child one. Instead of the box fading, each child fades, held back by its position — so what arrives is the **set**, in the order it should be read.
+
+```tsx
+<MPAnimateFade stagger={60}>
+  {rows.map((row) => (
+    <Row key={row.id} {...row} />
+  ))}
+</MPAnimateFade>
+```
+
+There is deliberately no `MPAnimateStagger` component. A list settling in is not a different effect from a fade; it is the same fade told when to start, and a wrapper would be a second spelling of something these six already do — a caller would have to choose between "fade" and "fade one at a time" at the import.
+
+**The box itself animates nothing while a `stagger` is set.** Eight children fading in under a box that is also fading in is the same content faded twice: what a reader sees is one opacity multiplied by the other, which is neither of the two curves anybody asked for.
+
+The step is per **child**, so what you pass is the dial. Eight children are eight steps; one child holding eight things is one step. That is also how to opt part of a set out of the sequence — group it.
+
+`durationStep` gives each child a longer or shorter run than the one before it, which reads as the set spreading out or drawing together as it lands. Negative is allowed and is clamped at zero, so a long list cannot ask for a negative duration and get the stylesheet's default instead.
+
+`reverse` runs the set from the last child to the first. Only the **order** is reversed — each child still plays forwards, which is what separates it from `mode="out"`.
+
+`paused` still holds the whole set and a `trigger` still starts all of it at once: the play state is the one thing the box keeps, and it reaches the children by inheritance.
+
+The three are on the six effects that are a single `@keyframes` on the element itself. [MPAnimateMarquee](./animate-marquee) duplicates its children, [MPAnimateHeadline](./animate-headline) swaps between them and [MPAnimateTyping](./animate-typing) counts their characters, so none of the three can hand an arbitrary child an animation; [MPAnimateLighting](./animate-lighting) puts its movement on a pseudo-element a child has no equivalent of. [MPAnimateAppear](./animate-appear) is this with `stagger` already on at 80ms, and runs on the same code.
+
 ## Examples
 
 <Demo src="animate-fade/triggers" :minHeight="360">

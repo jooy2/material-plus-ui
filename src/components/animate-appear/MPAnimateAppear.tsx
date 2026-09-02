@@ -3,9 +3,9 @@ import { useRender } from '@base-ui/react/use-render';
 import {
   ANIMATION_CLASS,
   ANIM_BASE,
-  animationSlots,
   isInfinite,
   slideOffsets,
+  staggerChildren,
   useAnimationRun
 } from '../../internal/animate';
 import type { MPAnimateProps, MPSide } from '../../types';
@@ -100,38 +100,36 @@ export const MPAnimateAppear = React.forwardRef<HTMLDivElement, MPAnimateAppearP
     });
 
     const { x, y } = slideOffsets(from, distance);
-    const items = React.Children.toArray(children);
-    const itemClassName = `${ANIM_BASE} ${ANIMATION_CLASS.slide}`;
 
-    const animated = items.map((child, index) => {
-      const step = reverse ? items.length - 1 - index : index;
-      const slots = animationSlots({
+    /*
+     * The same helper the six single-keyframe effects reach for through
+     * `useAnimateElement`. It was written here first and lifted into
+     * `internal/animate.ts` when they gained a `stagger` of their own: two
+     * copies would be two answers to which child is the third one, and the
+     * disagreement would only surface on a set reversed inside a fragment.
+     *
+     * What is not shared is the *decision*. There, a `stagger` of 0 means the
+     * box animates and the children are left alone; here there is no box
+     * animation to fall back to — this component is the per-child effect — so a
+     * `stagger` of 0 is a set that arrives all at once, which is a real thing to
+     * ask for and is why the call is direct rather than through the hook.
+     */
+    const animated = staggerChildren(
+      children,
+      `${ANIM_BASE} ${ANIMATION_CLASS.slide}`,
+      {
         effect: 'slide',
         duration,
-        delay: delay + step * stagger,
+        delay,
         easing,
         repeat,
         alternate,
         x,
         y,
         opacity: fade ? 0 : 1
-      });
-
-      if (!React.isValidElement(child)) {
-        return (
-          <span key={index} className={itemClassName} style={slots}>
-            {child}
-          </span>
-        );
-      }
-
-      const childProps = child.props as { className?: string; style?: React.CSSProperties };
-
-      return React.cloneElement(child as React.ReactElement<Record<string, unknown>>, {
-        className: [itemClassName, childProps.className].filter(Boolean).join(' '),
-        style: { ...slots, ...childProps.style }
-      });
-    });
+      },
+      { stagger, reverse }
+    );
 
     return useRender({
       render,

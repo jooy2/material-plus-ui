@@ -30,12 +30,22 @@
  * this library: the value a caller does not name is the *token*, so a theme can
  * still reach it.
  *
+ * ## One effect, or one effect per child
+ *
+ * `stagger` is the same six effects written onto the children instead of onto
+ * the box, and it is three props rather than an `MPAnimateStagger` component:
+ * a list settling in is not a different effect from a fade, it is the same fade
+ * told when to start. The per-child half is `staggerChildren`, which
+ * `MPAnimateAppear` was built out of first and now shares — two copies would be
+ * two answers to which child is the third one.
+ *
  * ## What is deliberately not here
  *
  * An animation that has to know what its children *are* — a marquee that
  * duplicates them, a headline that swaps between them, a typewriter that counts
  * characters — cannot be a class name and a few numbers. Those are components,
- * and their logic stays in their own files.
+ * and their logic stays in their own files. They are also the ones that cannot
+ * take a `stagger`, and for the same reason.
  */
 
 import * as React from 'react';
@@ -134,13 +144,34 @@ export function easingValue(easing: MPEasing): string {
 function durationValue(
   duration: number | undefined,
   effect: MPAnimation,
-  mode: MPAnimateMode = 'in'
+  mode: MPAnimateMode = 'in',
+  offset = 0
 ): string {
-  if (duration !== undefined) {
-    return `${duration}ms`;
+  const base =
+    duration !== undefined
+      ? `${duration}ms`
+      : `var(--mp-sys-motion-duration-${DURATION_TOKEN[effect][mode]})`;
+
+  if (offset === 0) {
+    return base;
   }
 
-  return `var(--mp-sys-motion-duration-${DURATION_TOKEN[effect][mode]})`;
+  /*
+   * `durationStep`, arrived at through a `calc()` when the base is a token.
+   *
+   * A number and a number could be added here, and are. A token cannot be —
+   * resolving it would mean reading a computed style off an element that does
+   * not exist yet — so the arithmetic goes into the stylesheet instead, which
+   * is the same division of labour the rest of this module makes.
+   *
+   * `max(0ms, …)` is the clamp a negative step needs. Far enough down a list a
+   * step of −40ms asks for a negative duration, which is invalid: the browser
+   * drops the declaration and the child runs at the `.mp-anim` default instead
+   * — one item in a set of eight, at a length nobody chose.
+   */
+  return duration !== undefined
+    ? `${Math.max(0, duration + offset)}ms`
+    : `max(0ms, calc(${base} + ${offset}ms))`;
 }
 
 /** A number is pixels; a string is already a CSS length. */
@@ -185,6 +216,8 @@ export interface AnimationSlotOptions {
   repeat: MPAnimateRepeat;
   alternate?: boolean;
   mode?: MPAnimateMode;
+  /** Milliseconds added to the duration, clamped at zero. See `durationValue`. */
+  durationOffset?: number;
   /** Where the animated properties start. Only the ones an effect reads. */
   opacity?: number;
   scale?: number;
@@ -205,7 +238,12 @@ export function animationSlots(options: AnimationSlotOptions): React.CSSProperti
   const mode = options.mode ?? 'in';
 
   const slots: Record<string, string> = {
-    '--_mp-anim-duration': durationValue(options.duration, options.effect, mode),
+    '--_mp-anim-duration': durationValue(
+      options.duration,
+      options.effect,
+      mode,
+      options.durationOffset
+    ),
     '--_mp-anim-delay': `${options.delay}ms`,
     '--_mp-anim-ease': easingValue(options.easing ?? EASING_TOKEN[options.effect]),
     '--_mp-anim-repeat': repeatValue(options.repeat),
@@ -260,6 +298,79 @@ export function slideOffsets(from: MPSide, distance: number | string): { x: stri
     default:
       return { x: length, y: '0px' };
   }
+}
+
+/* ---------------------------------------------------------------------------
+ * One effect, spread across the children
+ * ------------------------------------------------------------------------- */
+
+/** What differs between one child and the next. */
+export interface StaggerOptions {
+  /**
+   * Milliseconds added to each child's delay. The whole of the effect: at 0
+   * there is nothing per-child to do and the box animates instead.
+   */
+  stagger: number;
+  /** Milliseconds added to each child's duration. Negative is allowed. */
+  durationStep?: number;
+  /** Runs the set from the last child to the first. */
+  reverse?: boolean;
+}
+
+/**
+ * The same animation on every child, held back by its position.
+ *
+ * One implementation for all of it. `MPAnimateAppear` had this and the six
+ * single-keyframe effects did not, and writing it a second time would have left
+ * the library with two answers to "which child is the third one" — which is the
+ * kind of disagreement nobody finds until a list is reversed inside a fragment.
+ *
+ * ## The animation goes on the children, not on wrappers
+ *
+ * A row of `<li>`s stays a row of `<li>`s and a grid's cells stay its direct
+ * children, so nothing about the layout changes because the set is being
+ * animated. The cost is real and worth naming: a child has to accept
+ * `className` and `style`, which every host element and every component in this
+ * library does, and a caller's own component need not. Only a bare string has
+ * no element to write onto, and that one is wrapped in a `<span>`.
+ *
+ * ## The step is per child, which makes the grouping the caller's dial
+ *
+ * Eight children are eight steps and one child holding eight things is one
+ * step. That is also how to opt part of a set out of the sequence — group it.
+ *
+ * The caller's own `style` wins over the slots, deliberately: the slots are
+ * this library's answer and the attribute is the caller's.
+ */
+export function staggerChildren(
+  children: React.ReactNode,
+  className: string,
+  slots: AnimationSlotOptions,
+  { stagger, durationStep = 0, reverse = false }: StaggerOptions
+): React.ReactNode[] {
+  const items = React.Children.toArray(children);
+
+  return items.map((child, index) => {
+    // Only the *order* is reversed. Each child still runs forwards, which is
+    // what separates this from `mode="out"`.
+    const step = reverse ? items.length - 1 - index : index;
+    const style = animationSlots({
+      ...slots,
+      delay: slots.delay + step * stagger,
+      durationOffset: (slots.durationOffset ?? 0) + step * durationStep
+    });
+
+    if (!React.isValidElement(child)) {
+      return React.createElement('span', { key: index, className, style }, child);
+    }
+
+    const childProps = child.props as { className?: string; style?: React.CSSProperties };
+
+    return React.cloneElement(child as React.ReactElement<Record<string, unknown>>, {
+      className: [className, childProps.className].filter(Boolean).join(' '),
+      style: { ...style, ...childProps.style }
+    });
+  });
 }
 
 /* ---------------------------------------------------------------------------
@@ -473,7 +584,11 @@ export function useAnimationRun({
  * The six, assembled
  * ------------------------------------------------------------------------- */
 
-export interface AnimateElementParams extends AnimationSlotOptions, AnimationRunOptions {}
+export interface AnimateElementParams
+  extends AnimationSlotOptions, AnimationRunOptions, Partial<StaggerOptions> {
+  /** Only read when the effect is being spread across them. */
+  children?: React.ReactNode;
+}
 
 export interface AnimateElement {
   ref: React.RefCallback<HTMLElement>;
@@ -481,6 +596,8 @@ export interface AnimateElement {
   style: React.CSSProperties;
   /** The hover handlers and the two data attributes, ready to be spread. */
   props: React.HTMLAttributes<HTMLElement> & Record<string, unknown>;
+  /** The children, wrapped when there is a `stagger` and untouched otherwise. */
+  children: React.ReactNode;
 }
 
 /**
@@ -498,18 +615,58 @@ export interface AnimateElement {
  * changes.
  */
 export function useAnimateElement(params: AnimateElementParams): AnimateElement {
-  const { trigger, play, once, threshold, paused, infinite, ...slots } = params;
+  const {
+    trigger,
+    play,
+    once,
+    threshold,
+    paused,
+    infinite,
+    stagger = 0,
+    durationStep,
+    reverse,
+    children,
+    ...slots
+  } = params;
 
   const run = useAnimationRun({ trigger, play, once, threshold, paused, infinite });
+  const effectClass = `${ANIM_BASE} ${ANIMATION_CLASS[slots.effect]}`;
+
+  /*
+   * With a stagger the root takes **no animation class and no slots**, and that
+   * is the rule rather than an optimisation. Eight children fading in under a
+   * box that is also fading in is the same content faded twice: the set arrives
+   * at the box's opacity multiplied by its own, which is neither of the two
+   * curves anybody asked for and is visibly wrong at the ends.
+   *
+   * The play state stays, and it is the one slot that has to: custom properties
+   * inherit, so `--_mp-anim-state` on the root reaches every child and one
+   * `paused` holds the whole set. The rest are written per child, because a
+   * delay that was the same for all of them would not be a stagger.
+   */
+  if (stagger > 0) {
+    return {
+      ref: run.ref,
+      className: '',
+      style: { '--_mp-anim-state': run.state } as React.CSSProperties,
+      props: {
+        ...run.handlers,
+        'data-mp-animation': slots.effect,
+        'data-mp-state': run.state
+      },
+      children: staggerChildren(children, effectClass, slots, { stagger, durationStep, reverse })
+    };
+  }
 
   return {
     ref: run.ref,
-    className: `${ANIM_BASE} ${ANIMATION_CLASS[slots.effect]}`,
+    className: effectClass,
     style: { ...animationSlots(slots), '--_mp-anim-state': run.state } as React.CSSProperties,
     props: {
       ...run.handlers,
       'data-mp-animation': slots.effect,
       'data-mp-state': run.state
-    }
+    },
+    children
   };
 }

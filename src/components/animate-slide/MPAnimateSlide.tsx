@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { isInfinite, slideOffsets, useAnimateElement } from '../../internal/animate';
-import type { MPAnimateMode, MPAnimateProps, MPSide } from '../../types';
+import type { MPAnimateMode, MPAnimateProps, MPAnimateStaggerProps, MPSide } from '../../types';
 
-export interface MPAnimateSlideProps extends MPAnimateProps, React.ComponentPropsWithoutRef<'div'> {
+export interface MPAnimateSlideProps
+  extends MPAnimateProps, MPAnimateStaggerProps, React.ComponentPropsWithoutRef<'div'> {
   /**
    * Whether the content slides in or slides away. `out` leaves by the same edge
    * it would have come from, and is quicker — MD3's `short4` against `medium4`.
@@ -66,6 +67,9 @@ export const MPAnimateSlide = React.forwardRef<HTMLDivElement, MPAnimateSlidePro
       play,
       once = true,
       threshold = 0.2,
+      stagger = 0,
+      durationStep,
+      reverse,
       mode = 'in',
       from = 'bottom',
       distance = '100%',
@@ -96,7 +100,11 @@ export const MPAnimateSlide = React.forwardRef<HTMLDivElement, MPAnimateSlidePro
       once,
       threshold,
       paused,
-      infinite: isInfinite(repeat)
+      infinite: isInfinite(repeat),
+      stagger,
+      durationStep,
+      reverse,
+      children
     });
 
     return useRender({
@@ -107,7 +115,7 @@ export const MPAnimateSlide = React.forwardRef<HTMLDivElement, MPAnimateSlidePro
         className: [animate.className, className].filter(Boolean).join(' '),
         style: { ...animate.style, ...style },
         ...animate.props,
-        children
+        children: animate.children
       }
     });
   }

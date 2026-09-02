@@ -8,6 +8,16 @@ A second report from the application that filed the first one, a day after upgra
 
 - **`data-mp-overflow` on `.mp-tabs__list`**, saying which end of a scrolled tab bar has more bar past it — `left`, `right` or `both`, and absent when everything fits. It is what the new fade at the bar's ends is drawn from, and a page that wants a different treatment reads the same fact. Physical rather than logical: it names a side of the box, on the rule the indicator's `--active-tab-left` already follows.
 
+- **`stagger`, `durationStep` and `reverse` on the six single-keyframe effects** — `MPAnimateFade`, `MPAnimateGrow`, `MPAnimateZoom`, `MPAnimateSlide`, `MPAnimateRotate` and `MPAnimateBlink`. With a `stagger` the effect runs on each child rather than on the box, held back by its position, so what arrives is the set in the order it should be read.
+
+  Three props rather than an `MPAnimateStagger` component, deliberately: a list settling in is not a different effect from a fade, it is the same fade told when to start, and a wrapper would be a second spelling of something these six already did.
+
+  The box animates **nothing** while a `stagger` is set. Eight children fading in under a box that is also fading in is the same content faded twice, and what a reader sees is one opacity multiplied by the other. The play state is the one slot the box keeps, and it reaches the children by inheritance — `paused` still holds the whole set.
+
+  `MPAnimateAppear` was where the per-child code was written, and it is now where the other six get it from rather than a seventh copy. Its own behaviour is unchanged, including that a `stagger` of `0` there still means a set arriving together: it has no box animation to fall back to.
+
+  The three are not on `MPAnimateMarquee`, `MPAnimateHeadline`, `MPAnimateTyping` or `MPAnimateLighting`. The first three read what their children _are_ — duplicating them, swapping between them, counting their characters — and cannot hand an arbitrary child an animation; the fourth puts its movement on a pseudo-element a child has no equivalent of.
+
 - **`mp-radio__fill`** on the dot inside the ring, which had no name of its own.
 
 ### Changed
