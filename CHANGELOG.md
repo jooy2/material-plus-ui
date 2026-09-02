@@ -8,7 +8,15 @@ A second report from the application that filed the first one, a day after upgra
 
 - **`data-mp-overflow` on `.mp-tabs__list`**, saying which end of a scrolled tab bar has more bar past it — `left`, `right` or `both`, and absent when everything fits. It is what the new fade at the bar's ends is drawn from, and a page that wants a different treatment reads the same fact. Physical rather than logical: it names a side of the box, on the rule the indicator's `--active-tab-left` already follows.
 
-- **`timeline="view"` and `range` on the same six, and on `MPAnimateAppear`.** The animation is handed to the reader's scrolling instead of to a stopwatch: its progress is the element's progress through the scrollport, so scrolling back runs it backwards and stopping halfway leaves it halfway.
+- **`MPAnimateReveal`**, an entrance that uncovers content where it already is. The only one in the set where nothing moves and no colour changes: the element is at its final position and its final ink from the first frame, and what changes is how much of it has been disclosed.
+
+  That is what anything whose _position_ is part of its meaning needs — a page title, a rule under a heading, a chart's plot area, a table's first row. A title that slid up from below was, for a moment, in the wrong place; a plot area that grew from 80% was, for a moment, showing the wrong values. `MPAnimateFade` is the other effect that leaves position alone, and the two differ in what they spend: a fade spends the colour, a reveal spends the extent.
+
+  `clip-path: inset()` rather than a mask or an `overflow` wrapper. A mask needs a gradient per direction and a second one to undo itself; a wrapper puts an element into the layout that was not there before, which inside a grid or a flex row changes what the content is a child of — the very thing the effect exists to leave alone. `inset(0)` is already the spelling of "nothing is clipped", so the resting appearance is the element's own.
+
+  `fade` is **off** by default, which is the one setting worth arguing about: a wipe that is also translucent reads as neither of the two things. It takes `stagger` and `timeline` like the rest of the six.
+
+- **`timeline="view"` and `range` on the same seven, and on `MPAnimateAppear`.** The animation is handed to the reader's scrolling instead of to a stopwatch: its progress is the element's progress through the scrollport, so scrolling back runs it backwards and stopping halfway leaves it halfway.
 
   Two declarations of CSS, and every keyframe in the set gained the mode. There is no scroll-driven component and no second set of frames, because a fade tied to a scroll position is not a different effect from a fade — it is the same one on a different clock.
 
@@ -16,7 +24,7 @@ A second report from the application that filed the first one, a day after upgra
 
   A browser without `view()` falls back to the clock and plays the effect once, exactly as before. The pair is behind an `@supports` for a sharper reason than the browsers that have none of it: `animation-timeline` and `animation-range` are two properties, and taking the first without the second would give an animation a timeline and nothing to run it over.
 
-- **`stagger`, `durationStep` and `reverse` on the six single-keyframe effects** — `MPAnimateFade`, `MPAnimateGrow`, `MPAnimateZoom`, `MPAnimateSlide`, `MPAnimateRotate` and `MPAnimateBlink`. With a `stagger` the effect runs on each child rather than on the box, held back by its position, so what arrives is the set in the order it should be read.
+- **`stagger`, `durationStep` and `reverse` on the single-keyframe effects** — `MPAnimateFade`, `MPAnimateGrow`, `MPAnimateZoom`, `MPAnimateSlide`, `MPAnimateRotate`, `MPAnimateBlink` and the new `MPAnimateReveal`. With a `stagger` the effect runs on each child rather than on the box, held back by its position, so what arrives is the set in the order it should be read.
 
   Three props rather than an `MPAnimateStagger` component, deliberately: a list settling in is not a different effect from a fade, it is the same fade told when to start, and a wrapper would be a second spelling of something these six already did.
 
@@ -24,7 +32,7 @@ A second report from the application that filed the first one, a day after upgra
 
   `MPAnimateAppear` was where the per-child code was written, and it is now where the other six get it from rather than a seventh copy. Its own behaviour is unchanged, including that a `stagger` of `0` there still means a set arriving together: it has no box animation to fall back to.
 
-  The three are not on `MPAnimateMarquee`, `MPAnimateHeadline`, `MPAnimateTyping` or `MPAnimateLighting`. The first three read what their children _are_ — duplicating them, swapping between them, counting their characters — and cannot hand an arbitrary child an animation; the fourth puts its movement on a pseudo-element a child has no equivalent of.
+  They are not on `MPAnimateMarquee`, `MPAnimateHeadline`, `MPAnimateTyping` or `MPAnimateLighting`. The first three read what their children _are_ — duplicating them, swapping between them, counting their characters — and cannot hand an arbitrary child an animation; the fourth puts its movement on a pseudo-element a child has no equivalent of.
 
 - **`mp-radio__fill`** on the dot inside the ring, which had no name of its own.
 

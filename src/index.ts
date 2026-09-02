@@ -16,6 +16,7 @@ export * from './components/animate-grow';
 export * from './components/animate-headline';
 export * from './components/animate-lighting';
 export * from './components/animate-marquee';
+export * from './components/animate-reveal';
 export * from './components/animate-rotate';
 export * from './components/animate-slide';
 export * from './components/animate-typing';

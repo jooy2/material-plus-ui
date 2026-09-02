@@ -1,6 +1,6 @@
 ---
 title: MPAnimateHeadline
-order: 10
+order: 11
 ---
 
 # MPAnimateHeadline

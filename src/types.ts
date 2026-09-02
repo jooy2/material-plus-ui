@@ -297,18 +297,18 @@ export type MPEasing =
   | 'emphasized-accelerate';
 
 /**
- * The six effects the `MPAnimate*` components are built out of.
+ * The seven effects the `MPAnimate*` components are built out of.
  *
  * Named after what a reader sees rather than after the CSS property underneath:
  * `zoom` and `grow` are both a change of scale, and they are two words because
  * they are two *gestures* — one arrives from the middle of where it will end
  * up, the other unfolds from an edge of it.
  *
- * Everything past these six is a component rather than a value. A marquee that
+ * Everything past these seven is a component rather than a value. A marquee that
  * duplicates its children, a headline that swaps between them, a typewriter
  * that counts characters — none of those can be a class name and a few numbers.
  */
-export type MPAnimation = 'fade' | 'grow' | 'slide' | 'zoom' | 'rotate' | 'blink';
+export type MPAnimation = 'fade' | 'grow' | 'slide' | 'zoom' | 'rotate' | 'blink' | 'reveal';
 
 /**
  * What makes an animation run.

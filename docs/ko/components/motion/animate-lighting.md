@@ -1,6 +1,6 @@
 ---
 title: MPAnimateLighting
-order: 8
+order: 9
 ---
 
 # MPAnimateLighting

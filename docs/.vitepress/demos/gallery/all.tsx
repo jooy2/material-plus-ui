@@ -11,6 +11,7 @@ import {
   MPAnimateMarquee,
   MPAnimateGrow,
   MPAnimateHeadline,
+  MPAnimateReveal,
   MPAnimateRotate,
   MPAnimateSlide,
   MPAnimateTyping,
@@ -1996,6 +1997,23 @@ const GROUPS: Group[] = [
                 <MPTypography level="body">Slide</MPTypography>
               </MPBox>
             </MPAnimateSlide>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPAnimateReveal',
+        summary: {
+          ko: '이미 있는 자리에서 걷혀 드러나는 내용',
+          en: 'Content uncovered where it already is'
+        },
+        path: '/components/motion/animate-reveal',
+        preview: (
+          <Fit>
+            <MPAnimateReveal repeat="infinite" alternate duration={1600}>
+              <MPBox size="sm">
+                <MPTypography level="body">Reveal</MPTypography>
+              </MPBox>
+            </MPAnimateReveal>
           </Fit>
         )
       },

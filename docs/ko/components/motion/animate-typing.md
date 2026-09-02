@@ -1,6 +1,6 @@
 ---
 title: MPAnimateTyping
-order: 11
+order: 12
 ---
 
 # MPAnimateTyping

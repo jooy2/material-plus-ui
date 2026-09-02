@@ -7894,6 +7894,37 @@ const componentTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPAnimateReveal: [
+    animateMode,
+    {
+      name: 'from',
+      type: "'top' | 'right' | 'bottom' | 'left'",
+      default: "'left'",
+      description: {
+        ko: 'wipe가 열리는 가장자리 — 이동하는 방향이 아니라 장소입니다. `left`는 내용을 오른쪽으로 드러내며, 한 줄의 글에 맞는 답입니다',
+        en: 'Which edge the wipe opens at — a place rather than a direction of travel. `left` discloses the content rightwards, which is the right answer for a line of text'
+      }
+    },
+    {
+      name: 'fade',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '걷히면서 함께 나타납니다. 기본이 꺼짐인 것은 reveal이 페이드가 아니기 때문입니다 — 잉크는 첫 프레임부터 최종이고, 둘을 함께 하면 각각의 약한 버전이 됩니다',
+        en: 'Fades in as it is uncovered. Off by default because a reveal is not a fade — the ink is final from the first frame, and doing both gives a weaker version of each'
+      }
+    },
+    ...motion,
+    ...stagger,
+    ...timeline,
+    animateRender,
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '드러날 것', en: 'What is uncovered' }
+    }
+  ],
+
   MPAnimateRotate: [
     animateMode,
     {

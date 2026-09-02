@@ -80,7 +80,8 @@ export const ANIMATION_CLASS: Record<MPAnimation, string> = {
   slide: 'mp-anim-slide',
   zoom: 'mp-anim-scale',
   rotate: 'mp-anim-rotate',
-  blink: 'mp-anim-blink'
+  blink: 'mp-anim-blink',
+  reveal: 'mp-anim-reveal'
 };
 
 /**
@@ -106,7 +107,8 @@ const DURATION_TOKEN: Record<MPAnimation, Record<MPAnimateMode, string>> = {
   slide: { in: 'medium4', out: 'short4' },
   zoom: { in: 'medium4', out: 'short4' },
   rotate: { in: 'long2', out: 'medium2' },
-  blink: { in: 'extra-long4', out: 'extra-long4' }
+  blink: { in: 'extra-long4', out: 'extra-long4' },
+  reveal: { in: 'medium4', out: 'short4' }
 };
 
 /**
@@ -127,7 +129,8 @@ const EASING_TOKEN: Record<MPAnimation, MPEasing> = {
   slide: 'emphasized-decelerate',
   zoom: 'emphasized-decelerate',
   rotate: 'emphasized-decelerate',
-  blink: 'standard'
+  blink: 'standard',
+  reveal: 'emphasized-decelerate'
 };
 
 /**
@@ -242,6 +245,7 @@ export interface AnimationSlotOptions {
   y?: string;
   angle?: string;
   angleTo?: string;
+  clip?: string;
 }
 
 /**
@@ -302,6 +306,10 @@ export function animationSlots(options: AnimationSlotOptions): React.CSSProperti
     slots['--_mp-anim-angle-to'] = options.angleTo;
   }
 
+  if (options.clip !== undefined) {
+    slots['--_mp-anim-clip'] = options.clip;
+  }
+
   return slots as React.CSSProperties;
 }
 
@@ -325,6 +333,36 @@ export function slideOffsets(from: MPSide, distance: number | string): { x: stri
       return { x: negative, y: '0px' };
     default:
       return { x: length, y: '0px' };
+  }
+}
+
+/**
+ * The `inset()` a wipe starts from, given the edge it opens at.
+ *
+ * A reveal is one rectangle shrinking to nothing: `inset(0 100% 0 0)` is the
+ * whole element clipped away from the right, so the content is disclosed
+ * left-to-right as the inset returns to `inset(0)`. Naming the *edge it opens
+ * at* rather than the direction it travels is the same choice `MPAnimateSlide`
+ * makes, and for the same reason — a caller is pointing at a place.
+ *
+ * `inset(0)` is the to-state and needs no slot, which is the argument for a
+ * clip-path over a mask: "nothing is clipped" already has a spelling, where a
+ * gradient mask would need a second gradient per direction to say it.
+ *
+ * Physical, like `MPSide` everywhere else here. A title disclosed from the left
+ * of its box is disclosed from the left in every writing direction; what changes
+ * under RTL is which edge a caller names, and that is theirs to decide.
+ */
+export function revealClip(from: MPSide): string {
+  switch (from) {
+    case 'top':
+      return 'inset(0 0 100% 0)';
+    case 'bottom':
+      return 'inset(100% 0 0 0)';
+    case 'right':
+      return 'inset(0 0 0 100%)';
+    default:
+      return 'inset(0 100% 0 0)';
   }
 }
 

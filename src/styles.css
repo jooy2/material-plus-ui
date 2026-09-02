@@ -1879,6 +1879,42 @@
   animation-name: mp-anim-rotate;
 }
 
+/*
+ * Reveal: the content disclosed rather than brought in.
+ *
+ * The only entrance in the set where nothing moves and no colour changes. The
+ * element is where it will be from the first frame and at the ink it will end
+ * at; what changes is how much of it has been uncovered. That is what a title,
+ * a rule or a chart's plot area needs, because for those the *position* is part
+ * of what is being said and an entrance that travels says something else.
+ *
+ * `clip-path` rather than a mask, and rather than a wrapper with `overflow`.
+ * A mask needs a gradient per direction and a second one to undo itself; a
+ * wrapper puts an element into the layout that was not there before, which for
+ * something inside a grid or a flex row changes what it is a child of.
+ * `inset(0)` is already the spelling of "nothing is clipped", so the to-state
+ * needs no slot at all.
+ *
+ * The opacity slot defaults to 1 rather than to 0. A reveal is not a fade, and
+ * the two together read as a much weaker version of either; the components that
+ * want both lower it deliberately.
+ */
+@keyframes mp-anim-reveal {
+  from {
+    opacity: var(--_mp-anim-opacity, 1);
+    clip-path: var(--_mp-anim-clip, inset(0 100% 0 0));
+  }
+
+  to {
+    opacity: 1;
+    clip-path: inset(0);
+  }
+}
+
+.mp-anim-reveal {
+  animation-name: mp-anim-reveal;
+}
+
 /* Symmetric on purpose: a blink that ended anywhere but where it started would
    leave the element half drawn whenever the count ran out. */
 @keyframes mp-anim-blink {

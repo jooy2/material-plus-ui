@@ -5,6 +5,7 @@ import {
   MPAnimateBlink,
   MPAnimateFade,
   MPAnimateGrow,
+  MPAnimateReveal,
   MPAnimateRotate,
   MPAnimateSlide,
   MPAnimateZoom
@@ -13,12 +14,14 @@ import {
 /**
  * The props that are on every effect which is a single `@keyframes` on the
  * element itself, and on nothing else: `stagger` and its two, and `timeline`.
+ * Seven of them now, which is the other reason this file is worth having — a
+ * new effect that forgot one would be caught here rather than by a reader.
  *
  * `MPAnimateFade`'s own suite is where the behaviour is argued — which element
  * carries the animation, what the delays come out as, what a negative
  * `durationStep` clamps to, which slots a `view()` timeline fills. This file
  * asks a different question, and it is the one a per-component suite cannot:
- * **do all six agree?** Six components got the same props by the same edit, and
+ * **do they all agree?** They got the same props by the same edit, and
  * the failure that edit invites is one of them being missed — which every
  * individual suite would still pass.
  *
@@ -32,7 +35,8 @@ const EFFECTS = [
   ['MPAnimateZoom', MPAnimateZoom, 'mp-anim-scale'],
   ['MPAnimateSlide', MPAnimateSlide, 'mp-anim-slide'],
   ['MPAnimateRotate', MPAnimateRotate, 'mp-anim-rotate'],
-  ['MPAnimateBlink', MPAnimateBlink, 'mp-anim-blink']
+  ['MPAnimateBlink', MPAnimateBlink, 'mp-anim-blink'],
+  ['MPAnimateReveal', MPAnimateReveal, 'mp-anim-reveal']
 ] as const;
 
 describe('one effect across a set', () => {
