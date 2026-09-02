@@ -130,6 +130,18 @@ const SCRIM = '[background-color:color-mix(in_oklab,var(--_mp-color-surface)_55%
  * three matter: a spoiler that can be defeated by Ctrl-A is not a spoiler, and
  * `aria-hidden` alone would leave a keyboard reader tabbing into a link their
  * screen reader has been told is not there.
+ *
+ * ## The box holds still
+ *
+ * Two separate things were moving it, and both of them are the same mistake in
+ * different clothes: something that is drawn in one state and not in the other,
+ * without the state that lacks it paying for the space.
+ *
+ * A `reversible` sheet's way back out is **reserved** rather than mounted on
+ * reveal, so pressing the button does not push the rest of the page down by the
+ * height of the row that replaces it. And the cover is a **grid item** rather
+ * than an `absolute` box, so a cover taller than what it covers makes the sheet
+ * taller instead of being cut off by it.
  */
 export const MPSpoiler = React.forwardRef<HTMLDivElement, MPSpoilerProps>(function MPSpoiler(
   {
@@ -184,6 +196,16 @@ export const MPSpoiler = React.forwardRef<HTMLDivElement, MPSpoilerProps>(functi
         // whatever the page happens to have above it.
         'mp-spoiler rounded-mp-md relative isolate overflow-hidden',
         'box-border',
+        // A grid rather than a block, so the cover can be an item in it. See
+        // the note above the cover: an `absolute` one contributes no height,
+        // and a cover taller than what it covers had its own button cut off.
+        //
+        // The rows are declared rather than left implicit because `-1` — the
+        // end of the grid, which is what the cover spans to — is a line in the
+        // *explicit* grid, and in an implicit one it resolves back to the
+        // first line and the span collapses to a single row.
+        'grid grid-cols-1',
+        reversible ? 'grid-rows-[auto_auto]' : 'grid-rows-[auto]',
         CONTAINER_SURFACE[variant],
         'text-mp-on-surface',
         className ?? ''
@@ -195,7 +217,7 @@ export const MPSpoiler = React.forwardRef<HTMLDivElement, MPSpoilerProps>(functi
       <div
         id={contentId}
         className={[
-          'min-w-0',
+          'col-start-1 row-start-1 min-w-0',
           padded ? SHEET_PAD[size] : '',
           'transition-[filter] duration-(--mp-sys-motion-duration-short4) ease-mp-standard',
           'motion-reduce:transition-none',
@@ -217,10 +239,25 @@ export const MPSpoiler = React.forwardRef<HTMLDivElement, MPSpoilerProps>(functi
         {children}
       </div>
 
+      {/*
+       * The cover is a grid item spanning every row rather than an `absolute`
+       * box over them, and that is a sizing decision rather than a positioning
+       * one. An absolutely positioned element contributes nothing to its
+       * container's height, so a sheet covering one short line with two lines
+       * of notice and a button was **shorter than its own cover** — and the
+       * sheet clips, so the button a reader was being asked to press was cut
+       * off at the bottom edge. Measured at 50px of box holding 74.5px of
+       * cover.
+       *
+       * As an item it is laid out with everything else and the box grows to
+       * hold whichever is taller, which is the answer for any overlay that can
+       * outgrow what it overlays.
+       */}
       {open ? null : (
         <div
           className={[
-            'absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 text-center',
+            'col-span-full row-span-full z-10',
+            'flex flex-col items-center justify-center gap-2 text-center',
             SHEET_PAD[size],
             SCRIM
           ].join(' ')}
@@ -244,10 +281,25 @@ export const MPSpoiler = React.forwardRef<HTMLDivElement, MPSpoilerProps>(functi
         </div>
       )}
 
-      {open && reversible ? (
+      {/*
+       * Drawn from the start and merely `invisible` while the sheet is covered,
+       * rather than mounted when it opens.
+       *
+       * A control that appears on reveal is a control that was not being paid
+       * for before it appeared, and the sheet jumped by the height of this row
+       * — a full button and a track of padding — at the moment a reader pressed
+       * the one inside it. Closing it again jumped back. Reserving the space
+       * costs nothing to look at, because the cover is over it.
+       *
+       * `invisible` rather than `opacity-0`: it takes the row out of the
+       * accessibility tree as well, and `inert` beside it takes it out of the
+       * tab order — the same pair the covered content itself gets, for the same
+       * reason.
+       */}
+      {reversible ? (
         <div
           className={[
-            'flex justify-end',
+            'col-start-1 row-start-2 flex justify-end',
             SHEET_PAD_X[size],
             // The row takes the sheet's padding on both axes and then gives the
             // top back: padded content already ends with a full track, and two
@@ -255,8 +307,12 @@ export const MPSpoiler = React.forwardRef<HTMLDivElement, MPSpoilerProps>(functi
             // `pt-0` beating `py-*` is Tailwind's own longhand-after-shorthand
             // ordering rather than an accident of how these are concatenated.
             SHEET_PAD_Y[size],
-            'pt-0'
-          ].join(' ')}
+            'pt-0',
+            open ? '' : 'invisible'
+          ]
+            .filter(Boolean)
+            .join(' ')}
+          {...inertProps(!open)}
         >
           <MPButton
             variant="text"

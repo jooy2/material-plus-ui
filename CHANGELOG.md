@@ -20,6 +20,14 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Fixed
 
+- **`MPSpoiler` moved the page twice on the way to being read, and could cut off the button that reads it.** Two separate defects, and both are the same mistake in different clothes: something drawn in one state and not in the other, without the state that lacks it paying for the space.
+
+  A `reversible` sheet mounted its way back out when it opened, so pressing _Reveal_ grew the sheet by a button and a track of padding — 48px — under the reader's own pointer, and pressing _Hide_ shrank it again. The row is drawn from the start now and merely `invisible` and `inert` while the sheet is covered, which is the same pair the covered content itself gets. The cover is over it, so there is no hole to look at.
+
+  And the cover was `position: absolute`, which contributes nothing to a container's height. A sheet covering one short line with two lines of notice and a button was **shorter than its own cover** — 50px of box holding 74.5px of cover — and the sheet clips, so the button was cut off at the bottom edge. The cover is a grid item spanning every row now, and the sheet takes whichever of the two is taller.
+
+  The rule, for anything else in the library with an overlay in it: if the overlay can outgrow what it overlays it is an item and not an `absolute`, and a control that exists in only one state reserves its place in the other.
+
 - **`MPAvatarGroup` stacked back to front, which is the opposite of what its own page says.** "The first avatar is on top" has been a heading in the documentation since the component shipped, with the argument for it: a stack read from the start is read front to back, so the person the group is _about_ comes first rather than last. Nothing in the code said so. The overlap is a negative margin and nothing else, and later siblings paint over earlier ones — so the run was drawn last-on-top, and every face had its **leading** edge covered instead of its trailing one.
 
   Every avatar carries a `z-index` now, counting down from the front, with the count as the last card in the pile rather than a label floating on top of it. Explicit rather than left to the document for a second reason as well: the implicit order held only until anything in the stack — a link, a tooltip's trigger, a badge — acquired a `z-index` of its own.

@@ -129,6 +129,53 @@ describe('MPSpoiler', () => {
       expect(content.style.maxHeight).toBe('');
     });
 
+    it('holds its height across a reveal and a hide', async () => {
+      const screen = await render(
+        <MPSpoiler reversible>
+          <p style={{ margin: 0 }}>One short line.</p>
+        </MPSpoiler>
+      );
+      const sheet = screen.container.querySelector('.mp-spoiler') as HTMLElement;
+      const covered = sheet.getBoundingClientRect().height;
+
+      await screen.getByRole('button', { name: 'Reveal' }).click();
+
+      // The way back out is drawn from the start rather than mounted here, so
+      // the row does not arrive under the reader's pointer and shove the rest of
+      // the page down by a button and a track of padding.
+      expect(sheet.getBoundingClientRect().height).toBe(covered);
+
+      await screen.getByRole('button', { name: 'Hide' }).click();
+
+      expect(sheet.getBoundingClientRect().height).toBe(covered);
+    });
+
+    it('keeps the reserved row out of reach while the sheet is covered', async () => {
+      const screen = await render(<MPSpoiler reversible>Covered</MPSpoiler>);
+      const row = screen.container.querySelector('[inert]:has(button)') as HTMLElement;
+
+      expect(row).not.toBeNull();
+      expect(getComputedStyle(row).visibility).toBe('hidden');
+      expect(row.getBoundingClientRect().height).toBeGreaterThan(0);
+    });
+
+    it('grows to hold a cover that is taller than what it covers', async () => {
+      const screen = await render(
+        <MPSpoiler description="A notice long enough to take two lines in a narrow sheet, which is what makes the cover the taller of the two.">
+          <p style={{ margin: 0, fontSize: 12, lineHeight: '14px' }}>One line.</p>
+        </MPSpoiler>
+      );
+      const sheet = screen.container.querySelector('.mp-spoiler') as HTMLElement;
+      const cover = screen.getByRole('button', { name: 'Reveal' }).element() as HTMLElement;
+
+      // An `absolute` cover contributes no height, so the sheet used to be
+      // shorter than the cover and clipped the button a reader is being asked to
+      // press. The claim is about the button rather than about a number.
+      const box = sheet.getBoundingClientRect();
+
+      expect(cover.getBoundingClientRect().bottom).toBeLessThanOrEqual(box.bottom);
+    });
+
     it('offers no way back until it is reversible', async () => {
       const screen = await render(<MPSpoiler defaultRevealed>Revealed</MPSpoiler>);
 

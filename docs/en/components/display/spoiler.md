@@ -33,6 +33,16 @@ While it is covered, the content is not tabbable, not readable by a screen reade
 
 All three matter. A spoiler that can be defeated by Ctrl-A is not a spoiler, and `aria-hidden` alone would leave a keyboard reader tabbing into a link their screen reader has been told is not there. One attribute does all of it.
 
+## The box holds still
+
+Revealing a spoiler does not move the page. Two things used to move it, and both are the same mistake in different clothes: something drawn in one state and not in the other, without the state that lacks it paying for the space.
+
+A `reversible` sheet's way back out is **reserved from the start** and merely invisible while the sheet is covered — `invisible` and `inert`, so it is out of the accessibility tree and out of the tab order, exactly as the covered content is. The cover is over it, so there is no hole to look at. Without it the sheet grew by a button and a track of padding at the moment a reader pressed the button inside it, and shrank again on the way back.
+
+The cover is a **grid item spanning every row** rather than an `absolute` box over them, which is a sizing decision rather than a positioning one. An absolutely positioned element contributes nothing to its container's height, so a sheet covering one short line with two lines of notice and a button was shorter than its own cover — and the sheet clips, so the button a reader was being asked to press was cut off at the bottom edge.
+
+The general rule, for anything else with an overlay in it: **if the overlay can outgrow what it overlays, it is an item and not an `absolute`.** And a control that only exists in one state should reserve its place in the other.
+
 ## The words are translated
 
 The cover is the one place in this library where a component's own words are **drawn** rather than only announced, so they come from the [message table](../../design/localization) rather than from a prop with an English default:
@@ -61,6 +71,8 @@ Revealing releases the clamp and the content takes whatever height it needs — 
 ### reversible
 
 Once revealed, a hide button appears under the content. Off by default, because most spoilers are read once and stay read.
+
+The row is drawn from the start and reserved while the sheet is covered, so turning this on makes the covered sheet taller — and the reveal does not move it. See [The box holds still](#the-box-holds-still).
 
 ### padded
 
