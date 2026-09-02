@@ -1494,6 +1494,31 @@
 }
 
 /* ---------------------------------------------------------------------------
+ * Showing at some widths and not others
+ *
+ * The hiding itself is Tailwind's own `hidden` under the variants registered
+ * above — `mp-below-medium:hidden` and its mirror — so there is nothing to write
+ * here for it. `internal/visibility.ts` holds the ten class names, `MPShow` puts
+ * them on, and a consumer can spell the same ones on an element of their own.
+ *
+ * What does need a rule is the wrapper, and only so that there is not one. An
+ * `MPShow` has to be an element — a media query needs something to apply to —
+ * and an element in the middle of a flex row is a flex item that its children
+ * are not. `display: contents` is that element taking no part in the layout: the
+ * children become the items, exactly as if the wrapper were not written.
+ *
+ * `:where()` is the whole of why this is safe to do. The declaration lands at
+ * zero specificity, so a `className` of the caller's own that sets a display —
+ * `flex`, `block`, anything — beats it without a fight, while `hidden`, which is
+ * a real class, still beats both. A wrapper that insisted on `contents` would be
+ * a component that quietly refused to be a box.
+ * ------------------------------------------------------------------------- */
+
+:where(.mp-show) {
+  display: contents;
+}
+
+/* ---------------------------------------------------------------------------
  * Keyframes
  *
  * The one part of the library that cannot be written as a utility, and the only

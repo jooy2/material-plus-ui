@@ -88,6 +88,7 @@ export * from './components/rating';
 export * from './components/segmented-button';
 export * from './components/select';
 export * from './components/shortcut';
+export * from './components/show';
 export * from './components/sidebar';
 export * from './components/skeleton';
 export * from './components/slider';

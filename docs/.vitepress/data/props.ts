@@ -9255,6 +9255,49 @@ const componentTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPShow: [
+    {
+      name: 'from',
+      type: 'MPWindowClass',
+      description: {
+        ko: '이것이 보이는 가장 좁은 창. `from="medium"`은 600dp 이상 — 휴대폰에서는 없고 그 위에서는 있습니다',
+        en: 'The narrowest window this is shown in. `from="medium"` is 600dp up: absent on a phone, present everywhere else'
+      }
+    },
+    {
+      name: 'until',
+      type: 'MPWindowClass',
+      description: {
+        ko: '보이기를 그만두는 클래스(해당 클래스는 제외). `until="expanded"`는 840dp 미만 전부이고, `from="expanded"`와 짝을 이루면 모든 너비를 정확히 한 번씩 덮습니다',
+        en: 'The class this stops being shown at, exclusive. `until="expanded"` is every window under 840dp — paired with `from="expanded"` the two cover every width exactly once'
+      }
+    },
+    {
+      name: 'only',
+      type: 'MPWindowClass',
+      description: {
+        ko: '한 클래스에서만. `from`과 `until`을 한꺼번에 말하는 것이라 `only="medium"`은 600dp부터 839dp까지이고, 두 prop은 각자의 절반을 덮어씁니다',
+        en: 'One class and no other — `from` and `until` said together, so `only="medium"` is 600dp to 839dp. Either prop still overrides its own half'
+      }
+    },
+    {
+      name: 'render',
+      type: 'RenderProp',
+      description: {
+        ko: '`<div>` 아닌 것으로 렌더링합니다 — `render={<li />}`처럼, 맨 `<div>`가 앉을 수 없는 자리를 위해',
+        en: 'Renders something other than a `<div>`: `render={<li />}`, for the places a bare `<div>` would not be allowed to sit'
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '어떤 너비에서 보이고 어떤 너비에서 보이지 않을 것',
+        en: 'What is shown at some widths and not others'
+      }
+    }
+  ],
+
   MPSidebar: [
     {
       name: 'side',

@@ -424,11 +424,14 @@ export const MPTransfer = React.forwardRef<HTMLDivElement, MPTransferProps>(func
          * arrows turned a quarter so they still point at the list they move
          * things into.
          *
-         * MD3's own medium boundary, which is where `MPGrid` and the layout's
-         * sidebars change their minds too.
+         * MD3's own medium boundary, named rather than written as a width:
+         * `mp-medium` is the variant `src/styles.css` registers, which is where
+         * `MPGrid` and the layout's sidebars change their minds too. Spelled
+         * `min-[600px]:` it was a fourth copy of that number, and one that moved
+         * on its own if a consumer moved the others.
          */
         '[grid-template-columns:minmax(0,1fr)]',
-        'min-[600px]:[grid-template-columns:minmax(0,1fr)_auto_minmax(0,1fr)]',
+        'mp-medium:[grid-template-columns:minmax(0,1fr)_auto_minmax(0,1fr)]',
         className ?? ''
       ]
         .filter(Boolean)
@@ -446,7 +449,7 @@ export const MPTransfer = React.forwardRef<HTMLDivElement, MPTransferProps>(func
         onSearch={setSourceSearch}
       />
 
-      <div className="flex flex-row justify-center gap-2 min-[600px]:flex-col">
+      <div className="flex flex-row justify-center gap-2 mp-medium:flex-col">
         <MPIconButton
           size={size}
           color={color}
@@ -456,7 +459,7 @@ export const MPTransfer = React.forwardRef<HTMLDivElement, MPTransferProps>(func
           onClick={() => move(sourceRows, true)}
           // Turned a quarter while the lists are stacked, so the arrow points at
           // the list it sends rows to rather than at the edge of the screen.
-          icon={<MPIcon icon={ArrowRightIcon} className="rotate-90 min-[600px]:rotate-0" />}
+          icon={<MPIcon icon={ArrowRightIcon} className="rotate-90 mp-medium:rotate-0" />}
         />
         <MPIconButton
           size={size}
@@ -470,7 +473,7 @@ export const MPTransfer = React.forwardRef<HTMLDivElement, MPTransferProps>(func
           // the lists have already swapped sides and the arrows swap with them.
           // Stacked, the pair points up and down, which has no direction to get
           // wrong.
-          icon={<MPIcon icon={ArrowRightIcon} className="-rotate-90 min-[600px]:rotate-180" />}
+          icon={<MPIcon icon={ArrowRightIcon} className="-rotate-90 mp-medium:rotate-180" />}
         />
       </div>
 

@@ -246,7 +246,7 @@ describe('MPSidebarTrigger', () => {
     );
 
     expect(screen.container.querySelector('.mp-sidebar-trigger')!.className).toContain(
-      'min-[600px]:hidden'
+      'mp-medium:hidden'
     );
   });
 

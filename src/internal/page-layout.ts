@@ -15,6 +15,7 @@
  * stops being a column, whether a drawer is open, and how tall the bars are.
  */
 import * as React from 'react';
+import { HIDDEN_BELOW, HIDDEN_FROM } from './visibility';
 import { below } from './window-class';
 import type { MPSide, MPVariant, MPWindowClass } from '../types';
 
@@ -147,35 +148,42 @@ const COLLAPSE_QUERY: Record<MPPageCollapse, string | null> = {
 };
 
 /**
- * The same four widths as classes, for the part of this that is decided in CSS
+ * The same boundaries as classes, for the part of this that is decided in CSS
  * rather than in JavaScript.
  *
- * `COLLAPSED_ONLY` hides something from the breakpoint *up*, which is what a
+ * `COLLAPSED_ONLY` hides something from the class *up*, which is what a
  * sidebar's own trigger wants: the button exists exactly while the column does
  * not. `EXPANDED_ONLY` hides it below, which is what the column wants for the
  * one paint between the server's markup arriving and JavaScript finding out how
  * wide the window is — without it a phone draws a full-width sidebar and throws
  * it away a moment later.
  *
- * Written out per class because Tailwind finds classes by scanning source text:
- * an interpolated `max-[${width}px]:hidden` generates no rule at all.
+ * These were four arbitrary variants each — `min-[600px]:hidden` and its
+ * mirror — which is to say two more copies of the four widths, sitting a few
+ * lines under the copy that has just been removed. They are `internal/visibility.ts`
+ * now, and the same classes `MPShow` puts on: one vocabulary for "not at this
+ * width", so a sidebar and a bottom bar written against each other cannot part
+ * company at one of them.
+ *
+ * `none` is the only value that is not a window size class. A sidebar that never
+ * collapses has a trigger that is never shown and a column that always is.
  */
 export const COLLAPSED_ONLY: Record<MPPageCollapse, string> = {
   none: 'hidden',
-  compact: 'hidden',
-  medium: 'min-[600px]:hidden',
-  expanded: 'min-[840px]:hidden',
-  large: 'min-[1200px]:hidden',
-  'extra-large': 'min-[1600px]:hidden'
+  compact: HIDDEN_FROM.compact,
+  medium: HIDDEN_FROM.medium,
+  expanded: HIDDEN_FROM.expanded,
+  large: HIDDEN_FROM.large,
+  'extra-large': HIDDEN_FROM['extra-large']
 };
 
 export const EXPANDED_ONLY: Record<MPPageCollapse, string> = {
   none: '',
-  compact: '',
-  medium: 'max-[600px]:hidden',
-  expanded: 'max-[840px]:hidden',
-  large: 'max-[1200px]:hidden',
-  'extra-large': 'max-[1600px]:hidden'
+  compact: HIDDEN_BELOW.compact,
+  medium: HIDDEN_BELOW.medium,
+  expanded: HIDDEN_BELOW.expanded,
+  large: HIDDEN_BELOW.large,
+  'extra-large': HIDDEN_BELOW['extra-large']
 };
 
 /**
