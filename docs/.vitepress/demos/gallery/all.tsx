@@ -15,6 +15,7 @@ import {
   MPAnimateHeadline,
   MPAnimateReveal,
   MPAnimateRotate,
+  MPAnimateScramble,
   MPAnimateShake,
   MPAnimateSlide,
   MPAnimateSplit,
@@ -2197,6 +2198,25 @@ const GROUPS: Group[] = [
                 in React
               </MPTypography>
             </MPAnimateHeadline>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPAnimateScramble',
+        summary: {
+          ko: '노이즈에서 가라앉는 텍스트',
+          en: 'Text settling out of noise'
+        },
+        path: '/components/motion/animate-scramble',
+        preview: (
+          <Fit>
+            <MPAnimateScramble
+              repeat="infinite"
+              duration={2200}
+              style={{ fontSize: 15, fontWeight: 500 }}
+            >
+              SCRAMBLE
+            </MPAnimateScramble>
           </Fit>
         )
       },

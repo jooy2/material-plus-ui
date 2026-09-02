@@ -20,6 +20,7 @@ export * from './components/animate-lighting';
 export * from './components/animate-marquee';
 export * from './components/animate-reveal';
 export * from './components/animate-rotate';
+export * from './components/animate-scramble';
 export * from './components/animate-shake';
 export * from './components/animate-slide';
 export * from './components/animate-split';

@@ -8,6 +8,10 @@ A second report from the application that filed the first one, a day after upgra
 
 - **`data-mp-overflow` on `.mp-tabs__list`**, saying which end of a scrolled tab bar has more bar past it — `left`, `right` or `both`, and absent when everything fits. It is what the new fade at the bar's ends is drawn from, and a page that wants a different treatment reads the same fact. Physical rather than logical: it names a side of the box, on the rule the indicator's `--active-tab-left` already follows.
 
+- **`MPAnimateScramble`**, text settling out of noise. `MPAnimateTyping`'s sibling, and the difference is what the box does: a typed line **grows** a character at a time, so everything after it on the page moves while it runs — this one is its finished length from the first frame and only the characters inside it change. That is what lets it go in a heading with a rule under it, or in a table cell, where a typewriter cannot.
+
+  Its waiting state is the line fully scrambled rather than the answer, and the noise **holds still** while it waits. Motion that starts before the trigger is not the effect, it is a distraction beside it, and a page of paragraphs quietly flickering is a page nobody can read. The characters are drawn from the index and the frame rather than from a `Math.random()` in state, so a re-render cannot make them jump either.
+
 - **`MPAnimateCounter`**, a number counting up to its value — and it is still a CSS animation. Text is not an animatable property, so a count needs a frame loop; the obvious implementation gives that loop its own clock, its own easing and its own idea of what _paused_ means, which is three things that have to be kept in step with the six declared effects and will not be.
 
   So the animation is a real one over a **registered custom property** — `@property --mp-count`, interpolated by `@keyframes` — and the loop does nothing but read the value and format it. `duration`, `delay`, the easing token, `trigger`, `paused`, `prefers-reduced-motion` and `timeline="view"` are then the same machinery as everything else rather than a second implementation of each, and scrolling a `view()` counter backwards counts back down.

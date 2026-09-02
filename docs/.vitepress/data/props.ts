@@ -7963,6 +7963,75 @@ const componentTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPAnimateScramble: [
+    {
+      name: 'text',
+      type: 'string',
+      description: {
+        ko: '텍스트. 중첩하는 것보다 넘기는 편이 쉬울 때. `children`을 덮어씁니다',
+        en: 'The text, when it is easier to pass than to nest. Overrides `children`'
+      }
+    },
+    {
+      name: 'duration',
+      type: 'number',
+      default: '1200',
+      description: {
+        ko: '줄 전체가 가라앉는 데 걸리는 시간(ms)',
+        en: 'How long the whole line takes to settle, in milliseconds'
+      }
+    },
+    {
+      name: 'spread',
+      type: 'number',
+      default: '0.4',
+      description: {
+        ko: '전체 진행 중 첫 글자와 마지막 글자의 차이에 쓰이는 비율. `0`이면 한 번에 결정되고, `1`이면 첫 글자가 내내 가만히 있는 동안 마지막 글자는 여전히 노이즈입니다',
+        en: 'How much of the run is spent on the difference between the first character and the last. At `0` they settle together; at `1` the last is still noise when the first has been still throughout'
+      }
+    },
+    {
+      name: 'tick',
+      type: 'number',
+      default: '50',
+      description: {
+        ko: '결정되지 않은 글자가 교체되는 간격(ms). 30 아래에서는 노이즈가 글자가 아니라 깜빡임으로 읽힙니다',
+        en: 'How often an unsettled character is replaced, in milliseconds. Below about 30 the noise stops reading as characters and starts reading as flicker'
+      }
+    },
+    {
+      name: 'characters',
+      type: 'string',
+      description: {
+        ko: '노이즈를 뽑아 오는 알파벳. 기본값은 라틴 대문자와 숫자로, 눈에 띄게 단어가 아닙니다 — 소문자가 섞이면 오타 난 텍스트처럼 보입니다',
+        en: 'The alphabet the noise is drawn from. The default is Latin upper case and digits, which is visibly *not words* — lower case in it looks like text that has been misspelled'
+      }
+    },
+    {
+      name: 'locale',
+      type: 'string',
+      description: {
+        ko: '글자가 어디서 끝나는지 판단하기 위한 언어',
+        en: 'Which language the text is in, for deciding where a character ends'
+      }
+    },
+    animateDelay,
+    animateRepeat,
+    animatePaused,
+    animateTrigger,
+    animatePlay,
+    animateOnce,
+    animateThreshold,
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '가라앉을 텍스트. 텍스트만 가라앉습니다',
+        en: 'The text to settle. Only text is settled'
+      }
+    }
+  ],
+
   MPAnimateShake: [
     {
       name: 'distance',
