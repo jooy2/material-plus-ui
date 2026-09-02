@@ -8,6 +8,14 @@ A second report from the application that filed the first one, a day after upgra
 
 - **`data-mp-overflow` on `.mp-tabs__list`**, saying which end of a scrolled tab bar has more bar past it — `left`, `right` or `both`, and absent when everything fits. It is what the new fade at the bar's ends is drawn from, and a page that wants a different treatment reads the same fact. Physical rather than logical: it names a side of the box, on the rule the indicator's `--active-tab-left` already follows.
 
+- **`MPAnimateFloat`**, an endless slow drift, and **`MPAnimateShake`**, the answer to something that did not work. Neither is an arrival, and that is what they have in common: a drift has no destination and a refusal is a reply rather than a state.
+
+  So neither joins `MPAnimation`. That union is backed by three lookup tables, and an object literal is not tree-shaken key by key — every component reading one pays for the rows it will never use, and a fade has no business carrying a row for a refusal. `useAnimateElement` takes an `effectClass` now, so an effect can bring its own `@keyframes` and borrow everything else: the trigger, the rewind, the slots, the stagger.
+
+  `MPAnimateFloat` is decoration and says so: **never on a control**, because a pointer arriving where a button used to be is the exact failure the library's rule against transforming controls exists to prevent. One per page — a second halves the effect and a sixth cancels it.
+
+  `MPAnimateShake` is the library's **only** exception to that rule, and the argument is that the rule is about a control's resting states, where movement stands in for something colour says better. A shake is not a state; it is a reply to what the reader just did, and it is over in four hundred milliseconds. It defaults to `trigger="manual"` — the one default in the set that is not `mount` — takes no `repeat`, and its keyframe is home at both ends so an interrupted shake leaves nothing displaced.
+
 - **`MPAnimateReveal`**, an entrance that uncovers content where it already is. The only one in the set where nothing moves and no colour changes: the element is at its final position and its final ink from the first frame, and what changes is how much of it has been disclosed.
 
   That is what anything whose _position_ is part of its meaning needs — a page title, a rule under a heading, a chart's plot area, a table's first row. A title that slid up from below was, for a moment, in the wrong place; a plot area that grew from 80% was, for a moment, showing the wrong values. `MPAnimateFade` is the other effect that leaves position alone, and the two differ in what they spend: a fade spends the colour, a reveal spends the extent.

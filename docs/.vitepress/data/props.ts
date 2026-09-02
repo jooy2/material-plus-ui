@@ -7783,6 +7783,64 @@ const componentTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPAnimateFloat: [
+    {
+      name: 'distance',
+      type: 'number | string',
+      default: "'0.625rem'",
+      description: {
+        ko: '경로의 꼭대기에서 얼마나 떠오르는지 — 픽셀 수 또는 임의의 CSS 길이. 작은 것이 의도입니다. 이것은 *고정되어 있지 않다*를 말하고, 잴 수 있는 값은 대신 *움직인다*를 말합니다',
+        en: 'How far it rises at the top of the drift — a number in pixels, or any CSS length. Small on purpose: this says *not fixed down*, and anything a reader can measure says *moving* instead'
+      }
+    },
+    {
+      name: 'sway',
+      type: 'number | string',
+      default: "'0.375rem'",
+      description: {
+        ko: '좌우로 얼마나 헤매는지. `distance`보다 작아서 경로가 원이 아니라 표류로 읽힙니다',
+        en: 'How far it wanders to either side. Less than `distance`, so the path reads as a drift rather than as a circle'
+      }
+    },
+    {
+      name: 'tilt',
+      type: 'number',
+      default: '0',
+      description: {
+        ko: '양 끝에서 얼마나 기우는지, 단위는 도. 기울기는 떠 있는 것과 구르는 것의 차이이고, 글자가 얹힌 것에는 조금도 필요하지 않습니다',
+        en: 'How far it leans at the extremes, in degrees. A tilt is the difference between something floating and something *tumbling*, and anything with text on it wants none of it'
+      }
+    },
+    ...motion.map((row) =>
+      row.name === 'repeat'
+        ? {
+            ...row,
+            default: "'infinite'",
+            description: {
+              ko: "몇 번 도는지. 표류에는 도착이 없으므로 기본값이 `'infinite'`입니다",
+              en: "How many times it runs. `'infinite'`, because a drift has no arrival to stop at"
+            }
+          }
+        : row.name === 'duration'
+          ? {
+              ...row,
+              default: '6000',
+              description: {
+                ko: '한 주기의 길이(ms). Material 토큰이 아닙니다 — 모션 사다리는 도착하는 것들을 위한 것이고, 주기는 지속 시간이 아닙니다',
+                en: 'How long one cycle takes, in milliseconds. Not a Material token: the motion ladder is for things that arrive, and a period is not a duration'
+              }
+            }
+          : row
+    ),
+    ...stagger,
+    animateRender,
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '표류할 것. 컨트롤은 절대 안 됩니다', en: 'What drifts. Never a control' }
+    }
+  ],
+
   MPAnimateGrow: [
     animateMode,
     {
@@ -7851,6 +7909,45 @@ const componentTables: Record<string, PropRow[]> = {
       name: 'children',
       type: NODE,
       description: { ko: '도착할 것', en: 'What arrives' }
+    }
+  ],
+
+  MPAnimateShake: [
+    {
+      name: 'distance',
+      type: 'number | string',
+      default: "'0.5rem'",
+      description: {
+        ko: '첫 스윙의 가장 먼 지점까지 얼마나 이동하는지 — 픽셀 수 또는 임의의 CSS 길이',
+        en: 'How far it travels at the widest point of the first swing — a number in pixels, or any CSS length'
+      }
+    },
+    {
+      name: 'trigger',
+      type: "'mount' | 'visible' | 'hover' | 'manual'",
+      default: "'manual'",
+      description: {
+        ko: '무엇이 재생시키는지. 이 묶음에서 `mount`가 아닌 유일한 기본값입니다 — 페이지가 열릴 때 도는 흔들림은 장식이고, 사람들은 움직이는 장식을 무시하는 법을 배웁니다',
+        en: 'What starts it. The one default in this set that is not `mount`: a shake that runs when a page loads is decoration, and readers learn to ignore moving decoration'
+      }
+    },
+    {
+      name: 'play',
+      type: 'boolean',
+      description: {
+        ko: '흔듭니다. `false` → `true`마다 처음부터 되감기므로, 두 번째 오답도 첫 번째만큼 움직입니다',
+        en: 'Shakes it. Each `false` → `true` rewinds it, so the second wrong answer moves exactly as much as the first'
+      }
+    },
+    animateDuration,
+    animateDelay,
+    animateEasing,
+    animatePaused,
+    animateRender,
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '거절된 것', en: 'What was refused' }
     }
   ],
 

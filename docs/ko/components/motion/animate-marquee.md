@@ -1,6 +1,6 @@
 ---
 title: MPAnimateMarquee
-order: 10
+order: 12
 ---
 
 # MPAnimateMarquee

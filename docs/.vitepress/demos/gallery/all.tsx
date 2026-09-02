@@ -7,12 +7,14 @@ import {
   MPAnimateAppear,
   MPAnimateBlink,
   MPAnimateFade,
+  MPAnimateFloat,
   MPAnimateLighting,
   MPAnimateMarquee,
   MPAnimateGrow,
   MPAnimateHeadline,
   MPAnimateReveal,
   MPAnimateRotate,
+  MPAnimateShake,
   MPAnimateSlide,
   MPAnimateTyping,
   MPAnimateZoom,
@@ -2036,6 +2038,40 @@ const GROUPS: Group[] = [
             >
               <MPIcon icon={ICONS.spinner} size={28} />
             </MPAnimateRotate>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPAnimateFloat',
+        summary: {
+          ko: '페이지에 고정되어 있지 않은 것',
+          en: 'Something not fixed to the page'
+        },
+        path: '/components/motion/animate-float',
+        preview: (
+          <Fit>
+            <MPAnimateFloat duration={3200} tilt={3}>
+              <MPBox size="sm">
+                <MPTypography level="body">Float</MPTypography>
+              </MPBox>
+            </MPAnimateFloat>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPAnimateShake',
+        summary: {
+          ko: '되지 않은 일에 대한 응답',
+          en: 'The answer to something that did not work'
+        },
+        path: '/components/motion/animate-shake',
+        preview: (
+          <Fit>
+            <MPAnimateShake trigger="hover">
+              <MPBox size="sm">
+                <MPTypography level="body">Shake</MPTypography>
+              </MPBox>
+            </MPAnimateShake>
           </Fit>
         )
       },

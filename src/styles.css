@@ -1932,6 +1932,131 @@
   animation-name: mp-anim-blink;
 }
 
+/*
+ * Float: the two effects that are not arrivals, and keep their keyframes here
+ * rather than in the shared table.
+ *
+ * `MPAnimation` is what everything with an *entrance* shares, and a shared
+ * lookup table is a tax on everything that imports it — an object literal is
+ * not tree-shaken key by key, so a component reading one pays for the rows it
+ * will never use. Neither of the two below is an arrival: a drift has no
+ * destination and a refusal is an answer rather than a state, so they borrow
+ * the machinery and bring their own frames.
+ *
+ * A drift is four points around the origin rather than one axis, because one
+ * axis is a bob and a bob is a loading indicator. Every keyframe returns
+ * through nothing at 0% and 100%, so an interrupted float leaves the element
+ * where the page put it.
+ */
+@keyframes mp-anim-float {
+  0%,
+  100% {
+    translate: 0 0;
+    rotate: 0deg;
+  }
+
+  25% {
+    translate: var(--_mp-anim-x, 0.375rem) calc(-1 * var(--_mp-anim-y, 0.625rem));
+    rotate: var(--_mp-anim-angle, 0deg);
+  }
+
+  50% {
+    translate: 0 calc(-1.5 * var(--_mp-anim-y, 0.625rem));
+    rotate: 0deg;
+  }
+
+  75% {
+    translate: calc(-1 * var(--_mp-anim-x, 0.375rem)) calc(-1 * var(--_mp-anim-y, 0.625rem));
+    rotate: calc(-1 * var(--_mp-anim-angle, 0deg));
+  }
+}
+
+.mp-anim-float {
+  animation-name: mp-anim-float;
+}
+
+/*
+ * Shake: the answer to something that did not work.
+ *
+ * The library's rule is that a **control** never moves, and it holds — but that
+ * rule is about a control's resting states, where movement is a stand-in for
+ * something colour says better. This is not a state. It is a one-off answer to
+ * what the reader just did, it is over in four hundred milliseconds, and there
+ * is no colour that says *that was refused* as plainly.
+ *
+ * Two details it lives or dies by. **Nought and a hundred are home**, so an
+ * interrupted shake does not leave the element sitting to one side of where it
+ * belongs. And the **second half is smaller than the first** — 55% of the
+ * amplitude — because a shake that ends as hard as it started reads as a loop
+ * that was cut off rather than as an answer that finished.
+ */
+@keyframes mp-anim-shake {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+
+  20% {
+    translate: calc(-1 * var(--_mp-anim-x, 0.5rem)) 0;
+  }
+
+  40% {
+    translate: var(--_mp-anim-x, 0.5rem) 0;
+  }
+
+  60% {
+    translate: calc(-0.55 * var(--_mp-anim-x, 0.5rem)) 0;
+  }
+
+  80% {
+    translate: calc(0.55 * var(--_mp-anim-x, 0.5rem)) 0;
+  }
+}
+
+.mp-anim-shake {
+  animation-name: mp-anim-shake;
+}
+
+/*
+ * Counter: a number, animated by CSS and only *read* by JavaScript.
+ *
+ * A count up cannot be a keyframe on its own, because text is not an animatable
+ * property — every frame needs a fresh interpolation put through a formatter.
+ * The obvious answer is a `requestAnimationFrame` loop with its own clock, its
+ * own easing and its own idea of what "paused" means, which is three things
+ * that have to be kept in step with the six effects above and will not be.
+ *
+ * So the animation is a real CSS animation over a **registered custom
+ * property**, and the component's rAF loop does nothing but read the value and
+ * format it. The duration, the delay, the easing token, the play state, the
+ * trigger, `prefers-reduced-motion` and `timeline="view"` are then all the same
+ * machinery every other effect uses, rather than a second implementation of
+ * each — and the untriggered state is the first frame for free, because a
+ * paused animation with `fill-mode: both` is sitting on `from`.
+ *
+ * `@property` is what makes it interpolate at all: without a registered syntax
+ * a custom property is a string, and a string animates by swapping at 50%.
+ */
+@property --mp-count {
+  syntax: '<number>';
+  initial-value: 0;
+  inherits: false;
+}
+
+@keyframes mp-anim-count {
+  from {
+    --mp-count: var(--_mp-anim-from, 0);
+  }
+
+  to {
+    --mp-count: var(--_mp-anim-to, 0);
+  }
+}
+
+.mp-anim-count {
+  animation-name: mp-anim-count;
+}
+
 @media (prefers-reduced-motion: reduce) {
   /*
    * The Animate components go the other way from the indicators above, and the

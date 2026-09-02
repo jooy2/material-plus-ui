@@ -145,6 +145,22 @@ const EASING_TOKEN: Record<MPAnimation, MPEasing> = {
  */
 const VIEW_RANGE = 'entry 0% cover 45%';
 
+/**
+ * The name an effect goes by, which is wider than the shared union.
+ *
+ * `float` and `shake` are not entrances and are not in `MPAnimation` — see
+ * `effectClass` below for why a shared lookup table is a thing to keep small.
+ * They still need a *name*, because `data-mp-animation` is how a test and a
+ * page's own CSS find one, and because the tables above are read by name.
+ *
+ * Neither of them reads those tables: an effect that brings its own keyframe
+ * brings its own duration and curve with it, since a six-second drift and a
+ * four-hundred-millisecond refusal are not on any Material ladder. The
+ * fallbacks in the two lookups below exist so the types do not have to lie
+ * about that, not because anything relies on them.
+ */
+export type AnimationEffect = MPAnimation | 'float' | 'shake' | 'count';
+
 /** A curve, as the stylesheet spells it. */
 export function easingValue(easing: MPEasing): string {
   return `var(--mp-sys-motion-easing-${easing})`;
@@ -159,14 +175,13 @@ export function easingValue(easing: MPEasing): string {
  */
 function durationValue(
   duration: number | undefined,
-  effect: MPAnimation,
+  effect: AnimationEffect,
   mode: MPAnimateMode = 'in',
   offset = 0
 ): string {
+  const ladder = DURATION_TOKEN[effect as MPAnimation] ?? DURATION_TOKEN.fade;
   const base =
-    duration !== undefined
-      ? `${duration}ms`
-      : `var(--mp-sys-motion-duration-${DURATION_TOKEN[effect][mode]})`;
+    duration !== undefined ? `${duration}ms` : `var(--mp-sys-motion-duration-${ladder[mode]})`;
 
   if (offset === 0) {
     return base;
@@ -222,7 +237,7 @@ function directionValue(mode: MPAnimateMode, alternate: boolean | undefined): st
 
 export interface AnimationSlotOptions {
   /** Which effect's tokens to fall back to, and which keyframe to run. */
-  effect: MPAnimation;
+  effect: AnimationEffect;
   /** Milliseconds. Unset takes the effect's Material duration token. */
   duration?: number;
   /** Milliseconds. */
@@ -246,6 +261,9 @@ export interface AnimationSlotOptions {
   angle?: string;
   angleTo?: string;
   clip?: string;
+  /** The two ends of a counted value. Only `MPAnimateCounter` fills these. */
+  from?: number;
+  to?: number;
 }
 
 /**
@@ -266,7 +284,9 @@ export function animationSlots(options: AnimationSlotOptions): React.CSSProperti
       options.durationOffset
     ),
     '--_mp-anim-delay': `${options.delay}ms`,
-    '--_mp-anim-ease': easingValue(options.easing ?? EASING_TOKEN[options.effect]),
+    '--_mp-anim-ease': easingValue(
+      options.easing ?? EASING_TOKEN[options.effect as MPAnimation] ?? EASING_TOKEN.fade
+    ),
     '--_mp-anim-repeat': repeatValue(options.repeat),
     '--_mp-anim-direction': directionValue(mode, options.alternate)
   };
@@ -308,6 +328,14 @@ export function animationSlots(options: AnimationSlotOptions): React.CSSProperti
 
   if (options.clip !== undefined) {
     slots['--_mp-anim-clip'] = options.clip;
+  }
+
+  if (options.from !== undefined) {
+    slots['--_mp-anim-from'] = String(options.from);
+  }
+
+  if (options.to !== undefined) {
+    slots['--_mp-anim-to'] = String(options.to);
   }
 
   return slots as React.CSSProperties;
@@ -677,6 +705,28 @@ function playState(
 
 export interface AnimateElementParams
   extends AnimationSlotOptions, AnimationRunOptions, Partial<StaggerOptions> {
+  /**
+   * A keyframe class the effect brings itself, instead of the one its `effect`
+   * names.
+   *
+   * `MPAnimation` and the three tables behind it are what everything with an
+   * entrance shares, and a shared lookup table is a tax on everything that
+   * imports it: a `Record<Effect, string>` is not tree-shaken key by key, so
+   * every component reading one pays for the rows it will never use. The
+   * question to ask before adding a value is whether a component that will
+   * never use it has any business paying for it.
+   *
+   * `float` and `shake` do not: neither is an arrival. A drift with no
+   * destination and a four-hundred-millisecond answer to a rejection have
+   * nothing in common with a fade beyond the machinery below, so they keep
+   * their keyframes in their own files and borrow everything else — the
+   * trigger, the rewind, the slots, the stagger.
+   *
+   * `effect` is still named, because the durations and the curves are per
+   * effect and the data attribute is how a test finds one. What this replaces
+   * is only which `@keyframes` runs.
+   */
+  effectClass?: string;
   /** Only read when the effect is being spread across them. */
   children?: React.ReactNode;
 }
@@ -716,12 +766,13 @@ export function useAnimateElement(params: AnimateElementParams): AnimateElement 
     stagger = 0,
     durationStep,
     reverse,
+    effectClass: ownClass,
     children,
     ...slots
   } = params;
 
   const run = useAnimationRun({ trigger, play, once, threshold, paused, infinite });
-  const effectClass = `${ANIM_BASE} ${ANIMATION_CLASS[slots.effect]}`;
+  const effectClass = `${ANIM_BASE} ${ownClass ?? ANIMATION_CLASS[slots.effect as MPAnimation]}`;
   const state = playState(run.state, slots.timeline, paused);
 
   /*
