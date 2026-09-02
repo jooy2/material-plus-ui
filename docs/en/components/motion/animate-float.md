@@ -41,13 +41,13 @@ That is not tidiness. The shared union is backed by three lookup tables, and an 
 
 ### distance and sway
 
-`distance` is how far it rises at the top of the path and `sway` is how far it wanders to either side. Both are small by design: this says *not fixed down*, and anything a reader can measure says *moving* instead.
+`distance` is how far it rises at the top of the path and `sway` is how far it wanders to either side. Both are small by design: this says _not fixed down_, and anything a reader can measure says _moving_ instead.
 
 `sway` is less than `distance` so the path reads as a drift rather than as a circle — four points around the origin, because one axis is a bob and a bob is a loading indicator.
 
 ### tilt
 
-How far it leans at the extremes, in degrees. `0` by default: a tilt is the difference between something floating and something *tumbling*, and anything with text on it wants none of it. Two or three degrees is plenty for an illustration.
+How far it leans at the extremes, in degrees. `0` by default: a tilt is the difference between something floating and something _tumbling_, and anything with text on it wants none of it. Two or three degrees is plenty for an illustration.
 
 ### duration
 

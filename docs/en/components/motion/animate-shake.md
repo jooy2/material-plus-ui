@@ -25,7 +25,7 @@ import { MPAnimateShake } from 'material-plus-ui';
 
 The library's rule is that controls do not transform, and it holds without exception. But the rule is about a control's **resting states** — hover, press, on, off — where movement is a stand-in for something colour says better, and where it makes a target the pointer has to chase.
 
-A shake is not a state. It is not something the control *is*; it is something that just happened, an answer to what the reader did a moment ago, and it is over before anyone could try to point at it. A red border is the field's new condition. This is the reply.
+A shake is not a state. It is not something the control _is_; it is something that just happened, an answer to what the reader did a moment ago, and it is over before anyone could try to point at it. A red border is the field's new condition. This is the reply.
 
 That is the whole of the exception, and it is the only one in the library.
 

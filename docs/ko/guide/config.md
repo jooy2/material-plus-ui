@@ -29,7 +29,7 @@ import { MPConfigProvider } from 'material-plus-ui';
 호출 지점의 prop  →  그것을 감싼 그룹  →  MPConfigProvider  →  머터리얼 자신의 것
 ```
 
-버튼에 적힌 `size`는 모든 것을 이깁니다. 그것을 감싼 [`MPButtonGroup`](../components/inputs/button-group.md)이나 [`MPAvatarGroup`](../components/display/avatar-group.md)은 *그 컨트롤들*에 대한 진술이라 페이지에 대한 진술인 프로바이더를 이깁니다. 그리고 아무도 아무 말도 하지 않았을 때 남는 것이 머터리얼이 말하는 것 — `md`, `primary` — 입니다.
+버튼에 적힌 `size`는 모든 것을 이깁니다. 그것을 감싼 [`MPButtonGroup`](../components/inputs/button-group.md)은 *그 컨트롤들*에 대한 진술이라 페이지에 대한 진술인 프로바이더를 이깁니다. 그리고 아무도 아무 말도 하지 않았을 때 남는 것이 머터리얼이 말하는 것 — `md`, `primary` — 입니다.
 
 ```tsx
 <MPConfigProvider size="xl">

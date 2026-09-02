@@ -23,7 +23,6 @@ import {
   MPAnimateZoom,
   MPAspectRatio,
   MPAvatar,
-  MPAvatarGroup,
   MPBadge,
   MPBlockquote,
   MPBottomNavigation,
@@ -98,6 +97,7 @@ import {
   MPSlider,
   MPSnackbarProvider,
   MPSpoiler,
+  MPStack,
   MPSwitch,
   MPTab,
   MPTable,
@@ -1164,23 +1164,6 @@ const GROUPS: Group[] = [
         )
       },
       {
-        name: 'MPAvatarGroup',
-        summary: {
-          ko: '겹쳐 쌓인 얼굴들, 그리고 넘친 만큼의 숫자',
-          en: 'A stack of faces, with the rest as a count'
-        },
-        path: '/components/display/avatar-group',
-        preview: (
-          <Fit>
-            <MPAvatarGroup size="sm" max={3} total={9}>
-              <MPAvatar name="Ada Lovelace" />
-              <MPAvatar name="Alan Turing" />
-              <MPAvatar name="Grace Hopper" />
-            </MPAvatarGroup>
-          </Fit>
-        )
-      },
-      {
         name: 'MPBadge',
         summary: {
           ko: '다른 것의 모서리에 붙는 작은 표시',
@@ -1912,6 +1895,29 @@ const GROUPS: Group[] = [
         preview: (
           <Fit>
             <PanesPreview />
+          </Fit>
+        )
+      },
+      {
+        name: 'MPStack',
+        summary: {
+          ko: '서로 겹쳐 쌓인 것들',
+          en: 'Things laid over each other in a pile'
+        },
+        path: '/components/layout/stack',
+        preview: (
+          <Fit>
+            <MPStack
+              ring
+              size="sm"
+              max={3}
+              total={9}
+              overflow={(n) => <MPAvatar initials={`+${n}`} />}
+            >
+              <MPAvatar size="sm" name="Ada Lovelace" />
+              <MPAvatar size="sm" name="Alan Turing" />
+              <MPAvatar size="sm" name="Grace Hopper" />
+            </MPStack>
           </Fit>
         )
       }

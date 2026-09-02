@@ -2861,6 +2861,147 @@ const componentTables: Record<string, PropRow[]> = {
     id
   ],
 
+  MPStack: [
+    {
+      name: 'direction',
+      type: "'horizontal' | 'vertical' | 'diagonal'",
+      default: "'horizontal'",
+      description: {
+        ko: '더미가 자라는 방향. `diagonal`은 항목마다 세로 오프셋이 붙은 가로 흐름입니다 — 흐름은 자기가 흐르는 축에서만 겹칩니다',
+        en: 'Which way the pile grows. `diagonal` is a horizontal flow with a per-item vertical offset: a flow only overlaps items on the axis it flows along'
+      }
+    },
+    {
+      name: 'overlap',
+      type: 'number | string',
+      description: {
+        ko: '흐르는 축에서 각 항목이 앞의 것 아래로 들어가는 거리 — 픽셀 수 또는 임의의 CSS 길이. `translate`가 아니라 음수 마진이라서, 상자가 정확히 그려지는 것의 크기가 됩니다',
+        en: 'How far each item sits under the one before it along the axis the pile flows on — a number in pixels, or any CSS length. A negative margin rather than a `translate`, so the box is exactly the size of what is drawn'
+      }
+    },
+    {
+      name: 'drop',
+      type: 'number | string',
+      description: {
+        ko: '`diagonal`에서 흐름이 아닌 축의 낙차. 기본값은 `overlap`이고 얕은 부채꼴입니다. 진짜 45°는 항목의 폭이 있어야 하는데 라이브러리에는 없습니다',
+        en: "How far each item falls on `diagonal`, which is the axis the flow is not on. Defaults to `overlap`, which is a shallow fan: a true 45° needs the items' own width and a library does not have it"
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '기본 `overlap`을 고르고, 그것뿐입니다. 항목에는 전달되지 않습니다 — 스택은 자기 항목이 무엇인지 모릅니다',
+        en: 'Sets the default `overlap`, and nothing else. It is not passed to the items — a stack does not know what they are'
+      }
+    },
+    {
+      name: 'max',
+      type: 'number',
+      description: {
+        ko: '`overflow`가 되기 전까지 그려지는 개수',
+        en: 'How many items are drawn before the rest become an `overflow`'
+      }
+    },
+    {
+      name: 'total',
+      type: 'number',
+      description: {
+        ko: '앞의 몇 개만 넘겨받았을 때, 전부 해서 몇 개인지. 없으면 자식에서 세는데, 그것은 전부를 넘겼을 때만 맞습니다',
+        en: 'How many there are altogether, when the stack was handed only the first few. Without it the count is worked out from the children, which is right only when all of them were passed'
+      }
+    },
+    {
+      name: 'overflow',
+      type: '(hidden: number) => ReactNode',
+      description: {
+        ko: '들어가지 못한 개수로 만드는 더미의 마지막 항목. 노드가 아니라 **함수**입니다. 그 개수가 그 항목이 할 말의 전부이기 때문입니다',
+        en: 'The last item in the pile, built from the number that did not fit. A **function** rather than a node, because the count is the whole of what that item has to say'
+      }
+    },
+    {
+      name: 'front',
+      type: "'first' | 'last'",
+      default: "'first'",
+      description: {
+        ko: '더미의 어느 끝이 읽는 사람에게 가장 가까운지. `z-index`로 말합니다 — 문서는 뒤에 오는 형제를 위에 그리고, 암묵적인 순서는 더미 안의 무언가가 자기 `z-index`를 갖는 순간까지만 유지됩니다',
+        en: 'Which end of the pile is nearest the reader. Said with a `z-index`: the document paints later siblings on top, and an implicit order would hold only until something in the pile acquired one of its own'
+      }
+    },
+    {
+      name: 'scaleStep',
+      type: 'number',
+      default: '1',
+      description: {
+        ko: '앞의 항목 대비 곱해지는 배율. 그려지는 것을 바꾸고 측정되는 것은 바꾸지 않으므로, 더미의 간격은 그대로입니다',
+        en: 'What each item is scaled by relative to the one in front of it. It changes what is drawn and not what is measured, so the spacing of the pile is the same either way'
+      }
+    },
+    {
+      name: 'opacityStep',
+      type: 'number',
+      default: '1',
+      description: {
+        ko: '불투명도에 대한 같은 값. `0.85`는 덱을 뒤 페이지로 사라지게 합니다',
+        en: 'The same, for opacity. `0.85` fades a deck into the page behind it'
+      }
+    },
+    {
+      name: 'ring',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '각 항목 둘레에 페이지 자신의 `surface` 색 실선. 래퍼가 아니라 **항목**에 걸립니다 — 실선은 자기가 두르는 모양을 따라가야 하고, 원형 아바타를 두른 사각 테두리는 없느니만 못합니다',
+        en: "Draws a hairline of the page's own `surface` around each item. On the **item** rather than the wrapper, because a ring has to follow the shape it is tracing and a square ring around a circular avatar is worse than none"
+      }
+    },
+    {
+      name: 'transition',
+      type: "'fade' | 'grow' | 'slide' | 'zoom' | 'rotate' | 'blink' | 'reveal'",
+      description: {
+        ko: '각 항목의 등장. 항목들이 이 컴포넌트가 만든 래퍼 안에 있으므로 바깥에서는 닿을 수 없어서, 여기에 있습니다',
+        en: 'An entrance for each item. It is here rather than composed from outside because the items are inside wrappers this component builds, so nothing outside can reach them'
+      }
+    },
+    {
+      name: 'stagger',
+      type: 'number',
+      default: '60',
+      description: {
+        ko: '한 항목 뒤에 다음 항목이 시작하기까지의 밀리초',
+        en: 'How long after one item the next one starts, in milliseconds'
+      }
+    },
+    {
+      name: 'durationStep',
+      type: 'number',
+      default: '0',
+      description: {
+        ko: '항목마다 앞의 것보다 얼마나 더 오래 걸리는지, 밀리초',
+        en: 'How much longer each item takes than the one before it, in milliseconds'
+      }
+    },
+    {
+      name: 'reverse',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '더미를 뒤에서부터 나눠 줍니다', en: 'Deals the pile from the back' }
+    },
+    animateDuration,
+    animateDelay,
+    animateEasing,
+    animatePaused,
+    animateTrigger,
+    animatePlay,
+    animateOnce,
+    animateThreshold,
+    ...timeline,
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '더미에 들어가는 것들', en: 'The things in the pile' }
+    }
+  ],
+
   MPStepper: [
     {
       name: 'active',
@@ -10034,72 +10175,6 @@ const componentTables: Record<string, PropRow[]> = {
       description: {
         ko: '행들. [MPMenu](./menu) 안에서 쓰는 것과 정확히 같습니다',
         en: 'The rows, written exactly as they are inside an [MPMenu](./menu)'
-      }
-    }
-  ],
-
-  MPAvatarGroup: [
-    {
-      name: 'max',
-      type: 'number',
-      description: {
-        ko: '나머지가 숫자가 되기 전까지 몇 개를 그릴지. 지정하지 않으면 전부 그립니다',
-        en: 'How many avatars are drawn before the rest become a count. Left out, every one of them is drawn'
-      }
-    },
-    {
-      name: 'total',
-      type: 'number',
-      description: {
-        ko: '그룹이 앞의 몇 개만 건네받았을 때, 전부 해서 몇 개인지. 없으면 자식 수로 계산하는데 그건 전부를 넘겼을 때만 맞습니다 — 얼굴 마흔 개짜리 목록이 `<img>` 넷과 숫자 하나만 보내는 것이 이 prop이 있는 이유입니다',
-        en: 'How many there are altogether, when the group was handed only the first few. Without it the count is worked out from the children, which is right only when all of them were passed — and a list of forty faces that ships four `<img>`s and a number is exactly why this exists'
-      }
-    },
-    {
-      name: 'overlap',
-      type: 'number | string',
-      description: {
-        ko: '각 아바타가 앞의 것 아래로 얼마나 들어가는지 — 픽셀 수 또는 임의의 CSS 길이. 지정하지 않으면 `size`의 일정 비율이라, 어느 단에서도 겹침이 같아 보입니다',
-        en: 'How far each avatar sits under the one before it — a number in pixels, or any CSS length. Left out it is a fraction of `size`, which keeps the overlap looking the same at every rung'
-      }
-    },
-    {
-      ...size,
-      description: {
-        ko: '그룹의 모든 아바타에 전달됩니다. 네 번째 얼굴만 한 단 어긋난 스택은 스택이 아닙니다',
-        en: 'Passed to every avatar in the group. A stack whose fourth face is a rung out is not a stack'
-      }
-    },
-    {
-      name: 'shape',
-      type: "'circle' | 'square'",
-      default: "'circle'",
-      description: {
-        ko: '그룹의 모든 아바타에 전달됩니다',
-        en: 'Passed to every avatar in the group'
-      }
-    },
-    {
-      ...containerVariant,
-      default: "'tonal'",
-      description: {
-        ko: '그룹의 모든 아바타에 전달됩니다. 아바타는 *물들는* 대상이므로 그 컨테이너는 색조를 가져갑니다',
-        en: 'Passed to every avatar in the group. An avatar *is* the thing being coloured, so its container takes the tint'
-      }
-    },
-    {
-      ...color,
-      description: {
-        ko: '그룹의 모든 아바타에 전달됩니다',
-        en: 'Passed to every avatar in the group'
-      }
-    },
-    {
-      name: 'children',
-      type: NODE,
-      description: {
-        ko: '아바타들. 첫 번째가 맨 위에 놓입니다 — 시작부터 읽는 스택은 앞에서 뒤로 읽는 스택입니다',
-        en: 'The avatars. The first one is on top: a stack read from the start is read front to back'
       }
     }
   ]

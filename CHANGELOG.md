@@ -6,6 +6,14 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **`MPStack`**, things laid over each other in a pile. A stack of avatars, a deck of cards, a heap of documents, a run of overlapped thumbnails — one component, because "several of these, overlapping" is one idea and the things being overlapped are not the component's business. See **Removed** for the migration.
+
+  The overlap is a **negative margin** and not a `translate`, which is the detail nearly every implementation of a pile gets wrong and which is invisible until something is put next to one: with a `translate` each item still occupies its full width, so the box stays the size of all of them laid end to end and everything after the stack is positioned against a measurement that is wrong. Five 32px items at a 10px overlap come to 120×32 horizontally, 32×120 vertically and 120×72 on the diagonal — the box fits the content in all three, and those are the numbers the tests assert.
+
+  `diagonal` is a horizontal flow with a per-item vertical margin, because a flow only overlaps on the axis it flows along and a fixed `margin-block-start` in a row does not accumulate. It is **not 45°** and does not pretend to be: the horizontal advance is the item's own width less the overlap, and a library does not have the item's width, so the fall is a separate `drop` whose default is a shallow fan.
+
+  Each item is wrapped rather than cloned, so a face inside a router's link or a tooltip trigger comes through untouched. Wrapped **twice**: the outer span carries the offset, the `z-index` and the entrance, and the inner one carries the static `scale` and `opacity` — because the `grow` and `zoom` keyframes animate the individual `scale` property, and a resting depth on the same element would be overwritten by the keyframe.
+
 - **`data-mp-overflow` on `.mp-tabs__list`**, saying which end of a scrolled tab bar has more bar past it — `left`, `right` or `both`, and absent when everything fits. It is what the new fade at the bar's ends is drawn from, and a page that wants a different treatment reads the same fact. Physical rather than logical: it names a side of the box, on the rule the indicator's `--active-tab-left` already follows.
 
 - **`MPAnimateScramble`**, text settling out of noise. `MPAnimateTyping`'s sibling, and the difference is what the box does: a typed line **grows** a character at a time, so everything after it on the page moves while it runs — this one is its finished length from the first frame and only the characters inside it change. That is what lets it go in a heading with a rule under it, or in a table cell, where a typewriter cannot.
@@ -60,6 +68,16 @@ A second report from the application that filed the first one, a day after upgra
 
 - **`mp-radio__fill`** on the dot inside the ring, which had no name of its own.
 
+### Removed
+
+- **`MPAvatarGroup`.** It was a special case of overlapping that happened to be about faces, and the stacking, the count and the ring were never about avatars. `MPStack` is what it was; see [its page](https://material-plus.cdget.com/components/layout/stack) for the migration.
+
+  Three things change on the way across. The **count is now yours to draw** — `overflow` is a function of the number that did not fit, because that number is the whole of what the last item has to say and a generic stack cannot make an item that matches the others. **`ring` is off by default**, since a hairline in the page's `surface` is exactly wrong on a deck of cards that already has an edge. And the **shared appearance is gone**, which is the real cost: `MPAvatarGroup` set `size`, `shape`, `variant` and `color` once for the whole run and `MPStack` does not know what its children are. Set what they share on `MPConfigProvider`, which covers `size` and `color`, and put `shape` and `variant` on the avatars.
+
+  `internal/avatar-group.ts` goes with it, and `MPAvatar` no longer reads a group context at all. Its own defaults are unchanged.
+
+  One defect found on the way is worth recording, because `MPStack` inherits the answer rather than the bug. `MPAvatarGroup` had a heading on its page reading "The first avatar is on top", with the argument for it — a pile read from the start is read front to back — and **nothing in the code said so**. The overlap was a negative margin and nothing else, later siblings paint over earlier ones, and the run was therefore drawn last-on-top with every face's leading edge covered instead of its trailing one. `MPStack` writes a `z-index` for it, and for a second reason as well: an implicit order holds only until something in the pile acquires one of its own.
+
 ### Changed
 
 - **`internal/text.ts` is now the one answer to where a character ends.** `MPAnimateTyping` had a grapheme splitter of its own, and the effects joining it in this release — `MPAnimateSplit` and `MPAnimateScramble` — would each have needed one. Three copies would be three opinions about what a character _is_, and they would only disagree on the text nobody tests with.
@@ -97,12 +115,6 @@ A second report from the application that filed the first one, a day after upgra
   And the cover was `position: absolute`, which contributes nothing to a container's height. A sheet covering one short line with two lines of notice and a button was **shorter than its own cover** — 50px of box holding 74.5px of cover — and the sheet clips, so the button was cut off at the bottom edge. The cover is a grid item spanning every row now, and the sheet takes whichever of the two is taller.
 
   The rule, for anything else in the library with an overlay in it: if the overlay can outgrow what it overlays it is an item and not an `absolute`, and a control that exists in only one state reserves its place in the other.
-
-- **`MPAvatarGroup` stacked back to front, which is the opposite of what its own page says.** "The first avatar is on top" has been a heading in the documentation since the component shipped, with the argument for it: a stack read from the start is read front to back, so the person the group is _about_ comes first rather than last. Nothing in the code said so. The overlap is a negative margin and nothing else, and later siblings paint over earlier ones — so the run was drawn last-on-top, and every face had its **leading** edge covered instead of its trailing one.
-
-  Every avatar carries a `z-index` now, counting down from the front, with the count as the last card in the pile rather than a label floating on top of it. Explicit rather than left to the document for a second reason as well: the implicit order held only until anything in the stack — a link, a tooltip's trigger, a badge — acquired a `z-index` of its own.
-
-  The depth arrives through the same context `size` and `shape` already do, so nothing is written onto the children a caller passed. `MPAvatar` reads it and a caller's own `style.zIndex` still wins; a child that is not one keeps the order the document gives it.
 
 - **The build never emptied `dist/`, so a deleted module went on being published.** `tsc` only writes. It has no notion of an output file that should no longer exist, and `package.json` ships `dist/` whole — which means a component taken out of `src/` keeps resolving through `material-plus-ui/components/<name>` for every release after the one that removed it, from a file no source has produced since.
 

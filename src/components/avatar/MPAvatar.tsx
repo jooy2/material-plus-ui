@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Avatar as BaseUIAvatar } from '@base-ui/react/avatar';
 import { accentSlots } from '../../internal/accent';
-import { MPAvatarGroupContext } from '../../internal/avatar-group';
 import { CONTROL_SQUARE, hasContent } from '../../internal/scale';
 import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
 import { useMPColor, useMPSize } from '../../internal/config';
@@ -222,14 +221,10 @@ export const MPAvatar = React.forwardRef<HTMLSpanElement, MPAvatarProps>(functio
   },
   ref
 ) {
-  // A stack sets these once for the whole run. The avatar's own prop still
-  // wins — one face marked out from the rest is a real thing — and with no group
-  // around it the defaults are what they always were.
-  const group = React.useContext(MPAvatarGroupContext);
-  const shape = shapeProp ?? group?.shape ?? 'circle';
-  const variant = variantProp ?? group?.variant ?? 'tonal';
-  const size = useMPSize(sizeProp ?? group?.size);
-  const color = useMPColor(colorProp ?? group?.color);
+  const shape = shapeProp ?? 'circle';
+  const variant = variantProp ?? 'tonal';
+  const size = useMPSize(sizeProp);
+  const color = useMPColor(colorProp);
 
   const derived = name ? initialsOf(name) : '';
   const label = alt ?? name;
@@ -258,10 +253,7 @@ export const MPAvatar = React.forwardRef<HTMLSpanElement, MPAvatarProps>(functio
       data-mp-size={size}
       data-mp-variant={variant}
       className={classNames}
-      // `zIndex` before the caller's own style, so a group's painting order is a
-      // default rather than a decree. It is `undefined` outside a group, which
-      // is `z-index: auto` and leaves a lone avatar out of the cascade entirely.
-      style={{ ...accentSlots(color), zIndex: group?.depth, ...style }}
+      style={{ ...accentSlots(color), ...style }}
       {...props}
     >
       {src ? (

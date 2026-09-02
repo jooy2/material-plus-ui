@@ -29,7 +29,7 @@ Three places can answer, and the nearest one wins:
 the prop at the call site  →  a group around it  →  MPConfigProvider  →  Material's own
 ```
 
-A `size` written on a button beats everything. An [`MPButtonGroup`](../components/inputs/button-group.md) or [`MPAvatarGroup`](../components/display/avatar-group.md) around it is a statement about _those_ controls and beats the provider, which is a statement about the page. And what Material says — `md`, `primary` — is what is left when nobody says anything at all.
+A `size` written on a button beats everything. An [`MPButtonGroup`](../components/inputs/button-group.md) around it is a statement about _those_ controls and beats the provider, which is a statement about the page. And what Material says — `md`, `primary` — is what is left when nobody says anything at all.
 
 ```tsx
 <MPConfigProvider size="xl">
