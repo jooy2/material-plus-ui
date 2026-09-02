@@ -8,6 +8,10 @@ A second report from the application that filed the first one, a day after upgra
 
 - **`data-mp-overflow` on `.mp-tabs__list`**, saying which end of a scrolled tab bar has more bar past it — `left`, `right` or `both`, and absent when everything fits. It is what the new fade at the bar's ends is drawn from, and a page that wants a different treatment reads the same fact. Physical rather than logical: it names a side of the box, on the rule the indicator's `--active-tab-left` already follows.
 
+- **`MPAnimateSplit`**, a line arriving a word or a character at a time. `MPAnimateAppear` for a string: the same settling and the same stagger, over the pieces of a sentence rather than over children a caller wrote out.
+
+  What it adds beyond splitting is the part that is easy to get wrong and invisible when you do. The pieces are cut with `Intl.Segmenter`, so a Japanese or Thai sentence is cut into words rather than handed back whole, and `👩‍👩‍👧` is one character rather than seven. The whole line goes to a screen reader once out of a clipped box, because a line split into characters is otherwise announced as a **list of letters**. And each word is its own inline-block with the characters inside it — a piece has to be `inline-block` to move at all, which also makes it a break opportunity, so loose characters would let a line wrap mid-word.
+
 - **`MPAnimateFloat`**, an endless slow drift, and **`MPAnimateShake`**, the answer to something that did not work. Neither is an arrival, and that is what they have in common: a drift has no destination and a refusal is a reply rather than a state.
 
   So neither joins `MPAnimation`. That union is backed by three lookup tables, and an object literal is not tree-shaken key by key — every component reading one pays for the rows it will never use, and a fade has no business carrying a row for a refusal. `useAnimateElement` takes an `effectClass` now, so an effect can bring its own `@keyframes` and borrow everything else: the trigger, the rewind, the slots, the stagger.

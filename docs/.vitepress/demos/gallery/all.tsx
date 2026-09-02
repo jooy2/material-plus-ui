@@ -16,6 +16,7 @@ import {
   MPAnimateRotate,
   MPAnimateShake,
   MPAnimateSlide,
+  MPAnimateSplit,
   MPAnimateTyping,
   MPAnimateZoom,
   MPAspectRatio,
@@ -2174,6 +2175,27 @@ const GROUPS: Group[] = [
                 in React
               </MPTypography>
             </MPAnimateHeadline>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPAnimateSplit',
+        summary: {
+          ko: '단어나 글자 단위로 도착하는 한 줄',
+          en: 'A line arriving a word or a character at a time'
+        },
+        path: '/components/motion/animate-split',
+        preview: (
+          <Fit>
+            <MPAnimateSplit
+              stagger={90}
+              repeat="infinite"
+              alternate
+              duration={900}
+              style={{ fontSize: 15 }}
+            >
+              Split the line
+            </MPAnimateSplit>
           </Fit>
         )
       },

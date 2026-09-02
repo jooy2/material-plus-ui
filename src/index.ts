@@ -21,6 +21,7 @@ export * from './components/animate-reveal';
 export * from './components/animate-rotate';
 export * from './components/animate-shake';
 export * from './components/animate-slide';
+export * from './components/animate-split';
 export * from './components/animate-typing';
 export * from './components/animate-zoom';
 export * from './components/aspect-ratio';

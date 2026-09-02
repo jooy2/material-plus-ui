@@ -8363,6 +8363,98 @@ const componentTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPAnimateSplit: [
+    {
+      name: 'text',
+      type: 'string',
+      description: {
+        ko: '텍스트. 중첩하는 것보다 넘기는 편이 쉬울 때. `children`을 덮어씁니다',
+        en: 'The text, when it is easier to pass than to nest. Overrides `children`'
+      }
+    },
+    {
+      name: 'by',
+      type: "'word' | 'character'",
+      default: "'word'",
+      description: {
+        ko: '조각이 단어인지 글자인지. `character`는 조각이 대여섯 배로 늘어나므로 훨씬 작은 `stagger`를 원합니다',
+        en: 'Whether each piece is a word or a character. `character` is five or six times as many pieces, so it wants a much smaller `stagger`'
+      }
+    },
+    {
+      name: 'stagger',
+      type: 'number',
+      default: '40',
+      description: {
+        ko: '한 조각 뒤에 다음 조각이 시작하기까지의 밀리초. 이것이 효과의 전부입니다. 기본값은 단어에 맞는 값입니다',
+        en: 'How long after one piece the next one starts, in milliseconds. This is the whole effect, and the default is right for words'
+      }
+    },
+    {
+      name: 'durationStep',
+      type: 'number',
+      default: '0',
+      description: {
+        ko: '조각마다 앞의 것보다 얼마나 더 오래 걸리는지, 밀리초. 음수는 짧아지며 0에서 멈춥니다',
+        en: 'How much longer each piece takes than the one before it, in milliseconds. Negative shortens instead, clamped at zero'
+      }
+    },
+    {
+      name: 'reverse',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '줄을 마지막 조각부터 재생합니다. 순서만 뒤집히고 각 조각은 그대로 앞으로 갑니다',
+        en: 'Runs the line from the last piece to the first. Only the order is reversed — each piece still plays forwards'
+      }
+    },
+    {
+      name: 'from',
+      type: "'top' | 'right' | 'bottom' | 'left'",
+      default: "'bottom'",
+      description: {
+        ko: '각 조각이 어느 가장자리에서 들어오는지',
+        en: 'Which edge each piece drifts in from'
+      }
+    },
+    {
+      name: 'distance',
+      type: 'number | string',
+      default: "'0.5rem'",
+      description: {
+        ko: '각 조각이 이동하는 거리. 일부러 짧습니다 — 조각 마흔 개에 걸친 긴 이동은 도착하는 문단이 아니라 움직이는 문단입니다',
+        en: 'How far each piece travels. Short on purpose: a long travel over forty pieces is a paragraph that is *moving* rather than a paragraph arriving'
+      }
+    },
+    {
+      name: 'fade',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '각 조각이 자리를 잡으면서 함께 나타납니다',
+        en: 'Fades each piece in as it settles'
+      }
+    },
+    {
+      name: 'locale',
+      type: 'string',
+      description: {
+        ko: '단어가 어디서 끝나는지 판단하기 위한 언어. 답이 정말로 모호할 때만 설정할 값입니다 — `Intl.Segmenter`가 대개 문자 자체를 읽습니다',
+        en: 'Which language the text is in, for deciding where a word ends. Only worth setting where the answer is genuinely ambiguous; `Intl.Segmenter` reads the script itself for most of them'
+      }
+    },
+    ...motion,
+    ...timeline,
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '쪼갤 텍스트. 텍스트만 쪼개집니다',
+        en: 'The text to split. Only text is split'
+      }
+    }
+  ],
+
   MPAnimateTyping: [
     {
       name: 'text',
