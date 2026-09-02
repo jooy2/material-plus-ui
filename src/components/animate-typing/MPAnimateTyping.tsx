@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { isInfinite, useAnimationRun, usePrefersReducedMotion } from '../../internal/animate';
+import { graphemesOf, textOf } from '../../internal/text';
 import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
 import type { MPAnimateProps } from '../../types';
 
@@ -43,45 +44,6 @@ export interface MPAnimateTypingProps
   caretChar?: React.ReactNode;
   /** The text to type. Only text is typed — see below. */
   children?: React.ReactNode;
-}
-
-/**
- * Everything typeable in a node, flattened.
- *
- * Elements are deliberately not walked into. A typewriter reveals a string one
- * grapheme at a time, and there is no honest way to reveal half of a
- * `<strong>` — the effect is over text, so its input is text.
- */
-function textOf(node: React.ReactNode): string {
-  if (typeof node === 'string' || typeof node === 'number') {
-    return String(node);
-  }
-
-  if (Array.isArray(node)) {
-    return node.map(textOf).join('');
-  }
-
-  return '';
-}
-
-/**
- * The text split the way a reader would split it.
- *
- * Not `[...text]`, and not `text.split('')`. A code point is not a character:
- * `👩‍👩‍👧` is seven of them, `한` typed on a Korean keyboard can be three, and a
- * typewriter that advances by code points spends four frames assembling an
- * emoji out of parts that mean nothing on their own. `Intl.Segmenter` knows
- * where the boundaries actually are; the spread is the fallback for a runtime
- * that does not have it.
- */
-function graphemesOf(text: string, locale?: string): string[] {
-  if (typeof Intl !== 'undefined' && 'Segmenter' in Intl) {
-    const segmenter = new Intl.Segmenter(locale, { granularity: 'grapheme' });
-
-    return [...segmenter.segment(text)].map((segment) => segment.segment);
-  }
-
-  return [...text];
 }
 
 /**

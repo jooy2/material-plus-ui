@@ -38,6 +38,10 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Changed
 
+- **`internal/text.ts` is now the one answer to where a character ends.** `MPAnimateTyping` had a grapheme splitter of its own, and the effects joining it in this release — `MPAnimateSplit` and `MPAnimateScramble` — would each have needed one. Three copies would be three opinions about what a character _is_, and they would only disagree on the text nobody tests with.
+
+  It also answers where a **word** ends, which is the harder half: a word boundary is not a space anywhere east of Myanmar, so `split(' ')` hands back a Japanese or Thai sentence as a single fragment and any effect built on it silently does nothing — in exactly the languages where nobody testing it would notice.
+
 - **A tab bar that scrolls now says so.** It always scrolled — `overflow-x: auto`, MD3's scrollable tabs — and there was no way to know. Measured at 320px a six-tab bar reports a `scrollWidth` of 526 against a `clientWidth` of 320, and macOS draws an overlay scrollbar that does not exist until it is used: a bar with four tabs off the edge and a bar with none were the same picture. Windows drew a real one, which is a signal and also fifteen pixels of furniture under the tabs, on one platform out of two.
 
   The scrollbar is hidden on both now — the pair `MPCarousel`'s strip already took — and the bar fades at the end that has more bar past it, at both when a reader is in the middle, and at neither when everything fits. Fading an end already reached would be the same lie as saying nothing.
