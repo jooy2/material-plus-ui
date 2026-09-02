@@ -67,6 +67,26 @@ import { MPAnimateFade } from 'material-plus-ui';
 
 이 셋은 요소 자신에게 걸린 `@keyframes` 하나인 여섯 효과에만 있습니다. [MPAnimateMarquee](./animate-marquee)는 자식을 복제하고, [MPAnimateHeadline](./animate-headline)은 자식 사이를 교체하고, [MPAnimateTyping](./animate-typing)은 자식의 글자를 셉니다. 셋 다 임의의 자식에게 애니메이션을 건넬 수 없습니다. [MPAnimateLighting](./animate-lighting)은 움직임을 자식에게는 대응물이 없는 pseudo-element에 둡니다. [MPAnimateAppear](./animate-appear)는 `stagger`가 80ms로 이미 켜져 있는 이것이고, 같은 코드 위에서 돕니다.
 
+## 스크롤이 곧 시계입니다
+
+`timeline="view"`는 애니메이션을 스톱워치가 아니라 읽는 사람에게 넘깁니다. 진행도가 곧 요소가 스크롤포트를 지나는 진행도입니다. 되돌려 스크롤하면 거꾸로 돌고, 중간에 멈추면 중간에 머뭅니다.
+
+```tsx
+<MPAnimateFade timeline="view">
+  <MPCard title="닿는 순간 도착합니다" />
+</MPAnimateFade>
+```
+
+같은 keyframe입니다. 스크롤 전용 컴포넌트도, 두 번째 프레임 묶음도 없습니다. 스크롤 위치에 묶인 페이드는 페이드와 다른 효과가 아니기 때문이고, 그래서 CSS 두 줄로 이 여섯 전부가 이 모드를 얻습니다.
+
+**`view`에서는 세 prop이 의미를 잃습니다.** `duration`, `delay`, `repeat`은 스톱워치의 단위인데 스톱워치가 없습니다. `trigger`도 그렇습니다. 스크롤 위치가 곧 트리거이고, 그래서 애니메이션은 `running`으로 고정됩니다. 멈춰 있는 스크롤 연동 애니메이션은 아무것도 보여 주지 않고, `trigger="manual"`에 아무도 재생을 누르지 않은 상태가 정확히 그것입니다. 명시적인 `paused`는 그대로 지켜집니다. 넷 중 그것만이 호출하는 쪽이 멈추라고 말한 것이기 때문입니다.
+
+그 자리를 `range`가 대신합니다. 임의의 CSS `animation-range`를 받고, 기본값 `entry 0% cover 45%`는 요소의 앞 가장자리가 나타나는 순간부터 절반이 조금 안 되는 지점까지입니다. 그래서 독자가 실제로 보고 있을 위치에 도달했을 때는 이미 도착이 끝나 있습니다. 반대쪽 끝까지 가는 범위를 주면 화면 위의 모든 것이 영원히 애니메이션 도중에 머뭅니다. 스크롤 연동 페이지가 잘못되는 방식이 대개 그것입니다 — 화면 위의 무엇도 완성되지 않습니다.
+
+`stagger`가 있으면 타임라인은 **자식마다** 붙습니다. 부작용이 아니라 그것이 옳은 답입니다. 자식 하나하나가 자기만의 스크롤포트 여정을 갖게 되고, 예전에 delay가 하던 순서 매기기를 위치가 대신합니다.
+
+`view()`가 없는 브라우저는 시계로 되돌아가 효과를 한 번 재생합니다. 예전과 똑같습니다. 선언을 `@supports`로 감싼 이유가 그것이고, 특히 `animation-timeline`과 `animation-range`가 두 개의 속성이기 때문입니다. 앞의 것만 받아들이면 타임라인은 있고 그 위를 달릴 범위는 없는 애니메이션이 됩니다. 기능이 줄어드는 것은 괜찮지만, 빈 화면은 안 됩니다.
+
 ## 예제
 
 <Demo src="animate-fade/triggers" :minHeight="360">

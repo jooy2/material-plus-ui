@@ -8,10 +8,10 @@ import {
   staggerChildren,
   useAnimationRun
 } from '../../internal/animate';
-import type { MPAnimateProps, MPSide } from '../../types';
+import type { MPAnimateProps, MPAnimateTimelineProps, MPSide } from '../../types';
 
 export interface MPAnimateAppearProps
-  extends MPAnimateProps, React.ComponentPropsWithoutRef<'div'> {
+  extends MPAnimateProps, MPAnimateTimelineProps, React.ComponentPropsWithoutRef<'div'> {
   /**
    * How long after one child the next one starts, in milliseconds. This is the
    * whole effect — everything else is what a single child does.
@@ -82,6 +82,8 @@ export const MPAnimateAppear = React.forwardRef<HTMLDivElement, MPAnimateAppearP
       distance = '0.75rem',
       fade = true,
       reverse = false,
+      timeline,
+      range,
       render,
       className,
       style,
@@ -98,6 +100,15 @@ export const MPAnimateAppear = React.forwardRef<HTMLDivElement, MPAnimateAppearP
       paused,
       infinite: isInfinite(repeat)
     });
+
+    /*
+     * A scroll-driven set is held running, for the reason `useAnimateElement`
+     * gives: with a `view()` timeline the trigger machinery is about a clock the
+     * animation no longer has, and an untriggered element paused on its own
+     * first frame is not waiting, it is blank. An explicit `paused` still stops
+     * it.
+     */
+    const state = timeline === 'view' ? (paused ? 'paused' : 'running') : run.state;
 
     const { x, y } = slideOffsets(from, distance);
 
@@ -126,7 +137,9 @@ export const MPAnimateAppear = React.forwardRef<HTMLDivElement, MPAnimateAppearP
         alternate,
         x,
         y,
-        opacity: fade ? 0 : 1
+        opacity: fade ? 0 : 1,
+        timeline,
+        range
       },
       { stagger, reverse }
     );
@@ -139,10 +152,10 @@ export const MPAnimateAppear = React.forwardRef<HTMLDivElement, MPAnimateAppearP
         className,
         // Only the play state lives on the root. Every other slot is per child,
         // because the delay is what the whole effect is made of.
-        style: { '--_mp-anim-state': run.state, ...style } as React.CSSProperties,
+        style: { '--_mp-anim-state': state, ...style } as React.CSSProperties,
         ...run.handlers,
         'data-mp-animation': 'appear',
-        'data-mp-state': run.state,
+        'data-mp-state': state,
         children: animated
       }
     });

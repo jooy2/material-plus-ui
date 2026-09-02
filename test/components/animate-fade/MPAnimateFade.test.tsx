@@ -336,6 +336,93 @@ describe('MPAnimateFade', () => {
     });
   });
 
+  /*
+   * `timeline="view"` hands the animation to the reader's scrolling.
+   *
+   * The slots are what is asserted rather than a scrolled position: whether
+   * Chromium has run a frame of a `view()` timeline yet is a race, and what the
+   * component is responsible for is the two declarations and the play state.
+   * The stylesheet's `@supports` is what turns them into an animation.
+   */
+  describe('timeline', () => {
+    it('says nothing at all on the default, so a page is not full of `auto`', async () => {
+      const screen = await render(<MPAnimateFade data-testid="fade">Arriving</MPAnimateFade>);
+      const element = screen.getByTestId('fade').element() as HTMLElement;
+
+      expect(element.style.getPropertyValue('--_mp-anim-timeline')).toBe('');
+      expect(element.style.getPropertyValue('--_mp-anim-range')).toBe('');
+    });
+
+    it('hands the animation to the scrollport on `view`', async () => {
+      const screen = await render(
+        <MPAnimateFade timeline="view" data-testid="fade">
+          Arriving
+        </MPAnimateFade>
+      );
+      const element = screen.getByTestId('fade').element() as HTMLElement;
+
+      expect(element.style.getPropertyValue('--_mp-anim-timeline')).toBe('view()');
+      // From the leading edge appearing to a little under halfway across, so it
+      // has finished by the time it is somewhere a reader would be looking.
+      expect(element.style.getPropertyValue('--_mp-anim-range')).toBe('entry 0% cover 45%');
+    });
+
+    it('takes a range of its own', async () => {
+      const screen = await render(
+        <MPAnimateFade timeline="view" range="cover 20% cover 80%" data-testid="fade">
+          Arriving
+        </MPAnimateFade>
+      );
+      const element = screen.getByTestId('fade').element() as HTMLElement;
+
+      expect(element.style.getPropertyValue('--_mp-anim-range')).toBe('cover 20% cover 80%');
+    });
+
+    /*
+     * The trigger apparatus is about a clock this animation no longer has. A
+     * `manual` trigger with nothing pressing go leaves an element paused on its
+     * own first frame for ever — which for a scroll-driven animation is not
+     * waiting, it is blank.
+     */
+    it('is held running whatever the trigger says', async () => {
+      const screen = await render(
+        <MPAnimateFade timeline="view" trigger="manual" data-testid="fade">
+          Arriving
+        </MPAnimateFade>
+      );
+      const element = screen.getByTestId('fade').element() as HTMLElement;
+
+      expect(element).toHaveAttribute('data-mp-state', 'running');
+      expect(getComputedStyle(element).animationPlayState).toBe('running');
+    });
+
+    it('still stops for a caller who asked it to', async () => {
+      const screen = await render(
+        <MPAnimateFade timeline="view" paused data-testid="fade">
+          Held
+        </MPAnimateFade>
+      );
+      const element = screen.getByTestId('fade').element() as HTMLElement;
+
+      expect(getComputedStyle(element).animationPlayState).toBe('paused');
+    });
+
+    it('puts the timeline on each child of a staggered set', async () => {
+      const screen = await render(
+        <MPAnimateFade stagger={60} timeline="view" data-testid="fade">
+          <p data-testid="one">One</p>
+          <p data-testid="two">Two</p>
+        </MPAnimateFade>
+      );
+      const two = screen.getByTestId('two').element() as HTMLElement;
+
+      // Which is the right answer rather than a side effect: each child then has
+      // its own travel through the scrollport, and the position does the
+      // sequencing the delay used to.
+      expect(two.style.getPropertyValue('--_mp-anim-timeline')).toBe('view()');
+    });
+  });
+
   it('keeps the caller’s own class and style', async () => {
     const screen = await render(
       <MPAnimateFade className="custom" style={{ color: 'rgb(1, 2, 3)' }} data-testid="fade">

@@ -411,6 +411,58 @@ export interface MPAnimateProps {
  * no equivalent of. `MPAnimateAppear` is this with `stagger` already on and a
  * default of 80ms, and runs on the same code.
  */
+/**
+ * What drives an effect: a clock, or the reader's own scrolling.
+ *
+ * `auto` is `document.timeline` — the animation runs for its `duration` once
+ * something starts it, which is what every effect here has always done.
+ *
+ * `view` hands the animation to CSS's `view()` timeline, so its progress *is*
+ * the element's progress through the scrollport. Scrolling back runs it
+ * backwards, and stopping halfway leaves it halfway: it is the same keyframe,
+ * driven by a position instead of by time.
+ */
+export type MPAnimateTimeline = 'auto' | 'view';
+
+/**
+ * Scroll-driven playback, on the effects that are one `@keyframes` on the
+ * element itself.
+ *
+ * Two props rather than a component, for the reason the stagger ones are: this
+ * is not a different effect, it is the same effect on a different clock. Every
+ * one of the six gets it, and a component that has to know what its children
+ * *are* gets none of it.
+ */
+export interface MPAnimateTimelineProps {
+  /**
+   * What drives it.
+   *
+   * On `view`, three of the props above stop meaning anything: `duration`,
+   * `delay` and `repeat` are the clock's units and there is no clock. So is
+   * `trigger` — the scroll position *is* the trigger — and the animation is
+   * held `running` for it, because a paused scroll-driven animation shows
+   * nothing at all. An explicit `paused` is still honoured; it is the one of
+   * the four that is a caller saying stop rather than a default.
+   *
+   * A browser without `view()` falls back to the clock, and the effect plays
+   * once the way it always did. Degraded rather than blank, which is the whole
+   * reason the declaration is behind an `@supports`.
+   * @default 'auto'
+   */
+  timeline?: MPAnimateTimeline;
+  /**
+   * Which part of the element's travel through the scrollport the animation is
+   * spread over — any CSS `animation-range`. Only read on `timeline="view"`.
+   *
+   * The default runs from the moment the element's leading edge appears to a
+   * little under halfway across, so it has finished arriving by the time it is
+   * somewhere a reader would be looking at it. A range that ended at the far
+   * edge would leave everything on the page permanently mid-animation.
+   * @default 'entry 0% cover 45%'
+   */
+  range?: string;
+}
+
 export interface MPAnimateStaggerProps {
   /**
    * How long after one child the next one starts, in milliseconds.

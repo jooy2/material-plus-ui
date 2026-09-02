@@ -93,6 +93,26 @@ The step is per **child**, so what you pass is the dial. Eight children are eigh
 
 The three are on the six effects that are a single `@keyframes` on the element itself. [MPAnimateMarquee](./animate-marquee) duplicates its children, [MPAnimateHeadline](./animate-headline) swaps between them and [MPAnimateTyping](./animate-typing) counts their characters, so none of the three can hand an arbitrary child an animation; [MPAnimateLighting](./animate-lighting) puts its movement on a pseudo-element a child has no equivalent of. [MPAnimateAppear](./animate-appear) is this with `stagger` already on at 80ms, and runs on the same code.
 
+## Scrolling is a clock
+
+`timeline="view"` hands the animation to the reader instead of to a stopwatch. Its progress _is_ the element's progress through the scrollport: scroll back and it runs backwards, stop halfway and it stays halfway.
+
+```tsx
+<MPAnimateFade timeline="view">
+  <MPCard title="Arrives as you reach it" />
+</MPAnimateFade>
+```
+
+It is the same keyframe. There is no scroll-driven component and no second set of frames, because a fade tied to a scroll position is not a different effect from a fade — which is also why every one of these six gets it for two declarations of CSS.
+
+**Three props stop meaning anything on `view`.** `duration`, `delay` and `repeat` are the stopwatch's units and there is no stopwatch. So does `trigger`: the scroll position _is_ the trigger, and the animation is held `running` for it — a paused scroll-driven animation shows nothing at all, which is what `trigger="manual"` with nothing pressing go would otherwise leave on the page. An explicit `paused` is still honoured; it is the one of the four that is a caller saying stop.
+
+`range` is what replaces them. It takes any CSS `animation-range`, and the default — `entry 0% cover 45%` — runs from the moment the element's leading edge appears to a little under halfway across, so it has finished arriving by the time it is somewhere a reader would be looking. A range that ran to the far edge would leave everything on the page permanently mid-animation, which is how most scroll-driven pages go wrong: nothing on screen is ever finished.
+
+With a `stagger` the timeline goes on each **child**, which is the right answer rather than a side effect — each one then has its own travel through the scrollport, and the position does the sequencing the delay used to.
+
+A browser without `view()` falls back to the clock and plays the effect once, exactly as it always did. The declarations are behind an `@supports` for that reason, and specifically because `animation-timeline` and `animation-range` are two properties: taking the first without the second would give an animation a timeline and nothing to run it over. Degraded is fine; blank is not.
+
 ## Examples
 
 <Demo src="animate-fade/triggers" :minHeight="360">

@@ -8,6 +8,14 @@ A second report from the application that filed the first one, a day after upgra
 
 - **`data-mp-overflow` on `.mp-tabs__list`**, saying which end of a scrolled tab bar has more bar past it — `left`, `right` or `both`, and absent when everything fits. It is what the new fade at the bar's ends is drawn from, and a page that wants a different treatment reads the same fact. Physical rather than logical: it names a side of the box, on the rule the indicator's `--active-tab-left` already follows.
 
+- **`timeline="view"` and `range` on the same six, and on `MPAnimateAppear`.** The animation is handed to the reader's scrolling instead of to a stopwatch: its progress is the element's progress through the scrollport, so scrolling back runs it backwards and stopping halfway leaves it halfway.
+
+  Two declarations of CSS, and every keyframe in the set gained the mode. There is no scroll-driven component and no second set of frames, because a fade tied to a scroll position is not a different effect from a fade — it is the same one on a different clock.
+
+  Three of the props above stop meaning anything on `view`: `duration`, `delay` and `repeat` are the stopwatch's units. So does `trigger`, and the animation is **held running** for it — a paused scroll-driven animation shows nothing at all, which is what `trigger="manual"` with nothing pressing go would otherwise leave on the page. An explicit `paused` is still honoured. `range` is what replaces them, and its default of `entry 0% cover 45%` has the element finished arriving by the time it is somewhere a reader would be looking; a range running to the far edge is how most scroll-driven pages go wrong.
+
+  A browser without `view()` falls back to the clock and plays the effect once, exactly as before. The pair is behind an `@supports` for a sharper reason than the browsers that have none of it: `animation-timeline` and `animation-range` are two properties, and taking the first without the second would give an animation a timeline and nothing to run it over.
+
 - **`stagger`, `durationStep` and `reverse` on the six single-keyframe effects** — `MPAnimateFade`, `MPAnimateGrow`, `MPAnimateZoom`, `MPAnimateSlide`, `MPAnimateRotate` and `MPAnimateBlink`. With a `stagger` the effect runs on each child rather than on the box, held back by its position, so what arrives is the set in the order it should be read.
 
   Three props rather than an `MPAnimateStagger` component, deliberately: a list settling in is not a different effect from a fade, it is the same fade told when to start, and a wrapper would be a second spelling of something these six already did.

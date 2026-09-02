@@ -71,6 +71,16 @@ A CSS length, or a number in pixels. `'100%'` is out of frame; something short �
 
 The box itself animates nothing while a `stagger` is set — the same content played twice over is neither of the two curves anybody asked for. The three props are argued in full at [MPAnimateFade](./animate-fade#one-effect-across-a-set), and [MPAnimateAppear](./animate-appear) is this with `stagger` already on.
 
+## Scrolling is a clock
+
+`timeline="view"` hands the animation to the reader's scrolling instead of to a stopwatch: its progress is the element's progress through the scrollport, and `range` says which part of that travel it is spread over.
+
+```tsx
+<MPAnimateSlide timeline="view">…</MPAnimateSlide>
+```
+
+`duration`, `delay`, `repeat` and `trigger` stop meaning anything on `view`, and a browser without it falls back to the clock and plays once. Argued in full at [MPAnimateFade](./animate-fade#scrolling-is-a-clock).
+
 ## Accessibility
 
 - Under `prefers-reduced-motion` nothing travels and the content is simply there in its final position.

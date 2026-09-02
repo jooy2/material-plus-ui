@@ -73,6 +73,16 @@ CSS `transform-origin`이면 무엇이든 됩니다. `'top'`은 아래로 펼쳐
 
 `stagger`가 설정되면 상자 자신은 아무것도 재생하지 않습니다. 같은 내용을 두 번 재생하면 아무도 요청하지 않은 세 번째 곡선이 되기 때문입니다. 세 prop의 근거는 [MPAnimateFade](./animate-fade#하나의-효과를-집합-전체에)에 자세히 적혀 있고, [MPAnimateAppear](./animate-appear)는 `stagger`가 이미 켜져 있는 이것입니다.
 
+## 스크롤이 곧 시계입니다
+
+`timeline="view"`는 애니메이션을 스톱워치가 아니라 읽는 사람의 스크롤에 넘깁니다. 진행도가 곧 요소가 스크롤포트를 지나는 진행도이고, `range`가 그 여정 중 어느 구간에 펼칠지를 말합니다.
+
+```tsx
+<MPAnimateGrow timeline="view">…</MPAnimateGrow>
+```
+
+`view`에서는 `duration`, `delay`, `repeat`, `trigger`가 의미를 잃고, 이 기능이 없는 브라우저는 시계로 되돌아가 한 번 재생합니다. 근거는 [MPAnimateFade](./animate-fade#스크롤이-곧-시계입니다)에 자세히 적혀 있습니다.
+
 ## 접근성
 
 - `prefers-reduced-motion`에서는 아무것도 확대되지 않고 내용이 최종 크기 그대로 있습니다.

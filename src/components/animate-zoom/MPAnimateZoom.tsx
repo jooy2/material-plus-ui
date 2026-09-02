@@ -1,10 +1,19 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { isInfinite, useAnimateElement } from '../../internal/animate';
-import type { MPAnimateMode, MPAnimateProps, MPAnimateStaggerProps } from '../../types';
+import type {
+  MPAnimateMode,
+  MPAnimateProps,
+  MPAnimateStaggerProps,
+  MPAnimateTimelineProps
+} from '../../types';
 
 export interface MPAnimateZoomProps
-  extends MPAnimateProps, MPAnimateStaggerProps, React.ComponentPropsWithoutRef<'div'> {
+  extends
+    MPAnimateProps,
+    MPAnimateStaggerProps,
+    MPAnimateTimelineProps,
+    React.ComponentPropsWithoutRef<'div'> {
   /**
    * Whether the content comes forward or falls away. An exit is quicker than an
    * entrance — MD3's `short4` against `medium4` — unless `duration` says
@@ -61,6 +70,8 @@ export const MPAnimateZoom = React.forwardRef<HTMLDivElement, MPAnimateZoomProps
       stagger = 0,
       durationStep,
       reverse,
+      timeline,
+      range,
       mode = 'in',
       from = 0.4,
       fade = true,
@@ -91,6 +102,8 @@ export const MPAnimateZoom = React.forwardRef<HTMLDivElement, MPAnimateZoomProps
       stagger,
       durationStep,
       reverse,
+      timeline,
+      range,
       children
     });
 

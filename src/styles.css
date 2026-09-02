@@ -1788,6 +1788,31 @@
   animation-play-state: var(--_mp-anim-state, running);
 }
 
+/*
+ * And the same effects, driven by the reader instead of by a clock.
+ *
+ * Two declarations, and every keyframe below gains a scroll-driven mode. That
+ * is the whole of `timeline="view"`: there is no second set of keyframes and no
+ * component of its own, because a fade tied to a scroll position is not a
+ * different effect from a fade — it is the same one on a different clock.
+ *
+ * The slots are filled only when a caller asks for `view`. `auto` and `normal`
+ * are what this rule already says, so writing them out per instance would be a
+ * hundred and thirty components each carrying the answer nobody changed.
+ *
+ * `@supports` is not optional, and the reason is not the browsers that have
+ * none of this. It is that `animation-timeline` and `animation-range` are two
+ * properties: a browser that took the first and not the second would give an
+ * animation a timeline and no range to run over. Asking for `view()` itself is
+ * asking for the pair.
+ */
+@supports (animation-timeline: view()) {
+  .mp-anim {
+    animation-timeline: var(--_mp-anim-timeline, auto);
+    animation-range: var(--_mp-anim-range, normal);
+  }
+}
+
 @keyframes mp-anim-fade {
   from {
     opacity: var(--_mp-anim-opacity, 0);

@@ -1,10 +1,20 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { isInfinite, slideOffsets, useAnimateElement } from '../../internal/animate';
-import type { MPAnimateMode, MPAnimateProps, MPAnimateStaggerProps, MPSide } from '../../types';
+import type {
+  MPAnimateMode,
+  MPAnimateProps,
+  MPAnimateStaggerProps,
+  MPAnimateTimelineProps,
+  MPSide
+} from '../../types';
 
 export interface MPAnimateSlideProps
-  extends MPAnimateProps, MPAnimateStaggerProps, React.ComponentPropsWithoutRef<'div'> {
+  extends
+    MPAnimateProps,
+    MPAnimateStaggerProps,
+    MPAnimateTimelineProps,
+    React.ComponentPropsWithoutRef<'div'> {
   /**
    * Whether the content slides in or slides away. `out` leaves by the same edge
    * it would have come from, and is quicker — MD3's `short4` against `medium4`.
@@ -70,6 +80,8 @@ export const MPAnimateSlide = React.forwardRef<HTMLDivElement, MPAnimateSlidePro
       stagger = 0,
       durationStep,
       reverse,
+      timeline,
+      range,
       mode = 'in',
       from = 'bottom',
       distance = '100%',
@@ -104,6 +116,8 @@ export const MPAnimateSlide = React.forwardRef<HTMLDivElement, MPAnimateSlidePro
       stagger,
       durationStep,
       reverse,
+      timeline,
+      range,
       children
     });
 

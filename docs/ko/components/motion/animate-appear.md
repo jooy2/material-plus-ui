@@ -68,6 +68,16 @@ import { MPAnimateAppear } from 'material-plus-ui';
 
 이 컴포넌트를 쓸 때 보통 함께 집는 값입니다. 지연은 볼 사람이 있을 때만 의미가 있고, 페이지가 아직 화면 아래에 있는 동안 마운트에서 돌아 버린 목록은 빈 객석 앞에서 공연을 끝낸 것입니다.
 
+## 스크롤이 곧 시계입니다
+
+`timeline="view"`는 애니메이션을 스톱워치가 아니라 읽는 사람의 스크롤에 넘깁니다. 진행도가 곧 요소가 스크롤포트를 지나는 진행도이고, `range`가 그 여정 중 어느 구간에 펼칠지를 말합니다.
+
+```tsx
+<MPAnimateAppear timeline="view">…</MPAnimateAppear>
+```
+
+`view`에서는 `duration`, `delay`, `repeat`, `trigger`가 의미를 잃고, 이 기능이 없는 브라우저는 시계로 되돌아가 한 번 재생합니다. 근거는 [MPAnimateFade](./animate-fade#스크롤이-곧-시계입니다)에 자세히 적혀 있습니다.
+
 ## 접근성
 
 - `prefers-reduced-motion`에서는 아무것도 움직이지 않고 모든 자식이 그냥 거기 있습니다.

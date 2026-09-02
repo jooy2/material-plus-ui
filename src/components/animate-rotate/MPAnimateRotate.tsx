@@ -1,10 +1,19 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { isInfinite, useAnimateElement } from '../../internal/animate';
-import type { MPAnimateMode, MPAnimateProps, MPAnimateStaggerProps } from '../../types';
+import type {
+  MPAnimateMode,
+  MPAnimateProps,
+  MPAnimateStaggerProps,
+  MPAnimateTimelineProps
+} from '../../types';
 
 export interface MPAnimateRotateProps
-  extends MPAnimateProps, MPAnimateStaggerProps, React.ComponentPropsWithoutRef<'div'> {
+  extends
+    MPAnimateProps,
+    MPAnimateStaggerProps,
+    MPAnimateTimelineProps,
+    React.ComponentPropsWithoutRef<'div'> {
   /**
    * Whether the content turns into place or out of it.
    * @default 'in'
@@ -73,6 +82,8 @@ export const MPAnimateRotate = React.forwardRef<HTMLDivElement, MPAnimateRotateP
       stagger = 0,
       durationStep,
       reverse,
+      timeline,
+      range,
       mode = 'in',
       from = -180,
       to = 0,
@@ -106,6 +117,8 @@ export const MPAnimateRotate = React.forwardRef<HTMLDivElement, MPAnimateRotateP
       stagger,
       durationStep,
       reverse,
+      timeline,
+      range,
       children
     });
 

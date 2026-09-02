@@ -1,10 +1,19 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { isInfinite, useAnimateElement } from '../../internal/animate';
-import type { MPAnimateMode, MPAnimateProps, MPAnimateStaggerProps } from '../../types';
+import type {
+  MPAnimateMode,
+  MPAnimateProps,
+  MPAnimateStaggerProps,
+  MPAnimateTimelineProps
+} from '../../types';
 
 export interface MPAnimateFadeProps
-  extends MPAnimateProps, MPAnimateStaggerProps, React.ComponentPropsWithoutRef<'div'> {
+  extends
+    MPAnimateProps,
+    MPAnimateStaggerProps,
+    MPAnimateTimelineProps,
+    React.ComponentPropsWithoutRef<'div'> {
   /**
    * Whether the content arrives or leaves. An exit is quicker than an entrance
    * — MD3's `short4` against `medium2` — unless `duration` says otherwise.
@@ -55,6 +64,8 @@ export const MPAnimateFade = React.forwardRef<HTMLDivElement, MPAnimateFadeProps
       stagger = 0,
       durationStep,
       reverse,
+      timeline,
+      range,
       mode = 'in',
       from = 0,
       render,
@@ -83,6 +94,8 @@ export const MPAnimateFade = React.forwardRef<HTMLDivElement, MPAnimateFadeProps
       stagger,
       durationStep,
       reverse,
+      timeline,
+      range,
       children
     });
 

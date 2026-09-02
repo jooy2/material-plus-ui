@@ -68,6 +68,16 @@ Runs the list from the last child to the first — for something anchored to the
 
 `visible` is the one this component is usually reached for with: the stagger only says anything if a reader is watching when it runs, and a list that animated on mount while the page was still below the fold has performed to an empty room.
 
+## Scrolling is a clock
+
+`timeline="view"` hands the animation to the reader's scrolling instead of to a stopwatch: its progress is the element's progress through the scrollport, and `range` says which part of that travel it is spread over.
+
+```tsx
+<MPAnimateAppear timeline="view">…</MPAnimateAppear>
+```
+
+`duration`, `delay`, `repeat` and `trigger` stop meaning anything on `view`, and a browser without it falls back to the clock and plays once. Argued in full at [MPAnimateFade](./animate-fade#scrolling-is-a-clock).
+
 ## Accessibility
 
 - Under `prefers-reduced-motion` nothing drifts and every child is simply there.

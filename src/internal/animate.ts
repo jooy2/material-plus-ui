@@ -52,6 +52,7 @@ import * as React from 'react';
 import type {
   MPAnimateMode,
   MPAnimateRepeat,
+  MPAnimateTimeline,
   MPAnimateTrigger,
   MPAnimation,
   MPEasing,
@@ -128,6 +129,18 @@ const EASING_TOKEN: Record<MPAnimation, MPEasing> = {
   rotate: 'emphasized-decelerate',
   blink: 'standard'
 };
+
+/**
+ * How much of an element's travel through the scrollport a `view()` animation
+ * is spread over, when nobody said.
+ *
+ * From the moment its leading edge appears to a little under halfway across, so
+ * it has finished arriving by the time it is somewhere a reader would be
+ * looking at it. A range ending at the far edge would leave everything on the
+ * page permanently mid-animation, which is the failure mode of most
+ * scroll-driven effects: nothing on screen is ever finished.
+ */
+const VIEW_RANGE = 'entry 0% cover 45%';
 
 /** A curve, as the stylesheet spells it. */
 export function easingValue(easing: MPEasing): string {
@@ -218,6 +231,10 @@ export interface AnimationSlotOptions {
   mode?: MPAnimateMode;
   /** Milliseconds added to the duration, clamped at zero. See `durationValue`. */
   durationOffset?: number;
+  /** `view` hands the animation to the reader's scrolling instead of a clock. */
+  timeline?: MPAnimateTimeline;
+  /** Any CSS `animation-range`. Only read on `timeline: 'view'`. */
+  range?: string;
   /** Where the animated properties start. Only the ones an effect reads. */
   opacity?: number;
   scale?: number;
@@ -249,6 +266,17 @@ export function animationSlots(options: AnimationSlotOptions): React.CSSProperti
     '--_mp-anim-repeat': repeatValue(options.repeat),
     '--_mp-anim-direction': directionValue(mode, options.alternate)
   };
+
+  /*
+   * Only on `view`, and the omission is the point. `auto` is what the
+   * stylesheet's own fallback already says, and writing it out would be the
+   * same two declarations on every animated element on the page — a hundred and
+   * thirty components each carrying the answer nobody changed.
+   */
+  if (options.timeline === 'view') {
+    slots['--_mp-anim-timeline'] = 'view()';
+    slots['--_mp-anim-range'] = options.range ?? VIEW_RANGE;
+  }
 
   if (options.opacity !== undefined) {
     slots['--_mp-anim-opacity'] = String(options.opacity);
@@ -584,6 +612,31 @@ export function useAnimationRun({
  * The six, assembled
  * ------------------------------------------------------------------------- */
 
+/**
+ * Whether the animation is let go, once the timeline has had its say.
+ *
+ * A scroll-driven animation is *held* running, because the whole trigger
+ * apparatus above is about a clock it no longer has: `trigger="visible"` waits
+ * for an intersection the scroll position has already made the point of, and
+ * `trigger="manual"` with nothing pressing go leaves the element paused on its
+ * own first frame for ever — which for a `view()` animation is not "waiting", it
+ * is blank.
+ *
+ * An explicit `paused` is still honoured. It is the one of the four that is a
+ * caller saying stop rather than a default that happened to land here.
+ */
+function playState(
+  state: 'running' | 'paused',
+  timeline: MPAnimateTimeline | undefined,
+  paused: boolean | undefined
+): 'running' | 'paused' {
+  if (timeline !== 'view') {
+    return state;
+  }
+
+  return paused ? 'paused' : 'running';
+}
+
 export interface AnimateElementParams
   extends AnimationSlotOptions, AnimationRunOptions, Partial<StaggerOptions> {
   /** Only read when the effect is being spread across them. */
@@ -631,6 +684,7 @@ export function useAnimateElement(params: AnimateElementParams): AnimateElement 
 
   const run = useAnimationRun({ trigger, play, once, threshold, paused, infinite });
   const effectClass = `${ANIM_BASE} ${ANIMATION_CLASS[slots.effect]}`;
+  const state = playState(run.state, slots.timeline, paused);
 
   /*
    * With a stagger the root takes **no animation class and no slots**, and that
@@ -648,11 +702,11 @@ export function useAnimateElement(params: AnimateElementParams): AnimateElement 
     return {
       ref: run.ref,
       className: '',
-      style: { '--_mp-anim-state': run.state } as React.CSSProperties,
+      style: { '--_mp-anim-state': state } as React.CSSProperties,
       props: {
         ...run.handlers,
         'data-mp-animation': slots.effect,
-        'data-mp-state': run.state
+        'data-mp-state': state
       },
       children: staggerChildren(children, effectClass, slots, { stagger, durationStep, reverse })
     };
@@ -661,11 +715,11 @@ export function useAnimateElement(params: AnimateElementParams): AnimateElement 
   return {
     ref: run.ref,
     className: effectClass,
-    style: { ...animationSlots(slots), '--_mp-anim-state': run.state } as React.CSSProperties,
+    style: { ...animationSlots(slots), '--_mp-anim-state': state } as React.CSSProperties,
     props: {
       ...run.handlers,
       'data-mp-animation': slots.effect,
-      'data-mp-state': run.state
+      'data-mp-state': state
     },
     children
   };

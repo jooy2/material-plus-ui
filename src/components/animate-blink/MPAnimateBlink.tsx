@@ -1,10 +1,14 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { isInfinite, useAnimateElement } from '../../internal/animate';
-import type { MPAnimateProps, MPAnimateStaggerProps } from '../../types';
+import type { MPAnimateProps, MPAnimateStaggerProps, MPAnimateTimelineProps } from '../../types';
 
 export interface MPAnimateBlinkProps
-  extends MPAnimateProps, MPAnimateStaggerProps, React.ComponentPropsWithoutRef<'div'> {
+  extends
+    MPAnimateProps,
+    MPAnimateStaggerProps,
+    MPAnimateTimelineProps,
+    React.ComponentPropsWithoutRef<'div'> {
   /**
    * How faint it gets at the bottom of the cycle, between `0` and `1`. Raise it
    * for something that has to stay readable while it pulses.
@@ -58,6 +62,8 @@ export const MPAnimateBlink = React.forwardRef<HTMLDivElement, MPAnimateBlinkPro
       stagger = 0,
       durationStep,
       reverse,
+      timeline,
+      range,
       min = 0,
       render,
       className,
@@ -84,6 +90,8 @@ export const MPAnimateBlink = React.forwardRef<HTMLDivElement, MPAnimateBlinkPro
       stagger,
       durationStep,
       reverse,
+      timeline,
+      range,
       children
     });
 

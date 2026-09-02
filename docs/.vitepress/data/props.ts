@@ -328,6 +328,31 @@ const stagger: PropRow[] = [
   }
 ];
 
+/**
+ * Scroll-driven playback. The same reasoning the stagger rows carry: not a
+ * different effect, the same effect on a different clock.
+ */
+const timeline: PropRow[] = [
+  {
+    name: 'timeline',
+    type: "'auto' | 'view'",
+    default: "'auto'",
+    description: {
+      ko: '무엇이 재생을 이끄는지. `view`에서는 진행도가 곧 요소가 스크롤포트를 지나는 진행도입니다. `duration`·`delay`·`repeat`은 시계의 단위이므로 의미를 잃고, `trigger`도 마찬가지입니다 — 스크롤 위치가 곧 트리거이고, 애니메이션은 `running`으로 고정됩니다. `view()`가 없는 브라우저는 시계로 되돌아가 한 번 재생합니다',
+      en: "What drives it. On `view` the progress *is* the element's progress through the scrollport. `duration`, `delay` and `repeat` are the clock's units and stop meaning anything, and so does `trigger` — the scroll position is the trigger, and the animation is held `running` for it. A browser without `view()` falls back to the clock and plays once"
+    }
+  },
+  {
+    name: 'range',
+    type: 'string',
+    default: "'entry 0% cover 45%'",
+    description: {
+      ko: '스크롤포트를 지나는 여정 중 어느 구간에 애니메이션을 펼칠지 — 임의의 CSS `animation-range`. `timeline="view"`에서만 읽힙니다. 기본값은 앞 가장자리가 나타나는 순간부터 절반이 조금 안 되는 지점까지입니다',
+      en: 'Which part of the element\'s travel through the scrollport the animation is spread over — any CSS `animation-range`. Only read on `timeline="view"`. The default runs from the moment its leading edge appears to a little under halfway across'
+    }
+  }
+];
+
 const animateRender: PropRow = {
   name: 'render',
   type: 'RenderProp',
@@ -7749,6 +7774,7 @@ const componentTables: Record<string, PropRow[]> = {
     },
     ...motion,
     ...stagger,
+    ...timeline,
     animateRender,
     {
       name: 'children',
@@ -7788,6 +7814,7 @@ const componentTables: Record<string, PropRow[]> = {
     },
     ...motion,
     ...stagger,
+    ...timeline,
     animateRender,
     {
       name: 'children',
@@ -7818,6 +7845,7 @@ const componentTables: Record<string, PropRow[]> = {
     },
     ...motion,
     ...stagger,
+    ...timeline,
     animateRender,
     {
       name: 'children',
@@ -7857,6 +7885,7 @@ const componentTables: Record<string, PropRow[]> = {
     },
     ...motion,
     ...stagger,
+    ...timeline,
     animateRender,
     {
       name: 'children',
@@ -7905,6 +7934,7 @@ const componentTables: Record<string, PropRow[]> = {
     },
     ...motion,
     ...stagger,
+    ...timeline,
     animateRender,
     {
       name: 'children',
@@ -7944,6 +7974,7 @@ const componentTables: Record<string, PropRow[]> = {
           : row
     ),
     ...stagger,
+    ...timeline,
     animateRender,
     {
       name: 'children',
@@ -7999,6 +8030,7 @@ const componentTables: Record<string, PropRow[]> = {
       }
     },
     ...motion,
+    ...timeline,
     {
       ...animateRender,
       description: {
