@@ -20,6 +20,12 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Fixed
 
+- **The build never emptied `dist/`, so a deleted module went on being published.** `tsc` only writes. It has no notion of an output file that should no longer exist, and `package.json` ships `dist/` whole — which means a component taken out of `src/` keeps resolving through `material-plus-ui/components/<name>` for every release after the one that removed it, from a file no source has produced since.
+
+  Nothing in the working tree says so, either. The removal is in the diff, the barrel no longer names it, and the only place the truth is written down is a directory that is in `.gitignore`. Every measurement taken off the build inherits it: the `@__PURE__` count is a count of what is in `dist/`, and the bundle figures walk a module graph rooted there.
+
+  `npm run build` now empties the directory before anything writes into it. Its own step at the front rather than a flag on `tsc`, because half of what lands there is not `tsc`'s — the two stylesheets, the ninety-five split sheets, the `"use client"` banners — and what has to be emptied is the directory rather than one compiler's share of it.
+
 - **Eleven modules shipped without `"use client"`, and one of them took a whole site down.** A server component rendering `MPContainer` died with `Attempted to call useMPSize() from the server` — and a page layout that uses `MPContainer` makes that every page of an App Router application. `MPAspectRatio` and `MPAnimateLighting` were the same, and `MPBox`, `MPTypography` and the six `MPAnimate*` components were unmarked beside them, reaching `React.useRef` through Base UI's `useRender` instead.
 
   It arrived in 1.6.0 and the cause is worth writing down, because it is a judgement rather than a typo. The build marks a module by looking for markup, on the rule that **a module that renders is a client module** — and a component drawn with `useRender` writes no element down at all, so the regular expression never saw one. Those eleven had nothing to fail on until `useMPSize()` and `useMPColor()` gave them a context to read, and then all of them did at once.

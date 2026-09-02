@@ -18,7 +18,7 @@
     "url": "https://github.com/jooy2/material-plus/issues"
   },
   "scripts": {
-    "build": "npm run format:fix && tsc --project tsconfig.prod.json && node scripts/specify-imports.mjs && node scripts/annotate-pure.mjs && npm run minify && node scripts/mark-client.mjs && node scripts/build-styles.mjs && node scripts/build-split-styles.mjs && node scripts/measure-bundle.mjs",
+    "build": "npm run format:fix && node scripts/clean-dist.mjs && tsc --project tsconfig.prod.json && node scripts/specify-imports.mjs && node scripts/annotate-pure.mjs && npm run minify && node scripts/mark-client.mjs && node scripts/build-styles.mjs && node scripts/build-split-styles.mjs && node scripts/measure-bundle.mjs",
     "lint": "eslint . --ext .js,.ts .",
     "lint:fix": "eslint . --ext .js,.ts --fix .",
     "minify": "terser-glob 'dist/**/*.js' --config-file terser.config.json",
