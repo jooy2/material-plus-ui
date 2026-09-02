@@ -3,12 +3,26 @@
  *
  * `MPWindowClass` in `src/types.ts` says what the five are and why they are the
  * specification's ladder rather than Tailwind's. This is where the boundaries
- * themselves live, once — `MPGrid` was already carrying the list of names and
- * `page-layout.ts` a partial set of the queries, and a third copy is how the
- * grid and the hook end up disagreeing about where `medium` starts.
+ * live for everything written in JavaScript — the hook, the sidebar's collapse,
+ * the classes a visibility rule is chosen from — and they are asked for rather
+ * than written out, because a second spelling of a boundary is a second place it
+ * can be wrong.
  *
  * The numbers are MD3's own: 600, 840, 1200 and 1600dp, with `compact` running
  * from zero up to the first of them.
+ *
+ * ## The other half
+ *
+ * The stylesheet cannot read these. A media query resolves before any of this
+ * runs and cannot name a custom property, so the same four widths are declared a
+ * second time in `src/styles.css` — as `--breakpoint-mp-*` in its `@theme`,
+ * which is what every `@variant` in that file is written against.
+ *
+ * That is one duplication the library cannot remove, so it is checked instead:
+ * `test/styles/breakpoints.test.tsx` reads both ladders and fails if they ever
+ * stop agreeing. A page whose stylesheet reflows at 600 and whose hook says
+ * `compact` until 640 is wrong at exactly one range of widths, which is the
+ * hardest kind of wrong to be shown.
  */
 import * as React from 'react';
 import type { MPWindowClass } from '../types';
@@ -36,6 +50,28 @@ export const WINDOW_MIN: Record<MPWindowClass, number> = {
   large: 1200,
   'extra-large': 1600
 };
+
+/**
+ * The media query a class's floor is, and the one below it.
+ *
+ * Written here rather than at the two call sites that used to spell them out,
+ * for the reason the numbers themselves are: a query is the boundary said in
+ * another vocabulary, and a second spelling of a boundary is a second place it
+ * can be wrong. `compact` has no floor to ask about — every window is at least
+ * nought wide — so both return `null` for it and a caller reads that as "there
+ * is nothing to watch".
+ */
+export function atLeast(windowClass: MPWindowClass): string | null {
+  const min = WINDOW_MIN[windowClass];
+
+  return min > 0 ? `(width >= ${min}px)` : null;
+}
+
+export function below(windowClass: MPWindowClass): string | null {
+  const min = WINDOW_MIN[windowClass];
+
+  return min > 0 ? `(width < ${min}px)` : null;
+}
 
 /** Which class a width falls in. Widest match wins. */
 export function windowClassFor(width: number): MPWindowClass {
@@ -70,9 +106,9 @@ function queryLists(): MediaQueryList[] {
     return [];
   }
 
-  lists ??= WINDOW_CLASSES.filter((name) => WINDOW_MIN[name] > 0).map((name) =>
-    window.matchMedia(`(min-width: ${WINDOW_MIN[name]}px)`)
-  );
+  lists ??= WINDOW_CLASSES.map(atLeast)
+    .filter((query): query is string => query !== null)
+    .map((query) => window.matchMedia(query));
 
   return lists;
 }

@@ -1201,6 +1201,60 @@
 }
 
 /* ---------------------------------------------------------------------------
+ * The window size classes
+ *
+ * Material's five, as variants: `@variant mp-medium` is what every width-driven
+ * rule in this file is written against, and `mp-medium:flex` is the same
+ * boundary for a consumer's own utilities — which until now was a block of CSS
+ * in the grid's documentation for a reader to copy into their own `@theme`.
+ *
+ * `compact` has no variant because its floor is nought. There is no window
+ * narrower than no window, and `mp-below-compact` could never match at all.
+ *
+ * ## Why not `--breakpoint-mp-*` in `@theme`
+ *
+ * Because that namespace is not only a variant. Tailwind's own `.container`
+ * utility is generated from every registered breakpoint, so four names there
+ * would quietly add four `max-width` steps to a class the consumer wrote and
+ * this library has nothing to do with — the same collision the `@theme` block
+ * above prefixes every one of its names to avoid, arriving through a namespace
+ * a prefix does not protect.
+ *
+ * A custom variant registers exactly one thing: the variant.
+ *
+ * ## Moving them
+ *
+ * A project that runs Tailwind itself can, by declaring the same name again
+ * after importing this file — the later definition wins:
+ *
+ *   @custom-variant mp-medium (@media (width >= 700px));
+ *   @custom-variant mp-below-medium (@media (width < 700px));
+ *
+ * Both halves, because the two are separate registrations rather than one
+ * boundary Tailwind derives a pair from. That moves the grid, the measures and
+ * the visibility rules together, and the application's own `mp-medium:` with
+ * them. A project on the compiled `styles.css` cannot: that file is Tailwind's
+ * output and the queries in it are already numbers.
+ *
+ * The JavaScript half of the same ladder is `WINDOW_MIN` in
+ * `src/internal/window-class.ts`, and the two have to agree — a hook that says
+ * `compact` where the stylesheet is laying out `medium` is a page arguing with
+ * itself. `test/styles/breakpoints.test.tsx` reads both and fails if they ever
+ * stop matching, and `MPConfigProvider`'s `breakpoints` is how an application
+ * that moved one here tells the JavaScript side.
+ * ------------------------------------------------------------------------- */
+
+@custom-variant mp-medium (@media (width >= 600px));
+@custom-variant mp-expanded (@media (width >= 840px));
+@custom-variant mp-large (@media (width >= 1200px));
+@custom-variant mp-extra-large (@media (width >= 1600px));
+
+@custom-variant mp-below-medium (@media (width < 600px));
+@custom-variant mp-below-expanded (@media (width < 840px));
+@custom-variant mp-below-large (@media (width < 1200px));
+@custom-variant mp-below-extra-large (@media (width < 1600px));
+
+/* ---------------------------------------------------------------------------
  * The layout grid
  *
  * A column is `(100% + gutter) * span / columns - gutter`, and the arithmetic
@@ -1219,14 +1273,35 @@
  * is left after the other items have been laid out — so a growing item is given
  * a width of nought and a `flex-grow` of one, and takes the rest.
  *
- * Every slot cascades upward — each window size class falls back through the
- * ones below it — so `span={{ expanded: 6 }}` sets one custom property and not
- * five. The chains get long at `extra-large`; that is the cost of keeping the
- * DOM lean, and it is paid once here rather than on every grid item in a
- * consumer's application.
+ * ## The rungs
  *
- * The widths are **MD3's window size classes** — 600, 840, 1200 and 1600dp —
- * and not Tailwind's breakpoints. See `MPWindowClass` in `src/types.ts`.
+ * A responsive prop writes only the classes the caller named — `span={{ expanded: 6 }}`
+ * is one custom property and not five — which keeps the inline style on a grid
+ * item down to what was asked for, and leaves the stylesheet to fill the gaps.
+ * Every class therefore has to fall back through every class below it.
+ *
+ * Written as one `var()` chain per class that is five levels deep by
+ * `extra-large` and repeated in full in every media block, which is a shape with
+ * two problems: the reader cannot check it, and inserting a class means
+ * rewriting every chain in the file.
+ *
+ * So the fallback is a **ladder**. `--_mp-cols-0` is what the compact slot says,
+ * `--_mp-cols-1` is the medium slot *or the rung below it*, and a media query
+ * moves exactly one rung. The index is the class's place in `WINDOW_CLASSES` —
+ * `src/internal/window-class.ts` — so `-0` is compact and `-3` is large; the top
+ * rung is `extra-large` and takes the plain name, because that is the one the
+ * arithmetic reads and a fifth alias would be a rung to nowhere.
+ *
+ * Every fallback is then one level deep however high the ladder goes, and adding
+ * a responsive prop anywhere in the library is this same shape again rather than
+ * five chains of five.
+ *
+ * ## The widths
+ *
+ * `@variant mp-medium` rather than `@media (width >= 600px)`, so the four
+ * boundaries are read from the `@theme` block above rather than written out here
+ * a second time — and a project that runs Tailwind can move them. See the note
+ * on the breakpoints for what that does and does not reach.
  *
  * Unlayered, like the two animation classes below and for the same reason: a
  * layered rule loses to every unlayered one, and a consumer's own page styling
@@ -1235,9 +1310,23 @@
  * ------------------------------------------------------------------------- */
 
 .mp-grid {
-  --_mp-cols: var(--_mp-cols-compact, 12);
-  --_mp-gap-x: var(--_mp-gap-x-compact, 0px);
-  --_mp-gap-y: var(--_mp-gap-y-compact, 0px);
+  --_mp-cols-0: var(--_mp-cols-compact, 12);
+  --_mp-cols-1: var(--_mp-cols-0);
+  --_mp-cols-2: var(--_mp-cols-1);
+  --_mp-cols-3: var(--_mp-cols-2);
+  --_mp-cols: var(--_mp-cols-3);
+
+  --_mp-gap-x-0: var(--_mp-gap-x-compact, 0px);
+  --_mp-gap-x-1: var(--_mp-gap-x-0);
+  --_mp-gap-x-2: var(--_mp-gap-x-1);
+  --_mp-gap-x-3: var(--_mp-gap-x-2);
+  --_mp-gap-x: var(--_mp-gap-x-3);
+
+  --_mp-gap-y-0: var(--_mp-gap-y-compact, 0px);
+  --_mp-gap-y-1: var(--_mp-gap-y-0);
+  --_mp-gap-y-2: var(--_mp-gap-y-1);
+  --_mp-gap-y-3: var(--_mp-gap-y-2);
+  --_mp-gap-y: var(--_mp-gap-y-3);
 
   /* The boundary, and the reason it has to exist.
    *
@@ -1250,7 +1339,7 @@
    *
    * A grid is where a span stops meaning anything, so a grid is where the slots
    * are put back to nothing. `initial` on a custom property is the guaranteed-
-   * invalid value, which is what makes the `var()` fallbacks below take over
+   * invalid value, which is what makes the `var()` fallbacks above take over
    * rather than a number from two levels up. Fifteen declarations, once per
    * grid, and the arithmetic under them is the same as it was.
    *
@@ -1271,12 +1360,50 @@
   --_mp-grow-expanded: initial;
   --_mp-grow-large: initial;
   --_mp-grow-extra-large: initial;
+
+  @variant mp-medium {
+    --_mp-cols-1: var(--_mp-cols-medium, var(--_mp-cols-0));
+    --_mp-gap-x-1: var(--_mp-gap-x-medium, var(--_mp-gap-x-0));
+    --_mp-gap-y-1: var(--_mp-gap-y-medium, var(--_mp-gap-y-0));
+  }
+
+  @variant mp-expanded {
+    --_mp-cols-2: var(--_mp-cols-expanded, var(--_mp-cols-1));
+    --_mp-gap-x-2: var(--_mp-gap-x-expanded, var(--_mp-gap-x-1));
+    --_mp-gap-y-2: var(--_mp-gap-y-expanded, var(--_mp-gap-y-1));
+  }
+
+  @variant mp-large {
+    --_mp-cols-3: var(--_mp-cols-large, var(--_mp-cols-2));
+    --_mp-gap-x-3: var(--_mp-gap-x-large, var(--_mp-gap-x-2));
+    --_mp-gap-y-3: var(--_mp-gap-y-large, var(--_mp-gap-y-2));
+  }
+
+  @variant mp-extra-large {
+    --_mp-cols: var(--_mp-cols-extra-large, var(--_mp-cols-3));
+    --_mp-gap-x: var(--_mp-gap-x-extra-large, var(--_mp-gap-x-3));
+    --_mp-gap-y: var(--_mp-gap-y-extra-large, var(--_mp-gap-y-3));
+  }
 }
 
 .mp-grid-item {
-  --_mp-span: var(--_mp-span-compact, var(--_mp-cols, 12));
-  --_mp-offset: var(--_mp-offset-compact, 0);
-  --_mp-grow: var(--_mp-grow-compact, 0);
+  --_mp-span-0: var(--_mp-span-compact, var(--_mp-cols, 12));
+  --_mp-span-1: var(--_mp-span-0);
+  --_mp-span-2: var(--_mp-span-1);
+  --_mp-span-3: var(--_mp-span-2);
+  --_mp-span: var(--_mp-span-3);
+
+  --_mp-offset-0: var(--_mp-offset-compact, 0);
+  --_mp-offset-1: var(--_mp-offset-0);
+  --_mp-offset-2: var(--_mp-offset-1);
+  --_mp-offset-3: var(--_mp-offset-2);
+  --_mp-offset: var(--_mp-offset-3);
+
+  --_mp-grow-0: var(--_mp-grow-compact, 0);
+  --_mp-grow-1: var(--_mp-grow-0);
+  --_mp-grow-2: var(--_mp-grow-1);
+  --_mp-grow-3: var(--_mp-grow-2);
+  --_mp-grow: var(--_mp-grow-3);
 
   /* One column plus one gutter. `--_mp-cols` and `--_mp-gap-x` are inherited
      from the grid, so this re-resolves on its own at every window class. */
@@ -1303,6 +1430,30 @@
     (1 - var(--_mp-grow)) *
       (var(--_mp-track) * min(var(--_mp-span), var(--_mp-cols, 12)) - var(--_mp-gap-x, 0px))
   );
+
+  @variant mp-medium {
+    --_mp-span-1: var(--_mp-span-medium, var(--_mp-span-0));
+    --_mp-offset-1: var(--_mp-offset-medium, var(--_mp-offset-0));
+    --_mp-grow-1: var(--_mp-grow-medium, var(--_mp-grow-0));
+  }
+
+  @variant mp-expanded {
+    --_mp-span-2: var(--_mp-span-expanded, var(--_mp-span-1));
+    --_mp-offset-2: var(--_mp-offset-expanded, var(--_mp-offset-1));
+    --_mp-grow-2: var(--_mp-grow-expanded, var(--_mp-grow-1));
+  }
+
+  @variant mp-large {
+    --_mp-span-3: var(--_mp-span-large, var(--_mp-span-2));
+    --_mp-offset-3: var(--_mp-offset-large, var(--_mp-offset-2));
+    --_mp-grow-3: var(--_mp-grow-large, var(--_mp-grow-2));
+  }
+
+  @variant mp-extra-large {
+    --_mp-span: var(--_mp-span-extra-large, var(--_mp-span-3));
+    --_mp-offset: var(--_mp-offset-extra-large, var(--_mp-offset-3));
+    --_mp-grow: var(--_mp-grow-extra-large, var(--_mp-grow-3));
+  }
 }
 
 /* The offset, on the items that asked for one and no others.
@@ -1316,125 +1467,6 @@
    there is to look at and see. */
 .mp-grid-item[data-mp-offset] {
   margin-inline-start: calc(var(--_mp-track) * min(var(--_mp-offset), var(--_mp-cols, 12)));
-}
-
-@media (width >= 600px) {
-  .mp-grid {
-    --_mp-cols: var(--_mp-cols-medium, var(--_mp-cols-compact, 12));
-    --_mp-gap-x: var(--_mp-gap-x-medium, var(--_mp-gap-x-compact, 0px));
-    --_mp-gap-y: var(--_mp-gap-y-medium, var(--_mp-gap-y-compact, 0px));
-  }
-
-  .mp-grid-item {
-    --_mp-span: var(--_mp-span-medium, var(--_mp-span-compact, var(--_mp-cols, 12)));
-    --_mp-offset: var(--_mp-offset-medium, var(--_mp-offset-compact, 0));
-    --_mp-grow: var(--_mp-grow-medium, var(--_mp-grow-compact, 0));
-  }
-}
-
-@media (width >= 840px) {
-  .mp-grid {
-    --_mp-cols: var(--_mp-cols-expanded, var(--_mp-cols-medium, var(--_mp-cols-compact, 12)));
-    --_mp-gap-x: var(--_mp-gap-x-expanded, var(--_mp-gap-x-medium, var(--_mp-gap-x-compact, 0px)));
-    --_mp-gap-y: var(--_mp-gap-y-expanded, var(--_mp-gap-y-medium, var(--_mp-gap-y-compact, 0px)));
-  }
-
-  .mp-grid-item {
-    --_mp-span: var(
-      --_mp-span-expanded,
-      var(--_mp-span-medium, var(--_mp-span-compact, var(--_mp-cols, 12)))
-    );
-    --_mp-offset: var(
-      --_mp-offset-expanded,
-      var(--_mp-offset-medium, var(--_mp-offset-compact, 0))
-    );
-    --_mp-grow: var(--_mp-grow-expanded, var(--_mp-grow-medium, var(--_mp-grow-compact, 0)));
-  }
-}
-
-@media (width >= 1200px) {
-  .mp-grid {
-    --_mp-cols: var(
-      --_mp-cols-large,
-      var(--_mp-cols-expanded, var(--_mp-cols-medium, var(--_mp-cols-compact, 12)))
-    );
-    --_mp-gap-x: var(
-      --_mp-gap-x-large,
-      var(--_mp-gap-x-expanded, var(--_mp-gap-x-medium, var(--_mp-gap-x-compact, 0px)))
-    );
-    --_mp-gap-y: var(
-      --_mp-gap-y-large,
-      var(--_mp-gap-y-expanded, var(--_mp-gap-y-medium, var(--_mp-gap-y-compact, 0px)))
-    );
-  }
-
-  .mp-grid-item {
-    --_mp-span: var(
-      --_mp-span-large,
-      var(--_mp-span-expanded, var(--_mp-span-medium, var(--_mp-span-compact, var(--_mp-cols, 12))))
-    );
-    --_mp-offset: var(
-      --_mp-offset-large,
-      var(--_mp-offset-expanded, var(--_mp-offset-medium, var(--_mp-offset-compact, 0)))
-    );
-    --_mp-grow: var(
-      --_mp-grow-large,
-      var(--_mp-grow-expanded, var(--_mp-grow-medium, var(--_mp-grow-compact, 0)))
-    );
-  }
-}
-
-@media (width >= 1600px) {
-  .mp-grid {
-    --_mp-cols: var(
-      --_mp-cols-extra-large,
-      var(
-        --_mp-cols-large,
-        var(--_mp-cols-expanded, var(--_mp-cols-medium, var(--_mp-cols-compact, 12)))
-      )
-    );
-    --_mp-gap-x: var(
-      --_mp-gap-x-extra-large,
-      var(
-        --_mp-gap-x-large,
-        var(--_mp-gap-x-expanded, var(--_mp-gap-x-medium, var(--_mp-gap-x-compact, 0px)))
-      )
-    );
-    --_mp-gap-y: var(
-      --_mp-gap-y-extra-large,
-      var(
-        --_mp-gap-y-large,
-        var(--_mp-gap-y-expanded, var(--_mp-gap-y-medium, var(--_mp-gap-y-compact, 0px)))
-      )
-    );
-  }
-
-  .mp-grid-item {
-    --_mp-span: var(
-      --_mp-span-extra-large,
-      var(
-        --_mp-span-large,
-        var(
-          --_mp-span-expanded,
-          var(--_mp-span-medium, var(--_mp-span-compact, var(--_mp-cols, 12)))
-        )
-      )
-    );
-    --_mp-offset: var(
-      --_mp-offset-extra-large,
-      var(
-        --_mp-offset-large,
-        var(--_mp-offset-expanded, var(--_mp-offset-medium, var(--_mp-offset-compact, 0)))
-      )
-    );
-    --_mp-grow: var(
-      --_mp-grow-extra-large,
-      var(
-        --_mp-grow-large,
-        var(--_mp-grow-expanded, var(--_mp-grow-medium, var(--_mp-grow-compact, 0)))
-      )
-    );
-  }
 }
 
 /* ---------------------------------------------------------------------------

@@ -171,6 +171,31 @@ const headNodes = parsed.nodes.slice(0, boundary + 1);
 const tailNodes = parsed.nodes.slice(boundary + 1);
 
 /*
+ * The window size classes, pulled back out of wherever they were declared.
+ *
+ * Every width-driven rule in the tail is written as `@variant mp-medium` rather
+ * than as a width, which is what lets a consumer move the boundaries — but a
+ * variant only exists if something registered it, and a component sheet is
+ * compiled from the rules it claimed and nothing else. Without this,
+ * `@variant mp-medium` resolves to nothing and the grid's four widths are
+ * silently absent from every split sheet.
+ *
+ * Taken from the file rather than repeated here, so the widths stay in the one
+ * place that declares them.
+ */
+const variants = (() => {
+  const found = [];
+
+  parsed.walkAtRules('custom-variant', (node) => found.push(node.toString()));
+
+  if (found.length === 0) {
+    throw new Error('src/styles.css: no `@custom-variant`, so `@variant mp-*` cannot resolve');
+  }
+
+  return found.map((line) => `${line};`).join('\n');
+})();
+
+/*
  * Through a `Root` rather than by joining `toString()`: a statement at-rule
  * gets its semicolon from the root that holds it, and `@source '.'` without one
  * swallows the block after it as a body.
@@ -342,7 +367,7 @@ for (const name of components) {
     .join('\n');
 
   const sheet = await compile(
-    [PREAMBLE, sources, asCss(supporting), asCss(own)].filter(Boolean).join('\n'),
+    [PREAMBLE, variants, sources, asCss(supporting), asCss(own)].filter(Boolean).join('\n'),
     name
   );
 
@@ -380,6 +405,7 @@ for (const name of components) {
 const reference = await compile(
   [
     PREAMBLE,
+    variants,
     [...new Set(components.flatMap((name) => graphOf(resolve(src, 'components', name))))]
       .map((file) => `@source '${relative(src, file)}';`)
       .sort()

@@ -15,6 +15,7 @@
  * stops being a column, whether a drawer is open, and how tall the bars are.
  */
 import * as React from 'react';
+import { below } from './window-class';
 import type { MPSide, MPVariant, MPWindowClass } from '../types';
 
 /**
@@ -125,19 +126,24 @@ export const MPPageLayoutContext = React.createContext<MPPageLayoutContextValue>
 export const MPSidebarSideContext = React.createContext<MPSidebarSide | null>(null);
 
 /**
- * The floor of each window size class, which is also where a sidebar collapses.
+ * Whether the window is under the class a sidebar collapses at, as a query.
  *
- * MD3's four boundaries — 600, 840, 1200 and 1600dp — the same numbers the
- * layout grid's media queries in `styles.css` are written at. `compact` has no
- * query because its floor is zero.
+ * Asked of `window-class.ts` rather than written out, which is the whole of the
+ * change: these were four literal widths, and four literal widths beside the
+ * four in the stylesheet and the four in `WINDOW_MIN` is three chances for a
+ * sidebar to collapse at a width the grid does not reflow at.
+ *
+ * `none` and `compact` have nothing to watch — a sidebar that collapsed below
+ * zero would never collapse — so both are `null` and `useMPCollapsed` reads that
+ * as "no".
  */
 const COLLAPSE_QUERY: Record<MPPageCollapse, string | null> = {
   none: null,
-  compact: null,
-  medium: '(width < 600px)',
-  expanded: '(width < 840px)',
-  large: '(width < 1200px)',
-  'extra-large': '(width < 1600px)'
+  compact: below('compact'),
+  medium: below('medium'),
+  expanded: below('expanded'),
+  large: below('large'),
+  'extra-large': below('extra-large')
 };
 
 /**
