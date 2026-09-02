@@ -303,7 +303,7 @@ None of that is a promise. It is what one version of Tailwind emits, it is per p
 
   One thing to know before reaching for it, because it catches people twice: **`!important` reverses the layer order.** Ordinary declarations outside a layer beat every layered one, which is the rule the theming advice above rests on. Important ones go the other way — the earliest layer wins and unlayered comes last. So an `!` in a plain stylesheet does _not_ beat a page's own `[&_h3]:my-7.5!`, which is a Tailwind utility and therefore inside `@layer utilities`: to win, yours has to carry `!` **and** sit in a layer declared before `utilities`. Two unlayered `!` declarations are back to ordinary specificity and source order.
 
-The library ships no class merger of its own, deliberately. `tailwind-merge` is the tool for this and it is a good one, but it would be a runtime dependency on every component — against 2.9 kB for a button on its own — and its class groups would have to be taught every `mp-` token this package adds, in step. Merging at the call site is one line and costs the projects that do not need it nothing.
+The library ships no class merger of its own, deliberately. `tailwind-merge` is the tool for this and it is a good one, but it would be a runtime dependency on every component — against 3.0 kB for a button on its own — and its class groups would have to be taught every `mp-` token this package adds, in step. Merging at the call site is one line and costs the projects that do not need it nothing.
 
 ### The class hooks, and Tailwind's underscore
 
@@ -337,17 +337,17 @@ Or write the rule in a stylesheet, where the name needs no escaping at all, and 
 
 Gzipped, from a real bundler, with React and `@base-ui/react` held external — so this is the library's own contribution rather than the whole download.
 
-| On the page            | JavaScript | Stylesheet, split |
-| ---------------------- | ---------- | ----------------- |
-| `MPBox` alone          | 0.4 kB     | 3.9 kB            |
-| `MPButton` alone       | 2.9 kB     | 4.5 kB            |
-| Five components        | 7.4 kB     | 6.6 kB            |
-| Ten components         | 11.2 kB    | 9.1 kB            |
-| All hundred and eleven | 74.2 kB    | 16.2 kB           |
+| On the page           | JavaScript | Stylesheet, split |
+| --------------------- | ---------- | ----------------- |
+| `MPBox` alone         | 0.4 kB     | 3.9 kB            |
+| `MPButton` alone      | 3.0 kB     | 4.5 kB            |
+| Five components       | 7.5 kB     | 6.7 kB            |
+| Ten components        | 11.8 kB    | 9.4 kB            |
+| Every export there is | 82.5 kB    | 16.7 kB           |
 
 Two things to read off it. The first column is marginal: a component you did not import is not in it, which is what `sideEffects`, the build's `@__PURE__` annotations and a message table per namespace are all for. The second column is not marginal — a stylesheet is a file you either imported or did not — so it assumes the list of sheets matches what the page renders.
 
-Base UI is the larger half of a real download and is in neither column. Five components come to 18.6 kB with it bundled in and ten to 90.7 kB, but it is a peer dependency: shared with anything else that uses it, and versioned by you.
+Base UI is the larger half of a real download and is in neither column. Five components come to 18.8 kB with it bundled in and ten to 91.5 kB, but it is a peer dependency: shared with anything else that uses it, and versioned by you.
 
 Both sets of figures are printed by the build rather than remembered, so they cannot quietly stop being true.
 

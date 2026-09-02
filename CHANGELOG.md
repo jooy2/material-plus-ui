@@ -48,6 +48,10 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Documentation
 
+- **The size table had drifted, and the row that said how many components there are was two releases out of date.** It read "All hundred and eleven" against a library that exports a hundred and sixty-seven names, and the figures beside it were the 1.5.0 build's. The claim under the table — that the numbers are printed by the build rather than remembered — was the thing that had stopped being true.
+
+  The row is "Every export there is" now, which is the scenario `measure-bundle.mjs` actually runs and a label that cannot go stale as components are added. The figures are this build's, and the stylesheet column is computed the way a bundler would compute it: the sheets concatenated and compressed together, rather than their individual gzip sizes added up, which over-counts the utilities they repeat.
+
 - **The class hooks, and why one of them silently does nothing in Tailwind.** `mp-list-item__label`, `mp-accordion__title` and the sixty-five others are named in BEM, and **Tailwind reads `_` inside square brackets as a space** — so `[&_.mp-accordion__title]:text-lg` compiles to `.mp-accordion title`, a `<title>` element inside an accordion, and matches nothing. No warning, no rule, no clue.
 
   The names are not changing: the `__` convention runs through all sixty-seven hooks, and renaming the six that were noticed would leave a library with two conventions and the same trap in the other sixty-one. `getting-started` documents both ways round it instead — `\_\_` in an arbitrary variant, or the plain name in a stylesheet, where a rule that holds for every accordion on a site arguably belonged.
