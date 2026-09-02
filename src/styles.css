@@ -1669,6 +1669,78 @@
 }
 
 /* ---------------------------------------------------------------------------
+ * The tab bar's ends
+ *
+ * A bar with more tabs than room has always scrolled — MD3's scrollable tabs,
+ * and `overflow-x: auto` is the whole of it. What it had no way of saying was
+ * that it was scrolling. macOS draws an overlay scrollbar that is not there
+ * until it is used, so a bar with four tabs off the edge and a bar with none
+ * are the same picture; Windows draws a real one, which is a signal and also
+ * fifteen pixels of furniture under the tabs. `MPTabs` hides it on both and
+ * fades the ends instead, which is one answer rather than two halves.
+ *
+ * Hand-written rather than a utility for the reason the grid arithmetic above
+ * is: the gradient reads a value that only exists at run time, and Tailwind
+ * generates classes from strings it can find in the source.
+ *
+ * ## Which end
+ *
+ * `data-mp-overflow` is written by the component from a measurement, and is
+ * absent when everything fits — so a bar that does not overflow carries no mask
+ * at all. Fading an end a reader has already reached would be a lie about
+ * there being more that way, which is the same failure as saying nothing.
+ *
+ * ## Why there are two mask layers
+ *
+ * The divider is the bar's bottom border, and a mask applies to an element's
+ * whole rendering — so a single horizontal gradient fades the hairline out at
+ * both ends along with the tabs. The tabs running on is a fact about the bar;
+ * the divider is the boundary between the bar and the panel under it, and it
+ * runs the full width whatever the bar is doing.
+ *
+ * So the fade is sized to everything *above* the last pixel, and a second,
+ * fully opaque layer covers that pixel. Multiple mask layers composite as
+ * `add` by default, which is what makes this two declarations rather than a
+ * `mask-composite` nobody would guess was load-bearing. `no-repeat` is not
+ * optional: a 1px layer left to tile would run the opaque strip up the whole
+ * bar and there would be no fade at all.
+ * ------------------------------------------------------------------------- */
+
+.mp-tabs__list[data-mp-overflow] {
+  /* A tab's own inline padding at `md`, so the fade is about one glyph wide —
+     enough to read as an edge that continues, and not so much that the label it
+     runs over stops being a word. */
+  --_mp-tabs-fade: 1.5rem;
+
+  mask-image:
+    linear-gradient(
+      to right,
+      transparent 0,
+      #000 var(--_mp-tabs-fade-left, 0px),
+      #000 calc(100% - var(--_mp-tabs-fade-right, 0px)),
+      transparent 100%
+    ),
+    linear-gradient(#000, #000);
+  mask-size:
+    100% calc(100% - 1px),
+    100% 1px;
+  mask-position:
+    top left,
+    bottom left;
+  mask-repeat: no-repeat;
+}
+
+.mp-tabs__list[data-mp-overflow='left'],
+.mp-tabs__list[data-mp-overflow='both'] {
+  --_mp-tabs-fade-left: var(--_mp-tabs-fade);
+}
+
+.mp-tabs__list[data-mp-overflow='right'],
+.mp-tabs__list[data-mp-overflow='both'] {
+  --_mp-tabs-fade-right: var(--_mp-tabs-fade);
+}
+
+/* ---------------------------------------------------------------------------
  * Animation
  *
  * The `MPAnimate*` components. Real CSS for the reason the loading indicators

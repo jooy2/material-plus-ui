@@ -31,6 +31,17 @@ export type MPTabIconPosition = 'top' | 'start';
  */
 export type MPTabValue = string | number;
 
+/**
+ * Which end of a scrolled bar has more bar past it.
+ *
+ * Physical rather than logical, and for the reason the indicator's `left` is:
+ * this is a **measurement**, and which side of the box the rest of the tabs are
+ * on is a fact about pixels. `MPTabs` reads the direction once and answers in
+ * the terms the mask is written in, so the stylesheet needs no `:dir()` and
+ * cannot disagree with the arithmetic.
+ */
+type MPTabsOverflow = 'left' | 'right' | 'both';
+
 /** What an `MPTab` inherits from the `MPTabs` around it. */
 interface MPTabsContextValue {
   variant: MPTabsVariant;
@@ -299,6 +310,18 @@ function sortChildren(
  * A bar with more tabs than room scrolls rather than wrapping, which is MD3's
  * scrollable tabs: a tab bar on two lines has stopped being a bar, and the
  * indicator has nowhere sensible to sit.
+ *
+ * ## Saying that it scrolls
+ *
+ * It always did. What it had no way of saying was so — macOS draws an overlay
+ * scrollbar that does not exist until it is used, so a bar with four tabs off
+ * the edge and a bar with none were the same picture, and Windows drew a real
+ * one that is a signal and also fifteen pixels of furniture under the tabs.
+ *
+ * The scrollbar is hidden on both and the ends are faded instead, on the side
+ * that has more bar past it. The overflow is **measured** — it depends on the
+ * room the bar was given, which nothing here knows — and written out as
+ * `data-mp-overflow` for the stylesheet to read.
  */
 export const MPTabs = React.forwardRef<HTMLDivElement, MPTabsProps>(function MPTabs(
   {
@@ -332,6 +355,75 @@ export const MPTabs = React.forwardRef<HTMLDivElement, MPTabsProps>(function MPT
     () => ({ variant, size, iconPosition: glyphPosition, fullWidth }),
     [variant, size, glyphPosition, fullWidth]
   );
+
+  /*
+   * Whether the bar runs off its ends, measured.
+   *
+   * It cannot be a prop and it cannot be worked out from the children: whether
+   * six tabs overflow depends entirely on the room the bar was given, and the
+   * same six fit at 640px and do not at 320. Measured at 320 the list reports a
+   * `scrollWidth` of 526 against a `clientWidth` of 320 — it was *already*
+   * scrolling, and had been since it shipped. What was missing was any way to
+   * know: macOS draws an overlay scrollbar that is invisible until it is used,
+   * so on the platform most of this is written on a bar with four tabs off the
+   * edge looks exactly like a bar with none.
+   */
+  const listRef = React.useRef<HTMLDivElement | null>(null);
+  const [overflow, setOverflow] = React.useState<MPTabsOverflow | null>(null);
+
+  const measure = React.useCallback(() => {
+    const list = listRef.current;
+
+    if (!list) {
+      return;
+    }
+
+    const room = list.scrollWidth - list.clientWidth;
+    /*
+     * `Math.abs`, because a right-to-left scroll position counts backwards from
+     * zero: the two directions disagree about the sign and agree about the
+     * distance travelled from the start.
+     *
+     * A pixel of slack at each end. Both numbers are fractional on a scaled
+     * display, and a bar scrolled fully to one end reports something like
+     * 205.6 against a room of 206 — which as a strict comparison is "there is
+     * more this way" for ever, and a fade that never goes out.
+     */
+    const behind = Math.abs(list.scrollLeft);
+    const ahead = room - behind;
+    const rtl = getComputedStyle(list).direction === 'rtl';
+    const left = (rtl ? ahead : behind) > 1;
+    const right = (rtl ? behind : ahead) > 1;
+
+    setOverflow(left && right ? 'both' : left ? 'left' : right ? 'right' : null);
+  }, []);
+
+  /*
+   * After every render, and not on a dependency list.
+   *
+   * What changes `scrollWidth` is the set of tabs, and a `ResizeObserver` on the
+   * list cannot see that: adding a tab to a bar that is already full changes
+   * what is inside the box and not the box. Measuring is four layout reads on a
+   * row of buttons, and `setOverflow` with the answer it already holds is a
+   * bail-out rather than a second render — so this costs a reflow and nothing
+   * else.
+   */
+  React.useEffect(measure);
+
+  React.useEffect(() => {
+    const list = listRef.current;
+
+    if (!list || typeof ResizeObserver === 'undefined') {
+      return;
+    }
+
+    // And the other half: the box changing under a set of tabs that did not.
+    const observer = new ResizeObserver(measure);
+
+    observer.observe(list);
+
+    return () => observer.disconnect();
+  }, [measure]);
 
   /*
    * Everything between the tags is either a tab or a panel, and the two go in
@@ -369,9 +461,15 @@ export const MPTabs = React.forwardRef<HTMLDivElement, MPTabsProps>(function MPT
         {...props}
       >
         <Tabs.List
+          ref={listRef}
           aria-label={ariaLabel}
           activateOnFocus={activateOnFocus}
           loopFocus={loopFocus}
+          // Read by the stylesheet, which fades the end the rest of the bar is
+          // on. Absent when everything fits, so a bar that does not overflow
+          // carries no mask at all.
+          data-mp-overflow={overflow ?? undefined}
+          onScroll={measure}
           className={[
             'mp-tabs__list relative flex shrink-0',
             // MD3's divider under the bar. It is on the list rather than on the
@@ -379,7 +477,13 @@ export const MPTabs = React.forwardRef<HTMLDivElement, MPTabsProps>(function MPT
             // on it, which is the whole picture the specification draws.
             divider ? 'border-mp-outline-variant border-b' : '',
             fullWidth ? 'w-full' : '',
-            'overflow-x-auto overflow-y-hidden'
+            'overflow-x-auto overflow-y-hidden',
+            // The same pair `MPCarousel`'s strip takes, and for a stronger
+            // reason: a scrollbar is furniture on Windows and invisible on
+            // macOS, so it is a signal that exists on one platform and a 15px
+            // gap under the tabs on the other. Neither is what says a bar runs
+            // on — the fade in the stylesheet is, and it says it on both.
+            '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
           ]
             .filter(Boolean)
             .join(' ')}

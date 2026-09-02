@@ -6,7 +6,19 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **`data-mp-overflow` on `.mp-tabs__list`**, saying which end of a scrolled tab bar has more bar past it — `left`, `right` or `both`, and absent when everything fits. It is what the new fade at the bar's ends is drawn from, and a page that wants a different treatment reads the same fact. Physical rather than logical: it names a side of the box, on the rule the indicator's `--active-tab-left` already follows.
+
 - **`mp-radio__fill`** on the dot inside the ring, which had no name of its own.
+
+### Changed
+
+- **A tab bar that scrolls now says so.** It always scrolled — `overflow-x: auto`, MD3's scrollable tabs — and there was no way to know. Measured at 320px a six-tab bar reports a `scrollWidth` of 526 against a `clientWidth` of 320, and macOS draws an overlay scrollbar that does not exist until it is used: a bar with four tabs off the edge and a bar with none were the same picture. Windows drew a real one, which is a signal and also fifteen pixels of furniture under the tabs, on one platform out of two.
+
+  The scrollbar is hidden on both now — the pair `MPCarousel`'s strip already took — and the bar fades at the end that has more bar past it, at both when a reader is in the middle, and at neither when everything fits. Fading an end already reached would be the same lie as saying nothing.
+
+  There is still no `overflow="wrap"`, for the reason there is no `orientation`: a tab bar on two lines has stopped being a bar, and the indicator has nowhere sensible to sit.
+
+  The divider is left whole. It is the boundary between the bar and the panel rather than part of the run, so the fade is sized to everything above it and a second, opaque mask layer covers the hairline itself.
 
 ### Documentation
 

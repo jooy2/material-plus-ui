@@ -311,6 +311,97 @@ describe('MPTabs', () => {
     expect(kept!.textContent).toBe('Second');
   });
 
+  /**
+   * The bar has always scrolled — `overflow-x: auto` and MD3's scrollable tabs.
+   * What it could not do was say so: macOS draws an overlay scrollbar that is
+   * invisible until it is used, so a bar with four tabs off the edge and a bar
+   * with none were the same picture on the platform this is written on.
+   *
+   * These are about the attribute rather than about the mask. The gradient is
+   * the stylesheet's business and it reads exactly this.
+   */
+  describe('when there are more tabs than room', () => {
+    const NAMES = ['Overview', 'Activity', 'Settings', 'Members', 'Billing', 'Integrations'];
+
+    function Narrow({ width = 320, dir }: { width?: number; dir?: 'ltr' | 'rtl' }) {
+      return (
+        <div dir={dir} style={{ width }}>
+          <MPTabs defaultValue="Overview" aria-label="Sections">
+            {NAMES.map((name) => (
+              <MPTab key={name} value={name}>
+                {name}
+              </MPTab>
+            ))}
+          </MPTabs>
+        </div>
+      );
+    }
+
+    it('is already scrolling, which is the thing that had no signal', async () => {
+      const screen = await render(<Narrow />);
+      const list = screen.container.querySelector('.mp-tabs__list') as HTMLElement;
+
+      expect(list.scrollWidth).toBeGreaterThan(list.clientWidth);
+      // Hidden on both platforms rather than left as a signal on one of them.
+      expect(getComputedStyle(list).scrollbarWidth).toBe('none');
+    });
+
+    it('says which end has more bar past it', async () => {
+      const screen = await render(<Narrow />);
+      const list = screen.container.querySelector('.mp-tabs__list') as HTMLElement;
+
+      // Standing at the start: everything left to see is to the right.
+      expect(list).toHaveAttribute('data-mp-overflow', 'right');
+
+      list.scrollLeft = 40;
+      await vi.waitFor(() => expect(list).toHaveAttribute('data-mp-overflow', 'both'));
+
+      list.scrollLeft = list.scrollWidth;
+      await vi.waitFor(() => expect(list).toHaveAttribute('data-mp-overflow', 'left'));
+    });
+
+    it('answers in the terms the mask is written in, whichever way the page runs', async () => {
+      const screen = await render(<Narrow dir="rtl" />);
+      const list = screen.container.querySelector('.mp-tabs__list') as HTMLElement;
+
+      // The bar starts at its own start, which under RTL is the right-hand edge
+      // — so the rest of it is to the left. A logical answer here would have the
+      // stylesheet fading the end the reader is already standing at.
+      expect(list).toHaveAttribute('data-mp-overflow', 'left');
+    });
+
+    it('says nothing at all when everything fits', async () => {
+      const screen = await render(<Narrow width={1200} />);
+      const list = screen.container.querySelector('.mp-tabs__list') as HTMLElement;
+
+      expect(list).not.toHaveAttribute('data-mp-overflow');
+      // And carries no mask, rather than one that happens to fade nothing.
+      expect(getComputedStyle(list).maskImage).toBe('none');
+    });
+
+    it('answers again when the room changes under the same tabs', async () => {
+      const screen = await render(<Narrow width={1200} />);
+      const box = screen.container.firstElementChild as HTMLElement;
+      const list = screen.container.querySelector('.mp-tabs__list') as HTMLElement;
+
+      box.style.width = '320px';
+
+      await vi.waitFor(() => expect(list).toHaveAttribute('data-mp-overflow', 'right'));
+    });
+
+    it('keeps the divider whole where the tabs fade', async () => {
+      const screen = await render(<Narrow />);
+      const list = screen.container.querySelector('.mp-tabs__list') as HTMLElement;
+      const mask = getComputedStyle(list);
+
+      // Two layers: the fade over everything above the hairline, and an opaque
+      // one over the hairline itself. The divider is the boundary between the
+      // bar and the panel and runs the full width whatever the bar is doing.
+      expect(mask.maskSize).toBe('100% calc(100% - 1px), 100% 1px');
+      expect(mask.maskRepeat).toBe('no-repeat, no-repeat');
+    });
+  });
+
   it('publishes the rung it was drawn at', async () => {
     const screen = await render(<Bar defaultValue="overview" size="sm" />);
 

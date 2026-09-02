@@ -96,6 +96,27 @@ MD3 has no vertical tabs. A column of destinations down the side of a screen is 
 
 A bar with more tabs than room scrolls rather than wrapping — MD3's scrollable tabs. A tab bar on two lines has stopped being a bar, and the indicator has nowhere sensible to sit.
 
+## Saying that it scrolls
+
+It always did. What it had no way of saying was so.
+
+macOS draws an overlay scrollbar that does not exist until it is used, so a bar with four tabs off the edge and a bar with none were the same picture. Windows draws a real one, which is a signal — and also fifteen pixels of furniture under the tabs, on one platform out of two.
+
+The scrollbar is hidden on both, and the bar **fades at the end that has more bar past it**: at the right when there is more to the right, at both when a reader is somewhere in the middle, at neither when everything fits. Fading an end already reached would be the same lie as saying nothing.
+
+Whether it overflows is measured rather than declared, because it depends entirely on the room the bar was given — the same six tabs fit at 640px and do not at 320. The measurement is written out as `data-mp-overflow` on `.mp-tabs__list`, so a page that wants a different treatment can read the same fact:
+
+```css
+/* An arrow instead of a fade, say. */
+.mp-tabs__list[data-mp-overflow='right']::after {
+  content: '›';
+}
+```
+
+The value is `left`, `right` or `both`, and it is **physical** — it names a side of the box, not a side of the text. That is the same rule the indicator's `--active-tab-left` follows: a measurement stays a measurement under RTL, and pairing one with a logical property is what would break the direction rather than what would fix it.
+
+The divider under the bar does not fade with the tabs. It is the boundary between the bar and the panel, and it runs the full width whatever the bar is doing.
+
 ## When this is the wrong component
 
 **For switching what the whole screen is**, use [MPBottomNavigation](./bottom-navigation) on a phone or a rail down the side. Tabs divide one screen; navigation moves between screens, and the two sound completely different to a screen reader.
