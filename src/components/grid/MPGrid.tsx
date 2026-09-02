@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
+import { classMap, responsiveSlots, withBaseline } from '../../internal/responsive';
 import { WINDOW_CLASSES } from '../../internal/window-class';
-import type { MPResponsive, MPWindowClass } from '../../types';
+import type { MPResponsive } from '../../types';
 
 /**
  * How a row divides the space its items did not take.
@@ -66,67 +67,6 @@ const DEFAULT_SPACING = 4;
  * have to stop and convert.
  */
 const SPACING_STEP = 0.25;
-
-/** A bare value means "from `compact` up"; a map is already per class. */
-function classMap<T>(value: MPResponsive<T> | undefined): Partial<Record<MPWindowClass, T>> {
-  if (value === undefined || value === null) {
-    return {};
-  }
-
-  if (typeof value === 'object') {
-    return value as Partial<Record<MPWindowClass, T>>;
-  }
-
-  return { compact: value };
-}
-
-/**
- * Turns a responsive value into the `--_mp-{name}-{class}` slots the stylesheet
- * reads, writing only the classes the caller actually named.
- *
- * The gaps are filled in by CSS rather than here: every slot falls back through
- * the ones below it, so `span={{ expanded: 6 }}` is one custom property and not
- * five. That keeps the inline style on a grid item down to what was asked for,
- * which matters when the item is one of two hundred rows in a list.
- */
-function responsiveSlots<T>(
-  name: string,
-  value: MPResponsive<T> | undefined,
-  toCss: (value: T) => string
-): React.CSSProperties {
-  const map = classMap(value);
-  const slots: Record<string, string> = {};
-
-  for (const windowClass of WINDOW_CLASSES) {
-    const entry = map[windowClass];
-
-    if (entry !== undefined) {
-      slots[`--_mp-${name}-${windowClass}`] = toCss(entry);
-    }
-  }
-
-  return slots as React.CSSProperties;
-}
-
-/**
- * Fills the `compact` entry of a partial map in with the prop's own default.
- *
- * Without this, `spacing={{ expanded: 8 }}` would be a grid with no gutter at all
- * below 840dp — the stylesheet's `0px` fallback rather than the documented 4 —
- * and a caller who widened one class would silently lose every class under it. A
- * map says "from here up, this instead"; it does not say "and nothing below".
- */
-function withBaseline<T>(value: MPResponsive<T> | undefined, baseline: T): MPResponsive<T> {
-  if (value === undefined || value === null) {
-    return baseline;
-  }
-
-  if (typeof value === 'object') {
-    return { compact: baseline, ...(value as Partial<Record<MPWindowClass, T>>) };
-  }
-
-  return value;
-}
 
 /**
  * A count of columns, as a plain number for `calc()` to divide by.
