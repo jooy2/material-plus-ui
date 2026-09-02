@@ -8,6 +8,14 @@ A second report from the application that filed the first one, a day after upgra
 
 - **`data-mp-overflow` on `.mp-tabs__list`**, saying which end of a scrolled tab bar has more bar past it — `left`, `right` or `both`, and absent when everything fits. It is what the new fade at the bar's ends is drawn from, and a page that wants a different treatment reads the same fact. Physical rather than logical: it names a side of the box, on the rule the indicator's `--active-tab-left` already follows.
 
+- **`MPAnimateCounter`**, a number counting up to its value — and it is still a CSS animation. Text is not an animatable property, so a count needs a frame loop; the obvious implementation gives that loop its own clock, its own easing and its own idea of what _paused_ means, which is three things that have to be kept in step with the six declared effects and will not be.
+
+  So the animation is a real one over a **registered custom property** — `@property --mp-count`, interpolated by `@keyframes` — and the loop does nothing but read the value and format it. `duration`, `delay`, the easing token, `trigger`, `paused`, `prefers-reduced-motion` and `timeline="view"` are then the same machinery as everything else rather than a second implementation of each, and scrolling a `view()` counter backwards counts back down.
+
+  It also means the waiting state is right for free: a paused animation with `fill-mode: both` is sitting on `from`, so a counter waiting to be scrolled to shows where it starts rather than the answer it was about to give.
+
+  Formatting is `Intl.NumberFormat`, so a currency or a compact notation is a prop. Concatenating a prefix and a suffix can only write one of `$1,234.50` and `1.234,50 €`.
+
 - **`MPAnimateSplit`**, a line arriving a word or a character at a time. `MPAnimateAppear` for a string: the same settling and the same stagger, over the pieces of a sentence rather than over children a caller wrote out.
 
   What it adds beyond splitting is the part that is easy to get wrong and invisible when you do. The pieces are cut with `Intl.Segmenter`, so a Japanese or Thai sentence is cut into words rather than handed back whole, and `👩‍👩‍👧` is one character rather than seven. The whole line goes to a screen reader once out of a clipped box, because a line split into characters is otherwise announced as a **list of letters**. And each word is its own inline-block with the characters inside it — a piece has to be `inline-block` to move at all, which also makes it a break opportunity, so loose characters would let a line wrap mid-word.

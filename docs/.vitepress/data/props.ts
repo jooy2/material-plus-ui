@@ -7761,6 +7761,57 @@ const componentTables: Record<string, PropRow[]> = {
     id
   ],
 
+  MPAnimateCounter: [
+    {
+      name: 'value',
+      type: 'number',
+      required: true,
+      description: { ko: '도달해 멈출 숫자', en: 'The number it settles on' }
+    },
+    {
+      name: 'from',
+      type: 'number',
+      default: '0',
+      description: {
+        ko: '어디서 시작할지. 트리거되기 전에 보이는 것도 이 값입니다 — 답이 아니라',
+        en: 'Where it starts. It is also what is shown while it waits to be triggered, rather than the answer'
+      }
+    },
+    {
+      name: 'options',
+      type: 'Intl.NumberFormatOptions',
+      description: {
+        ko: '숫자를 어떻게 쓸지 — `Intl.NumberFormat`이 받는 무엇이든. 이어 붙이는 대신 포맷하는 이유는 숫자의 조각들이 어디서나 같은 순서가 아니기 때문입니다',
+        en: 'How the number is written — anything `Intl.NumberFormat` takes. Formatted rather than concatenated because the pieces of a number are not in the same order everywhere'
+      }
+    },
+    {
+      name: 'locale',
+      type: 'string',
+      description: {
+        ko: '어느 언어로 쓸지. 아무 말도 없으면 `Intl`이 그러듯 브라우저 자신의 것으로 돌아갑니다',
+        en: "Which language it is written in. Falls back to the browser's own, which is what `Intl` does when nobody says"
+      }
+    },
+    {
+      name: 'format',
+      type: '(value: number) => string',
+      description: {
+        ko: '`Intl`에 옵션이 없는 숫자를 위한 포매터 전체 — 서수, 10점 만점, 소요 시간. `options`와 `locale`을 덮어씁니다',
+        en: 'The whole formatter, for the numbers `Intl` has no option for — an ordinal, a score out of ten, a duration. Overrides `options` and `locale`'
+      }
+    },
+    animateDuration,
+    animateDelay,
+    animateEasing,
+    animatePaused,
+    animateTrigger,
+    animatePlay,
+    animateOnce,
+    animateThreshold,
+    ...timeline
+  ],
+
   MPAnimateFade: [
     animateMode,
     {

@@ -6,6 +6,7 @@ import {
   MPAlert,
   MPAnimateAppear,
   MPAnimateBlink,
+  MPAnimateCounter,
   MPAnimateFade,
   MPAnimateFloat,
   MPAnimateLighting,
@@ -2152,6 +2153,27 @@ const GROUPS: Group[] = [
               <MPChip variant="tonal">Base UI</MPChip>
               <MPChip variant="tonal">Tailwind</MPChip>
             </MPAnimateMarquee>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPAnimateCounter',
+        summary: {
+          ko: '자기 값까지 세어 올라가는 숫자',
+          en: 'A number counting up to its value'
+        },
+        path: '/components/motion/animate-counter',
+        preview: (
+          <Fit>
+            <MPBox size="sm">
+              <MPTypography level="body">
+                <MPAnimateCounter
+                  value={128400}
+                  duration={2400}
+                  options={{ notation: 'compact' }}
+                />
+              </MPTypography>
+            </MPBox>
           </Fit>
         )
       },
