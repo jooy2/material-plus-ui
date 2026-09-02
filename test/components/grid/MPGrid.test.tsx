@@ -366,6 +366,45 @@ describe('MPGrid', () => {
       expect(width(screen.container.querySelector('.inner')!)).toBeCloseTo(200, 0);
     });
 
+    it('does not let an inner grid resolve the outer one’s column count', async () => {
+      // The same inheritance, one level up and missed for longer. `columns={4}`
+      // is one slot, so above compact the inner grid was reading the *outer*
+      // grid's — four columns on a phone and two on a laptop, from a grid that
+      // was told four at every width.
+      const screen = await render(
+        <div style={{ width: 1200 }}>
+          <MPGrid columns={{ compact: 4, large: 2 }} spacing={0}>
+            <MPGridItem span={1} className="outer">
+              <MPGrid columns={4} spacing={0}>
+                <MPGridItem span={1} className="inner">
+                  Inner
+                </MPGridItem>
+              </MPGrid>
+            </MPGridItem>
+          </MPGrid>
+        </div>
+      );
+
+      expect(width(screen.container.querySelector('.outer')!)).toBeCloseTo(600, 0);
+      expect(width(screen.container.querySelector('.inner')!)).toBeCloseTo(150, 0);
+    });
+
+    it('does not let an inner grid inherit the outer one’s gutter', async () => {
+      const screen = await render(
+        <div style={{ width: 1200 }}>
+          <MPGrid spacing={{ compact: 0, large: 8 }}>
+            <MPGridItem span={12}>
+              <MPGrid spacing={0} className="inner">
+                <MPGridItem span={6}>Inner</MPGridItem>
+              </MPGrid>
+            </MPGridItem>
+          </MPGrid>
+        </div>
+      );
+
+      expect(getComputedStyle(screen.container.querySelector('.inner')!).columnGap).toBe('0px');
+    });
+
     it('clears the offsets at the boundary too', async () => {
       const screen = await render(
         <div style={{ width: 1200 }}>

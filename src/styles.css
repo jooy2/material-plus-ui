@@ -1330,21 +1330,45 @@
 
   /* The boundary, and the reason it has to exist.
    *
-   * An item's slots are inline custom properties, and a custom property
-   * *inherits*. So a grid nested inside an item — which is how nesting is spelled
-   * — sits inside that item's `--_mp-span-large`, and an inner item that only
-   * declared `--_mp-span-compact` resolves the outer one at every class above
-   * compact: `span={12}` comes out a sixth of the row it is actually in, and the
-   * card whose title it holds wraps a letter at a time.
+   * The slots are inline custom properties, and a custom property *inherits*. So
+   * a grid nested inside an item — which is how nesting is spelled — sits inside
+   * that item's `--_mp-span-large`, and an inner item that only declared
+   * `--_mp-span-compact` resolves the outer one at every class above compact:
+   * `span={12}` comes out a sixth of the row it is actually in, and the card
+   * whose title it holds wraps a letter at a time.
    *
    * A grid is where a span stops meaning anything, so a grid is where the slots
    * are put back to nothing. `initial` on a custom property is the guaranteed-
    * invalid value, which is what makes the `var()` fallbacks above take over
-   * rather than a number from two levels up. Fifteen declarations, once per
-   * grid, and the arithmetic under them is the same as it was.
+   * rather than a number from two levels up. Thirty declarations, once per grid,
+   * and the arithmetic under them is the same as it was.
+   *
+   * The grid's own three are here for the same reason the item's three are, and
+   * were missing: a responsive prop writes only the classes the caller named, so
+   * `columns={6}` on an inner grid is one slot — and an outer
+   * `columns={{ compact: 4, medium: 12 }}` was still being resolved by the inner
+   * grid at every class above compact. Six columns on a phone and twelve on a
+   * laptop, from a grid that was told six.
    *
    * Written on `.mp-grid` rather than on `.mp-grid-item` because an item that
-   * reset its own slots would be resetting the ones it had just been given. */
+   * reset its own slots would be resetting the ones it had just been given. The
+   * grid resetting its own is not the same thing: the value it goes on to use
+   * arrives in the `style` attribute, which beats a class either way. */
+  --_mp-cols-compact: initial;
+  --_mp-cols-medium: initial;
+  --_mp-cols-expanded: initial;
+  --_mp-cols-large: initial;
+  --_mp-cols-extra-large: initial;
+  --_mp-gap-x-compact: initial;
+  --_mp-gap-x-medium: initial;
+  --_mp-gap-x-expanded: initial;
+  --_mp-gap-x-large: initial;
+  --_mp-gap-x-extra-large: initial;
+  --_mp-gap-y-compact: initial;
+  --_mp-gap-y-medium: initial;
+  --_mp-gap-y-expanded: initial;
+  --_mp-gap-y-large: initial;
+  --_mp-gap-y-extra-large: initial;
   --_mp-span-compact: initial;
   --_mp-span-medium: initial;
   --_mp-span-expanded: initial;
