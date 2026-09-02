@@ -258,7 +258,10 @@ export const MPAvatar = React.forwardRef<HTMLSpanElement, MPAvatarProps>(functio
       data-mp-size={size}
       data-mp-variant={variant}
       className={classNames}
-      style={{ ...accentSlots(color), ...style }}
+      // `zIndex` before the caller's own style, so a group's painting order is a
+      // default rather than a decree. It is `undefined` outside a group, which
+      // is `z-index: auto` and leaves a lone avatar out of the cascade entirely.
+      style={{ ...accentSlots(color), zIndex: group?.depth, ...style }}
       {...props}
     >
       {src ? (

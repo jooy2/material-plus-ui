@@ -87,10 +87,19 @@ const OVERLAP: Record<MPSize, string> = {
  *
  * ## The first avatar is on top
  *
- * The order is the DOM order, and each avatar is drawn under the one before it.
- * A stack read from the start is therefore read front to back, so the person the
- * group is *about* comes first rather than last — and under RTL the whole thing
- * flips on its own, because the overlap is a logical margin.
+ * Each avatar is drawn under the one before it, so a stack read from the start
+ * is read front to back and the person the group is *about* comes first rather
+ * than last. Under RTL the whole thing flips on its own, because the overlap is
+ * a logical margin.
+ *
+ * That is the opposite of what the document order gives — later siblings paint
+ * over earlier ones — so it has to be **said**, and every avatar carries a
+ * `z-index` for it. Leaving it implicit would also mean the order held only
+ * until something in the stack acquired one of its own.
+ *
+ * The count is the last card in the pile rather than a label on top of it. It
+ * is part of the run, and a stack whose final item floated clear of the stacking
+ * it belongs to would be a stack with an exception in it.
  */
 export const MPAvatarGroup = React.forwardRef<HTMLDivElement, MPAvatarGroupProps>(
   function MPAvatarGroup(
@@ -111,53 +120,93 @@ export const MPAvatarGroup = React.forwardRef<HTMLDivElement, MPAvatarGroupProps
   ) {
     const size = useMPSize(sizeProp);
     const color = useMPColor(colorProp);
-    const context = React.useMemo<MPAvatarGroupContextValue>(
-      () => ({ size, shape, variant, color }),
-      [size, shape, variant, color]
-    );
 
     const items = React.Children.toArray(children);
     const shown = max === undefined ? items : items.slice(0, Math.max(0, max));
     const counted = total ?? items.length;
     const hidden = Math.max(0, counted - shown.length);
+    const drawn = shown.length + (hidden > 0 ? 1 : 0);
+
+    /*
+     * One context value per card, rather than one for the stack.
+     *
+     * They differ only in `depth`, and the memo is what keeps that from costing
+     * anything: a new object per avatar on every render would re-render every
+     * face in the group whenever anything above it moved, which is exactly what
+     * the single memoized value used to prevent.
+     *
+     * Counting down from `drawn` leaves the deepest card at 1 rather than at 0,
+     * so every avatar in a stack is above a `z-index: 0` sibling drawn beside
+     * it — the stack is one object and it is in front.
+     */
+    const cards = React.useMemo<MPAvatarGroupContextValue[]>(
+      () =>
+        Array.from({ length: drawn }, (_, index) => ({
+          size,
+          shape,
+          variant,
+          color,
+          depth: drawn - index
+        })),
+      [size, shape, variant, color, drawn]
+    );
 
     return (
-      <MPAvatarGroupContext.Provider value={context}>
-        <div
-          ref={ref}
-          data-mp-size={size}
-          className={[
-            'mp-avatar-group isolate inline-flex items-center align-middle',
-            // A logical margin, so the stack overlaps the other way under RTL
-            // without anything being asked to.
-            '[&>*:not(:first-child)]:[margin-inline-start:calc(var(--_mp-avatar-overlap)*-1)]',
-            'ring-mp-surface [&>*]:ring-2',
-            className ?? ''
-          ]
-            .filter(Boolean)
-            .join(' ')}
-          style={
-            {
-              '--_mp-avatar-overlap':
-                overlap === undefined
-                  ? OVERLAP[size]
-                  : typeof overlap === 'number'
-                    ? `${overlap}px`
-                    : overlap,
-              ...style
-            } as React.CSSProperties
-          }
-          {...props}
-        >
-          {shown}
-          {/*
-           * The remainder, as an avatar rather than as a bare number: it is the
-           * last thing in the stack and it has to be the same circle at the same
-           * size, or the run ends in something that is not part of it.
-           */}
-          {hidden > 0 ? <MPAvatar initials={`+${hidden}`} /> : null}
-        </div>
-      </MPAvatarGroupContext.Provider>
+      <div
+        ref={ref}
+        data-mp-size={size}
+        className={[
+          'mp-avatar-group isolate inline-flex items-center align-middle',
+          // A logical margin, so the stack overlaps the other way under RTL
+          // without anything being asked to.
+          '[&>*:not(:first-child)]:[margin-inline-start:calc(var(--_mp-avatar-overlap)*-1)]',
+          'ring-mp-surface [&>*]:ring-2',
+          className ?? ''
+        ]
+          .filter(Boolean)
+          .join(' ')}
+        style={
+          {
+            '--_mp-avatar-overlap':
+              overlap === undefined
+                ? OVERLAP[size]
+                : typeof overlap === 'number'
+                  ? `${overlap}px`
+                  : overlap,
+            ...style
+          } as React.CSSProperties
+        }
+        {...props}
+      >
+        {/*
+         * A provider per child rather than one around the run, because what
+         * each of them is being handed differs. It writes no element, so the
+         * avatars are still the group's own element children and the two
+         * `[&>*]` rules above still reach them.
+         *
+         * Keyed by the child's own key — `React.Children.toArray` has already
+         * given every element a stable one — so a face leaving the middle of
+         * the stack does not remount the faces after it.
+         */}
+        {shown.map((child, index) => (
+          <MPAvatarGroupContext.Provider
+            key={(React.isValidElement(child) ? child.key : null) ?? index}
+            value={cards[index]!}
+          >
+            {child}
+          </MPAvatarGroupContext.Provider>
+        ))}
+        {/*
+         * The remainder, as an avatar rather than as a bare number: it is the
+         * last thing in the stack and it has to be the same circle at the same
+         * size, or the run ends in something that is not part of it.
+         */}
+        {hidden > 0 ? (
+          <MPAvatarGroupContext.Provider value={cards[drawn - 1]!}>
+            <MPAvatar initials={`+${hidden}`} />
+          </MPAvatarGroupContext.Provider>
+        ) : null}
+      </div>
     );
   }
 );

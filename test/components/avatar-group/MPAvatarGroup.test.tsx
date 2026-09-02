@@ -46,6 +46,60 @@ describe('MPAvatarGroup', () => {
       ).toBe('2rem');
     });
 
+    it('paints the first avatar on top, which is the opposite of the document order', async () => {
+      const screen = await render(<Stack />);
+      const avatars = [...screen.container.querySelectorAll('.mp-avatar')] as HTMLElement[];
+
+      // Descending, and none of them `auto`: later siblings paint over earlier
+      // ones by default, so a stack read front to back has to say so.
+      expect(avatars.map((avatar) => getComputedStyle(avatar).zIndex)).toEqual([
+        '4',
+        '3',
+        '2',
+        '1'
+      ]);
+    });
+
+    it('puts the first avatar in front where the two of them actually overlap', async () => {
+      const screen = await render(<Stack />);
+      const [first, second] = [...screen.container.querySelectorAll('.mp-avatar')] as HTMLElement[];
+
+      // The claim is about painting rather than about a number, so it is read
+      // off the pixel: a point inside both boxes belongs to whichever one is in
+      // front. Two pixels in from the second's leading edge, which the overlap
+      // puts well inside the first.
+      const box = second!.getBoundingClientRect();
+      const hit = document.elementFromPoint(box.left + 2, box.top + box.height / 2);
+
+      expect(first!.contains(hit)).toBe(true);
+    });
+
+    it('keeps the count in the stack rather than floating it clear of one', async () => {
+      const screen = await render(<Stack max={2} />);
+      const avatars = [...screen.container.querySelectorAll('.mp-avatar')] as HTMLElement[];
+
+      expect(avatars.map((avatar) => getComputedStyle(avatar).zIndex)).toEqual(['3', '2', '1']);
+    });
+
+    it('leaves a lone avatar out of the cascade entirely', async () => {
+      const screen = await render(<MPAvatar name="Ada Lovelace" />);
+      const avatar = screen.container.querySelector('.mp-avatar') as HTMLElement;
+
+      expect(getComputedStyle(avatar).zIndex).toBe('auto');
+    });
+
+    it('lets a caller overrule the depth it was handed', async () => {
+      const screen = await render(
+        <MPAvatarGroup>
+          <MPAvatar name="Ada Lovelace" />
+          <MPAvatar name="Alan Turing" style={{ zIndex: 9 }} />
+        </MPAvatarGroup>
+      );
+      const [, second] = [...screen.container.querySelectorAll('.mp-avatar')] as HTMLElement[];
+
+      expect(getComputedStyle(second!).zIndex).toBe('9');
+    });
+
     it('rings each avatar in the page’s own surface, so the near one reads as in front', async () => {
       const screen = await render(<Stack />);
       const group = screen.container.querySelector('.mp-avatar-group')!;

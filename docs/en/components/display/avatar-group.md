@@ -61,7 +61,13 @@ The ring is drawn in the page's own `surface`, so what separates the faces is th
 
 ## The first avatar is on top
 
-The order is the DOM order, and each avatar is drawn under the one before it. A stack read from the start is therefore read front to back, so the person the group is _about_ comes first rather than last.
+Each avatar is drawn under the one before it. A stack read from the start is therefore read front to back, so the person the group is _about_ comes first rather than last.
+
+That is the **opposite** of the document order — later siblings paint over earlier ones — so every avatar carries a `z-index` counting down from the front. Left to the document it would be back to front, and it would hold only until something in the stack acquired a `z-index` of its own.
+
+The count is the last card in the pile rather than a label on top of it. It is part of the run, and a stack whose final item floated clear of the stacking it belongs to would be a stack with an exception in it.
+
+The depth reaches an avatar through the same context `size` and `shape` do, which is what keeps it off the children a caller passed. A child that is not an `MPAvatar` — a router's link around one, a tooltip's trigger — is not given a depth and keeps the order the document gives it.
 
 Under RTL the whole thing flips on its own: the overlap is a logical margin, not a negative `margin-left`.
 

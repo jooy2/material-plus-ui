@@ -20,6 +20,12 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Fixed
 
+- **`MPAvatarGroup` stacked back to front, which is the opposite of what its own page says.** "The first avatar is on top" has been a heading in the documentation since the component shipped, with the argument for it: a stack read from the start is read front to back, so the person the group is _about_ comes first rather than last. Nothing in the code said so. The overlap is a negative margin and nothing else, and later siblings paint over earlier ones — so the run was drawn last-on-top, and every face had its **leading** edge covered instead of its trailing one.
+
+  Every avatar carries a `z-index` now, counting down from the front, with the count as the last card in the pile rather than a label floating on top of it. Explicit rather than left to the document for a second reason as well: the implicit order held only until anything in the stack — a link, a tooltip's trigger, a badge — acquired a `z-index` of its own.
+
+  The depth arrives through the same context `size` and `shape` already do, so nothing is written onto the children a caller passed. `MPAvatar` reads it and a caller's own `style.zIndex` still wins; a child that is not one keeps the order the document gives it.
+
 - **The build never emptied `dist/`, so a deleted module went on being published.** `tsc` only writes. It has no notion of an output file that should no longer exist, and `package.json` ships `dist/` whole — which means a component taken out of `src/` keeps resolving through `material-plus-ui/components/<name>` for every release after the one that removed it, from a file no source has produced since.
 
   Nothing in the working tree says so, either. The removal is in the diff, the barrel no longer names it, and the only place the truth is written down is a directory that is in `.gitignore`. Every measurement taken off the build inherits it: the `@__PURE__` count is a count of what is in `dist/`, and the bundle figures walk a module graph rooted there.
