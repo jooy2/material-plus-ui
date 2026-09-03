@@ -47,18 +47,7 @@ import { MPGrid, MPGridItem } from 'material-plus-ui';
 
 휴대폰에서는 전체 폭, 600dp부터 절반, 840dp부터 3분의 1입니다.
 
-**이건 일부러 Tailwind의 브레이크포인트가 아닙니다.** Tailwind는 640/768/1024/1280에서 바뀌는데, 같은 생각을 다른 숫자로 말한 것입니다. 그리드는 한쪽 기준에서 다시 흐르고 그 옆의 `md:` 유틸리티는 다른 기준에서 다시 흐른다면, 정확히 한 폭에서만 미묘하게 어긋나고 나머지 모든 폭에서 추론이 불가능한 레이아웃이 됩니다. 사다리가 둘이라면 이 라이브러리는 명세가 정의한 쪽을 택합니다.
-
-직접 만든 유틸리티도 그리드와 함께 바뀌게 하려면, 같은 폭에 이름을 붙이면 됩니다.
-
-```css
-@theme {
-  --breakpoint-medium: 600px;
-  --breakpoint-expanded: 840px;
-  --breakpoint-large: 1200px;
-  --breakpoint-xlarge: 1600px;
-}
-```
+**이건 일부러 Tailwind의 브레이크포인트가 아닙니다.** 그리고 직접 쓰는 유틸리티도 경쟁하는 대신 같은 사다리에 올라탈 수 있습니다 — `mp-medium:flex`, `mp-below-expanded:hidden`. 왜 이 사다리인지, 또 무엇이 이 사다리를 읽는지, 그리고 옮기는 방법은 [브레이크포인트](../../design/breakpoints)에 전부 있습니다.
 
 ## 머터리얼 자신의 그리드
 

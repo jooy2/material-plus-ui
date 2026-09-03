@@ -159,3 +159,5 @@ MD3가 긋는 구분 그대로입니다. **standard** navigation drawer는 레�
 - [MPDrawer](./drawer) — 이것이 되는 패널이고, 일부가 될 레이아웃이 없을 때 바로 손에 잡을 것.
 - [MPHeader](./header) — 트리거가 들어갈 자리.
 - [MPBottomNavigation](./bottom-navigation) — 목적지가 적을 때 MD3가 서랍 대신 내놓는 compact 창의 패턴.
+- [MPShow](./show) — 사이드바 자신의 접힘이 다루지 않는 페이지의 나머지에서, 한 배치만 보이고 다른 배치는 보이지 않게 하기.
+- [브레이크포인트](../../design/breakpoints) — `collapseBelow`의 클래스가 시작하는 지점과, 옮기는 방법.

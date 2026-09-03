@@ -159,3 +159,5 @@ It works, and it stays a column at every width — which is right for a panel th
 - [MPDrawer](./drawer) — the panel this becomes, and the one to reach for when there is no layout to be part of.
 - [MPHeader](./header) — where the trigger goes.
 - [MPBottomNavigation](./bottom-navigation) — the compact-window pattern MD3 offers instead of a drawer when the destinations are few.
+- [MPShow](./show) — showing one arrangement and not the other, for the parts of a page a sidebar's own collapse does not cover.
+- [Breakpoints](../../design/breakpoints) — where `collapseBelow`'s classes begin, and how to move them.

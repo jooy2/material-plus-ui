@@ -47,18 +47,7 @@ Each entry applies from its own class **upward**, so a layout is usually two ent
 
 Full width on a phone, half from 600dp, a third from 840dp.
 
-**These are deliberately not Tailwind's breakpoints.** Tailwind changes at 640/768/1024/1280, which are different numbers describing the same idea, and a grid that reflowed at one set while the `md:` utility beside it reflowed at another would be a layout that is subtly wrong at exactly one width and impossible to reason about at every other. Given two ladders, this library takes the one the specification defines.
-
-If you want your own utilities to change with the grid, name the same widths:
-
-```css
-@theme {
-  --breakpoint-medium: 600px;
-  --breakpoint-expanded: 840px;
-  --breakpoint-large: 1200px;
-  --breakpoint-xlarge: 1600px;
-}
-```
+**These are deliberately not Tailwind's breakpoints,** and your own utilities can join the same ladder rather than compete with it — `mp-medium:flex`, `mp-below-expanded:hidden`. [Breakpoints](../../design/breakpoints) is the whole story: why this ladder, what else reads it, and how to move it.
 
 ## Material's own grid
 
