@@ -8,6 +8,7 @@ import { MPMenuContext } from '../../internal/menu';
 import { accentSlots } from '../../internal/accent';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { CONTROL_ICON, META_TEXT, hasContent } from '../../internal/scale';
+import { DOT_MOTION, MARK_MOTION } from '../../internal/mark';
 import { FADE, PORTAL_LAYER } from '../../internal/surface';
 import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPAlign, MPColor, MPSide, MPSize } from '../../types';
@@ -492,7 +493,12 @@ export function MPMenuCheckboxItem({
           indicator that is not rendered at all takes its column with it, and
           every label in the menu shifts sideways as rows are ticked. */}
       <span className={`${SLOT} text-(--_mp-accent)`} style={{ width: CONTROL_ICON[size] }}>
-        <Menu.CheckboxItemIndicator className="flex items-center justify-center">
+        {/* The same arrival `MPCheckbox` gives its own tick, out of the same
+            string: a row ticked in a menu and a box ticked in a form are one
+            event said twice, and the menu's used to be the one that snapped. */}
+        <Menu.CheckboxItemIndicator
+          className={`mp-menu__mark flex items-center justify-center ${MARK_MOTION}`}
+        >
           <MPIcon icon={CheckIcon} size={CONTROL_ICON[size]} />
         </Menu.CheckboxItemIndicator>
       </span>
@@ -563,7 +569,11 @@ export function MPMenuRadioItem({
     >
       <RowLayer />
       <span className={`${SLOT} text-(--_mp-accent)`} style={{ width: CONTROL_ICON[size] }}>
-        <Menu.RadioItemIndicator className="flex items-center justify-center">
+        {/* A disc rather than a stroke, so it grows out of nothing — which is
+            `MPRadioGroup`'s dot, and the reason the two motions are separate. */}
+        <Menu.RadioItemIndicator
+          className={`mp-menu__dot flex items-center justify-center ${DOT_MOTION}`}
+        >
           <span className="block size-2.5 rounded-full bg-current" />
         </Menu.RadioItemIndicator>
       </span>

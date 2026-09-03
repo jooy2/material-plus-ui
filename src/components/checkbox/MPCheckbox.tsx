@@ -4,6 +4,7 @@ import { Field } from '@base-ui/react/field';
 import { MPIcon } from '../icon/MPIcon';
 import { CheckIcon, RemoveIcon } from '../../constants/icons';
 import { accentSlots } from '../../internal/accent';
+import { MARK_MOTION } from '../../internal/mark';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { MPSupportingText } from '../../internal/SupportingText';
 import { PROSE_TEXT, hasContent } from '../../internal/scale';
@@ -229,23 +230,16 @@ export const MPCheckbox = React.forwardRef<HTMLElement, MPCheckboxProps>(functio
                 than a container that eases and a glyph that appears on top of
                 it halfway through.
 
-                It is drawn from `scale: 0.6` rather than from nothing, because
-                a mark that starts at zero spends its first frames as a smudge
-                too small to read as a tick, and the eye reads the arrival as a
-                flicker rather than as a stroke.
+                `MARK_MOTION` rather than the six utilities written out, because
+                five other controls in this library draw a mark that comes and
+                goes and all six have to do it the same way. `internal/mark.ts`
+                has the argument, including why a stroke starts at 0.6 and a
+                disc starts at nothing.
 
                 Base UI keeps the indicator mounted until this transition has
                 finished, which is what gives the mark a way out as well as a
                 way in — `data-ending-style` is the same frame played backwards. */}
-            <Checkbox.Indicator
-              className={[
-                'flex items-center justify-center',
-                'transition-[opacity,scale] duration-(--mp-sys-motion-duration-short4)',
-                'ease-mp-standard',
-                'data-starting-style:scale-60 data-starting-style:opacity-0',
-                'data-ending-style:scale-60 data-ending-style:opacity-0'
-              ].join(' ')}
-            >
+            <Checkbox.Indicator className={`flex items-center justify-center ${MARK_MOTION}`}>
               <MPIcon
                 icon={indeterminate ? RemoveIcon : CheckIcon}
                 size={tick.glyph}

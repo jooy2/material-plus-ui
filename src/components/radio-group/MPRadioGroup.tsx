@@ -3,6 +3,7 @@ import { Radio } from '@base-ui/react/radio';
 import { RadioGroup } from '@base-ui/react/radio-group';
 import { Field } from '@base-ui/react/field';
 import { accentSlots } from '../../internal/accent';
+import { DOT_MOTION } from '../../internal/mark';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { MPSupportingText } from '../../internal/SupportingText';
 import { META_TEXT, PROSE_TEXT, hasContent } from '../../internal/scale';
@@ -155,15 +156,13 @@ export const MPRadio = React.forwardRef<HTMLElement, MPRadioProps>(function MPRa
                 arrival MD3 draws.
 
                 On the same 200ms as the ring's own border colour, so the two
-                halves of "chosen" land together. */}
+                halves of "chosen" land together — which is the timing
+                `DOT_MOTION` names once for every mark in the library. */}
             <Radio.Indicator
               className={[
                 'mp-radio__fill rounded-full',
                 dot.fill,
-                'transition-[opacity,scale] duration-(--mp-sys-motion-duration-short4)',
-                'ease-mp-standard',
-                'data-starting-style:scale-0 data-starting-style:opacity-0',
-                'data-ending-style:scale-0 data-ending-style:opacity-0',
+                DOT_MOTION,
                 disabled ? 'bg-mp-on-surface/38' : 'bg-(--_mp-accent)'
               ].join(' ')}
             />

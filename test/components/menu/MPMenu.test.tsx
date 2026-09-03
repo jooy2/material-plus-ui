@@ -266,6 +266,57 @@ describe('MPMenu', () => {
         .element(screen.getByRole('menuitemradio', { name: 'Grid' }))
         .toHaveAttribute('aria-checked', 'true');
     });
+
+    it("grows a ticked row's mark in and lets it play back out", async () => {
+      // The same pair `MPCheckbox`'s own mark is checked on, and for the same
+      // reason: which values it travels between is a starting style, and
+      // reading one back would be timing the transition rather than asking
+      // whether there is one. What cannot be true by accident is that the mark
+      // carries a transition and that unticking leaves it on the page for the
+      // length of it.
+      function Checkable() {
+        const [on, setOn] = useState(true);
+
+        return (
+          <MPMenu trigger={<MPButton>View</MPButton>}>
+            <MPMenuCheckboxItem checked={on} onCheckedChange={setOn}>
+              Show grid
+            </MPMenuCheckboxItem>
+          </MPMenu>
+        );
+      }
+
+      const screen = await render(<Checkable />);
+
+      await open(screen, 'View');
+
+      const mark = () => document.querySelector('.mp-menu__mark');
+
+      expect(getComputedStyle(mark()!).transitionProperty).toBe('opacity, scale');
+      expect(getComputedStyle(mark()!).transitionDuration).toBe('0.2s');
+
+      await screen.getByRole('menuitemcheckbox', { name: 'Show grid' }).click();
+
+      expect(mark()).not.toBeNull();
+      await expect.poll(mark).toBeNull();
+    });
+
+    it("grows a chosen row's dot in on the same timing", async () => {
+      const screen = await render(
+        <MPMenu trigger={<MPButton>View</MPButton>}>
+          <MPMenuRadioGroup defaultValue="list">
+            <MPMenuRadioItem value="list">List</MPMenuRadioItem>
+          </MPMenuRadioGroup>
+        </MPMenu>
+      );
+
+      await open(screen, 'View');
+
+      const dot = document.querySelector('.mp-menu__dot')!;
+
+      expect(getComputedStyle(dot).transitionProperty).toBe('opacity, scale');
+      expect(getComputedStyle(dot).transitionDuration).toBe('0.2s');
+    });
   });
 
   describe('structure', () => {

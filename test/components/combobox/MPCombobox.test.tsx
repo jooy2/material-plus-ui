@@ -369,7 +369,11 @@ describe('MPCombobox', () => {
      * indicator that is not rendered takes its column with it, and every label
      * in the list shifts sideways as the selection moves down.
      */
-    it('marks the chosen row with a tick', async () => {
+    it('marks the chosen row with a tick and leaves the others empty', async () => {
+      // The tick is on every row and only the chosen one is drawn: it is kept
+      // mounted so that letting a row go has an exit as well as an entrance, so
+      // "is there an svg" no longer separates a ticked row from an empty one.
+      // Its opacity does.
       const screen = await render(<Single initial="apple" />);
 
       await screen.getByRole('combobox').click();
@@ -378,8 +382,27 @@ describe('MPCombobox', () => {
         .getByRole('option')
         .all()
         .find((option) => option.element().getAttribute('data-selected') !== null);
+      const mark = chosen!.element().querySelector('.mp-combobox__mark')!;
 
-      expect(chosen!.element().querySelector('svg')).not.toBeNull();
+      expect(mark.querySelector('svg')).not.toBeNull();
+      expect(getComputedStyle(mark).opacity).toBe('1');
+
+      const rest = [...document.querySelectorAll('[role="option"]:not([data-selected])')].map(
+        (row) => getComputedStyle(row.querySelector('.mp-combobox__mark')!).opacity
+      );
+
+      expect(rest.every((value) => value === '0')).toBe(true);
+    });
+
+    it('eases the tick in and back out again', async () => {
+      const screen = await render(<Single initial="apple" />);
+
+      await screen.getByRole('combobox').click();
+
+      const mark = document.querySelector('.mp-combobox__mark')!;
+
+      expect(getComputedStyle(mark).transitionProperty).toBe('opacity, scale');
+      expect(getComputedStyle(mark).transitionDuration).toBe('0.2s');
     });
 
     // The row that offers what was typed is marked with a plus rather than a

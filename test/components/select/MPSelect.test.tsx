@@ -195,6 +195,26 @@ describe('MPSelect', () => {
       await expect.poll(() => getComputedStyle(popup).transitionProperty).toBe('opacity');
       expect(getComputedStyle(popup).transitionDuration).toBe('0.2s');
     });
+
+    it('grows the tick into the row that was picked', async () => {
+      // The mark is kept mounted and drawn off `data-selected`, so both
+      // directions are readable without timing a transition: the chosen row's
+      // tick is opaque and every other row's is not, and the property carrying
+      // it between the two is the transition this asserts.
+      //
+      // `Select.ItemIndicator` unmounts on the frame its row is let go of, which
+      // is why this is not the starting-and-ending-style pair `MPCheckbox` uses.
+      const screen = await render(<ControlledSelect initial="kr-11" />);
+
+      await open(screen);
+
+      const marks = [...document.querySelectorAll('.mp-select__mark')];
+      const opacity = marks.map((mark) => getComputedStyle(mark).opacity);
+
+      expect(opacity).toEqual(['1', '0', '0']);
+      expect(getComputedStyle(marks[0]).transitionProperty).toBe('opacity, scale');
+      expect(getComputedStyle(marks[0]).transitionDuration).toBe('0.2s');
+    });
   });
 
   describe('the floating label', () => {

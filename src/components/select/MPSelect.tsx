@@ -7,6 +7,7 @@ import { MPFieldLabel, MPFieldOutline, useFloatingLabel } from '../../internal/F
 import { MPStateLayer } from '../../internal/StateLayer';
 import { MPSupportingText } from '../../internal/SupportingText';
 import { CONTROL_ICON, PROSE_TEXT, hasContent } from '../../internal/scale';
+import { MARK_MOTION_KEPT } from '../../internal/mark';
 import { FADE, PORTAL_LAYER } from '../../internal/surface';
 import { useMPSize } from '../../internal/config';
 import type { MPControlEventProps, MPSize, MPStyleProps } from '../../types';
@@ -392,9 +393,20 @@ export const MPSelect = React.forwardRef<HTMLButtonElement, MPSelectProps>(funct
                     {/* The box is always there and only the tick comes and goes:
                         an indicator that is not rendered at all takes its column
                         with it, and every label in the list shifts sideways as
-                        the selection moves down it. */}
+                        the selection moves down it.
+
+                        `keepMounted`, and the tick drawn off `data-selected`
+                        rather than off Base UI's two transition frames. This
+                        part returns `null` the instant its row stops being the
+                        chosen one, so `data-ending-style` never reaches the DOM
+                        — a tick that eased in disappeared in a frame, which in a
+                        list where the selection *moves* is the half of the event
+                        the eye is following. `internal/mark.ts` has the rest. */}
                     <span className="flex size-5 shrink-0 items-center justify-center">
-                      <Select.ItemIndicator>
+                      <Select.ItemIndicator
+                        keepMounted
+                        className={`mp-select__mark ${MARK_MOTION_KEPT}`}
+                      >
                         <MPIcon icon={CheckIcon} size={18} />
                       </Select.ItemIndicator>
                     </span>

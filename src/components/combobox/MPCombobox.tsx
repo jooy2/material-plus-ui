@@ -12,6 +12,7 @@ import { COMMON } from '../../internal/messages/common';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { MPSupportingText } from '../../internal/SupportingText';
 import { CONTROL_ICON, PROSE_TEXT, hasContent } from '../../internal/scale';
+import { MARK_MOTION_KEPT } from '../../internal/mark';
 import { FADE, PORTAL_LAYER } from '../../internal/surface';
 import { useMPSize } from '../../internal/config';
 import type { MPColor, MPControlEventProps, MPSize, MPStyleProps, MPVariant } from '../../types';
@@ -774,12 +775,21 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
                     {/* The column is always there and only the mark comes and
                         goes: an indicator that is not rendered at all takes its
                         column with it, and every label in the list shifts
-                        sideways as the selection moves down it. */}
+                        sideways as the selection moves down it.
+
+                        `keepMounted` and `data-selected`, for the reason
+                        `MPSelect` gives: this part unmounts on the frame its row
+                        is let go of, so Base UI's ending frame never arrives.
+                        With `multiple` that is the direction being watched — the
+                        popup stays open while rows are unticked. */}
                     <span className="flex size-5 shrink-0 items-center justify-center">
                       {entry.custom ? (
                         <MPIcon icon={AddIcon} size={18} />
                       ) : (
-                        <Combobox.ItemIndicator>
+                        <Combobox.ItemIndicator
+                          keepMounted
+                          className={`mp-combobox__mark ${MARK_MOTION_KEPT}`}
+                        >
                           <MPIcon icon={CheckIcon} size={18} />
                         </Combobox.ItemIndicator>
                       )}
