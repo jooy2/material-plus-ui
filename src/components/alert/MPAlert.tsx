@@ -4,6 +4,7 @@ import { CloseIcon, ErrorIcon, InfoIcon } from '../../constants/icons';
 import { accentSlots } from '../../internal/accent';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { ALERT } from '../../internal/messages/alert';
+import { inertProps } from '../../internal/inert';
 import { MPStateLayer } from '../../internal/StateLayer';
 import {
   CONTROL_ICON,
@@ -174,7 +175,19 @@ export interface MPAlertProps extends Omit<
    * their own.
    */
   live?: MPAlertLive;
-  /** Passing it is what makes the dismiss button appear. */
+  /**
+   * Passing it is what makes the dismiss button appear.
+   *
+   * **It fires when the alert has finished leaving, not when the × is
+   * pressed.** An alert is in the flow of the page, so taking one out moves
+   * everything under it — and the caller owns the mount, which means an alert
+   * whose callback fired on the press had already been unmounted by the time
+   * there was anything to animate. So the press starts the exit and this is the
+   * end of it, roughly 200ms later, which is the moment `{open && <MPAlert/>}`
+   * wants to hear about.
+   *
+   * The event is the press that started it, held rather than re-created.
+   */
   onClose?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   /**
    * The accessible name of the dismiss button. Defaults to the word for
@@ -236,6 +249,55 @@ export const MPAlert = React.forwardRef<HTMLDivElement, MPAlertProps>(function M
   const size = useMPSize(sizeProp);
   const locale = useMPLocale(localeProp);
   const messages = useMPMessages(ALERT, locale);
+
+  /*
+   * The exit, and why the alert has to run it itself.
+   *
+   * Everything else in this library that leaves is portalled and Base UI holds
+   * it open for the length of its own animation. An alert is not: it sits in
+   * the flow of the page, the caller owns whether it is mounted, and a callback
+   * that fired on the press had already taken the element away before there was
+   * anything to animate. So the press starts the exit and `onClose` is the end
+   * of it -- which is also the moment the caller actually wants, since what it
+   * does with it is stop rendering the alert.
+   *
+   * The press is held rather than re-created. React has not pooled events since
+   * 17, so the object is still the one the reader produced 200ms later.
+   */
+  const [leaving, setLeaving] = React.useState(false);
+  const press = React.useRef<React.MouseEvent<HTMLButtonElement> | null>(null);
+  const reveal = React.useRef<HTMLDivElement | null>(null);
+
+  const finish = React.useCallback(() => {
+    const event = press.current;
+
+    press.current = null;
+
+    if (event) {
+      onClose?.(event);
+    }
+  }, [onClose]);
+
+  /*
+   * The alert that has no exit to wait for, which is two alerts rather than an
+   * edge case: a reader who asked for reduced motion, and a page whose own
+   * stylesheet has taken the transition off. Neither will ever fire a
+   * `transitionend`, and an alert waiting for one would sit there dismissed and
+   * still on the page. The same question `MPAccordion` asks of its panel, in
+   * the same words.
+   */
+  React.useLayoutEffect(() => {
+    const element = reveal.current;
+
+    if (!leaving || !element) {
+      return;
+    }
+
+    if (parseFloat(getComputedStyle(element).transitionDuration) === 0) {
+      finish();
+    }
+  }, [leaving, finish]);
+
   const accent = ACCENT[variant];
   const titled = hasContent(title);
   const glyph =
@@ -245,12 +307,17 @@ export const MPAlert = React.forwardRef<HTMLDivElement, MPAlertProps>(function M
       icon
     );
 
-  return (
+  const box = (
     <div
       ref={ref}
       role={ROLE[live ?? DEFAULT_LIVE[color]]}
       data-mp-size={size}
       data-mp-variant={variant}
+      // Unreachable the moment it starts leaving, rather than when it is gone.
+      // A caller that ignores `onClose` leaves a dismissed alert on the page at
+      // no height, and a live region nobody can see is still one a screen
+      // reader can walk into.
+      {...inertProps(leaving)}
       className={[
         'mp-alert rounded-mp-md flex w-full items-start',
         // `box-border` explicitly, for the reason `MPButton` gives: with no page
@@ -297,7 +364,14 @@ export const MPAlert = React.forwardRef<HTMLDivElement, MPAlertProps>(function M
           <button
             type="button"
             aria-label={closeLabel ?? messages.dismiss}
-            onClick={onClose}
+            // Once. A second press during the exit would hold the same event
+            // again and call back twice for one dismissal, and the alert is
+            // `inert` by then only for a reader who is not holding a mouse.
+            disabled={leaving}
+            onClick={(event) => {
+              press.current = event;
+              setLeaving(true);
+            }}
             className={[
               // `group` on the button rather than on the alert: the state layer
               // reads its ancestor's hover, and an alert-wide group would light
@@ -313,6 +387,77 @@ export const MPAlert = React.forwardRef<HTMLDivElement, MPAlertProps>(function M
           </button>
         </span>
       ) : null}
+    </div>
+  );
+
+  /*
+   * The collapse, and why it is a wrapper rather than a height on the alert.
+   *
+   * A dismissed alert that only faded would leave a hole where it was, and
+   * everything under it would jump the moment the caller unmounted it -- the
+   * same jolt as before, moved 200ms later and now detached from the press that
+   * caused it. So the space goes with it.
+   *
+   * The track travels between `1fr` and `0fr`, which is the one way to
+   * interpolate towards a height nobody knows: `1fr` of a single-row grid is
+   * exactly what the message needs and `0fr` is nothing at all, so the two ends
+   * are the real heights rather than a guess. It is the same move
+   * `MPFloatingActionButton` makes across its label, one axis over -- and it
+   * needs no measurement, which is what keeps this out of a layout effect that
+   * would have to run before every paint of every alert on the page.
+   *
+   * Only when there is a `×`. An alert that cannot be dismissed has nothing to
+   * collapse, and it keeps the markup it has always had.
+   */
+  if (!onClose) {
+    return box;
+  }
+
+  return (
+    <div
+      ref={reveal}
+      className={[
+        'mp-alert__reveal grid transition-[grid-template-rows,opacity]',
+        'duration-(--mp-sys-motion-duration-short4)',
+        // Accelerating, which is what `SHEET_MOTION` gives everything else in
+        // the library on its way out: something leaving has already said what it
+        // had to say and should get out of the way.
+        'ease-(--mp-sys-motion-easing-emphasized-accelerate)',
+        'motion-reduce:transition-none',
+        leaving ? 'grid-rows-[0fr] opacity-0' : 'grid-rows-[1fr]'
+      ].join(' ')}
+      // The row rather than the opacity, which finishes at the same moment and
+      // would call back twice. `currentTarget` because a transition anywhere
+      // inside the message -- a state layer under a pointer that is still on
+      // the × -- bubbles to here as well.
+      onTransitionEnd={(event) => {
+        if (
+          leaving &&
+          event.propertyName === 'grid-template-rows' &&
+          event.target === event.currentTarget
+        ) {
+          finish();
+        }
+      }}
+    >
+      {/*
+       * The alert is *inside* the grid item rather than being it, and that is
+       * the whole of what makes the collapse reach nothing. A box with
+       * `box-sizing: border-box` cannot be shorter than its own padding, so an
+       * alert asked to be the zero-height row bottomed out at `SHEET_PAD`'s two
+       * tracks — 32px of empty container at `md`, held open for good. An item
+       * with no padding of its own has nothing to bottom out at, and clips the
+       * alert inside it instead.
+       *
+       * `min-h-0` always: a grid item's automatic minimum size is its
+       * content's, which would hold the row open at the height of the message.
+       *
+       * `overflow-hidden` only while it is leaving, and that is the point.
+       * Clipping is the *animation's*, not the alert's — one that went on
+       * clipping would cut the focus ring off its own dismiss button, which is
+       * the bug `MPAccordion` writes up at length about its panel.
+       */}
+      <div className={`min-h-0 ${leaving ? 'overflow-hidden' : ''}`}>{box}</div>
     </div>
   );
 });

@@ -79,13 +79,73 @@ describe('MPAlert', () => {
       expect(screen.container.querySelectorAll('.mp-alert button')).toHaveLength(0);
     });
 
-    it('calls back when the × is pressed', async () => {
+    it('calls back once the alert has finished leaving', async () => {
+      // Not on the press. The caller owns the mount, so a callback that fired
+      // on the click had already taken the element away before there was
+      // anything to animate — and what the caller does with it is stop
+      // rendering the alert, which is the moment this now reports.
       const onClose = vi.fn();
       const screen = await render(<MPAlert onClose={onClose}>Heads up</MPAlert>);
 
       await screen.getByRole('button', { name: 'Dismiss' }).click();
 
-      expect(onClose).toHaveBeenCalled();
+      expect(onClose).not.toHaveBeenCalled();
+      await expect.poll(() => onClose.mock.calls.length).toBe(1);
+    });
+
+    it('collapses the space it took rather than only fading', async () => {
+      // An alert that only faded would leave a hole where it was, and
+      // everything under it would jump the moment the caller unmounted it —
+      // the same jolt as before, moved 200ms later and detached from the press
+      // that caused it.
+      const screen = await render(<MPAlert onClose={() => {}}>Heads up</MPAlert>);
+      const reveal = screen.container.querySelector('.mp-alert__reveal') as HTMLElement;
+
+      expect(getComputedStyle(reveal).transitionProperty).toBe('grid-template-rows, opacity');
+      expect(getComputedStyle(reveal).transitionDuration).toBe('0.2s');
+      expect(getComputedStyle(reveal).gridTemplateRows).not.toBe('0px');
+
+      await screen.getByRole('button', { name: 'Dismiss' }).click();
+
+      await expect.poll(() => getComputedStyle(reveal).gridTemplateRows).toBe('0px');
+    });
+
+    it('still calls back when there is no transition to wait for', async () => {
+      // Two alerts rather than an edge case: a reader who asked for reduced
+      // motion, and a page whose own stylesheet has taken the transition off.
+      // Neither will ever fire a `transitionend`, and an alert waiting for one
+      // would sit there dismissed and still on the page.
+      const onClose = vi.fn();
+      const screen = await render(
+        <div>
+          <style>{'.mp-alert__reveal { transition: none !important; }'}</style>
+          <MPAlert onClose={onClose}>Heads up</MPAlert>
+        </div>
+      );
+
+      await screen.getByRole('button', { name: 'Dismiss' }).click();
+
+      await expect.poll(() => onClose.mock.calls.length).toBe(1);
+    });
+
+    it('carries no wrapper when there is nothing to dismiss it with', async () => {
+      // An alert that cannot be dismissed has nothing to collapse, and keeps
+      // the markup it has always had.
+      const screen = await render(<MPAlert>Heads up</MPAlert>);
+
+      expect(screen.container.querySelector('.mp-alert__reveal')).toBeNull();
+    });
+
+    it('stops the × answering a second press during the exit', async () => {
+      const onClose = vi.fn();
+      const screen = await render(<MPAlert onClose={onClose}>Heads up</MPAlert>);
+      const dismiss = screen.getByRole('button', { name: 'Dismiss' });
+
+      await dismiss.click();
+
+      expect(dismiss.element()).toBeDisabled();
+      await expect.poll(() => onClose.mock.calls.length).toBe(1);
+      expect(onClose).toHaveBeenCalledTimes(1);
     });
 
     it('takes a name of its own for the ×', async () => {
