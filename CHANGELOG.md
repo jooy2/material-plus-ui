@@ -88,6 +88,10 @@ A second report from the application that filed the first one, a day after upgra
 
 - **`mp-radio__fill`** on the dot inside the ring, which had no name of its own.
 
+- **Eleven more class hooks**, on the parts the motion work below had to reach and which had no name at all: `mp-select__mark`, `mp-combobox__mark`, `mp-menu__mark` and `mp-menu__dot` on the tick or dot beside a chosen row; `mp-stepper__bullet`, `mp-stepper__connector` and `mp-stepper__label`; and `mp-timeline__item`, `mp-timeline__bullet`, `mp-timeline__connector` and `mp-timeline__title`.
+
+  The same BEM convention as the other seventy, and the same trap with Tailwind's underscore — see [Getting started](https://material-plus.cdget.com/guide/getting-started) for both ways round it.
+
 ### Removed
 
 - **`MPAvatarGroup`.** It was a special case of overlapping that happened to be about faces, and the stacking, the count and the ring were never about avatars. `MPStack` is what it was; see [its page](https://material-plus.cdget.com/components/layout/stack) for the migration.
@@ -124,6 +128,20 @@ A second report from the application that filed the first one, a day after upgra
 
   The divider is left whole. It is the boundary between the bar and the panel rather than part of the run, so the fade is sized to everything above it and a second, opaque mask layer covers the hairline itself.
 
+- **Every mark that comes and goes now arrives the same way.** A checkbox's tick grew into its box over 200ms and a radio's dot grew out of the middle of its ring, and both had an exit to play on the way back out. The same mark drawn beside a chosen row in `MPSelect`, in `MPCombobox`, and in an `MPMenu`'s checkbox and radio rows was stamped on in one frame. They are the same event, and a tick that eases into a select while an identical tick is printed into the menu beside it reads as two libraries.
+
+  `internal/mark.ts` holds the answer now: one transition and two from-states, because there are two kinds of mark. A tick is a **stroke** and starts at 0.6 — drawn from nothing it spends its first frames as a smudge too small to read as a tick, and the eye takes the arrival for a flicker. A dot is a **disc**, and a disc at any size is still a disc, so it grows out of nothing. `MPCheckbox` and `MPRadioGroup` had those frames written out in full and now read them from the same place; neither changes on screen.
+
+  The two select-shaped indicators are spelled differently, and the reason is Base UI rather than taste. `Select.ItemIndicator` and `Combobox.ItemIndicator` return `null` the moment their row stops being the chosen one, so `data-ending-style` never reaches the DOM and a tick that eased in would still vanish in a frame — in a list where the selection _moves_, that is the half of the event the eye is following. Both are kept mounted and drawn off `data-selected` instead. The cost is one empty `aria-hidden` span per row, in a column both lists already reserve the width of; the visible effect is that a row let go of fades out as the next one fades in, which with `multiple` on an `MPCombobox` is the direction being watched.
+
+- **An avatar's picture arrives rather than lands.** `MPAvatar` went from initials to photograph in a single frame: Base UI puts the `<img>` in the document the moment the file has decoded and takes the fallback down in the same commit, so what a reader saw was a substitution — and a row of eight avatars coming back from a slow network was eight separate jolts, each at whatever moment its own file happened to finish. `MPImage` has faded its picture in since it was written, and the two draw the same thing at two sizes.
+
+  It is `data-starting-style` and nothing else. The mount _is_ the load, so there is no loading state to hold and no second render to reach it. What the picture fades over is the avatar's own container tone rather than the initials, since the fallback is gone by then — which is the right way round: a letter dissolving into a face is a different claim from a face being filled in.
+
+- **`MPRating`'s fill travels to the score instead of jumping to it.** Each star is a grey glyph with a coloured copy clipped over it, and the clip's width is the whole of what says what the score is. The colour under it has eased for as long as the component has existed; the width arrived in one frame. So the part carrying no information took 200ms and the part carrying all of it took none.
+
+  `short2` rather than the library's usual `short4`, for the reason `MPSlider`'s handle takes it: a rating follows a pointer sweeping across it, and at 200ms per star the fill would be a step behind the cursor for the whole of the sweep. At 100ms it reads as a wipe arriving under the pointer, which is what it is. `motion-reduce` turns it off — the width is real travel across the control, not a value settling in place.
+
 ### Documentation
 
 - **[Breakpoints](https://material-plus.cdget.com/design/breakpoints), one page for the axis the whole library changes along.** The ladder was documented five times and completely nowhere: the grid's page had the table and the argument for it, the hooks guide had the trade between CSS and JavaScript, the sidebar's page had the first-paint problem, and a reader who wanted to know what changes at 600dp had to already know which component's page to open.
@@ -145,6 +163,16 @@ A second report from the application that filed the first one, a day after upgra
   The behaviour is right and is unchanged: a field that stayed blank over a value it is holding, and will submit, is worse — and on `MPCombobox` a value the list does not have is what `allowCustom` is for. It is the sentinel that was undocumented.
 
 ### Fixed
+
+- **`MPStepper` and `MPTimeline` eased the bullet and snapped the line beside it.** Advancing a step drew one event twice: the bullet filled with the accent over 200ms while the connector leaving it and the heading beside it arrived at their new colours in the frame the state changed. A sequence is read across, and the half that snapped was the half that carries the eye to the next step. Both components draw their picture out of `internal/step.ts`, so both inherited the same omission.
+
+  The connector and the title take a shared `STEP_MOTION` now. It lists `border-color` and `color` rather than a blanket `transition-colors`, which would put the bullet table's `background-color` and `box-shadow` on every connector — a line has neither, and a transition naming a property nothing declares is a declaration the browser keeps. The bullet keeps its own wider list and gains `ease-mp-standard`: it had been on the browser's default curve, and two things travelling to the same state on different curves land at different times, which is the disagreement this was meant to remove rather than a second one to introduce.
+
+- **A time picker's column teleported under an arrow key.** `MPTimePicker`'s columns are scrolled by hand, because `scrollIntoView` walks every scrollable ancestor up to the document and the popup has not been positioned when the first reveal fires — which is the "opening a picker jumps the page" bug the function was written to avoid. What it did was assign `scrollTop`, and an assignment lands.
+
+  So a reader holding ArrowDown through sixty minutes was reading a column that jumped every few rows, by exactly the amount needed to bring the next one into view and with nothing saying which way it had gone. On a list of numbers that all look alike, that is the difference between walking down a column and being handed a new one. The column carries `motion-safe:scroll-smooth` now and the scroll goes through `scrollTo`, so the walk glides and a reader who asked for less motion keeps the jump.
+
+  The reveal on **open** deliberately does not glide, and overrides the stylesheet to say so. Opening the picker scrolls three columns to the chosen time at once, and three lists easing into place inside a popup that is itself fading in is three things moving where one thing arrived.
 
 - **A nested grid resolved the outer grid's column count and gutter.** A responsive prop writes only the classes the caller named and the slots are inherited custom properties, so `columns={6}` on an inner grid is one declaration — and above compact the inner grid was reading its parent's. Six columns on a phone and twelve on a laptop, from a grid that was told six at every width. The same for both gutters: an inner `spacing={0}` came out at the outer grid's from 600dp up.
 
