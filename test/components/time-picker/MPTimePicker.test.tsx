@@ -222,6 +222,31 @@ describe('MPTimePicker', () => {
 
       expect(event.defaultPrevented).toBe(false);
     });
+
+    it('glides the column to a row an arrow key walked off the end to', async () => {
+      // A reader holding ArrowDown through sixty minutes was reading a column
+      // that teleported every few rows, with nothing saying which way it had
+      // gone. The stylesheet is what answers that, so this asserts the column
+      // declares it rather than sampling a scroll offset mid-animation -- a
+      // smooth scroll finishes on the browser's own clock, and a test that
+      // raced it would be a test of the machine it ran on.
+      const screen = await render(<Controlled />);
+      const column = await openColumn(screen);
+
+      expect(getComputedStyle(column).scrollBehavior).toBe('smooth');
+    });
+
+    it('lands the first reveal rather than travelling to it', async () => {
+      // Opening the picker scrolls every column to the chosen time at once,
+      // and three lists easing into place inside a popup that is itself fading
+      // in is three things moving where one arrived. `'instant'` overrides the
+      // stylesheet, so the column is already where it belongs on the frame it
+      // is first drawn.
+      const screen = await render(<Controlled initial={new Date(2026, 6, 15, 9, 55)} />);
+      const column = await openColumn(screen);
+
+      expect(column.scrollTop).toBeGreaterThan(0);
+    });
   });
 
   describe('choosing a time', () => {

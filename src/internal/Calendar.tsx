@@ -1178,10 +1178,25 @@ function columnStep(step: number, span: number): number {
  * popup this runs in has not been positioned yet when the effect fires — it is
  * still at the top-left of the page. So the browser dutifully scrolls the whole
  * document to the top to reveal a row that was about to move anyway, which is
- * the "opening a picker jumps the page" bug. Setting `scrollTop` on the column
- * cannot touch anything above it.
+ * the "opening a picker jumps the page" bug. Setting the column's own scroll
+ * offset cannot touch anything above it.
+ *
+ * ## Whether it glides there or lands there
+ *
+ * A column carries `scroll-smooth`, so an arrow key walking past the last
+ * visible row slides the next one up rather than jumping the whole list — a
+ * reader holding ArrowDown through sixty minutes was otherwise reading a column
+ * that teleported every five rows, with nothing saying which way it had gone.
+ * The class is `motion-safe:`, so a reader who asked for less motion gets the
+ * jump back and nothing else changes.
+ *
+ * `behavior` is what the *first* reveal needs, and it is the reason this takes
+ * an argument rather than leaving it all to CSS. Opening the picker scrolls
+ * three columns to the chosen time at once, and a popup animating its own
+ * three lists into place while it fades in is three things moving where one
+ * arrived. `'instant'` overrides the stylesheet; `'auto'` defers to it.
  */
-function revealInColumn(row: HTMLElement) {
+function revealInColumn(row: HTMLElement, behavior: ScrollBehavior = 'auto') {
   const column = row.parentElement;
 
   if (!column) {
@@ -1196,9 +1211,9 @@ function revealInColumn(row: HTMLElement) {
   const bottom = top + rowBox.height;
 
   if (top < column.scrollTop) {
-    column.scrollTop = top;
+    column.scrollTo({ top, behavior });
   } else if (bottom > column.scrollTop + column.clientHeight) {
-    column.scrollTop = bottom - column.clientHeight;
+    column.scrollTo({ top: bottom - column.clientHeight, behavior });
   }
 }
 
@@ -1248,7 +1263,12 @@ export function MPTimeGrid({
   React.useEffect(() => {
     const root = rootRef.current;
 
-    root?.querySelectorAll<HTMLElement>('[data-chosen="true"]').forEach(revealInColumn);
+    // Landed on rather than travelled to: the popup is arriving, and three
+    // columns easing themselves into place inside it is three things moving
+    // where one thing arrived.
+    root
+      ?.querySelectorAll<HTMLElement>('[data-chosen="true"]')
+      .forEach((chosen) => revealInColumn(chosen, 'instant'));
 
     if (autoFocus) {
       const first = root?.querySelector<HTMLElement>('[role="listbox"]');
@@ -1371,6 +1391,9 @@ export function MPTimeGrid({
         aria-label={name}
         className={[
           'mp-time-grid__column flex flex-col gap-0.5 overflow-y-auto overscroll-contain',
+          // See `revealInColumn`: this is what an arrow key walking off the end
+          // of the visible rows glides on, and the first reveal opts out of.
+          'motion-safe:scroll-smooth',
           // The same height as the calendar beside it, so a date-time picker's
           // popup is one rectangle rather than two of different heights.
           'h-[calc(var(--_mp-cell)*7)] w-[calc(var(--_mp-cell)*1.75)]',
