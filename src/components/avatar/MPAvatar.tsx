@@ -269,7 +269,25 @@ export const MPAvatar = React.forwardRef<HTMLSpanElement, MPAvatarProps>(functio
           // After the spread rather than before it: the crop is what makes the
           // picture fill its circle, and losing it to a caller's own class is
           // the picture letterboxed inside the box it was meant to fill.
-          className="size-full object-cover"
+          //
+          // The picture *arrives*, on the same 200ms `MPImage` gives its own.
+          // Base UI mounts this element the moment the file has decoded, so the
+          // avatar went from initials to photograph in a single frame -- and a
+          // row of eight of them coming back from a slow network was eight
+          // separate jolts. `data-starting-style` is that first frame, which is
+          // the whole of what a fade on a mount needs: no loading state to hold
+          // and no second render to reach it.
+          //
+          // What it fades over is the avatar's own container tone rather than
+          // the initials, which Base UI takes down as soon as the picture is
+          // ready. That is the right way round: a letter dissolving into a face
+          // is a different claim from a face being filled in.
+          className={[
+            'size-full object-cover',
+            'transition-opacity duration-(--mp-sys-motion-duration-short4)',
+            'ease-mp-standard',
+            'data-starting-style:opacity-0 data-ending-style:opacity-0'
+          ].join(' ')}
         />
       ) : null}
 

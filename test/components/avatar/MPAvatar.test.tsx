@@ -100,6 +100,27 @@ describe('MPAvatar', () => {
     });
   });
 
+  describe('the picture arriving', () => {
+    it('fades in rather than replacing the fallback in one frame', async () => {
+      // Base UI puts the `<img>` in the document only once the file has
+      // decoded, so the mount *is* the load and `data-starting-style` is the
+      // frame before it. Asserted as the transition rather than by sampling an
+      // opacity, for the reason every other motion test in this suite gives: a
+      // value read mid-interpolation times the clock instead of asking whether
+      // there is one.
+      const screen = await render(<MPAvatar src={PIXEL} name="Jane Doe" data-testid="avatar" />);
+
+      await expect
+        .poll(() => screen.getByTestId('avatar').element().querySelector('img'))
+        .not.toBeNull();
+
+      const picture = screen.getByTestId('avatar').element().querySelector('img')!;
+
+      expect(getComputedStyle(picture).transitionProperty).toBe('opacity');
+      expect(getComputedStyle(picture).transitionDuration).toBe('0.2s');
+    });
+  });
+
   describe('shape', () => {
     it('is a circle by default', async () => {
       const screen = await render(<MPAvatar data-testid="avatar" />);
