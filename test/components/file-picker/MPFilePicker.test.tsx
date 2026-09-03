@@ -296,6 +296,23 @@ describe('MPFilePicker', () => {
         .toBeInTheDocument();
     });
 
+    it('settles a file that has just arrived, and leaves the rest alone', async () => {
+      // Dropping files onto a list that already had some said nothing about
+      // which ones were new. The class goes on the rows this pick added — and
+      // no others, or it would replay the whole list every time.
+      const screen = await render(<ControlledPicker multiple />);
+
+      await choose([fileOf('one.png', 'image/png')]);
+      await choose([fileOf('two.png', 'image/png')]);
+
+      const settling = [...document.querySelectorAll('.mp-row-arrive')];
+
+      expect(settling).toHaveLength(1);
+      expect(settling[0].textContent).toContain('two.png');
+      expect(getComputedStyle(settling[0]).animationName).toBe('mp-row-arrive');
+      expect(screen.getByTestId('model').element().textContent).toBe('one.png,two.png');
+    });
+
     it('hides the list when asked, without forgetting the file', async () => {
       const screen = await render(<ControlledPicker showList={false} />);
 

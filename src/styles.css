@@ -1803,6 +1803,63 @@
 }
 
 /* ---------------------------------------------------------------------------
+ * A row arriving in a list
+ *
+ * Two components put rows into a list the reader is already looking at.
+ * `MPTransfer` moves them between its two panels; `MPFilePicker` adds them as
+ * files are chosen or dropped. In both the row simply existed in the next
+ * frame, which on a list of near-identical lines is the one change hardest to
+ * see — a reader who dropped four files onto a list that already had six had
+ * nothing telling them which four were new.
+ *
+ * A keyframe rather than a transition, for the reason the calendar's page turn
+ * above is one: there are no two states to interpolate between. The row was not
+ * there, and a transition needs something that was.
+ *
+ * ## It needs no bookkeeping to run once
+ *
+ * A CSS animation runs when the element it is on is inserted, so a class on
+ * every row animates only the rows the browser has just created. What each
+ * component still has to decide is which rows *count* as arriving: adding the
+ * class to a row that is already on the page starts the animation on it, so a
+ * class written unconditionally would replay the whole list the first time the
+ * set changed. Both components keep the set of values that just landed and put
+ * the class on those.
+ *
+ * ## Why it does not say which way the row came
+ *
+ * `MPTransfer`'s rows arrive from a panel that is physically to one side, and a
+ * slide from that side would say so — the argument the calendar's page turn
+ * makes about direction. It is not worth what it costs here: `translate` is
+ * physical, so the sign has to be flipped under RTL by reading the computed
+ * direction off the element, and it would be a slot `MPFilePicker` has no
+ * answer for. A rise settles a row into a list in either writing direction and
+ * says the one thing both components need said.
+ *
+ * Unlayered, like the keyframes above, and switched off for a reader who asked
+ * for less motion. What is left then is the row appearing, which is where this
+ * started.
+ * ------------------------------------------------------------------------- */
+
+@keyframes mp-row-arrive {
+  from {
+    opacity: 0;
+    translate: 0 0.25rem;
+  }
+}
+
+.mp-row-arrive {
+  animation: mp-row-arrive var(--mp-sys-motion-duration-short4)
+    var(--mp-sys-motion-easing-emphasized-decelerate);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mp-row-arrive {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
  * The tab bar's ends
  *
  * A bar with more tabs than room has always scrolled — MD3's scrollable tabs,

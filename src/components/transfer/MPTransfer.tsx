@@ -94,12 +94,22 @@ const ROW_PAD_Y: Record<MPSize, string> = {
   xl: 'py-2'
 };
 
+/**
+ * The panel that received nothing, as one frozen set rather than one per render.
+ *
+ * A fresh `new Set()` every time would be a new prop identity on every render
+ * of the side nothing arrived in, which is a re-render for no change at all.
+ */
+const EMPTY: ReadonlySet<string> = new Set();
+
 /** What one side is handed, so the two panels are literally one function. */
 interface PanelProps {
   title: React.ReactNode;
   rows: readonly MPTransferItem[];
   total: number;
   ticked: ReadonlySet<string>;
+  /** The values that landed in this panel on the last press. See `mp-row-arrive`. */
+  arrived: ReadonlySet<string>;
   onTick: (value: string, ticked: boolean) => void;
   onTickAll: (ticked: boolean) => void;
   search: string;
@@ -118,6 +128,7 @@ function Panel({
   rows,
   total,
   ticked,
+  arrived,
   onTick,
   onTickAll,
   search,
@@ -201,7 +212,20 @@ function Panel({
           </span>
         ) : (
           rows.map((row, index) => (
-            <div key={`${index}:${row.value}`} className={ROW_PAD_Y[size]}>
+            <div
+              key={`${index}:${row.value}`}
+              /*
+               * A row that has just crossed settles in rather than appearing.
+               * The class is on the rows that moved and no others, because
+               * adding it to a row already on the page starts the animation
+               * there too — a class written unconditionally would replay the
+               * whole panel every time anything moved. `styles.css` has the
+               * rest of the argument.
+               */
+              className={[ROW_PAD_Y[size], arrived.has(row.value) ? 'mp-row-arrive' : '']
+                .filter(Boolean)
+                .join(' ')}
+            >
               <MPCheckbox
                 size={size}
                 color={color}
@@ -297,6 +321,25 @@ export const MPTransfer = React.forwardRef<HTMLDivElement, MPTransferProps>(func
   const selected = value ?? uncontrolled;
 
   const [ticked, setTicked] = React.useState<ReadonlySet<string>>(() => new Set());
+  /*
+   * What landed on the last press, and which side it landed on.
+   *
+   * A CSS animation runs when the element it is on is inserted, so the class
+   * could in principle go on every row and only fire for the ones the browser
+   * has just made. It cannot: putting it on a row that is already drawn starts
+   * the animation there as well, so an unconditional class would replay both
+   * panels the first time anything moved.
+   *
+   * Held rather than cleared on a timer. The class only does anything at the
+   * moment a row's element is created, so a row that keeps it after it has
+   * settled is carrying a class that will not run again — and the next press
+   * replaces the set. `side` is here so the panel a row *left* does not put the
+   * class on nothing while the one it arrived in does.
+   */
+  const [arrived, setArrived] = React.useState<{
+    values: ReadonlySet<string>;
+    toTarget: boolean;
+  }>(() => ({ values: new Set(), toTarget: true }));
   const [sourceSearch, setSourceSearch] = React.useState('');
   const [targetSearch, setTargetSearch] = React.useState('');
 
@@ -387,6 +430,7 @@ export const MPTransfer = React.forwardRef<HTMLDivElement, MPTransferProps>(func
       : selected.filter((item) => !ids.has(item));
 
     setTicked((current) => new Set([...current].filter((item) => !ids.has(item))));
+    setArrived({ values: ids, toTarget });
     commit(next);
   };
 
@@ -443,6 +487,7 @@ export const MPTransfer = React.forwardRef<HTMLDivElement, MPTransferProps>(func
         title={hasContent(sourceLabel) ? sourceLabel : messages.source}
         rows={sourceRows}
         total={source.length}
+        arrived={arrived.toTarget ? EMPTY : arrived.values}
         onTick={tick}
         onTickAll={(on) => tickAll(sourceRows, on)}
         search={sourceSearch}
@@ -482,6 +527,7 @@ export const MPTransfer = React.forwardRef<HTMLDivElement, MPTransferProps>(func
         title={hasContent(targetLabel) ? targetLabel : messages.target}
         rows={targetRows}
         total={target.length}
+        arrived={arrived.toTarget ? arrived.values : EMPTY}
         onTick={tick}
         onTickAll={(on) => tickAll(targetRows, on)}
         search={targetSearch}

@@ -70,6 +70,28 @@ export function formatFileSize(bytes: number): string {
  * is that check: the same three forms the attribute takes, `.ext`,
  * `type/subtype` and `type/*`.
  */
+/**
+ * What tells two files apart, for a `key` and for the arrival set.
+ *
+ * A `File` has no id, and two picks of the same file are two different objects
+ * — so identity has to be derived from what the browser does say about it. The
+ * name, the size and the modification time together are what the list has
+ * always keyed on; this is that string, named once now that the arrival set
+ * needs the same answer.
+ *
+ * It is not unique: two copies of one file in a `multiple` list share it, which
+ * is why the row's `key` still carries the index. The arrival set does not need
+ * to tell those two apart, because they arrived together.
+ */
+function identify(file: File): string {
+  return `${file.name}-${file.size}-${file.lastModified}`;
+}
+
+/**
+ * No file arrived, as one frozen set rather than one per render.
+ */
+const EMPTY: ReadonlySet<string> = new Set();
+
 function matchesAccept(file: File, accept: string): boolean {
   const name = file.name.toLowerCase();
   const type = file.type.toLowerCase();
@@ -280,6 +302,24 @@ export const MPFilePicker = React.forwardRef<HTMLInputElement, MPFilePickerProps
       [accept, files.length, maxFiles, maxSize, multiple]
     );
 
+    /*
+     * Which rows landed on the last pick, so they can settle in rather than
+     * simply exist in the next frame. Dropping four files onto a list that
+     * already held six said nothing at all about which four were new.
+     *
+     * A CSS animation runs when its element is inserted, so the class could in
+     * principle go on every row and fire only for the ones the browser has just
+     * made. It cannot: putting it on a row that is already drawn starts the
+     * animation there too, so an unconditional class would replay the whole
+     * list on every pick.
+     *
+     * Held rather than cleared on a timer, and keyed the same way the rows are.
+     * The class does something only at the moment a row's element is created,
+     * so one that keeps it after it has settled is carrying a class that will
+     * not run again — and the next pick replaces the set.
+     */
+    const [arrived, setArrived] = React.useState<ReadonlySet<string>>(EMPTY);
+
     const add = React.useCallback(
       (incoming: File[]) => {
         const { kept, rejections } = accepting(incoming);
@@ -289,6 +329,7 @@ export const MPFilePicker = React.forwardRef<HTMLInputElement, MPFilePickerProps
         }
 
         if (kept.length > 0) {
+          setArrived(new Set(kept.map(identify)));
           commit(multiple ? [...files, ...kept] : kept);
         }
       },
@@ -491,13 +532,18 @@ export const MPFilePicker = React.forwardRef<HTMLInputElement, MPFilePickerProps
           >
             {files.map((file, index) => (
               <li
-                key={`${file.name}-${file.size}-${file.lastModified}-${index}`}
+                key={`${identify(file)}-${index}`}
                 className={[
                   'rounded-mp-xs bg-mp-surface-container-low flex w-full items-center gap-3',
                   'px-3 py-2',
                   PROSE_TEXT[size],
-                  disabled ? 'text-mp-on-surface/38' : 'text-mp-on-surface'
-                ].join(' ')}
+                  disabled ? 'text-mp-on-surface/38' : 'text-mp-on-surface',
+                  // See `arrived`: only the rows this pick added, or the class
+                  // would replay the whole list every time one was chosen.
+                  arrived.has(identify(file)) ? 'mp-row-arrive' : ''
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
               >
                 <span className="min-w-0 flex-1 truncate">{file.name}</span>
                 <span

@@ -100,6 +100,34 @@ describe('MPTransfer', () => {
       await expect.element(screen.getByRole('checkbox', { name: 'Name' })).not.toBeChecked();
       await expect.element(screen.getByRole('checkbox', { name: 'Email' })).not.toBeChecked();
     });
+
+    it('settles the rows that crossed, and only those', async () => {
+      // A row that moved simply existed in the next frame, which on two lists
+      // of near-identical lines is the change hardest to see. The class marks
+      // the ones that landed — and no others, because putting it on a row that
+      // is already drawn would start the animation there too and replay the
+      // whole panel.
+      const screen = await render(<MPTransfer items={ITEMS} defaultValue={['joined']} />);
+
+      await screen.getByRole('checkbox', { name: 'Name' }).click();
+      await screen.getByRole('button', { name: 'Move to selected' }).click();
+
+      const [source, target] = [...screen.container.querySelectorAll('.mp-transfer__list')];
+
+      expect(source.querySelectorAll('.mp-row-arrive')).toHaveLength(0);
+
+      const settling = [...target.querySelectorAll('.mp-row-arrive')];
+
+      expect(settling).toHaveLength(1);
+      expect(settling[0].textContent).toContain('Name');
+      expect(getComputedStyle(settling[0]).animationName).toBe('mp-row-arrive');
+    });
+
+    it('marks nothing while the two lists are only being read', async () => {
+      const screen = await render(<MPTransfer items={ITEMS} defaultValue={['joined']} />);
+
+      expect(screen.container.querySelectorAll('.mp-row-arrive')).toHaveLength(0);
+    });
   });
 
   describe('the arrows', () => {
