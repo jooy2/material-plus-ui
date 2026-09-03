@@ -35,7 +35,31 @@ When you do want a measure, the ladder is pinned to MD3's window size class boun
 | `lg`       | 1200dp | Where a large window starts        |
 | `xl`       | 1600dp | Where an extra-large window starts |
 
-So `maxWidth="md"` is "never wider than a medium window", which is a sentence about the specification rather than a number somebody liked. It is deliberately **not** Tailwind's `max-w-*` scale, where `max-w-lg` is 32rem — two ladders called `lg` on one page is how a layout drifts by a few pixels for no reason anybody can find later.
+So `maxWidth="md"` is "never wider than an expanded window", which is a sentence about the specification rather than a number somebody liked. It is deliberately **not** Tailwind's `max-w-*` scale, where `max-w-lg` is 32rem — two ladders called `lg` on one page is how a layout drifts by a few pixels for no reason anybody can find later.
+
+The rungs are read off the window size classes rather than written down beside them, so a project that [moves a boundary](../../design/breakpoints) moves the measure with it.
+
+## A length of your own
+
+A measure is often a decision about the **text** rather than about the window. The classic answer for a column of prose is around 60 characters, which no ladder of window widths can spell — so `maxWidth` takes any CSS length as well:
+
+```tsx
+<MPContainer maxWidth="60ch">{article}</MPContainer>
+```
+
+`'42rem'`, `'800px'`, `'min(90vw, 70ch)'` — whatever `max-width` accepts reaches it untouched. Nothing is validated: a length CSS cannot parse leaves the container unbounded, which is the same answer `none` gives.
+
+## A different measure at different widths
+
+`maxWidth` is responsive, in the same shape [`MPGrid`](./grid)'s props are — a map keyed by window size class, each entry applying from its own class **upward**:
+
+```tsx
+<MPContainer maxWidth={{ compact: 'none', expanded: 'lg' }}>
+```
+
+Edge to edge on a phone, and held to 1200dp from 840 up. Anything not named keeps whatever the class below it said, so two entries usually describe the whole page.
+
+This is resolved by CSS, not by JavaScript: the browser has the right measure in the first frame it paints, including the one a server rendered, and changing window class costs no re-render.
 
 ## size is the margin, maxWidth is the measure
 

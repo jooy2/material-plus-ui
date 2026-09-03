@@ -224,30 +224,6 @@ export const STACK_GAP: Record<MPSize, string> = {
 };
 
 /**
- * The measure — how wide a row of content is allowed to get — in `rem` and
- * pinned to MD3's window size class boundaries: 600, 840, 1200 and 1600dp, with
- * one rung below them.
- *
- * So `maxWidth="md"` is "never wider than a medium window", which is a sentence
- * about the specification rather than a number somebody liked. Tailwind's own
- * `max-w-*` scale is a different set — `max-w-lg` is 32rem — and two ladders
- * called `lg` on one page is how a layout drifts by a few pixels for no reason
- * anybody can find later.
- *
- * It is here rather than in `MPContainer`, which was its first reader, for the
- * reason at the top of this file: a header, a footer and a container that hold
- * their content to "a medium window" have to agree on where that edge is, or the
- * bar and the article under it line up at every width but one.
- */
-export const MEASURE: Record<MPSize, string> = {
-  xs: 'max-w-[30rem]',
-  sm: 'max-w-[37.5rem]',
-  md: 'max-w-[52.5rem]',
-  lg: 'max-w-[75rem]',
-  xl: 'max-w-[100rem]'
-};
-
-/**
  * Whether a slot was given something worth drawing a wrapper around.
  *
  * `false` and `null` both mean "nothing here" in JSX — they are what a

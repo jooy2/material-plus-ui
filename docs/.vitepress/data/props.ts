@@ -6224,11 +6224,11 @@ const componentTables: Record<string, PropRow[]> = {
   MPContainer: [
     {
       name: 'maxWidth',
-      type: `${SIZE} | 'none'`,
+      type: 'MPResponsive<MPMeasure>',
       default: "'none'",
       description: {
-        ko: "내용이 넓어질 수 있는 한계. MD3의 윈도우 크기 클래스 경계에 맞춘 사다리입니다 — `sm` 600dp, `md` 840dp, `lg` 1200dp, `xl` 1600dp, `xs` 480dp. 기본값 `'none'`은 제한 없음이며, 컨테이너의 일은 여백이고 본문 폭은 따로 요청해야 하는 두 번째 결정이기 때문입니다",
-        en: "How wide the content may get, on a ladder pinned to MD3's window size class boundaries — `sm` 600dp, `md` 840dp, `lg` 1200dp, `xl` 1600dp, `xs` 480dp. `'none'`, the default, is no limit: a container's job is the margin, and a measure is a second decision a page should have to ask for"
+        ko: "내용이 넓어질 수 있는 한계. MD3의 윈도우 크기 클래스 경계에 맞춘 사다리 — `sm` 600dp, `md` 840dp, `lg` 1200dp, `xl` 1600dp, `xs` 480dp — 이거나, `'60ch'` 같은 직접 쓴 CSS 길이입니다. 창 크기 클래스별로 다르게 줄 수도 있습니다: `{ compact: 'none', expanded: 'lg' }`. 기본값 `'none'`은 제한 없음이며, 컨테이너의 일은 여백이고 본문 폭은 따로 요청해야 하는 두 번째 결정이기 때문입니다",
+        en: "How wide the content may get: a rung pinned to MD3's window size class boundaries — `sm` 600dp, `md` 840dp, `lg` 1200dp, `xl` 1600dp, `xs` 480dp — or a CSS length of your own, `'60ch'`. Responsive: `{ compact: 'none', expanded: 'lg' }`. `'none'`, the default, is no limit: a container's job is the margin, and a measure is a second decision a page should have to ask for"
       }
     },
     {
@@ -9154,11 +9154,11 @@ const componentTables: Record<string, PropRow[]> = {
     },
     {
       name: 'maxWidth',
-      type: "MPSize | 'none'",
+      type: 'MPResponsive<MPMeasure>',
       default: "'none'",
       description: {
-        ko: '슬롯이 놓인 행을 본문 폭으로 묶고 가운데에 둡니다. 시트 자체는 여전히 창 전체를 덮습니다. [MPContainer](./container)의 `maxWidth`와 같은 사다리라서, 헤더와 그 아래 컨테이너가 같은 선에 맞습니다',
-        en: "Holds the row of slots to a measure and centres it while the sheet itself still spans the window. The same ladder [MPContainer](./container)'s `maxWidth` uses, so a header and the container under it line up on one edge"
+        ko: '슬롯이 놓인 행을 본문 폭으로 묶고 가운데에 둡니다. 시트 자체는 여전히 창 전체를 덮습니다. [MPContainer](./container)의 `maxWidth`와 같은 prop이라 — 사다리의 한 칸, 직접 쓴 CSS 길이, 또는 창 크기 클래스별 맵 — 같은 값을 주면 헤더와 그 아래 컨테이너가 같은 선에 맞습니다',
+        en: "Holds the row of slots to a measure and centres it while the sheet itself still spans the window. The same prop [MPContainer](./container)'s `maxWidth` is — a rung, a CSS length, or a map keyed by window size class — so a header and the container under it line up by being given the same value"
       }
     },
     {
@@ -9218,11 +9218,11 @@ const componentTables: Record<string, PropRow[]> = {
     },
     {
       name: 'maxWidth',
-      type: "MPSize | 'none'",
+      type: 'MPResponsive<MPMeasure>',
       default: "'none'",
       description: {
-        ko: '내용을 본문 폭으로 묶고 가운데에 둡니다. 시트 자체는 여전히 창 전체를 덮습니다. [MPContainer](./container)의 `maxWidth`와 같은 사다리입니다',
-        en: "Holds the content to a measure and centres it while the sheet itself still spans the window. The same ladder [MPContainer](./container)'s `maxWidth` uses"
+        ko: '내용을 본문 폭으로 묶고 가운데에 둡니다. 시트 자체는 여전히 창 전체를 덮습니다. [MPContainer](./container)의 `maxWidth`와 같은 prop입니다 — 사다리의 한 칸, 직접 쓴 CSS 길이, 또는 창 크기 클래스별 맵',
+        en: "Holds the content to a measure and centres it while the sheet itself still spans the window. The same prop [MPContainer](./container)'s `maxWidth` is — a rung, a CSS length, or a map keyed by window size class"
       }
     },
     {

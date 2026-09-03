@@ -60,11 +60,13 @@ describe('MPFooter', () => {
     });
 
     it('holds the content to a measure while the sheet still spans the window', async () => {
+      // `md` is 840dp, which is where MD3's expanded window starts — the same
+      // edge `MPContainer` holds to, so a bar and the page under it line up.
       const screen = await render(<MPFooter maxWidth="md">Fine print</MPFooter>);
 
       expect(screen.container.querySelector('.mp-footer')!.className).toContain('w-full');
-      expect(screen.container.querySelector('.mp-footer__inner')!.className).toContain(
-        'max-w-[52.5rem]'
+      expect(getComputedStyle(screen.container.querySelector('.mp-footer__inner')!).maxWidth).toBe(
+        '840px'
       );
     });
   });

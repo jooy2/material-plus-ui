@@ -1,9 +1,11 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { BAR_SURFACE, MPPageLayoutContext } from '../../internal/page-layout';
-import { MEASURE, SHEET_PAD_X, SHEET_PAD_Y } from '../../internal/scale';
+import { SHEET_PAD_X, SHEET_PAD_Y } from '../../internal/scale';
+import { measureValue } from '../../internal/measure';
+import { responsiveSlots, withBaseline } from '../../internal/responsive';
 import { useMPSize } from '../../internal/config';
-import type { MPPosition, MPSize, MPVariant } from '../../types';
+import type { MPMeasure, MPPosition, MPResponsive, MPSize, MPVariant } from '../../types';
 
 export interface MPFooterProps extends Omit<React.ComponentPropsWithoutRef<'footer'>, 'title'> {
   /**
@@ -38,11 +40,12 @@ export interface MPFooterProps extends Omit<React.ComponentPropsWithoutRef<'foot
   size?: MPSize;
   /**
    * Holds the content to a measure and centres it while the sheet itself still
-   * spans the window. The same ladder [MPContainer](./container)'s `maxWidth`
-   * uses.
+   * spans the window. The same prop [MPContainer](./container)'s `maxWidth` is —
+   * a rung of the size ladder, a CSS length of your own, or a map keyed by
+   * window size class.
    * @default 'none'
    */
-  maxWidth?: MPSize | 'none';
+  maxWidth?: MPResponsive<MPMeasure>;
   /**
    * The gutter, and the air above and below.
    * @default true
@@ -157,10 +160,15 @@ export const MPFooter = React.forwardRef<HTMLElement, MPFooterProps>(function MP
           className={[
             'mp-footer__inner w-full',
             padded ? `${SHEET_PAD_X[size]} ${SHEET_PAD_Y[size]}` : '',
-            maxWidth === 'none' ? '' : `${MEASURE[maxWidth]} mx-auto`
+            maxWidth === 'none' ? '' : 'mp-measure mx-auto'
           ]
             .filter(Boolean)
             .join(' ')}
+          style={
+            maxWidth === 'none'
+              ? undefined
+              : responsiveSlots('measure', withBaseline(maxWidth, 'none'), measureValue)
+          }
         >
           {children}
         </div>

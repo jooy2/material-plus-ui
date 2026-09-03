@@ -148,6 +148,35 @@ export type MPWindowClass = 'compact' | 'medium' | 'expanded' | 'large' | 'extra
 export type MPResponsive<T> = T | Partial<Record<MPWindowClass, T>>;
 
 /**
+ * How wide content is allowed to get.
+ *
+ * Two vocabularies in one prop, because a measure is asked for in two different
+ * ways and neither covers the other.
+ *
+ * A **rung of the size ladder** is the common one, and it is pinned to the
+ * window size classes rather than to the type scale: `maxWidth="md"` is "never
+ * wider than an expanded window", which is a sentence about the specification
+ * rather than a number somebody liked. `xs` is one rung below the ladder, at
+ * 480dp, for the column of a form or a sign-in card.
+ *
+ * A **CSS length** is the other: `'60ch'`, `'42rem'`, `'800px'`, or anything else
+ * `max-width` takes. A measure is often a decision about the text rather than
+ * about the window — the classic answer is around 60 characters, which no ladder
+ * of window widths can spell — and a library that only offered its own five
+ * rungs would be making every one of those callers write a `className` to undo
+ * one it did not want.
+ *
+ * `'none'` is neither, and is what nearly every component means by default: no
+ * limit at all.
+ *
+ * The value is not validated. An unusable length reaches `max-width`, which
+ * ignores what it cannot parse and leaves the element unbounded — the same
+ * answer `'none'` gives, and a better one than a component that renders nothing
+ * because a unit was mistyped.
+ */
+export type MPMeasure = MPSize | 'none' | (string & {});
+
+/**
  * The axes most components share.
  *
  * A component extends this and adds only what is genuinely its own, which is what

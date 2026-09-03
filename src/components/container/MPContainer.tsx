@@ -1,19 +1,28 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
-import { MEASURE, SHEET_PAD_X } from '../../internal/scale';
+import { SHEET_PAD_X } from '../../internal/scale';
+import { measureValue } from '../../internal/measure';
+import { responsiveSlots, withBaseline } from '../../internal/responsive';
 import { useMPSize } from '../../internal/config';
-import type { MPSize } from '../../types';
+import type { MPMeasure, MPResponsive, MPSize } from '../../types';
 
 export interface MPContainerProps extends React.ComponentPropsWithoutRef<'div'> {
   /**
    * How wide the content is allowed to get, on a ladder pinned to MD3's window
    * size classes — `sm` 600dp, `md` 840dp, `lg` 1200dp, `xl` 1600dp, `xs` 480dp.
    *
+   * Or a CSS length of your own: `maxWidth="60ch"` is the measure a paragraph
+   * actually wants, and no ladder of window widths can spell it.
+   *
+   * Responsive, like the grid's props: `maxWidth={{ compact: 'none', expanded: 'lg' }}`
+   * is edge to edge on a phone and held to 1200dp from 840 up. Each entry applies
+   * from its own window class upward.
+   *
    * `none`, the default, is no limit: a container's job is the margin, and a
    * measure is a second decision that a page should have to ask for.
    * @default 'none'
    */
-  maxWidth?: MPSize | 'none';
+  maxWidth?: MPResponsive<MPMeasure>;
   /**
    * The page margin. Turn it off to keep the centring and the measure without
    * the gutter — a full-bleed hero, a section that pads itself.
@@ -84,12 +93,15 @@ export const MPContainer = React.forwardRef<HTMLDivElement, MPContainerProps>(fu
     centered = true,
     render,
     className,
+    style,
     children,
     ...props
   },
   ref
 ) {
   const size = useMPSize(sizeProp);
+  const measured = maxWidth !== 'none';
+
   return useRender({
     render,
     ref,
@@ -101,13 +113,16 @@ export const MPContainer = React.forwardRef<HTMLDivElement, MPContainerProps>(fu
         // reset, a container whose `maxWidth` was set would have its margin
         // added *outside* that width and come out wider than it asked to be.
         'box-border',
-        maxWidth === 'none' ? '' : MEASURE[maxWidth],
+        measured ? 'mp-measure' : '',
         centered ? 'mx-auto' : '',
         padded ? SHEET_PAD_X[size] : '',
         className ?? ''
       ]
         .filter(Boolean)
         .join(' '),
+      style: measured
+        ? { ...responsiveSlots('measure', withBaseline(maxWidth, 'none'), measureValue), ...style }
+        : style,
       children,
       ...props
     }

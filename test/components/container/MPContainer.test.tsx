@@ -61,6 +61,51 @@ describe('MPContainer', () => {
     expect(styles(screen.container.querySelector('.mp-container')!).maxWidth).toBe('840px');
   });
 
+  it('takes a CSS length of its own', async () => {
+    // The measure a paragraph actually wants is a decision about the text, and
+    // no ladder of window widths can spell it.
+    const screen = await render(<MPContainer maxWidth="800px">Page</MPContainer>);
+
+    expect(styles(screen.container.querySelector('.mp-container')!).maxWidth).toBe('800px');
+  });
+
+  it('leaves an unusable length unbounded rather than unrendered', async () => {
+    const screen = await render(<MPContainer maxWidth="not a width">Page</MPContainer>);
+
+    expect(styles(screen.container.querySelector('.mp-container')!).maxWidth).toBe('none');
+  });
+
+  it('changes its measure at a window size class', async () => {
+    // The suite runs at 1280×900, which is `large`.
+    const screen = await render(
+      <MPContainer maxWidth={{ compact: 'none', large: 'sm' }}>Page</MPContainer>
+    );
+
+    expect(styles(screen.container.querySelector('.mp-container')!).maxWidth).toBe('600px');
+  });
+
+  it('keeps a class it was not given from the one below it', async () => {
+    const screen = await render(
+      <MPContainer maxWidth={{ compact: 'sm', 'extra-large': 'xl' }}>Page</MPContainer>
+    );
+
+    expect(styles(screen.container.querySelector('.mp-container')!).maxWidth).toBe('600px');
+  });
+
+  it('does not let an inner measure resolve the outer one', async () => {
+    // The slots inherit, so a container inside a container that named one class
+    // used to read the outer element's at every class above it.
+    const screen = await render(
+      <MPContainer maxWidth={{ compact: 'none', large: 'xl' }}>
+        <MPContainer maxWidth="sm" className="inner">
+          Page
+        </MPContainer>
+      </MPContainer>
+    );
+
+    expect(styles(screen.container.querySelector('.inner')!).maxWidth).toBe('600px');
+  });
+
   it('centres a capped container, and stops when told to', async () => {
     const screen = await render(
       <div style={{ width: 1200 }}>

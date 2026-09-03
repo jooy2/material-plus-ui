@@ -1494,6 +1494,59 @@
 }
 
 /* ---------------------------------------------------------------------------
+ * The measure
+ *
+ * How wide content is allowed to get, on `MPContainer`, `MPHeader` and
+ * `MPFooter`. The same rungs the grid uses and for the same two reasons: the
+ * value is a length a caller picks at runtime, which Tailwind cannot generate a
+ * class for, and it changes at a window size class, which a media query resolves
+ * without anything re-rendering.
+ *
+ * `none` is the base fallback rather than a width, so an element carrying this
+ * class with nothing set is unbounded — which is what `max-width: none` means
+ * and what a container with no `maxWidth` has always been.
+ *
+ * The slots are reset here for the reason `.mp-grid` resets its own: a container
+ * inside a container, or a header inside either, is the ordinary shape of a page
+ * and the slots inherit. An inner `maxWidth="sm"` writes one declaration, and
+ * without the reset it would resolve the outer element's at every class above
+ * compact — a card that is 600px wide on a phone and 1200 on a laptop, from a
+ * component that was told 600.
+ * ------------------------------------------------------------------------- */
+
+.mp-measure {
+  --_mp-measure-0: var(--_mp-measure-compact, none);
+  --_mp-measure-1: var(--_mp-measure-0);
+  --_mp-measure-2: var(--_mp-measure-1);
+  --_mp-measure-3: var(--_mp-measure-2);
+  --_mp-measure: var(--_mp-measure-3);
+
+  --_mp-measure-compact: initial;
+  --_mp-measure-medium: initial;
+  --_mp-measure-expanded: initial;
+  --_mp-measure-large: initial;
+  --_mp-measure-extra-large: initial;
+
+  max-width: var(--_mp-measure);
+
+  @variant mp-medium {
+    --_mp-measure-1: var(--_mp-measure-medium, var(--_mp-measure-0));
+  }
+
+  @variant mp-expanded {
+    --_mp-measure-2: var(--_mp-measure-expanded, var(--_mp-measure-1));
+  }
+
+  @variant mp-large {
+    --_mp-measure-3: var(--_mp-measure-large, var(--_mp-measure-2));
+  }
+
+  @variant mp-extra-large {
+    --_mp-measure: var(--_mp-measure-extra-large, var(--_mp-measure-3));
+  }
+}
+
+/* ---------------------------------------------------------------------------
  * Showing at some widths and not others
  *
  * The hiding itself is Tailwind's own `hidden` under the variants registered

@@ -1,9 +1,11 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { BAR_SURFACE, MPPageLayoutContext } from '../../internal/page-layout';
-import { hasContent, MEASURE, SHEET_PAD_X } from '../../internal/scale';
+import { hasContent, SHEET_PAD_X } from '../../internal/scale';
+import { measureValue } from '../../internal/measure';
+import { responsiveSlots, withBaseline } from '../../internal/responsive';
 import { useMPSize } from '../../internal/config';
-import type { MPAlign, MPPosition, MPSize, MPVariant } from '../../types';
+import type { MPAlign, MPMeasure, MPPosition, MPResponsive, MPSize, MPVariant } from '../../types';
 
 export interface MPHeaderProps extends Omit<React.ComponentPropsWithoutRef<'header'>, 'title'> {
   /**
@@ -65,11 +67,13 @@ export interface MPHeaderProps extends Omit<React.ComponentPropsWithoutRef<'head
   size?: MPSize;
   /**
    * Holds the row of slots to a measure and centres it while the sheet itself
-   * still spans the window. The same ladder [MPContainer](./container)'s
-   * `maxWidth` uses, so a header and the container under it line up on one edge.
+   * still spans the window. The same prop [MPContainer](./container)'s
+   * `maxWidth` is — a rung of the size ladder, a CSS length of your own, or a
+   * map keyed by window size class — so a header and the container under it line
+   * up on one edge by being given the same value.
    * @default 'none'
    */
-  maxWidth?: MPSize | 'none';
+  maxWidth?: MPResponsive<MPMeasure>;
   /**
    * The gutter down each side of the row.
    * @default true
@@ -273,10 +277,15 @@ export const MPHeader = React.forwardRef<HTMLElement, MPHeaderProps>(function MP
             BAR_HEIGHT[size],
             BAR_GAP[size],
             padded ? SHEET_PAD_X[size] : '',
-            maxWidth === 'none' ? '' : `${MEASURE[maxWidth]} mx-auto`
+            maxWidth === 'none' ? '' : 'mp-measure mx-auto'
           ]
             .filter(Boolean)
             .join(' ')}
+          style={
+            maxWidth === 'none'
+              ? undefined
+              : responsiveSlots('measure', withBaseline(maxWidth, 'none'), measureValue)
+          }
         >
           {hasContent(brand) ? (
             <div
