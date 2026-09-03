@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { SHEET_PAD_X } from '../../internal/scale';
 import { measureValue } from '../../internal/measure';
+import { useWindowMins } from '../../internal/window-class';
 import { responsiveSlots, withBaseline } from '../../internal/responsive';
 import { useMPSize } from '../../internal/config';
 import type { MPMeasure, MPResponsive, MPSize } from '../../types';
@@ -100,6 +101,7 @@ export const MPContainer = React.forwardRef<HTMLDivElement, MPContainerProps>(fu
   ref
 ) {
   const size = useMPSize(sizeProp);
+  const mins = useWindowMins();
   const measured = maxWidth !== 'none';
 
   return useRender({
@@ -121,7 +123,12 @@ export const MPContainer = React.forwardRef<HTMLDivElement, MPContainerProps>(fu
         .filter(Boolean)
         .join(' '),
       style: measured
-        ? { ...responsiveSlots('measure', withBaseline(maxWidth, 'none'), measureValue), ...style }
+        ? {
+            ...responsiveSlots('measure', withBaseline(maxWidth, 'none'), (value) =>
+              measureValue(value, mins)
+            ),
+            ...style
+          }
         : style,
       children,
       ...props

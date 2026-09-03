@@ -4,19 +4,20 @@
  * `MPWindowClass` in `src/types.ts` says what the five are and why they are the
  * specification's ladder rather than Tailwind's. This is where the boundaries
  * live for everything written in JavaScript — the hook, the sidebar's collapse,
- * the classes a visibility rule is chosen from — and they are asked for rather
+ * the measure `MPContainer` holds content to — and they are asked for rather
  * than written out, because a second spelling of a boundary is a second place it
  * can be wrong.
  *
  * The numbers are MD3's own: 600, 840, 1200 and 1600dp, with `compact` running
- * from zero up to the first of them.
+ * from zero up to the first of them. An `MPConfigProvider` can move them; see
+ * `useWindowMins`.
  *
  * ## The other half
  *
  * The stylesheet cannot read these. A media query resolves before any of this
  * runs and cannot name a custom property, so the same four widths are declared a
- * second time in `src/styles.css` — as `--breakpoint-mp-*` in its `@theme`,
- * which is what every `@variant` in that file is written against.
+ * second time in `src/styles.css` — as the `@custom-variant mp-*` block, which
+ * is what every `@variant` in that file is written against.
  *
  * That is one duplication the library cannot remove, so it is checked instead:
  * `test/styles/breakpoints.test.tsx` reads both ladders and fails if they ever
@@ -25,6 +26,7 @@
  * hardest kind of wrong to be shown.
  */
 import * as React from 'react';
+import { MPConfigContext } from './config';
 import type { MPWindowClass } from '../types';
 
 /** Smallest first, which is also the order the media queries have to be in. */
@@ -52,39 +54,53 @@ export const WINDOW_MIN: Record<MPWindowClass, number> = {
 };
 
 /**
- * The media query a class's floor is, and the one below it.
+ * The media query a floor is, and the one below it.
  *
- * Written here rather than at the two call sites that used to spell them out,
- * for the reason the numbers themselves are: a query is the boundary said in
- * another vocabulary, and a second spelling of a boundary is a second place it
- * can be wrong. `compact` has no floor to ask about — every window is at least
- * nought wide — so both return `null` for it and a caller reads that as "there
- * is nothing to watch".
+ * A width rather than a class name, because the floors are no longer constants:
+ * whose ladder is being asked about is the caller's business and this only
+ * knows how to say one. Nought has no query — every window is at least that
+ * wide — and both return `null` there, which a caller reads as "there is nothing
+ * to watch".
  */
-export function atLeast(windowClass: MPWindowClass): string | null {
-  const min = WINDOW_MIN[windowClass];
-
+export function atLeast(min: number): string | null {
   return min > 0 ? `(width >= ${min}px)` : null;
 }
 
-export function below(windowClass: MPWindowClass): string | null {
-  const min = WINDOW_MIN[windowClass];
-
+export function below(min: number): string | null {
   return min > 0 ? `(width < ${min}px)` : null;
 }
 
-/** Which class a width falls in. Widest match wins. */
-export function windowClassFor(width: number): MPWindowClass {
-  let match: MPWindowClass = 'compact';
+/**
+ * The floors in force at this point in the tree.
+ *
+ * MD3's, with whatever an `MPConfigProvider` moved written over them. `compact`
+ * is forced back to nought whatever it was given: a class whose floor is above
+ * zero leaves a band of windows in no class at all.
+ *
+ * The object is rebuilt on every call rather than memoised, and deliberately —
+ * every caller turns it into a number or a string before doing anything with it,
+ * so its identity is never a dependency of anything. Memoising it would be a
+ * `useMemo` whose own dependency is the identity of a prop callers write inline.
+ */
+export function useWindowMins(): Record<MPWindowClass, number> {
+  const { breakpoints } = React.useContext(MPConfigContext);
 
-  for (const name of WINDOW_CLASSES) {
-    if (width >= WINDOW_MIN[name]) {
-      match = name;
-    }
-  }
-
-  return match;
+  return breakpoints ? { ...WINDOW_MIN, ...breakpoints, compact: 0 } : WINDOW_MIN;
 }
+
+/** A ladder as one primitive, which is what makes it usable as a hook's dependency. */
+function keyOf(mins: Record<MPWindowClass, number>): string {
+  return WINDOW_CLASSES.map((name) => mins[name]).join(',');
+}
+
+interface Ladder {
+  /** The classes that have a floor to watch, smallest first. */
+  classes: MPWindowClass[];
+  /** One `matchMedia` list each, in the same order. */
+  lists: MediaQueryList[];
+}
+
+const NOTHING: Ladder = { classes: [], lists: [] };
 
 /**
  * One `matchMedia` list per boundary, made once and kept.
@@ -95,33 +111,49 @@ export function windowClassFor(width: number): MPWindowClass {
  * hundred times there, and the four are the only ones that could change what
  * this hook returns.
  *
- * They are module-level because they are the same four queries for every caller.
- * A page with a hook in six components subscribes six times to four lists rather
- * than making twenty-four of them.
+ * Keyed by the ladder rather than held in one variable, because a page can now
+ * have more than one — an `MPConfigProvider` that moved a boundary, around a
+ * part of a page that has not. The common case is still one entry that every
+ * caller shares: a page with the hook in six components subscribes six times to
+ * four lists rather than making twenty-four of them.
+ *
+ * The no-`matchMedia` case caches nothing. There is nothing to cache, and an
+ * entry written then would outlive the environment that could not answer.
  */
-let lists: MediaQueryList[] | null = null;
+const ladders = new Map<string, Ladder>();
 
-function queryLists(): MediaQueryList[] {
+function ladderFor(key: string): Ladder {
   if (typeof window === 'undefined' || !window.matchMedia) {
-    return [];
+    return NOTHING;
   }
 
-  lists ??= WINDOW_CLASSES.map(atLeast)
-    .filter((query): query is string => query !== null)
-    .map((query) => window.matchMedia(query));
+  let found = ladders.get(key);
 
-  return lists;
+  if (!found) {
+    const mins = key.split(',').map(Number);
+    const rungs = WINDOW_CLASSES.map((name, index) => [name, mins[index]] as const).filter(
+      ([, min]) => min > 0
+    );
+
+    found = {
+      classes: rungs.map(([name]) => name),
+      lists: rungs.map(([, min]) => window.matchMedia(atLeast(min) as string))
+    };
+    ladders.set(key, found);
+  }
+
+  return found;
 }
 
-function subscribe(onChange: () => void): () => void {
-  const all = queryLists();
+function subscribe(key: string, onChange: () => void): () => void {
+  const { lists } = ladderFor(key);
 
-  for (const list of all) {
+  for (const list of lists) {
     list.addEventListener('change', onChange);
   }
 
   return () => {
-    for (const list of all) {
+    for (const list of lists) {
       list.removeEventListener('change', onChange);
     }
   };
@@ -136,32 +168,25 @@ function subscribe(onChange: () => void): () => void {
  * is `medium` to CSS and `compact` to arithmetic — which is a layout whose
  * JavaScript and whose stylesheet disagree at exactly one width.
  */
-function snapshot(fallback: MPWindowClass): MPWindowClass {
-  const all = queryLists();
+function snapshot(key: string, fallback: MPWindowClass): MPWindowClass {
+  const { classes, lists } = ladderFor(key);
 
   // No `matchMedia` at all — a server, or a browser old enough that there is no
   // way to ask. The caller's own answer rather than a guess of ours, and the
   // same answer in both cases: "there is no window to measure" is one situation,
   // and giving it two different replies would be a hook that quietly changed its
   // mind depending on *why* it could not measure.
-  if (all.length === 0) {
+  if (lists.length === 0) {
     return fallback;
   }
 
-  let match: MPWindowClass = 'compact';
-  let index = 0;
+  let match: MPWindowClass = WINDOW_CLASSES[0];
 
-  for (const name of WINDOW_CLASSES) {
-    if (WINDOW_MIN[name] === 0) {
-      continue;
-    }
-
-    if (all[index]?.matches) {
+  classes.forEach((name, index) => {
+    if (lists[index]?.matches) {
       match = name;
     }
-
-    index += 1;
-  }
+  });
 
   return match;
 }
@@ -172,9 +197,17 @@ function snapshot(fallback: MPWindowClass): MPWindowClass {
  * one API that tells React the server's answer and the client's are meant to
  * differ. An effect would render the wrong layout once and then correct it,
  * which React would not know to expect.
+ *
+ * The ladder reaches the store as a string. Everything `useSyncExternalStore`
+ * is given has to be stable between renders or it resubscribes on each one, and
+ * a `breakpoints` prop written inline — which is how anybody would write it — is
+ * a new object every time its provider renders.
  */
 export function useWindowClass(onServer: MPWindowClass): MPWindowClass {
-  const read = React.useCallback(() => snapshot(onServer), [onServer]);
+  const key = keyOf(useWindowMins());
 
-  return React.useSyncExternalStore(subscribe, read, read);
+  const listen = React.useCallback((onChange: () => void) => subscribe(key, onChange), [key]);
+  const read = React.useCallback(() => snapshot(key, onServer), [key, onServer]);
+
+  return React.useSyncExternalStore(listen, read, read);
 }

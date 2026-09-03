@@ -3,6 +3,7 @@ import { useRender } from '@base-ui/react/use-render';
 import { BAR_SURFACE, MPPageLayoutContext } from '../../internal/page-layout';
 import { SHEET_PAD_X, SHEET_PAD_Y } from '../../internal/scale';
 import { measureValue } from '../../internal/measure';
+import { useWindowMins } from '../../internal/window-class';
 import { responsiveSlots, withBaseline } from '../../internal/responsive';
 import { useMPSize } from '../../internal/config';
 import type { MPMeasure, MPPosition, MPResponsive, MPSize, MPVariant } from '../../types';
@@ -122,6 +123,7 @@ export const MPFooter = React.forwardRef<HTMLElement, MPFooterProps>(function MP
   ref
 ) {
   const size = useMPSize(sizeProp);
+  const mins = useWindowMins();
   const { register } = React.useContext(MPPageLayoutContext);
 
   const setRef = React.useCallback(
@@ -167,7 +169,9 @@ export const MPFooter = React.forwardRef<HTMLElement, MPFooterProps>(function MP
           style={
             maxWidth === 'none'
               ? undefined
-              : responsiveSlots('measure', withBaseline(maxWidth, 'none'), measureValue)
+              : responsiveSlots('measure', withBaseline(maxWidth, 'none'), (value) =>
+                  measureValue(value, mins)
+                )
           }
         >
           {children}

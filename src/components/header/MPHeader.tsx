@@ -3,6 +3,7 @@ import { useRender } from '@base-ui/react/use-render';
 import { BAR_SURFACE, MPPageLayoutContext } from '../../internal/page-layout';
 import { hasContent, SHEET_PAD_X } from '../../internal/scale';
 import { measureValue } from '../../internal/measure';
+import { useWindowMins } from '../../internal/window-class';
 import { responsiveSlots, withBaseline } from '../../internal/responsive';
 import { useMPSize } from '../../internal/config';
 import type { MPAlign, MPMeasure, MPPosition, MPResponsive, MPSize, MPVariant } from '../../types';
@@ -239,6 +240,7 @@ export const MPHeader = React.forwardRef<HTMLElement, MPHeaderProps>(function MP
   ref
 ) {
   const size = useMPSize(sizeProp);
+  const mins = useWindowMins();
   const { register } = React.useContext(MPPageLayoutContext);
 
   const setRef = React.useCallback(
@@ -284,7 +286,9 @@ export const MPHeader = React.forwardRef<HTMLElement, MPHeaderProps>(function MP
           style={
             maxWidth === 'none'
               ? undefined
-              : responsiveSlots('measure', withBaseline(maxWidth, 'none'), measureValue)
+              : responsiveSlots('measure', withBaseline(maxWidth, 'none'), (value) =>
+                  measureValue(value, mins)
+                )
           }
         >
           {hasContent(brand) ? (

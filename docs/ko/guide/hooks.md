@@ -129,7 +129,11 @@ return size === 'compact' ? <MPDrawer>{nav}</MPDrawer> : <MPSidebar>{nav}</MPSid
 const size = useMPWindowClass('compact');
 ```
 
-클라이언트가 hydration에서 고칩니다. 아래에 깔린 `useSyncExternalStore`가 그 정정을 React가 불평하는 불일치가 아니라 정당한 것으로 만들어 줍니다. **다만 정정은 두 번째 렌더**라서, 이걸로 내비게이션 패턴 전체를 바꾸는 컴포넌트는 첫 로드에서 그 전환이 눈에 보입니다. 그게 문제라면 애초에 첫 렌더가 틀릴 일이 없는 답을 쓰세요 — `MPGrid`의 반응형 prop과 Tailwind의 variant는 무엇이 그려지기 전에 브라우저가 풀어 줍니다.
+클라이언트가 hydration에서 고칩니다. 아래에 깔린 `useSyncExternalStore`가 그 정정을 React가 불평하는 불일치가 아니라 정당한 것으로 만들어 줍니다. **다만 정정은 두 번째 렌더**라서, 이걸로 내비게이션 패턴 전체를 바꾸는 컴포넌트는 첫 로드에서 그 전환이 눈에 보입니다. 그게 문제라면 애초에 첫 렌더가 틀릴 일이 없는 답을 쓰세요 — [`MPShow`](../components/layout/show), `MPGrid`의 반응형 prop, Tailwind의 variant는 무엇이 그려지기 전에 브라우저가 풀어 줍니다.
+
+### 경계는 어디에서 오는가
+
+MD3 자신의 값입니다. 위쪽의 [`MPConfigProvider`](./config#윈도우-크기-클래스-옮기기)가 옮겼다면 그 값이고요. 그 prop은 스타일시트의 경계까지 옮긴 페이지에서 자바스크립트 쪽 절반을 맞춰 주는 것입니다. 한쪽만 옮기는 건 둘 다 옮기지 않는 것보다 나쁘고, 그 이유는 프로바이더 쪽에 적혀 있습니다.
 
 ## `useMPReducedMotion`
 

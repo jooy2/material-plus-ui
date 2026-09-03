@@ -16,7 +16,7 @@
  */
 import * as React from 'react';
 import { HIDDEN_BELOW, HIDDEN_FROM } from './visibility';
-import { below } from './window-class';
+import { below, useWindowMins } from './window-class';
 import type { MPSide, MPVariant, MPWindowClass } from '../types';
 
 /**
@@ -127,27 +127,6 @@ export const MPPageLayoutContext = React.createContext<MPPageLayoutContextValue>
 export const MPSidebarSideContext = React.createContext<MPSidebarSide | null>(null);
 
 /**
- * Whether the window is under the class a sidebar collapses at, as a query.
- *
- * Asked of `window-class.ts` rather than written out, which is the whole of the
- * change: these were four literal widths, and four literal widths beside the
- * four in the stylesheet and the four in `WINDOW_MIN` is three chances for a
- * sidebar to collapse at a width the grid does not reflow at.
- *
- * `none` and `compact` have nothing to watch — a sidebar that collapsed below
- * zero would never collapse — so both are `null` and `useMPCollapsed` reads that
- * as "no".
- */
-const COLLAPSE_QUERY: Record<MPPageCollapse, string | null> = {
-  none: null,
-  compact: below('compact'),
-  medium: below('medium'),
-  expanded: below('expanded'),
-  large: below('large'),
-  'extra-large': below('extra-large')
-};
-
-/**
  * The same boundaries as classes, for the part of this that is decided in CSS
  * rather than in JavaScript.
  *
@@ -199,7 +178,15 @@ export const EXPANDED_ONLY: Record<MPPageCollapse, string> = {
  * say otherwise.
  */
 export function useMPCollapsed(collapseBelow: MPPageCollapse): boolean {
-  const query = COLLAPSE_QUERY[collapseBelow];
+  // Asked of the ladder rather than written out. These were four literal widths
+  // beside the four in the stylesheet, which is one more chance for a sidebar to
+  // collapse at a width the grid does not reflow at — and now also the only way
+  // a sidebar follows an `MPConfigProvider` that moved a boundary.
+  //
+  // `none` and `compact` have nothing to watch: a sidebar that collapsed below
+  // nought would never collapse.
+  const mins = useWindowMins();
+  const query = below(collapseBelow === 'none' ? 0 : mins[collapseBelow]);
 
   const subscribe = React.useCallback(
     (onChange: () => void) => {

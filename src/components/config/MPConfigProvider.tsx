@@ -2,7 +2,8 @@ import * as React from 'react';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { MPConfigContext, useMPConfig, type MPConfigValue } from '../../internal/config';
 import { MPLocaleContext, useMPLocale } from '../../internal/locale';
-import type { MPColor, MPSize } from '../../types';
+import { WINDOW_CLASSES } from '../../internal/window-class';
+import type { MPColor, MPSize, MPWindowClass } from '../../types';
 
 export interface MPConfigProviderProps {
   /**
@@ -21,6 +22,37 @@ export interface MPConfigProviderProps {
    * line here rather than a prop on every button, chip, tab and slider.
    */
   color?: MPColor;
+  /**
+   * Where the window size classes begin, in CSS pixels, for everything the
+   * library decides in **JavaScript** — `useMPWindowClass`, `MPSidebar`'s
+   * collapse, and the rungs `maxWidth` resolves to.
+   *
+   * Partial and merged over MD3's own, so `{ medium: 700 }` moves one boundary
+   * and leaves the other three. `compact` is always nought whatever it is given:
+   * a first class whose floor is above zero leaves a band of windows in no class
+   * at all.
+   *
+   * ## This does not move the stylesheet
+   *
+   * It cannot. A media query is resolved before any of this runs and cannot name
+   * a custom property, so `MPGrid`'s reflow, `MPShow`'s hiding and every other
+   * width-driven rule are decided by the CSS the build produced. This prop is
+   * how you tell the JavaScript side what you already did on the CSS side — it
+   * is not the source, and a page that sets it alone has moved half its layout.
+   *
+   * The CSS side is a project that runs its own Tailwind, redeclaring both
+   * halves of the boundary after importing the library:
+   *
+   * ```css
+   * @custom-variant mp-medium (@media (width >= 700px));
+   * @custom-variant mp-below-medium (@media (width < 700px));
+   * ```
+   *
+   * A project on the compiled `material-plus-ui/styles.css` cannot move the
+   * stylesheet at all, and should not set this either. See
+   * [Breakpoints](../../design/breakpoints).
+   */
+  breakpoints?: Partial<Record<MPWindowClass, number>>;
   /**
    * The language the components speak — the same value `MPLocaleProvider` takes,
    * carried here so an application needs one provider rather than two.
@@ -111,17 +143,47 @@ export interface MPConfigProviderProps {
  * </MPConfigProvider>
  * ```
  */
-export function MPConfigProvider({ size, color, locale, dir, children }: MPConfigProviderProps) {
+export function MPConfigProvider({
+  size,
+  color,
+  breakpoints,
+  locale,
+  dir,
+  children
+}: MPConfigProviderProps) {
   const outer = useMPConfig();
   const outerLocale = useMPLocale();
 
+  /*
+   * The boundaries as one string, so that the memo below can depend on what they
+   * *are* rather than on the identity of the object holding them. `breakpoints`
+   * is a map, and a map is written inline — `breakpoints={{ medium: 700 }}` is a
+   * new object on every render of whatever holds this provider, and a memo keyed
+   * on it would rebuild the context value every time and re-render every
+   * consumer in the tree.
+   */
+  const ladder = WINDOW_CLASSES.map(
+    (name) => breakpoints?.[name] ?? outer.breakpoints?.[name] ?? ''
+  ).join(',');
+
   // Merged rather than replaced, so a nested provider that names one field does
   // not silently reset the others to the library's defaults — and memoised on
-  // the four values rather than on the object, so a parent re-rendering with the
+  // the values rather than on the objects, so a parent re-rendering with the
   // same configuration does not re-render every consumer below.
   const value = React.useMemo<MPConfigValue>(
-    () => ({ size: size ?? outer.size, color: color ?? outer.color }),
-    [size, color, outer.size, outer.color]
+    () => ({
+      size: size ?? outer.size,
+      color: color ?? outer.color,
+      // Merged a field at a time for the same reason: a nested provider that
+      // moves `large` should not put `medium` back where the specification had
+      // it. `undefined` rather than an empty object when nobody has set one, so
+      // `useWindowMins` can return the shared ladder untouched.
+      breakpoints:
+        breakpoints || outer.breakpoints ? { ...outer.breakpoints, ...breakpoints } : undefined
+    }),
+    // `ladder` stands in for the two breakpoint maps, by value rather than by
+    // identity — which is the whole of why it exists. See above.
+    [size, color, outer.size, outer.color, ladder]
   );
 
   const resolvedLocale = locale ?? outerLocale;

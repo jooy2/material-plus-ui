@@ -45,6 +45,13 @@ import type { MPWindowClass } from '../types';
  * responsive props and Tailwind's own variants are resolved by the browser
  * before anything paints.
  *
+ * ## Where the boundaries come from
+ *
+ * MD3's own, unless an `MPConfigProvider` above this moved them — its
+ * `breakpoints` prop is the JavaScript half of a page that has moved the
+ * stylesheet's too. See the provider for why moving one without the other is
+ * worse than moving neither.
+ *
  * @param onServer what to answer where there is no window. @default 'expanded'
  */
 export function useMPWindowClass(onServer: MPWindowClass = 'expanded'): MPWindowClass {

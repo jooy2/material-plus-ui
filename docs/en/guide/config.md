@@ -77,6 +77,33 @@ Set the prop to move any of them.
 
 A component whose prop has **no** default is also left alone — `MPSkeleton`'s `color` is unset on purpose, meaning "neutral", and an app-wide accent does not fill it in.
 
+## Moving the window size classes
+
+`breakpoints` moves where the five [window size classes](../design/breakpoints) begin, in CSS pixels, merged over MD3's own:
+
+```tsx
+<MPConfigProvider breakpoints={{ medium: 700 }}>
+```
+
+**It does not move the stylesheet.** It cannot: a media query is resolved by the browser before any of this runs and cannot name a custom property. So this prop reaches exactly what the library decides in JavaScript —
+
+- `useMPWindowClass`
+- where an `MPSidebar` collapses
+- the rungs `maxWidth` resolves to on `MPContainer`, `MPHeader` and `MPFooter`
+
+— and not `MPGrid`'s reflow, not `MPShow`'s hiding, and not any other width-driven rule in the CSS.
+
+This prop is how you tell the JavaScript side **what you already did on the CSS side**. A page that sets it alone has moved half its layout, which is worse than moving none of it. The CSS half is a project that runs its own Tailwind, redeclaring both halves of the boundary after importing the library:
+
+```css
+@custom-variant mp-medium (@media (width >= 700px));
+@custom-variant mp-below-medium (@media (width < 700px));
+```
+
+A project on the compiled `material-plus-ui/styles.css` cannot move the stylesheet at all, and should leave this prop alone. [Breakpoints](../design/breakpoints) has the whole of it.
+
+`compact` is always nought whatever it is given — a first class whose floor is above zero leaves a band of windows in no class at all.
+
 ## Nesting
 
 Providers nest and **merge**, nearest wins per field. A section that only changes the accent keeps the size from above:

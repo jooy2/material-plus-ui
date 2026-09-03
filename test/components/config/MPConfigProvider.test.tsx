@@ -9,10 +9,13 @@ import {
   MPConfigProvider,
   MPDatePicker,
   MPLocaleProvider,
+  MPContainer,
+  MPShow,
   MPTextField,
   MPTooltip,
   useMPConfig,
-  useMPLocale
+  useMPLocale,
+  useMPWindowClass
 } from 'material-plus-ui';
 
 /**
@@ -177,6 +180,102 @@ describe('MPConfigProvider', () => {
       // The inner provider named only the colour; the size survives.
       expect(button.getAttribute('data-mp-size')).toBe('sm');
       expect(button.style.getPropertyValue('--_mp-accent')).toBe('var(--_mp-color-error)');
+    });
+  });
+
+  describe('breakpoints', () => {
+    /**
+     * The suite runs at 1280×900, which is `large` on MD3's own ladder — 1200dp
+     * up. Every case below moves a boundary across that width rather than
+     * resizing a window the page cannot resize.
+     */
+    function WindowClass() {
+      return <output data-testid="class">{useMPWindowClass()}</output>;
+    }
+
+    it('moves where the hook says a class begins', async () => {
+      const screen = await render(
+        <MPConfigProvider breakpoints={{ large: 1300 }}>
+          <WindowClass />
+        </MPConfigProvider>
+      );
+
+      // 1280 is `large` at 1200 and `expanded` at 1300.
+      await expect.element(screen.getByTestId('class')).toHaveTextContent('expanded');
+    });
+
+    it('leaves the boundaries it was not given where they were', async () => {
+      const screen = await render(
+        <MPConfigProvider breakpoints={{ medium: 700 }}>
+          <WindowClass />
+        </MPConfigProvider>
+      );
+
+      await expect.element(screen.getByTestId('class')).toHaveTextContent('large');
+    });
+
+    it('moves the rungs a measure resolves to', async () => {
+      // The half that would otherwise be left behind: `maxWidth="md"` is "no
+      // wider than an expanded window", so it has to be wherever that window
+      // now begins.
+      const screen = await render(
+        <MPConfigProvider breakpoints={{ expanded: 900 }}>
+          <MPContainer maxWidth="md">Page</MPContainer>
+        </MPConfigProvider>
+      );
+
+      expect(getComputedStyle(screen.container.querySelector('.mp-container')!).maxWidth).toBe(
+        '900px'
+      );
+    });
+
+    it('keeps `compact` at nought whatever it is given', async () => {
+      // A first class whose floor is above zero leaves a band of windows in no
+      // class at all.
+      const screen = await render(
+        <MPConfigProvider breakpoints={{ compact: 400 } as { compact: number }}>
+          <WindowClass />
+        </MPConfigProvider>
+      );
+
+      await expect.element(screen.getByTestId('class')).toHaveTextContent('large');
+    });
+
+    it('merges a boundary at a time when providers nest', async () => {
+      const screen = await render(
+        <MPConfigProvider breakpoints={{ large: 1300 }}>
+          <MPConfigProvider breakpoints={{ medium: 700 }}>
+            <WindowClass />
+          </MPConfigProvider>
+        </MPConfigProvider>
+      );
+
+      // The inner provider named `medium` only, so the outer `large` survives
+      // and 1280 is still under it.
+      await expect.element(screen.getByTestId('class')).toHaveTextContent('expanded');
+    });
+
+    it('does not reach the stylesheet, which is the whole caveat', async () => {
+      // The asymmetry the prop's documentation is mostly about, asserted rather
+      // than described. A media query was resolved before any of this ran, so
+      // the two halves of the library disagree at 1280 unless the CSS was moved
+      // as well - and a test that only checked the JavaScript half would let
+      // somebody believe the prop moved both.
+      const screen = await render(
+        <MPConfigProvider breakpoints={{ large: 1300 }}>
+          <MPContainer maxWidth="lg" className="page">
+            <MPShow from="large" className="wide">
+              Wide
+            </MPShow>
+          </MPContainer>
+        </MPConfigProvider>
+      );
+
+      // The rung moved, because a rung is resolved in JavaScript.
+      expect(getComputedStyle(screen.container.querySelector('.page')!).maxWidth).toBe('1300px');
+
+      // The hiding did not, because a media query is not.
+      expect(getComputedStyle(screen.container.querySelector('.wide')!).display).toBe('contents');
     });
   });
 

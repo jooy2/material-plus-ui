@@ -129,7 +129,11 @@ A server has no width, so there is no true answer — and there is no way for a 
 const size = useMPWindowClass('compact');
 ```
 
-The client corrects it on hydration, and `useSyncExternalStore` underneath is what makes that correction legitimate rather than a mismatch React complains about. **But the correction is a second render**, so a component that swaps a whole navigation pattern on this does so visibly on a first load. Where that matters, prefer the answer that has no first render to be wrong — `MPGrid`'s responsive props and Tailwind's own variants are resolved by the browser before anything paints.
+The client corrects it on hydration, and `useSyncExternalStore` underneath is what makes that correction legitimate rather than a mismatch React complains about. **But the correction is a second render**, so a component that swaps a whole navigation pattern on this does so visibly on a first load. Where that matters, prefer the answer that has no first render to be wrong — [`MPShow`](../components/layout/show), `MPGrid`'s responsive props and Tailwind's own variants are all resolved by the browser before anything paints.
+
+### Where the boundaries come from
+
+MD3's own, unless an [`MPConfigProvider`](./config#moving-the-window-size-classes) above it moved them. That prop is the JavaScript half of a page that has moved the stylesheet's boundaries too; moving one without the other is worse than moving neither, and the provider says why.
 
 ## `useMPReducedMotion`
 

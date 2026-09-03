@@ -8802,6 +8802,14 @@ const componentTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'breakpoints',
+      type: 'Partial<Record<MPWindowClass, number>>',
+      description: {
+        ko: '윈도우 크기 클래스가 시작하는 지점(CSS 픽셀). MD3의 값 위에 부분적으로 덮어씁니다. **스타일시트는 옮기지 않습니다** — 자바스크립트로 결정되는 것(`useMPWindowClass`, 사이드바의 접힘, `maxWidth`의 각 칸)에만 닿고, CSS 쪽은 별도로 옮겨야 합니다',
+        en: 'Where the window size classes begin, in CSS pixels, merged over MD3’s. **It does not move the stylesheet** — it reaches what the library decides in JavaScript (`useMPWindowClass`, a sidebar’s collapse, the rungs `maxWidth` resolves to), and the CSS half has to be moved separately'
+      }
+    },
+    {
       name: 'locale',
       type: 'string',
       description: {

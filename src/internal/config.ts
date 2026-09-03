@@ -26,12 +26,20 @@
  * has to reach every call site is exactly what context is for.
  */
 import * as React from 'react';
-import type { MPColor, MPSize } from '../types';
+import type { MPColor, MPSize, MPWindowClass } from '../types';
 
 /** What an `MPConfigProvider` can set. Anything unset is inherited, then default. */
 export interface MPConfigValue {
   size?: MPSize;
   color?: MPColor;
+  /**
+   * Where the window size classes begin, for the JavaScript half of the library.
+   *
+   * Partial and merged over MD3's own, in CSS pixels. See `MPConfigProvider` for
+   * what this does and does not reach — the stylesheet is not downstream of it,
+   * and cannot be.
+   */
+  breakpoints?: Partial<Record<MPWindowClass, number>>;
 }
 
 /**

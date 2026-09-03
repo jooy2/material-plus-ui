@@ -77,6 +77,33 @@ _그_ 기본 variant라는 것이 없기 때문입니다.
 
 기본값이 **아예 없는** prop도 그대로 둡니다 — `MPSkeleton`의 `color`는 "중립"을 뜻하는 미지정이고, 앱 전역 강조색이 그 자리를 채우지 않습니다.
 
+## 윈도우 크기 클래스 옮기기
+
+`breakpoints`는 다섯 개의 [윈도우 크기 클래스](../design/breakpoints)가 시작하는 지점을 CSS 픽셀 단위로 옮깁니다. MD3의 값 위에 부분적으로 덮어씁니다:
+
+```tsx
+<MPConfigProvider breakpoints={{ medium: 700 }}>
+```
+
+**스타일시트는 옮기지 않습니다.** 옮길 수 없습니다. 미디어 쿼리는 이 코드가 실행되기 전에 브라우저가 결정하고, 커스텀 프로퍼티를 이름으로 부를 수도 없습니다. 그래서 이 prop이 닿는 것은 라이브러리가 자바스크립트로 결정하는 것들뿐입니다 —
+
+- `useMPWindowClass`
+- `MPSidebar`가 접히는 지점
+- `MPContainer`, `MPHeader`, `MPFooter`에서 `maxWidth`가 해석되는 각 칸
+
+— 그리고 `MPGrid`의 재배치, `MPShow`의 숨김, 그 밖에 CSS에 있는 너비 기반 규칙에는 닿지 않습니다.
+
+이 prop은 **CSS 쪽에서 이미 한 일을** 자바스크립트 쪽에 알려 주는 수단입니다. 이것만 설정한 페이지는 레이아웃의 절반만 옮긴 것이고, 그건 아무것도 옮기지 않은 것보다 나쁩니다. CSS 쪽은 자체 Tailwind 빌드를 쓰는 프로젝트가 라이브러리를 import한 뒤 경계의 양쪽을 다시 선언하는 것입니다:
+
+```css
+@custom-variant mp-medium (@media (width >= 700px));
+@custom-variant mp-below-medium (@media (width < 700px));
+```
+
+컴파일된 `material-plus-ui/styles.css`를 쓰는 프로젝트는 스타일시트를 옮길 수 없으므로, 이 prop도 건드리지 않는 편이 좋습니다. 전체 내용은 [브레이크포인트](../design/breakpoints)에 있습니다.
+
+`compact`는 무엇을 주든 항상 0입니다. 첫 클래스의 바닥이 0보다 높으면 어떤 클래스에도 속하지 않는 너비 구간이 생깁니다.
+
 ## 중첩
 
 프로바이더는 중첩되고 **병합**되며, 필드별로 가장 가까운 것이 이깁니다. 강조색만 바꾸는 구역은 위에서 온 크기를 그대로 지킵니다.
