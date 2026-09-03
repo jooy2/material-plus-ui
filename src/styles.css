@@ -1860,6 +1860,89 @@
 }
 
 /* ---------------------------------------------------------------------------
+ * A field's supporting line
+ *
+ * The line under a control is drawn only when there is something to say, so a
+ * field that turned invalid grew by a line of text between one frame and the
+ * next — and everything under it on the page moved down by that much. On a form
+ * validated on blur that is the whole page stepping as the reader tabs through
+ * it, which is the layout shift a reader notices most and the one a component
+ * library is in the best position to prevent.
+ *
+ * ## The row rather than a height
+ *
+ * A message is one line or three, depending on what it says and how wide the
+ * field is, and neither this stylesheet nor the component knows which. `1fr` of
+ * a single-row grid is exactly what the message needs and `0fr` is nothing at
+ * all, so the two ends are the real heights rather than a guess big enough to
+ * cover them — the same move `MPFloatingActionButton` makes across its label
+ * and `MPAlert` makes on its way out.
+ *
+ * `overflow: hidden` because the row is smaller than its content for the whole
+ * of the opening, and a message that spilled out of a zero-height row would be
+ * drawn over the control it belongs to.
+ *
+ * ## Two keyframes, because there are two things that happen here
+ *
+ * A field with nothing to say and one with something to say differ by a line of
+ * layout, and that is what `open` is for. A field whose description has been
+ * replaced by an error differs by the words, and the space is already there —
+ * so `swap` is a fade and nothing else. Opening a row that is already open
+ * would collapse the line and re-open it, which is a flinch rather than a
+ * change of message.
+ *
+ * ## Why an attribute rather than a class that is simply always on
+ *
+ * Because a page load is not a change. Every rule here is written against
+ * `data-mp-reveal`, which `internal/SupportingText.tsx` sets only when it has
+ * watched the message change — otherwise a server-rendered form would grow six
+ * description lines out of nothing the moment it hydrated, which is a page
+ * assembling itself in front of a reader who asked for a form.
+ *
+ * That is the same bargain `.mp-calendar__page[data-mp-paged]` makes, and the
+ * component restarts these the same way: there is no rewinding a CSS animation
+ * from React, so `animation-name` is cleared and put back.
+ *
+ * Unlayered, like the keyframes above, and switched off for a reader who asked
+ * for less motion.
+ * ------------------------------------------------------------------------- */
+
+@keyframes mp-supporting-text-open {
+  from {
+    grid-template-rows: 0fr;
+    opacity: 0;
+  }
+}
+
+@keyframes mp-supporting-text-swap {
+  from {
+    opacity: 0;
+  }
+}
+
+.mp-supporting-text__reveal {
+  display: grid;
+  grid-template-rows: 1fr;
+  overflow: hidden;
+}
+
+.mp-supporting-text__reveal[data-mp-reveal='open'] {
+  animation: mp-supporting-text-open var(--mp-sys-motion-duration-short4)
+    var(--mp-sys-motion-easing-emphasized-decelerate);
+}
+
+.mp-supporting-text__reveal[data-mp-reveal='swap'] {
+  animation: mp-supporting-text-swap var(--mp-sys-motion-duration-short4)
+    var(--mp-sys-motion-easing-standard);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mp-supporting-text__reveal[data-mp-reveal] {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
  * The tab bar's ends
  *
  * A bar with more tabs than room has always scrolled — MD3's scrollable tabs,
