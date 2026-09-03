@@ -11,6 +11,7 @@ import {
   CONNECTOR_COLOR,
   ITEM_GAP,
   ITEM_GAP_X,
+  STEP_MOTION,
   TITLE_COLOR
 } from '../../internal/step';
 import type { MPStepConnector, MPStepStatus } from '../../internal/step';
@@ -167,15 +168,18 @@ export const MPTimelineItem = React.forwardRef<HTMLLIElement, MPTimelineItemProp
       <span
         aria-hidden="true"
         className={[
-          'rounded-mp-full relative z-10 flex shrink-0 items-center justify-center',
+          'mp-timeline__bullet rounded-mp-full relative z-10 flex shrink-0',
+          'items-center justify-center',
           // The label inside the bullet is sized off the bullet rather than off
           // the page's own text, so a number in an `xs` bullet is not the same
           // 8px it would be in an `xl` one.
           'size-(--_mp-bullet) text-[calc(var(--_mp-bullet)*0.5)] leading-none font-medium',
           'tabular-nums [&>svg]:size-[0.6em]',
           BULLET[resolved],
+          // Wider than `STEP_MOTION`, because a bullet has a fill and a halo
+          // where the line and the title beside it have only an edge and an ink.
           'transition-[background-color,border-color,box-shadow,color]',
-          'duration-(--mp-sys-motion-duration-short4)'
+          'duration-(--mp-sys-motion-duration-short4) ease-mp-standard'
         ].join(' ')}
       >
         {bullet}
@@ -196,14 +200,15 @@ export const MPTimelineItem = React.forwardRef<HTMLLIElement, MPTimelineItemProp
       <span
         aria-hidden="true"
         className={[
-          'pointer-events-none absolute',
+          'mp-timeline__connector pointer-events-none absolute',
           // Half the bullet, less half the line, so the 2px rule is centred on
           // the bullet rather than starting at its centre.
           horizontal
             ? 'start-(--_mp-bullet) top-[calc(var(--_mp-bullet)/2_-_1px)] end-0 border-t-2'
             : 'top-(--_mp-bullet) start-[calc(var(--_mp-bullet)/2_-_1px)] bottom-0 border-s-2',
           BORDER_STYLE[connector],
-          CONNECTOR_COLOR[resolved]
+          CONNECTOR_COLOR[resolved],
+          STEP_MOTION
         ]
           .filter(Boolean)
           .join(' ')}
@@ -215,7 +220,16 @@ export const MPTimelineItem = React.forwardRef<HTMLLIElement, MPTimelineItemProp
         {hasContent(title) || hasContent(meta) ? (
           <div className="flex flex-wrap items-baseline gap-x-2">
             {hasContent(title) ? (
-              <span className={`${SHEET_TITLE[size]} ${TITLE_COLOR[resolved]}`}>{title}</span>
+              <span
+                className={[
+                  'mp-timeline__title',
+                  SHEET_TITLE[size],
+                  TITLE_COLOR[resolved],
+                  STEP_MOTION
+                ].join(' ')}
+              >
+                {title}
+              </span>
             ) : null}
             {hasContent(meta) ? (
               <span className={`text-mp-on-surface-variant ${META_TEXT}`}>{meta}</span>
@@ -235,7 +249,7 @@ export const MPTimelineItem = React.forwardRef<HTMLLIElement, MPTimelineItemProp
         aria-current={resolved === 'current' ? 'step' : undefined}
         data-status={resolved}
         className={[
-          'relative',
+          'mp-timeline__item relative',
           horizontal
             ? `flex min-w-0 flex-1 flex-col ${last ? '' : ITEM_GAP_X[size]}`
             : `flex ${BULLET_GAP[size]} ${last ? '' : ITEM_GAP[size]}`,

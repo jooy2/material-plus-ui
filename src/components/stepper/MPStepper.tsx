@@ -11,6 +11,7 @@ import {
   CONNECTOR_COLOR,
   ITEM_GAP,
   ITEM_GAP_X,
+  STEP_MOTION,
   TITLE_COLOR,
   type MPStepConnector,
   type MPStepStatus
@@ -378,12 +379,15 @@ export const MPStep = React.forwardRef<HTMLLIElement, MPStepProps>(function MPSt
     <span
       aria-hidden="true"
       className={[
-        'rounded-mp-full relative z-10 flex shrink-0 items-center justify-center',
+        'mp-stepper__bullet rounded-mp-full relative z-10 flex shrink-0',
+        'items-center justify-center',
         'size-(--_mp-bullet) text-[calc(var(--_mp-bullet)*0.5)] leading-none font-medium',
         'tabular-nums [&>svg]:size-[0.6em]',
         BULLET[status],
+        // Wider than `STEP_MOTION`, because a bullet has a fill and a halo where
+        // the line and the title beside it have only an edge and an ink.
         'transition-[background-color,border-color,box-shadow,color]',
-        'duration-(--mp-sys-motion-duration-short4)'
+        'duration-(--mp-sys-motion-duration-short4) ease-mp-standard'
       ].join(' ')}
     >
       {inside}
@@ -394,12 +398,13 @@ export const MPStep = React.forwardRef<HTMLLIElement, MPStepProps>(function MPSt
     <span
       aria-hidden="true"
       className={[
-        'pointer-events-none absolute',
+        'mp-stepper__connector pointer-events-none absolute',
         horizontal
           ? 'start-(--_mp-bullet) top-[calc(var(--_mp-bullet)/2_-_1px)] end-0 border-t-2'
           : 'top-(--_mp-bullet) start-[calc(var(--_mp-bullet)/2_-_1px)] bottom-0 border-s-2',
         BORDER_STYLE[connector],
-        CONNECTOR_COLOR[status]
+        CONNECTOR_COLOR[status],
+        STEP_MOTION
       ]
         .filter(Boolean)
         .join(' ')}
@@ -409,7 +414,14 @@ export const MPStep = React.forwardRef<HTMLLIElement, MPStepProps>(function MPSt
   const body = (
     <span className={`flex min-w-0 flex-col gap-0.5 text-start ${horizontal ? 'mt-2' : ''}`}>
       {hasContent(label) ? (
-        <span className={`${SHEET_TITLE[size]} ${error ? 'text-mp-error' : TITLE_COLOR[status]}`}>
+        <span
+          className={[
+            'mp-stepper__label',
+            SHEET_TITLE[size],
+            error ? 'text-mp-error' : TITLE_COLOR[status],
+            STEP_MOTION
+          ].join(' ')}
+        >
           {label}
         </span>
       ) : null}

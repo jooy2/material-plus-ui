@@ -109,6 +109,34 @@ describe('MPTimeline', () => {
       expect(items[0]).toHaveAttribute('aria-current', 'step');
       expect(items[1]).not.toHaveAttribute('aria-current');
     });
+
+    it('eases the line and the title along with the bullet', async () => {
+      // The same three parts `MPStepper` asserts on, out of the same table. A
+      // timeline is read rather than pressed, but `active` still moves down it
+      // and the connector is what carries the eye from one item to the next.
+      const screen = await render(
+        <MPTimeline active={1}>
+          <MPTimelineItem title="One" />
+          <MPTimelineItem title="Two" />
+          <MPTimelineItem title="Three" />
+        </MPTimeline>
+      );
+      // The middle one, because the last item draws no connector: its line
+      // would run off the end of the sequence into nothing.
+      const current = screen.getByRole('listitem').elements()[1];
+      const parts = [
+        current.querySelector('.mp-timeline__bullet')!,
+        current.querySelector('.mp-timeline__connector')!,
+        current.querySelector('.mp-timeline__title')!
+      ];
+
+      for (const part of parts) {
+        expect(getComputedStyle(part).transitionDuration).toBe('0.2s');
+        expect(getComputedStyle(part).transitionTimingFunction).toBe(
+          getComputedStyle(parts[0]).transitionTimingFunction
+        );
+      }
+    });
   });
 
   describe('MPTimelineItem', () => {

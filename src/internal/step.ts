@@ -82,6 +82,26 @@ export const ITEM_GAP_X: Record<MPSize, string> = {
   xl: 'pe-10'
 };
 
+/**
+ * What everything that changes with a step's status eases on.
+ *
+ * The bullet always had this. The line leaving it and the title beside it did
+ * not, so advancing a stepper drew one event twice: a bullet filling with the
+ * accent over 200ms, and a connector and a heading arriving at their new colours
+ * in the frame the state changed. A sequence is read across, and the half of it
+ * that snapped was the half that carries the eye to the next step.
+ *
+ * `border-color` and `color` rather than a blanket `transition-colors`, which
+ * would also put the `background-color` and the `box-shadow` of the three-line
+ * `BULLET` table on every connector — a line has neither, and a transition
+ * listing a property nothing declares is a declaration the browser keeps.
+ */
+export const STEP_MOTION = [
+  'transition-[border-color,color]',
+  'duration-(--mp-sys-motion-duration-short4)',
+  'ease-mp-standard'
+].join(' ');
+
 export const BORDER_STYLE: Record<MPStepConnector, string> = {
   solid: 'border-solid',
   dashed: 'border-dashed',

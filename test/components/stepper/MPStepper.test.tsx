@@ -228,6 +228,33 @@ describe('MPStepper', () => {
 
       expect(bullet.className).toContain('bg-(--_mp-accent)');
     });
+
+    it('eases the line and the title on the same clock as the bullet', async () => {
+      // Advancing a step used to draw one event twice: the bullet filled with
+      // the accent over 200ms while the connector leaving it and the heading
+      // beside it arrived at their new colours in the frame the state changed.
+      // A sequence is read across, and the half that snapped was the half that
+      // carries the eye to the next step.
+      //
+      // Read as the three transitions rather than as a sampled colour, for the
+      // reason `MPCheckbox`'s mark is: a value read mid-interpolation is a test
+      // of the clock rather than of the declaration.
+      const screen = await render(<Three active={1} />);
+      const current = screen.container.querySelectorAll('li')[1];
+      const bullet = current.querySelector('.mp-stepper__bullet') as HTMLElement;
+      const line = current.querySelector('.mp-stepper__connector') as HTMLElement;
+      const title = current.querySelector('.mp-stepper__label') as HTMLElement;
+
+      for (const part of [bullet, line, title]) {
+        expect(getComputedStyle(part).transitionDuration).toBe('0.2s');
+        expect(getComputedStyle(part).transitionTimingFunction).toBe(
+          getComputedStyle(bullet).transitionTimingFunction
+        );
+      }
+
+      expect(getComputedStyle(line).transitionProperty).toBe('border-color, color');
+      expect(getComputedStyle(title).transitionProperty).toBe('border-color, color');
+    });
   });
 
   it('takes the accent and the size from the configuration', async () => {
