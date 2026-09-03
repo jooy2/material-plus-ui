@@ -207,6 +207,24 @@ describe('MPRating', () => {
     expect(root).toHaveAttribute('id', 'score');
   });
 
+  describe('the fill', () => {
+    it('travels to the score rather than jumping to it', async () => {
+      // The colour under the clip has eased since this component was written
+      // and the width it was clipped to did not, so the one thing that says
+      // what the score *is* arrived in a single frame while the thing that says
+      // nothing took 200ms.
+      //
+      // `short2` and not the usual `short4`: a rating follows a pointer
+      // sweeping across it, and at 200ms per star the fill would be a step
+      // behind the cursor for the whole of the sweep.
+      const screen = await render(<MPRating value={3} readOnly />);
+      const fill = screen.container.querySelector('.mp-rating__fill') as HTMLElement;
+
+      expect(getComputedStyle(fill).transitionProperty).toBe('width');
+      expect(getComputedStyle(fill).transitionDuration).toBe('0.1s');
+    });
+  });
+
   describe('structuredData', () => {
     it('publishes nothing unless it is asked to', async () => {
       const screen = await render(<MPRating value={4.3} readOnly />);

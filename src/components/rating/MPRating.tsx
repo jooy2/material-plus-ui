@@ -287,10 +287,25 @@ export const MPRating = React.forwardRef<HTMLDivElement, MPRatingProps>(function
          * percentage in it, because the inner star has to keep its own full
          * width or the glyph would be squashed into the visible part instead of
          * cropped by it.
+         *
+         * The clip *travels*. The colour under it has eased since this was
+         * written and the width it was clipped to jumped, so the one thing that
+         * actually says what the score is arrived in a single frame while the
+         * thing that says nothing took 200ms.
+         *
+         * `short2` rather than the library's usual `short4`, for the reason
+         * `MPSlider`'s handle takes it: a rating follows a pointer sweeping
+         * across it, and at 200ms per star the fill would be a step behind the
+         * cursor for the whole of the sweep. At 100ms it reads as a wipe
+         * arriving under the pointer, which is what it is.
          */}
         <span
           aria-hidden="true"
-          className="mp-rating__fill pointer-events-none absolute inset-y-0 start-0 overflow-hidden"
+          className={[
+            'mp-rating__fill pointer-events-none absolute inset-y-0 start-0 overflow-hidden',
+            'transition-[width] duration-(--mp-sys-motion-duration-short2) ease-mp-standard',
+            'motion-reduce:transition-none'
+          ].join(' ')}
           style={{ width: `${fill * 100}%` }}
         >
           <span
