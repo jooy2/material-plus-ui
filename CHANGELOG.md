@@ -6,6 +6,26 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **`MPShow`**, content at some window sizes and not others. A rail on a laptop and a bottom bar on a phone is two components with a boundary between them, and writing that boundary meant either a Tailwind arbitrary variant with the width in it — a copy of a number the library also holds — or `useMPWindowClass` and a branch, which cannot answer until the page has hydrated.
+
+  `from`, `until` and `only` over the five window size classes. `from` and `until` over the same class are exclusive and exhaustive: one of them is on screen at every width and never both.
+
+  It is `display: none` and not a condition, and the trade is worth knowing rather than glossing. A media query is resolved before the browser paints anything, including the markup a server sent, so the first frame is already right — but the hidden branch is built, laid out, skipped at paint, and its effects run. That is the right way round for a nav or a column of filters and the wrong way round for a chart or a table of a thousand rows, which is where the hook earns its second render.
+
+  The wrapper is `display: contents` at zero specificity, so an `MPShow` in a flex row makes its children the flex items rather than becoming one itself, and a `className` of your own that sets a display wins over it without a fight.
+
+- **Eight window size class variants**, for a page's own utilities: `mp-medium`, `mp-expanded`, `mp-large`, `mp-extra-large` and a `mp-below-*` for each. `<div className="mp-medium:flex mp-below-expanded:hidden">` changes where this library changes rather than at Tailwind's own 768px, on both installation paths. There is no `mp-compact` — every window is at least that wide.
+
+- **`breakpoints` on `MPConfigProvider`**, moving where the window size classes begin for everything the library decides in JavaScript: `useMPWindowClass`, `MPSidebar`'s collapse, and the rungs `maxWidth` resolves to. Partial and merged over MD3's, in CSS pixels.
+
+  **It does not move the stylesheet**, and cannot: a media query is resolved before any of this runs and cannot name a custom property. This prop is how an application tells the JavaScript side what it already did on the CSS side; setting it alone moves half a layout, which is worse than moving none of it. See **Changed** for the other half, and [Breakpoints](https://material-plus.cdget.com/design/breakpoints) for the whole of it.
+
+- **`maxWidth` takes a CSS length, and changes with the window**, on `MPContainer`, `MPHeader` and `MPFooter`. It was one of five rungs or nothing, and both of the things it could not say are the common case rather than an edge.
+
+  A measure is often a decision about the **text** and not about the window — the classic answer for a column of prose is around 60 characters, which no ladder of window widths can spell — so `maxWidth="60ch"`, `'42rem'` and `'min(90vw, 70ch)'` all reach `max-width` untouched. Nothing is validated: a length CSS cannot parse leaves the element unbounded, which is the answer `'none'` already gives and a better one than a page that renders nothing because a unit was mistyped.
+
+  And a page usually wants the margin edge to edge on a phone and a measure above it, which was a `className` undoing a prop. `maxWidth={{ compact: 'none', expanded: 'lg' }}` is the same `MPResponsive` shape the grid's props are, resolved in CSS.
+
 - **`MPStack`**, things laid over each other in a pile. A stack of avatars, a deck of cards, a heap of documents, a run of overlapped thumbnails — one component, because "several of these, overlapping" is one idea and the things being overlapped are not the component's business. See **Removed** for the migration.
 
   The overlap is a **negative margin** and not a `translate`, which is the detail nearly every implementation of a pile gets wrong and which is invisible until something is put next to one: with a `translate` each item still occupies its full width, so the box stays the size of all of them laid end to end and everything after the stack is positioned against a measurement that is wrong. Five 32px items at a 10px overlap come to 120×32 horizontally, 32×120 vertically and 120×72 on the diagonal — the box fits the content in all three, and those are the numbers the tests assert.
@@ -80,6 +100,18 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Changed
 
+- **The window size classes are declared once, and are now a consumer's to move.** They had been written out in five places: the numbers in `internal/window-class.ts`, a set of `matchMedia` strings and two tables of `min-[600px]:hidden` in `internal/page-layout.ts`, four `@media (width >= 600px)` blocks in `styles.css`, and the `rem` values of the measure ladder, which are the same four widths at a 16px root. The module holding the numbers said in its own header that a third copy is how the grid and the hook end up disagreeing about where `medium` starts.
+
+  The stylesheet registers them as `@custom-variant mp-medium` and everything width-driven in it is written against those, so a project that runs its own Tailwind can redeclare a boundary after importing the library and move the grid, the measures, the visibility rules and its own utilities together. Both halves have to be redeclared — `mp-medium` and `mp-below-medium` — because they are two registrations rather than one boundary a pair is derived from. A project on the compiled `styles.css` cannot: that file is Tailwind's output and the queries in it are already numbers.
+
+  They are **not** `--breakpoint-mp-*` in `@theme`, and the difference is not cosmetic. Tailwind generates its `.container` utility from every registered breakpoint, so four names in that namespace would quietly add four `max-width` steps to a class the consumer wrote and this library has nothing to do with.
+
+  Two copies remain and cannot be removed — a media query resolves before any JavaScript runs, and JavaScript cannot see a registration the build consumed — so they are checked instead. A test reads both ladders and fails if they stop agreeing, and fails on a literal width written anywhere else in the stylesheet.
+
+- **The measure ladder is read off the window size classes rather than written beside them.** `maxWidth="md"` was `52.5rem`, which is 840dp at a 16px root and only at a 16px root: a reader who had scaled their text up got a container that agreed with the media queries at no width at all. It is the boundary itself now, so a page that moved one moves its measures too. At the default root size nothing changes.
+
+- **`MPTransfer` stacks its two lists on the named boundary.** It always stacked at 600dp, MD3's own medium, spelled `min-[600px]:` — which was a fourth copy of that number and one that would not have moved when the others did.
+
 - **`internal/text.ts` is now the one answer to where a character ends.** `MPAnimateTyping` had a grapheme splitter of its own, and the effects joining it in this release — `MPAnimateSplit` and `MPAnimateScramble` — would each have needed one. Three copies would be three opinions about what a character _is_, and they would only disagree on the text nobody tests with.
 
   It also answers where a **word** ends, which is the harder half: a word boundary is not a space anywhere east of Myanmar, so `split(' ')` hands back a Japanese or Thai sentence as a single fragment and any effect built on it silently does nothing — in exactly the languages where nobody testing it would notice.
@@ -94,6 +126,12 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Documentation
 
+- **[Breakpoints](https://material-plus.cdget.com/design/breakpoints), one page for the axis the whole library changes along.** The ladder was documented five times and completely nowhere: the grid's page had the table and the argument for it, the hooks guide had the trade between CSS and JavaScript, the sidebar's page had the first-paint problem, and a reader who wanted to know what changes at 600dp had to already know which component's page to open.
+
+  The five classes, why they are not Tailwind's, every prop that names one, the rule that an entry applies from its own class upward, when to reach for CSS and when for the hook, and how to move a boundary — both halves of it.
+
+  The grid's own section keeps the table and loses the `@theme` block it told readers to copy in order to line their utilities up with the grid, which has been wrong since the library started registering the variants itself. Lining up is now nothing to copy at all.
+
 - **The size table had drifted, and the row that said how many components there are was two releases out of date.** It read "All hundred and eleven" against a library that exports a hundred and sixty-seven names, and the figures beside it were the 1.5.0 build's. The claim under the table — that the numbers are printed by the build rather than remembered — was the thing that had stopped being true.
 
   The row is "Every export there is" now, which is the scenario `measure-bundle.mjs` actually runs and a label that cannot go stale as components are added. The figures are this build's, and the stylesheet column is computed the way a bundler would compute it: the sheets concatenated and compressed together, rather than their individual gzip sizes added up, which over-counts the utilities they repeat.
@@ -107,6 +145,10 @@ A second report from the application that filed the first one, a day after upgra
   The behaviour is right and is unchanged: a field that stayed blank over a value it is holding, and will submit, is worse — and on `MPCombobox` a value the list does not have is what `allowCustom` is for. It is the sentinel that was undocumented.
 
 ### Fixed
+
+- **A nested grid resolved the outer grid's column count and gutter.** A responsive prop writes only the classes the caller named and the slots are inherited custom properties, so `columns={6}` on an inner grid is one declaration — and above compact the inner grid was reading its parent's. Six columns on a phone and twelve on a laptop, from a grid that was told six at every width. The same for both gutters: an inner `spacing={0}` came out at the outer grid's from 600dp up.
+
+  `.mp-grid` already reset fifteen slots at that boundary so an inner _item_ could not resolve an outer one's `span`; its own three were never in the list. The failure is quieter than the item's — nothing is the wrong width on a phone, where a layout is usually checked, and the count is only wrong at the widths where the outer grid said something different.
 
 - **`MPSpoiler` moved the page twice on the way to being read, and could cut off the button that reads it.** Two separate defects, and both are the same mistake in different clothes: something drawn in one state and not in the other, without the state that lacks it paying for the space.
 
