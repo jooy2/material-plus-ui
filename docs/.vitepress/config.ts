@@ -95,7 +95,9 @@ const vitePressSidebarConfig = [
 /** The same four destinations in every locale, prefixed with its base. */
 const navFor = (lang: string, labels: [string, string, string, string]) => [
   { text: labels[0], link: `${localeBase(lang)}guide/getting-started` },
-  { text: labels[1], link: `${localeBase(lang)}design/color` },
+  // The design section's own first page, which is the overview of the rest of
+  // it rather than one topic out of four.
+  { text: labels[1], link: `${localeBase(lang)}design/design-language` },
   { text: labels[2], link: `${localeBase(lang)}components/` },
   // `/examples/` is a group heading rather than a page, so the nav points at the
   // one page inside it that shows everything at once.
