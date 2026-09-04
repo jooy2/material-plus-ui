@@ -6,6 +6,18 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **`MPScrollZone`**, a strip of anything laid out in one direction and scrolled in it. Cards, chips, avatars or thumbnails run across the box or down it, in as many lines as you ask for, with a pair of buttons for the pointer that has neither a wheel nor a finger.
+
+  The mechanism is an ordinary scroll container and everything the component offers is a way of driving one. Swiping, two-finger dragging, the arrow keys and the scrollbar are the browser's own and none of them is intercepted; nothing is transformed, which is what makes the strip run the other way under RTL without being told.
+
+  `lines` is what separates it from `MPCarousel`. A carousel is one thing at a time and knows which one — it has a `value`, an index and a row of marks. This has none of those, because it is a shelf that happens to be longer than the room it is in, and two rows of thumbnails is a shape a carousel cannot hold. The track is a grid rather than a flex row for the same reason: a wrapping row wraps at the box's edge, and what is wanted is a fixed number of rows and as many columns as it takes.
+
+  `buttons="auto"` does two different things at an end, and the difference is what the absence would cost. An inline button sits in a lane that is held open either way — a lane that came and went would resize the strip under the pointer that had just reached the end of it — so it stays and goes `disabled`; an overlay button takes no room, so it is removed.
+
+  The wheel stays the page's unless `wheel` asks for it, and what it takes it gives back at the ends: a reader who meant to scroll past the shelf is not held by it. Dragging takes neither the pointer nor the selection until the pointer has moved past a few pixels, so a plain click on a card inside the strip is still a click.
+
+  The strip is a tab stop with a name, because a reader with no pointer has no other way to move it. `hold` mode answers Enter and Space held on the button as well as a pointer, which is the half a pointer-only implementation forgets.
+
 - **`MPScrollArea`**, a box with a scrollbar of its own. The browser's is drawn by the operating system — a different width on every machine, a different colour from the sheet it is cut into, and on Windows a 17px band of grey no design accounts for.
 
   The native bar is hidden rather than the scrolling being reimplemented, which is the difference between this and a component that listens for `wheel` events: the wheel, the trackpad, a touch drag, Page Up, Home and End, a keyboard focus moving below the fold, scroll anchoring and overscroll all behave exactly as they did. The bar overlays the content and takes no room, so adding one to a page that has already been designed reflows nothing.

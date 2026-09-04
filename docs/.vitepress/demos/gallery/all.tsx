@@ -92,6 +92,7 @@ import {
   MPRating,
   MPSegmentedButton,
   MPScrollArea,
+  MPScrollZone,
   MPSelect,
   MPShortcut,
   MPSidebar,
@@ -1731,6 +1732,23 @@ const GROUPS: Group[] = [
                 ))}
               </div>
             </MPScrollArea>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPScrollZone',
+        summary: {
+          ko: '한 방향으로 놓이고 그 방향으로 스크롤되는 띠. 원하는 만큼의 줄로 배치됩니다',
+          en: 'A strip of anything, laid out in one direction and scrolled in it, in as many lines as you ask for'
+        },
+        path: '/components/layout/scroll-zone',
+        preview: (
+          <Fit>
+            <MPScrollZone size="xs" buttons="always" style={{ width: '100%' }}>
+              {['Espresso', 'Filter', 'Cold brew', 'Decaf', 'Blends'].map((category) => (
+                <MPChip key={category}>{category}</MPChip>
+              ))}
+            </MPScrollZone>
           </Fit>
         )
       },

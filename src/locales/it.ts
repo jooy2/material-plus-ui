@@ -57,6 +57,7 @@ export const it: MPLocale = {
       next: 'Diapositiva successiva',
       slide: 'Diapositiva {index} di {total}'
     },
+    scroll: { label: 'Contenuto scorrevole', previous: 'Scorri indietro', next: 'Scorri avanti' },
     breadcrumb: { label: 'Percorso di navigazione', expand: 'Mostra i passaggi nascosti' },
     combobox: { empty: 'Nessuna corrispondenza', add: 'Aggiungi «{label}»' },
     table: { empty: 'Nessun dato' },

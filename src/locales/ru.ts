@@ -57,6 +57,11 @@ export const ru: MPLocale = {
       next: 'Следующий слайд',
       slide: 'Слайд {index} из {total}'
     },
+    scroll: {
+      label: 'Прокручиваемое содержимое',
+      previous: 'Прокрутить назад',
+      next: 'Прокрутить вперёд'
+    },
     breadcrumb: { label: 'Навигационная цепочка', expand: 'Показать скрытые шаги' },
     combobox: { empty: 'Совпадений нет', add: 'Добавить «{label}»' },
     table: { empty: 'Нет данных' },

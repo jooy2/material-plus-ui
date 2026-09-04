@@ -60,6 +60,11 @@ export const fr: MPLocale = {
       next: 'Diapositive suivante',
       slide: 'Diapositive {index} sur {total}'
     },
+    scroll: {
+      label: 'Contenu défilant',
+      previous: 'Faire défiler vers l’arrière',
+      next: 'Faire défiler vers l’avant'
+    },
     breadcrumb: { label: 'Fil d’Ariane', expand: 'Afficher les étapes masquées' },
     combobox: { empty: 'Aucun résultat', add: 'Ajouter « {label} »' },
     table: { empty: 'Aucune donnée' },

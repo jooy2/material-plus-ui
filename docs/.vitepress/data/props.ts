@@ -1816,6 +1816,183 @@ const componentTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPScrollZone: [
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '띠를 이루는 것들. 최상위 자식 하나가 항목 하나입니다',
+        en: 'The strip. Every top-level child is one item of it'
+      }
+    },
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+      description: {
+        ko: '자식이 놓이는 방향이자 스크롤되는 방향. 세로 띠는 무언가가 높이를 묶어 줘야 스크롤됩니다',
+        en: 'Which way the children run, and so which way the zone scrolls. A vertical strip only scrolls if something bounds its height'
+      }
+    },
+    {
+      name: 'lines',
+      type: 'number',
+      default: '1',
+      description: {
+        ko: '가로 띠가 새 열을 시작하기 전까지 쓰는 행의 수. 같은 너비에 두 배를 담는 선반이 `2`입니다',
+        en: 'How many rows a horizontal zone uses before it starts a new column. `2` is the shelf that holds twice as much in the same width'
+      }
+    },
+    {
+      name: 'gap',
+      type: 'number | string',
+      default: '8',
+      description: {
+        ko: '자식 사이의 간격. 숫자는 픽셀, 문자열은 CSS 길이입니다',
+        en: 'The space between children. A number is pixels, a string is any CSS length'
+      }
+    },
+    {
+      name: 'buttons',
+      type: "'auto' | 'always' | 'none'",
+      default: "'auto'",
+      description: {
+        ko: '스크롤 버튼을 언제 그릴지. `auto`는 넘치지 않으면 아무것도 그리지 않고, `always`는 첫 페인트부터 둘 다 그립니다. `none`이어도 휠·손가락·드래그·화살표 키는 그대로입니다',
+        en: 'When the scroll buttons are drawn. `auto` draws neither while everything fits, `always` draws both from the first paint. Even at `none` the wheel, a finger, a drag and the arrow keys are all still there'
+      }
+    },
+    {
+      name: 'buttonPlacement',
+      type: "'inline' | 'overlay'",
+      default: "'inline'",
+      description: {
+        ko: '버튼이 띠 옆에 서는지 위에 얹히는지. `overlay`는 상자의 모든 픽셀을 내용에 남기고, 항목이 버튼 밑으로 지나가게 둡니다',
+        en: 'Whether the buttons sit beside the strip or over it. `overlay` keeps every pixel of the box for content and lets an item pass under a button'
+      }
+    },
+    {
+      name: 'mode',
+      type: "'item' | 'page' | 'hold'",
+      default: "'item'",
+      description: {
+        ko: '버튼을 누르면 무엇을 하는지. `item`은 다음 자식으로, `page`는 지금 보이는 만큼, `hold`는 누르고 있는 동안 계속 움직입니다',
+        en: 'What pressing one does. `item` moves to the next child along, `page` by everything in view, `hold` travels for as long as the button is held'
+      }
+    },
+    {
+      name: 'step',
+      type: 'number',
+      default: '1',
+      description: {
+        ko: '`item` 모드에서 한 번 누를 때 넘어가는 자식의 수',
+        en: 'How many children one press moves, in `item` mode'
+      }
+    },
+    {
+      name: 'speed',
+      type: 'number',
+      default: '900',
+      description: {
+        ko: '`hold` 모드에서 초당 몇 픽셀을 움직일지. 홀드로 치기엔 짧은 누름은 한 항목으로 떨어집니다',
+        en: 'How fast a held button travels, in pixels a second. A press too short to be a hold moves one item instead'
+      }
+    },
+    {
+      name: 'snap',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '스크롤이 멈출 때 가장 가까운 자식을 앞 가장자리에 붙입니다. 버튼뿐 아니라 휠과 드래그에도 적용됩니다',
+        en: 'Snaps the nearest child to the leading edge when the scrolling stops — the wheel and a drag included, not only the buttons'
+      }
+    },
+    {
+      name: 'drag',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '마우스와 펜으로 띠를 끌 수 있게 합니다. 터치는 브라우저에 맡깁니다 — 관성과 고무줄 효과는 어떤 핸들러도 흉내 내지 못합니다',
+        en: 'Lets a mouse or a pen drag the strip along. Touch is left to the browser, whose momentum and rubber-banding no handler reproduces'
+      }
+    },
+    {
+      name: 'wheel',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '띠 위에서 굴린 휠을 띠의 축으로 돌립니다. 끝에 닿으면 휠을 페이지에 돌려주고, 세로 띠에서는 무시됩니다',
+        en: 'Turns a wheel rolled over the strip into travel along it. What it takes it gives back at the ends, and a vertical zone ignores the prop'
+      }
+    },
+    {
+      name: 'scrollbar',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '브라우저 자신의 스크롤바를 띠 아래에 보여 줍니다',
+        en: 'Shows the browser’s own scrollbar under the strip'
+      }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      default: "'Scrollable content'",
+      description: {
+        ko: '띠 안에 무엇이 있는지 — "카테고리", "최근 파일". 생략하면 그것이 무엇인지만 읽힙니다',
+        en: 'What is in the strip: "Categories", "Recent files". Without it a reader hears only what kind of thing it is'
+      }
+    },
+    {
+      name: 'previousLabel',
+      type: 'string',
+      default: "'Scroll back'",
+      description: {
+        ko: '뒤로 가는 버튼의 접근성 이름',
+        en: 'The accessible name of the button that travels back'
+      }
+    },
+    {
+      name: 'nextLabel',
+      type: 'string',
+      default: "'Scroll forward'",
+      description: {
+        ko: '앞으로 가는 버튼의 접근성 이름',
+        en: 'The accessible name of the button that travels forward'
+      }
+    },
+    {
+      name: 'locale',
+      type: 'string',
+      description: {
+        ko: '버튼이 스스로를 무엇이라 부를지 정하는 BCP 47 태그. 생략하면 가장 가까운 `MPLocaleProvider`, 그다음 영어입니다',
+        en: 'A BCP 47 tag deciding what the buttons call themselves. Falls back to the nearest `MPLocaleProvider`, then to English'
+      }
+    },
+    {
+      name: 'variant',
+      type: VARIANT,
+      default: "'filled'",
+      description: {
+        ko: '스크롤 버튼이 그려지는 방식. 버튼의 사다리라서 컨테이너의 것과 달리 강조 색을 씁니다 — 띠 자체는 아무 면도 칠하지 않습니다',
+        en: "How the scroll buttons are drawn. A button's ladder rather than a container's, so it does carry the accent — the strip itself paints no surface at all"
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '그 버튼의 크기와 띠에서 떨어진 정도. 자식의 크기는 아닙니다 — 그건 호출부가 만든 그대로입니다',
+        en: 'The size of those buttons, and how far they sit from the strip. Not the size of a child, which is whatever the caller made it'
+      }
+    },
+    {
+      ...color,
+      description: {
+        ko: '버튼이 읽는 강조 색 계열',
+        en: 'Which accent family the buttons read'
+      }
+    }
+  ],
+
   MPSegmentedButton: [
     {
       name: 'items',

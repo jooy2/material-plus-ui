@@ -57,6 +57,11 @@ export const hi: MPLocale = {
       next: 'अगली स्लाइड',
       slide: '{total} में से स्लाइड {index}'
     },
+    scroll: {
+      label: 'स्क्रॉल करने योग्य सामग्री',
+      previous: 'पीछे स्क्रॉल करें',
+      next: 'आगे स्क्रॉल करें'
+    },
     breadcrumb: { label: 'ब्रेडक्रंब', expand: 'छिपे हुए चरण दिखाएँ' },
     combobox: { empty: 'कोई मेल नहीं', add: '“{label}” जोड़ें' },
     table: { empty: 'कोई डेटा नहीं' },

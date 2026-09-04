@@ -57,6 +57,11 @@ export const ja: MPLocale = {
       next: '次のスライド',
       slide: '{total} 枚中 {index} 枚目'
     },
+    scroll: {
+      label: 'スクロールできるコンテンツ',
+      previous: '前へスクロール',
+      next: '次へスクロール'
+    },
     breadcrumb: { label: 'パンくずリスト', expand: '省略された階層を表示' },
     combobox: { empty: '一致するものがありません', add: '「{label}」を追加' },
     table: { empty: 'データがありません' },

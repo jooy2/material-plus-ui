@@ -57,6 +57,7 @@ export const th: MPLocale = {
       next: 'สไลด์ถัดไป',
       slide: 'สไลด์ {index} จาก {total}'
     },
+    scroll: { label: 'เนื้อหาที่เลื่อนได้', previous: 'เลื่อนกลับ', next: 'เลื่อนไปข้างหน้า' },
     breadcrumb: { label: 'เส้นทางนำทาง', expand: 'แสดงขั้นตอนที่ซ่อนอยู่' },
     combobox: { empty: 'ไม่พบรายการที่ตรงกัน', add: 'เพิ่ม “{label}”' },
     table: { empty: 'ไม่มีข้อมูล' },

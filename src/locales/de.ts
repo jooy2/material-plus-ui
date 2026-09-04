@@ -57,6 +57,7 @@ export const de: MPLocale = {
       next: 'Nächste Folie',
       slide: 'Folie {index} von {total}'
     },
+    scroll: { label: 'Scrollbarer Inhalt', previous: 'Zurückscrollen', next: 'Vorwärtsscrollen' },
     breadcrumb: { label: 'Brotkrümelnavigation', expand: 'Ausgeblendete Schritte anzeigen' },
     combobox: { empty: 'Keine Treffer', add: '„{label}“ hinzufügen' },
     table: { empty: 'Keine Daten' },

@@ -62,6 +62,7 @@ export const zhHans: MPLocale = {
       next: '下一张',
       slide: '第 {index} 张，共 {total} 张'
     },
+    scroll: { label: '可滚动内容', previous: '向后滚动', next: '向前滚动' },
     breadcrumb: { label: '面包屑导航', expand: '显示隐藏的层级' },
     combobox: { empty: '无匹配项', add: '添加“{label}”' },
     table: { empty: '暂无数据' },

@@ -191,6 +191,24 @@ export interface MPMessages {
     slide: string;
   };
   /**
+   * MPScrollZone.
+   *
+   * Read out and never drawn, like the carousel's above — but a namespace of
+   * its own rather than three more keys in that one, because the words differ
+   * where it matters. A carousel's arrow moves to the *slide* before this one
+   * and there is a countable thing on the other side of the press; a scroll
+   * zone's moves the strip along and lands wherever the content happens to
+   * start. A translation that reused *Previous slide* for it would be naming a
+   * slide the reader is not being taken to.
+   */
+  scroll: {
+    /** What the strip is called when the caller has not said what is in it. */
+    label: string;
+    /** The two buttons, named by which way they travel. */
+    previous: string;
+    next: string;
+  };
+  /**
    * MPBreadcrumb.
    *
    * Both read out and never drawn: a trail's steps are the caller's words, and

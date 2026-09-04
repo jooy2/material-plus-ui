@@ -88,6 +88,7 @@ export * from './components/progress-linear';
 export * from './components/radio-group';
 export * from './components/rating';
 export * from './components/scroll-area';
+export * from './components/scroll-zone';
 export * from './components/segmented-button';
 export * from './components/select';
 export * from './components/shortcut';
