@@ -2337,6 +2337,191 @@ const componentTables: Record<string, PropRow[]> = {
     id
   ],
 
+  MPTreeView: [
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '최상위 `MPTreeItem`들', en: 'The top-level `MPTreeItem`s' }
+    },
+    {
+      name: 'lines',
+      type: "'none' | 'simple' | 'folder'",
+      default: "'simple'",
+      description: {
+        ko: '계층을 어떻게 그릴지. `none`은 들여쓰기만, `simple`은 단계마다 레일 하나, `folder`는 거기에 각 행으로 들어가는 팔꿈치와 마지막 자식에서 멈추는 레일',
+        en: 'How the hierarchy is drawn. `none` is indentation only, `simple` is one rail per level, `folder` adds an elbow into every row and stops the rail under a last child'
+      }
+    },
+    {
+      name: 'expanded',
+      type: '(string | number)[]',
+      description: {
+        ko: '열려 있는 가지들. `onExpandedChange`와 함께 쓰면 controlled입니다',
+        en: 'Which branches are open. Use with `onExpandedChange` for a controlled tree'
+      }
+    },
+    {
+      name: 'defaultExpanded',
+      type: '(string | number)[]',
+      description: { ko: '처음 열려 있는 가지들', en: 'Which start open' }
+    },
+    {
+      name: 'onExpandedChange',
+      type: '(expanded: (string | number)[]) => void',
+      description: {
+        ko: '가지가 열리거나 닫힐 때 호출됩니다',
+        en: 'Called when a branch opens or shuts'
+      }
+    },
+    {
+      name: 'selected',
+      type: '(string | number)[]',
+      description: {
+        ko: '고른 행들. 한 번에 하나만 고를 수 있을 때도 배열입니다 — `multiple`을 켠다고 값의 타입까지 바뀌지는 않습니다',
+        en: 'Which rows are chosen. An array even when only one may be chosen at a time, so turning `multiple` on does not also change the type of the value'
+      }
+    },
+    {
+      name: 'defaultSelected',
+      type: '(string | number)[]',
+      description: { ko: '처음 고른 행들', en: 'Which start chosen' }
+    },
+    {
+      name: 'onSelectedChange',
+      type: '(selected: (string | number)[]) => void',
+      description: { ko: '고른 것이 바뀔 때 호출됩니다', en: 'Called when the choice changes' }
+    },
+    {
+      name: 'multiple',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '한 번에 둘 이상을 고를 수 있는지. 단일 선택은 비지 않고, 다중 선택은 토글합니다',
+        en: 'Whether more than one row may be chosen at a time. Single select never empties; multi-select toggles'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '모든 행이 답하지 않습니다', en: 'Every row stops answering' }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: { ko: '트리가 불리는 이름', en: 'The name the tree is announced by' }
+    },
+    {
+      ...containerVariant,
+      description: {
+        ko: '시트가 칠하는 면의 양. 컨테이너의 사다리라서 물들지 않습니다. 사이드바에서는 `text`를 쓰세요 — 사이드바가 이미 면이고, 그 안의 두 번째 테두리 사각형은 두 번째 사각형입니다',
+        en: 'How much surface the sheet paints. A container’s ladder, so it is never dyed. `text` is the one for a sidebar: the sidebar is already a surface, and a second bordered rectangle inside it is a second rectangle'
+      }
+    },
+    {
+      ...elevation,
+      description: {
+        ko: '시트가 페이지에서 얼마나 떠 있는지',
+        en: 'How far off the page the sheet is lifted'
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '행의 높이와 레이블의 글자 크기. 라이브러리에서 행이 일부러 컨트롤 사다리를 벗어나는 유일한 자리입니다 — 트리 행은 수십 개가 늘어선 열의 한 줄입니다',
+        en: 'The row height and the type the labels are set in. The one place in the library where a row deliberately leaves the control ladder: a tree row is one line in a column of dozens'
+      }
+    },
+    {
+      ...density,
+      description: {
+        ko: '그 행 높이에서 한 단계에 4픽셀씩 덜어 내고, 24픽셀에서 멈춥니다',
+        en: 'Takes room out of that row height, four pixels a step, down to a 24px floor'
+      }
+    }
+  ],
+
+  MPTreeItem: [
+    {
+      name: 'label',
+      type: NODE,
+      description: {
+        ko: '행의 글자. `children`이 아니라 자기 prop입니다 — 트리에서 children은 그 아래의 행들입니다',
+        en: 'The row’s text. Its own prop rather than `children`, because in a tree the children are the rows underneath it'
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '이 행 아래의 행들', en: 'The rows underneath this one' }
+    },
+    {
+      name: 'value',
+      type: 'string | number',
+      description: {
+        ko: '`expanded`와 `selected`에 대해 행을 식별합니다. 생략하면 생성되며, 코드로 몰지 않는 트리에는 그것으로 충분합니다',
+        en: 'Identifies the row to `expanded` and `selected`. One is generated when it is left out, which is fine for a tree nobody drives from code'
+      }
+    },
+    {
+      name: 'startIcon',
+      type: NODE,
+      description: {
+        ko: '레이블 앞의 것 — 폴더 글리프, 파일 종류, 상태 점',
+        en: 'Content before the label — a folder glyph, a file type, a status dot'
+      }
+    },
+    {
+      name: 'endIcon',
+      type: NODE,
+      description: {
+        ko: '레이블 뒤, 누를 수 있는 영역 안의 것 — 개수, 배지',
+        en: 'Content after the label, inside the pressable area — a count, a badge'
+      }
+    },
+    {
+      name: 'action',
+      type: NODE,
+      description: {
+        ko: '행 끝에 고정되는 컨트롤. 일부러 누를 수 있는 영역 밖입니다 — 열리기도 하고 메뉴 버튼도 가진 행은 누를 것이 둘입니다',
+        en: 'A control pinned to the end of the row, deliberately outside the pressable area: a row that both opens and holds a menu button has two things to press'
+      }
+    },
+    {
+      name: 'href',
+      type: 'string',
+      description: {
+        ko: '행을 링크로 렌더합니다. 트리가 내비게이션일 때 씁니다',
+        en: 'Renders the row as a link, for a tree that is navigation'
+      }
+    },
+    {
+      name: 'expandable',
+      type: 'boolean',
+      description: {
+        ko: '아직 자식이 없는 행에 펼침 화살표를 강제합니다 — 처음 열릴 때 받아 오는 가지',
+        en: 'Forces the disclosure arrow onto a row with no children yet — the branch that is fetched the first time it is opened'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '이 행이 답하지 않습니다. 이미 열린 가지는 그대로 동작합니다',
+        en: 'Unavailable. Its branch, if it is open, keeps working'
+      }
+    },
+    {
+      name: 'onClick',
+      type: 'MouseEventHandler',
+      description: {
+        ko: '행이 눌릴 때, 열리거나 골라지기 전에 호출됩니다',
+        en: 'Fires when the row is pressed, before it opens or is chosen'
+      }
+    }
+  ],
+
   MPTypography: [
     {
       name: 'level',

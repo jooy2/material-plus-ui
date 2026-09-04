@@ -6,6 +6,16 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **`MPTreeView`** and **`MPTreeItem`**, a tree of rows that open and shut. There is no Base UI primitive under it — the library has no tree — so the three things the pattern owes are most of the component: the `tree`/`treeitem`/`group` roles, one tab stop for the whole widget, and the arrow keys that walk it.
+
+  The keyboard is handled once, at the top, because a tree's arrow keys are questions about the _tree_ — what is the next visible row, where is my parent — and the only element that can answer them is the one holding all of them. Right and Left swap under RTL, read off the element rather than off a prop: a caller may have set `dir` three ancestors up.
+
+  The disclosure arrow is a span rather than a button, and that follows from the ARIA pattern: the `<li>` is the `treeitem` and it is what takes focus, so a button inside it would be a second tab stop in a widget that is supposed to have exactly one. What the arrow does is the interesting part — it opens the branch **without** choosing the row, which is the difference between pointing at a folder and opening one.
+
+  A shut branch is unmounted rather than hidden, which is what keeps the order the arrow keys walk the same as the document order. A branch that is _shutting_ is a third state: it has to stay in the document while it collapses, and for that moment its rows are deliberately not part of the tree — pressing Down on a folder you just closed goes to the row after it rather than back into it.
+
+  The row height is the one place in the library where a row leaves the control ladder. A field is 56dp at `md` because MD3 draws one at 56dp; a tree row is one line in a column of dozens, and six of those at 56 is a sidebar that shows six things. The trade — `md` at 40 is under the 48dp touch target, so a thumb wants `lg` — is stated rather than hidden.
+
 - **`MPMockup`**, a picture of a device with a real page inside it. Three devices, six systems, four bezels, three finishes and four camera cut-outs, and the point of all of it is the screen: `children` are laid out against the machine's own resolution — 390 by 844 for a phone at `md` — and the whole device is then scaled once to whatever room it was given. A layout inside wraps where it would wrap on the machine rather than where it would wrap in the box the picture fits in.
 
   **That scale is a `transform`, and it is the one place in this library that uses one.** The rule it is an exception to is about controls: a scaled button is a button whose text was resampled at the moment it was pressed. Nothing here is pressed, and the scale changes only when the room does. What is _not_ an exception is the media query — `@media (max-width: 600px)` inside a phone mockup on a laptop is false and always will be, because nothing on a page can change what the window is. Content that has to respond inside the frame wants a container query, which the documentation says.
@@ -347,6 +357,8 @@ A second report from the application that filed the first one, a day after upgra
   The behaviour is right and is unchanged: a field that stayed blank over a value it is holding, and will submit, is worse — and on `MPCombobox` a value the list does not have is what `allowCustom` is for. It is the sentinel that was undocumented.
 
 ### Fixed
+
+- **The `mono` code theme drew no colours at all.** It reached for `--mp-sys-color-*`, which are the roles a _consumer_ sets and are undefined on a page that has not overridden them; the sheet's own derivations are `--_mp-color-*`. Found while writing `MPTreeView`'s guide lines, which had the same bug and were the visible half of it.
 
 - **`MPStepper` and `MPTimeline` eased the bullet and snapped the line beside it.** Advancing a step drew one event twice: the bullet filled with the accent over 200ms while the connector leaving it and the heading beside it arrived at their new colours in the frame the state changed. A sequence is read across, and the half that snapped was the half that carries the eye to the next step. Both components draw their picture out of `internal/step.ts`, so both inherited the same omission.
 

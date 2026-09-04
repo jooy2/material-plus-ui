@@ -120,5 +120,6 @@ export * from './components/toggle-group';
 export * from './components/toolbar';
 export * from './components/tooltip';
 export * from './components/transfer';
+export * from './components/tree-view';
 export * from './components/typography';
 export * from './components/visually-hidden';

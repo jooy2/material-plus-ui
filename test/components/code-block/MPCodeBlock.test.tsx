@@ -320,4 +320,16 @@ describe('MPCodeBlock', () => {
 
     expect(block()).toHaveAttribute('data-mp-code-theme', 'ours');
   });
+
+  it('paints the `mono` theme out of the page’s own colours', async () => {
+    // It is the one theme derived rather than pinned, and the derivation has to
+    // reach the `--_mp-color-*` indirections: the `--mp-sys-color-*` roles are
+    // the input a consumer may set, and are undefined on a page that has not.
+    await render(<MPCodeBlock code={TS} theme="mono" />);
+
+    const ground = getComputedStyle(block()).backgroundColor;
+
+    expect(ground).not.toBe('rgba(0, 0, 0, 0)');
+    expect(ground).not.toBe('');
+  });
 });

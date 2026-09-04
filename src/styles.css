@@ -2834,28 +2834,35 @@
 }
 
 /*
- * `mono` is the one theme built out of the page's own roles, and the only one
+ * `mono` is the one theme built out of the page's own colours, and the only one
  * with no hue in it at all: the structure is carried by weight and by how far a
  * run is muted. It is what a block printed on paper, or read by somebody who
  * cannot separate the hues above, is left with — so it has to stand on its own
  * rather than read as a degraded copy of a colour theme.
  */
+/*
+ * The `--_mp-color-*` indirections rather than the `--mp-sys-color-*` roles a
+ * consumer sets. The roles are the *input* — undefined unless somebody wrote
+ * one — and the indirections are what the sheet derives from the source colour
+ * when nobody did. A rule that read the role directly would draw nothing at all
+ * on a page that had not overridden it, which is most pages.
+ */
 .mp-code[data-mp-code-theme='mono'] {
-  --mp-code-bg: var(--mp-sys-color-surface-container);
-  --mp-code-fg: var(--mp-sys-color-on-surface);
+  --mp-code-bg: var(--_mp-color-surface-container);
+  --mp-code-fg: var(--_mp-color-on-surface);
 
-  --mp-code-comment: var(--mp-sys-color-on-surface-variant);
-  --mp-code-keyword: var(--mp-sys-color-on-surface);
-  --mp-code-string: var(--mp-sys-color-on-surface-variant);
-  --mp-code-number: var(--mp-sys-color-on-surface-variant);
-  --mp-code-function: var(--mp-sys-color-on-surface);
-  --mp-code-type: var(--mp-sys-color-on-surface);
-  --mp-code-variable: var(--mp-sys-color-on-surface);
-  --mp-code-tag: var(--mp-sys-color-on-surface);
-  --mp-code-attr: var(--mp-sys-color-on-surface-variant);
-  --mp-code-meta: var(--mp-sys-color-on-surface-variant);
-  --mp-code-add: var(--mp-sys-color-on-surface);
-  --mp-code-del: var(--mp-sys-color-on-surface-variant);
+  --mp-code-comment: var(--_mp-color-on-surface-variant);
+  --mp-code-keyword: var(--_mp-color-on-surface);
+  --mp-code-string: var(--_mp-color-on-surface-variant);
+  --mp-code-number: var(--_mp-color-on-surface-variant);
+  --mp-code-function: var(--_mp-color-on-surface);
+  --mp-code-type: var(--_mp-color-on-surface);
+  --mp-code-variable: var(--_mp-color-on-surface);
+  --mp-code-tag: var(--_mp-color-on-surface);
+  --mp-code-attr: var(--_mp-color-on-surface-variant);
+  --mp-code-meta: var(--_mp-color-on-surface-variant);
+  --mp-code-add: var(--_mp-color-on-surface);
+  --mp-code-del: var(--_mp-color-on-surface-variant);
 }
 
 .mp-code[data-mp-code-theme='mono'] .hljs-keyword,
@@ -3031,4 +3038,56 @@
 
 .mp-code .hljs-strong {
   font-weight: 700;
+}
+
+/* ---------------------------------------------------------------------------
+ * The tree's guide lines
+ *
+ * A rail down each level and, in `folder`, an elbow into each row. Real CSS
+ * rather than utilities for the reason the grid's breakpoints are: a rail is a
+ * pseudo-element positioned half an indent *outside* the row it belongs to, and
+ * the rail under a last child is a different height from the rest.
+ * `[&:last-child]:[&::before]:…` is expressible and nobody would want to read
+ * it.
+ *
+ * The two lengths come from the component as custom properties, because both
+ * are on a ladder: the rail sits half an indent out, and the elbow crosses at
+ * half a row's height. Written as numbers here they would be right at one rung
+ * and wrong at the other four.
+ *
+ * `lines="none"` needs no rule at all, which is why there is no class for it.
+ * ------------------------------------------------------------------------- */
+
+.mp-tree--simple ul[role='group'] > li,
+.mp-tree--folder ul[role='group'] > li {
+  position: relative;
+}
+
+.mp-tree--simple ul[role='group'] > li::before,
+.mp-tree--folder ul[role='group'] > li::before {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: calc(var(--_mp-tree-indent) / -2);
+  border-inline-start: 1px solid var(--_mp-color-outline-variant);
+}
+
+/*
+ * The rail under a last child stops at the row it points at rather than running
+ * on into nothing. That is the whole difference between the two drawings: a
+ * `simple` rail says "this level continues", and a `folder` one says where it
+ * ends.
+ */
+.mp-tree--folder ul[role='group'] > li:last-child::before {
+  inset-block-end: auto;
+  block-size: calc(var(--_mp-tree-row) / 2);
+}
+
+.mp-tree--folder ul[role='group'] > li::after {
+  content: '';
+  position: absolute;
+  inset-block-start: calc(var(--_mp-tree-row) / 2);
+  inset-inline-start: calc(var(--_mp-tree-indent) / -2);
+  inline-size: calc(var(--_mp-tree-indent) / 2 - 2px);
+  border-block-start: 1px solid var(--_mp-color-outline-variant);
 }
