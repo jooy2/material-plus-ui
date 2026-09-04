@@ -5,6 +5,7 @@ import {
   MPAccordionItem,
   MPAlert,
   MPAnchor,
+  MPAppLogo,
   MPAnimateAppear,
   MPAnimateBlink,
   MPAnimateCounter,
@@ -1324,6 +1325,21 @@ const GROUPS: Group[] = [
             <MPBreadcrumbItem href="#">Docs</MPBreadcrumbItem>
             <MPBreadcrumbItem>Breadcrumb</MPBreadcrumbItem>
           </MPBreadcrumb>
+        )
+      },
+      {
+        name: 'MPAppLogo',
+        summary: {
+          ko: '정해진 크기의 제품 마크. 결코 빈 상자가 되지 않습니다',
+          en: 'A product’s mark at a known size, which is never an empty box'
+        },
+        path: '/components/display/app-logo',
+        preview: (
+          <MPFlex gap={12} align="center">
+            <MPAppLogo name="Voltage" shape="app" size="sm" />
+            <MPAppLogo name="Voltage" shape="circle" variant="tonal" color="tertiary" size="sm" />
+            <MPAppLogo name="Voltage" size="sm" />
+          </MPFlex>
         )
       },
       {

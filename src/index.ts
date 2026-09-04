@@ -10,6 +10,7 @@ export * from './hooks';
 export * from './components/accordion';
 export * from './components/alert';
 export * from './components/anchor';
+export * from './components/app-logo';
 export * from './components/animate-appear';
 export * from './components/animate-blink';
 export * from './components/animate-counter';

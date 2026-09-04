@@ -6,6 +6,18 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **`MPAppLogo`**, a product's mark at a known size that is never an empty box. Four things can be it and exactly one is at a time: markup handed to `children`, an image at `src`, the initials of `name` on a tile, or — with no tile to put them on — the name itself set as the logotype. That last one is the point: `<MPAppLogo name="Voltage" />` is a logo for a product that has not drawn one yet, and swapping it for the real file later is one prop.
+
+  What it adds over an `<img>` is the framing, which is the decision an image tag cannot make: a mark drawn as a bare glyph and a mark drawn with its own background need opposite treatment, and which of the two a file is cannot be worked out from the file. `bare` keeps the artwork's own proportions and draws nothing behind it — the default, because a logo file very often has the product's name set into it — while `app` and `circle` inset it into a tile of the page's own colour.
+
+  The inset is a share of the **artwork** rather than padding on the tile, and that is not a stylistic preference: a percentage padding resolves against the containing block, which here is the whole lockup, so the same icon would be inset further the longer the product's name beside it got.
+
+  The name lands in the document exactly once, and which element carries it depends on what the mark turned out to be — a logotype is the name, an image carries it as `alt`, and a glyph or a pair of initials get a clipped copy. `showName` turns the mark into decoration rather than a second reading of the same thing.
+
+  No tagline, no version, and no `elevation`: that prop moves tone as well as shadow everywhere else it appears, and a logo tile's tone is the accent, so there is nothing for it to move to.
+
+- **`initialsOf` moved to `internal/initials.ts`**, out of `MPAvatar`. `MPAppLogo` derives a product's initials the way the avatar derives a person's, and two copies of that rule is how a page carrying both ends up disagreeing with itself about what a two-word name comes to.
+
 - **`MPMeter`**, how much of something there is on a scale known in advance — disk used, seats taken, quota spent, a password's strength. It looks like `MPProgressLinear` and means something else.
 
   A progress bar is about time: something is happening, this is how far it has got, it may have no value at all, and it is expected to move on its own. A meter is about quantity: the number is already known, it does not move unless the thing it measures does, and it is meaningful to say the reading is bad. A disk that is 94% full is not 94% finished, and the two carry different ARIA roles for exactly that reason — so `value` is required here and optional there.

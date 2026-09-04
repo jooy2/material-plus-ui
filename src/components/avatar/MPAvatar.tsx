@@ -3,6 +3,7 @@ import { Avatar as BaseUIAvatar } from '@base-ui/react/avatar';
 import { accentSlots } from '../../internal/accent';
 import { transitionProps } from '../../internal/transition';
 import { CONTROL_SQUARE, hasContent } from '../../internal/scale';
+import { initialsOf } from '../../internal/initials';
 import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
 import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPColor, MPSize, MPTransition, MPVariant } from '../../types';
@@ -168,32 +169,6 @@ function PersonIcon() {
       <path d="M12 14.25c-4.28 0-7.75 2.42-7.75 5.4 0 .75.6 1.35 1.35 1.35h12.8c.75 0 1.35-.6 1.35-1.35 0-2.98-3.47-5.4-7.75-5.4Z" />
     </svg>
   );
-}
-
-/**
- * The first character of the first word, plus the first of the last.
- *
- * `Array.from` rather than `[0]`, so a name that starts with an emoji or with
- * any character outside the basic plane is not cut in half between its two code
- * units. `normalize('NFC')` first, so a name whose accents arrived decomposed —
- * which is what a macOS filename and a good many APIs hand you — yields `Ä`
- * rather than a bare `A`.
- *
- * One word gives one character on purpose. Korean, Japanese and Chinese names
- * are a single token, and two of their characters at 32px is a smudge where one
- * is a name.
- */
-function initialsOf(name: string): string {
-  const words = name.normalize('NFC').trim().split(/\s+/).filter(Boolean);
-
-  if (words.length === 0) {
-    return '';
-  }
-
-  const first = Array.from(words[0])[0] ?? '';
-  const last = words.length > 1 ? (Array.from(words[words.length - 1])[0] ?? '') : '';
-
-  return (first + last).toLocaleUpperCase();
 }
 
 /**

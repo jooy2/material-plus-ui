@@ -5627,6 +5627,139 @@ const componentTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPAppLogo: [
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '마크업으로 된 아트워크. 보통은 인라인 `<svg>`이고, `src`보다 이쪽이 낫습니다 — 문서의 일부인 마크는 페이지의 색을 따르고, 두 번째 요청이 필요 없고, 늦게 도착할 수 없습니다',
+        en: 'The artwork, as markup. An inline `<svg>` is the usual one and is worth preferring to `src`: a mark that is part of the document takes the page’s own colours, needs no second request, and cannot arrive late'
+      }
+    },
+    {
+      name: 'src',
+      type: 'string',
+      description: {
+        ko: '이미지로 된 아트워크. `children`에 집니다',
+        en: 'The artwork, as an image. Beaten by `children`'
+      }
+    },
+    {
+      name: 'srcSet',
+      type: 'string',
+      description: {
+        ko: '다른 해상도의 후보 이미지들. 여느 `<img>`와 같습니다',
+        en: 'Candidate images at other resolutions, as on any `<img>`'
+      }
+    },
+    {
+      name: 'alt',
+      type: 'string',
+      description: {
+        ko: '아트워크가 보이지 않는 독자에게 하는 말. 기본값은 `name`이고, 대개 그것이 맞습니다 — 로고는 제품을 뜻합니다',
+        en: 'What the artwork says for a reader who cannot see it. Defaults to `name`, which is almost always right: a logo means the product'
+      }
+    },
+    {
+      name: 'name',
+      type: 'string',
+      description: {
+        ko: '제품의 이름. 하나가 세 가지 일을 합니다 — 아트워크를 이름 짓고, 타일이 기댈 이니셜이 되고, 아트워크가 아예 없으면 로고타이프로 그려집니다',
+        en: 'The product’s name. One prop doing three jobs: it names the artwork, its initials are what a tile falls back to, and it is drawn as the logotype when there is no artwork at all'
+      }
+    },
+    {
+      name: 'initials',
+      type: 'string',
+      description: {
+        ko: '타일 위의 이니셜을 직접 적습니다. 규칙이 엉뚱한 글자를 뽑았을 때를 위한 것입니다',
+        en: 'The initials on a tile, written out, for when the rule derived the wrong ones'
+      }
+    },
+    {
+      name: 'showName',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '이름을 마크 옆에 락업의 글자 절반으로 그립니다. 그린 순간부터 그것이 접근성 이름이 되므로 이름이 두 번 읽히지 않습니다. 이름이 이미 로고 전부일 때는 무시됩니다',
+        en: 'Draws the name beside the artwork, as the words half of a lockup. From then on what is drawn *is* the accessible name, so it is not read out twice. Ignored when the name is already the whole logo'
+      }
+    },
+    {
+      name: 'shape',
+      type: "'bare' | 'app' | 'circle'",
+      default: "'bare'",
+      description: {
+        ko: '아트워크를 담는 방식. `bare`는 아무것도 그리지 않고 아트워크의 비율을 지키며, `app`과 `circle`은 타일 안에 들여 놓습니다. `square`는 없습니다',
+        en: 'How the artwork is framed. `bare` draws nothing behind it and keeps its proportions; `app` and `circle` inset it into a tile. There is no `square`'
+      }
+    },
+    {
+      name: 'padded',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '앱 아이콘의 글리프처럼 아트워크를 타일 가장자리에서 떨어뜨립니다. 타일을 채우도록 그려진 마크에서는 끄세요. `bare`에는 영향이 없습니다',
+        en: 'Insets the artwork from the tile’s edge, the way an app icon’s glyph is held off its own corners. Turn it off for a mark drawn to fill the tile. No effect on `bare`'
+      }
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      description: {
+        ko: '`size`를 덮는 정확한 높이. 숫자는 픽셀입니다. 브랜드의 아트워크는 누군가 정한 높이로 그려져 있고, 그것을 사다리의 가장 가까운 칸으로 반올림하는 것이 로고가 옆 글자와 반 픽셀 어긋나는 경로입니다',
+        en: 'An exact height for the mark, overriding `size`. A number is pixels — a brand’s artwork is drawn at a height somebody chose, and rounding it to the nearest rung of a ladder is how a logo ends up half a pixel off the type beside it'
+      }
+    },
+    {
+      name: 'href',
+      type: 'string',
+      description: {
+        ko: '락업 전체를 링크로 만듭니다. 헤더의 로고는 거의 언제나 첫 페이지로 돌아가는 길입니다',
+        en: 'Makes the whole lockup a link. A logo in a header is nearly always the way back to the front page'
+      }
+    },
+    {
+      name: 'imageProps',
+      type: "Omit<ImgHTMLAttributes, 'src' | 'srcSet' | 'alt'>",
+      description: {
+        ko: '`<img>`에 필요한 나머지 — `loading`, `decoding`, `crossOrigin`',
+        en: 'Anything else the `<img>` needs — `loading`, `decoding`, `crossOrigin`'
+      }
+    },
+    {
+      name: 'render',
+      type: 'RenderProp',
+      description: {
+        ko: '`<span>` 대신, 혹은 `href`가 만든 `<a>` 대신 다른 것을 렌더합니다. 라우터의 링크나, 제품 이름이 곧 그 페이지의 제목인 한 페이지의 `<h1>`',
+        en: 'Renders something other than a `<span>`, or than the `<a>` an `href` makes it — a router’s own link, or the `<h1>` of the one page where the product’s name is the page’s heading'
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '마크의 높이. 컨트롤의 높이들이라서 헤더의 로고와 그 옆 버튼이 같은 높이로 섭니다',
+        en: 'How tall the mark is — the control heights, so a logo and the button beside it in a header line up'
+      }
+    },
+    {
+      name: 'variant',
+      type: VARIANT,
+      default: "'filled'",
+      description: {
+        ko: '타일이 칠하는 면의 양. 로고 타일은 색을 입는 대상 자체라서 칩·배지·아바타처럼 강조 색을 띱니다. `bare`에는 타일이 없으므로 아무 영향이 없습니다',
+        en: 'How much surface the tile paints. A logo tile *is* the thing being coloured — as on chip, badge and avatar — so it takes the tint. No effect on `bare`, which draws no tile'
+      }
+    },
+    {
+      ...color,
+      description: {
+        ko: '타일이 읽는 강조 색 계열',
+        en: 'Which accent family the tile reads'
+      }
+    }
+  ],
+
   MPAspectRatio: [
     {
       name: 'ratio',
