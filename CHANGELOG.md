@@ -6,6 +6,14 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **`MPScrollArea`**, a box with a scrollbar of its own. The browser's is drawn by the operating system — a different width on every machine, a different colour from the sheet it is cut into, and on Windows a 17px band of grey no design accounts for.
+
+  The native bar is hidden rather than the scrolling being reimplemented, which is the difference between this and a component that listens for `wheel` events: the wheel, the trackpad, a touch drag, Page Up, Home and End, a keyboard focus moving below the fold, scroll anchoring and overscroll all behave exactly as they did. The bar overlays the content and takes no room, so adding one to a page that has already been designed reflows nothing.
+
+  The bound goes on the viewport rather than on the root, which is not a detail: a `max-height` on the root leaves its own height `auto`, and a viewport asking for `height: 100%` of an `auto` parent gets its content's height — a box exactly as tall as what is in it, which never scrolls.
+
+  `persistent` is about opacity rather than about mounting, because a viewport that does not overflow has no bar in the DOM to begin with.
+
 - **`MPPortal`**, children rendered somewhere else in the DOM — usually the end of `<body>` — for a subtree that has to escape a clipping or stacking context its own position would trap it in.
 
   Every popup in this library already portals itself, because a component whose whole job is to sit over the page cannot leave that to a caller. This is for a caller's own overlay in a page whose structure it does not control, and it gets out of two traps neither of which is visible from the markup: an `overflow: hidden` anywhere above an element, and the containing block a `transform`, `filter` or sub-`1` opacity makes for a `position: fixed` descendant.

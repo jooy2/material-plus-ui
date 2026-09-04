@@ -1767,6 +1767,55 @@ const componentTables: Record<string, PropRow[]> = {
     name
   ],
 
+  MPScrollArea: [
+    {
+      ...size,
+      description: {
+        ko: '스크롤바의 두께. 여기서 `size`가 정하는 것은 그것뿐입니다 — 스크롤바는 컨트롤이 아니라 사다리 위의 높이가 없습니다. 6px에서 14px까지이고 `md`는 10입니다',
+        en: "The scrollbar's thickness, and the only thing `size` sets here — a scrollbar is not a control and has no height on the ladder. 6px to 14px, with `md` at 10"
+      }
+    },
+    {
+      name: 'axis',
+      type: "'vertical' | 'horizontal' | 'both'",
+      default: "'vertical'",
+      description: {
+        ko: '내용이 어느 방향으로 스크롤될 수 있는지. `both`만 두 바가 만나는 모서리를 그립니다',
+        en: 'Which way the content may scroll. `both` is the only case that draws the corner where two bars meet'
+      }
+    },
+    {
+      name: 'maxHeight',
+      type: 'number | string',
+      description: {
+        ko: '스크롤이 시작되기 전까지 상자가 커질 수 있는 높이. 숫자는 픽셀, 문자열은 CSS 길이입니다. 무언가가 상자를 묶어야 스크롤할 것이 생깁니다',
+        en: 'How tall the box may get before it starts scrolling. A number is pixels, a string is any CSS length — something has to bound the box or there is nothing to scroll'
+      }
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      description: {
+        ko: '고정 높이. 안에 무엇이 들었든 그 크기여야 하는 상자를 위한 것입니다',
+        en: 'A fixed height, for the box that should be its size whatever is in it'
+      }
+    },
+    {
+      name: 'persistent',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '포인터가 떠나도 바를 계속 그립니다. 이미 있는 바를 붙들 뿐, 넘치지 않는 상자에 바를 만들지는 않습니다',
+        en: 'Keeps the bar drawn instead of fading it out when the pointer leaves. It holds a bar that exists rather than conjuring one for a box that fits'
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '스크롤될 내용', en: 'The content that scrolls' }
+    }
+  ],
+
   MPSegmentedButton: [
     {
       name: 'items',

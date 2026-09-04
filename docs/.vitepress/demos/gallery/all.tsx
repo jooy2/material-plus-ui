@@ -91,6 +91,7 @@ import {
   MPRadioGroup,
   MPRating,
   MPSegmentedButton,
+  MPScrollArea,
   MPSelect,
   MPShortcut,
   MPSidebar,
@@ -1712,6 +1713,25 @@ const GROUPS: Group[] = [
               </div>
             ))}
           </MPFlex>
+        )
+      },
+      {
+        name: 'MPScrollArea',
+        summary: {
+          ko: '자기 스크롤바를 가진 상자. 어디서나 같은 너비와 색입니다',
+          en: 'A box with a scrollbar of its own — the same width and colour everywhere'
+        },
+        path: '/components/layout/scroll-area',
+        preview: (
+          <Fit>
+            <MPScrollArea maxHeight={96} persistent size="sm" style={{ width: '100%' }}>
+              <div className="text-mp-on-surface-variant text-mp-body-small flex flex-col gap-2 pe-3">
+                {['Inbox', 'Starred', 'Snoozed', 'Sent', 'Drafts', 'Spam'].map((row) => (
+                  <span key={row}>{row}</span>
+                ))}
+              </div>
+            </MPScrollArea>
+          </Fit>
         )
       },
       {
