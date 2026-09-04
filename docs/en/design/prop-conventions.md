@@ -21,6 +21,7 @@ type MPVariant = 'filled' | 'tonal' | 'elevated' | 'outlined' | 'text';
 type MPDensity = 0 | -1 | -2 | -3;
 type MPElevation = 0 | 1 | 2 | 3 | 4 | 5;
 type MPTransition = MPAnimation | MPTransitionOptions;
+type MPSlots<Slot extends string> = Partial<Record<Slot, string>>;
 type MPOrientation = 'horizontal' | 'vertical';
 
 interface MPStyleProps {
@@ -173,6 +174,45 @@ The prop exists alongside the wrapper because wrapping is the wrong shape twice.
 **It costs about 1.2 kB gzipped on any component that takes it**, whether or not a caller ever passes one, because the effect tables are object literals and a bundler cannot tree-shake a key. That is why the prop is on the eight components that display something and on none of the controls — and it is written here rather than left to be found on a bundle report.
 
 **`prefers-reduced-motion` is honoured throughout**, by the components and by the stylesheet. Nothing here needs a prop for it.
+
+## Overriding the styling
+
+Three channels, and which one you want depends on what you are changing.
+
+### `className` — the root
+
+Every component takes one, and it is **merged** with the classes the component wrote rather than replacing them. It lands on the component's **root**: for a field that is the column holding the label, the control and the line under it; for a dialog or a drawer it is the sheet, which is the element a caller means by the component's name.
+
+```tsx
+<MPButton className="w-full" />
+```
+
+### `classNames` — the parts it cannot reach
+
+Most components need nothing else, because everything they draw is under the root and a selector finds it. A few draw parts that are not: a select's popup, a dialog's backdrop and a command palette's rows all render at the end of `<body>`, and options drawn from an `items` array have no element of yours to carry a class at all.
+
+```tsx
+<MPSelect items={cities} classNames={{ popup: 'max-h-64', item: 'font-mono' }} />
+<MPDialog classNames={{ backdrop: 'backdrop-blur-none' }} />
+```
+
+**There is never a `root` key.** `className` is the root, on every component, and a second spelling of it is exactly the drift this page exists to prevent.
+
+The names are shared where the parts are — `popup` means the same thing on a select and a combobox — and what each component adds is on its own page. The prop is only on the components that have a part with no other way in: `MPSelect`, `MPCombobox`, `MPDialog`, `MPDrawer` and `MPCommandPalette`. Everything else this library draws already carries a BEM-style class of its own, `mp-card__body` and its like, which a stylesheet can select without any prop.
+
+### `style` — and the tokens under it
+
+`style` is merged **after** the component's own, so it is the override that cannot lose. What it is for here is a token: every colour, corner, duration and curve a component draws is read out of a custom property, and setting one of those on the element is steadier than a class because an inline custom property has no cascade to compete in.
+
+```tsx
+<MPBox style={{ ['--mp-sys-color-surface-container' as string]: 'rebeccapurple' }} />
+```
+
+One rung up, the same names on `:root` change the whole page — see [Colour](./color.md). The `--_mp-*` properties are private: components set them on themselves from props, and a page that writes one is writing to an implementation detail.
+
+### When two utilities disagree
+
+A class you pass and a class the component wrote are both one class. Neither is more specific, so the winner is decided by their **order in the generated stylesheet**, which is Tailwind's own and not the order you wrote them in. [Getting started](../guide/getting-started.md) has the whole of that, including what `!` does and the one thing about it that catches people twice.
 
 ## Naming
 

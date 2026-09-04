@@ -21,6 +21,7 @@ type MPVariant = 'filled' | 'tonal' | 'elevated' | 'outlined' | 'text';
 type MPDensity = 0 | -1 | -2 | -3;
 type MPElevation = 0 | 1 | 2 | 3 | 4 | 5;
 type MPTransition = MPAnimation | MPTransitionOptions;
+type MPSlots<Slot extends string> = Partial<Record<Slot, string>>;
 type MPOrientation = 'horizontal' | 'vertical';
 
 interface MPStyleProps {
@@ -173,6 +174,45 @@ Material UI의 여섯 개가 아닙니다. 스펙의 색상 시스템에는 `inf
 **이 prop을 받는 컴포넌트는 gzip 기준 약 1.2 kB를 냅니다.** 호출자가 값을 주든 말든 그렇습니다. 효과 표가 객체 리터럴이고, 번들러는 키 단위로 tree-shake하지 못하기 때문입니다. 그래서 이 prop은 무언가를 보여 주는 컴포넌트 여덟 개에만 있고 컨트롤에는 없습니다. 번들 리포트에서 발견하게 두는 대신 여기에 적어 둡니다.
 
 **`prefers-reduced-motion`은 어디서나 존중됩니다.** 컴포넌트도 스타일시트도 그렇습니다. 이를 위한 prop은 필요 없습니다.
+
+## 스타일 덮어쓰기
+
+통로가 셋이고, 무엇을 바꾸느냐에 따라 쓸 것이 정해집니다.
+
+### `className` — 루트
+
+모든 컴포넌트가 받고, 컴포넌트가 쓴 클래스를 대체하지 않고 **합칩니다**. 컴포넌트의 **루트**에 붙습니다. 필드에서는 라벨과 컨트롤과 그 아래 줄을 담은 열이고, 다이얼로그나 드로어에서는 시트입니다. 호출하는 쪽이 컴포넌트 이름으로 가리키는 그 엘리먼트입니다.
+
+```tsx
+<MPButton className="w-full" />
+```
+
+### `classNames` — 루트가 닿지 못하는 부분
+
+대부분의 컴포넌트에는 이것이 필요 없습니다. 그리는 것이 전부 루트 아래에 있어서 선택자가 찾아냅니다. 그렇지 않은 것이 몇 있습니다. 셀렉트의 팝업, 다이얼로그의 스크림, 커맨드 팔레트의 행은 `<body>` 끝에 그려지고, `items` 배열에서 나오는 옵션에는 클래스를 실을 엘리먼트 자체가 없습니다.
+
+```tsx
+<MPSelect items={cities} classNames={{ popup: 'max-h-64', item: 'font-mono' }} />
+<MPDialog classNames={{ backdrop: 'backdrop-blur-none' }} />
+```
+
+**`root` 키는 없습니다.** 모든 컴포넌트에서 루트는 `className`이고, 같은 것을 두 이름으로 부르는 일이야말로 이 문서가 막으려는 어긋남입니다.
+
+부분이 같으면 이름도 같습니다. `popup`은 셀렉트에서나 콤보박스에서나 같은 것을 가리키고, 각 컴포넌트가 더 가진 것은 그 컴포넌트 페이지에 있습니다. 이 prop은 달리 닿을 방법이 없는 부분을 가진 컴포넌트에만 있습니다. `MPSelect`, `MPCombobox`, `MPDialog`, `MPDrawer`, `MPCommandPalette`. 그 밖에 이 라이브러리가 그리는 부분은 전부 `mp-card__body` 같은 BEM 클래스를 이미 달고 있어서, prop 없이도 스타일시트로 선택할 수 있습니다.
+
+### `style` — 그리고 그 아래의 토큰
+
+`style`은 컴포넌트 자신의 것 **뒤에** 합쳐지므로, 질 수 없는 덮어쓰기입니다. 여기서 이것이 하는 일은 토큰입니다. 컴포넌트가 그리는 모든 색과 모서리와 지속 시간과 곡선은 custom property에서 읽히고, 그중 하나를 엘리먼트에 직접 설정하는 것은 클래스보다 안정적입니다. 인라인 custom property에는 겨룰 cascade가 없기 때문입니다.
+
+```tsx
+<MPBox style={{ ['--mp-sys-color-surface-container' as string]: 'rebeccapurple' }} />
+```
+
+한 칸 위에서 같은 이름을 `:root`에 쓰면 페이지 전체가 바뀝니다. [색](./color.md)을 보세요. `--_mp-*`는 비공개입니다. 컴포넌트가 prop을 받아 자기 자신에게 설정하는 것이고, 페이지가 그것을 쓰는 것은 구현 세부에 쓰는 것입니다.
+
+### 유틸리티 둘이 어긋날 때
+
+넘긴 클래스도 컴포넌트가 쓴 클래스도 클래스 하나입니다. 어느 쪽도 더 구체적이지 않으므로, 이기는 쪽은 **생성된 스타일시트에서의 순서**가 정합니다. 그 순서는 Tailwind의 것이지 작성한 순서가 아닙니다. [시작하기](../guide/getting-started.md)에 전부 있습니다. `!`가 무엇을 하는지, 그리고 그것에 두 번 걸려 넘어지는 지점까지.
 
 ## 이름 규칙
 

@@ -11,7 +11,7 @@ import { MPStateLayer } from '../../internal/StateLayer';
 import { hasContent, META_TEXT, PROSE_TEXT } from '../../internal/scale';
 import { FADE, PORTAL_LAYER, SCRIM, SHEET_MOTION } from '../../internal/surface';
 import { useMPColor, useMPSize } from '../../internal/config';
-import type { MPColor, MPSize } from '../../types';
+import type { MPColor, MPSize, MPSlots } from '../../types';
 
 /** One thing the palette can do. */
 export interface MPCommand {
@@ -107,6 +107,16 @@ export interface MPCommandPaletteProps {
   label?: string;
   className?: string;
   style?: React.CSSProperties;
+  /**
+   * A class name for a part `className` cannot reach.
+   *
+   * - `backdrop` — the scrim behind the sheet.
+   * - `input` — the search field at the top of it.
+   * - `list` — the scrolling region under that.
+   * - `row` — every result in the list. They are drawn from `items`, so there is
+   *   no element of the caller's to put a class on.
+   */
+  classNames?: MPSlots<'backdrop' | 'input' | 'list' | 'row'>;
 }
 
 /** How wide the sheet gets when nothing says. */
@@ -213,6 +223,7 @@ export function MPCommandPalette({
   placeholder,
   emptyMessage,
   label,
+  classNames,
   className,
   style
 }: MPCommandPaletteProps) {
@@ -308,7 +319,11 @@ export function MPCommandPalette({
   return (
     <Dialog.Root open={showing} onOpenChange={setOpen}>
       <Dialog.Portal>
-        <Dialog.Backdrop className={`${PORTAL_LAYER} fixed inset-0 ${FADE} ${SCRIM}`} />
+        <Dialog.Backdrop
+          className={[`${PORTAL_LAYER} fixed inset-0`, FADE, SCRIM, classNames?.backdrop ?? '']
+            .filter(Boolean)
+            .join(' ')}
+        />
 
         {/*
          * Pinned near the top rather than centred. A palette is opened by
@@ -363,6 +378,7 @@ export function MPCommandPalette({
                   placeholder={placeholder ?? messages.search}
                   className={[
                     'mp-command-palette__input min-w-0 flex-1 bg-transparent font-[inherit]',
+                    classNames?.input ?? '',
                     'text-inherit outline-none',
                     'placeholder:text-mp-on-surface-variant caret-(--_mp-accent)',
                     INPUT_HEIGHT[size]
@@ -371,7 +387,7 @@ export function MPCommandPalette({
               </div>
 
               <Autocomplete.List
-                className="mp-command-palette__list min-h-0 flex-1 overflow-y-auto overscroll-contain p-1"
+                className={`mp-command-palette__list min-h-0 flex-1 overflow-y-auto overscroll-contain p-1${classNames?.list ? ` ${classNames.list}` : ''}`}
                 style={{ maxHeight: listHeight }}
               >
                 {(item: MPCommand, index: number) => (
@@ -392,6 +408,7 @@ export function MPCommandPalette({
                       onClick={() => run(item)}
                       className={[
                         'mp-command-palette__row group rounded-mp-xs relative flex cursor-pointer',
+                        classNames?.row ?? '',
                         'items-center gap-3 select-none outline-none',
                         'data-disabled:text-mp-on-surface/38 data-disabled:cursor-default',
                         INSET_X[size],

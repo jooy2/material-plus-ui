@@ -6,6 +6,12 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **`classNames` on the five components with a part `className` cannot reach**: `MPSelect` and `MPCombobox` (`popup`, `item`), `MPDialog` and `MPDrawer` (`backdrop`), and `MPCommandPalette` (`backdrop`, `input`, `list`, `row`).
+
+  Two ways of being unreachable, and both are real. A popup, a scrim and a palette's sheet render at the end of `<body>`, so no selector written against the root will ever find them. And a row drawn from an `items` array has no element of the caller's to carry a class at all — there is nowhere to write one.
+
+  **There is never a `root` key.** `className` is the root on every component, and a second spelling of it is the drift the prop conventions exist to prevent. The prop is also on five components rather than on everything: every other part this library draws already carries a BEM-style class of its own — `mp-card__body` and its like — which a stylesheet of yours can select without any prop at all.
+
 - **`transition` on the components that display something**: `MPBox`, `MPCard`, `MPAvatar`, `MPChip`, `MPTypography`, `MPBlockquote`, `MPEmpty` and `MPAlert`. An entrance, run once as the component mounts — `transition="fade"`, or an object carrying a duration, an edge to come from or a scale to start at.
 
   It has no `trigger`, no `repeat` and no scroll timeline, and the absence is the design rather than an omission. Those are what the `MPAnimate*` components are, and a prop offering half of them would be a second, worse spelling of machinery that already exists. The prop is for the two cases where wrapping is the wrong shape: a component that lays its children into boxes nothing outside can reach — which is why `MPStack` has had this since it arrived — and a grid whose every card would otherwise gain a second element, since a `display: contents` wrapper generates no box to animate.

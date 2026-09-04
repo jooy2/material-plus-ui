@@ -264,6 +264,36 @@ export type MPResponsive<T> = T | Partial<Record<MPWindowClass, T>>;
 export type MPMeasure = MPSize | 'none' | (string & {});
 
 /**
+ * A class name per part, for the parts a `className` cannot reach.
+ *
+ * `className` lands on a component's **root**, and for most components that is
+ * the whole story: one element, one class list, merged with the component's own.
+ * A few draw parts that no selector written against the root will ever find,
+ * because they are not under it — a select's popup, a dialog's backdrop, a
+ * tooltip's bubble all render at the end of `<body>`. Those are what this is
+ * for.
+ *
+ * ## There is never a `root` key
+ *
+ * `className` is the root, on every component. A second spelling of it is
+ * exactly the drift the prop conventions exist to prevent, and a caller reading
+ * two names for one thing has to work out which one wins.
+ *
+ * ## The part classes are still there
+ *
+ * Every part this library draws already carries a BEM-style class of its own —
+ * `mp-select__popup`, `mp-dialog__backdrop` — and a stylesheet of your own can
+ * always select those. This prop is for the other path: a class written at the
+ * call site, generated in the same Tailwind pass as the component's, which is
+ * the only way a *utility* can reach a part.
+ *
+ * The names are shared where the parts are: `popup` is the same idea on a
+ * select, a menu and a popover. What each component adds beyond that is on its
+ * own page.
+ */
+export type MPSlots<Slot extends string> = Partial<Record<Slot, string>>;
+
+/**
  * The axes most components share.
  *
  * A component extends this and adds only what is genuinely its own, which is what

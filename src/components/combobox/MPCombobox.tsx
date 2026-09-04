@@ -15,7 +15,14 @@ import { CONTROL_ICON, PROSE_TEXT, hasContent } from '../../internal/scale';
 import { MARK_MOTION_KEPT } from '../../internal/mark';
 import { FADE, PORTAL_LAYER } from '../../internal/surface';
 import { useMPSize } from '../../internal/config';
-import type { MPColor, MPControlEventProps, MPSize, MPStyleProps, MPVariant } from '../../types';
+import type {
+  MPColor,
+  MPControlEventProps,
+  MPSize,
+  MPSlots,
+  MPStyleProps,
+  MPVariant
+} from '../../types';
 
 /**
  * What a combobox's value may be — the same two types `MPSelect` submits, and for
@@ -251,6 +258,14 @@ export interface MPComboboxProps<Multiple extends boolean | undefined = false>
   id?: string;
   className?: string;
   style?: React.CSSProperties;
+  /**
+   * A class name for a part `className` cannot reach.
+   *
+   * - `item` — every row of matches. They are drawn from `options` rather than
+   *   written by the caller, and they render at the end of `<body>`, so neither
+   *   a prop nor a selector against the root reaches one.
+   */
+  classNames?: MPSlots<'item'>;
 }
 
 /**
@@ -378,6 +393,7 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
   removeLabel,
   inputRef,
   id,
+  classNames,
   className,
   style
 }: MPComboboxProps<Multiple>) {
@@ -754,6 +770,7 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
                     disabled={entry.disabled}
                     className={[
                       'mp-combobox__item group rounded-mp-xs relative flex cursor-pointer',
+                      classNames?.item ?? '',
                       'items-center gap-3 py-2 ps-2 pe-3 select-none outline-none',
                       'transition-[background-color,color]',
                       'duration-(--mp-sys-motion-duration-short4)',

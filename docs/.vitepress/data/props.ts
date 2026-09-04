@@ -1274,7 +1274,15 @@ const componentTables: Record<string, PropRow[]> = {
     disabled,
     readOnly,
     name,
-    id
+    id,
+    {
+      name: 'classNames',
+      type: "MPSlots<'popup' | 'item'>",
+      description: {
+        ko: '`className`이 닿지 못하는 부분에 클래스를 겁니다. 목록은 `<body>` 끝에 그려지고 옵션은 `items`에서 나오므로 둘 다 호출부에서 손댈 방법이 달리 없습니다',
+        en: 'A class name for the parts `className` cannot reach: the popup renders at the end of `<body>` and the options come from `items`, so neither has an element of yours to carry a class'
+      }
+    }
   ],
 
   MPNumberField: [
@@ -3725,6 +3733,14 @@ const componentTables: Record<string, PropRow[]> = {
         ko: '본문. 스크롤되는 유일한 부분입니다',
         en: 'The body. The only part that scrolls'
       }
+    },
+    {
+      name: 'classNames',
+      type: "MPSlots<'backdrop'>",
+      description: {
+        ko: '`backdrop`은 시트 뒤의 스크림입니다. 시트의 자식이 아니라 형제라서 루트에 건 선택자가 닿지 않습니다',
+        en: '`backdrop` is the scrim behind the sheet. A sibling of it rather than a child, so no selector against the root finds it'
+      }
     }
   ],
 
@@ -4378,7 +4394,15 @@ const componentTables: Record<string, PropRow[]> = {
         en: 'A ref to the text input the reader types into'
       }
     },
-    id
+    id,
+    {
+      name: 'classNames',
+      type: "MPSlots<'item'>",
+      description: {
+        ko: '`item`은 후보 목록의 각 행입니다. `items`에서 그려지고 `<body>` 끝에 렌더되므로 달리 닿을 길이 없습니다',
+        en: '`item` is every row of matches. Drawn from `items` and rendered at the end of `<body>`, so there is no other way in'
+      }
+    }
   ],
 
   MPComboboxOption: [
@@ -7423,6 +7447,14 @@ const componentTables: Record<string, PropRow[]> = {
         ko: '본문. 스크롤되는 유일한 부분이라, 제목과 액션은 제자리에 남습니다',
         en: 'The body. The only part that scrolls, so the heading and the actions stay put'
       }
+    },
+    {
+      name: 'classNames',
+      type: "MPSlots<'backdrop'>",
+      description: {
+        ko: '`backdrop`은 패널 뒤의 스크림이고, 모달일 때만 그려집니다',
+        en: '`backdrop` is the scrim behind the panel, drawn only on a modal drawer'
+      }
     }
   ],
 
@@ -10257,6 +10289,14 @@ const componentTables: Record<string, PropRow[]> = {
       description: {
         ko: '다이얼로그의 접근 가능한 이름. 보이는 제목이 없어서 가져올 곳이 없습니다',
         en: 'The accessible name of the dialog, which has no visible title to take one from'
+      }
+    },
+    {
+      name: 'classNames',
+      type: "MPSlots<'backdrop' | 'input' | 'list' | 'row'>",
+      description: {
+        ko: '스크림, 검색 입력, 스크롤 영역, 그리고 결과 행입니다. 행은 `items`에서 그려집니다',
+        en: 'The scrim, the search field, the scrolling region, and every result row — the rows are drawn from `items`'
       }
     }
   ],

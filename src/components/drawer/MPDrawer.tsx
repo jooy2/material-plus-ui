@@ -17,7 +17,7 @@ import {
 } from '../../internal/scale';
 import { FADE, PORTAL_LAYER, SCRIM, SHEET_MOTION } from '../../internal/surface';
 import { useMPSize } from '../../internal/config';
-import type { MPSide, MPSize } from '../../types';
+import type { MPSide, MPSize, MPSlots } from '../../types';
 
 /**
  * How the panel relates to the page, in MD3's own two words for it.
@@ -142,6 +142,12 @@ export interface MPDrawerProps {
   children?: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
+  /**
+   * A class name for a part `className` cannot reach.
+   *
+   * - `backdrop` — the scrim behind the panel, drawn only on a modal drawer.
+   */
+  classNames?: MPSlots<'backdrop'>;
 }
 
 export type MPDrawerCloseProps = React.ComponentProps<typeof Dialog.Close>;
@@ -330,6 +336,7 @@ export function MPDrawer({
   rounded = true,
   dismissible = true,
   size: sizeProp,
+  classNames,
   className,
   style,
   children
@@ -526,7 +533,11 @@ export function MPDrawer({
       {trigger ? <Dialog.Trigger render={trigger} /> : null}
 
       <Dialog.Portal>
-        <Dialog.Backdrop className={`${PORTAL_LAYER} fixed inset-0 ${FADE} ${SCRIM}`} />
+        <Dialog.Backdrop
+          className={[`${PORTAL_LAYER} fixed inset-0`, FADE, SCRIM, classNames?.backdrop ?? '']
+            .filter(Boolean)
+            .join(' ')}
+        />
 
         <Dialog.Viewport className={`${PORTAL_LAYER} fixed inset-0 flex ${VIEWPORT[side]}`}>
           <Dialog.Popup

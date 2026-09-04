@@ -10,7 +10,7 @@ import { MPStateLayer } from '../../internal/StateLayer';
 import { SHEET_GAP, hasContent } from '../../internal/scale';
 import { FADE, PORTAL_LAYER, SCRIM, SHEET_MOTION } from '../../internal/surface';
 import { useMPSize } from '../../internal/config';
-import type { MPColor, MPControlEventProps, MPSize } from '../../types';
+import type { MPColor, MPControlEventProps, MPSize, MPSlots } from '../../types';
 
 /**
  * A dialog takes `size` and `color` and stops there.
@@ -137,6 +137,14 @@ export interface MPDialogProps extends MPControlEventProps<HTMLElement> {
   children?: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
+  /**
+   * A class name for a part `className` cannot reach.
+   *
+   * - `backdrop` — the scrim behind the sheet. It is a sibling of the dialog
+   *   rather than a child, and both render at the end of `<body>`, so nothing
+   *   written against the root reaches it.
+   */
+  classNames?: MPSlots<'backdrop'>;
 }
 
 export type MPDialogCloseProps = React.ComponentProps<typeof Dialog.Close>;
@@ -334,6 +342,7 @@ export function MPDialog({
   onClick,
   onDoubleClick,
   onContextMenu,
+  classNames,
   className,
   style,
   children
@@ -371,7 +380,11 @@ export function MPDialog({
       {trigger ? <Dialog.Trigger render={trigger} /> : null}
 
       <Dialog.Portal>
-        <Dialog.Backdrop className={`${PORTAL_LAYER} fixed inset-0 ${FADE} ${SCRIM}`} />
+        <Dialog.Backdrop
+          className={[`${PORTAL_LAYER} fixed inset-0`, FADE, SCRIM, classNames?.backdrop ?? '']
+            .filter(Boolean)
+            .join(' ')}
+        />
 
         <Dialog.Viewport
           className={[

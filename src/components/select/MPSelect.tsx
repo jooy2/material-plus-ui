@@ -10,7 +10,7 @@ import { CONTROL_ICON, PROSE_TEXT, hasContent } from '../../internal/scale';
 import { MARK_MOTION_KEPT } from '../../internal/mark';
 import { FADE, PORTAL_LAYER } from '../../internal/surface';
 import { useMPSize } from '../../internal/config';
-import type { MPControlEventProps, MPSize, MPStyleProps } from '../../types';
+import type { MPControlEventProps, MPSize, MPSlots, MPStyleProps } from '../../types';
 
 /**
  * What a select's value may be.
@@ -140,6 +140,18 @@ export interface MPSelectProps extends MPStyleProps, MPControlEventProps<HTMLBut
    */
   className?: string;
   style?: React.CSSProperties;
+  /**
+   * A class name for a part `className` cannot reach.
+   *
+   * The list renders at the end of `<body>`, outside the element `className`
+   * lands on — no selector written against the root will ever find it — and the
+   * options are drawn from `options` rather than written by the caller, so there
+   * is no element of theirs to put a class on.
+   *
+   * - `popup` — the sheet the options are drawn on.
+   * - `item` — every option in it.
+   */
+  classNames?: MPSlots<'popup' | 'item'>;
 }
 
 /**
@@ -188,6 +200,7 @@ export const MPSelect = React.forwardRef<HTMLButtonElement, MPSelectProps>(funct
     readOnly = false,
     name,
     id,
+    classNames,
     className,
     style
   },
@@ -344,8 +357,11 @@ export const MPSelect = React.forwardRef<HTMLButtonElement, MPSelectProps>(funct
                 'mp-select__popup rounded-mp-xs shadow-mp-2 bg-mp-surface-container p-2',
                 'text-mp-on-surface min-w-[var(--anchor-width)] outline-none',
                 PROSE_TEXT[size],
-                FADE
-              ].join(' ')}
+                FADE,
+                classNames?.popup ?? ''
+              ]
+                .filter(Boolean)
+                .join(' ')}
             >
               <Select.List className="max-h-[min(20rem,var(--available-height))] overflow-y-auto overscroll-contain">
                 {items.map((item, index) => (
@@ -361,6 +377,7 @@ export const MPSelect = React.forwardRef<HTMLButtonElement, MPSelectProps>(funct
                     disabled={item.disabled}
                     className={[
                       'mp-select__item group rounded-mp-xs relative flex cursor-pointer items-center',
+                      classNames?.item ?? '',
                       'gap-3 py-2 pe-3 ps-2 select-none outline-none',
                       'transition-[background-color,color]',
                       'duration-(--mp-sys-motion-duration-short4)',
