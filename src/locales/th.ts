@@ -59,6 +59,13 @@ export const th: MPLocale = {
     },
     scroll: { label: 'เนื้อหาที่เลื่อนได้', previous: 'เลื่อนกลับ', next: 'เลื่อนไปข้างหน้า' },
     anchor: { label: 'ในหน้านี้' },
+    code: {
+      copy: 'คัดลอก',
+      copied: 'คัดลอกแล้ว',
+      copyFailed: 'คัดลอกไม่สำเร็จ',
+      raw: 'ข้อความล้วน',
+      label: 'โค้ด'
+    },
     breadcrumb: { label: 'เส้นทางนำทาง', expand: 'แสดงขั้นตอนที่ซ่อนอยู่' },
     combobox: { empty: 'ไม่พบรายการที่ตรงกัน', add: 'เพิ่ม “{label}”' },
     table: { empty: 'ไม่มีข้อมูล' },

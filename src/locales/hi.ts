@@ -63,6 +63,13 @@ export const hi: MPLocale = {
       next: 'आगे स्क्रॉल करें'
     },
     anchor: { label: 'इस पृष्ठ पर' },
+    code: {
+      copy: 'कॉपी करें',
+      copied: 'कॉपी हो गया',
+      copyFailed: 'कॉपी नहीं हो सका',
+      raw: 'सादा',
+      label: 'कोड'
+    },
     breadcrumb: { label: 'ब्रेडक्रंब', expand: 'छिपे हुए चरण दिखाएँ' },
     combobox: { empty: 'कोई मेल नहीं', add: '“{label}” जोड़ें' },
     table: { empty: 'कोई डेटा नहीं' },

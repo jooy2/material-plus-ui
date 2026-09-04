@@ -39,6 +39,7 @@ import {
   MPChatBubble,
   MPCheckbox,
   MPChip,
+  MPCodeBlock,
   MPCollapsible,
   MPColorPicker,
   MPCombobox,
@@ -1342,6 +1343,25 @@ const GROUPS: Group[] = [
             <MPAppLogo name="Voltage" shape="circle" variant="tonal" color="tertiary" size="sm" />
             <MPAppLogo name="Voltage" size="sm" />
           </MPFlex>
+        )
+      },
+      {
+        name: 'MPCodeBlock',
+        summary: {
+          ko: '코드 한 줄이든 천 줄이든 보여 주는 뷰어',
+          en: 'A viewer for one line of code or a thousand'
+        },
+        path: '/components/display/code-block',
+        preview: (
+          <Fit>
+            <MPCodeBlock
+              size="xs"
+              language="ts"
+              copyable={false}
+              code={'const answer = 42;\nexport { answer };'}
+              style={{ width: '100%' }}
+            />
+          </Fit>
         )
       },
       {

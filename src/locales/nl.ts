@@ -59,6 +59,13 @@ export const nl: MPLocale = {
     },
     scroll: { label: 'Scrollbare inhoud', previous: 'Terugscrollen', next: 'Vooruitscrollen' },
     anchor: { label: 'Op deze pagina' },
+    code: {
+      copy: 'Kopiëren',
+      copied: 'Gekopieerd',
+      copyFailed: 'Kopiëren mislukt',
+      raw: 'Zonder opmaak',
+      label: 'Code'
+    },
     breadcrumb: { label: 'Kruimelpad', expand: 'Verborgen stappen tonen' },
     combobox: { empty: 'Geen resultaten', add: '‘{label}’ toevoegen' },
     table: { empty: 'Geen gegevens' },

@@ -54,6 +54,7 @@ import {
   CircleAlert,
   CircleCheck,
   Clock,
+  Code,
   Copy,
   Ellipsis,
   ExternalLink,
@@ -109,6 +110,8 @@ export const LinkIcon = Link;
 export const ExternalLinkIcon = ExternalLink;
 /** Copy to clipboard. */
 export const CopyIcon = Copy;
+/** Source as it was written — `MPCodeBlock`'s toggle out of the colouring. */
+export const CodeIcon = Code;
 /** A picture that could not be fetched — `MPImage`'s own fallback. */
 export const BrokenImageIcon = ImageOff;
 /** Severity: something worth knowing. */

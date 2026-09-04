@@ -2715,3 +2715,320 @@
     animation: none;
   }
 }
+
+/* ---------------------------------------------------------------------------
+ * Code blocks
+ *
+ * An MPCodeBlock is the one surface in this library that does **not** take the
+ * page's colour roles, and that is a decision rather than an oversight. Code is
+ * read against a ground chosen for code, and the twelve hues it needs to keep a
+ * keyword apart from a string apart from a number are not the four accent
+ * families MD3 has. A block dyed with `primary` would be a block whose colours
+ * carry no information.
+ *
+ * So the sheet carries slots of its own, `theme` picks which set fills them,
+ * and `auto` — the default — is the one that follows the page's light and dark
+ * the way every other surface here does.
+ *
+ * They are custom properties on the block rather than a stylesheet per theme,
+ * for the reason `internal/animate-core.ts` gives about the effect tables:
+ * nothing here is generated, the component only fills slots, and a fifth theme
+ * is a block of declarations rather than a second copy of the map below. That
+ * is also why `theme` accepts any string — a consumer who writes
+ * `[data-mp-code-theme='ours']` in their own CSS has a theme, with nothing to
+ * register and nothing to import.
+ *
+ * **Five of the slots are derived and are never written per theme.** `dim`,
+ * `rule` and `hover` are a fixed mix of the ground and the ink, and `mark` and
+ * `mark-edge` are the same for a marked line. A custom property resolves its
+ * `var()`s on the element that declares it, and every theme below declares its
+ * `fg` and `bg` on that same element — so the derived five follow whichever
+ * theme won without being restated five times.
+ *
+ * The dark palette is written twice on purpose: once for the pinned `dark`
+ * theme together with `auto` under an explicitly dark page, and once for `auto`
+ * under `prefers-color-scheme`. A media query and a selector list cannot be
+ * folded into one rule, which is the same repetition the scheme block at the
+ * top of this file makes and says so about.
+ *
+ * Every hue is solved against its own ground rather than flipped: the light set
+ * runs dark and saturated on near-white, the dark set light and desaturated on
+ * near-black. The pairs held furthest apart are the ones that sit next to each
+ * other in real code — a string beside a number, a type beside a function name.
+ *
+ * No third-party palettes ship here. One Dark, Dracula, Nord and the rest are
+ * other projects' published work under their own licences, and porting them
+ * into this package would be shipping somebody else's design under this one's
+ * name. The open string above is how to bring the one you read in all day.
+ * ------------------------------------------------------------------------- */
+
+.mp-code {
+  /* The light set, which is also where `auto` starts. */
+  --mp-code-bg: oklch(98.4% 0.003 262);
+  --mp-code-fg: oklch(30% 0.016 262);
+
+  --mp-code-comment: oklch(58% 0.022 262);
+  --mp-code-keyword: oklch(48% 0.19 322);
+  --mp-code-string: oklch(46% 0.12 148);
+  --mp-code-number: oklch(50% 0.14 48);
+  --mp-code-function: oklch(48% 0.17 264);
+  --mp-code-type: oklch(45% 0.1 214);
+  --mp-code-variable: oklch(45% 0.12 28);
+  --mp-code-tag: oklch(48% 0.18 22);
+  --mp-code-attr: oklch(47% 0.13 82);
+  --mp-code-meta: oklch(52% 0.05 262);
+  --mp-code-add: oklch(45% 0.14 152);
+  --mp-code-del: oklch(48% 0.18 25);
+
+  /* The derived five. Declared once here and never in a theme: they are a mix
+     of that theme's own ground and ink, which resolves on this element. */
+  --mp-code-dim: color-mix(in oklab, var(--mp-code-fg) 58%, var(--mp-code-bg));
+  --mp-code-rule: color-mix(in oklab, var(--mp-code-fg) 14%, transparent);
+  --mp-code-hover: color-mix(in oklab, var(--mp-code-fg) 9%, transparent);
+
+  /* A marked line is neutral rather than dyed with the page's accent family:
+     the block has deliberately refused the page's palette, and a primary wash
+     over it would be the one colour on it that nobody chose. Mixed from the
+     theme's own ink, it is legible on all of them. */
+  --mp-code-mark: color-mix(in oklab, var(--mp-code-fg) 10%, transparent);
+  --mp-code-mark-edge: color-mix(in oklab, var(--mp-code-fg) 45%, transparent);
+}
+
+.mp-code[data-mp-code-theme='dark'],
+:where([data-mp-scheme='dark'], .dark) .mp-code[data-mp-code-theme='auto'] {
+  --mp-code-bg: oklch(19.5% 0.014 262);
+  --mp-code-fg: oklch(90% 0.012 262);
+
+  --mp-code-comment: oklch(60% 0.024 262);
+  --mp-code-keyword: oklch(76% 0.13 324);
+  --mp-code-string: oklch(80% 0.13 148);
+  --mp-code-number: oklch(81% 0.12 62);
+  --mp-code-function: oklch(78% 0.12 258);
+  --mp-code-type: oklch(82% 0.1 210);
+  --mp-code-variable: oklch(82% 0.09 32);
+  --mp-code-tag: oklch(77% 0.13 22);
+  --mp-code-attr: oklch(85% 0.11 92);
+  --mp-code-meta: oklch(70% 0.05 262);
+  --mp-code-add: oklch(80% 0.14 152);
+  --mp-code-del: oklch(75% 0.15 25);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-mp-scheme='light']) .mp-code[data-mp-code-theme='auto'] {
+    --mp-code-bg: oklch(19.5% 0.014 262);
+    --mp-code-fg: oklch(90% 0.012 262);
+
+    --mp-code-comment: oklch(60% 0.024 262);
+    --mp-code-keyword: oklch(76% 0.13 324);
+    --mp-code-string: oklch(80% 0.13 148);
+    --mp-code-number: oklch(81% 0.12 62);
+    --mp-code-function: oklch(78% 0.12 258);
+    --mp-code-type: oklch(82% 0.1 210);
+    --mp-code-variable: oklch(82% 0.09 32);
+    --mp-code-tag: oklch(77% 0.13 22);
+    --mp-code-attr: oklch(85% 0.11 92);
+    --mp-code-meta: oklch(70% 0.05 262);
+    --mp-code-add: oklch(80% 0.14 152);
+    --mp-code-del: oklch(75% 0.15 25);
+  }
+}
+
+/*
+ * `mono` is the one theme built out of the page's own roles, and the only one
+ * with no hue in it at all: the structure is carried by weight and by how far a
+ * run is muted. It is what a block printed on paper, or read by somebody who
+ * cannot separate the hues above, is left with — so it has to stand on its own
+ * rather than read as a degraded copy of a colour theme.
+ */
+.mp-code[data-mp-code-theme='mono'] {
+  --mp-code-bg: var(--mp-sys-color-surface-container);
+  --mp-code-fg: var(--mp-sys-color-on-surface);
+
+  --mp-code-comment: var(--mp-sys-color-on-surface-variant);
+  --mp-code-keyword: var(--mp-sys-color-on-surface);
+  --mp-code-string: var(--mp-sys-color-on-surface-variant);
+  --mp-code-number: var(--mp-sys-color-on-surface-variant);
+  --mp-code-function: var(--mp-sys-color-on-surface);
+  --mp-code-type: var(--mp-sys-color-on-surface);
+  --mp-code-variable: var(--mp-sys-color-on-surface);
+  --mp-code-tag: var(--mp-sys-color-on-surface);
+  --mp-code-attr: var(--mp-sys-color-on-surface-variant);
+  --mp-code-meta: var(--mp-sys-color-on-surface-variant);
+  --mp-code-add: var(--mp-sys-color-on-surface);
+  --mp-code-del: var(--mp-sys-color-on-surface-variant);
+}
+
+.mp-code[data-mp-code-theme='mono'] .hljs-keyword,
+.mp-code[data-mp-code-theme='mono'] .hljs-selector-tag,
+.mp-code[data-mp-code-theme='mono'] .hljs-title,
+.mp-code[data-mp-code-theme='mono'] .hljs-tag,
+.mp-code[data-mp-code-theme='mono'] .hljs-type,
+.mp-code[data-mp-code-theme='mono'] .hljs-built_in {
+  font-weight: 600;
+}
+
+/*
+ * One line.
+ *
+ * A flex row rather than a block, because the number and the prompt are
+ * pseudo-elements that have to sit *before* the code and hold their own width.
+ * `order` is what lets one of them come before the other and both before the
+ * code, since `::after` would otherwise draw last.
+ *
+ * `min-height` keeps a blank line a line high. A flex row with nothing in it is
+ * zero pixels tall, and a block that closed up its own paragraph breaks would
+ * be reflowing the reader's file.
+ */
+.mp-code-line {
+  display: flex;
+  min-height: 1.5em;
+  min-height: 1lh;
+  /* Transparent on every line, coloured on a marked one. A border rather than
+     an inset `box-shadow` because `box-shadow` has no logical form and this one
+     has to sit on the *start* edge in both writing directions; drawn on all of
+     them so marking a line does not shift its text two pixels sideways. */
+  border-inline-start: 2px solid transparent;
+}
+
+/*
+ * A marked line, and the reason the horizontal padding is on the line rather
+ * than on the box that scrolls it.
+ *
+ * A tint that stopped at the padding would be a stripe floating inside the
+ * block instead of a marked row. With the padding here the line box *is* the
+ * row, so it reaches both edges — and because the lines sit in a
+ * `w-max min-w-full` block, every one of them reaches the same edge whether the
+ * code is narrower than the block or scrolled sideways within it.
+ */
+.mp-code-line[data-mark] {
+  background: var(--mp-code-mark);
+  border-inline-start-color: var(--mp-code-mark-edge);
+}
+
+.mp-code-line[data-line]::before {
+  content: attr(data-line);
+  order: 0;
+  flex: none;
+  width: var(--mp-code-gutter, 2ch);
+  margin-inline-end: 1.25em;
+  text-align: end;
+  color: var(--mp-code-dim);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.mp-code-line[data-prompt]::after {
+  content: attr(data-prompt);
+  order: 1;
+  flex: none;
+  margin-inline-end: 0.75em;
+  color: var(--mp-code-dim);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.mp-code-line > code {
+  order: 2;
+  min-width: 0;
+  font: inherit;
+  background: none;
+  padding: 0;
+  white-space: pre;
+}
+
+.mp-code[data-mp-code-wrap='true'] .mp-code-line > code {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/*
+ * highlight.js's scopes, mapped onto the twelve slots.
+ *
+ * Grouped by what a run *is* rather than by what highlight.js calls it, because
+ * those names are the union of a hundred and ninety grammars and half of them
+ * are one language's word for another language's idea — `selector-tag`, `tag`
+ * and `name` are all "the thing being declared". The point of the mapping is
+ * that the same idea gets the same colour whatever file it turns up in.
+ */
+.mp-code .hljs-comment,
+.mp-code .hljs-quote {
+  color: var(--mp-code-comment);
+  font-style: italic;
+}
+
+.mp-code .hljs-keyword,
+.mp-code .hljs-literal,
+.mp-code .hljs-selector-tag,
+.mp-code .hljs-operator,
+.mp-code .hljs-doctag,
+.mp-code .hljs-formula {
+  color: var(--mp-code-keyword);
+}
+
+.mp-code .hljs-string,
+.mp-code .hljs-regexp,
+.mp-code .hljs-char,
+.mp-code .hljs-link {
+  color: var(--mp-code-string);
+}
+
+.mp-code .hljs-number,
+.mp-code .hljs-symbol,
+.mp-code .hljs-bullet {
+  color: var(--mp-code-number);
+}
+
+.mp-code .hljs-title,
+.mp-code .hljs-section,
+.mp-code .hljs-name,
+.mp-code .hljs-selector-id,
+.mp-code .hljs-selector-class {
+  color: var(--mp-code-function);
+}
+
+.mp-code .hljs-type,
+.mp-code .hljs-built_in,
+.mp-code .hljs-class {
+  color: var(--mp-code-type);
+}
+
+.mp-code .hljs-variable,
+.mp-code .hljs-template-variable,
+.mp-code .hljs-params,
+.mp-code .hljs-subst {
+  color: var(--mp-code-variable);
+}
+
+.mp-code .hljs-tag,
+.mp-code .hljs-template-tag {
+  color: var(--mp-code-tag);
+}
+
+.mp-code .hljs-attr,
+.mp-code .hljs-attribute,
+.mp-code .hljs-property,
+.mp-code .hljs-selector-attr,
+.mp-code .hljs-selector-pseudo {
+  color: var(--mp-code-attr);
+}
+
+.mp-code .hljs-meta,
+.mp-code .hljs-punctuation {
+  color: var(--mp-code-meta);
+}
+
+.mp-code .hljs-addition {
+  color: var(--mp-code-add);
+}
+
+.mp-code .hljs-deletion {
+  color: var(--mp-code-del);
+}
+
+.mp-code .hljs-emphasis {
+  font-style: italic;
+}
+
+.mp-code .hljs-strong {
+  font-weight: 700;
+}

@@ -63,6 +63,13 @@ export const ru: MPLocale = {
       next: 'Прокрутить вперёд'
     },
     anchor: { label: 'На этой странице' },
+    code: {
+      copy: 'Копировать',
+      copied: 'Скопировано',
+      copyFailed: 'Не удалось скопировать',
+      raw: 'Без подсветки',
+      label: 'Код'
+    },
     breadcrumb: { label: 'Навигационная цепочка', expand: 'Показать скрытые шаги' },
     combobox: { empty: 'Совпадений нет', add: 'Добавить «{label}»' },
     table: { empty: 'Нет данных' },

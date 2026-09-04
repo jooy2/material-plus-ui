@@ -222,6 +222,26 @@ export interface MPMessages {
     label: string;
   };
   /**
+   * MPCodeBlock.
+   *
+   * Two of these are **drawn** — the copy button says its own word, and says a
+   * different one once the clipboard has taken the code — which is unusual in
+   * this table and is what makes the namespace necessary. A Korean page with a
+   * button reading *Copy* is a page the component broke.
+   */
+  code: {
+    /** The button that puts the code on the clipboard. */
+    copy: string;
+    /** What it says for a moment afterwards. */
+    copied: string;
+    /** And what it says when the browser refused. */
+    copyFailed: string;
+    /** The toggle that drops the colouring. Read out; the button is a glyph. */
+    raw: string;
+    /** What the scrollable region is called when nothing named it. */
+    label: string;
+  };
+  /**
    * MPBreadcrumb.
    *
    * Both read out and never drawn: a trail's steps are the caller's words, and

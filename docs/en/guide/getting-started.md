@@ -32,6 +32,8 @@ These are the packages Material Plus expects to find in your project rather than
 
 `lucide-react` is a real dependency and comes with the package. It is what the components' own glyphs are drawn from — see [MPIcon](../components/display/icon).
 
+`highlight.js` is the other one, and it is the only dependency here that is _loaded_ rather than imported. Every grammar sits behind an `import()`, so it arrives as its own chunk, one language at a time, and only for an [MPCodeBlock](../components/display/code-block) that asked to be coloured — a page with no code block downloads none of it.
+
 ## Wiring up the stylesheet
 
 Add one line to your app's CSS entry point.
@@ -343,7 +345,9 @@ Gzipped, from a real bundler, with React and `@base-ui/react` held external — 
 | `MPButton` alone      | 3.0 kB     | 4.5 kB            |
 | Five components       | 9.0 kB     | 7.5 kB            |
 | Ten components        | 13.3 kB    | 10.3 kB           |
-| Every export there is | 92.4 kB    | 18.4 kB           |
+| Every export there is | 95.6 kB    | 19.7 kB           |
+
+The last row leaves out one thing on purpose: `MPCodeBlock`'s grammars are 49.7 kB more, fetched only when a block colours something and never at all on a page that has none. `npm run measure` prints it as a separate figure for that reason.
 
 Two things to read off it. The first column is marginal: a component you did not import is not in it, which is what `sideEffects`, the build's `@__PURE__` annotations and a message table per namespace are all for. The second column is not marginal — a stylesheet is a file you either imported or did not — so it assumes the list of sheets matches what the page renders.
 

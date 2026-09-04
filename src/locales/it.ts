@@ -59,6 +59,13 @@ export const it: MPLocale = {
     },
     scroll: { label: 'Contenuto scorrevole', previous: 'Scorri indietro', next: 'Scorri avanti' },
     anchor: { label: 'In questa pagina' },
+    code: {
+      copy: 'Copia',
+      copied: 'Copiato',
+      copyFailed: 'Copia non riuscita',
+      raw: 'Testo semplice',
+      label: 'Codice'
+    },
     breadcrumb: { label: 'Percorso di navigazione', expand: 'Mostra i passaggi nascosti' },
     combobox: { empty: 'Nessuna corrispondenza', add: 'Aggiungi «{label}»' },
     table: { empty: 'Nessun dato' },

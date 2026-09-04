@@ -63,6 +63,13 @@ export const zhHant: MPLocale = {
     },
     scroll: { label: '可捲動的內容', previous: '向後捲動', next: '向前捲動' },
     anchor: { label: '本頁內容' },
+    code: {
+      copy: '複製',
+      copied: '已複製',
+      copyFailed: '複製失敗',
+      raw: '純文字',
+      label: '程式碼'
+    },
     breadcrumb: { label: '麵包屑導覽', expand: '顯示隱藏的層級' },
     combobox: { empty: '沒有相符項目', add: '新增「{label}」' },
     table: { empty: '沒有資料' },

@@ -66,6 +66,13 @@ export const fr: MPLocale = {
       next: 'Faire défiler vers l’avant'
     },
     anchor: { label: 'Sur cette page' },
+    code: {
+      copy: 'Copier',
+      copied: 'Copié',
+      copyFailed: 'Échec de la copie',
+      raw: 'Texte brut',
+      label: 'Code'
+    },
     breadcrumb: { label: 'Fil d’Ariane', expand: 'Afficher les étapes masquées' },
     combobox: { empty: 'Aucun résultat', add: 'Ajouter « {label} »' },
     table: { empty: 'Aucune donnée' },

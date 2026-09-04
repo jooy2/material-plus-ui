@@ -58,6 +58,8 @@ export default defineConfig({
     // test run reloads the page mid-test — which Vitest reports as a fetch
     // failure for the test file rather than as anything to do with dependencies.
     include: [
+      'highlight.js/lib/core',
+      'highlight.js/lib/languages/typescript',
       '@base-ui/react/accordion',
       '@base-ui/react/autocomplete',
       '@base-ui/react/avatar',

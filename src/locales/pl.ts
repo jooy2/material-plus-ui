@@ -59,6 +59,13 @@ export const pl: MPLocale = {
     },
     scroll: { label: 'Przewijana zawartość', previous: 'Przewiń wstecz', next: 'Przewiń dalej' },
     anchor: { label: 'Na tej stronie' },
+    code: {
+      copy: 'Kopiuj',
+      copied: 'Skopiowano',
+      copyFailed: 'Nie udało się skopiować',
+      raw: 'Bez kolorowania',
+      label: 'Kod'
+    },
     breadcrumb: { label: 'Ścieżka nawigacji', expand: 'Pokaż ukryte kroki' },
     combobox: { empty: 'Brak wyników', add: 'Dodaj „{label}”' },
     table: { empty: 'Brak danych' },

@@ -43,6 +43,7 @@ export * from './components/carousel';
 export * from './components/chat-bubble';
 export * from './components/checkbox';
 export * from './components/chip';
+export * from './components/code-block';
 export * from './components/collapsible';
 export * from './components/config';
 export * from './components/confirm';

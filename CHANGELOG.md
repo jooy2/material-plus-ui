@@ -6,6 +6,16 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **`MPCodeBlock`**, a viewer for one line of code or a thousand. Coloured, numbered, marked, copied, wrapped, scrolled — each off one prop, because the same component has to be a snippet inside a sentence and the full transcript at the top of a README, and those are one block with different things turned on rather than two components.
+
+  **This adds `highlight.js` as the package's second runtime dependency** (BSD-3-Clause), and it is the only one that is _loaded_ rather than imported. Every grammar sits behind an `import()`: a block with `highlight={false}` fetches nothing at all, a block that colours TypeScript fetches the core and TypeScript and not the other thirty-three, and a page with no code block downloads none of it. `registerMPLanguage` is how a thirty-fifth language arrives, on the same arrangement `registerMPMessages` makes for the eighteen locales.
+
+  It is drawn as lines even with no numbers and no prompt, because a line is what carries a number, a prompt and a place in the scroll. The numbers and the prompt are generated content, so they cannot be selected, cannot be found by find-in-page, and are not what the copy button puts on the clipboard: a transcript stays a transcript and still pastes into a shell.
+
+  The block does not take the page's accent, and that is a decision. Code is read against a ground chosen for code, and the twelve hues that keep a keyword apart from a string apart from a number are not the four families MD3 has. Four themes ship — `auto` (the default, following the page's scheme the way every other surface here does), `dark`, `light` and `mono` — and `theme` takes any string, so a set of `--mp-code-*` properties under a `[data-mp-code-theme]` selector in your own CSS is a theme. **No third-party palettes are ported**: One Dark, Dracula, Nord and the rest are other projects' published work under their own licences.
+
+- **`npm run measure` reports what is deferred**, because one component now defers part of itself. Each scenario is bundled twice — the second time with `highlight.js` external — and the columns report the smaller figure, which is what a page loads before it has drawn anything; the difference is printed beside it rather than dropped. `splitting: true` was the obvious way to measure the same thing and is the wrong one: esbuild emits a chunk for every `import()` it parsed, before tree shaking has decided the module is unreachable, so an `import { MPButton }` came out carrying thirty-six grammar chunks that no real build emits.
+
 - **`MPDataList`** and **`MPDataListItem`**, a list of things and what they are called: a details panel, the summary of a record, the metadata under a heading.
 
   Not a two-column `MPTable`, and the difference is the whole reason it exists. A table is a grid of rows all of the same shape, and a screen reader walks it as one — announcing column headers, offering cell-by-cell navigation, counting rows. That is right for a set of records and wrong for one record's fields, where the column headers would be _Field_ and _Value_ and neither says anything. This is a set of pairs, each announced as "label, value", which is what a details panel actually is. So it is a real `<dl>` of real `<dt>`/`<dd>` pairs.

@@ -63,6 +63,13 @@ export const es: MPLocale = {
       next: 'Desplazar hacia delante'
     },
     anchor: { label: 'En esta página' },
+    code: {
+      copy: 'Copiar',
+      copied: 'Copiado',
+      copyFailed: 'No se pudo copiar',
+      raw: 'Sin formato',
+      label: 'Código'
+    },
     breadcrumb: { label: 'Ruta de navegación', expand: 'Mostrar los pasos ocultos' },
     combobox: { empty: 'Sin coincidencias', add: 'Añadir «{label}»' },
     table: { empty: 'Sin datos' },

@@ -7814,6 +7814,208 @@ const componentTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPCodeBlock: [
+    {
+      name: 'code',
+      type: 'string',
+      required: true,
+      description: {
+        ko: '코드. 블록 끝의 공백은 잘라 냅니다 — 템플릿 리터럴은 거의 언제나 닫는 백틱 앞에 줄바꿈이 있고, 그 줄바꿈은 모든 블록 아래의 빈 줄이 됩니다. 앞쪽은 건드리지 않습니다. 여기 절반의 언어에서 들여쓰기는 뜻을 가집니다',
+        en: 'The code. Trailing whitespace is trimmed off the end — a template literal is almost always written with a newline before its closing backtick, and that newline is a blank line at the bottom of every block. Nothing is trimmed off the front, because indentation is meaningful in half of these languages'
+      }
+    },
+    {
+      name: 'language',
+      type: 'string',
+      description: {
+        ko: '무엇으로 쓰였는지 — `ts`, `bash`, `yml`, `dockerfile`. 흔한 철자와 파일 확장자를 알아듣습니다. 아무도 모르는 언어는 거부되지 않고 맨몸으로 그려집니다',
+        en: 'What it is written in — `ts`, `bash`, `yml`, `dockerfile`. The common spellings and file extensions are understood, and a language nothing here knows is drawn plain rather than refused'
+      }
+    },
+    {
+      name: 'theme',
+      type: "'auto' | 'dark' | 'light' | 'mono' | (string & {})",
+      default: "'auto'",
+      description: {
+        ko: '팔레트. 어떤 문자열이든 받고, 그것이 자기 테마를 가져오는 방법입니다 — 선택자 아래의 `--mp-code-*` 프로퍼티 묶음이면 테마입니다',
+        en: 'The palette. It takes any string, which is how to bring your own: a set of `--mp-code-*` properties under a selector is a theme'
+      }
+    },
+    {
+      name: 'highlight',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '코드를 칠합니다. 끄면 아무것도 받아 오지 않습니다 — 문법 엔진이 동적 import 뒤에 있어서, 칠하지 않는 블록은 그 안의 글자 이상을 쓰지 않습니다',
+        en: 'Colours the code. Off, nothing is fetched at all: the grammar engine is behind a dynamic import, so a block that does not colour itself costs no more than the text in it'
+      }
+    },
+    {
+      name: 'toolbar',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '코드 위의 바, 그리고 그 주 스위치. 끄면 `showLanguage`·`copyable`·`rawToggle`이 무엇이라 하든 아무것도 그리지 않습니다',
+        en: 'The bar over the code, and the master switch for it. With it off none of `showLanguage`, `copyable` or `rawToggle` draws anything whatever they say'
+      }
+    },
+    {
+      name: 'title',
+      type: NODE,
+      description: {
+        ko: '바 앞쪽의 이름, 보통 파일 경로. 언어와 함께 보일 수도 있습니다',
+        en: 'A name at the start of the bar, usually a file path. Both it and the language can be shown at once'
+      }
+    },
+    {
+      name: 'showLanguage',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '바 앞쪽에 언어 이름을 적습니다. 해석된 정식 이름입니다',
+        en: 'Names the language at the start of the bar, as the canonical name it resolved to'
+      }
+    },
+    {
+      name: 'copyable',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '코드를 클립보드에 넣는 버튼. 보안 컨텍스트가 없어도 동작하고, 셋 중 무엇이 일어났는지 말합니다',
+        en: 'The button that puts the code on the clipboard. It works without a secure context, and says which of the three things happened'
+      }
+    },
+    {
+      name: 'rawToggle',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '색을 걷어 내고 글자를 있는 그대로 보이는 토글. 기본은 꺼짐이고, `highlight`가 꺼져 있으면 아무 뜻도 없습니다',
+        en: 'The toggle that drops the colouring and shows the characters as they are. Off by default, and it means nothing at all when `highlight` is off'
+      }
+    },
+    {
+      name: 'markLines',
+      type: 'number | string | Array<number | string>',
+      description: {
+        ko: "표시할 줄 — `4`, `'4-9'`, `'1,4-9,12'`. gutter가 세는 방식으로 세고, 해석할 수 없는 것은 던지지 않고 버립니다",
+        en: "Lines to mark — `4`, `'4-9'`, `'1,4-9,12'`. Counted the way the gutter counts, and anything unparseable is dropped rather than thrown"
+      }
+    },
+    {
+      name: 'lineNumbers',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '옆에 줄 번호. 생성된 콘텐츠라서 선택되지도, 복사되지도 않습니다',
+        en: 'Numbers down the side. Generated content, so they are neither selected nor copied'
+      }
+    },
+    {
+      name: 'startLine',
+      type: 'number',
+      default: '1',
+      description: { ko: '첫 줄에 붙는 번호', en: 'What the first line is numbered' }
+    },
+    {
+      name: 'prompt',
+      type: 'string',
+      description: {
+        ko: '내용이 있는 모든 줄 앞의 셸 프롬프트 — `$`, `#`, `>>>`. 그려지지만 존재하지는 않으므로, 기록은 기록으로 남고 그대로 셸에 붙여 넣어집니다',
+        en: 'A shell prompt in front of every line that has something on it — `$`, `#`, `>>>`. Drawn but never present, so a transcript stays a transcript and still pastes into a shell'
+      }
+    },
+    {
+      name: 'wrap',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '긴 줄을 옆으로 스크롤하는 대신 줄바꿈합니다',
+        en: 'Wraps long lines instead of scrolling them sideways'
+      }
+    },
+    {
+      name: 'maxHeight',
+      type: 'number | string',
+      description: {
+        ko: '코드가 안에서 스크롤되기 전까지 블록이 커질 수 있는 높이. 숫자는 픽셀입니다',
+        en: 'How tall the block may get before the code scrolls inside it. A number is pixels'
+      }
+    },
+    {
+      name: 'fontFamily',
+      type: 'string',
+      description: {
+        ko: '서체. 기본은 페이지 자신의 monospace 스택입니다',
+        en: "The typeface. Defaults to the page's own monospace stack"
+      }
+    },
+    {
+      name: 'fontSize',
+      type: 'number | string',
+      description: {
+        ko: '`size` 사다리가 고른 크기를 덮습니다',
+        en: 'Overrides the size the `size` ladder chose'
+      }
+    },
+    {
+      name: 'lineHeight',
+      type: 'number | string',
+      description: {
+        ko: '행간을 덮습니다. 맨 숫자는 CSS에서처럼 비율입니다',
+        en: 'Overrides the leading. A bare number is a ratio, as in CSS'
+      }
+    },
+    {
+      name: 'locale',
+      type: 'string',
+      description: {
+        ko: '블록 자신의 말이 쓰이는 언어를 정하는 BCP 47 태그. 복사 버튼은 그린 글자이므로 이것이 중요합니다',
+        en: "A BCP 47 tag deciding what language the block's own words are in. The copy button is drawn text, which is what makes it matter"
+      }
+    },
+    {
+      name: 'copyLabel',
+      type: 'string',
+      default: "'Copy'",
+      description: { ko: '복사 버튼의 글자', en: "The copy button's label" }
+    },
+    {
+      name: 'copiedLabel',
+      type: 'string',
+      default: "'Copied'",
+      description: {
+        ko: '클립보드가 받아 간 뒤 그 버튼이 하는 말',
+        en: 'And what it says once the clipboard has taken it'
+      }
+    },
+    {
+      name: 'rawLabel',
+      type: 'string',
+      default: "'Plain text'",
+      description: { ko: '색 걷기 토글의 이름', en: "The raw toggle's label" }
+    },
+    {
+      name: 'onCopy',
+      type: '(code: string) => void',
+      description: {
+        ko: '클립보드가 코드를 받아 간 뒤 그 코드와 함께 호출됩니다',
+        en: 'Fires with the copied text once the clipboard has taken it'
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '글자 크기와 코드 주변의 공기',
+        en: 'The type scale and the air around the code'
+      }
+    },
+    {
+      ...density,
+      description: { ko: '그 공기만 좁힙니다', en: 'Tightens that air and nothing else' }
+    }
+  ],
+
   MPCollapsible: [
     {
       name: 'open',

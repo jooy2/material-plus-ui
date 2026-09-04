@@ -59,6 +59,13 @@ export const tr: MPLocale = {
     },
     scroll: { label: 'Kaydırılabilir içerik', previous: 'Geri kaydır', next: 'İleri kaydır' },
     anchor: { label: 'Bu sayfada' },
+    code: {
+      copy: 'Kopyala',
+      copied: 'Kopyalandı',
+      copyFailed: 'Kopyalanamadı',
+      raw: 'Düz metin',
+      label: 'Kod'
+    },
     breadcrumb: { label: 'Gezinme yolu', expand: 'Gizli adımları göster' },
     combobox: { empty: 'Eşleşme yok', add: '“{label}” ekle' },
     table: { empty: 'Veri yok' },

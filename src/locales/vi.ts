@@ -59,6 +59,13 @@ export const vi: MPLocale = {
     },
     scroll: { label: 'Nội dung có thể cuộn', previous: 'Cuộn lùi', next: 'Cuộn tiếp' },
     anchor: { label: 'Trên trang này' },
+    code: {
+      copy: 'Sao chép',
+      copied: 'Đã sao chép',
+      copyFailed: 'Không sao chép được',
+      raw: 'Văn bản thô',
+      label: 'Mã'
+    },
     breadcrumb: { label: 'Đường dẫn', expand: 'Hiện các bước đã ẩn' },
     combobox: { empty: 'Không có kết quả', add: 'Thêm “{label}”' },
     table: { empty: 'Không có dữ liệu' },

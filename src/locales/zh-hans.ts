@@ -64,6 +64,13 @@ export const zhHans: MPLocale = {
     },
     scroll: { label: '可滚动内容', previous: '向后滚动', next: '向前滚动' },
     anchor: { label: '本页内容' },
+    code: {
+      copy: '复制',
+      copied: '已复制',
+      copyFailed: '复制失败',
+      raw: '纯文本',
+      label: '代码'
+    },
     breadcrumb: { label: '面包屑导航', expand: '显示隐藏的层级' },
     combobox: { empty: '无匹配项', add: '添加“{label}”' },
     table: { empty: '暂无数据' },

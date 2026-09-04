@@ -59,6 +59,13 @@ export const ar: MPLocale = {
     },
     scroll: { label: 'محتوى قابل للتمرير', previous: 'التمرير للخلف', next: 'التمرير للأمام' },
     anchor: { label: 'في هذه الصفحة' },
+    code: {
+      copy: 'نسخ',
+      copied: 'تم النسخ',
+      copyFailed: 'تعذّر النسخ',
+      raw: 'النص الخام',
+      label: 'شفرة'
+    },
     breadcrumb: { label: 'مسار التنقل', expand: 'إظهار الخطوات المخفية' },
     combobox: { empty: 'لا توجد نتائج', add: 'إضافة ”{label}“' },
     table: { empty: 'لا توجد بيانات' },

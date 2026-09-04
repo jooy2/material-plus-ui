@@ -34,6 +34,27 @@
  * stylesheet — `build-split-styles.mjs` prints that, and adding CSS bytes to
  * JavaScript bytes produces a figure that is not any real download.
  *
+ * ## The deferred column
+ *
+ * One component defers part of itself: `MPCodeBlock` reaches its grammars
+ * through `import()`, so they arrive as their own chunks and only for a block
+ * that colours something. This measurement bundles to one file, which inlines
+ * them — so reported as-is, "everything" would carry fifty kilobytes that no
+ * page downloads before it has drawn anything.
+ *
+ * So each scenario is bundled twice, the second time with `highlight.js`
+ * external, and the difference is what the grammars cost. The two columns
+ * report the smaller figure — what is actually loaded up front — and the
+ * difference is printed beside it rather than dropped, because it is a real
+ * cost for a page that does colour a block.
+ *
+ * `splitting: true` would be the obvious way to measure the same thing and is
+ * the wrong one here: esbuild emits a chunk for every `import()` it *parsed*,
+ * before tree shaking has decided the module is unreachable. So an
+ * `import { MPButton }` came out carrying thirty-six grammar chunks that no
+ * real build emits. Subtraction asks the question the other way round and gets
+ * the answer a consumer's bundler gives.
+ *
  * ## The identity check
  *
  * `material-plus-ui/components/button` exists so that a build which gets
@@ -61,6 +82,9 @@ const entry = resolve(root, 'dist/index.js');
 /* React is always somebody else's, and is external in both columns. */
 const REACT = ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime'];
 const BASE_UI = ['@base-ui/react', '@base-ui/react/*'];
+
+/* And the grammars, which are fetched rather than loaded — see the note above. */
+const GRAMMARS = ['highlight.js', 'highlight.js/*'];
 
 /**
  * The scenarios, and why these.
@@ -142,14 +166,18 @@ const rows = [];
 
 for (const [name, names] of SCENARIOS) {
   const source = scenario(names);
-  const marginal = await bundle(source, { external: [...REACT, ...BASE_UI] });
-  const total = await bundle(source, { external: REACT });
+  const marginal = await bundle(source, { external: [...REACT, ...BASE_UI, ...GRAMMARS] });
+  const total = await bundle(source, { external: [...REACT, ...GRAMMARS] });
+  // The same bundle with the grammars inlined, which is what the difference
+  // below is measured against.
+  const whole = await bundle(source, { external: [...REACT, ...BASE_UI] });
 
   rows.push({
     name,
     count: names?.length ?? marginal.exports,
     marginal: marginal.gzip,
     total: total.gzip,
+    deferred: Math.max(0, whole.gzip - marginal.gzip),
     modules: marginal.modules
   });
 }
@@ -161,7 +189,8 @@ console.log('bundle: gzip, React external, this library on top of Base UI and wi
 for (const row of rows) {
   console.log(
     `        ${row.name.padEnd(width)}  ${kb(row.marginal).padStart(8)}` +
-      `  (+ Base UI ${kb(row.total).padStart(8)})  ${String(row.modules).padStart(3)} modules`
+      `  (+ Base UI ${kb(row.total).padStart(8)})  ${String(row.modules).padStart(3)} modules` +
+      (row.deferred > 0 ? `  + ${kb(row.deferred)} deferred` : '')
   );
 }
 
@@ -171,12 +200,12 @@ for (const row of rows) {
 const barrel = await bundle(
   `import { MPButton } from 'material-plus-ui';\nexport { MPButton };\n`,
   {
-    external: [...REACT, ...BASE_UI]
+    external: [...REACT, ...BASE_UI, ...GRAMMARS]
   }
 );
 const subpath = await bundle(
   `import { MPButton } from './dist/components/button/index.js';\nexport { MPButton };\n`,
-  { external: [...REACT, ...BASE_UI] }
+  { external: [...REACT, ...BASE_UI, ...GRAMMARS] }
 );
 
 /*
