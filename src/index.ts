@@ -78,6 +78,7 @@ export * from './components/locale';
 export * from './components/menu';
 export * from './components/menubar';
 export * from './components/meter';
+export * from './components/mockup';
 export * from './components/navigation-menu';
 export * from './components/number-field';
 export * from './components/otp-field';

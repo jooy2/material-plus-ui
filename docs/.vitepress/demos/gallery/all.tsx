@@ -79,6 +79,7 @@ import {
   MPMenuSeparator,
   MPMenubar,
   MPMenubarMenu,
+  MPMockup,
   MPNavigationMenu,
   MPNavigationMenuItem,
   MPNavigationMenuLink,
@@ -1850,6 +1851,21 @@ const GROUPS: Group[] = [
                 ))}
               </div>
             </MPScrollArea>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPMockup',
+        summary: {
+          ko: '진짜 페이지가 들어 있는 기기 그림',
+          en: 'A picture of a device with a real page inside it'
+        },
+        path: '/components/layout/mockup',
+        preview: (
+          <Fit>
+            <MPMockup device="mobile" height={110} systemUi={false}>
+              <div className="bg-mp-surface-container-high size-full" />
+            </MPMockup>
           </Fit>
         )
       },

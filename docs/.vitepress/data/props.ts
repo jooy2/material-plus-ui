@@ -11147,6 +11147,115 @@ const componentTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPMockup: [
+    {
+      name: 'device',
+      type: "'desktop' | 'tablet' | 'mobile'",
+      required: true,
+      description: {
+        ko: '무엇의 그림인지. 기본값이 없는 유일한 prop입니다 — 무엇의 목업인지 말하지 않은 목업은 아무것도 말하지 않은 것입니다',
+        en: 'Which machine this is a picture of. The one prop with no default: a mockup that has not said what it is a mockup of has not said anything'
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '화면에 있는 것', en: 'What is on the screen' }
+    },
+    {
+      name: 'os',
+      type: "'macos' | 'windows' | 'linux' | 'ios' | 'ipados' | 'android'",
+      description: {
+        ko: '화면에 그려질 크롬의 시스템. 그 기기가 돌릴 수 없는 값은 거부되지 않고 그 기기 자신의 기본값으로 떨어집니다',
+        en: 'The system whose chrome is drawn on the screen. A value the device cannot run falls back to that device’s own default rather than being refused'
+      }
+    },
+    {
+      name: 'hardware',
+      type: "'monitor' | 'laptop'",
+      default: "'monitor'",
+      description: {
+        ko: '데스크톱 화면을 무엇이 받치는지 — 아래의 스탠드, 아니면 앞의 키보드. 스스로 서는 태블릿과 폰에서는 무시됩니다',
+        en: 'What holds a desktop screen up: a stand under it, or a keyboard in front of it. Ignored on a tablet and a phone, which hold themselves up'
+      }
+    },
+    {
+      name: 'resolution',
+      type: '{ width: number; height: number }',
+      description: {
+        ko: '다섯 단계 중에 원하는 기계가 없을 때 쓰는 화면의 논리 해상도. 패널의 물리 픽셀 수가 아니라 내용이 배치되는 뷰포트입니다',
+        en: 'The screen’s logical resolution, when none of the five steps is the machine you mean. This is the viewport the content is laid out against, not the panel’s physical pixel count'
+      }
+    },
+    {
+      name: 'orientation',
+      type: "'portrait' | 'landscape'",
+      default: "'portrait'",
+      description: {
+        ko: '손에 든 기기를 어느 방향으로 쥐는지. 화면과 베젤과 컷아웃이 함께 돕니다. 스탠드가 함께 돌지 않는 데스크톱에서는 무시됩니다',
+        en: 'Which way a handheld is held. The screen, the bezel and the cut-out turn together. Ignored on a desktop, whose stand does not turn with it'
+      }
+    },
+    {
+      name: 'bezel',
+      type: "'none' | 'thin' | 'standard' | 'thick'",
+      default: "'standard'",
+      description: {
+        ko: '화면 둘레에 하드웨어가 얼마나 있는지. `none`은 더 얇은 베젤이 아니라 하드웨어가 아예 없는 것이고, `thick`은 옛날 기기입니다 — 좁은 옆면, 이마와 턱',
+        en: 'How much hardware there is around the screen. `none` is not a thinner bezel but no hardware at all; `thick` is an older device — narrow sides, a forehead and a chin'
+      }
+    },
+    {
+      name: 'finish',
+      type: "'graphite' | 'silver' | 'white'",
+      default: "'graphite'",
+      description: {
+        ko: '하드웨어의 재질. 테마 토큰이 아니라 고정 색입니다 — 그래파이트 폰은 다크로 바뀐 페이지에서도 그래파이트입니다',
+        en: 'What the hardware is made of. Fixed colours rather than theme tokens: a graphite phone stays graphite on a page switched to dark'
+      }
+    },
+    {
+      name: 'notch',
+      type: "'none' | 'notch' | 'dynamic-island' | 'punch-hole'",
+      description: {
+        ko: '카메라 컷아웃. 크롬이 아니라 하드웨어라서 `systemUi`와 무관하게 그려집니다. 기본값은 그 기기가 가졌을 것입니다',
+        en: 'The camera cut-out. Hardware rather than chrome, so it is drawn whether or not `systemUi` is on. Defaults to what the device would have'
+      }
+    },
+    {
+      name: 'systemUi',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '시스템 자신의 바를 그립니다. 각각이 덮는 대신 자기 자리를 차지하므로, 끄면 숨겨진 것이 드러나는 게 아니라 화면이 `children`에게 돌아갑니다',
+        en: 'Draws the system’s own bars. Each takes its own room rather than covering the content, so turning it off gives the screen back to `children` rather than uncovering anything'
+      }
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      description: {
+        ko: '페이지에 그려지는 그림 전체의 너비. 생략하면 주어진 너비를 채웁니다. 기기는 언제나 자기 해상도로 배치된 뒤 축소되므로, 이것은 그림의 크기를 바꿀 뿐 안의 내용이 생각하는 뷰포트를 바꾸지 않습니다',
+        en: 'The rendered width of the whole picture. Left out it fills the width it is given. The device is always laid out at its own resolution and then scaled, so this changes how big the picture is and never what the content thinks the viewport is'
+      }
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      description: {
+        ko: '그려지는 높이. 이것만 주면 크기가 여기서 정해지고 너비가 따라옵니다',
+        en: 'The rendered height. Given on its own it decides the size and the width follows'
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '기기마다 다섯 개의 실제 해상도 중 하나. `MPBox`에서처럼 높이도 글자 크기도 정하지 않습니다 — 기기에서 크기를 매길 수 있는 것은 화면의 해상도뿐입니다',
+        en: 'One of five real resolutions per device. As on `MPBox` it sets neither a height nor a type scale: the resolution of the screen is the only thing about a device there is to scale'
+      }
+    }
+  ],
+
   MPNavigationMenu: [
     {
       name: 'orientation',

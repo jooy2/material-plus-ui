@@ -6,6 +6,16 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **`MPMockup`**, a picture of a device with a real page inside it. Three devices, six systems, four bezels, three finishes and four camera cut-outs, and the point of all of it is the screen: `children` are laid out against the machine's own resolution — 390 by 844 for a phone at `md` — and the whole device is then scaled once to whatever room it was given. A layout inside wraps where it would wrap on the machine rather than where it would wrap in the box the picture fits in.
+
+  **That scale is a `transform`, and it is the one place in this library that uses one.** The rule it is an exception to is about controls: a scaled button is a button whose text was resampled at the moment it was pressed. Nothing here is pressed, and the scale changes only when the room does. What is _not_ an exception is the media query — `@media (max-width: 600px)` inside a phone mockup on a laptop is false and always will be, because nothing on a page can change what the window is. Content that has to respond inside the frame wants a container query, which the documentation says.
+
+  `size` sets neither a height nor a type scale here, as on `MPBox`. It picks between five **real** resolutions per device, because the number that matters is the one a media query fires at: a layout checked at 390 and 430 has been checked at the two widths most phones actually are.
+
+  Hardware is a photograph and software is a page. The finishes are fixed colours and do not follow the theme — a graphite phone stays graphite on a page switched to dark — while the chrome on the screen is drawn from `surface` and `on-surface`, so the frame stays a frame around your page rather than a picture of somebody else's screenshot. The exception inside the exception is macOS's three window lights, which are a shape rather than a surface.
+
+  Every system bar takes its own room rather than covering the content, so `systemUi={false}` gives the screen back to `children` rather than uncovering anything. The cut-out is the other way round: it is hardware, drawn whether or not the chrome is, because a phone does not stop having a camera because the status bar was turned off.
+
 - **`MPFloatingBottomNavigation`**, the same row of destinations as `MPBottomNavigation`, lifted clear of the bottom edge so the content keeps going underneath. The same `<nav>`, the same `MPBottomNavigationItem` children, the same `aria-current="page"` and the same refusal of `role="tablist"`.
 
   Everything about the shape follows from `offset`. Because the page runs below it the sheet is a stadium rather than a bar with two corners; it is only as wide as its destinations, so those are as wide as their own contents rather than a share of the screen; it carries a shadow by default, because a lozenge lying flat over what it floats above reads as a mistake; and it names only the destination the reader is on, since five drawn names would stretch it back into a bar.
