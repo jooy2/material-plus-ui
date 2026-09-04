@@ -119,6 +119,7 @@ import {
   MPToggle,
   MPToggleGroup,
   MPTimelineItem,
+  MPToolbar,
   MPTooltip,
   MPTransfer,
   MPStep,
@@ -1829,6 +1830,29 @@ const GROUPS: Group[] = [
                 ))}
               </div>
             </MPScrollArea>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPToolbar',
+        summary: {
+          ko: '컨트롤이 늘어선 바. 슬롯 셋과 행 하나',
+          en: 'A bar of controls — three slots and a row'
+        },
+        path: '/components/layout/toolbar',
+        preview: (
+          <Fit>
+            <MPToolbar
+              size="xs"
+              variant="filled"
+              start={<MPTypography level="caption">Voltage</MPTypography>}
+              end={
+                <MPButton size="xs" variant="filled">
+                  Deploy
+                </MPButton>
+              }
+              style={{ width: '100%' }}
+            />
           </Fit>
         )
       },

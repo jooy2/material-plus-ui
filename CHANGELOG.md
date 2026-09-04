@@ -6,6 +6,14 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **`MPToolbar`**, a bar of controls: an application header, a page's action row, the strip along the bottom of an editor. `start` and `end` are pinned to their ends and `children` takes what is left — the arrangement every toolbar has ever had, laid out here rather than left to a caller and the spacer `<div>` they have to remember. The middle stays `flex-1` even when empty, or a bar with only a logo and a button collapses the two together in the centre.
+
+  It takes no height. A toolbar is as tall as the controls in it plus its padding, and that padding is the `size`/`density` pair every other surface uses, so the dense bar is `density={-2}` rather than a second prop meaning the same thing.
+
+  **It has no `role="toolbar"`, deliberately.** That role is a promise about keyboard behaviour — one tab stop for the bar, arrow keys between the controls in it — and a bar that claims it without implementing it is worse for a keyboard reader than one that claimed nothing. A page header wants `render={<header />}`, which is a landmark and is true; a genuine roving-focus toolbar wants `MPButtonGroup`, which is one.
+
+  `elevation` is unset by default, so the bar is flat even when it is pinned: a shadow under a header says "there is content beneath this", which is only true once the page has been scrolled. A pinned bar also drops its corners, because a rounded corner against the edge of the screen is a gap with nothing behind it.
+
 - **`MPCodeBlock`**, a viewer for one line of code or a thousand. Coloured, numbered, marked, copied, wrapped, scrolled — each off one prop, because the same component has to be a snippet inside a sentence and the full transcript at the top of a README, and those are one block with different things turned on rather than two components.
 
   **This adds `highlight.js` as the package's second runtime dependency** (BSD-3-Clause), and it is the only one that is _loaded_ rather than imported. Every grammar sits behind an `import()`: a block with `highlight={false}` fetches nothing at all, a block that colours TypeScript fetches the core and TypeScript and not the other thirty-three, and a page with no code block downloads none of it. `registerMPLanguage` is how a thirty-fifth language arrives, on the same arrangement `registerMPMessages` makes for the eighteen locales.

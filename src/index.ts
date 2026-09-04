@@ -114,6 +114,7 @@ export * from './components/time-picker';
 export * from './components/timeline';
 export * from './components/toggle';
 export * from './components/toggle-group';
+export * from './components/toolbar';
 export * from './components/tooltip';
 export * from './components/transfer';
 export * from './components/typography';

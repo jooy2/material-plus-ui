@@ -3635,6 +3635,93 @@ const componentTables: Record<string, PropRow[]> = {
     { ...color, default: "'secondary'" }
   ],
 
+  MPToolbar: [
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '가운데. `start`와 `end`가 남긴 너비를 가지며, 비어 있어도 자리를 지킵니다',
+        en: 'The middle. Takes whatever width `start` and `end` leave, and holds its place even when empty'
+      }
+    },
+    {
+      name: 'start',
+      type: NODE,
+      description: {
+        ko: '바 시작 쪽에 고정되는 것 — 로고, 제목, 뒤로 가기 버튼',
+        en: 'Pinned to the start of the bar: a logo, a title, a back button'
+      }
+    },
+    {
+      name: 'end',
+      type: NODE,
+      description: { ko: '끝 쪽에 고정되는 것 — 액션들', en: 'Pinned to the end: the actions' }
+    },
+    {
+      name: 'position',
+      type: "'static' | 'sticky' | 'fixed' | 'absolute'",
+      default: "'static'",
+      description: {
+        ko: '바가 페이지 스크롤 안에 어떻게 앉는지. `sticky`는 자기 자리를 차지하고, `fixed`는 흐름 밖으로 나가므로 페이지가 스스로 여백을 줘야 합니다. 고정된 바는 모서리를 버립니다',
+        en: "How the bar sits in the page's scroll. `sticky` takes up its own room; `fixed` leaves the flow, so the page needs padding of its own. A pinned bar drops its corners"
+      }
+    },
+    {
+      name: 'side',
+      type: "'top' | 'bottom'",
+      default: "'top'",
+      description: {
+        ko: '`position`이 `static`이 아닐 때 어느 가장자리에 붙는지',
+        en: 'Which edge it is held against when `position` is not `static`'
+      }
+    },
+    {
+      name: 'divider',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '내용을 향한 가장자리에 실선을 긋습니다 — `top` 바 아래, `bottom` 바 위',
+        en: 'Draws a hairline along the edge that faces the content — under a `top` bar, over a `bottom` one'
+      }
+    },
+    {
+      name: 'render',
+      type: 'RenderProp',
+      description: {
+        ko: '`<div>` 대신 다른 것을 렌더합니다. 여기서는 다른 어디서보다 손이 자주 갑니다 — 페이지의 헤더는 `<header>`여야 합니다',
+        en: "Renders something other than a `<div>`. Worth reaching for here more than anywhere else: a page's header should be a `<header>`"
+      }
+    },
+    {
+      ...containerVariant,
+      description: {
+        ko: '바가 칠하는 면의 양. 컨테이너의 사다리라서 바는 결코 물들지 않습니다 — 툴바는 남의 컨트롤을 담고, 그 컨트롤은 자기 색을 가지고 옵니다',
+        en: "How much surface the bar paints. A container's ladder, so the bar is never dyed: a toolbar holds other people's controls, and those arrive with colours of their own"
+      }
+    },
+    {
+      ...elevation,
+      description: {
+        ko: '페이지에서 얼마나 떠 있는지. 설정하지 않으면 고정된 바도 평평합니다 — 헤더 아래의 그림자는 페이지를 스크롤한 뒤에야 사실이 되는 말입니다',
+        en: 'How far off the page it is lifted. Left unset the bar is flat even when pinned: a shadow under a header is a claim that only becomes true once the page has been scrolled'
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '안쪽 여백. `MPBox`에서처럼 높이도 글자 크기도 정하지 않습니다 — 툴바는 안의 컨트롤만큼 높습니다',
+        en: 'The room inside. As on `MPBox` it sets neither a height nor a type scale: a toolbar is as tall as the controls in it'
+      }
+    },
+    {
+      ...density,
+      description: {
+        ko: '그 여백에서 한 면당 2픽셀씩 덜어 냅니다',
+        en: 'Takes room out of that padding, two pixels a face per step'
+      }
+    }
+  ],
+
   MPTooltip: [
     {
       name: 'content',
