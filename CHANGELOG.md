@@ -6,6 +6,16 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **`MPDataList`** and **`MPDataListItem`**, a list of things and what they are called: a details panel, the summary of a record, the metadata under a heading.
+
+  Not a two-column `MPTable`, and the difference is the whole reason it exists. A table is a grid of rows all of the same shape, and a screen reader walks it as one — announcing column headers, offering cell-by-cell navigation, counting rows. That is right for a set of records and wrong for one record's fields, where the column headers would be _Field_ and _Value_ and neither says anything. This is a set of pairs, each announced as "label, value", which is what a details panel actually is. So it is a real `<dl>` of real `<dt>`/`<dd>` pairs.
+
+  `MPDataListItem` renders a fragment rather than a wrapper, because the two elements have to be direct children of the `<dl>` for the grid to line every label up against every other. It carries no `size` or `density` of its own either — those belong to the list.
+
+  `dividers` behaves differently in the two orientations, and has to. A horizontal pair shares a grid row, so the hairline goes on both halves to reach across; a vertical pair is two rows, and a line on the `<dd>` would divide a label from its own value — the one place in the list with nothing to divide.
+
+  The gaps are custom properties rather than the literal class tables the rest of the library keeps, and this is the one component where that is the smaller answer: both gaps are read in four places across five rungs and four density steps, which written out is sixty strings for two numbers that then have to agree with each other by hand. It also makes the density step exact — 4dp off the gap, because a row here has no height of its own and the gap is the whole of what there is to take.
+
 - **`MPAppLogo`**, a product's mark at a known size that is never an empty box. Four things can be it and exactly one is at a time: markup handed to `children`, an image at `src`, the initials of `name` on a tile, or — with no tile to put them on — the name itself set as the logotype. That last one is the point: `<MPAppLogo name="Voltage" />` is a logo for a product that has not drawn one yet, and swapping it for the real file later is one prop.
 
   What it adds over an `<img>` is the framing, which is the decision an image tag cannot make: a mark drawn as a bare glyph and a mark drawn with its own background need opposite treatment, and which of the two a file is cannot be worked out from the file. `bare` keeps the artwork's own proportions and draws nothing behind it — the default, because a logo file very often has the product's name set into it — while `app` and `circle` inset it into a tile of the page's own colour.

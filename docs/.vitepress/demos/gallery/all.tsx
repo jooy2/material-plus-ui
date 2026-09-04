@@ -45,6 +45,8 @@ import {
   MPCommandPalette,
   MPContainer,
   MPCalendar,
+  MPDataList,
+  MPDataListItem,
   MPDatePicker,
   MPDateRangePicker,
   MPDateTimePicker,
@@ -1340,6 +1342,23 @@ const GROUPS: Group[] = [
             <MPAppLogo name="Voltage" shape="circle" variant="tonal" color="tertiary" size="sm" />
             <MPAppLogo name="Voltage" size="sm" />
           </MPFlex>
+        )
+      },
+      {
+        name: 'MPDataList',
+        summary: {
+          ko: '무엇들과 그것들의 이름. 상세 패널이 취하는 모양',
+          en: 'A list of things and what they are called — the shape a details panel takes'
+        },
+        path: '/components/display/data-list',
+        preview: (
+          <Fit>
+            <MPDataList size="sm" density={-1} style={{ width: '100%' }}>
+              <MPDataListItem label="Status">Active</MPDataListItem>
+              <MPDataListItem label="Owner">Priya Raman</MPDataListItem>
+              <MPDataListItem label="Deployed">4 Mar 2026</MPDataListItem>
+            </MPDataList>
+          </Fit>
         )
       },
       {

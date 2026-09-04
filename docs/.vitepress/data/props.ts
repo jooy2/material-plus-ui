@@ -8231,6 +8231,74 @@ const componentTables: Record<string, PropRow[]> = {
     id
   ],
 
+  MPDataList: [
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '쌍들. `MPDataListItem` 하나가 쌍 하나입니다',
+        en: 'The pairs. One `MPDataListItem` is one of them'
+      }
+    },
+    {
+      name: 'orientation',
+      type: "'horizontal' | 'vertical'",
+      default: "'horizontal'",
+      description: {
+        ko: '레이블이 값 옆에 서는지 위에 서는지. `vertical`은 좁은 열과, 옆에 레이블을 두면 행 대부분이 비는 긴 값에 씁니다',
+        en: 'Whether the label sits beside the value or above it. `vertical` is for a narrow column, and for values long enough that a label beside them would leave most of the row empty'
+      }
+    },
+    {
+      name: 'labelWidth',
+      type: 'number | string',
+      description: {
+        ko: '`horizontal`일 때 레이블 열의 너비. 숫자는 픽셀입니다. 생략하면 가장 긴 레이블만큼 넓어지고, 그것이 모든 값을 같은 자리에서 시작하게 합니다',
+        en: 'How wide the label column is when `horizontal`. A number is pixels. Left out it is as wide as the widest label, which is what keeps every value starting at the same place'
+      }
+    },
+    {
+      name: 'dividers',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '쌍 사이에 실선을 긋습니다. 가로 쌍은 양쪽을 가로지르고, 세로 쌍은 레이블에만 붙습니다 — 레이블과 자기 값 사이는 나눌 것이 없는 자리입니다',
+        en: 'Draws a hairline between the pairs. It reaches across both halves of a horizontal pair and sits on the label only in a vertical one, where between a label and its own value is the one place with nothing to divide'
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '레이블과 값의 글자 크기, 그리고 그에 딸린 간격',
+        en: 'The type the labels and values are set in, and the gaps that follow from it'
+      }
+    },
+    {
+      ...density,
+      description: {
+        ko: '두 간격만 좁힙니다. 여기서 한 줄에는 자기 높이가 없어서 간격이 가져갈 수 있는 전부입니다',
+        en: 'Tightens the two gaps and nothing else. A row here has no height of its own — the gap is the whole of what there is to take'
+      }
+    }
+  ],
+
+  MPDataListItem: [
+    {
+      name: 'label',
+      type: NODE,
+      required: true,
+      description: { ko: '값의 이름', en: 'What the value is called' }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '값. 노드라서 칩이나 링크, 코드 조각도 들어갑니다',
+        en: 'The value. A node, so a chip, a link or a piece of code all fit'
+      }
+    }
+  ],
+
   MPDatePicker: [
     {
       name: 'value',
