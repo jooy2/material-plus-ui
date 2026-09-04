@@ -48,6 +48,14 @@ What is _not_ inline is the row's own background, because it has a hover state a
 
 `striped` and `hoverable` are two neutral surfaces one step apart rather than a tint. A table that alternates between white and pale blue has coloured half its data.
 
+`density` walks that row down: 52, 48, 44, 40, four pixels a step, and the figures stay the size they were. That last part is the point — the reason to make a table denser is to see more rows at once, and shrinking the numbers to get there makes them harder to read at exactly the moment there are more of them.
+
+```tsx
+<MPTable headers={columns} items={rows} density={-2} />
+```
+
+The cell padding is arithmetic here rather than a lookup, because it is written inline: each step takes two pixels off each face, which is four out of the row. The two axes bottom out in different places — 6px sideways, where two columns start touching, and 4px vertically, which is what keeps the shortest row on the 24px floor.
+
 ## `onRowClick` makes rows reachable by keyboard
 
 A row that answers a press has to answer a keyboard too, so each one joins the tab order and takes Enter and Space. The row keeps `role="row"` rather than claiming `role="button"` — a row that said it was a button would lose the position-in-the-table a screen reader reads out, which is the one thing a cell has that a button does not.

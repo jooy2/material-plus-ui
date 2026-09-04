@@ -42,6 +42,27 @@ Each rung's vertical padding is the leading of that rung's body role subtracted 
 
 So a one-line row and the button beside it are the same height without either knowing about the other.
 
+## `density` keeps that promise
+
+A list is what density was invented for. It is one row repeated, and how many of them a reader can see at once is most of what makes it usable — so `density` takes room out of every row without touching what the row is set in.
+
+| `density` | `md` row | Same as        |
+| --------- | -------- | -------------- |
+| `0`       | 56px     | a `md` control |
+| `-1`      | 52px     | `lg` at `-2`   |
+| `-2`      | 48px     | —              |
+| `-3`      | 44px     | —              |
+
+Every step lands on a height the control ladder already has a name for, which is what keeps the row and the button beside it lined up at any density. The text stays where it was: a denser list is the same words in less room, not smaller words.
+
+`xs` runs out after two steps and stays at 24px, because that is where a row stops being something a finger can hit. See [`density`](../../design/prop-conventions#density).
+
+```tsx
+<MPList density={-1}>
+  <MPListItem>Inbox</MPListItem>
+</MPList>
+```
+
 ## `dividers` changes more than it sounds like
 
 With the rules on, they have to reach both edges of the sheet — so the list gives up its inner padding and the rows give up their rounded corners. A row cannot be a floating tile and a ruled line at the same time.

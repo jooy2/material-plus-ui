@@ -1,9 +1,10 @@
 /**
- * The two prop defaults an application can move for the whole page.
+ * The prop defaults an application can move for the whole page.
  *
- * `size` and `color` are the only axes where every component in this library
- * starts from the *same* answer — `md` and `primary` — which is what makes a
- * single app-wide default meaningful for them and meaningless for anything else.
+ * `size`, `color` and `density` are the only axes where every component that has
+ * them starts from the *same* answer — `md`, `primary` and `0` — which is what
+ * makes a single app-wide default meaningful for them and meaningless for
+ * anything else.
  * A `variant` default is per component by design (`MPAccordion` is `outlined`,
  * `MPAlert` is `tonal`, `MPBadge` is `filled`), so one global value would be
  * overwriting six considered decisions with one arbitrary one.
@@ -26,12 +27,13 @@
  * has to reach every call site is exactly what context is for.
  */
 import * as React from 'react';
-import type { MPColor, MPSize, MPWindowClass } from '../types';
+import type { MPColor, MPDensity, MPSize, MPWindowClass } from '../types';
 
 /** What an `MPConfigProvider` can set. Anything unset is inherited, then default. */
 export interface MPConfigValue {
   size?: MPSize;
   color?: MPColor;
+  density?: MPDensity;
   /**
    * Where the window size classes begin, for the JavaScript half of the library.
    *
@@ -76,4 +78,18 @@ export function useMPColor(color: MPColor | undefined): MPColor {
   const config = React.useContext(MPConfigContext);
 
   return color ?? config.color ?? 'primary';
+}
+
+/**
+ * The third axis with an app-wide default, and the one most likely to be set
+ * once and never again: a product decides how dense it is at the top, not per
+ * table.
+ *
+ * Only the components that hold things read it, so a page set to `-2` tightens
+ * its lists and leaves its buttons at the height they have to be.
+ */
+export function useMPDensity(density: MPDensity | undefined): MPDensity {
+  const config = React.useContext(MPConfigContext);
+
+  return density ?? config.density ?? 0;
 }

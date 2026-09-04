@@ -5,8 +5,8 @@ import { TABLE } from '../../internal/messages/table';
 import { cssLength } from '../../internal/length';
 import { META_TEXT } from '../../internal/scale';
 import { CONTAINER_SURFACE } from '../../internal/surface';
-import { useMPColor, useMPSize } from '../../internal/config';
-import type { MPAlign, MPColor, MPSize, MPVariant } from '../../types';
+import { useMPColor, useMPDensity, useMPSize } from '../../internal/config';
+import type { MPAlign, MPColor, MPDensity, MPSize, MPVariant } from '../../types';
 
 /** Which edge the text in a column lines up against. */
 export type MPTableAlign = MPAlign;
@@ -135,6 +135,17 @@ export interface MPTableProps<Row> extends Omit<
    * @default 'primary'
    */
   color?: MPColor;
+  /**
+   * Takes room out of every cell without changing what it is set in.
+   *
+   * The axis a table is most often asked for: the reason to make one denser is
+   * to see more rows at once, and shrinking the type to get there makes the
+   * figures harder to read at exactly the moment there are more of them. Each
+   * step is MD3's four pixels off the row — `md` goes 52, 48, 44, 40 — and the
+   * text stays where it was.
+   * @default 0
+   */
+  density?: MPDensity;
 }
 
 /**
@@ -147,16 +158,21 @@ export interface MPTableProps<Row> extends Omit<
  * that a one-class Tailwind utility cannot outrank. Padding, alignment and
  * borders all silently lost to the host before this was inline.
  *
- * The numbers are `SHEET_PAD_X`'s, in rem: the Tailwind spacing scale is
- * 0.25rem a step, so `px-4` and `1rem` are the same measurement written twice.
- * Keep them in step.
+ * The numbers are `SHEET_PAD_X`'s, in CSS pixels — the Tailwind spacing scale is
+ * 0.25rem a step, so `px-4` and 16 are the same measurement written twice. Keep
+ * them in step.
+ *
+ * Pixels rather than the rem strings this used to hold, because these are the
+ * one padding track in the library that is arithmetic rather than a lookup: an
+ * inline length can be *computed*, so the density steps below are a subtraction
+ * instead of the three-column table every class-based track needs.
  */
-const CELL_PAD_X: Record<MPSize, string> = {
-  xs: '0.625rem',
-  sm: '0.75rem',
-  md: '1rem',
-  lg: '1.25rem',
-  xl: '1.5rem'
+const CELL_PAD_X: Record<MPSize, number> = {
+  xs: 10,
+  sm: 12,
+  md: 16,
+  lg: 20,
+  xl: 24
 };
 
 /**
@@ -166,13 +182,36 @@ const CELL_PAD_X: Record<MPSize, string> = {
  * `1rem` either side is 52 exactly. The rungs above and below walk out from
  * there.
  */
-const CELL_PAD_Y: Record<MPSize, string> = {
-  xs: '0.375rem',
-  sm: '0.625rem',
-  md: '1rem',
-  lg: '1.25rem',
-  xl: '1.5rem'
+const CELL_PAD_Y: Record<MPSize, number> = {
+  xs: 6,
+  sm: 10,
+  md: 16,
+  lg: 20,
+  xl: 24
 };
+
+/** A pixel count as the unit the cells are written in. */
+function rem(px: number): string {
+  return `${px / 16}rem`;
+}
+
+/**
+ * The cell padding at a density step: two pixels off each face, which is MD3's
+ * four off the row.
+ *
+ * The two axes bottom out in different places because they are answering
+ * different questions. Sideways it is the room between one column and the next,
+ * and 6px is where two numbers start touching. Vertically it is the row height,
+ * and 4px is what keeps the shortest row — `body-small`'s 16px line box at `xs`
+ * — on the 24px floor `MPDensity` names.
+ */
+function cellPadX(size: MPSize, density: MPDensity): string {
+  return rem(Math.max(6, CELL_PAD_X[size] + density * 2));
+}
+
+function cellPadY(size: MPSize, density: MPDensity): string {
+  return rem(Math.max(4, CELL_PAD_Y[size] + density * 2));
+}
 
 /**
  * What a cell is set in. MD3's data table puts its cells in `body-medium` and
@@ -274,15 +313,17 @@ export function MPTable<Row>({
   variant = 'outlined',
   size: sizeProp,
   color: colorProp,
+  density: densityProp,
   className,
   style,
   ...props
 }: MPTableProps<Row>) {
   const size = useMPSize(sizeProp);
   const color = useMPColor(colorProp);
+  const density = useMPDensity(densityProp);
   const messages = useMPMessages(TABLE, useMPLocale(localeProp));
-  const padX = CELL_PAD_X[size];
-  const padY = CELL_PAD_Y[size];
+  const padX = cellPadX(size, density);
+  const padY = cellPadY(size, density);
   const clickable = Boolean(onRowClick);
   const lit = hoverable || clickable;
 

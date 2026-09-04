@@ -339,15 +339,15 @@ Gzipped, from a real bundler, with React and `@base-ui/react` held external — 
 
 | On the page           | JavaScript | Stylesheet, split |
 | --------------------- | ---------- | ----------------- |
-| `MPBox` alone         | 0.4 kB     | 3.8 kB            |
+| `MPBox` alone         | 0.6 kB     | 3.9 kB            |
 | `MPButton` alone      | 3.0 kB     | 4.4 kB            |
-| Five components       | 7.7 kB     | 6.9 kB            |
-| Ten components        | 12.0 kB    | 9.7 kB            |
-| Every export there is | 85.7 kB    | 17.4 kB           |
+| Five components       | 7.9 kB     | 7.0 kB            |
+| Ten components        | 12.2 kB    | 9.8 kB            |
+| Every export there is | 86.2 kB    | 17.4 kB           |
 
 Two things to read off it. The first column is marginal: a component you did not import is not in it, which is what `sideEffects`, the build's `@__PURE__` annotations and a message table per namespace are all for. The second column is not marginal — a stylesheet is a file you either imported or did not — so it assumes the list of sheets matches what the page renders.
 
-Base UI is the larger half of a real download and is in neither column. Five components come to 18.8 kB with it bundled in and ten to 91.5 kB, but it is a peer dependency: shared with anything else that uses it, and versioned by you.
+Base UI is the larger half of a real download and is in neither column. Five components come to 19.2 kB with it bundled in and ten to 91.9 kB, but it is a peer dependency: shared with anything else that uses it, and versioned by you.
 
 Both sets of figures are printed by the build rather than remembered, so they cannot quietly stop being true.
 

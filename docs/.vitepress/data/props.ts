@@ -37,6 +37,16 @@ const VARIANT = "'filled' | 'tonal' | 'elevated' | 'outlined' | 'text'";
  * the drift `MPSize` exists to prevent, and two hand-written tables is how that
  * happens.
  */
+const density: PropRow = {
+  name: 'density',
+  type: '0 | -1 | -2 | -3',
+  default: '0',
+  description: {
+    ko: '내용을 담는 컴포넌트를 얼마나 조일지. 머터리얼의 밀도 척도이고, 한 단계마다 4dp가 줄어듭니다. 줄어드는 것은 여백뿐이라 글자 크기는 그대로입니다',
+    en: "How tightly a component that holds things is packed. Material's own density scale, four pixels a step — and it takes the room only, so the type scale does not move"
+  }
+};
+
 const size: PropRow = {
   name: 'size',
   type: SIZE,
@@ -2543,6 +2553,13 @@ const componentTables: Record<string, PropRow[]> = {
       }
     },
     {
+      ...density,
+      description: {
+        ko: '행에서 여백을 덜어냅니다. 한 단계마다 행이 컨트롤 사다리의 한 칸씩 낮아져서, 조밀한 리스트도 옆의 컨트롤과 높이가 맞습니다',
+        en: 'Takes room out of every row. Each step lands it exactly one rung down the control ladder, so a dense list still lines up with the controls beside it'
+      }
+    },
+    {
       ...color,
       description: {
         ko: '고르거나 가리킨 행이 읽어들일 계열. 면 자체는 물들지 않습니다',
@@ -2723,6 +2740,13 @@ const componentTables: Record<string, PropRow[]> = {
       }
     },
     size,
+    {
+      ...density,
+      description: {
+        ko: '셀에서 여백을 덜어냅니다. MD3의 52dp 행이 48, 44, 40으로 내려가고 숫자 크기는 그대로입니다',
+        en: "Takes room out of every cell. MD3's 52dp row walks 48, 44, 40, and the figures stay the size they were"
+      }
+    },
     {
       ...color,
       description: {
@@ -5043,6 +5067,13 @@ const componentTables: Record<string, PropRow[]> = {
     },
     size,
     {
+      ...density,
+      description: {
+        ko: '메시지를 줄이지 않고 여백만 덜어냅니다. 여러 개를 쌓아 보여 주는 화면에서 첫 단계가 가장 크게 듣습니다',
+        en: 'Takes room out without shrinking the message. The first step is the one that pays on a screen showing several at once'
+      }
+    },
+    {
       name: 'title',
       type: NODE,
       description: {
@@ -5339,6 +5370,13 @@ const componentTables: Record<string, PropRow[]> = {
       }
     },
     {
+      ...density,
+      description: {
+        ko: '각 섹션의 헤더와 본문에서 여백을 덜어냅니다',
+        en: "Takes room out of every section's header and body"
+      }
+    },
+    {
       name: 'hiddenUntilFound',
       type: 'boolean',
       default: 'false',
@@ -5424,6 +5462,13 @@ const componentTables: Record<string, PropRow[]> = {
       description: {
         ko: '안쪽 여백, 그리고 **그것뿐입니다**. 높이도 타입 스케일도 정하지 않는 유일한 컴포넌트입니다 — 박스는 담은 것만큼 높고, 자식들은 자기 타이포그래피를 가지고 옵니다. 모서리도 사다리에 없어서 어느 단계에서나 `corner-medium`입니다',
         en: 'The room inside, and **nothing else**. The one component where a rung sets no height and no type scale: a box is as tall as what it holds, and its children bring their own typography. The corner is not on the ladder either — a sheet is `corner-medium` at every rung'
+      }
+    },
+    {
+      ...density,
+      description: {
+        ko: '`size`가 고른 여백에서 한 면당 2px씩 덜어냅니다. 박스에서는 여백이 `size`의 전부이므로 이것이 밀도의 전부이기도 합니다',
+        en: 'Takes two pixels a face out of the padding `size` chose. On a box that is the whole of what density can mean, because padding is the whole of what `size` does'
       }
     },
     {
@@ -6366,6 +6411,13 @@ const componentTables: Record<string, PropRow[]> = {
       description: {
         ko: '구획들의 안쪽 여백과 본문의 타입 스케일. 모서리는 사다리에 없습니다 — 카드는 어느 단계에서나 `corner-medium`입니다',
         en: "The room inside the sections, and the body's type scale. The corner is not on the ladder: a card is `corner-medium` at every rung"
+      }
+    },
+    {
+      ...density,
+      description: {
+        ko: '시트와 각 섹션의 여백을 함께 덜어냅니다',
+        en: 'Takes room out of the sheet and out of every section on it'
       }
     },
     {
@@ -8802,6 +8854,14 @@ const componentTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'density',
+      type: '0 | -1 | -2 | -3',
+      description: {
+        ko: '아래의 모든 컨테이너가 시작하는 밀도. 컨테이너만 읽으므로 리스트와 표는 조여지고 컨트롤은 손가락에 필요한 높이를 지킵니다',
+        en: 'The density every container under this starts at. Only the containers read it, so the lists and tables tighten and the controls keep the height a finger needs'
+      }
+    },
+    {
       name: 'breakpoints',
       type: 'Partial<Record<MPWindowClass, number>>',
       description: {
@@ -9161,6 +9221,13 @@ const componentTables: Record<string, PropRow[]> = {
       }
     },
     {
+      ...density,
+      description: {
+        ko: '바의 좌우 여백을 덜어냅니다. 높이 하한은 `size`의 것이라 움직이지 않습니다 — 위치로 찾는 바가 화면마다 다른 자리에 있으면 안 되기 때문입니다',
+        en: "Takes room out of the bar's gutter. The height floor is `size`'s and stays put: the bar is the part of a screen a reader locates by position"
+      }
+    },
+    {
       name: 'maxWidth',
       type: 'MPResponsive<MPMeasure>',
       default: "'none'",
@@ -9222,6 +9289,13 @@ const componentTables: Record<string, PropRow[]> = {
       description: {
         ko: '시트의 좌우 여백과 위아래 공기. [MPBox](./box)에서처럼 여기서의 `size`는 *시트*의 크기입니다 — 높이도 타입 스케일도 정하지 않습니다',
         en: "The sheet's gutter and the air above and below its content. As on [MPBox](./box), `size` here is the size of the *sheet*: it sets no height and no type scale"
+      }
+    },
+    {
+      ...density,
+      description: {
+        ko: '좌우 여백과 위아래 공기를 덜어냅니다',
+        en: 'Takes room out of the gutter and the air above and below the content'
       }
     },
     {
@@ -9424,6 +9498,13 @@ const componentTables: Record<string, PropRow[]> = {
       description: {
         ko: '열의 기본 폭과 내용 주변의 공기. `md`는 360px로 MD3 자신의 navigation drawer이고, [MPDrawer](./drawer)가 그려지는 것과 같은 단입니다',
         en: "The column's default width and the air around its content. `md` is 360px, MD3's own navigation drawer and the same rung [MPDrawer](./drawer) is drawn at"
+      }
+    },
+    {
+      ...density,
+      description: {
+        ko: '내용 주위의 공기를 덜어냅니다. 너비는 `size`의 것이라 움직이지 않습니다',
+        en: "Takes room out of the air around the content. The width is `size`'s and does not move"
       }
     },
     {

@@ -12,7 +12,7 @@ order: 3
 ```tsx
 import { MPConfigProvider } from 'material-plus-ui';
 
-<MPConfigProvider size="sm" color="tertiary" locale="ko">
+<MPConfigProvider size="sm" color="tertiary" density={-1} locale="ko">
   <App />
 </MPConfigProvider>;
 ```
@@ -41,13 +41,21 @@ A `size` written on a button beats everything. An [`MPButtonGroup`](../component
 </MPConfigProvider>
 ```
 
-## Why these two and not a theme
+## Why these three and not a theme
 
 Everything a theme normally holds is already a **CSS custom property** here — the colour roles, the type scale, the corners, the motion durations. Those reach a component through the cascade, which means a section of a page can differ from the rest without a provider at all and without a re-render. A JavaScript theme object would be a second place the same values live, and the two would drift. See [Colour](../design/color.md) for how the token side works.
 
 `size` is the one thing that cannot travel that way. It resolves to **literal Tailwind class strings** — `h-14`, `text-mp-body-large` — because Tailwind finds classes by scanning source text, and an interpolated `h-${n}` generates no rule at all. A value that cannot be a custom property and still has to reach every call site is exactly what context is for.
 
 `color` joins it because the two are the axes a whole product is usually set on together, and because a `color` prop is a _role name_ rather than a colour: changing what `primary` **is** stays a token, and this only changes which of the four roles a control reads.
+
+`density` joins them for the first reason: it resolves to class strings exactly as `size` does. It is also the one of the three most likely to be set here and nowhere else — how dense a product is is a decision about the product, not about any one table. Only the components that hold things read it, so a page set to `-2` tightens its lists, tables and cards and leaves every control at the height a finger needs. See [`density`](../design/prop-conventions#density).
+
+```tsx
+<MPConfigProvider density={-1}>
+  <App />
+</MPConfigProvider>
+```
 
 ## Why `variant` is not here
 

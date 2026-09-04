@@ -18,6 +18,7 @@ Two rules govern everything below.
 type MPSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 type MPColor = 'primary' | 'secondary' | 'tertiary' | 'error';
 type MPVariant = 'filled' | 'tonal' | 'elevated' | 'outlined' | 'text';
+type MPDensity = 0 | -1 | -2 | -3;
 type MPOrientation = 'horizontal' | 'vertical';
 
 interface MPStyleProps {
@@ -47,7 +48,7 @@ export interface MPTextFieldProps extends MPStyleProps {
 
 `MPStyleProps` is deliberately short. An axis joins it when a **second** component needs it, not in anticipation of one — the same rule the design tokens follow.
 
-`variant` and `color` are shared _vocabulary_ rather than members of the bundle: a component that has meaningful variants takes `variant`, and one that reads an accent family takes `color`, but neither is on every component and neither would mean anything on `MPTextField`. `density` and `elevation` are likely to arrive one day, and are not here yet because nothing reads them.
+`variant`, `color` and `density` are shared _vocabulary_ rather than members of the bundle: a component that has meaningful variants takes `variant`, one that reads an accent family takes `color`, and one that holds other things takes `density` — but none of the three is on every component, and none of them would mean anything on `MPTextField`. `elevation` is likely to arrive one day, and is not here yet because nothing reads it.
 
 ## `variant`
 
@@ -92,6 +93,25 @@ Three things follow from that table, and they are the constraints on adding a co
 An icon is not a control. It has no height of its own to pick from a scale: it is sized to the text beside it or the box it is laid into, which is why `size="1em"` is the single most useful value it takes and why no ladder could express it. Every icon set in the world calls this axis `size` too, so renaming it here would cost more than the collision does.
 
 The rule that survives is the one that matters: **within the size ladder, a rung means the same thing everywhere.** A component that is not on the ladder says so by not extending the bundle.
+
+## `density`
+
+Material's own scale and Material's own numbers: `0` is the component at the size it was asked for, and each step below it takes 4dp out.
+
+It is not a second size ladder. `size` picks which control this is — the height, the type role, the padding that follows from both — and `density` takes room out of the one that was picked, out of the **spacing only**. The type scale does not move, so a table at `-2` is the same words in less room rather than smaller words. That is what a reader of a dense screen actually wants: more rows, at the size they could already read.
+
+The two axes cannot be collapsed into one for the same reason. `size="sm"` on a list is a small list; `density={-2}` on a list is a normal list with more of it on the screen. One ladder would make those the same request.
+
+```tsx
+<MPList density={-1}>       // 52px rows instead of 56
+<MPTable size="sm" density={-2} />
+```
+
+Every step lands on a height the ladder already has a name for, which is what keeps a dense list lined up with the controls beside it: `md` walks 56, 52, 48, 44, and 48 is exactly what `lg` at `-2` gives.
+
+**A step that would take a control under 24px is not taken.** That floor is the one `size` already names — below it a control stops meeting a touch target — so `xs` runs out after two steps and stays there. Clamping is the better of the three answers available: refusing the value would make `density={-3}` an error on exactly the rung most likely to be given it, and honouring it would ship a control nobody can hit.
+
+**Only containers take it.** A button is one control at one height and has `size` for that. A list, a table, a card, a toolbar — anything whose job is to hold a number of things — changes character with how many of them fit on a screen, and that is the question this answers. Set it once on [MPConfigProvider](../guide/config) and the containers under it tighten while the controls keep the height a finger needs.
 
 ## `color`
 

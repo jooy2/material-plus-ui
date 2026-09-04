@@ -13,9 +13,9 @@ import {
   type MPPageCollapse,
   type MPSidebarSide
 } from '../../internal/page-layout';
-import { SHEET_PAD_X, SHEET_PAD_Y } from '../../internal/scale';
-import { useMPSize } from '../../internal/config';
-import type { MPSize, MPVariant } from '../../types';
+import { sheetPadX, sheetPadY } from '../../internal/density';
+import { useMPDensity, useMPSize } from '../../internal/config';
+import type { MPDensity, MPSize, MPVariant } from '../../types';
 
 export type { MPPageCollapse, MPSidebarSide } from '../../internal/page-layout';
 
@@ -124,6 +124,15 @@ export interface MPSidebarProps extends Omit<React.ComponentPropsWithoutRef<'asi
    * @default 'md'
    */
   size?: MPSize;
+  /**
+   * Takes room out of the air around the column's content.
+   *
+   * The width is `size`'s and does not move — a navigation column narrower than
+   * its labels is a column of truncated labels — so what this tightens is the
+   * gutter, which is what a sidebar full of destinations is competing for.
+   * @default 0
+   */
+  density?: MPDensity;
   /**
    * The gutter, and the air above and below the content.
    * @default true
@@ -238,6 +247,7 @@ export const MPSidebar = React.forwardRef<HTMLElement, MPSidebarProps>(function 
     title,
     variant = 'outlined',
     size: sizeProp,
+    density: densityProp,
     padded = true,
     label,
     locale: localeProp,
@@ -249,6 +259,7 @@ export const MPSidebar = React.forwardRef<HTMLElement, MPSidebarProps>(function 
   ref
 ) {
   const size = useMPSize(sizeProp);
+  const density = useMPDensity(densityProp);
   const layout = React.useContext(MPPageLayoutContext);
   const slotSide = React.useContext(MPSidebarSideContext);
   const side = sideProp ?? slotSide ?? 'start';
@@ -513,7 +524,7 @@ export const MPSidebar = React.forwardRef<HTMLElement, MPSidebarProps>(function 
         id={bodyId}
         className={[
           'mp-sidebar__body min-h-0 flex-1 overflow-y-auto overscroll-contain',
-          padded ? `${SHEET_PAD_X[size]} ${SHEET_PAD_Y[size]}` : ''
+          padded ? `${sheetPadX(size, density)} ${sheetPadY(size, density)}` : ''
         ]
           .filter(Boolean)
           .join(' ')}

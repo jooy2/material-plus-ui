@@ -11,12 +11,12 @@ import {
   hasContent,
   PROSE_TEXT,
   SHEET_GAP,
-  SHEET_PAD,
   SHEET_TITLE,
   STACK_GAP
 } from '../../internal/scale';
-import { useMPColor, useMPSize } from '../../internal/config';
-import type { MPColor, MPSize, MPVariant } from '../../types';
+import { sheetPad } from '../../internal/density';
+import { useMPColor, useMPDensity, useMPSize } from '../../internal/config';
+import type { MPColor, MPDensity, MPSize, MPVariant } from '../../types';
 
 /**
  * What the alert is made of, at rest.
@@ -145,6 +145,16 @@ export interface MPAlertProps extends Omit<
    */
   size?: MPSize;
   /**
+   * Takes room out of the message without shrinking it.
+   *
+   * The step that matters on an alert is the first one. A page that shows
+   * several at once — a form reporting four invalid fields, a queue of
+   * warnings — stacks a lot of padding, and `-1` gives most of it back while
+   * leaving the text at the size a message has to be read at.
+   * @default 0
+   */
+  density?: MPDensity;
+  /**
    * The heading line. With it the alert is two-part — a headline and the detail
    * under it; without it the whole thing is one line.
    */
@@ -231,6 +241,7 @@ export const MPAlert = React.forwardRef<HTMLDivElement, MPAlertProps>(function M
     variant = 'tonal',
     color: colorProp,
     size: sizeProp,
+    density: densityProp,
     title,
     icon,
     action,
@@ -247,6 +258,7 @@ export const MPAlert = React.forwardRef<HTMLDivElement, MPAlertProps>(function M
 ) {
   const color = useMPColor(colorProp);
   const size = useMPSize(sizeProp);
+  const density = useMPDensity(densityProp);
   const locale = useMPLocale(localeProp);
   const messages = useMPMessages(ALERT, locale);
 
@@ -324,7 +336,7 @@ export const MPAlert = React.forwardRef<HTMLDivElement, MPAlertProps>(function M
         // reset an `outlined` alert's hairline would be added *outside* its
         // padding and come out two pixels taller than a `tonal` one beside it.
         'box-border',
-        SHEET_PAD[size],
+        sheetPad(size, density),
         SHEET_GAP[size],
         PROSE_TEXT[size],
         REST[variant],

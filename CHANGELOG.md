@@ -6,6 +6,16 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **`density` on the components that hold things**, and on `MPConfigProvider`. Material's own density scale — `0`, `-1`, `-2`, `-3`, four pixels a step — on `MPList`, `MPTable`, `MPCard`, `MPBox`, `MPAccordion`, `MPAlert`, `MPHeader`, `MPFooter` and `MPSidebar`.
+
+  It is **not a second size ladder**, and the separation is the whole reason it is a second prop. `size` picks which control this is: the height, the type role, the padding that follows from both. `density` takes room out of the one that was picked, and takes it out of the spacing only — the type scale does not move. `size="sm"` on a list is a small list; `density={-2}` is a normal list with more of it on the screen, which is what a dense screen is actually asking for. Shrinking the text to fit more rows makes them harder to read at exactly the moment there are more of them.
+
+  Every step lands on a height the ladder already has a name for. An `md` list row walks 56, 52, 48, 44, and 48 is what `lg` at `-2` gives — so a dense list and the button beside it still line up, which is the promise `MPSize` makes and the one a density axis is most likely to break.
+
+  **A step that would take a control under 24px is not taken.** `xs` runs out after two and stays at 24. Refusing the value would make `density={-3}` an error on exactly the rung most likely to be given it, and honouring it would ship a control nobody can hit.
+
+  Only containers take it, so `<MPConfigProvider density={-1}>` tightens a product's lists, tables and cards and leaves every button, field and switch at the height a finger needs. A button is one control at one height and has `size` for that.
+
 - **`MPShow`**, content at some window sizes and not others. A rail on a laptop and a bottom bar on a phone is two components with a boundary between them, and writing that boundary meant either a Tailwind arbitrary variant with the width in it — a copy of a number the library also holds — or `useMPWindowClass` and a branch, which cannot answer until the page has hydrated.
 
   `from`, `until` and `only` over the five window size classes. `from` and `until` over the same class are exclusive and exhaustive: one of them is on screen at every width and never both.

@@ -40,6 +40,45 @@ import type * as React from 'react';
 export type MPSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 /**
+ * How tightly a component that holds other things is packed.
+ *
+ * Material's own scale, and Material's own numbers: `0` is the component at the
+ * size it was asked for, and each step below it takes 4dp out. Nothing here
+ * invents a word for that, because the specification already counts — and a
+ * `'compact'` of this library's own would be a second name for a thing MD3 has
+ * a name for, which is the one rule `MPSize` bends and nothing else should.
+ *
+ * ## It is not a second size ladder
+ *
+ * `size` picks which control this is: the height, the type role, and the padding
+ * that follows from both. `density` takes room out of the one that was picked,
+ * and takes it out of the **spacing only** — the type scale does not move. A
+ * table at `-2` is the same words in less room rather than smaller words, which
+ * is what a reader of a dense screen actually wants: more rows, at the size they
+ * could already read.
+ *
+ * That is also why the two axes cannot be collapsed into one. `size="sm"` on a
+ * list is a small list; `density={-2}` on a list is a normal list with more of
+ * it on the screen. A single ladder would make those the same request.
+ *
+ * ## Where it stops
+ *
+ * A step that would take a control under 24px is not taken. That floor is the
+ * one `MPSize` already names — below it a control stops meeting a touch target —
+ * and clamping is the better of the three answers available: refusing the value
+ * would make `density={-3}` an error on exactly the rung most likely to be given
+ * it, and honouring it would ship a control nobody can hit.
+ *
+ * ## Only containers take it
+ *
+ * A button is one control at one height, and `size` is the axis it has. A list,
+ * a table, a toolbar, a card — anything whose job is to hold a number of things
+ * — changes character with how many of them fit on a screen, and that is the
+ * question this answers.
+ */
+export type MPDensity = 0 | -1 | -2 | -3;
+
+/**
  * An accent colour role.
  *
  * MD3's four, not Material UI's six: there is no `info`, `success` or `warning`

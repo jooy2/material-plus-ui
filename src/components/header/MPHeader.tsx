@@ -1,12 +1,21 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { BAR_SURFACE, MPPageLayoutContext } from '../../internal/page-layout';
-import { hasContent, SHEET_PAD_X } from '../../internal/scale';
+import { hasContent } from '../../internal/scale';
+import { sheetPadX } from '../../internal/density';
 import { measureValue } from '../../internal/measure';
 import { useWindowMins } from '../../internal/window-class';
 import { responsiveSlots, withBaseline } from '../../internal/responsive';
-import { useMPSize } from '../../internal/config';
-import type { MPAlign, MPMeasure, MPPosition, MPResponsive, MPSize, MPVariant } from '../../types';
+import { useMPDensity, useMPSize } from '../../internal/config';
+import type {
+  MPAlign,
+  MPDensity,
+  MPMeasure,
+  MPPosition,
+  MPResponsive,
+  MPSize,
+  MPVariant
+} from '../../types';
 
 export interface MPHeaderProps extends Omit<React.ComponentPropsWithoutRef<'header'>, 'title'> {
   /**
@@ -66,6 +75,16 @@ export interface MPHeaderProps extends Omit<React.ComponentPropsWithoutRef<'head
    * @default 'md'
    */
   size?: MPSize;
+  /**
+   * Takes room out of the bar's gutter.
+   *
+   * The height floor is `size`'s and stays where it is: a top app bar that a
+   * dense page shrank would move every fixed thing under it, and the bar is the
+   * one part of a screen a reader locates by position. What tightens is the
+   * room at its edges.
+   * @default 0
+   */
+  density?: MPDensity;
   /**
    * Holds the row of slots to a measure and centres it while the sheet itself
    * still spans the window. The same prop [MPContainer](./container)'s
@@ -229,6 +248,7 @@ export const MPHeader = React.forwardRef<HTMLElement, MPHeaderProps>(function MP
     position = 'sticky',
     variant = 'tonal',
     size: sizeProp,
+    density: densityProp,
     maxWidth = 'none',
     padded = true,
     label,
@@ -240,6 +260,7 @@ export const MPHeader = React.forwardRef<HTMLElement, MPHeaderProps>(function MP
   ref
 ) {
   const size = useMPSize(sizeProp);
+  const density = useMPDensity(densityProp);
   const mins = useWindowMins();
   const { register } = React.useContext(MPPageLayoutContext);
 
@@ -278,7 +299,7 @@ export const MPHeader = React.forwardRef<HTMLElement, MPHeaderProps>(function MP
             'flex w-full items-center',
             BAR_HEIGHT[size],
             BAR_GAP[size],
-            padded ? SHEET_PAD_X[size] : '',
+            padded ? sheetPadX(size, density) : '',
             maxWidth === 'none' ? '' : 'mp-measure mx-auto'
           ]
             .filter(Boolean)

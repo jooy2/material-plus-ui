@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { MPTable } from 'material-plus-ui';
+import { MPConfigProvider, MPTable } from 'material-plus-ui';
 import type { MPTableColumn } from 'material-plus-ui';
 
 interface Row {
@@ -270,6 +270,49 @@ describe('MPTable', () => {
       );
 
       expect(screen.getByTestId('table').element()).toHaveAttribute('data-mp-size', 'sm');
+    });
+  });
+  describe('density', () => {
+    it('takes four pixels out of the row a step, and none out of the text', async () => {
+      // MD3's row of 52 walks 48, 44, 40. The figures stay the size they were,
+      // which is the point: there are more of them to read, not smaller ones.
+      //
+      // `clientHeight` rather than the bounding box, which would carry the
+      // hairline rule above the cell and report every row a pixel taller than
+      // the padding makes it.
+      const screen = await render(<MPTable headers={COLUMNS} items={ROWS} />);
+      const cell = () => screen.container.querySelector('tbody td')!;
+      const heights: number[] = [];
+      const sizes: string[] = [];
+
+      for (const density of [0, -1, -2, -3] as const) {
+        await screen.rerender(<MPTable headers={COLUMNS} items={ROWS} density={density} />);
+        heights.push(cell().clientHeight);
+        sizes.push(getComputedStyle(cell()).fontSize);
+      }
+
+      expect(heights).toEqual([52, 48, 44, 40]);
+      expect(new Set(sizes).size).toBe(1);
+    });
+
+    it('keeps the shortest row on the touch target', async () => {
+      // `xs` is `body-small` in a 16px line box, so 4px a face is the floor —
+      // and 4px a face is exactly 24.
+      const screen = await render(
+        <MPTable headers={COLUMNS} items={ROWS} size="xs" density={-3} />
+      );
+
+      expect(screen.container.querySelector('tbody td')!.clientHeight).toBe(24);
+    });
+
+    it('takes the configured default when the table says nothing', async () => {
+      const screen = await render(
+        <MPConfigProvider density={-2}>
+          <MPTable headers={COLUMNS} items={ROWS} />
+        </MPConfigProvider>
+      );
+
+      expect(screen.container.querySelector('tbody td')!.clientHeight).toBe(44);
     });
   });
 });

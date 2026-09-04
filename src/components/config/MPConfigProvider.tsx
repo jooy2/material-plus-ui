@@ -3,7 +3,7 @@ import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { MPConfigContext, useMPConfig, type MPConfigValue } from '../../internal/config';
 import { MPLocaleContext, useMPLocale } from '../../internal/locale';
 import { WINDOW_CLASSES } from '../../internal/window-class';
-import type { MPColor, MPSize, MPWindowClass } from '../../types';
+import type { MPColor, MPDensity, MPSize, MPWindowClass } from '../../types';
 
 export interface MPConfigProviderProps {
   /**
@@ -22,6 +22,15 @@ export interface MPConfigProviderProps {
    * line here rather than a prop on every button, chip, tab and slider.
    */
   color?: MPColor;
+  /**
+   * How tightly every component that holds things is packed under this.
+   *
+   * `0` unless set — the size that was asked for, with nothing taken out. A
+   * product that runs dense sets it here, and only the containers read it: the
+   * lists, tables and cards tighten and the controls keep the height a finger
+   * needs. See `MPDensity`.
+   */
+  density?: MPDensity;
   /**
    * Where the window size classes begin, in CSS pixels, for everything the
    * library decides in **JavaScript** — `useMPWindowClass`, `MPSidebar`'s
@@ -88,8 +97,9 @@ export interface MPConfigProviderProps {
  * The prop defaults for everything under it.
  *
  * Wrap the application. Every component in this library still takes `size` and
- * `color` of its own, and this is where those props get their default — so a
- * design that runs at `size="sm"` is one decision rather than one per call site.
+ * `color` of its own — and every container takes `density` — and this is where
+ * those props get their default, so a design that runs at `size="sm"` is one
+ * decision rather than one per call site.
  *
  * ```tsx
  * <MPConfigProvider size="sm" color="tertiary" locale="ko">
@@ -97,7 +107,7 @@ export interface MPConfigProviderProps {
  * </MPConfigProvider>
  * ```
  *
- * ## Why it carries these two and not a theme
+ * ## Why it carries these three and not a theme
  *
  * Everything a theme normally holds is already a CSS custom property here — the
  * colour roles, the type scale, the corners, the motion durations. Those reach a
@@ -109,8 +119,9 @@ export interface MPConfigProviderProps {
  * Tailwind class strings — `h-14`, `text-mp-body-large` — because Tailwind finds
  * classes by scanning source text and an interpolated `h-${n}` generates no rule
  * at all. A value that cannot be a custom property and has to reach every call
- * site is exactly what context is for. `color` joins it because the two are the
- * axes a whole product is usually set on together.
+ * site is exactly what context is for. `color` and `density` join it because the
+ * three are the axes a whole product is usually set on together — and because
+ * `density` resolves to class strings for the same reason `size` does.
  *
  * ## Why `variant` is not here
  *
@@ -146,6 +157,7 @@ export interface MPConfigProviderProps {
 export function MPConfigProvider({
   size,
   color,
+  density,
   breakpoints,
   locale,
   dir,
@@ -174,6 +186,7 @@ export function MPConfigProvider({
     () => ({
       size: size ?? outer.size,
       color: color ?? outer.color,
+      density: density ?? outer.density,
       // Merged a field at a time for the same reason: a nested provider that
       // moves `large` should not put `medium` back where the specification had
       // it. `undefined` rather than an empty object when nobody has set one, so
@@ -183,7 +196,7 @@ export function MPConfigProvider({
     }),
     // `ladder` stands in for the two breakpoint maps, by value rather than by
     // identity — which is the whole of why it exists. See above.
-    [size, color, outer.size, outer.color, ladder]
+    [size, color, density, outer.size, outer.color, outer.density, ladder]
   );
 
   const resolvedLocale = locale ?? outerLocale;

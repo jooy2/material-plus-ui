@@ -9,13 +9,12 @@ import {
   hasContent,
   META_TEXT,
   PROSE_TEXT,
-  SHEET_PAD_X,
-  SHEET_PAD_Y,
   SHEET_TITLE
 } from '../../internal/scale';
+import { sheetPadX, sheetPadY } from '../../internal/density';
 import { CONTAINER_SURFACE } from '../../internal/surface';
-import { useMPSize } from '../../internal/config';
-import type { MPSize, MPVariant } from '../../types';
+import { useMPDensity, useMPSize } from '../../internal/config';
+import type { MPDensity, MPSize, MPVariant } from '../../types';
 
 /**
  * What an `MPAccordionItem` inherits from the `MPAccordion` around it.
@@ -33,11 +32,13 @@ import type { MPSize, MPVariant } from '../../types';
  */
 interface MPAccordionContextValue {
   size: MPSize;
+  density: MPDensity;
   dividers: boolean;
 }
 
 const MPAccordionContext = React.createContext<MPAccordionContextValue>({
   size: 'md',
+  density: 0,
   dividers: true
 });
 
@@ -80,6 +81,15 @@ export interface MPAccordionProps extends Omit<
    * @default 'md'
    */
   size?: MPSize;
+  /**
+   * Takes room out of every section's header and body.
+   *
+   * An accordion is a list of rows that happen to open, so it wants density for
+   * the reason a list does: a panel of eight sections that fits on the screen is
+   * a different component from one that has to be scrolled to be understood.
+   * @default 0
+   */
+  density?: MPDensity;
   /**
    * Keeps closed panels in the DOM so the browser's own page search can find and
    * open them. Overrides `keepMounted`.
@@ -244,6 +254,7 @@ export const MPAccordion = React.forwardRef<HTMLDivElement, MPAccordionProps>(fu
     disabled = false,
     variant = 'outlined',
     size: sizeProp,
+    density: densityProp,
     hiddenUntilFound = false,
     keepMounted = false,
     className,
@@ -253,7 +264,8 @@ export const MPAccordion = React.forwardRef<HTMLDivElement, MPAccordionProps>(fu
   ref
 ) {
   const size = useMPSize(sizeProp);
-  const context = React.useMemo(() => ({ size, dividers }), [size, dividers]);
+  const density = useMPDensity(densityProp);
+  const context = React.useMemo(() => ({ size, density, dividers }), [size, density, dividers]);
 
   return (
     <MPAccordionContext.Provider value={context}>
@@ -304,10 +316,10 @@ export const MPAccordionItem = React.forwardRef<HTMLDivElement, MPAccordionItemP
     { value, title, subtitle, startIcon, action, disabled = false, className, children, ...props },
     ref
   ) {
-    const { size, dividers } = React.useContext(MPAccordionContext);
+    const { size, density, dividers } = React.useContext(MPAccordionContext);
 
-    const padX = SHEET_PAD_X[size];
-    const padY = SHEET_PAD_Y[size];
+    const padX = sheetPadX(size, density);
+    const padY = sheetPadY(size, density);
 
     /*
      * Whether the panel has finished opening, which is what decides the clip —

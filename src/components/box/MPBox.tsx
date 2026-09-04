@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
-import { SHEET_PAD } from '../../internal/scale';
+import { sheetPad } from '../../internal/density';
 import { CONTAINER_SURFACE } from '../../internal/surface';
-import type { MPSize, MPVariant } from '../../types';
+import { useMPDensity } from '../../internal/config';
+import type { MPDensity, MPSize, MPVariant } from '../../types';
 
 export interface MPBoxProps extends React.ComponentPropsWithoutRef<'div'> {
   /**
@@ -30,6 +31,16 @@ export interface MPBoxProps extends React.ComponentPropsWithoutRef<'div'> {
    * @default 'md'
    */
   size?: MPSize;
+  /**
+   * Takes room out of the padding `size` chose, two pixels a face per step.
+   *
+   * On a box that is the whole of what density can mean, because padding is the
+   * whole of what `size` does here. It is the axis that matters when boxes are
+   * being repeated — a grid of tiles, a column of panels — where the room around
+   * each one is multiplied by however many there are.
+   * @default 0
+   */
+  density?: MPDensity;
   /**
    * Inner padding. Turn it off for full-bleed content — a picture, a table, a
    * list that draws its own rows.
@@ -80,9 +91,20 @@ export interface MPBoxProps extends React.ComponentPropsWithoutRef<'div'> {
  * for. `variant="elevated"` is that decision, made once.
  */
 export const MPBox = React.forwardRef<HTMLDivElement, MPBoxProps>(function MPBox(
-  { variant = 'outlined', size = 'md', padded = true, render, className, children, ...props },
+  {
+    variant = 'outlined',
+    size = 'md',
+    density: densityProp,
+    padded = true,
+    render,
+    className,
+    children,
+    ...props
+  },
   ref
 ) {
+  const density = useMPDensity(densityProp);
+
   return useRender({
     render,
     ref,
@@ -95,7 +117,7 @@ export const MPBox = React.forwardRef<HTMLDivElement, MPBoxProps>(function MPBox
         // reset an `outlined` box's hairline would be added *outside* its
         // padding and come out two pixels wider than a `filled` one beside it.
         'box-border',
-        padded ? SHEET_PAD[size] : '',
+        padded ? sheetPad(size, density) : '',
         CONTAINER_SURFACE[variant],
         'text-mp-on-surface',
         className ?? ''

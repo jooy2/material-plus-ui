@@ -1,12 +1,19 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { BAR_SURFACE, MPPageLayoutContext } from '../../internal/page-layout';
-import { SHEET_PAD_X, SHEET_PAD_Y } from '../../internal/scale';
+import { sheetPadX, sheetPadY } from '../../internal/density';
 import { measureValue } from '../../internal/measure';
 import { useWindowMins } from '../../internal/window-class';
 import { responsiveSlots, withBaseline } from '../../internal/responsive';
-import { useMPSize } from '../../internal/config';
-import type { MPMeasure, MPPosition, MPResponsive, MPSize, MPVariant } from '../../types';
+import { useMPDensity, useMPSize } from '../../internal/config';
+import type {
+  MPDensity,
+  MPMeasure,
+  MPPosition,
+  MPResponsive,
+  MPSize,
+  MPVariant
+} from '../../types';
 
 export interface MPFooterProps extends Omit<React.ComponentPropsWithoutRef<'footer'>, 'title'> {
   /**
@@ -39,6 +46,15 @@ export interface MPFooterProps extends Omit<React.ComponentPropsWithoutRef<'foot
    * @default 'md'
    */
   size?: MPSize;
+  /**
+   * Takes room out of the gutter and the air above and below the content.
+   *
+   * A footer is the sheet a page ends on, and the amount of screen it takes is
+   * mostly padding. On a dense page it is the first thing that should give some
+   * back.
+   * @default 0
+   */
+  density?: MPDensity;
   /**
    * Holds the content to a measure and centres it while the sheet itself still
    * spans the window. The same prop [MPContainer](./container)'s `maxWidth` is —
@@ -112,6 +128,7 @@ export const MPFooter = React.forwardRef<HTMLElement, MPFooterProps>(function MP
     position = 'static',
     variant = 'outlined',
     size: sizeProp,
+    density: densityProp,
     maxWidth = 'none',
     padded = true,
     label,
@@ -123,6 +140,7 @@ export const MPFooter = React.forwardRef<HTMLElement, MPFooterProps>(function MP
   ref
 ) {
   const size = useMPSize(sizeProp);
+  const density = useMPDensity(densityProp);
   const mins = useWindowMins();
   const { register } = React.useContext(MPPageLayoutContext);
 
@@ -161,7 +179,7 @@ export const MPFooter = React.forwardRef<HTMLElement, MPFooterProps>(function MP
         <div
           className={[
             'mp-footer__inner w-full',
-            padded ? `${SHEET_PAD_X[size]} ${SHEET_PAD_Y[size]}` : '',
+            padded ? `${sheetPadX(size, density)} ${sheetPadY(size, density)}` : '',
             maxWidth === 'none' ? '' : 'mp-measure mx-auto'
           ]
             .filter(Boolean)

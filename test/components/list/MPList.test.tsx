@@ -1,7 +1,7 @@
 import type * as React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { MPList, MPListItem } from 'material-plus-ui';
+import { MPConfigProvider, MPList, MPListItem } from 'material-plus-ui';
 
 describe('MPList', () => {
   describe('the sheet', () => {
@@ -350,6 +350,81 @@ describe('MPListItem', () => {
       expect(screen.container.querySelector('.mp-list-item__label')!.textContent).toBe('Inbox');
       expect(screen.container.querySelector('.mp-list-item__description')!.textContent).toBe(
         'Two minutes ago'
+      );
+    });
+  });
+  describe('density', () => {
+    it('keeps a one-line row on the control ladder at every step', async () => {
+      // The whole promise of the axis: a dense row is still a height the ladder
+      // has a name for, so the list and the controls beside it line up. `md`
+      // walks 56, 52, 48, 44.
+      const heights: number[] = [];
+
+      const screen = await render(
+        <MPList>
+          <MPListItem>Inbox</MPListItem>
+        </MPList>
+      );
+
+      for (const density of [0, -1, -2, -3] as const) {
+        await screen.rerender(
+          <MPList density={density}>
+            <MPListItem>Inbox</MPListItem>
+          </MPList>
+        );
+        heights.push(
+          Math.round(screen.container.querySelector('li')!.getBoundingClientRect().height)
+        );
+      }
+
+      expect(heights).toEqual([56, 52, 48, 44]);
+    });
+
+    it('leaves the type scale where it was', async () => {
+      // A denser list is the same words in less room. Shrinking the text would
+      // make the rows harder to read at exactly the moment there are more of
+      // them.
+      const screen = await render(
+        <MPList>
+          <MPListItem>Inbox</MPListItem>
+        </MPList>
+      );
+      const plain = getComputedStyle(screen.getByText('Inbox').element()).fontSize;
+
+      await screen.rerender(
+        <MPList density={-3}>
+          <MPListItem>Inbox</MPListItem>
+        </MPList>
+      );
+
+      expect(getComputedStyle(screen.getByText('Inbox').element()).fontSize).toBe(plain);
+    });
+
+    it('stops at the touch target rather than at the subtraction', async () => {
+      // `xs` starts closest to the floor, and 24px is where a control stops
+      // being one.
+      const screen = await render(
+        <MPList size="xs" density={-3}>
+          <MPListItem>Inbox</MPListItem>
+        </MPList>
+      );
+
+      expect(Math.round(screen.container.querySelector('li')!.getBoundingClientRect().height)).toBe(
+        24
+      );
+    });
+
+    it('takes the configured default when the list says nothing', async () => {
+      const screen = await render(
+        <MPConfigProvider density={-2}>
+          <MPList>
+            <MPListItem>Inbox</MPListItem>
+          </MPList>
+        </MPConfigProvider>
+      );
+
+      expect(Math.round(screen.container.querySelector('li')!.getBoundingClientRect().height)).toBe(
+        48
       );
     });
   });

@@ -2,11 +2,12 @@ import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { accentSlots } from '../../internal/accent';
 import { linkRel } from '../../internal/link';
-import { CONTROL_GAP, hasContent, PROSE_TEXT, SHEET_PAD_X } from '../../internal/scale';
+import { CONTROL_GAP, hasContent, PROSE_TEXT } from '../../internal/scale';
+import { sheetPadX } from '../../internal/density';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { CONTAINER_SURFACE } from '../../internal/surface';
-import { useMPColor, useMPSize } from '../../internal/config';
-import type { MPColor, MPSize, MPVariant } from '../../types';
+import { useMPColor, useMPDensity, useMPSize } from '../../internal/config';
+import type { MPColor, MPDensity, MPSize, MPVariant } from '../../types';
 
 /**
  * What an `MPListItem` inherits from the `MPList` around it.
@@ -24,12 +25,14 @@ import type { MPColor, MPSize, MPVariant } from '../../types';
 interface MPListContextValue {
   size: MPSize;
   color: MPColor;
+  density: MPDensity;
   dividers: boolean;
 }
 
 const MPListContext = React.createContext<MPListContextValue>({
   size: 'md',
   color: 'primary',
+  density: 0,
   dividers: false
 });
 
@@ -51,6 +54,17 @@ export interface MPListProps extends Omit<React.ComponentPropsWithoutRef<'ul'>, 
    * @default 'primary'
    */
   color?: MPColor;
+  /**
+   * Takes room out of every row without changing what it is set in.
+   *
+   * A list is the component density was invented for: it is one row repeated,
+   * and how many of them a reader can see at once is most of what makes it
+   * usable. Each step keeps the row exactly one rung down the control ladder —
+   * `md` at `-1` is 52px, which is `lg` at `-2` and a `sm` button at `0` — so a
+   * dense list and the controls beside it still line up.
+   * @default 0
+   */
+  density?: MPDensity;
   /**
    * Separates the rows with a hairline instead of with space.
    *
@@ -149,6 +163,27 @@ const PAD_Y: Record<MPSize, string> = {
 };
 
 /**
+ * The same track at each density step, and the arithmetic above still holds.
+ *
+ * Two pixels a face is four out of the row, so every cell here lands on the rung
+ * `controlHeight` gives for the same pair: `md` at `-1` is 14 + 24 + 14 = 52,
+ * which is `h-13`. The `xs` row bottoms out at 24 for the reason `MPDensity`
+ * gives, and it is the line box that puts it there — 20px of `body-medium` plus
+ * two faces of `py-0.5` is exactly the floor.
+ */
+const PAD_Y_DENSE: Record<MPSize, readonly [string, string, string]> = {
+  xs: ['py-1', 'py-0.5', 'py-0.5'],
+  sm: ['py-2', 'py-1.5', 'py-1'],
+  md: ['py-3.5', 'py-3', 'py-2.5'],
+  lg: ['py-4.5', 'py-4', 'py-3.5'],
+  xl: ['py-5.5', 'py-5', 'py-4.5']
+};
+
+function padY(size: MPSize, density: MPDensity): string {
+  return density === 0 ? PAD_Y[size] : PAD_Y_DENSE[size][-density - 1];
+}
+
+/**
  * The supporting line under a row's label. MD3 sets it in `body-medium`, one step
  * below the headline, and the two smallest rungs go one further because
  * `body-medium` under `body-medium` is not a step at all.
@@ -199,6 +234,7 @@ export const MPList = React.forwardRef<HTMLUListElement, MPListProps>(function M
     variant = 'outlined',
     size: sizeProp,
     color: colorProp,
+    density: densityProp,
     dividers = false,
     render,
     className,
@@ -210,7 +246,11 @@ export const MPList = React.forwardRef<HTMLUListElement, MPListProps>(function M
 ) {
   const size = useMPSize(sizeProp);
   const color = useMPColor(colorProp);
-  const context = React.useMemo(() => ({ size, color, dividers }), [size, color, dividers]);
+  const density = useMPDensity(densityProp);
+  const context = React.useMemo(
+    () => ({ size, color, density, dividers }),
+    [size, color, density, dividers]
+  );
 
   const classNames = [
     'mp-list rounded-mp-md flex flex-col',
@@ -305,16 +345,16 @@ export const MPListItem = React.forwardRef<HTMLLIElement, MPListItemProps>(funct
   },
   ref
 ) {
-  const { size, dividers } = React.useContext(MPListContext);
+  const { size, density, dividers } = React.useContext(MPListContext);
   const interactive = Boolean(onClick || href) && !disabled;
 
-  const padX = SHEET_PAD_X[size];
+  const padX = sheetPadX(size, density);
 
   const bodyClassNames = [
     'group relative flex min-w-0 flex-1 items-center overflow-hidden text-start',
     'font-[inherit] no-underline',
     padX,
-    PAD_Y[size],
+    padY(size, density),
     CONTROL_GAP[size],
     PROSE_TEXT[size],
     'transition-[background-color,color] duration-(--mp-sys-motion-duration-short4)',

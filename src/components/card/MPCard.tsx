@@ -1,15 +1,8 @@
 import * as React from 'react';
 import { MPBox, type MPBoxProps } from '../box/MPBox';
-import {
-  hasContent,
-  META_TEXT,
-  PROSE_TEXT,
-  SHEET_GAP,
-  SHEET_PAD_X,
-  SHEET_PAD_Y,
-  SHEET_TITLE
-} from '../../internal/scale';
-import { useMPSize } from '../../internal/config';
+import { hasContent, META_TEXT, PROSE_TEXT, SHEET_GAP, SHEET_TITLE } from '../../internal/scale';
+import { sheetPadX, sheetPadY } from '../../internal/density';
+import { useMPDensity, useMPSize } from '../../internal/config';
 
 export interface MPCardProps extends Omit<MPBoxProps, 'title' | 'padded'> {
   /**
@@ -91,6 +84,7 @@ const RULE = 'border-mp-outline-variant border-t';
 export const MPCard = React.forwardRef<HTMLDivElement, MPCardProps>(function MPCard(
   {
     size: sizeProp,
+    density: densityProp,
     title,
     subtitle,
     headerAction,
@@ -104,8 +98,9 @@ export const MPCard = React.forwardRef<HTMLDivElement, MPCardProps>(function MPC
   ref
 ) {
   const size = useMPSize(sizeProp);
-  const padX = SHEET_PAD_X[size];
-  const padY = SHEET_PAD_Y[size];
+  const density = useMPDensity(densityProp);
+  const padX = sheetPadX(size, density);
+  const padY = sheetPadY(size, density);
   // With dividers the lines have to reach both edges, so the sheet gives up its
   // padding and every section takes it on instead. Without them the sheet keeps
   // the vertical track and the sections are told apart by a gap — the same trade
@@ -159,6 +154,10 @@ export const MPCard = React.forwardRef<HTMLDivElement, MPCardProps>(function MPC
     <MPBox
       ref={ref}
       size={size}
+      // Named rather than left to `...props`, because the sections below are
+      // padded by this component and the sheet by `MPBox`: a card that resolved
+      // the density twice would be one that could resolve it two ways.
+      density={density}
       padded={false}
       className={[
         'mp-card flex flex-col',

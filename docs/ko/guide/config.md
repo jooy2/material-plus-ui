@@ -12,7 +12,7 @@ order: 3
 ```tsx
 import { MPConfigProvider } from 'material-plus-ui';
 
-<MPConfigProvider size="sm" color="tertiary" locale="ko">
+<MPConfigProvider size="sm" color="tertiary" density={-1} locale="ko">
   <App />
 </MPConfigProvider>;
 ```
@@ -41,13 +41,21 @@ import { MPConfigProvider } from 'material-plus-ui';
 </MPConfigProvider>
 ```
 
-## 왜 이 둘이고 테마가 아닌가
+## 왜 이 셋이고 테마가 아닌가
 
 테마가 보통 담는 것은 여기서 이미 전부 **CSS custom property**입니다 — 색 역할, 타입 스케일, 모서리, 모션 지속 시간. 그것들은 cascade를 타고 컴포넌트에 도달하므로, 페이지의 한 구역이 나머지와 달라지는 데 프로바이더도 리렌더도 필요 없습니다. 자바스크립트 테마 객체는 같은 값이 사는 두 번째 장소가 되고, 둘은 어긋납니다. 토큰 쪽이 어떻게 도는지는 [색](../design/color.md)을 보세요.
 
 `size`만은 그 길로 갈 수 없습니다. 이건 **리터럴 Tailwind 클래스 문자열**로 풀립니다 — `h-14`, `text-mp-body-large`. Tailwind가 소스 텍스트를 훑어 클래스를 찾기 때문에, 보간한 `h-${n}`은 규칙을 아예 만들어 내지 않습니다. custom property가 될 수 없으면서 모든 호출 지점에 도달해야 하는 값, 그게 정확히 컨텍스트가 있는 이유입니다.
 
 `color`가 합류한 이유는 이 둘이 제품 하나를 통째로 정할 때 보통 함께 정해지는 축이기 때문이고, `color` prop이 색이 아니라 *역할 이름*이기 때문입니다. `primary`가 **무엇인지**를 바꾸는 것은 여전히 토큰의 일이고, 이건 컨트롤이 네 역할 중 어느 것을 읽을지만 바꿉니다.
+
+`density`가 합류한 이유는 첫 번째 것입니다. `size`와 똑같이 클래스 문자열로 풀립니다. 셋 중에서 여기서만 정해지고 다른 데서는 손대지 않을 가능성이 가장 높은 축이기도 합니다. 제품이 얼마나 조밀한지는 제품에 대한 결정이지 특정 표에 대한 결정이 아니기 때문입니다. 담는 컴포넌트만 이 값을 읽으므로, `-2`로 설정한 페이지는 리스트와 표와 카드가 조여지고 모든 컨트롤은 손가락에 필요한 높이를 지킵니다. [`density`](../design/prop-conventions#density)를 보세요.
+
+```tsx
+<MPConfigProvider density={-1}>
+  <App />
+</MPConfigProvider>
+```
 
 ## 왜 `variant`는 여기 없는가
 
