@@ -81,6 +81,7 @@ export * from './components/panes';
 export * from './components/pill';
 export * from './components/popconfirm';
 export * from './components/popover';
+export * from './components/portal';
 export * from './components/progress-box';
 export * from './components/progress-circular';
 export * from './components/progress-linear';

@@ -6,6 +6,14 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **`MPPortal`**, children rendered somewhere else in the DOM — usually the end of `<body>` — for a subtree that has to escape a clipping or stacking context its own position would trap it in.
+
+  Every popup in this library already portals itself, because a component whose whole job is to sit over the page cannot leave that to a caller. This is for a caller's own overlay in a page whose structure it does not control, and it gets out of two traps neither of which is visible from the markup: an `overflow: hidden` anywhere above an element, and the containing block a `transform`, `filter` or sub-`1` opacity makes for a `position: fixed` descendant.
+
+  It draws nothing on a server and nothing on the first client render, which is what keeps hydration honest — and means a portal's content is never in the HTML a crawler reads. `container` takes a ref and is re-read after every render rather than only on mount, so a container this same page draws is picked up when it appears rather than being missed for good.
+
+  It moves an element and does nothing else. Focus, Escape, an inert background and a scrim are `MPDialog`'s and `MPDrawer`'s, and a hand-built overlay in a portal has none of them. `disabled` saves the branch at a call site and not the state: changing it remounts the children, which is documented rather than left to be discovered.
+
 - **`MPFlex`**, a row or a column and the width at which it changes from one to the other. It draws nothing — no surface, no padding, no corner — only the five properties a flex container has, each of them sayable per window size class.
 
   A row that is always a row wants a `className` and not this. What this is for is `direction={{ compact: 'column', medium: 'row' }}`: written as Tailwind's own variants that is `flex-col md:flex-row`, which is the library's boundary said again in Tailwind's numbers — 768px rather than 600 — and a layout that reflows at one width while the `MPGrid` beside it reflows at another. The `mp-medium:` variants this package ships are the other right answer, for a page already writing Tailwind.

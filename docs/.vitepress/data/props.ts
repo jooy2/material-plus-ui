@@ -7002,6 +7002,32 @@ const componentTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPPortal: [
+    {
+      name: 'container',
+      type: 'Element | RefObject<Element | null> | null',
+      default: 'document.body',
+      description: {
+        ko: '어디에 렌더할지. 엘리먼트나 그것을 가리키는 ref, 또는 생략하면 `<body>`입니다. ref는 매 렌더 뒤에 다시 확인하므로 나중에 나타나는 컨테이너도 잡고, 없는 동안에는 아무것도 그리지 않습니다',
+        en: 'Where to render: an element, a ref to one, or nothing for `<body>`. A ref is looked for after every render, so a container that appears later is picked up — and nothing is drawn while there is none'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '포털이 없는 것처럼 제자리에 렌더합니다. **이 값을 바꾸면 자식이 다시 마운트됩니다** — 호출부에서 분기하는 것과 같습니다. 토글용이 아니라 마운트마다 한 번 정하는 값입니다',
+        en: 'Renders in place instead, as though the portal were not there. **Changing it remounts the children**, exactly as a branch at the call site would — decide once per mount rather than toggling'
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '다른 곳에 렌더할 것', en: 'What to render elsewhere' }
+    }
+  ],
+
   MPPopover: [
     {
       name: 'trigger',

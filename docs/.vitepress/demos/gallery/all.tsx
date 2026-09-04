@@ -1715,6 +1715,27 @@ const GROUPS: Group[] = [
         )
       },
       {
+        name: 'MPPortal',
+        summary: {
+          ko: 'DOM의 다른 곳에 렌더되는 자식. 잘림과 쌓임 맥락에서 빠져나옵니다',
+          en: 'Children rendered elsewhere in the DOM, out of a clipping or stacking context'
+        },
+        path: '/components/layout/portal',
+        preview: (
+          <Fit>
+            <div
+              className="border-mp-outline-variant rounded-mp-xs relative flex h-16 w-full items-center justify-center overflow-hidden border"
+              style={{ isolation: 'isolate' }}
+            >
+              <span className="text-mp-on-surface-variant text-mp-label-small">this box clips</span>
+              <span className="bg-mp-tertiary-container text-mp-on-tertiary-container text-mp-label-small absolute -bottom-3 start-2 rounded px-2 py-0.5">
+                a portal is not in it
+              </span>
+            </div>
+          </Fit>
+        )
+      },
+      {
         name: 'MPGrid',
         summary: {
           ko: '윈도우 크기 클래스를 따라 바뀌는 머터리얼의 레이아웃 그리드',
