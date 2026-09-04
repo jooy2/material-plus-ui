@@ -62,6 +62,7 @@ export const ru: MPLocale = {
       previous: 'Прокрутить назад',
       next: 'Прокрутить вперёд'
     },
+    anchor: { label: 'На этой странице' },
     breadcrumb: { label: 'Навигационная цепочка', expand: 'Показать скрытые шаги' },
     combobox: { empty: 'Совпадений нет', add: 'Добавить «{label}»' },
     table: { empty: 'Нет данных' },

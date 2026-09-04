@@ -62,6 +62,7 @@ export const hi: MPLocale = {
       previous: 'पीछे स्क्रॉल करें',
       next: 'आगे स्क्रॉल करें'
     },
+    anchor: { label: 'इस पृष्ठ पर' },
     breadcrumb: { label: 'ब्रेडक्रंब', expand: 'छिपे हुए चरण दिखाएँ' },
     combobox: { empty: 'कोई मेल नहीं', add: '“{label}” जोड़ें' },
     table: { empty: 'कोई डेटा नहीं' },

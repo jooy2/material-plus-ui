@@ -58,6 +58,7 @@ export const ko: MPLocale = {
       slide: '슬라이드 {total}개 중 {index}번째'
     },
     scroll: { label: '스크롤 영역', previous: '뒤로 스크롤', next: '앞으로 스크롤' },
+    anchor: { label: '이 페이지의 목차' },
     breadcrumb: { label: '탐색 경로', expand: '숨겨진 단계 보기' },
     combobox: { empty: '일치하는 항목이 없습니다', add: '“{label}” 추가' },
     table: { empty: '데이터가 없습니다' },

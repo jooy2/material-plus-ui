@@ -65,6 +65,7 @@ export const fr: MPLocale = {
       previous: 'Faire défiler vers l’arrière',
       next: 'Faire défiler vers l’avant'
     },
+    anchor: { label: 'Sur cette page' },
     breadcrumb: { label: 'Fil d’Ariane', expand: 'Afficher les étapes masquées' },
     combobox: { empty: 'Aucun résultat', add: 'Ajouter « {label} »' },
     table: { empty: 'Aucune donnée' },

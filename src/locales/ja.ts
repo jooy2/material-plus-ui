@@ -62,6 +62,7 @@ export const ja: MPLocale = {
       previous: '前へスクロール',
       next: '次へスクロール'
     },
+    anchor: { label: 'このページの内容' },
     breadcrumb: { label: 'パンくずリスト', expand: '省略された階層を表示' },
     combobox: { empty: '一致するものがありません', add: '「{label}」を追加' },
     table: { empty: 'データがありません' },

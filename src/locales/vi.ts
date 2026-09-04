@@ -58,6 +58,7 @@ export const vi: MPLocale = {
       slide: 'Trang {index} trên {total}'
     },
     scroll: { label: 'Nội dung có thể cuộn', previous: 'Cuộn lùi', next: 'Cuộn tiếp' },
+    anchor: { label: 'Trên trang này' },
     breadcrumb: { label: 'Đường dẫn', expand: 'Hiện các bước đã ẩn' },
     combobox: { empty: 'Không có kết quả', add: 'Thêm “{label}”' },
     table: { empty: 'Không có dữ liệu' },

@@ -58,6 +58,7 @@ export const id: MPLocale = {
       slide: 'Slide {index} dari {total}'
     },
     scroll: { label: 'Konten yang dapat digulir', previous: 'Gulir mundur', next: 'Gulir maju' },
+    anchor: { label: 'Di halaman ini' },
     breadcrumb: { label: 'Remah roti', expand: 'Tampilkan langkah tersembunyi' },
     combobox: { empty: 'Tidak ada yang cocok', add: 'Tambahkan “{label}”' },
     table: { empty: 'Tidak ada data' },

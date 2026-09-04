@@ -58,6 +58,7 @@ export const tr: MPLocale = {
       slide: '{total} slayttan {index}. slayt'
     },
     scroll: { label: 'Kaydırılabilir içerik', previous: 'Geri kaydır', next: 'İleri kaydır' },
+    anchor: { label: 'Bu sayfada' },
     breadcrumb: { label: 'Gezinme yolu', expand: 'Gizli adımları göster' },
     combobox: { empty: 'Eşleşme yok', add: '“{label}” ekle' },
     table: { empty: 'Veri yok' },

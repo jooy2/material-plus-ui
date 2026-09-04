@@ -62,6 +62,7 @@ export const es: MPLocale = {
       previous: 'Desplazar hacia atrás',
       next: 'Desplazar hacia delante'
     },
+    anchor: { label: 'En esta página' },
     breadcrumb: { label: 'Ruta de navegación', expand: 'Mostrar los pasos ocultos' },
     combobox: { empty: 'Sin coincidencias', add: 'Añadir «{label}»' },
     table: { empty: 'Sin datos' },

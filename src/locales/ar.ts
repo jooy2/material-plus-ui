@@ -58,6 +58,7 @@ export const ar: MPLocale = {
       slide: 'الشريحة {index} من {total}'
     },
     scroll: { label: 'محتوى قابل للتمرير', previous: 'التمرير للخلف', next: 'التمرير للأمام' },
+    anchor: { label: 'في هذه الصفحة' },
     breadcrumb: { label: 'مسار التنقل', expand: 'إظهار الخطوات المخفية' },
     combobox: { empty: 'لا توجد نتائج', add: 'إضافة ”{label}“' },
     table: { empty: 'لا توجد بيانات' },

@@ -58,6 +58,7 @@ export const pl: MPLocale = {
       slide: 'Slajd {index} z {total}'
     },
     scroll: { label: 'Przewijana zawartość', previous: 'Przewiń wstecz', next: 'Przewiń dalej' },
+    anchor: { label: 'Na tej stronie' },
     breadcrumb: { label: 'Ścieżka nawigacji', expand: 'Pokaż ukryte kroki' },
     combobox: { empty: 'Brak wyników', add: 'Dodaj „{label}”' },
     table: { empty: 'Brak danych' },

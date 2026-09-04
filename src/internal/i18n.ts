@@ -209,6 +209,19 @@ export interface MPMessages {
     next: string;
   };
   /**
+   * MPAnchor.
+   *
+   * One string, and it is read out rather than drawn: the rows are the page's
+   * own headings, and the only thing the component says on its own behalf is
+   * what the `<nav>` around them is called. A page with a table of contents and
+   * a menu in it has two navigation landmarks, and a screen reader that offers
+   * both of them as "navigation" has told the reader nothing.
+   */
+  anchor: {
+    /** The name of the `<nav>` the list of headings is inside. */
+    label: string;
+  };
+  /**
    * MPBreadcrumb.
    *
    * Both read out and never drawn: a trail's steps are the caller's words, and

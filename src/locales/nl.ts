@@ -58,6 +58,7 @@ export const nl: MPLocale = {
       slide: 'Dia {index} van {total}'
     },
     scroll: { label: 'Scrollbare inhoud', previous: 'Terugscrollen', next: 'Vooruitscrollen' },
+    anchor: { label: 'Op deze pagina' },
     breadcrumb: { label: 'Kruimelpad', expand: 'Verborgen stappen tonen' },
     combobox: { empty: 'Geen resultaten', add: '‘{label}’ toevoegen' },
     table: { empty: 'Geen gegevens' },

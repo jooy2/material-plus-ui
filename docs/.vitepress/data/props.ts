@@ -5323,6 +5323,98 @@ const componentTables: Record<string, PropRow[]> = {
     id
   ],
 
+  MPAnchor: [
+    {
+      name: 'items',
+      type: 'MPAnchorItem[]',
+      required: true,
+      description: {
+        ko: '제목들. 페이지에 나타나는 순서대로 `{ href, label, depth? }` 배열입니다. `href`는 `id`를 가리키고, `id`가 없는 제목은 추적할 수 없습니다',
+        en: 'The headings, in the order they appear on the page, as `{ href, label, depth? }`. An `href` names an `id`, and a heading with no `id` cannot be tracked'
+      }
+    },
+    {
+      name: 'activeHref',
+      type: 'string | null',
+      description: {
+        ko: '표시할 행을 `href`로 지정합니다. 주면 목록은 스크롤을 지켜보지 않고 시키는 대로만 말합니다. `null`은 아무것도 표시하지 않습니다',
+        en: 'Which row is marked, by its `href`. Given, the list stops watching the scroll and says what it is told; `null` marks nothing'
+      }
+    },
+    {
+      name: 'onActiveChange',
+      type: '(href: string | null) => void',
+      description: {
+        ko: '독자가 있는 행이 바뀔 때마다 호출됩니다',
+        en: 'Called whenever the row the reader is in changes'
+      }
+    },
+    {
+      name: 'offset',
+      type: 'number',
+      default: '0',
+      description: {
+        ko: '스크롤포트 위쪽에서 얼마나 내려가야 제목에 닿은 것으로 칠지, 픽셀. 고정 헤더의 높이를 넣으세요 — 그러지 않으면 바 뒤에 가려진 제목이 표시되는 일이 없습니다',
+        en: 'How far below the top of the scrollport a heading counts as reached, in pixels. Set it to the height of a sticky header, or the heading behind the bar is never the one marked'
+      }
+    },
+    {
+      name: 'container',
+      type: 'RefObject<HTMLElement | null>',
+      description: {
+        ko: '문서가 아닌 다른 것이 스크롤될 때 그 엘리먼트. `scroll="content"`인 `MPPageLayout`이 페이지를 넣는 상자 같은 것입니다',
+        en: 'What scrolls, when it is not the document — the element an `MPPageLayout` with `scroll="content"` puts the page inside'
+      }
+    },
+    {
+      name: 'rail',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '앞 가장자리를 따라 레일을 그리고, 독자가 있는 행에 불을 켭니다. 표식이 아니라 행 자신의 테두리라서 아무것도 미끄러지지 않습니다',
+        en: 'Draws the rail down the leading edge with the row the reader is in lit. It is a border on the row rather than a travelling marker, so nothing slides'
+      }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      default: "'On this page'",
+      description: {
+        ko: '`<nav>` 랜드마크의 접근성 이름. 메뉴와 목차가 함께 있는 페이지는 랜드마크가 둘이고, 둘 다 "navigation"으로 읽히면 아무것도 알려 주지 못합니다',
+        en: 'The accessible name of the `<nav>` landmark. A page with a menu and a table of contents has two of them, and a reader offered both as "navigation" has been told nothing'
+      }
+    },
+    {
+      name: 'locale',
+      type: 'string',
+      description: {
+        ko: '그 이름을 쓰는 언어를 정하는 BCP 47 태그. 생략하면 가장 가까운 `MPLocaleProvider`, 그다음 영어입니다',
+        en: 'A BCP 47 tag deciding what language that name is in. Falls back to the nearest `MPLocaleProvider`, then to English'
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '행 글자의 크기, 그리고 제목 한 단계가 들어가는 정도',
+        en: "The size of a row's text, and how far one level of heading is set in"
+      }
+    },
+    {
+      ...color,
+      description: {
+        ko: '표시된 행이 읽는 강조 색 계열. 나머지 행은 중립으로 남습니다',
+        en: 'Which accent family the marked row reads. The rest of the rows stay neutral'
+      }
+    },
+    {
+      ...density,
+      description: {
+        ko: '행만 좁힙니다. 글자 크기는 움직이지 않습니다',
+        en: 'Tightens the rows and nothing else — the type scale does not move'
+      }
+    }
+  ],
+
   MPAlert: [
     {
       name: 'variant',

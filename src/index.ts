@@ -9,6 +9,7 @@ export * from './constants/icons';
 export * from './hooks';
 export * from './components/accordion';
 export * from './components/alert';
+export * from './components/anchor';
 export * from './components/animate-appear';
 export * from './components/animate-blink';
 export * from './components/animate-counter';

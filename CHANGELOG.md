@@ -6,6 +6,16 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **`MPAnchor`**, the headings of the page being read with the one the reader is in marked. A `<nav>` of real fragment links, so the rows jump to their headings with JavaScript turned off and are in the link list a screen reader can pull up; watching the scroll is added on top rather than being what holds it up.
+
+  The marked row carries `aria-current="location"` rather than `"true"`. That value means "where the reader is within a set of links", which is what a table of contents reports; `"true"` is the current page, which is what a navigation menu's own entry says.
+
+  `items` is given rather than scraped. Whatever produced the page knows its own headings and the ids on them, and a component that went looking for `<h2>`s would be guessing at which of them were content and which were chrome.
+
+  Two things make the wrong row light up, and both have a prop: a sticky header (`offset`) and a scroller that is not the document (`container`). The rule is the last heading whose top has passed the line — the only one that reads correctly while scrolling up as well as down — with two deliberate consequences. Nothing is marked at the top of a page, because the reader has not reached the first heading. And the last heading is marked at the bottom whatever the measurement says, because its section usually has less under it than a viewport and its top never reaches the line at all.
+
+  The rail's lit segment is a border on the row, never a marker that travels between rows: a thing moving under a reader who is already moving is the one animation a table of contents should not have.
+
 - **`MPScrollZone`**, a strip of anything laid out in one direction and scrolled in it. Cards, chips, avatars or thumbnails run across the box or down it, in as many lines as you ask for, with a pair of buttons for the pointer that has neither a wheel nor a finger.
 
   The mechanism is an ordinary scroll container and everything the component offers is a way of driving one. Swiping, two-finger dragging, the arrow keys and the scrollbar are the browser's own and none of them is intercepted; nothing is transformed, which is what makes the strip run the other way under RTL without being told.

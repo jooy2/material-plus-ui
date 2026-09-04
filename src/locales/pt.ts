@@ -58,6 +58,7 @@ export const pt: MPLocale = {
       slide: 'Slide {index} de {total}'
     },
     scroll: { label: 'Conteúdo rolável', previous: 'Rolar para trás', next: 'Rolar para a frente' },
+    anchor: { label: 'Nesta página' },
     breadcrumb: { label: 'Caminho de navegação', expand: 'Mostrar as etapas ocultas' },
     combobox: { empty: 'Sem correspondências', add: 'Adicionar “{label}”' },
     table: { empty: 'Sem dados' },

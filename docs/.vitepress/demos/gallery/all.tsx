@@ -4,6 +4,7 @@ import {
   MPAccordion,
   MPAccordionItem,
   MPAlert,
+  MPAnchor,
   MPAnimateAppear,
   MPAnimateBlink,
   MPAnimateCounter,
@@ -1322,6 +1323,25 @@ const GROUPS: Group[] = [
             <MPBreadcrumbItem href="#">Docs</MPBreadcrumbItem>
             <MPBreadcrumbItem>Breadcrumb</MPBreadcrumbItem>
           </MPBreadcrumb>
+        )
+      },
+      {
+        name: 'MPAnchor',
+        summary: {
+          ko: '읽고 있는 페이지의 제목 목록, 독자가 있는 항목이 표시된 채로',
+          en: 'The headings of the page being read, with the one the reader is in marked'
+        },
+        path: '/components/display/anchor',
+        preview: (
+          <MPAnchor
+            size="xs"
+            activeHref="#usage"
+            items={[
+              { href: '#install', label: 'Install' },
+              { href: '#usage', label: 'Usage' },
+              { href: '#options', label: 'Options', depth: 1 }
+            ]}
+          />
         )
       },
       {

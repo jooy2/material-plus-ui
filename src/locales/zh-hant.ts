@@ -62,6 +62,7 @@ export const zhHant: MPLocale = {
       slide: '第 {index} 張，共 {total} 張'
     },
     scroll: { label: '可捲動的內容', previous: '向後捲動', next: '向前捲動' },
+    anchor: { label: '本頁內容' },
     breadcrumb: { label: '麵包屑導覽', expand: '顯示隱藏的層級' },
     combobox: { empty: '沒有相符項目', add: '新增「{label}」' },
     table: { empty: '沒有資料' },
