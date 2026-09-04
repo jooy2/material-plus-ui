@@ -56,6 +56,7 @@ import {
   MPFloatingActionButton,
   MPFooter,
   MPForm,
+  MPFlex,
   MPGrid,
   MPGridItem,
   MPHeader,
@@ -1687,6 +1688,30 @@ const GROUPS: Group[] = [
               </div>
             </MPContainer>
           </div>
+        )
+      },
+      {
+        name: 'MPFlex',
+        summary: {
+          ko: '행이나 열, 그리고 둘 사이가 바뀌는 너비',
+          en: 'A row or a column, and the width at which it changes'
+        },
+        path: '/components/layout/flex',
+        preview: (
+          <MPFlex
+            direction={{ compact: 'column', medium: 'row' }}
+            gap={8}
+            style={{ width: '100%' }}
+          >
+            {['row', 'from', '600dp'].map((label) => (
+              <div
+                key={label}
+                className="bg-mp-surface-container-highest text-mp-on-surface-variant text-mp-label-small rounded-mp-xs flex h-8 flex-1 items-center justify-center"
+              >
+                {label}
+              </div>
+            ))}
+          </MPFlex>
         )
       },
       {

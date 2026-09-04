@@ -1,6 +1,6 @@
 ---
 title: MPBottomNavigation
-order: 12
+order: 13
 ---
 
 # MPBottomNavigation

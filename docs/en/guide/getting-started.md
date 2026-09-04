@@ -343,7 +343,7 @@ Gzipped, from a real bundler, with React and `@base-ui/react` held external — 
 | `MPButton` alone      | 3.0 kB     | 4.5 kB            |
 | Five components       | 9.0 kB     | 7.5 kB            |
 | Ten components        | 13.3 kB    | 10.3 kB           |
-| Every export there is | 87.3 kB    | 17.5 kB           |
+| Every export there is | 87.5 kB    | 18.0 kB           |
 
 Two things to read off it. The first column is marginal: a component you did not import is not in it, which is what `sideEffects`, the build's `@__PURE__` annotations and a message table per namespace are all for. The second column is not marginal — a stylesheet is a file you either imported or did not — so it assumes the list of sheets matches what the page renders.
 

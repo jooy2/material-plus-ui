@@ -1321,6 +1321,117 @@
  * an application's stylesheet is not a grid.
  * ------------------------------------------------------------------------- */
 
+/*
+ * The flex container's five axes, each of them resolved per window size class.
+ *
+ * The same four-step fallback the grid's slots use, and for the same reason: a
+ * responsive prop writes only the classes a caller named, so each step falls
+ * back to the one below it and the whole ladder falls back to the property's own
+ * default. `direction={{ compact: 'column', medium: 'row' }}` is two slots, and
+ * a window crossing 600dp changes the layout with nothing re-rendering.
+ *
+ * The `initial` block is the boundary a nested flex needs, exactly as a nested
+ * grid does: these are inline custom properties and a custom property inherits,
+ * so an inner flex that only declared `--_mp-flex-dir-compact` would otherwise
+ * resolve its parent's `--_mp-flex-dir-large` at every class above compact — a
+ * row that is told `row` and comes out a column on a laptop.
+ */
+.mp-flex {
+  --_mp-flex-dir-0: var(--_mp-flex-dir-compact, row);
+  --_mp-flex-dir-1: var(--_mp-flex-dir-0);
+  --_mp-flex-dir-2: var(--_mp-flex-dir-1);
+  --_mp-flex-dir-3: var(--_mp-flex-dir-2);
+  --_mp-flex-dir: var(--_mp-flex-dir-3);
+
+  --_mp-flex-wrap-0: var(--_mp-flex-wrap-compact, nowrap);
+  --_mp-flex-wrap-1: var(--_mp-flex-wrap-0);
+  --_mp-flex-wrap-2: var(--_mp-flex-wrap-1);
+  --_mp-flex-wrap-3: var(--_mp-flex-wrap-2);
+  --_mp-flex-wrap: var(--_mp-flex-wrap-3);
+
+  --_mp-flex-justify-0: var(--_mp-flex-justify-compact, flex-start);
+  --_mp-flex-justify-1: var(--_mp-flex-justify-0);
+  --_mp-flex-justify-2: var(--_mp-flex-justify-1);
+  --_mp-flex-justify-3: var(--_mp-flex-justify-2);
+  --_mp-flex-justify: var(--_mp-flex-justify-3);
+
+  --_mp-flex-align-0: var(--_mp-flex-align-compact, stretch);
+  --_mp-flex-align-1: var(--_mp-flex-align-0);
+  --_mp-flex-align-2: var(--_mp-flex-align-1);
+  --_mp-flex-align-3: var(--_mp-flex-align-2);
+  --_mp-flex-align: var(--_mp-flex-align-3);
+
+  --_mp-flex-gap-0: var(--_mp-flex-gap-compact, 0px);
+  --_mp-flex-gap-1: var(--_mp-flex-gap-0);
+  --_mp-flex-gap-2: var(--_mp-flex-gap-1);
+  --_mp-flex-gap-3: var(--_mp-flex-gap-2);
+  --_mp-flex-gap: var(--_mp-flex-gap-3);
+
+  --_mp-flex-dir-compact: initial;
+  --_mp-flex-dir-medium: initial;
+  --_mp-flex-dir-expanded: initial;
+  --_mp-flex-dir-large: initial;
+  --_mp-flex-dir-extra-large: initial;
+  --_mp-flex-wrap-compact: initial;
+  --_mp-flex-wrap-medium: initial;
+  --_mp-flex-wrap-expanded: initial;
+  --_mp-flex-wrap-large: initial;
+  --_mp-flex-wrap-extra-large: initial;
+  --_mp-flex-justify-compact: initial;
+  --_mp-flex-justify-medium: initial;
+  --_mp-flex-justify-expanded: initial;
+  --_mp-flex-justify-large: initial;
+  --_mp-flex-justify-extra-large: initial;
+  --_mp-flex-align-compact: initial;
+  --_mp-flex-align-medium: initial;
+  --_mp-flex-align-expanded: initial;
+  --_mp-flex-align-large: initial;
+  --_mp-flex-align-extra-large: initial;
+  --_mp-flex-gap-compact: initial;
+  --_mp-flex-gap-medium: initial;
+  --_mp-flex-gap-expanded: initial;
+  --_mp-flex-gap-large: initial;
+  --_mp-flex-gap-extra-large: initial;
+
+  flex-direction: var(--_mp-flex-dir);
+  flex-wrap: var(--_mp-flex-wrap);
+  justify-content: var(--_mp-flex-justify);
+  align-items: var(--_mp-flex-align);
+  gap: var(--_mp-flex-gap);
+
+  @variant mp-medium {
+    --_mp-flex-dir-1: var(--_mp-flex-dir-medium, var(--_mp-flex-dir-0));
+    --_mp-flex-wrap-1: var(--_mp-flex-wrap-medium, var(--_mp-flex-wrap-0));
+    --_mp-flex-justify-1: var(--_mp-flex-justify-medium, var(--_mp-flex-justify-0));
+    --_mp-flex-align-1: var(--_mp-flex-align-medium, var(--_mp-flex-align-0));
+    --_mp-flex-gap-1: var(--_mp-flex-gap-medium, var(--_mp-flex-gap-0));
+  }
+
+  @variant mp-expanded {
+    --_mp-flex-dir-2: var(--_mp-flex-dir-expanded, var(--_mp-flex-dir-1));
+    --_mp-flex-wrap-2: var(--_mp-flex-wrap-expanded, var(--_mp-flex-wrap-1));
+    --_mp-flex-justify-2: var(--_mp-flex-justify-expanded, var(--_mp-flex-justify-1));
+    --_mp-flex-align-2: var(--_mp-flex-align-expanded, var(--_mp-flex-align-1));
+    --_mp-flex-gap-2: var(--_mp-flex-gap-expanded, var(--_mp-flex-gap-1));
+  }
+
+  @variant mp-large {
+    --_mp-flex-dir-3: var(--_mp-flex-dir-large, var(--_mp-flex-dir-2));
+    --_mp-flex-wrap-3: var(--_mp-flex-wrap-large, var(--_mp-flex-wrap-2));
+    --_mp-flex-justify-3: var(--_mp-flex-justify-large, var(--_mp-flex-justify-2));
+    --_mp-flex-align-3: var(--_mp-flex-align-large, var(--_mp-flex-align-2));
+    --_mp-flex-gap-3: var(--_mp-flex-gap-large, var(--_mp-flex-gap-2));
+  }
+
+  @variant mp-extra-large {
+    --_mp-flex-dir: var(--_mp-flex-dir-extra-large, var(--_mp-flex-dir-3));
+    --_mp-flex-wrap: var(--_mp-flex-wrap-extra-large, var(--_mp-flex-wrap-3));
+    --_mp-flex-justify: var(--_mp-flex-justify-extra-large, var(--_mp-flex-justify-3));
+    --_mp-flex-align: var(--_mp-flex-align-extra-large, var(--_mp-flex-align-3));
+    --_mp-flex-gap: var(--_mp-flex-gap-extra-large, var(--_mp-flex-gap-3));
+  }
+}
+
 .mp-grid {
   --_mp-cols-0: var(--_mp-cols-compact, 12);
   --_mp-cols-1: var(--_mp-cols-0);

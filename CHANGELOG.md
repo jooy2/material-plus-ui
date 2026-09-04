@@ -6,6 +6,14 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **`MPFlex`**, a row or a column and the width at which it changes from one to the other. It draws nothing — no surface, no padding, no corner — only the five properties a flex container has, each of them sayable per window size class.
+
+  A row that is always a row wants a `className` and not this. What this is for is `direction={{ compact: 'column', medium: 'row' }}`: written as Tailwind's own variants that is `flex-col md:flex-row`, which is the library's boundary said again in Tailwind's numbers — 768px rather than 600 — and a layout that reflows at one width while the `MPGrid` beside it reflows at another. The `mp-medium:` variants this package ships are the other right answer, for a page already writing Tailwind.
+
+  Every axis resolves in **CSS**, as `--_mp-flex-*` slots and the same four-step fallback `MPGrid` uses, so a window crossing a boundary changes the layout with nothing re-rendering and a server-rendered first paint is already right.
+
+  Each one clears the whole slot set on itself, which is what stops a nested flex inheriting the outer one's classes — an inner row told `direction="row"` would otherwise resolve its parent's `large` entry above 1200dp and come out a column on a laptop.
+
 - **Four hooks**: `useMPDisclosure`, `useMPMediaQuery`, `useMPElementSize` and `useMPOnScreen`. The five already exported were machinery the components were running; these four are the general form of something the library does several times over and could not export as it stood.
 
   `useMPDisclosure` is the six lines every page writes to open a dialog, with the two details a version written in a hurry leaves out: the callbacks are stable for the life of the component, and asking to close something already closed is not a state change — which matters because a close handler is usually wired to a button, an `onOpenChange` and an Escape at once.

@@ -5546,6 +5546,76 @@ const componentTables: Record<string, PropRow[]> = {
     transition
   ],
 
+  MPFlex: [
+    {
+      name: 'direction',
+      type: "MPResponsive<'row' | 'column'>",
+      default: "'row'",
+      description: {
+        ko: "항목이 흐르는 방향, 그리고 그것이 바뀌는 너비. `{ compact: 'column', medium: 'row' }`가 이 컴포넌트가 존재하는 이유입니다",
+        en: "Which way the items run, and the width at which that changes. `{ compact: 'column', medium: 'row' }` is the reason this component exists"
+      }
+    },
+    {
+      name: 'wrap',
+      type: 'MPResponsive<boolean>',
+      default: 'false',
+      description: {
+        ko: '들어가지 않는 항목이 다음 줄로 넘어갑니다',
+        en: 'Whether items that do not fit move onto another line'
+      }
+    },
+    {
+      name: 'justify',
+      type: "MPResponsive<'start' | 'center' | 'end' | 'space-between' | 'space-around' | 'space-evenly'>",
+      default: "'start'",
+      description: {
+        ko: '항목이 쓰지 않은 공간을 흐름 방향으로 어떻게 나눌지. `start`와 `end`는 CSS에 `flex-start`와 `flex-end`로 갑니다',
+        en: 'How the space the items did not take is divided along the direction. `start` and `end` reach CSS as `flex-start` and `flex-end`'
+      }
+    },
+    {
+      name: 'align',
+      type: "MPResponsive<'start' | 'center' | 'end' | 'stretch' | 'baseline'>",
+      default: "'stretch'",
+      description: {
+        ko: '항목이 가로지르는 축에서 어떻게 놓일지. `stretch`가 기본이라 한 행의 두 카드가 높이를 지정받지 않고도 같은 높이가 됩니다',
+        en: 'How the items sit across the direction. `stretch` is the default, which is what makes two cards in a row the same height without either being told one'
+      }
+    },
+    {
+      name: 'gap',
+      type: 'MPResponsive<number | string>',
+      default: '0',
+      description: {
+        ko: '항목 사이의 간격. 숫자는 픽셀, 문자열은 CSS 길이 그대로입니다',
+        en: 'The space between items. A number is pixels, a string is any CSS length'
+      }
+    },
+    {
+      name: 'inline',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '`inline-flex`로 배치되어 내용만큼만 넓어지고 글줄 안에 놓입니다',
+        en: 'Lays out as `inline-flex`, so the box is as wide as its contents and sits in a line of text'
+      }
+    },
+    {
+      name: 'render',
+      type: 'RenderProp',
+      description: {
+        ko: '`<div>` 대신 다른 엘리먼트로 렌더링합니다',
+        en: 'Renders something other than a `<div>`'
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '배치할 항목들', en: 'The items to lay out' }
+    }
+  ],
+
   MPGrid: [
     {
       name: 'columns',
