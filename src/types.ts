@@ -136,6 +136,30 @@ export type MPElevation = 0 | 1 | 2 | 3 | 4 | 5;
 export type MPColor = 'primary' | 'secondary' | 'tertiary' | 'error';
 
 /**
+ * Where a reading changes colour.
+ *
+ * The one place in this library where an accent family is *computed* rather than
+ * chosen, and it lives here rather than inside whichever component needed it
+ * first because more than one component reports the same reading. A meter and a
+ * gauge are one quantity in two shapes, and a page carrying both must not
+ * disagree about where the amber starts.
+ *
+ * Left to the caller this is a ternary at every call site, and the fourth one
+ * would get it wrong.
+ *
+ * The families are still MD3's four. There is no `warning` in the specification,
+ * so an amber band is `tertiary` under whatever source colour the page is
+ * themed from — which is the honest answer, and the reason a threshold names a
+ * role rather than a colour.
+ */
+export interface MPThreshold {
+  /** The value from which this family applies, in the reading's own units. */
+  from: number;
+  /** What the reading turns at and above that point. */
+  color: MPColor;
+}
+
+/**
  * How much of a surface a component paints.
  *
  * These are Material's own five button styles, in the order they get louder, and

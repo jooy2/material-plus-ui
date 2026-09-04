@@ -6,6 +6,14 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **`MPMeter`**, how much of something there is on a scale known in advance — disk used, seats taken, quota spent, a password's strength. It looks like `MPProgressLinear` and means something else.
+
+  A progress bar is about time: something is happening, this is how far it has got, it may have no value at all, and it is expected to move on its own. A meter is about quantity: the number is already known, it does not move unless the thing it measures does, and it is meaningful to say the reading is bad. A disk that is 94% full is not 94% finished, and the two carry different ARIA roles for exactly that reason — so `value` is required here and optional there.
+
+  `thresholds` is where the bar changes colour, and it names **roles** rather than colours. MD3 has four accent families and none of them is `warning`, so an amber band is `tertiary` under whatever source colour the page is themed from; a threshold that named a colour would be a colour that ignores the theme, on the one component whose whole point is to be read at a glance. `from` is a value on the meter's own scale rather than a percentage, and the list is read in the order it was given rather than sorted, so a call site that listed the bands the wrong way round shows it.
+
+  A new `MPThreshold` in the shared vocabulary rather than a type inside the component, because more than one shape reports the same reading: a meter and a gauge must not disagree about where the amber starts.
+
 - **`MPAnchor`**, the headings of the page being read with the one the reader is in marked. A `<nav>` of real fragment links, so the rows jump to their headings with JavaScript turned off and are in the link list a screen reader can pull up; watching the scroll is added on top rather than being what holds it up.
 
   The marked row carries `aria-current="location"` rather than `"true"`. That value means "where the reader is within a set of links", which is what a table of contents reports; `"true"` is the current page, which is what a navigation menu's own entry says.

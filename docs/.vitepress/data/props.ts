@@ -4782,6 +4782,77 @@ const componentTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPMeter: [
+    {
+      name: 'value',
+      type: 'number',
+      required: true,
+      description: {
+        ko: '얼마나 있는지. 필수이고, 그것이 `MPProgressLinear`와의 차이 전부입니다 — 미터는 이미 알려진 양을 보고하므로 기본값이 대신할 불확정 상태가 없습니다',
+        en: 'How much there is. Required, and that is the whole difference from `MPProgressLinear`: a meter reports a quantity that is already known, so there is no indeterminate case for a default to stand in for'
+      }
+    },
+    {
+      name: 'min',
+      type: 'number',
+      default: '0',
+      description: { ko: '눈금의 아래 끝', en: 'The bottom of the scale' }
+    },
+    {
+      name: 'max',
+      type: 'number',
+      default: '100',
+      description: { ko: '눈금의 위 끝', en: 'The top of it' }
+    },
+    {
+      name: 'label',
+      type: NODE,
+      description: {
+        ko: '무엇을 재고 있는지의 이름. 값과 함께 읽힙니다',
+        en: 'A name for what is being measured. Read out with the value'
+      }
+    },
+    {
+      name: 'showValue',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '값을 바 옆에 글자로 보여 줍니다. `format`이 달리 말하지 않으면 범위에 대한 비율입니다',
+        en: 'Shows the value as text beside the bar. A share of the range unless `format` says otherwise'
+      }
+    },
+    {
+      name: 'format',
+      type: 'Intl.NumberFormatOptions',
+      description: {
+        ko: '그 값을 어떻게 쓸지. 미터에는 대개 진짜 단위가 있어서 프로그레스 바에서보다 중요합니다 — 좌석 60개 중 41개, 5 GB 중 2.1 GB',
+        en: 'How to write that value. It matters more here than on a progress bar, because a meter usually has real units: 41 of 60 seats, 2.1 GB of 5'
+      }
+    },
+    {
+      name: 'thresholds',
+      type: 'MPThreshold[]',
+      description: {
+        ko: '바가 색을 바꾸는 지점들. `from`은 백분율이 아니라 그 미터 자신의 눈금 위의 값이고, 작은 것부터 적습니다. 값이 지나온 마지막 것이 이기고, 어느 것에도 못 미치면 `color`가 그대로입니다',
+        en: "Where the bar changes colour. `from` is a value on the meter's own scale rather than a percentage, listed smallest first — the last one the value has reached wins, and below all of them `color` stands"
+      }
+    },
+    {
+      ...size,
+      description: {
+        ko: '홈의 두께. 바에서 크기를 가지는 것은 그것뿐입니다',
+        en: 'Thickness of the groove. Nothing else on a bar has a size'
+      }
+    },
+    {
+      ...color,
+      description: {
+        ko: 'threshold에 닿기 전까지 바가 지니는 계열',
+        en: 'The family the bar carries before any threshold is reached'
+      }
+    }
+  ],
+
   MPMenu: [
     {
       name: 'trigger',

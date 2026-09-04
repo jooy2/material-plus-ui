@@ -68,6 +68,7 @@ import {
   MPList,
   MPListItem,
   MPMenu,
+  MPMeter,
   MPMenuItem,
   MPMenuSeparator,
   MPMenubar,
@@ -1544,6 +1545,27 @@ const GROUPS: Group[] = [
         preview: (
           <Fit>
             <MPProgressLinear value={62} showValue label="Uploading" />
+          </Fit>
+        )
+      },
+      {
+        name: 'MPMeter',
+        summary: {
+          ko: '미리 알려진 눈금 위의 양. 프로그레스 바처럼 보이지만 다른 것을 뜻합니다',
+          en: 'A quantity on a scale known in advance — it looks like a progress bar and means something else'
+        },
+        path: '/components/feedback/meter',
+        preview: (
+          <Fit>
+            <MPMeter
+              value={94}
+              label="Quota spent"
+              showValue
+              thresholds={[
+                { from: 60, color: 'tertiary' },
+                { from: 85, color: 'error' }
+              ]}
+            />
           </Fit>
         )
       },
