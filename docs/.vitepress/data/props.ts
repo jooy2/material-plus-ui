@@ -10434,6 +10434,116 @@ const componentTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPFloatingBottomNavigation: [
+    {
+      name: 'children',
+      type: NODE,
+      description: {
+        ko: '`MPBottomNavigationItem`들. 전폭 바가 받는 것과 같은 항목입니다',
+        en: 'The `MPBottomNavigationItem`s — the same item the full-width bar takes'
+      }
+    },
+    {
+      name: 'value',
+      type: 'string | number | null',
+      description: {
+        ko: '독자가 있는 목적지. `onValueChange`와 함께 쓰면 controlled입니다',
+        en: 'The destination the reader is on. Use with `onValueChange` for a controlled bar'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: 'string | number | null',
+      description: { ko: '처음 현재인 목적지', en: 'Which starts current' }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: string | number) => void',
+      description: {
+        ko: '눌린 목적지의 값과 함께 호출됩니다',
+        en: 'Called with the value of the destination that was pressed'
+      }
+    },
+    {
+      name: 'position',
+      type: "'fixed' | 'sticky' | 'absolute' | 'static'",
+      default: "'fixed'",
+      description: {
+        ko: '바가 어디에 붙드는지. `absolute`는 창이 아니라 가장 가까운 positioned 조상의 아래이고, 자기 화면 안에 있는 바가 원하는 것이 그것입니다',
+        en: 'Where the bar hangs. `absolute` holds it against the nearest positioned ancestor rather than the window, which is what a bar inside a screen of its own wants'
+      }
+    },
+    {
+      name: 'offset',
+      type: 'number | string',
+      default: '16',
+      description: {
+        ko: '아래 가장자리에서 얼마나 떠 있는지. 이 컴포넌트와 `MPBottomNavigation`의 차이 전부입니다 — 그 밑의 틈이 페이지를 계속 흐르게 합니다',
+        en: 'How far it floats above the bottom edge. This is the whole difference from `MPBottomNavigation`: the gap under it is what makes the page keep going underneath'
+      }
+    },
+    {
+      name: 'labels',
+      type: "'all' | 'selected' | 'none'",
+      default: "'selected'",
+      description: {
+        ko: '어떤 이름을 그릴지. 전폭 바의 `all`이 아니라 `selected`입니다 — 이 바는 안에 든 것만큼만 넓어서, 이름 다섯 개를 그리면 다시 바가 됩니다. 그리지 않아도 말하지 않는 것은 아닙니다',
+        en: "Which names are drawn. `selected` here against the full-width bar's `all`: this one is only as wide as what is in it, and five drawn names would stretch it back into a bar. Undrawn is never unsaid"
+      }
+    },
+    {
+      name: 'safeArea',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '`offset`에 `env(safe-area-inset-bottom)`을 더해 홈 인디케이터를 피합니다. 전폭 바와 달리 시트 전체가 움직입니다 — 아래에 덮어 둘 것이 없습니다',
+        en: 'Adds `env(safe-area-inset-bottom)` to `offset` so the bar clears a home indicator. Unlike the full-width bar this moves the whole sheet: there is nothing under it to keep covered'
+      }
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '모든 목적지가 답하지 않습니다', en: 'Every destination stops answering' }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: {
+        ko: '바가 불리는 이름 — "주요", "구역". 이름 없는 랜드마크는 스크린 리더가 "navigation"으로만 세는 랜드마크입니다',
+        en: 'The name the bar is announced by. A landmark with no name is one a screen reader lists as "navigation"'
+      }
+    },
+    {
+      name: 'render',
+      type: 'RenderProp',
+      description: {
+        ko: '`<nav>` 대신 다른 것을 렌더합니다. 여기서는 좀처럼 원할 일이 없습니다 — 목적지의 행은 내비게이션입니다',
+        en: 'Renders something other than a `<nav>`. Rarely what you want here: a row of destinations is navigation'
+      }
+    },
+    {
+      ...containerVariant,
+      default: "'filled'",
+      description: {
+        ko: '로젠지가 칠하는 면의 양. 컨테이너의 사다리라서 시트는 물들지 않습니다 — 강조 색을 지니는 것은 현재인 목적지 하나입니다',
+        en: 'How much surface the lozenge paints. A container’s ladder, so the sheet is never dyed: what carries the accent is the one destination that is current'
+      }
+    },
+    {
+      ...elevation,
+      default: '3',
+      description: {
+        ko: '페이지에서 얼마나 떠 있는지. 다른 모든 면과 달리 기본값이 있습니다 — 이 바는 페이지의 일부가 아니라는 것으로 정의되고, 평평한 로젠지는 실수로 읽힙니다',
+        en: 'How far off the page it is lifted. Unlike every other surface this has a default: the bar is defined by not being part of the page, and a flat lozenge reads as a mistake'
+      }
+    },
+    {
+      ...size,
+      description: { ko: '행의 높이와 글자 크기', en: 'The height of the row and its type scale' }
+    }
+  ],
+
   MPFooter: [
     {
       name: 'position',

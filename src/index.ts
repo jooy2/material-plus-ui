@@ -63,6 +63,7 @@ export * from './components/fieldset';
 export * from './components/file-picker';
 export * from './components/flex';
 export * from './components/floating-action-button';
+export * from './components/floating-bottom-navigation';
 export * from './components/footer';
 export * from './components/form';
 export * from './components/grid';

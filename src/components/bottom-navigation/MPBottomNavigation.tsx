@@ -4,45 +4,15 @@ import { linkRel } from '../../internal/link';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { hasContent } from '../../internal/scale';
 import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
+import {
+  MPBottomNavigationContext,
+  type MPBottomNavigationLabels,
+  type MPBottomNavigationValue
+} from '../../internal/bottom-navigation';
 import { useMPSize } from '../../internal/config';
 import type { MPPosition, MPSize } from '../../types';
 
-/** A destination's value. The same restraint `MPTabs` puts on a tab's. */
-export type MPBottomNavigationValue = string | number;
-
-/**
- * Which names are drawn.
- *
- * MD3's three label behaviours, and the order they lose information in:
- *
- * - `all` — every destination is named. The default, and the only one that works
- *   for a reader who has not used the application before.
- * - `selected` — only the destination the reader is on. The bar keeps its height
- *   either way.
- * - `none` — glyphs only.
- *
- * Undrawn is never unsaid: in both of the last two the names stay in the
- * document for a screen reader, because a glyph on its own has no accessible
- * name at all.
- */
-export type MPBottomNavigationLabels = 'all' | 'selected' | 'none';
-
-/** What an `MPBottomNavigationItem` inherits from the bar around it. */
-interface MPBottomNavigationContextValue {
-  value: MPBottomNavigationValue | null;
-  change: (value: MPBottomNavigationValue) => void;
-  size: MPSize;
-  labels: MPBottomNavigationLabels;
-  disabled: boolean;
-}
-
-const MPBottomNavigationContext = React.createContext<MPBottomNavigationContextValue>({
-  value: null,
-  change: () => {},
-  size: 'md',
-  labels: 'all',
-  disabled: false
-});
+export type { MPBottomNavigationLabels, MPBottomNavigationValue };
 
 /**
  * The bar's height.
@@ -306,7 +276,7 @@ export const MPBottomNavigation = React.forwardRef<HTMLElement, MPBottomNavigati
     );
 
     const context = React.useMemo(
-      () => ({ value: value ?? null, change, size, labels, disabled }),
+      () => ({ value: value ?? null, change, size, labels, disabled, floating: false }),
       [value, change, size, labels, disabled]
     );
 
@@ -373,7 +343,11 @@ export const MPBottomNavigationItem = React.forwardRef<HTMLElement, MPBottomNavi
     const named = bar.labels === 'all' || (bar.labels === 'selected' && current);
 
     const classNames = [
-      'mp-bottom-navigation__item group flex min-w-0 flex-1 flex-col items-center justify-center',
+      'mp-bottom-navigation__item group flex min-w-0 flex-col items-center justify-center',
+      // A full-width bar divides its own width between its destinations; a
+      // floating one is only as wide as what is in it, and a `flex-1`
+      // destination inside a lozenge would take a fifth of nothing.
+      bar.floating ? 'shrink-0' : 'flex-1',
       'box-border appearance-none bg-transparent px-1 font-[inherit] no-underline select-none',
       ITEM_GAP[bar.size],
       'outline-mp-secondary focus-visible:outline-2 focus-visible:-outline-offset-2',

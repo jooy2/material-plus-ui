@@ -6,6 +6,16 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **`MPFloatingBottomNavigation`**, the same row of destinations as `MPBottomNavigation`, lifted clear of the bottom edge so the content keeps going underneath. The same `<nav>`, the same `MPBottomNavigationItem` children, the same `aria-current="page"` and the same refusal of `role="tablist"`.
+
+  Everything about the shape follows from `offset`. Because the page runs below it the sheet is a stadium rather than a bar with two corners; it is only as wide as its destinations, so those are as wide as their own contents rather than a share of the screen; it carries a shadow by default, because a lozenge lying flat over what it floats above reads as a mistake; and it names only the destination the reader is on, since five drawn names would stretch it back into a bar.
+
+  **There is no second highlight.** A floating bar could have one tile that slides between destinations; this deliberately keeps the pill each item already wears, because the specification draws one selected treatment and a lozenge with both would say where the reader is twice, on two different curves.
+
+  `safeArea` moves the whole sheet here rather than the row inside it, which is what the full-width bar has to do: there is nothing under a floating bar that has to stay covered.
+
+- **The bottom navigation context moved to `internal/bottom-navigation.ts`**, so an `MPBottomNavigationItem` works in either bar without knowing which it is in. The import would otherwise have run the wrong way — a floating bar reaching into the full-width bar for a context would carry its height table and position map into every page that rendered either.
+
 - **`MPHoverCard`**, a card that opens when the pointer rests on something and holds a preview of what is on the other side of it. It fills the gap between the two popups already here: a tooltip is a label the pointer never reaches, a popover is a panel that was asked for by a press, and this one is uninvited like the first and reachable like the second — the pointer can cross into it, and a link inside it can be followed.
 
   Because it is uninvited it is never the only way to anything. A keyboard with no hover, a touchscreen with no pointer and a screen reader all arrive by the trigger's own route, so whatever is in the card has to exist on the page the trigger leads to as well. There is deliberately no keyboard equivalent bolted on: a card that opened on focus would interrupt every keyboard reader tabbing through a paragraph of links.

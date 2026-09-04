@@ -59,6 +59,7 @@ import {
   MPFieldset,
   MPFilePicker,
   MPFloatingActionButton,
+  MPFloatingBottomNavigation,
   MPFooter,
   MPForm,
   MPFlex,
@@ -1849,6 +1850,26 @@ const GROUPS: Group[] = [
                 ))}
               </div>
             </MPScrollArea>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPFloatingBottomNavigation',
+        summary: {
+          ko: '아래 가장자리에서 떠 있는 목적지들. 내용은 그 밑으로 흐릅니다',
+          en: 'Destinations floating clear of the bottom edge, with the content running underneath'
+        },
+        path: '/components/layout/floating-bottom-navigation',
+        preview: (
+          <Fit>
+            <MPFloatingBottomNavigation size="xs" position="static" defaultValue="home">
+              <MPBottomNavigationItem value="home" icon={<MPIcon icon={ICONS.search} />}>
+                Explore
+              </MPBottomNavigationItem>
+              <MPBottomNavigationItem value="saved" icon={<MPIcon icon={ICONS.star} />}>
+                Saved
+              </MPBottomNavigationItem>
+            </MPFloatingBottomNavigation>
           </Fit>
         )
       },
