@@ -6,6 +6,14 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **`elevation` on the sheets that can be raised**, on MD3's five levels: `MPBox`, `MPCard`, `MPAccordion`, `MPCollapsible`, `MPList`, `MPTable`, `MPHeader`, `MPFooter` and `MPSidebar`. The stylesheet gained levels 4 and 5 to go with the three it already had, so `--mp-sys-elevation-level1` through `level5` are all defined and all themeable.
+
+  **It moves the tone as well as the shadow**, and that is the only shape the prop could take here. MD3 does not treat height as a free axis: an elevated surface is `surface-container-low` _under_ a level-1 shadow, and the two are one decision. A prop that only cast a shadow would raise a `filled` box into a surface the specification has no name for — a lifted object that is somehow still the flattest tone in the system. So each level names a surface role and the shadow that goes with it, exactly as Material publishes the pairing.
+
+  `variant="elevated"` **is** `elevation={1}`, named, and stays: the variant vocabulary is about emphasis rather than about height, and it is the answer nearly every raised sheet wants. Given a level, the level decides the surface and `variant` is left holding only its hairline — an `outlined` sheet keeps its border and nothing else paints. Two props writing one `background-color` would otherwise be settled by the order two class names reached the generated stylesheet.
+
+  Levels 4 and 5 share the tones under them because the specification runs out of container roles before it runs out of levels. A bar reads the same ladder one rung higher, which is where `MPHeader`'s `elevated` already sat.
+
 - **`density` on the components that hold things**, and on `MPConfigProvider`. Material's own density scale — `0`, `-1`, `-2`, `-3`, four pixels a step — on `MPList`, `MPTable`, `MPCard`, `MPBox`, `MPAccordion`, `MPAlert`, `MPHeader`, `MPFooter` and `MPSidebar`.
 
   It is **not a second size ladder**, and the separation is the whole reason it is a second prop. `size` picks which control this is: the height, the type role, the padding that follows from both. `density` takes room out of the one that was picked, and takes it out of the spacing only — the type scale does not move. `size="sm"` on a list is a small list; `density={-2}` is a normal list with more of it on the screen, which is what a dense screen is actually asking for. Shrinking the text to fit more rows makes them harder to read at exactly the moment there are more of them.

@@ -19,6 +19,7 @@ type MPSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 type MPColor = 'primary' | 'secondary' | 'tertiary' | 'error';
 type MPVariant = 'filled' | 'tonal' | 'elevated' | 'outlined' | 'text';
 type MPDensity = 0 | -1 | -2 | -3;
+type MPElevation = 0 | 1 | 2 | 3 | 4 | 5;
 type MPOrientation = 'horizontal' | 'vertical';
 
 interface MPStyleProps {
@@ -48,7 +49,7 @@ export interface MPTextFieldProps extends MPStyleProps {
 
 `MPStyleProps` is deliberately short. An axis joins it when a **second** component needs it, not in anticipation of one — the same rule the design tokens follow.
 
-`variant`, `color` and `density` are shared _vocabulary_ rather than members of the bundle: a component that has meaningful variants takes `variant`, one that reads an accent family takes `color`, and one that holds other things takes `density` — but none of the three is on every component, and none of them would mean anything on `MPTextField`. `elevation` is likely to arrive one day, and is not here yet because nothing reads it.
+`variant`, `color` and `density` are shared _vocabulary_ rather than members of the bundle: a component that has meaningful variants takes `variant`, one that reads an accent family takes `color`, and one that holds other things takes `density` — but none of the three is on every component, and none of them would mean anything on `MPTextField`. `elevation` is the same kind of vocabulary and reaches the sheets that can be raised.
 
 ## `variant`
 
@@ -112,6 +113,34 @@ Every step lands on a height the ladder already has a name for, which is what ke
 **A step that would take a control under 24px is not taken.** That floor is the one `size` already names — below it a control stops meeting a touch target — so `xs` runs out after two steps and stays there. Clamping is the better of the three answers available: refusing the value would make `density={-3}` an error on exactly the rung most likely to be given it, and honouring it would ship a control nobody can hit.
 
 **Only containers take it.** A button is one control at one height and has `size` for that. A list, a table, a card, a toolbar — anything whose job is to hold a number of things — changes character with how many of them fit on a screen, and that is the question this answers. Set it once on [MPConfigProvider](../guide/config) and the containers under it tighten while the controls keep the height a finger needs.
+
+## `elevation`
+
+MD3's own levels, and all five of the raised ones: `1` is where an elevated card rests, `2` is a menu, `3` is a dialog, and `4` and `5` are there because the specification defines them and a ladder with holes in it is worse than no ladder.
+
+**It moves the tone as well as the shadow**, and that is the only shape this prop can take here. Material does not treat height as a free axis: an elevated surface is `surface-container-low` _under_ a level-1 shadow, and the tone and the shadow are one decision rather than two. A prop that only cast a shadow would raise a `filled` box into a surface the specification has no name for — a lifted object that is somehow still the flattest tone in the system.
+
+| `elevation` | Surface role                | Shadow  |
+| ----------- | --------------------------- | ------- |
+| `0`         | `surface`                   | none    |
+| `1`         | `surface-container-low`     | level 1 |
+| `2`         | `surface-container`         | level 2 |
+| `3`         | `surface-container-high`    | level 3 |
+| `4`         | `surface-container-high`    | level 4 |
+| `5`         | `surface-container-highest` | level 5 |
+
+Four and five share a tone on purpose. The specification runs out of container roles before it runs out of levels, and inventing a sixth tone to keep the columns tidy would be inventing a colour role.
+
+`variant="elevated"` **is** `elevation={1}`, named. The variant stays because the vocabulary is about emphasis — a caller choosing between `filled` and `elevated` is choosing how loud a card is, not how many pixels it floats — and because it is the answer nearly every raised surface wants.
+
+Given a level, the level decides the surface and `variant` is left holding only its hairline: an `outlined` sheet keeps its border and nothing else paints. Anything else would be two props writing one `background-color`, and the winner would depend on the order two class names happened to be generated in.
+
+```tsx
+<MPBox elevation={2}>          // surface-container, level 2
+<MPBox variant="outlined" elevation={3} />  // the hairline, raised
+```
+
+A bar reads the same levels from one rung higher: `MPHeader`, `MPFooter` and `MPSidebar` rest at `2` on `variant="elevated"`, because a bar sits over the page's content rather than in it. An explicit level says exactly what it says.
 
 ## `color`
 

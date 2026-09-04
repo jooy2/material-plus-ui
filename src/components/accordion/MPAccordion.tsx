@@ -12,9 +12,9 @@ import {
   SHEET_TITLE
 } from '../../internal/scale';
 import { sheetPadX, sheetPadY } from '../../internal/density';
-import { CONTAINER_SURFACE } from '../../internal/surface';
+import { containerSurface } from '../../internal/elevation';
 import { useMPDensity, useMPSize } from '../../internal/config';
-import type { MPDensity, MPSize, MPVariant } from '../../types';
+import type { MPDensity, MPSize, MPElevation, MPVariant } from '../../types';
 
 /**
  * What an `MPAccordionItem` inherits from the `MPAccordion` around it.
@@ -76,6 +76,17 @@ export interface MPAccordionProps extends Omit<
    * @default 'outlined'
    */
   variant?: MPVariant;
+  /**
+   * How far off the page the sheet is lifted, on MD3's own scale.
+   *
+   * It moves the **tone** as well as the shadow, because Material pairs the two:
+   * a level-2 surface is `surface-container` under a level-2 shadow, and a prop
+   * that only cast a shadow would raise this into a surface the specification
+   * has no name for. Given a level, `variant` is left holding only its hairline.
+   *
+   * Left unset, `variant` decides — and `variant="elevated"` is this at `1`.
+   */
+  elevation?: MPElevation;
   /**
    * The room inside every section, and the type scale of its header and body.
    * @default 'md'
@@ -253,6 +264,7 @@ export const MPAccordion = React.forwardRef<HTMLDivElement, MPAccordionProps>(fu
     dividers = true,
     disabled = false,
     variant = 'outlined',
+    elevation,
     size: sizeProp,
     density: densityProp,
     hiddenUntilFound = false,
@@ -282,7 +294,7 @@ export const MPAccordion = React.forwardRef<HTMLDivElement, MPAccordionProps>(fu
         data-mp-variant={variant}
         className={[
           'mp-accordion rounded-mp-md flex w-full flex-col',
-          CONTAINER_SURFACE[variant],
+          containerSurface(variant, elevation),
           'text-mp-on-surface',
           // Without dividers the sections are tiles and the sheet keeps a hair
           // of padding, so a hovered header's state layer does not run into the

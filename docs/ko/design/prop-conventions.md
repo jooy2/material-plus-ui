@@ -19,6 +19,7 @@ type MPSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 type MPColor = 'primary' | 'secondary' | 'tertiary' | 'error';
 type MPVariant = 'filled' | 'tonal' | 'elevated' | 'outlined' | 'text';
 type MPDensity = 0 | -1 | -2 | -3;
+type MPElevation = 0 | 1 | 2 | 3 | 4 | 5;
 type MPOrientation = 'horizontal' | 'vertical';
 
 interface MPStyleProps {
@@ -48,7 +49,7 @@ export interface MPTextFieldProps extends MPStyleProps {
 
 `MPStyleProps`는 의도적으로 짧습니다. 축은 **두 번째** 컴포넌트가 필요해질 때 합류하고, 필요해질 것을 예상해서 미리 들어오지 않습니다 — 디자인 토큰과 같은 규칙입니다.
 
-`variant`와 `color`, `density`는 묶음의 구성원이 아니라 공유되는 *어휘*입니다. 의미 있는 변형을 가진 컴포넌트가 `variant`를, 강조 색 계열을 읽는 컴포넌트가 `color`를, 다른 것을 담는 컴포넌트가 `density`를 받습니다. 셋 다 모든 컴포넌트에 있지는 않고, `MPTextField`에서는 어느 것도 의미가 없습니다. `elevation`은 언젠가 도착할 가능성이 높고, 아직 아무것도 읽지 않기 때문에 여기 없습니다.
+`variant`와 `color`, `density`는 묶음의 구성원이 아니라 공유되는 *어휘*입니다. 의미 있는 변형을 가진 컴포넌트가 `variant`를, 강조 색 계열을 읽는 컴포넌트가 `color`를, 다른 것을 담는 컴포넌트가 `density`를 받습니다. 셋 다 모든 컴포넌트에 있지는 않고, `MPTextField`에서는 어느 것도 의미가 없습니다. `elevation`도 같은 종류의 어휘이고, 띄울 수 있는 시트들이 받습니다.
 
 ## `variant`
 
@@ -112,6 +113,34 @@ export interface MPTextFieldProps extends MPStyleProps {
 **컨트롤을 24px 아래로 내리는 단계는 밟지 않습니다.** 이 바닥은 `size`가 이미 정해 둔 것으로, 그 아래에서는 컨트롤이 터치 대상이 되지 못합니다. 그래서 `xs`는 두 단계에서 멈추고 그대로 머뭅니다. 값을 거부하면 `density={-3}`이 가장 많이 쓰일 단에서 오류가 되고, 그대로 반영하면 누를 수 없는 컨트롤이 나갑니다. 세 답 중에서는 붙잡는 쪽이 낫습니다.
 
 **담는 컴포넌트만 받습니다.** 버튼은 하나의 높이를 가진 하나의 컨트롤이고 그 축은 `size`입니다. 리스트, 표, 카드, 툴바처럼 여러 개를 담는 것이 일인 컴포넌트는 몇 개가 화면에 들어가느냐로 성격이 달라지고, 이 prop이 답하는 것이 그 질문입니다. [MPConfigProvider](../guide/config)에 한 번 설정하면 아래의 컨테이너는 조여지고 컨트롤은 손가락에 필요한 높이를 지킵니다.
+
+## `elevation`
+
+MD3의 단계를 그대로, 떠 있는 다섯 단계 전부. `1`은 elevated 카드가 쉬는 자리, `2`는 메뉴, `3`은 다이얼로그이고, `4`와 `5`는 명세가 정의하기 때문에 있습니다. 구멍 난 사다리는 사다리가 없는 것보다 나쁩니다.
+
+**그림자와 함께 색조도 옮깁니다.** 여기서 이 prop이 가질 수 있는 형태는 이것뿐입니다. 머터리얼은 높이를 자유로운 축으로 다루지 않습니다. elevated 표면은 level 1 그림자 _아래의_ `surface-container-low`이고, 색조와 그림자는 둘이 아니라 하나의 결정입니다. 그림자만 드리우는 prop은 `filled` 상자를 명세가 이름을 갖지 않은 표면으로 띄웁니다. 떠 있으면서 시스템에서 가장 평평한 색조인 물체가 됩니다.
+
+| `elevation` | 표면 역할                   | 그림자  |
+| ----------- | --------------------------- | ------- |
+| `0`         | `surface`                   | 없음    |
+| `1`         | `surface-container-low`     | level 1 |
+| `2`         | `surface-container`         | level 2 |
+| `3`         | `surface-container-high`    | level 3 |
+| `4`         | `surface-container-high`    | level 4 |
+| `5`         | `surface-container-highest` | level 5 |
+
+4와 5가 색조를 나눠 쓰는 것은 의도한 것입니다. 명세는 단계보다 컨테이너 역할이 먼저 떨어지고, 열을 가지런히 하려고 여섯 번째 색조를 만드는 것은 색 역할을 새로 만드는 일입니다.
+
+`variant="elevated"`가 곧 `elevation={1}`이고, 이름이 붙은 쪽입니다. 이 변형이 남는 이유는 어휘가 강조에 관한 것이기 때문입니다. `filled`와 `elevated` 사이에서 고르는 사람은 카드가 얼마나 큰 소리를 낼지를 고르는 것이지 몇 픽셀 뜰지를 고르는 것이 아닙니다. 그리고 대부분의 떠 있는 표면이 원하는 답이기도 합니다.
+
+단계를 주면 단계가 표면을 정하고, `variant`에는 테두리만 남습니다. `outlined` 시트는 테두리를 지키고 다른 것은 아무것도 칠하지 않습니다. 그 외의 방식은 두 prop이 하나의 `background-color`를 쓰는 것이고, 승자는 두 클래스 이름이 생성된 순서가 정하게 됩니다.
+
+```tsx
+<MPBox elevation={2}>          // surface-container, level 2
+<MPBox variant="outlined" elevation={3} />  // 테두리를 유지한 채 띄웁니다
+```
+
+바는 같은 단계를 한 칸 위에서 읽습니다. `MPHeader`, `MPFooter`, `MPSidebar`는 `variant="elevated"`에서 `2`에 쉽니다. 바는 페이지의 내용 안이 아니라 위에 있기 때문입니다. 명시한 단계는 명시한 그대로입니다.
 
 ## `color`
 

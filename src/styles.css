@@ -812,6 +812,8 @@
     --shadow-mp-1: var(--mp-sys-elevation-level1);
     --shadow-mp-2: var(--mp-sys-elevation-level2);
     --shadow-mp-3: var(--mp-sys-elevation-level3);
+    --shadow-mp-4: var(--mp-sys-elevation-level4);
+    --shadow-mp-5: var(--mp-sys-elevation-level5);
 
     --ease-mp-standard: var(--mp-sys-motion-easing-standard);
   }
@@ -962,18 +964,26 @@
     --mp-sys-shape-corner-full: 9999px;
 
     /*
-     * Elevation. Three of MD3's six levels, because three are what gets read: an
-     * elevated button rests at level 1 and rises to 2 under the pointer, a menu
-     * floats at level 2, and a dialog — which has taken the page rather than
-     * merely covered part of it — sits at level 3.
+     * Elevation. MD3's five raised levels, all of them, because `elevation` is a
+     * prop now and a caller who can name a level has to find it defined — a
+     * ladder with holes in it is worse than no ladder. The first three are what
+     * the components themselves read: an elevated button rests at 1 and rises to
+     * 2 under the pointer, a menu floats at 2, and a dialog — which has taken
+     * the page rather than merely covered part of it — sits at 3.
      *
-     * Both are the spec's own two-shadow recipe — a tight key shadow plus a wider
-     * ambient one — rather than one blurred box shadow. The pair is what makes a
-     * raised surface read as lit from above instead of as a sticker with a halo.
+     * Level 0 has no token because it is not a shadow. It is the absence of one,
+     * which CSS already spells `none`.
+     *
+     * Every one is the spec's own two-shadow recipe — a tight key shadow plus a
+     * wider ambient one — rather than one blurred box shadow. The pair is what
+     * makes a raised surface read as lit from above instead of as a sticker with
+     * a halo.
      */
     --mp-sys-elevation-level1: 0 1px 2px 0 rgb(0 0 0 / 0.3), 0 1px 3px 1px rgb(0 0 0 / 0.15);
     --mp-sys-elevation-level2: 0 1px 2px 0 rgb(0 0 0 / 0.3), 0 2px 6px 2px rgb(0 0 0 / 0.15);
     --mp-sys-elevation-level3: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 4px 8px 3px rgb(0 0 0 / 0.15);
+    --mp-sys-elevation-level4: 0 2px 3px 0 rgb(0 0 0 / 0.3), 0 6px 10px 4px rgb(0 0 0 / 0.15);
+    --mp-sys-elevation-level5: 0 4px 4px 0 rgb(0 0 0 / 0.3), 0 8px 12px 6px rgb(0 0 0 / 0.15);
 
     /*
      * Motion.
@@ -1196,6 +1206,8 @@
   --shadow-mp-1: var(--mp-sys-elevation-level1);
   --shadow-mp-2: var(--mp-sys-elevation-level2);
   --shadow-mp-3: var(--mp-sys-elevation-level3);
+  --shadow-mp-4: var(--mp-sys-elevation-level4);
+  --shadow-mp-5: var(--mp-sys-elevation-level5);
 
   --ease-mp-standard: var(--mp-sys-motion-easing-standard);
 }

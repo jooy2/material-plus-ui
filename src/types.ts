@@ -79,6 +79,54 @@ export type MPSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 export type MPDensity = 0 | -1 | -2 | -3;
 
 /**
+ * How far off the page a surface is lifted.
+ *
+ * MD3's own levels, and all five of the raised ones. `0` is flat on the page,
+ * `1` is where an elevated card and a resting elevated button sit, `2` is a menu
+ * or a button under the pointer, `3` is a dialog, and `4` and `5` are there
+ * because the specification defines them and a ladder with holes in it is worse
+ * than no ladder at all.
+ *
+ * ## It moves the tone as well as the shadow
+ *
+ * Which is the whole reason this can exist here, and the reason a naive
+ * `elevation` prop cannot. MD3 does not treat height as a free axis: an elevated
+ * surface is `surface-container-low` **under** a level-1 shadow, and the tone
+ * and the shadow are one decision rather than two. A prop that only cast a
+ * shadow would raise a `filled` box into a surface the specification has no name
+ * for — a raised object that is somehow still the flattest tone in the system.
+ *
+ * So each level names a surface role and the shadow that goes with it, which is
+ * the pairing MD3 publishes:
+ *
+ * | `elevation` | Surface role                | Shadow   |
+ * | ----------- | --------------------------- | -------- |
+ * | `0`         | `surface`                   | none     |
+ * | `1`         | `surface-container-low`     | level 1  |
+ * | `2`         | `surface-container`         | level 2  |
+ * | `3`         | `surface-container-high`    | level 3  |
+ * | `4`         | `surface-container-high`    | level 4  |
+ * | `5`         | `surface-container-highest` | level 5  |
+ *
+ * Four and five share a tone on purpose. The specification runs out of container
+ * roles before it runs out of levels, and inventing a sixth tone to keep the
+ * columns tidy would be inventing a colour role.
+ *
+ * ## Its relationship to `variant`
+ *
+ * `variant="elevated"` **is** `elevation={1}`, named. It stays because the
+ * vocabulary is about emphasis — a caller choosing between `filled` and
+ * `elevated` is choosing how loud a card is, not how many pixels it floats — and
+ * because it is the answer nearly every raised surface wants.
+ *
+ * Given a level, the level decides the surface and `variant` is left holding
+ * only its hairline: `outlined` keeps its border, and nothing else paints.
+ * Anything else would be two props writing one `background-color`, and the
+ * winner would depend on the order two class names happened to be generated in.
+ */
+export type MPElevation = 0 | 1 | 2 | 3 | 4 | 5;
+
+/**
  * An accent colour role.
  *
  * MD3's four, not Material UI's six: there is no `info`, `success` or `warning`

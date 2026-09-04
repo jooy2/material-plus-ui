@@ -4,7 +4,7 @@ import { pixelsIn } from '../../internal/length';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { LAYOUT } from '../../internal/messages/layout';
 import {
-  BAR_SURFACE,
+  barSurface,
   drawerSide,
   EXPANDED_ONLY,
   MPPageLayoutContext,
@@ -15,7 +15,7 @@ import {
 } from '../../internal/page-layout';
 import { sheetPadX, sheetPadY } from '../../internal/density';
 import { useMPDensity, useMPSize } from '../../internal/config';
-import type { MPDensity, MPSize, MPVariant } from '../../types';
+import type { MPDensity, MPSize, MPElevation, MPVariant } from '../../types';
 
 export type { MPPageCollapse, MPSidebarSide } from '../../internal/page-layout';
 
@@ -117,6 +117,16 @@ export interface MPSidebarProps extends Omit<React.ComponentPropsWithoutRef<'asi
    * @default 'outlined'
    */
   variant?: MPVariant;
+  /**
+   * How far off the page the bar is lifted, on MD3's own scale.
+   *
+   * It moves the tone as well as the shadow — see `MPElevation`. A bar's
+   * `elevated` is level 2 rather than 1, because a bar sits over the page's
+   * content rather than in it; an explicit level says exactly what it says.
+   *
+   * Left unset, `variant` decides.
+   */
+  elevation?: MPElevation;
   /**
    * The column's default width and the air around its content. `md` is 360px,
    * which is MD3's own navigation drawer and the same rung
@@ -246,6 +256,7 @@ export const MPSidebar = React.forwardRef<HTMLElement, MPSidebarProps>(function 
     sticky = true,
     title,
     variant = 'outlined',
+    elevation,
     size: sizeProp,
     density: densityProp,
     padded = true,
@@ -484,7 +495,7 @@ export const MPSidebar = React.forwardRef<HTMLElement, MPSidebarProps>(function 
       className={[
         'mp-sidebar text-mp-on-surface relative box-border flex min-w-0 shrink-0 flex-col',
         'w-(--_mp-sidebar-width)',
-        BAR_SURFACE[variant],
+        barSurface(variant, elevation),
         // The inner edge only. The outer one is against the window, where there
         // is nothing on the other side of it to be separated from — the same
         // single-edge rule `MPHeader` and `MPDrawer` draw.

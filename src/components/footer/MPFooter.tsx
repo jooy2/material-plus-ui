@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
-import { BAR_SURFACE, MPPageLayoutContext } from '../../internal/page-layout';
+import { barSurface, MPPageLayoutContext } from '../../internal/page-layout';
 import { sheetPadX, sheetPadY } from '../../internal/density';
 import { measureValue } from '../../internal/measure';
 import { useWindowMins } from '../../internal/window-class';
@@ -12,6 +12,7 @@ import type {
   MPPosition,
   MPResponsive,
   MPSize,
+  MPElevation,
   MPVariant
 } from '../../types';
 
@@ -39,6 +40,16 @@ export interface MPFooterProps extends Omit<React.ComponentPropsWithoutRef<'foot
    * @default 'outlined'
    */
   variant?: MPVariant;
+  /**
+   * How far off the page the bar is lifted, on MD3's own scale.
+   *
+   * It moves the tone as well as the shadow — see `MPElevation`. A bar's
+   * `elevated` is level 2 rather than 1, because a bar sits over the page's
+   * content rather than in it; an explicit level says exactly what it says.
+   *
+   * Left unset, `variant` decides.
+   */
+  elevation?: MPElevation;
   /**
    * The sheet's scale — its gutter and the air above and below its content. As
    * on [MPBox](./box), `size` here is the size of the *sheet*: it sets no height
@@ -127,6 +138,7 @@ export const MPFooter = React.forwardRef<HTMLElement, MPFooterProps>(function MP
   {
     position = 'static',
     variant = 'outlined',
+    elevation,
     size: sizeProp,
     density: densityProp,
     maxWidth = 'none',
@@ -166,7 +178,7 @@ export const MPFooter = React.forwardRef<HTMLElement, MPFooterProps>(function MP
       'data-mp-variant': variant,
       className: [
         'mp-footer text-mp-on-surface box-border w-full min-w-0',
-        BAR_SURFACE[variant],
+        barSurface(variant, elevation),
         // The top edge, which is the only one with anything on the other side of
         // it — the same single-edge rule `MPHeader` draws along its bottom.
         variant === 'outlined' ? 'border-mp-outline-variant border-t' : '',

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
-import { BAR_SURFACE, MPPageLayoutContext } from '../../internal/page-layout';
+import { barSurface, MPPageLayoutContext } from '../../internal/page-layout';
 import { hasContent } from '../../internal/scale';
 import { sheetPadX } from '../../internal/density';
 import { measureValue } from '../../internal/measure';
@@ -14,6 +14,7 @@ import type {
   MPPosition,
   MPResponsive,
   MPSize,
+  MPElevation,
   MPVariant
 } from '../../types';
 
@@ -66,6 +67,16 @@ export interface MPHeaderProps extends Omit<React.ComponentPropsWithoutRef<'head
    * @default 'tonal'
    */
   variant?: MPVariant;
+  /**
+   * How far off the page the bar is lifted, on MD3's own scale.
+   *
+   * It moves the tone as well as the shadow — see `MPElevation`. A bar's
+   * `elevated` is level 2 rather than 1, because a bar sits over the page's
+   * content rather than in it; an explicit level says exactly what it says.
+   *
+   * Left unset, `variant` decides.
+   */
+  elevation?: MPElevation;
   /**
    * The bar's height floor, its gutter and the air between its slots.
    *
@@ -247,6 +258,7 @@ export const MPHeader = React.forwardRef<HTMLElement, MPHeaderProps>(function MP
     align = 'start',
     position = 'sticky',
     variant = 'tonal',
+    elevation,
     size: sizeProp,
     density: densityProp,
     maxWidth = 'none',
@@ -286,7 +298,7 @@ export const MPHeader = React.forwardRef<HTMLElement, MPHeaderProps>(function MP
       'data-mp-variant': variant,
       className: [
         'mp-header text-mp-on-surface box-border w-full min-w-0',
-        BAR_SURFACE[variant],
+        barSurface(variant, elevation),
         variant === 'outlined' ? 'border-mp-outline-variant border-b' : '',
         POSITION[position],
         className ?? ''

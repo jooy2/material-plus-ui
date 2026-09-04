@@ -4,9 +4,9 @@ import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { TABLE } from '../../internal/messages/table';
 import { cssLength } from '../../internal/length';
 import { META_TEXT } from '../../internal/scale';
-import { CONTAINER_SURFACE } from '../../internal/surface';
+import { containerSurface } from '../../internal/elevation';
 import { useMPColor, useMPDensity, useMPSize } from '../../internal/config';
-import type { MPAlign, MPColor, MPDensity, MPSize, MPVariant } from '../../types';
+import type { MPAlign, MPColor, MPDensity, MPSize, MPElevation, MPVariant } from '../../types';
 
 /** Which edge the text in a column lines up against. */
 export type MPTableAlign = MPAlign;
@@ -125,6 +125,17 @@ export interface MPTableProps<Row> extends Omit<
    * @default 'outlined'
    */
   variant?: MPVariant;
+  /**
+   * How far off the page the sheet is lifted, on MD3's own scale.
+   *
+   * It moves the **tone** as well as the shadow, because Material pairs the two:
+   * a level-2 surface is `surface-container` under a level-2 shadow, and a prop
+   * that only cast a shadow would raise this into a surface the specification
+   * has no name for. Given a level, `variant` is left holding only its hairline.
+   *
+   * Left unset, `variant` decides — and `variant="elevated"` is this at `1`.
+   */
+  elevation?: MPElevation;
   /**
    * @default 'md'
    */
@@ -311,6 +322,7 @@ export function MPTable<Row>({
   stickyHeader = false,
   onRowClick,
   variant = 'outlined',
+  elevation,
   size: sizeProp,
   color: colorProp,
   density: densityProp,
@@ -351,7 +363,7 @@ export function MPTable<Row>({
       // is a claim about them.
       className={[
         'mp-table rounded-mp-md overflow-x-auto',
-        CONTAINER_SURFACE[variant],
+        containerSurface(variant, elevation),
         className ?? ''
       ]
         .filter(Boolean)

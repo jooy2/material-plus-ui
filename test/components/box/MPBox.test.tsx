@@ -92,4 +92,69 @@ describe('MPBox', () => {
     expect(root).toHaveAttribute('id', 'panel');
     expect(root).toHaveAttribute('aria-label', 'Summary');
   });
+  describe('elevation', () => {
+    it('casts a shadow and moves the tone with it', async () => {
+      // The pairing is the whole reason the prop can exist: a raised box that
+      // kept `filled`'s tone would be a surface MD3 has no name for.
+      const screen = await render(<MPBox variant="filled">Body</MPBox>);
+      const flat = getComputedStyle(screen.container.querySelector('.mp-box')!);
+      const flatTone = flat.backgroundColor;
+
+      expect(flat.boxShadow).toBe('none');
+
+      await screen.rerender(
+        <MPBox variant="filled" elevation={2}>
+          Body
+        </MPBox>
+      );
+      const raised = getComputedStyle(screen.container.querySelector('.mp-box')!);
+
+      expect(raised.boxShadow).not.toBe('none');
+      expect(raised.backgroundColor).not.toBe(flatTone);
+    });
+
+    it('is what `variant="elevated"` already says, at 1', async () => {
+      const screen = await render(<MPBox variant="elevated">Body</MPBox>);
+      const named = getComputedStyle(screen.container.querySelector('.mp-box')!);
+      const shadow = named.boxShadow;
+      const tone = named.backgroundColor;
+
+      await screen.rerender(<MPBox elevation={1}>Body</MPBox>);
+      const numbered = getComputedStyle(screen.container.querySelector('.mp-box')!);
+
+      expect(numbered.boxShadow).toBe(shadow);
+      expect(numbered.backgroundColor).toBe(tone);
+    });
+
+    it('rises through all five levels rather than stopping at three', async () => {
+      // Levels 4 and 5 are drawn by nothing in the library on its own. A caller
+      // who can name a level has to find it defined.
+      const screen = await render(<MPBox elevation={0}>Body</MPBox>);
+      const shadows: string[] = [];
+
+      for (const level of [0, 1, 2, 3, 4, 5] as const) {
+        await screen.rerender(<MPBox elevation={level}>Body</MPBox>);
+        shadows.push(getComputedStyle(screen.container.querySelector('.mp-box')!).boxShadow);
+      }
+
+      // Level 0 is `shadow-none`, which Tailwind computes as a stack of fully
+      // transparent shadows rather than the keyword — so the assertion is that
+      // nothing is *drawn*, not that the property is unset.
+      expect(shadows[0]).not.toMatch(/rgba\(0, 0, 0, 0\.\d/);
+      expect(new Set(shadows).size).toBe(6);
+    });
+
+    it('keeps an outlined box outlined', async () => {
+      // The hairline is the one thing a level does not describe.
+      const screen = await render(
+        <MPBox variant="outlined" elevation={3}>
+          Body
+        </MPBox>
+      );
+      const style = getComputedStyle(screen.container.querySelector('.mp-box')!);
+
+      expect(style.borderTopWidth).toBe('1px');
+      expect(style.boxShadow).not.toBe('none');
+    });
+  });
 });

@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { sheetPad } from '../../internal/density';
-import { CONTAINER_SURFACE } from '../../internal/surface';
+import { containerSurface } from '../../internal/elevation';
 import { useMPDensity } from '../../internal/config';
-import type { MPDensity, MPSize, MPVariant } from '../../types';
+import type { MPDensity, MPSize, MPElevation, MPVariant } from '../../types';
 
 export interface MPBoxProps extends React.ComponentPropsWithoutRef<'div'> {
   /**
@@ -15,6 +15,17 @@ export interface MPBoxProps extends React.ComponentPropsWithoutRef<'div'> {
    * @default 'outlined'
    */
   variant?: MPVariant;
+  /**
+   * How far off the page the sheet is lifted, on MD3's own scale.
+   *
+   * It moves the **tone** as well as the shadow, because Material pairs the two:
+   * a level-2 surface is `surface-container` under a level-2 shadow, and a prop
+   * that only cast a shadow would raise this into a surface the specification
+   * has no name for. Given a level, `variant` is left holding only its hairline.
+   *
+   * Left unset, `variant` decides — and `variant="elevated"` is this at `1`.
+   */
+  elevation?: MPElevation;
   /**
    * The room inside.
    *
@@ -81,18 +92,23 @@ export interface MPBoxProps extends React.ComponentPropsWithoutRef<'div'> {
  * that is [MPAlert](../feedback/alert) for a message, [MPChip](../display/chip)
  * for a token, [MPButton](../inputs/button) for an action.
  *
- * ## Why there is no `elevation`
+ * ## What `elevation` does, and why it took the shape it did
  *
- * There is no `elevation` prop anywhere in this library, and a box is where the
- * absence is most tempting to fix. It stays absent because MD3 does not treat
- * height as a free axis: an elevated surface is `surface-container-low` under a
- * level-1 shadow, and the tone and the shadow are one decision. A prop that
- * raised a `filled` box would produce a surface the specification has no name
- * for. `variant="elevated"` is that decision, made once.
+ * MD3 does not treat height as a free axis: an elevated surface is
+ * `surface-container-low` **under** a level-1 shadow, and the tone and the
+ * shadow are one decision rather than two. A prop that only cast a shadow would
+ * raise a `filled` box into a surface the specification has no name for — a
+ * lifted object that is somehow still the flattest tone in the system.
+ *
+ * So a level names both, and `variant="elevated"` is that decision made once, at
+ * level 1. The variant stays because it is the answer nearly every raised sheet
+ * wants and because the vocabulary is about *emphasis*; the prop is there for
+ * the sheet that has a reason to be somewhere else on the ladder.
  */
 export const MPBox = React.forwardRef<HTMLDivElement, MPBoxProps>(function MPBox(
   {
     variant = 'outlined',
+    elevation,
     size = 'md',
     density: densityProp,
     padded = true,
@@ -118,7 +134,7 @@ export const MPBox = React.forwardRef<HTMLDivElement, MPBoxProps>(function MPBox
         // padding and come out two pixels wider than a `filled` one beside it.
         'box-border',
         padded ? sheetPad(size, density) : '',
-        CONTAINER_SURFACE[variant],
+        containerSurface(variant, elevation),
         'text-mp-on-surface',
         className ?? ''
       ]

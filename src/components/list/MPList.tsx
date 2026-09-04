@@ -5,9 +5,9 @@ import { linkRel } from '../../internal/link';
 import { CONTROL_GAP, hasContent, PROSE_TEXT } from '../../internal/scale';
 import { sheetPadX } from '../../internal/density';
 import { MPStateLayer } from '../../internal/StateLayer';
-import { CONTAINER_SURFACE } from '../../internal/surface';
+import { containerSurface } from '../../internal/elevation';
 import { useMPColor, useMPDensity, useMPSize } from '../../internal/config';
-import type { MPColor, MPDensity, MPSize, MPVariant } from '../../types';
+import type { MPColor, MPDensity, MPSize, MPElevation, MPVariant } from '../../types';
 
 /**
  * What an `MPListItem` inherits from the `MPList` around it.
@@ -42,6 +42,17 @@ export interface MPListProps extends Omit<React.ComponentPropsWithoutRef<'ul'>, 
    * @default 'outlined'
    */
   variant?: MPVariant;
+  /**
+   * How far off the page the sheet is lifted, on MD3's own scale.
+   *
+   * It moves the **tone** as well as the shadow, because Material pairs the two:
+   * a level-2 surface is `surface-container` under a level-2 shadow, and a prop
+   * that only cast a shadow would raise this into a surface the specification
+   * has no name for. Given a level, `variant` is left holding only its hairline.
+   *
+   * Left unset, `variant` decides — and `variant="elevated"` is this at `1`.
+   */
+  elevation?: MPElevation;
   /**
    * The row height and type scale. Each rung lands a one-line row on exactly the
    * control height of the same name — see `PAD_Y`.
@@ -232,6 +243,7 @@ const DIVIDERS = '[&>li+li]:border-mp-outline-variant [&>li+li]:border-t';
 export const MPList = React.forwardRef<HTMLUListElement, MPListProps>(function MPList(
   {
     variant = 'outlined',
+    elevation,
     size: sizeProp,
     color: colorProp,
     density: densityProp,
@@ -258,7 +270,7 @@ export const MPList = React.forwardRef<HTMLUListElement, MPListProps>(function M
     // the sheet under it puts every colour in it on a background it was not
     // chosen against. `text` is the one to reach for inside a card, where a
     // second bordered rectangle is a second rectangle.
-    CONTAINER_SURFACE[variant],
+    containerSurface(variant, elevation),
     'text-mp-on-surface',
     // Without dividers the rows are tiles and the sheet keeps a hair of padding
     // so a hovered row does not run into the edge. With them the rules have to

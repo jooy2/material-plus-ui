@@ -37,6 +37,15 @@ const VARIANT = "'filled' | 'tonal' | 'elevated' | 'outlined' | 'text'";
  * the drift `MPSize` exists to prevent, and two hand-written tables is how that
  * happens.
  */
+const elevation: PropRow = {
+  name: 'elevation',
+  type: '0 | 1 | 2 | 3 | 4 | 5',
+  description: {
+    ko: '면을 얼마나 띄울지, MD3의 단계 그대로. 그림자와 함께 **색조**도 옮깁니다 — 머터리얼에서 이 둘은 하나의 결정입니다. 값을 주지 않으면 `variant`가 정하고, `variant="elevated"`가 곧 `1`입니다',
+    en: 'How far off the page the surface is lifted, on MD3\'s own scale. It moves the **tone** as well as the shadow, because Material pairs the two. Left unset, `variant` decides — and `variant="elevated"` is this at `1`'
+  }
+};
+
 const density: PropRow = {
   name: 'density',
   type: '0 | -1 | -2 | -3',
@@ -2559,6 +2568,7 @@ const componentTables: Record<string, PropRow[]> = {
         en: 'Takes room out of every row. Each step lands it exactly one rung down the control ladder, so a dense list still lines up with the controls beside it'
       }
     },
+    elevation,
     {
       ...color,
       description: {
@@ -2747,6 +2757,7 @@ const componentTables: Record<string, PropRow[]> = {
         en: "Takes room out of every cell. MD3's 52dp row walks 48, 44, 40, and the figures stay the size they were"
       }
     },
+    elevation,
     {
       ...color,
       description: {
@@ -5376,6 +5387,7 @@ const componentTables: Record<string, PropRow[]> = {
         en: "Takes room out of every section's header and body"
       }
     },
+    elevation,
     {
       name: 'hiddenUntilFound',
       type: 'boolean',
@@ -5471,6 +5483,7 @@ const componentTables: Record<string, PropRow[]> = {
         en: 'Takes two pixels a face out of the padding `size` chose. On a box that is the whole of what density can mean, because padding is the whole of what `size` does'
       }
     },
+    elevation,
     {
       ...padded,
       description: {
@@ -6420,6 +6433,7 @@ const componentTables: Record<string, PropRow[]> = {
         en: 'Takes room out of the sheet and out of every section on it'
       }
     },
+    elevation,
     {
       name: 'render',
       type: 'RenderProp',
@@ -7224,6 +7238,7 @@ const componentTables: Record<string, PropRow[]> = {
     },
     padded,
     containerVariant,
+    elevation,
     {
       ...size,
       description: {
@@ -9227,6 +9242,7 @@ const componentTables: Record<string, PropRow[]> = {
         en: "Takes room out of the bar's gutter. The height floor is `size`'s and stays put: the bar is the part of a screen a reader locates by position"
       }
     },
+    elevation,
     {
       name: 'maxWidth',
       type: 'MPResponsive<MPMeasure>',
@@ -9298,6 +9314,7 @@ const componentTables: Record<string, PropRow[]> = {
         en: 'Takes room out of the gutter and the air above and below the content'
       }
     },
+    elevation,
     {
       name: 'maxWidth',
       type: 'MPResponsive<MPMeasure>',
@@ -9507,6 +9524,7 @@ const componentTables: Record<string, PropRow[]> = {
         en: "Takes room out of the air around the content. The width is `size`'s and does not move"
       }
     },
+    elevation,
     {
       ...padded,
       description: { ko: '좌우 여백과 위아래 공기', en: 'The gutter, and the air above and below' }

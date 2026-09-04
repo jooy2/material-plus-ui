@@ -17,7 +17,8 @@
 import * as React from 'react';
 import { HIDDEN_BELOW, HIDDEN_FROM } from './visibility';
 import { below, useWindowMins } from './window-class';
-import type { MPSide, MPVariant, MPWindowClass } from '../types';
+import { ELEVATION_SURFACE } from './elevation';
+import type { MPElevation, MPSide, MPVariant, MPWindowClass } from '../types';
 
 /**
  * Which end of the band a sidebar takes.
@@ -271,3 +272,18 @@ export const BAR_SURFACE: Record<MPVariant, string> = {
   outlined: 'bg-mp-surface',
   text: 'bg-transparent'
 };
+
+/**
+ * What a bar paints, from whichever of `variant` and `elevation` answered.
+ *
+ * `containerSurface`'s rule, with the one difference a bar has: `outlined` does not
+ * draw a hairline round it — the rule under a top app bar belongs to the bar's
+ * own edge treatment — so a level replaces the surface outright whatever the
+ * variant was.
+ *
+ * A bar's `elevated` is level 2 rather than 1, because a bar sits over the
+ * page's content rather than in it. An explicit level says what it says.
+ */
+export function barSurface(variant: MPVariant, elevation: MPElevation | undefined): string {
+  return elevation === undefined ? BAR_SURFACE[variant] : ELEVATION_SURFACE[elevation];
+}

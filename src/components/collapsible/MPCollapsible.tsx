@@ -13,9 +13,9 @@ import {
   SHEET_PAD_Y,
   SHEET_TITLE
 } from '../../internal/scale';
-import { CONTAINER_SURFACE } from '../../internal/surface';
+import { containerSurface } from '../../internal/elevation';
 import { useMPSize } from '../../internal/config';
-import type { MPSize, MPVariant } from '../../types';
+import type { MPSize, MPElevation, MPVariant } from '../../types';
 
 export interface MPCollapsibleProps extends Omit<
   React.ComponentPropsWithoutRef<'div'>,
@@ -73,6 +73,17 @@ export interface MPCollapsibleProps extends Omit<
    * @default 'outlined'
    */
   variant?: MPVariant;
+  /**
+   * How far off the page the sheet is lifted, on MD3's own scale.
+   *
+   * It moves the **tone** as well as the shadow, because Material pairs the two:
+   * a level-2 surface is `surface-container` under a level-2 shadow, and a prop
+   * that only cast a shadow would raise this into a surface the specification
+   * has no name for. Given a level, `variant` is left holding only its hairline.
+   *
+   * Left unset, `variant` decides — and `variant="elevated"` is this at `1`.
+   */
+  elevation?: MPElevation;
   /**
    * The room inside, and the type scale of the header and the body.
    * @default 'md'
@@ -168,6 +179,7 @@ export const MPCollapsible = React.forwardRef<HTMLDivElement, MPCollapsibleProps
       disabled = false,
       padded = true,
       variant = 'outlined',
+      elevation,
       size: sizeProp,
       hiddenUntilFound = false,
       keepMounted = false,
@@ -194,7 +206,7 @@ export const MPCollapsible = React.forwardRef<HTMLDivElement, MPCollapsibleProps
           // `overflow-hidden` is what makes the panel a window rather than
           // something that spills past the sheet's own corners while it moves.
           'mp-collapsible rounded-mp-md flex w-full flex-col overflow-hidden',
-          CONTAINER_SURFACE[variant],
+          containerSurface(variant, elevation),
           'text-mp-on-surface',
           className ?? ''
         ]
