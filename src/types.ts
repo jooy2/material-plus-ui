@@ -427,6 +427,73 @@ export type MPEasing =
 export type MPAnimation = 'fade' | 'grow' | 'slide' | 'zoom' | 'rotate' | 'blink' | 'reveal';
 
 /**
+ * An entrance, on a component that displays something.
+ *
+ * A bare effect name is the whole of what most callers want —
+ * `transition="fade"` — and the object form is there for the rest: a different
+ * duration, a slide from another edge, a zoom that starts closer in.
+ *
+ * ## It runs on mount, once
+ *
+ * There is no `trigger`, no `repeat` and no scroll timeline here, and their
+ * absence is the design. Those are what the `MPAnimate*` components are, and a
+ * prop offering half of them would be a second, worse spelling of machinery that
+ * already exists. The moment the answer is "when it scrolls into view", the
+ * wrapper is the right tool.
+ *
+ * ## Why the prop exists at all, then
+ *
+ * Because wrapping is the wrong shape twice. A component that lays its children
+ * into boxes of its own — `MPStack` — puts them somewhere nothing outside can
+ * reach, so a per-item entrance is only expressible from inside. And wrapping
+ * every card of a grid costs a second element per card, which a
+ * `display: contents` wrapper cannot avoid: an element that generates no box has
+ * nothing to animate.
+ *
+ * It is on the components that **display** something and on none of the
+ * controls. That is a cost decision as much as a taste one — see
+ * `internal/transition.ts` — and the taste half is that a button arriving with a
+ * flourish is a page's decision about a region, made with a wrapper, rather than
+ * something every button in the library should carry the tables for.
+ */
+export type MPTransition = MPAnimation | MPTransitionOptions;
+
+/** What a `transition` takes when a bare effect name is not enough. */
+export interface MPTransitionOptions {
+  /** Which of the seven effects runs. */
+  effect: MPAnimation;
+  /** How long it takes, in milliseconds. Unset takes the effect's own token. */
+  duration?: number;
+  /**
+   * How long before it starts, in milliseconds.
+   * @default 0
+   */
+  delay?: number;
+  /** Which Material easing curve it runs on. */
+  easing?: MPEasing;
+  /**
+   * Whether it fades in as it arrives. Every effect does unless told not to,
+   * because an entrance that only moves reads as a jump.
+   * @default true
+   */
+  fade?: boolean;
+  /** How far a `slide` travels: a CSS length, or a percentage of the element. */
+  distance?: number | string;
+  /**
+   * Which edge a `slide` comes from, or a `reveal` is wiped from.
+   * @default 'bottom' for `slide`, 'left' for `reveal`
+   */
+  from?: MPSide;
+  /** Where a `grow` or a `zoom` starts, as a scale. */
+  scale?: number;
+  /**
+   * How far a `rotate` turns from, in degrees.
+   * @default -180
+   */
+  angle?: number;
+}
+
+/**
  * What makes an animation run.
  *
  * - `mount` — as soon as it is on the page. The default, and the only one that

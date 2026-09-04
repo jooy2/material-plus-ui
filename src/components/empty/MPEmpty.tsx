@@ -1,11 +1,12 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
+import { transitionProps } from '../../internal/transition';
 import { EMPTY } from '../../internal/messages/empty';
 import { hasContent, PROSE_TEXT, SHEET_GAP, SHEET_PAD_X, SHEET_TITLE } from '../../internal/scale';
 import { CONTAINER_SURFACE } from '../../internal/surface';
 import { useMPSize } from '../../internal/config';
-import type { MPSize, MPVariant } from '../../types';
+import type { MPSize, MPTransition, MPVariant } from '../../types';
 
 export interface MPEmptyProps extends Omit<
   React.ComponentPropsWithoutRef<'div'>,
@@ -55,6 +56,15 @@ export interface MPEmptyProps extends Omit<
   render?: useRender.RenderProp;
   /** The sentence under the headline: why it is empty, or what to do next. */
   children?: React.ReactNode;
+  /**
+   * An entrance, run once as it mounts.
+   *
+   * `transition="fade"` is the whole of what most callers want; the object form
+   * takes a duration, an edge to come from, or a scale to start at. Anything
+   * that has to run again — on scroll, on hover, under your own control — is an
+   * [MPAnimateFade](../motion/animate-fade) and its siblings.
+   */
+  transition?: MPTransition;
 }
 
 /**
@@ -157,6 +167,7 @@ export const MPEmpty = React.forwardRef<HTMLDivElement, MPEmptyProps>(function M
     action,
     locale: localeProp,
     render,
+    transition,
     className,
     style,
     children,
@@ -164,6 +175,7 @@ export const MPEmpty = React.forwardRef<HTMLDivElement, MPEmptyProps>(function M
   },
   ref
 ) {
+  const entrance = transitionProps(transition);
   const size = useMPSize(sizeProp);
   const locale = useMPLocale(localeProp);
   const messages = useMPMessages(EMPTY, locale);
@@ -198,8 +210,8 @@ export const MPEmpty = React.forwardRef<HTMLDivElement, MPEmptyProps>(function M
       role: 'status',
       'data-mp-size': size,
       'data-mp-variant': variant,
-      className: classNames,
-      style,
+      className: `${classNames}${entrance.className ? ` ${entrance.className}` : ''}`,
+      style: { ...entrance.style, ...style },
       children: (
         <>
           {hasContent(glyph) ? (

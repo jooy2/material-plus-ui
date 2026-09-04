@@ -63,7 +63,14 @@ describe('dist/styles/', () => {
     });
 
     it('carries nobody else’s', () => {
-      expect(box).not.toContain('@keyframes');
+      // A box draws the entrance keyframes, because it takes a `transition` —
+      // but only those. The marquee's rules travelled with them until the effect
+      // tables were split out of `internal/animate.ts`, which names the
+      // marquee's class in a selector and so claimed its CSS for every sheet it
+      // reached.
+      expect(box).toContain('@keyframes mp-anim-fade');
+      expect(box).not.toContain('marquee');
+      expect(box).not.toContain('@keyframes mp-progress');
       expect(box).not.toContain('@media (min-width:600px)');
       expect(grid).not.toContain('@keyframes mp-anim-fade');
       expect(progressLinear).not.toContain('@keyframes mp-anim-fade');

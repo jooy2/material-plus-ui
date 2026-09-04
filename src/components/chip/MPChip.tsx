@@ -2,12 +2,13 @@ import * as React from 'react';
 import { MPIcon } from '../icon/MPIcon';
 import { CloseIcon } from '../../constants/icons';
 import { accentSlots } from '../../internal/accent';
+import { transitionProps } from '../../internal/transition';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { COMMON } from '../../internal/messages/common';
 import { hasContent } from '../../internal/scale';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { useMPColor, useMPSize } from '../../internal/config';
-import type { MPColor, MPSize, MPVariant } from '../../types';
+import type { MPColor, MPSize, MPTransition, MPVariant } from '../../types';
 
 export interface MPChipProps extends Omit<React.ComponentPropsWithoutRef<'span'>, 'color'> {
   /**
@@ -66,6 +67,15 @@ export interface MPChipProps extends Omit<React.ComponentPropsWithoutRef<'span'>
   /** Unavailable. Drops the accent family, as everywhere else in the library. */
   disabled?: boolean;
   children?: React.ReactNode;
+  /**
+   * An entrance, run once as it mounts.
+   *
+   * `transition="fade"` is the whole of what most callers want; the object form
+   * takes a duration, an edge to come from, or a scale to start at. Anything
+   * that has to run again — on scroll, on hover, under your own control — is an
+   * [MPAnimateFade](../motion/animate-fade) and its siblings.
+   */
+  transition?: MPTransition;
 }
 
 /**
@@ -281,6 +291,7 @@ export const MPChip = React.forwardRef<HTMLElement, MPChipProps>(function MPChip
     locale: localeProp,
     selected,
     disabled = false,
+    transition,
     className,
     style,
     children,
@@ -289,6 +300,7 @@ export const MPChip = React.forwardRef<HTMLElement, MPChipProps>(function MPChip
   },
   ref
 ) {
+  const entrance = transitionProps(transition);
   const size = useMPSize(sizeProp);
   const color = useMPColor(colorProp);
   const locale = useMPLocale(localeProp);
@@ -356,8 +368,8 @@ export const MPChip = React.forwardRef<HTMLElement, MPChipProps>(function MPChip
     'data-mp-size': size,
     'data-mp-variant': variant,
     'data-selected': selected || undefined,
-    className: shellClasses,
-    style: { ...accentSlots(color), ...style },
+    className: `${shellClasses}${entrance.className ? ` ${entrance.className}` : ''}`,
+    style: { ...accentSlots(color), ...entrance.style, ...style },
     ...props
   };
 

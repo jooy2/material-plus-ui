@@ -37,6 +37,15 @@ const VARIANT = "'filled' | 'tonal' | 'elevated' | 'outlined' | 'text'";
  * the drift `MPSize` exists to prevent, and two hand-written tables is how that
  * happens.
  */
+const transition: PropRow = {
+  name: 'transition',
+  type: 'MPAnimation | MPTransitionOptions',
+  description: {
+    ko: '마운트될 때 한 번 실행되는 등장 효과. `transition="fade"`처럼 이름만 주거나, 지속 시간과 방향과 시작 배율을 담은 객체를 줍니다. 다시 실행돼야 하는 것 — 스크롤, 호버, 직접 제어 — 은 `MPAnimate*` 컴포넌트의 일입니다',
+    en: 'An entrance, run once as it mounts. A bare effect name, or an object carrying a duration, an edge to come from, or a scale to start at. Anything that has to run again — on scroll, on hover, under your own control — is what the `MPAnimate*` components are'
+  }
+};
+
 const elevation: PropRow = {
   name: 'elevation',
   type: '0 | 1 | 2 | 3 | 4 | 5',
@@ -2021,7 +2030,8 @@ const componentTables: Record<string, PropRow[]> = {
         ko: '타입 스케일은 그대로 두고 다른 엘리먼트로 렌더링합니다',
         en: 'Renders a different element without changing the type scale'
       }
-    }
+    },
+    transition
   ],
 
   MPDivider: [
@@ -2193,7 +2203,8 @@ const componentTables: Record<string, PropRow[]> = {
         ko: '인용 부호. 생략하면 기본 표시, `false`면 없음, 노드를 주면 교체됩니다',
         en: 'The mark before the quote. Omit for the house glyph, `false` to drop it, a node to replace it'
       }
-    }
+    },
+    transition
   ],
 
   MPAvatar: [
@@ -2275,7 +2286,8 @@ const componentTables: Record<string, PropRow[]> = {
         ko: '이니셜 대신 그릴 대체 표시 — 아이콘, 로고, 이모지 하나',
         en: 'The fallback, drawn instead of the initials — an icon, a logo, a single emoji'
       }
-    }
+    },
+    transition
   ],
 
   MPBadge: [
@@ -2425,7 +2437,8 @@ const componentTables: Record<string, PropRow[]> = {
       }
     },
     disabled,
-    { name: 'children', type: NODE, description: { ko: '라벨', en: 'The label' } }
+    { name: 'children', type: NODE, description: { ko: '라벨', en: 'The label' } },
+    transition
   ],
 
   MPSkeleton: [
@@ -2541,7 +2554,8 @@ const componentTables: Record<string, PropRow[]> = {
         ko: '제목 아래 문장 — 왜 비어 있는지, 다음에 무엇을 할지',
         en: 'The sentence under the headline: why it is empty, or what to do next'
       }
-    }
+    },
+    transition
   ],
 
   MPList: [
@@ -5136,7 +5150,8 @@ const componentTables: Record<string, PropRow[]> = {
       name: 'children',
       type: NODE,
       description: { ko: '메시지', en: 'The message' }
-    }
+    },
+    transition
   ],
 
   MPIconButton: [
@@ -5503,7 +5518,8 @@ const componentTables: Record<string, PropRow[]> = {
       name: 'children',
       type: NODE,
       description: { ko: '시트 위에 놓이는 것', en: 'What sits on the sheet' }
-    }
+    },
+    transition
   ],
 
   MPGrid: [
@@ -6446,7 +6462,8 @@ const componentTables: Record<string, PropRow[]> = {
       name: 'children',
       type: NODE,
       description: { ko: '카드의 본문', en: "The card's body" }
-    }
+    },
+    transition
   ],
 
   MPCarousel: [

@@ -2,6 +2,7 @@ import * as React from 'react';
 import { MPIcon } from '../icon/MPIcon';
 import { CloseIcon, ErrorIcon, InfoIcon } from '../../constants/icons';
 import { accentSlots } from '../../internal/accent';
+import { transitionProps } from '../../internal/transition';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { ALERT } from '../../internal/messages/alert';
 import { inertProps } from '../../internal/inert';
@@ -16,7 +17,7 @@ import {
 } from '../../internal/scale';
 import { sheetPad } from '../../internal/density';
 import { useMPColor, useMPDensity, useMPSize } from '../../internal/config';
-import type { MPColor, MPDensity, MPSize, MPVariant } from '../../types';
+import type { MPColor, MPDensity, MPSize, MPTransition, MPVariant } from '../../types';
 
 /**
  * What the alert is made of, at rest.
@@ -211,6 +212,15 @@ export interface MPAlertProps extends Omit<
   locale?: string;
   /** The message. */
   children?: React.ReactNode;
+  /**
+   * An entrance, run once as it mounts.
+   *
+   * `transition="fade"` is the whole of what most callers want; the object form
+   * takes a duration, an edge to come from, or a scale to start at. Anything
+   * that has to run again — on scroll, on hover, under your own control — is an
+   * [MPAnimateFade](../motion/animate-fade) and its siblings.
+   */
+  transition?: MPTransition;
 }
 
 /**
@@ -249,6 +259,7 @@ export const MPAlert = React.forwardRef<HTMLDivElement, MPAlertProps>(function M
     onClose,
     closeLabel,
     locale: localeProp,
+    transition,
     className,
     style,
     children,
@@ -256,6 +267,7 @@ export const MPAlert = React.forwardRef<HTMLDivElement, MPAlertProps>(function M
   },
   ref
 ) {
+  const entrance = transitionProps(transition);
   const color = useMPColor(colorProp);
   const size = useMPSize(sizeProp);
   const density = useMPDensity(densityProp);
@@ -340,11 +352,12 @@ export const MPAlert = React.forwardRef<HTMLDivElement, MPAlertProps>(function M
         SHEET_GAP[size],
         PROSE_TEXT[size],
         REST[variant],
+        entrance.className,
         className ?? ''
       ]
         .filter(Boolean)
         .join(' ')}
-      style={{ ...accentSlots(color), ...style }}
+      style={{ ...accentSlots(color), ...entrance.style, ...style }}
       {...props}
     >
       {hasContent(glyph) ? (

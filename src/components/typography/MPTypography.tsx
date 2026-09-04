@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { accentSlots } from '../../internal/accent';
-import type { MPColor } from '../../types';
+import { transitionProps } from '../../internal/transition';
+import type { MPColor, MPTransition } from '../../types';
 
 /**
  * What a piece of text *is*, which decides both its type scale and the element
@@ -86,6 +87,15 @@ export interface MPTypographyProps extends Omit<
    */
   render?: useRender.RenderProp;
   children?: React.ReactNode;
+  /**
+   * An entrance, run once as it mounts.
+   *
+   * `transition="fade"` is the whole of what most callers want; the object form
+   * takes a duration, an edge to come from, or a scale to start at. Anything
+   * that has to run again — on scroll, on hover, under your own control — is an
+   * [MPAnimateFade](../motion/animate-fade) and its siblings.
+   */
+  transition?: MPTransition;
 }
 
 /**
@@ -273,6 +283,7 @@ export const MPTypography = React.forwardRef<HTMLElement, MPTypographyProps>(fun
     lines,
     gutter = false,
     render,
+    transition,
     className,
     style,
     children,
@@ -280,6 +291,7 @@ export const MPTypography = React.forwardRef<HTMLElement, MPTypographyProps>(fun
   },
   ref
 ) {
+  const entrance = transitionProps(transition);
   const classNames = [
     // Both a style hook and the specificity — see `LEVEL_TEXT`.
     'mp-typography',
@@ -305,10 +317,12 @@ export const MPTypography = React.forwardRef<HTMLElement, MPTypographyProps>(fun
     render: render ?? React.createElement(LEVEL_ELEMENT[level]),
     ref,
     props: {
-      className: classNames,
+      className: `${classNames}${entrance.className ? ` ${entrance.className}` : ''}`,
       // The slots only when a family was asked for: four custom properties on
       // every paragraph on a page is four properties the page did not need.
-      style: color ? { ...accentSlots(color), ...style } : style,
+      style: color
+        ? { ...accentSlots(color), ...entrance.style, ...style }
+        : { ...entrance.style, ...style },
       children,
       ...props
     }

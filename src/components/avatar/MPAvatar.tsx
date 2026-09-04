@@ -1,10 +1,11 @@
 import * as React from 'react';
 import { Avatar as BaseUIAvatar } from '@base-ui/react/avatar';
 import { accentSlots } from '../../internal/accent';
+import { transitionProps } from '../../internal/transition';
 import { CONTROL_SQUARE, hasContent } from '../../internal/scale';
 import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
 import { useMPColor, useMPSize } from '../../internal/config';
-import type { MPColor, MPSize, MPVariant } from '../../types';
+import type { MPColor, MPSize, MPTransition, MPVariant } from '../../types';
 
 /** What Base UI reports about the picture as it loads. */
 export type MPAvatarLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error';
@@ -94,6 +95,15 @@ export interface MPAvatarProps extends Omit<React.ComponentPropsWithoutRef<'span
    * it.
    */
   children?: React.ReactNode;
+  /**
+   * An entrance, run once as it mounts.
+   *
+   * `transition="fade"` is the whole of what most callers want; the object form
+   * takes a duration, an edge to come from, or a scale to start at. Anything
+   * that has to run again — on scroll, on hover, under your own control — is an
+   * [MPAnimateFade](../motion/animate-fade) and its siblings.
+   */
+  transition?: MPTransition;
 }
 
 /**
@@ -214,6 +224,7 @@ export const MPAvatar = React.forwardRef<HTMLSpanElement, MPAvatarProps>(functio
     delay,
     imageProps,
     onLoadingStatusChange,
+    transition,
     className,
     style,
     children,
@@ -221,6 +232,7 @@ export const MPAvatar = React.forwardRef<HTMLSpanElement, MPAvatarProps>(functio
   },
   ref
 ) {
+  const entrance = transitionProps(transition);
   const shape = shapeProp ?? 'circle';
   const variant = variantProp ?? 'tonal';
   const size = useMPSize(sizeProp);
@@ -252,8 +264,8 @@ export const MPAvatar = React.forwardRef<HTMLSpanElement, MPAvatarProps>(functio
       ref={ref}
       data-mp-size={size}
       data-mp-variant={variant}
-      className={classNames}
-      style={{ ...accentSlots(color), ...style }}
+      className={`${classNames}${entrance.className ? ` ${entrance.className}` : ''}`}
+      style={{ ...accentSlots(color), ...entrance.style, ...style }}
       {...props}
     >
       {src ? (

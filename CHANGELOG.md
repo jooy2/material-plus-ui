@@ -6,6 +6,14 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **`transition` on the components that display something**: `MPBox`, `MPCard`, `MPAvatar`, `MPChip`, `MPTypography`, `MPBlockquote`, `MPEmpty` and `MPAlert`. An entrance, run once as the component mounts — `transition="fade"`, or an object carrying a duration, an edge to come from or a scale to start at.
+
+  It has no `trigger`, no `repeat` and no scroll timeline, and the absence is the design rather than an omission. Those are what the `MPAnimate*` components are, and a prop offering half of them would be a second, worse spelling of machinery that already exists. The prop is for the two cases where wrapping is the wrong shape: a component that lays its children into boxes nothing outside can reach — which is why `MPStack` has had this since it arrived — and a grid whose every card would otherwise gain a second element, since a `display: contents` wrapper generates no box to animate.
+
+  **It costs about 1.2 kB gzipped on any component that takes it**, passed or not, because the effect tables are object literals and a bundler cannot tree-shake a key. `MPBox` goes from 0.7 kB to 1.7. That is the whole reason the prop is on eight components rather than on everything, and why none of the controls have it: a button arriving with a flourish is a page's decision about a region, made with a wrapper.
+
+  Every default matches the wrapper's, so `transition="zoom"` and `<MPAnimateZoom>` are one effect said two ways rather than two effects that look similar.
+
 - **`elevation` on the sheets that can be raised**, on MD3's five levels: `MPBox`, `MPCard`, `MPAccordion`, `MPCollapsible`, `MPList`, `MPTable`, `MPHeader`, `MPFooter` and `MPSidebar`. The stylesheet gained levels 4 and 5 to go with the three it already had, so `--mp-sys-elevation-level1` through `level5` are all defined and all themeable.
 
   **It moves the tone as well as the shadow**, and that is the only shape the prop could take here. MD3 does not treat height as a free axis: an elevated surface is `surface-container-low` _under_ a level-1 shadow, and the two are one decision. A prop that only cast a shadow would raise a `filled` box into a surface the specification has no name for — a lifted object that is somehow still the flattest tone in the system. So each level names a surface role and the shadow that goes with it, exactly as Material publishes the pairing.

@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { accentSlots } from '../../internal/accent';
+import { transitionProps } from '../../internal/transition';
 import { hasContent, META_TEXT, SHEET_PAD } from '../../internal/scale';
 import { useMPColor, useMPSize } from '../../internal/config';
-import type { MPColor, MPSize, MPVariant } from '../../types';
+import type { MPColor, MPSize, MPTransition, MPVariant } from '../../types';
 
 /**
  * The props are a `<figure>`'s rather than a `<blockquote>`'s, which is a
@@ -52,6 +53,15 @@ export interface MPBlockquoteProps extends Omit<React.ComponentPropsWithoutRef<'
   icon?: React.ReactNode | false;
   /** What was said. */
   children?: React.ReactNode;
+  /**
+   * An entrance, run once as it mounts.
+   *
+   * `transition="fade"` is the whole of what most callers want; the object form
+   * takes a duration, an edge to come from, or a scale to start at. Anything
+   * that has to run again — on scroll, on hover, under your own control — is an
+   * [MPAnimateFade](../motion/animate-fade) and its siblings.
+   */
+  transition?: MPTransition;
 }
 
 /**
@@ -151,6 +161,7 @@ export const MPBlockquote = React.forwardRef<HTMLElement, MPBlockquoteProps>(fun
     source,
     cite,
     icon,
+    transition,
     className,
     style,
     children,
@@ -164,6 +175,7 @@ export const MPBlockquote = React.forwardRef<HTMLElement, MPBlockquoteProps>(fun
   const glyph = icon === undefined ? <QuoteMarkIcon /> : icon;
   const painted = variant !== 'text';
 
+  const entrance = transitionProps(transition);
   const shellClasses = [
     'mp-blockquote flex flex-col',
     // The type scale is on the shell rather than on the `<blockquote>`, and it
@@ -180,6 +192,7 @@ export const MPBlockquote = React.forwardRef<HTMLElement, MPBlockquoteProps>(fun
     painted ? 'rounded-mp-md rounded-s-none' : '',
     SURFACE[variant],
     painted ? SHEET_PAD[size] : 'ps-4',
+    entrance.className,
     className ?? ''
   ]
     .filter(Boolean)
@@ -200,7 +213,7 @@ export const MPBlockquote = React.forwardRef<HTMLElement, MPBlockquoteProps>(fun
     </blockquote>
   );
 
-  const shellStyle = { ...accentSlots(color), ...style };
+  const shellStyle = { ...accentSlots(color), ...entrance.style, ...style };
 
   if (!attributed) {
     return (

@@ -20,6 +20,7 @@ type MPColor = 'primary' | 'secondary' | 'tertiary' | 'error';
 type MPVariant = 'filled' | 'tonal' | 'elevated' | 'outlined' | 'text';
 type MPDensity = 0 | -1 | -2 | -3;
 type MPElevation = 0 | 1 | 2 | 3 | 4 | 5;
+type MPTransition = MPAnimation | MPTransitionOptions;
 type MPOrientation = 'horizontal' | 'vertical';
 
 interface MPStyleProps {
@@ -149,6 +150,29 @@ MD3의 단계를 그대로, 떠 있는 다섯 단계 전부. `1`은 elevated 카
 Material UI의 여섯 개가 아닙니다. 스펙의 색상 시스템에는 `info`, `success`, `warning`이 없고, 그것을 제공하면 [토큰 시트](./color)가 파생시킬 방법이 없는 롤을 약속하는 셈이 됩니다.
 
 임의의 색상 값은 prop으로 받지 않습니다. 롤이 *무엇인지*를 바꾸려면 토큰을 지정하세요. 그러면 호출 지점마다가 아니라 한 번의 변경이 모든 컴포넌트에 닿습니다.
+
+## 모션
+
+무언가를 움직이는 방법이 셋이고, 셋인 이유는 서로 다른 질문에 답하기 때문입니다.
+
+**토큰.** 이 라이브러리의 모든 지속 시간과 곡선은 custom property입니다. `--mp-sys-motion-duration-short4`, `--mp-sys-motion-easing-emphasized`. 컴포넌트의 전환은 그것들을 읽으므로, 페이지 전체를 조금 느리게 하고 싶으면 값 하나를 바꾸면 되고 컴포넌트는 건드리지 않습니다. `MPEasing`은 그 곡선 절반을 prop으로 말한 것입니다. 명세의 이름만 받고 임의의 `cubic-bezier()`는 받지 않습니다. `color`가 색이 아니라 계열을 받는 것과 같은 이유입니다. 한 컴포넌트의 prop에 적힌 곡선은 테마가 닿을 수 없는 곡선입니다.
+
+**`transition` prop.** 마운트될 때 한 번 실행되는 등장 효과이고, 무언가를 _보여 주는_ 컴포넌트가 받습니다.
+
+```tsx
+<MPCard transition="fade" />
+<MPChip transition={{ effect: 'slide', from: 'left', duration: 300 }} />
+```
+
+`trigger`도 `repeat`도 스크롤 타임라인도 없습니다. 빠뜨린 것이 아니라 설계입니다. 그것들은 다음 문단의 것이고, 절반만 제공하는 prop은 이미 있는 기계를 더 나쁘게 다시 쓴 것이 됩니다.
+
+**`MPAnimate*` 컴포넌트.** 일반적인 답입니다. 무엇이든 감싸고, 트리거와 스태거와 스크롤 타임라인과 재생 제어를 가집니다. "언제?"의 답이 "나타날 때"가 아닌 순간 이쪽입니다.
+
+래퍼가 있는데도 prop이 있는 이유는 감싸는 것이 맞지 않는 경우가 둘이기 때문입니다. 자식을 자기가 만든 상자에 넣는 컴포넌트 — `MPStack` — 는 그 상자를 밖에서 닿을 수 없는 곳에 둡니다. 그리고 그리드의 모든 카드를 감싸면 카드마다 엘리먼트가 하나씩 더 듭니다. `display: contents` 래퍼로는 피할 수 없습니다. 상자를 만들지 않는 엘리먼트에는 애니메이션을 걸 것이 없습니다.
+
+**이 prop을 받는 컴포넌트는 gzip 기준 약 1.2 kB를 냅니다.** 호출자가 값을 주든 말든 그렇습니다. 효과 표가 객체 리터럴이고, 번들러는 키 단위로 tree-shake하지 못하기 때문입니다. 그래서 이 prop은 무언가를 보여 주는 컴포넌트 여덟 개에만 있고 컨트롤에는 없습니다. 번들 리포트에서 발견하게 두는 대신 여기에 적어 둡니다.
+
+**`prefers-reduced-motion`은 어디서나 존중됩니다.** 컴포넌트도 스타일시트도 그렇습니다. 이를 위한 prop은 필요 없습니다.
 
 ## 이름 규칙
 

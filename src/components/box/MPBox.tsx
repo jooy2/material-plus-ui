@@ -3,7 +3,8 @@ import { useRender } from '@base-ui/react/use-render';
 import { sheetPad } from '../../internal/density';
 import { containerSurface } from '../../internal/elevation';
 import { useMPDensity } from '../../internal/config';
-import type { MPDensity, MPSize, MPElevation, MPVariant } from '../../types';
+import { transitionProps } from '../../internal/transition';
+import type { MPDensity, MPElevation, MPSize, MPTransition, MPVariant } from '../../types';
 
 export interface MPBoxProps extends React.ComponentPropsWithoutRef<'div'> {
   /**
@@ -52,6 +53,16 @@ export interface MPBoxProps extends React.ComponentPropsWithoutRef<'div'> {
    * @default 0
    */
   density?: MPDensity;
+  /**
+   * An entrance, run once as the box mounts.
+   *
+   * `transition="fade"` is the whole of what most callers want; the object form
+   * takes a duration, an edge to come from, or a scale to start at. Anything
+   * that has to run again — on scroll, on hover, under your own control — is an
+   * [MPAnimateFade](../motion/animate-fade) and its siblings, and wrapping is
+   * the right answer there.
+   */
+  transition?: MPTransition;
   /**
    * Inner padding. Turn it off for full-bleed content — a picture, a table, a
    * list that draws its own rows.
@@ -111,15 +122,18 @@ export const MPBox = React.forwardRef<HTMLDivElement, MPBoxProps>(function MPBox
     elevation,
     size = 'md',
     density: densityProp,
+    transition,
     padded = true,
     render,
     className,
+    style,
     children,
     ...props
   },
   ref
 ) {
   const density = useMPDensity(densityProp);
+  const entrance = transitionProps(transition);
 
   return useRender({
     render,
@@ -136,10 +150,15 @@ export const MPBox = React.forwardRef<HTMLDivElement, MPBoxProps>(function MPBox
         padded ? sheetPad(size, density) : '',
         containerSurface(variant, elevation),
         'text-mp-on-surface',
+        entrance.className,
         className ?? ''
       ]
         .filter(Boolean)
         .join(' '),
+      // The entrance first, so a `style` of the caller's own can still move one
+      // of its slots — which is the only way to reach a number the prop does
+      // not name.
+      style: { ...entrance.style, ...style },
       children,
       ...props
     }

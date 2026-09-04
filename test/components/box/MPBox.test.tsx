@@ -157,4 +157,47 @@ describe('MPBox', () => {
       expect(style.boxShadow).not.toBe('none');
     });
   });
+  describe('transition', () => {
+    it('runs an entrance on mount', async () => {
+      const screen = await render(<MPBox transition="fade">Body</MPBox>);
+      const style = getComputedStyle(screen.container.querySelector('.mp-box')!);
+
+      expect(style.animationName).not.toBe('none');
+      expect(style.animationIterationCount).toBe('1');
+    });
+
+    it('draws nothing extra when it was not asked for', async () => {
+      // Every component taking the prop pays for the effect tables either way,
+      // but a box that was given no transition must not be left animating.
+      const screen = await render(<MPBox>Body</MPBox>);
+
+      expect(getComputedStyle(screen.container.querySelector('.mp-box')!).animationName).toBe(
+        'none'
+      );
+    });
+
+    it('takes the object form for the numbers a name cannot carry', async () => {
+      const screen = await render(
+        <MPBox transition={{ effect: 'slide', from: 'left', distance: 40, duration: 300 }}>
+          Body
+        </MPBox>
+      );
+      const style = getComputedStyle(screen.container.querySelector('.mp-box')!);
+
+      expect(style.animationDuration).toBe('0.3s');
+      expect(style.getPropertyValue('--_mp-anim-x')).toBe('-40px');
+    });
+
+    it('leaves a style of the caller’s own able to move a slot', async () => {
+      const screen = await render(
+        <MPBox transition="fade" style={{ ['--_mp-anim-delay' as string]: '500ms' }}>
+          Body
+        </MPBox>
+      );
+
+      expect(getComputedStyle(screen.container.querySelector('.mp-box')!).animationDelay).toBe(
+        '0.5s'
+      );
+    });
+  });
 });

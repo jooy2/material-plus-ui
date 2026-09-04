@@ -20,6 +20,7 @@ type MPColor = 'primary' | 'secondary' | 'tertiary' | 'error';
 type MPVariant = 'filled' | 'tonal' | 'elevated' | 'outlined' | 'text';
 type MPDensity = 0 | -1 | -2 | -3;
 type MPElevation = 0 | 1 | 2 | 3 | 4 | 5;
+type MPTransition = MPAnimation | MPTransitionOptions;
 type MPOrientation = 'horizontal' | 'vertical';
 
 interface MPStyleProps {
@@ -149,6 +150,29 @@ Four roles, which is Material's accent set: `primary`, `secondary`, `tertiary`, 
 Not Material UI's six. The specification's colour system has no `info`, `success` or `warning`, and offering them would promise roles [the token sheet](./color) has no way to derive.
 
 Arbitrary colour values are not accepted as a prop. To change what a role _is_, set the token — that way one change reaches every component at once instead of every call site.
+
+## Motion
+
+Three ways to move something, and they are three because they answer three different questions.
+
+**A token.** Every duration and every curve in this library is a custom property — `--mp-sys-motion-duration-short4`, `--mp-sys-motion-easing-emphasized`. A component's own transitions read those, so a page that wants everything a little slower sets one value and does not touch a component. `MPEasing` is the curve half said as a prop: it takes the specification's names and no arbitrary `cubic-bezier()`, for the reason `color` takes a family rather than a colour. A curve written into one component's props is a curve the theme cannot reach.
+
+**A `transition` prop.** An entrance, run once as the component mounts, on the components that _display_ something:
+
+```tsx
+<MPCard transition="fade" />
+<MPChip transition={{ effect: 'slide', from: 'left', duration: 300 }} />
+```
+
+It has no `trigger`, no `repeat` and no scroll timeline, and the absence is the design rather than an omission — those are the next paragraph, and a prop offering half of them would be a second, worse spelling of machinery that already exists.
+
+**An `MPAnimate*` component.** The general answer: a wrapper round anything, with a trigger, a stagger, a scroll timeline, and control over when it plays. Reach for it the moment the answer to "when?" is anything but "as it appears".
+
+The prop exists alongside the wrapper because wrapping is the wrong shape twice. A component that lays its children into boxes of its own — `MPStack` — puts them somewhere nothing outside can reach. And wrapping every card of a grid costs a second element per card, which a `display: contents` wrapper cannot avoid: an element that generates no box has nothing to animate.
+
+**It costs about 1.2 kB gzipped on any component that takes it**, whether or not a caller ever passes one, because the effect tables are object literals and a bundler cannot tree-shake a key. That is why the prop is on the eight components that display something and on none of the controls — and it is written here rather than left to be found on a bundle report.
+
+**`prefers-reduced-motion` is honoured throughout**, by the components and by the stylesheet. Nothing here needs a prop for it.
 
 ## Naming
 
