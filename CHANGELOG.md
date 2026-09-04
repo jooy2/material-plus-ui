@@ -6,6 +6,16 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **Four hooks**: `useMPDisclosure`, `useMPMediaQuery`, `useMPElementSize` and `useMPOnScreen`. The five already exported were machinery the components were running; these four are the general form of something the library does several times over and could not export as it stood.
+
+  `useMPDisclosure` is the six lines every page writes to open a dialog, with the two details a version written in a hurry leaves out: the callbacks are stable for the life of the component, and asking to close something already closed is not a state change — which matters because a close handler is usually wired to a button, an `onOpenChange` and an Escape at once.
+
+  `useMPMediaQuery` is one query where `useMPWindowClass` is four. Not for a width: that would be a copy of a number the library also holds, and the two drift the moment an `MPConfigProvider` moves a boundary.
+
+  `useMPElementSize` answers what a container query asks and a media query cannot — a card in a sidebar and the same card in a main column are the same window and two different widths. It reports the border box rather than the observer's `contentRect`, and re-renders only when a rounded number changed.
+
+  `useMPOnScreen` is what `trigger="visible"` already does, for the other reasons to ask: loading an image, starting a request, pausing something that has scrolled away.
+
 - **`classNames` on the five components with a part `className` cannot reach**: `MPSelect` and `MPCombobox` (`popup`, `item`), `MPDialog` and `MPDrawer` (`backdrop`), and `MPCommandPalette` (`backdrop`, `input`, `list`, `row`).
 
   Two ways of being unreachable, and both are real. A popup, a scrim and a palette's sheet render at the end of `<body>`, so no selector written against the root will ever find them. And a row drawn from an `items` array has no element of the caller's to carry a class at all — there is nowhere to write one.

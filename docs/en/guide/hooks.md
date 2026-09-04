@@ -16,10 +16,16 @@ That is the whole of why they are exported. A page that wants one more decision 
 | [`useMPReducedMotion`](#usempreducedmotion) | Whether the reader asked for less motion |
 | [`useMPShortcut`](#usempshortcut) | Runs something when a keystroke arrives |
 | [`useMPPlatform`](#usempplatform) | Which keyboard the reader is on |
+| [`useMPDisclosure`](#usempdisclosure) | Open, and the three ways to change it |
+| [`useMPMediaQuery`](#usempmediaquery) | Whether a media query matches |
+| [`useMPElementSize`](#usempelementsize) | How big an element is |
+| [`useMPOnScreen`](#usemponscreen) | Whether an element is on screen |
 | [`useMPLocale`](../design/localization.md#3-nothing-at-all) | The language in force at this point in the tree |
 | [`useMPSnackbar`](../components/feedback/snackbar.md) | Raises snackbars from anywhere under the provider |
 
-The last two live with the provider they read, the way a hook that reads a context should. The five above have no component of their own.
+The last two live with the provider they read, the way a hook that reads a context should. The rest have no component of their own.
+
+The first five were machinery the components were already running. The last four are the general form of something the library does several times over and could not export as it stood: `useMPWindowClass` watches four media queries and `useMPMediaQuery` is one, `MPTabs` measures its own bar and `useMPElementSize` is that measurement, `trigger="visible"` watches an element cross the viewport and `useMPOnScreen` is the watching without the animation.
 
 ## `useMPColorScheme`
 
@@ -198,6 +204,72 @@ const os = useMPPlatform(); // 'mac' | 'windows' | 'linux'
 The same detection `MPShortcut` prints its key caps from, for an application drawing a key cap of its own. Three sources are matched at once — `userAgentData.platform`, `navigator.platform` and the user agent string — because the question is coarse and browsers freeze or lie about each of them separately.
 
 `'windows'` where there is no navigator, corrected on hydration.
+
+## `useMPDisclosure`
+
+```tsx
+const dialog = useMPDisclosure();
+
+<MPButton onClick={dialog.onOpen}>Delete</MPButton>
+<MPDialog open={dialog.open} onOpenChange={dialog.setOpen} title="Delete?">
+  <MPButton onClick={dialog.onClose}>Cancel</MPButton>
+</MPDialog>;
+```
+
+The most-written six lines in any application using this library. A dialog, a drawer, a popover, a menu and a command palette are all controlled the same way, and every page that mounts one writes the same `useState` and the same three arrows.
+
+Two things it gets right that a version written in a hurry does not.
+
+- **Every callback is stable.** An inline `onClick={() => setOpen(true)}` is a new function on every render, which re-renders a memoised trigger and defeats the `React.memo` a page put there on purpose.
+- **Asking for what is already true costs nothing.** React bails out of a `useState` set to the value it already holds, which matters because a close handler is often wired to three things at once — a button, an `onOpenChange`, and an Escape the component also handles.
+
+It holds state, so it makes a thing controlled. A component that should manage its own open state takes `defaultOpen` and needs none of this.
+
+## `useMPMediaQuery`
+
+```tsx
+const coarse = useMPMediaQuery('(pointer: coarse)');
+
+<MPTooltip disabled={coarse}>…</MPTooltip>;
+```
+
+The general form of what this library does four times over for the window size classes and once each for reduced motion and the colour scheme. A page has questions of its own — a coarse pointer, a short window, a high-contrast mode — and had to write the subscription out again to ask one.
+
+**Not for a width.** A width query here is a copy of a number the library also holds, and the two drift the moment an `MPConfigProvider` moves a boundary. [`useMPWindowClass`](#usempwindowclass) reads the same ladder the grid and the sidebar do.
+
+`false` where there is nothing to ask — a server, or a browser with no `matchMedia` — unless you pass your own answer as the second argument. A default of "matches" would have every server-rendered page claiming every preference at once.
+
+## `useMPElementSize`
+
+```tsx
+const ref = React.useRef<HTMLDivElement>(null);
+const { width } = useMPElementSize(ref);
+
+<div ref={ref}>{width > 480 ? <Chart /> : <Figure />}</div>;
+```
+
+This is the answer for a component's **own** width, which is what a container query asks and a media query cannot: a card in a sidebar and the same card in a main column are the same window and two different widths.
+
+- **Zero until it has measured.** A ref is filled in during the commit, so the first answer is `0` and the real one arrives on the render after it. Branch on a threshold rather than on the number, or a chart mounts, is told it is zero wide, and mounts again.
+- **The border box, not the content box.** The observer entry's `contentRect` excludes padding and border; a caller comparing a measurement against a breakpoint means the box the element occupies.
+- **It re-renders only when a number changed.** A `ResizeObserver` fires for a subpixel reflow that rounds to the same integer.
+
+Without `ResizeObserver` it measures once on mount and stays there.
+
+## `useMPOnScreen`
+
+```tsx
+const ref = React.useRef<HTMLDivElement>(null);
+const seen = useMPOnScreen(ref);
+
+<div ref={ref}>{seen ? <Chart data={data} /> : <MPSkeleton height={240} />}</div>;
+```
+
+What `trigger="visible"` on the `MPAnimate*` components is already doing, for the other reasons to ask: loading an image, starting a request, marking a section read, pausing something expensive that has scrolled away.
+
+`once` is on by default, because most reasons to ask are one-way — something loads and does not unload when it scrolls off. Turn it off for a video that should pause. `rootMargin` grows the region, so `'200px 0px'` reports something before it arrives.
+
+Without `IntersectionObserver` it answers `true`: showing content is the answer that fails safe, and the alternative is a page whose every deferred section stays a skeleton forever.
 
 ## Next
 

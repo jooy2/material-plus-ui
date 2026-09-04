@@ -16,10 +16,16 @@ order: 2
 | [`useMPReducedMotion`](#usempreducedmotion) | 읽는 사람이 모션을 줄여 달라고 했는지 |
 | [`useMPShortcut`](#usempshortcut) | 키 입력이 오면 무언가를 실행 |
 | [`useMPPlatform`](#usempplatform) | 읽는 사람이 어떤 키보드를 쓰는지 |
+| [`useMPDisclosure`](#usempdisclosure) | 열림 상태와 그것을 바꾸는 세 가지 방법 |
+| [`useMPMediaQuery`](#usempmediaquery) | 미디어 쿼리가 일치하는지 |
+| [`useMPElementSize`](#usempelementsize) | 엘리먼트가 얼마나 큰지 |
+| [`useMPOnScreen`](#usemponscreen) | 엘리먼트가 화면에 있는지 |
 | [`useMPLocale`](../design/localization.md#3-nothing-at-all) | 트리의 이 지점에서 유효한 언어 |
 | [`useMPSnackbar`](../components/feedback/snackbar.md) | 프로바이더 아래 어디서든 스낵바 띄우기 |
 
-뒤의 둘은 자기가 읽는 프로바이더 옆에 있습니다 — 컨텍스트를 읽는 훅이 있어야 할 자리입니다. 위의 다섯은 자기 컴포넌트가 없습니다.
+뒤의 둘은 자기가 읽는 프로바이더 옆에 있습니다 — 컨텍스트를 읽는 훅이 있어야 할 자리입니다. 나머지는 자기 컴포넌트가 없습니다.
+
+앞의 다섯은 컴포넌트가 이미 돌리고 있던 기계였습니다. 뒤의 넷은 라이브러리가 여러 번 하고 있으면서 그대로는 공개할 수 없었던 것의 일반형입니다. `useMPWindowClass`는 미디어 쿼리 넷을 지켜보고 `useMPMediaQuery`는 하나를 지켜봅니다. `MPTabs`는 자기 바를 재고 `useMPElementSize`가 그 측정입니다. `trigger="visible"`은 엘리먼트가 뷰포트를 넘는 것을 지켜보고, `useMPOnScreen`은 애니메이션을 뺀 그 지켜봄입니다.
 
 ## `useMPColorScheme`
 
@@ -198,6 +204,72 @@ const os = useMPPlatform(); // 'mac' | 'windows' | 'linux'
 `MPShortcut`이 키캡을 찍어 내는 그 감지이며, 직접 키캡을 그리는 애플리케이션을 위한 것입니다. `userAgentData.platform` · `navigator.platform` · user agent 문자열 세 가지를 동시에 봅니다. 질문 자체가 성긴 데다 브라우저마다 이 셋을 따로따로 얼리거나 속이기 때문입니다.
 
 navigator가 없는 곳에서는 `'windows'`이고, hydration에서 고쳐집니다.
+
+## `useMPDisclosure`
+
+```tsx
+const dialog = useMPDisclosure();
+
+<MPButton onClick={dialog.onOpen}>Delete</MPButton>
+<MPDialog open={dialog.open} onOpenChange={dialog.setOpen} title="Delete?">
+  <MPButton onClick={dialog.onClose}>Cancel</MPButton>
+</MPDialog>;
+```
+
+이 라이브러리를 쓰는 애플리케이션에서 가장 많이 쓰이는 여섯 줄입니다. 다이얼로그, 드로어, 팝오버, 메뉴, 커맨드 팔레트가 모두 같은 방식으로 제어되고, 그중 하나를 띄우는 페이지마다 같은 `useState`와 같은 화살표 셋을 씁니다.
+
+급히 쓴 버전이 빠뜨리는 두 가지를 지킵니다.
+
+- **콜백이 전부 안정적입니다.** 인라인 `onClick={() => setOpen(true)}`는 렌더마다 새 함수이고, 메모된 트리거를 다시 렌더시켜 페이지가 일부러 걸어 둔 `React.memo`를 무력화합니다.
+- **이미 그런 상태를 요청하는 것은 공짜입니다.** React는 이미 가진 값으로 `useState`를 설정하면 빠져나옵니다. 닫기 핸들러가 버튼과 `onOpenChange`와 컴포넌트가 처리하는 Escape 셋에 동시에 연결되는 일이 흔하므로 이 점이 중요합니다.
+
+상태를 들고 있으므로 대상을 controlled로 만듭니다. 자기 열림 상태를 스스로 관리해야 하는 컴포넌트는 `defaultOpen`을 받고 이것이 필요 없습니다.
+
+## `useMPMediaQuery`
+
+```tsx
+const coarse = useMPMediaQuery('(pointer: coarse)');
+
+<MPTooltip disabled={coarse}>…</MPTooltip>;
+```
+
+이 라이브러리가 윈도우 크기 클래스에 네 번, 모션 축소와 색 구성표에 한 번씩 하고 있는 일의 일반형입니다. 페이지에는 자기 질문이 있습니다. 거친 포인터인지, 창이 낮은지, 고대비 모드인지. 그것 하나를 묻자고 구독을 다시 써야 했습니다.
+
+**너비에는 쓰지 마세요.** 여기 쓴 너비 쿼리는 라이브러리도 들고 있는 숫자의 사본이고, `MPConfigProvider`가 경계를 옮기는 순간 둘이 어긋납니다. [`useMPWindowClass`](#usempwindowclass)는 그리드와 사이드바가 읽는 그 사다리를 읽습니다.
+
+물어볼 데가 없으면 — 서버이거나 `matchMedia`가 없는 브라우저 — `false`이고, 두 번째 인자로 직접 답을 줄 수 있습니다. 기본값이 "일치"였다면 서버에서 렌더된 모든 페이지가 모든 선호를 한꺼번에 주장하게 됩니다.
+
+## `useMPElementSize`
+
+```tsx
+const ref = React.useRef<HTMLDivElement>(null);
+const { width } = useMPElementSize(ref);
+
+<div ref={ref}>{width > 480 ? <Chart /> : <Figure />}</div>;
+```
+
+컴포넌트 **자기** 너비에 대한 답입니다. 컨테이너 쿼리가 묻는 것이고 미디어 쿼리는 답할 수 없는 것입니다. 사이드바 안의 카드와 본문 열의 같은 카드는 같은 창이고 서로 다른 두 너비입니다.
+
+- **측정 전에는 0입니다.** ref는 커밋 중에 채워지므로 첫 답은 `0`이고 진짜 답은 그다음 렌더에 옵니다. 숫자 자체가 아니라 임계값으로 분기하세요. 그러지 않으면 차트가 마운트되고, 너비가 0이라는 말을 듣고, 다시 마운트됩니다.
+- **content box가 아니라 border box입니다.** 옵저버 엔트리의 `contentRect`는 padding과 border를 뺍니다. 측정값을 브레이크포인트와 비교하는 쪽이 뜻하는 것은 엘리먼트가 실제로 차지하는 상자입니다.
+- **숫자가 바뀔 때만 다시 렌더합니다.** `ResizeObserver`는 반올림하면 같은 정수가 되는 서브픽셀 재배치에도 발화합니다.
+
+`ResizeObserver`가 없으면 마운트 때 한 번 재고 그대로 있습니다.
+
+## `useMPOnScreen`
+
+```tsx
+const ref = React.useRef<HTMLDivElement>(null);
+const seen = useMPOnScreen(ref);
+
+<div ref={ref}>{seen ? <Chart data={data} /> : <MPSkeleton height={240} />}</div>;
+```
+
+`MPAnimate*` 컴포넌트의 `trigger="visible"`이 이미 하고 있는 일을, 묻는 다른 이유들을 위해 꺼낸 것입니다. 이미지 로드, 요청 시작, 읽음 표시, 스크롤 밖으로 나간 비싼 것 멈추기.
+
+`once`가 기본으로 켜져 있습니다. 묻는 이유 대부분이 한 방향이기 때문입니다. 무언가 로드되고, 스크롤 밖으로 나갔다고 다시 언로드되지는 않습니다. 멈춰야 하는 비디오에는 끄세요. `rootMargin`은 영역을 넓히므로 `'200px 0px'`는 도착하기 전에 알려 줍니다.
+
+`IntersectionObserver`가 없으면 `true`입니다. 내용을 보여 주는 쪽이 안전하게 실패하는 답이고, 반대쪽은 지연된 구역이 전부 영원히 스켈레톤으로 남는 페이지입니다.
 
 ## 다음
 
