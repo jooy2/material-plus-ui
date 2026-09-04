@@ -79,6 +79,7 @@ export default defineConfig({
       '@base-ui/react/number-field',
       '@base-ui/react/otp-field',
       '@base-ui/react/popover',
+      '@base-ui/react/preview-card',
       '@base-ui/react/progress',
       '@base-ui/react/radio',
       '@base-ui/react/radio-group',

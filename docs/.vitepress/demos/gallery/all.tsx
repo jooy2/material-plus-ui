@@ -66,6 +66,7 @@ import {
   MPGridItem,
   MPHeader,
   MPHighlight,
+  MPHoverCard,
   MPIcon,
   MPIconButton,
   MPImage,
@@ -1601,6 +1602,24 @@ const GROUPS: Group[] = [
         preview: (
           <Fit>
             <MPProgressLinear value={62} showValue label="Uploading" />
+          </Fit>
+        )
+      },
+      {
+        name: 'MPHoverCard',
+        summary: {
+          ko: '포인터가 머물면 열리는 카드. 그 너머의 미리 보기',
+          en: 'A card that opens on a rest, holding a preview of what is on the other side'
+        },
+        path: '/components/feedback/hover-card',
+        preview: (
+          <Fit>
+            <MPHoverCard
+              size="sm"
+              trigger={<MPTextLink href="#priya">Priya Raman</MPTextLink>}
+              title="Priya Raman"
+              description="Platform team"
+            />
           </Fit>
         )
       },

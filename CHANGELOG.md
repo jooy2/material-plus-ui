@@ -6,6 +6,14 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **`MPHoverCard`**, a card that opens when the pointer rests on something and holds a preview of what is on the other side of it. It fills the gap between the two popups already here: a tooltip is a label the pointer never reaches, a popover is a panel that was asked for by a press, and this one is uninvited like the first and reachable like the second — the pointer can cross into it, and a link inside it can be followed.
+
+  Because it is uninvited it is never the only way to anything. A keyboard with no hover, a touchscreen with no pointer and a screen reader all arrive by the trigger's own route, so whatever is in the card has to exist on the page the trigger leads to as well. There is deliberately no keyboard equivalent bolted on: a card that opened on focus would interrupt every keyboard reader tabbing through a paragraph of links.
+
+  `title` and `description` are wired to `aria-labelledby` and `aria-describedby` by hand, because Base UI's preview card has no `Title` or `Description` part the way its popover does — without them the card is a sheet a screen reader reads cold.
+
+  No `variant`, no `color` and no `elevation`, for the reasons `MPPopover` gives.
+
 - **`MPToolbar`**, a bar of controls: an application header, a page's action row, the strip along the bottom of an editor. `start` and `end` are pinned to their ends and `children` takes what is left — the arrangement every toolbar has ever had, laid out here rather than left to a caller and the spacer `<div>` they have to remember. The middle stays `flex-1` even when empty, or a bar with only a logo and a button collapses the two together in the centre.
 
   It takes no height. A toolbar is as tall as the controls in it plus its padding, and that padding is the `size`/`density` pair every other surface uses, so the dense bar is `density={-2}` rather than a second prop meaning the same thing.

@@ -816,6 +816,134 @@ const NO_ELEMENT = new Set([
 ]);
 
 const componentTables: Record<string, PropRow[]> = {
+  MPHoverCard: [
+    {
+      name: 'trigger',
+      type: 'ReactElement',
+      required: true,
+      description: {
+        ko: '카드가 매달리는 엘리먼트. 정확히 하나여야 하고 ref와 props를 받아야 합니다 — Base UI가 복제해서 붙이므로, 사이에 낀 함수 컴포넌트는 둘 다 삼킵니다',
+        en: 'What the card hangs off. Exactly one element, which must accept a ref and spread props — Base UI clones it to attach both, and a plain function component in the way swallows them'
+      }
+    },
+    {
+      name: 'title',
+      type: NODE,
+      description: {
+        ko: '제목이자 카드의 접근성 이름',
+        en: "The heading, which is also the card's accessible name"
+      }
+    },
+    {
+      name: 'description',
+      type: NODE,
+      description: {
+        ko: '제목 아래 한 줄이자 카드의 접근성 설명',
+        en: "A line under it, and the card's accessible description"
+      }
+    },
+    {
+      name: 'children',
+      type: NODE,
+      description: { ko: '본문', en: 'The body' }
+    },
+    {
+      name: 'side',
+      type: "'top' | 'right' | 'bottom' | 'left'",
+      default: "'bottom'",
+      description: {
+        ko: '트리거의 어느 가장자리에 뜨는지. 자리가 없으면 반대쪽으로 뒤집힙니다',
+        en: 'Which edge of the trigger it appears on. Flips to the opposite side when there is no room'
+      }
+    },
+    {
+      name: 'align',
+      type: "'start' | 'center' | 'end'",
+      default: "'center'",
+      description: { ko: '그 가장자리를 따라 어디에 서는지', en: 'Where it sits along that edge' }
+    },
+    {
+      name: 'sideOffset',
+      type: 'number',
+      default: '8',
+      description: {
+        ko: '트리거에서 떨어진 거리, 픽셀',
+        en: 'Distance from the trigger, in pixels'
+      }
+    },
+    {
+      name: 'alignOffset',
+      type: 'number',
+      default: '0',
+      description: {
+        ko: '그 가장자리를 따라 밀린 정도, 픽셀',
+        en: 'Shift along that edge, in pixels'
+      }
+    },
+    {
+      name: 'arrow',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '트리거를 가리키는 쐐기. 기본은 꺼짐입니다 — 8픽셀 떨어진 시트는 자기가 무엇에 붙었는지 말할 필요가 없습니다',
+        en: 'Draws the wedge pointing at the trigger. Off by default: a sheet eight pixels from what opened it does not need to say what it belongs to'
+      }
+    },
+    {
+      name: 'open',
+      type: 'boolean',
+      description: {
+        ko: '카드가 열려 있는지. `onOpenChange`와 함께 쓰면 controlled입니다',
+        en: 'Whether the card is open. Use with `onOpenChange` for a controlled one'
+      }
+    },
+    {
+      name: 'defaultOpen',
+      type: 'boolean',
+      description: { ko: '열린 채로 시작할지', en: 'Whether it starts open' }
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: { ko: '열리고 닫힐 때 호출됩니다', en: 'Called when it opens and closes' }
+    },
+    {
+      name: 'delay',
+      type: 'number',
+      description: {
+        ko: '카드가 열리기 전까지 포인터가 머물러야 하는 시간, 밀리초. 기본값은 링크 문단을 훑고 지날 때 네 개가 따라 열리지 않을 만큼 깁니다',
+        en: 'How long the pointer has to rest before the card opens, in milliseconds. The default is long enough that dragging across a paragraph of links does not open four of them'
+      }
+    },
+    {
+      name: 'closeDelay',
+      type: 'number',
+      description: {
+        ko: '포인터가 떠난 뒤 카드가 남아 있는 시간, 밀리초. 트리거와 카드 사이의 틈을 건널 수 있게 하는 것이 이것입니다',
+        en: 'How long the card stays after the pointer has left, in milliseconds. This is what makes the gap between the trigger and the card crossable'
+      }
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      description: {
+        ko: '`size`가 정한 최대 너비를 덮는 값',
+        en: 'A hard cap on the width, overriding the one `size` implies'
+      }
+    },
+    {
+      ...size,
+      description: { ko: '글자 크기와 안쪽 공간', en: 'The type scale and the room inside' }
+    },
+    {
+      ...density,
+      description: {
+        ko: '그 여백에서 한 면당 2픽셀씩 덜어 냅니다',
+        en: 'Takes room out of that padding, two pixels a face per step'
+      }
+    }
+  ],
+
   MPIcon: [
     {
       name: 'icon',
