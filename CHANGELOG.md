@@ -6,6 +6,18 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **`MPPieChart`**, and the split that made it possible. A pie has no axes, no scales and no columns to hit-test, so reaching into the cartesian frame for a legend would have carried all three; the legend, the hover panel, the spoken readout, the table and the arrangement holding them now live in `internal/ChartChrome.tsx`, and the frame is one more consumer rather than the owner. The split stylesheet is cut along the import graph a file at a time, which is what makes that a size question and not a taste one.
+
+  **It takes `data` and not `series`**, because that is what a pie is: the slices are the entities, so each takes a palette slot of its own and the legend lists them. That also makes the legend do more work here than anywhere else — a slice has no axis to be read against, so the swatch and the name are the whole identity channel.
+
+  **A negative is left out.** It has no share of a whole, and both ways of forcing one in are wrong: as an absolute it claims the opposite of what it means, and as a signed sweep it runs backwards over the slice beside it. The table still has the number.
+
+  A single-slice pie is drawn as **two** arcs. An SVG arc is defined by its endpoints, so a sweep of exactly 360° starts and ends at the same point and renders as nothing at all — a chart of one category would have come out blank.
+
+  The gap between slices is a stroke in the page's own colour rather than a narrowed sweep, because a slice shortened to make room reports a smaller number than it has. Labels are **shares** rather than values, since a share is what a pie is a picture of, and one that will not fit its slice is dropped rather than clipped or spilled onto its neighbour.
+
+  The documentation says when not to use it, at length. An angle is a poor thing to compare, two slices within a few percent of each other are indistinguishable, and past about six slices the answer is a bar chart.
+
 - **`MPBarChart`**, grouped or stacked, upright or on its side. The third consumer of the frame, and the first to use the orientation the frame has carried since it was written.
 
   **Its axis starts at zero and there is no prop to stop it.** A bar's length is proportional to its value only from a zero baseline, and a cropped one makes a bar twice the height of its neighbour stand for a value five percent larger — in the shape a reader trusts most. `yAxis={{ min }}` still moves the scale, because a caller who says so has said so; it is simply the wrong tool, and the right one is a line chart, whose marks claim nothing about proportion.

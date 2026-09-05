@@ -90,6 +90,7 @@ export * from './components/overlay';
 export * from './components/page-layout';
 export * from './components/pagination';
 export * from './components/panes';
+export * from './components/pie-chart';
 export * from './components/pill';
 export * from './components/popconfirm';
 export * from './components/popover';

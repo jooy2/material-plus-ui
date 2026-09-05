@@ -808,7 +808,7 @@ const styleRow: PropRow = {
  * prevent, and the frame that implements them is one file too.
  * ------------------------------------------------------------------------- */
 
-const chartBase: PropRow[] = [
+const chartPlot: PropRow[] = [
   {
     name: 'series',
     type: 'MPChartSeries[]',
@@ -841,7 +841,15 @@ const chartBase: PropRow[] = [
       ko: '값 축. `min`, `max`, `tickCount`, `label`, `grid`, `hidden`, `thickness`, `tickFormat`을 받습니다',
       en: 'The value axis. Takes `min`, `max`, `tickCount`, `label`, `grid`, `hidden`, `thickness` and `tickFormat`'
     }
-  },
+  }
+];
+
+/**
+ * And the rows a chart with no axes carries too — the chrome rather than the
+ * plot, split here the way `internal/ChartChrome.tsx` is split from
+ * `internal/ChartFrame.tsx`.
+ */
+const chartChrome: PropRow[] = [
   {
     name: 'label',
     type: 'string',
@@ -912,6 +920,9 @@ const chartBase: PropRow[] = [
     }
   }
 ];
+
+/** What a chart with two axes takes, which is both halves. */
+const chartBase: PropRow[] = [...chartPlot, ...chartChrome];
 
 /**
  * The tables that describe something with no element behind it, and so take
@@ -3199,6 +3210,62 @@ const componentTables: Record<string, PropRow[]> = {
         en: 'Which values are written onto the bars, just past the data end and outside the fill: inside, a label has to survive the fill’s colour, and one that changes ink with its own value is another thing between the reader and the number. Not drawn on a stack'
       }
     }
+  ],
+
+  MPPieChart: [
+    {
+      name: 'data',
+      type: 'MPChartDatum[]',
+      required: true,
+      description: {
+        ko: '조각들. 계열의 배열이 아니라 하나입니다 — 파이에서는 조각이 곧 개체라서 각자 팔레트 슬롯을 갖고 범례가 계열이 아니라 조각을 나열합니다',
+        en: 'The slices. One series and not an array of them, because that is what a pie **is**: the slices are the entities, so each takes a palette slot of its own and the legend lists them rather than listing series'
+      }
+    },
+    {
+      name: 'categories',
+      type: '(string | number | Date)[]',
+      description: {
+        ko: '각 조각의 이름. 주지 않으면 각 점의 `x`를, 그것도 없으면 인덱스를 씁니다',
+        en: 'What each slice is called. Without it a point’s own `x` is used, and without that, its index'
+      }
+    },
+    {
+      name: 'shape',
+      type: "'pie' | 'donut' | 'semi'",
+      default: "'pie'",
+      description: {
+        ko: '채운 원, 가운데가 빈 링, 또는 아래로 열린 반쪽 링. 마지막은 높이보다 폭이 넓은 타일을 위한 것입니다',
+        en: 'A filled disc, a ring with room in the middle, or half a ring opened along the bottom — the last for a tile wider than it is tall'
+      }
+    },
+    {
+      name: 'startAngle',
+      type: 'number',
+      default: '0',
+      description: {
+        ko: '첫 조각이 시작하는 자리. 12시 방향에서 시계 방향으로 잰 각도입니다. `semi`는 열리는 자리로 정의되므로 무시합니다',
+        en: 'Where the first slice starts, in degrees clockwise from twelve o’clock. Ignored by `semi`, which is defined by where it opens'
+      }
+    },
+    {
+      name: 'center',
+      type: NODE,
+      description: {
+        ko: '가운데에 들어갈 것. 합계이거나 이 링이 둘러싸고 그려진 하나의 숫자입니다 — 가운데가 빈 링은 한 입 베어 문 파이입니다. `pie`에서는 무시합니다',
+        en: 'What goes in the hole: the total, or the one figure the ring was drawn around — a ring with nothing in the middle is a pie with a bite taken out of it. Ignored by `pie`'
+      }
+    },
+    {
+      name: 'valueLabels',
+      type: "'none' | 'all'",
+      default: "'none'",
+      description: {
+        ko: '각 조각에 그 **몫**을 씁니다. 값이 아니라 몫인 이유는 파이가 그리는 그림이 몫이고 값은 호버 한 번 거리에 있기 때문입니다. 들어가지 않는 레이블은 잘리는 대신 빠집니다',
+        en: 'Writes each slice’s **share** on it — the share and not the value, because a share is what a pie is a picture of and the value is one hover away. A label that does not fit is dropped rather than clipped'
+      }
+    },
+    ...chartChrome
   ],
 
   MPLineChart: [

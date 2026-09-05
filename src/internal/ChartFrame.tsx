@@ -4,8 +4,14 @@ import { useMPLocale, useMPMessages } from './locale';
 import { useMPSize } from './config';
 import { CHART } from './messages/chart';
 import { TABLE } from './messages/table';
-import { VISUALLY_HIDDEN } from './visually-hidden';
-import { cssLength } from './length';
+import {
+  ChartLegend,
+  ChartShell,
+  ChartTable,
+  ChartTooltipPanel,
+  useVisibility,
+  type ChartBaseProps
+} from './ChartChrome';
 import {
   BandScale,
   CHART_FONT_SIZE,
@@ -41,70 +47,19 @@ import type {
 } from '../types';
 
 /**
- * The frame every plotted chart is drawn in.
+ * The frame a chart with two axes is drawn in.
  *
- * Two axes, a grid, a legend, a crosshair, a hover panel and the table
- * underneath — everything that is identical on a line chart and a bar chart.
- * What is left for a chart to do is its marks, and it is handed **pixels** to
- * draw them at: a component that had to know which way round the axes run is a
- * component that gets it wrong when somebody turns it sideways.
+ * The plot box once the axes have taken their bands, the value scale, the band
+ * scale, the grid and the crosshair — everything that is identical on a line
+ * chart and a bar chart. What is left for a chart to do is its marks, and it is
+ * handed **pixels** to draw them at: a component that had to know which way
+ * round the axes run is a component that gets it wrong when somebody turns it
+ * sideways.
  *
- * It is one file rather than eight because the alternative was measured on the
- * two frameless charts and rejected. `MPSparkline` and `MPStatistic` share
- * nothing but a palette and they are better apart; these share their whole
- * chrome, and eight copies of a tick stride is eight places for an axis to
- * start disagreeing with itself about where the labels go.
+ * The parts a chart with no axes also needs — the legend, the hover panel, the
+ * spoken readout, the table and the arrangement holding them — are in
+ * `ChartChrome.tsx`, so a pie chart can have them without carrying any of this.
  */
-
-/** One array rather than a fresh `[]` per render, for the charts with no marks. */
-const NO_MARKS: readonly ChartMark[] = [];
-
-/* ------------------------------------------------------------------- props */
-
-/** What every framed chart takes, whatever it draws. */
-export interface ChartBaseProps extends Omit<
-  React.ComponentPropsWithoutRef<'div'>,
-  'color' | 'children' | 'title'
-> {
-  /**
-   * How tall the drawing is. A number is pixels; a string is any CSS length.
-   * Defaults to the `size` ladder.
-   *
-   * The axis labels are drawn **inside** this rather than under it, so a card
-   * sized to the chart is a card the chart fits in.
-   */
-  height?: number | string;
-  /**
-   * How numbers are written everywhere they appear — the axis, the panel, the
-   * table. `Intl.NumberFormat` options, the same prop `MPStatistic` takes.
-   *
-   * Without it a tick is compacted past ten thousand, because four labels of
-   * seven digits is not an axis, it is a column of numbers beside a picture.
-   */
-  format?: Intl.NumberFormatOptions;
-  /** Which language the chart's own words and dates are in. */
-  locale?: string;
-  /**
-   * What the chart is a chart **of**. Read out in place of the drawing, and
-   * used as the caption of the table behind it.
-   */
-  label?: string;
-  /**
-   * The legend. Drawn from two series up and left off below that, because a
-   * legend with one swatch in it restates the title.
-   */
-  legend?: boolean | MPChartLegend;
-  /**
-   * What the pointer uncovers. On by default: a chart drawn in a browser is
-   * interactive, and a reader who wants March's number should not have to
-   * measure it against a gridline.
-   */
-  tooltip?: boolean | MPChartTooltip;
-  /** What to draw when there is nothing to draw. */
-  empty?: React.ReactNode;
-  /** @default 'md' */
-  size?: MPSize;
-}
 
 /** What a chart with two axes adds. */
 export interface CartesianChartProps extends ChartBaseProps {
@@ -118,344 +73,8 @@ export interface CartesianChartProps extends ChartBaseProps {
   yAxis?: MPChartAxis;
 }
 
-/* -------------------------------------------------------------- visibility */
-
-interface Visibility {
-  visible: boolean[];
-  hovered: number | null;
-  toggle: (index: number) => void;
-  setHovered: (index: number | null) => void;
-}
-
-/**
- * Which series are drawn, and which one the legend is being pointed at.
- *
- * Keyed by a series' place in the array as it was passed, which is what stops a
- * hidden series renumbering the ones after it. Colours come off that same
- * index, so hiding Europe leaves Asia exactly the colour it already was.
- */
-function useVisibility(series: readonly MPChartSeries[]): Visibility {
-  const [hidden, setHidden] = React.useState<ReadonlySet<number>>(() => {
-    const initial = new Set<number>();
-
-    series.forEach((one, index) => {
-      if (one.hidden) {
-        initial.add(index);
-      }
-    });
-
-    return initial;
-  });
-
-  const [hovered, setHovered] = React.useState<number | null>(null);
-
-  const toggle = React.useCallback((index: number) => {
-    setHidden((now) => {
-      const next = new Set(now);
-
-      if (next.has(index)) {
-        next.delete(index);
-      } else {
-        next.add(index);
-      }
-
-      return next;
-    });
-  }, []);
-
-  return { visible: series.map((_, index) => !hidden.has(index)), hovered, toggle, setHovered };
-}
-
-/* ------------------------------------------------------------------ legend */
-
-const LEGEND_SIDE = {
-  top: 'flex-col-reverse',
-  bottom: 'flex-col',
-  left: 'flex-row-reverse',
-  right: 'flex-row'
-} as const;
-
-const LEGEND_ALIGN = {
-  start: 'justify-start',
-  center: 'justify-center',
-  end: 'justify-end'
-} as const;
-
-interface LegendProps {
-  series: readonly MPChartSeries[];
-  colors: readonly string[];
-  options: MPChartLegend;
-  visibility: Visibility;
-  size: MPSize;
-  values?: readonly (string | undefined)[];
-  swatch?: (index: number, color: string) => React.ReactNode;
-}
-
-/**
- * The identity channel that does not depend on being able to see a colour.
- *
- * A swatch and a word, and the swatch is the only thing on the row wearing the
- * series' colour — the name beside it stays in ordinary ink. That is the rule
- * for every piece of text in a chart: a label written in the mark's colour is a
- * label the reader has to decode before they can read it, and it fails outright
- * in forced colours.
- *
- * Interactive by default, and each entry is a real `<button>` with
- * `aria-pressed`. A legend that filters is a control, and a control that is a
- * `<div>` with an `onClick` is one a keyboard cannot reach.
- */
-function ChartLegend({ series, colors, options, visibility, size, values, swatch }: LegendProps) {
-  const interactive = options.interactive !== false;
-  const text = size === 'xs' || size === 'sm' ? 'text-mp-label-small' : 'text-mp-label-medium';
-
-  return (
-    <ul
-      className={[
-        'mp-chart__legend flex flex-wrap items-center gap-x-4 gap-y-1',
-        LEGEND_ALIGN[options.align ?? 'center'],
-        text
-      ].join(' ')}
-    >
-      {series.map((one, index) => {
-        const shown = visibility.visible[index];
-        const dimmed = !shown || (visibility.hovered !== null && visibility.hovered !== index);
-        const name = one.name ?? `${index + 1}`;
-
-        const body = (
-          <>
-            <span className="shrink-0" aria-hidden="true">
-              {swatch ? (
-                swatch(index, colors[index])
-              ) : (
-                <span
-                  className="block size-2.5 rounded-mp-full"
-                  style={{ background: colors[index] }}
-                />
-              )}
-            </span>
-            <span className="text-mp-on-surface-variant truncate">{name}</span>
-            {values?.[index] ? (
-              <span className="text-mp-on-surface tabular-nums">{values[index]}</span>
-            ) : null}
-          </>
-        );
-
-        return (
-          <li key={index} className="min-w-0">
-            {interactive ? (
-              <button
-                type="button"
-                aria-pressed={shown}
-                onClick={() => visibility.toggle(index)}
-                onPointerEnter={() => visibility.setHovered(index)}
-                onPointerLeave={() => visibility.setHovered(null)}
-                onFocus={() => visibility.setHovered(index)}
-                onBlur={() => visibility.setHovered(null)}
-                className={[
-                  'flex min-w-0 cursor-pointer items-center gap-1.5 rounded-mp-xs',
-                  'focus-visible:outline-mp-primary focus-visible:outline-2 focus-visible:outline-offset-2',
-                  // Struck through as well as faded, because "off" has to survive
-                  // being looked at in grayscale — and a row at 40% opacity is a
-                  // row that reads as merely quiet.
-                  dimmed ? 'opacity-40' : '',
-                  shown ? '' : 'line-through'
-                ]
-                  .filter(Boolean)
-                  .join(' ')}
-              >
-                {body}
-              </button>
-            ) : (
-              <span className={`flex min-w-0 items-center gap-1.5 ${dimmed ? 'opacity-40' : ''}`}>
-                {body}
-              </span>
-            )}
-          </li>
-        );
-      })}
-    </ul>
-  );
-}
-
-/* ----------------------------------------------------------------- tooltip */
-
-interface PanelProps {
-  heading?: React.ReactNode;
-  items: readonly MPChartTooltipItem[];
-  x: number;
-  y: number;
-  flip: boolean;
-  size: MPSize;
-}
-
-/**
- * What the pointer uncovers, as a panel.
- *
- * `pointer-events-none` is the load-bearing part: a panel that could be hovered
- * would sit under the pointer, take the hover from the plot, and close itself —
- * then reopen, then close, for as long as the reader held still.
- */
-function ChartTooltipPanel({ heading, items, x, y, flip, size }: PanelProps) {
-  const text = size === 'xs' || size === 'sm' ? 'text-mp-label-small' : 'text-mp-label-medium';
-
-  return (
-    <div
-      aria-hidden="true"
-      className={[
-        'mp-chart__tooltip pointer-events-none absolute z-10 min-w-24 max-w-64',
-        'bg-mp-surface-container-high shadow-mp-2 rounded-mp-xs px-2.5 py-2',
-        text
-      ].join(' ')}
-      style={{
-        left: x,
-        top: y,
-        // Held clear of the mark and flipped near the right edge, so the panel
-        // never leaves the plot it belongs to.
-        transform: `translate(${flip ? 'calc(-100% - 12px)' : '12px'}, -50%)`
-      }}
-    >
-      {heading === undefined || heading === null || heading === '' ? null : (
-        <div className="text-mp-on-surface-variant mb-1 truncate">{heading}</div>
-      )}
-      <ul className="flex flex-col gap-0.5">
-        {items.map((item) => (
-          <li key={item.seriesIndex} className="flex items-center gap-1.5">
-            <span
-              aria-hidden="true"
-              className="block size-2 shrink-0 rounded-mp-full"
-              style={{ background: item.color }}
-            />
-            {item.name ? (
-              <span className="text-mp-on-surface-variant min-w-0 truncate">{item.name}</span>
-            ) : null}
-            <span className="text-mp-on-surface ms-auto ps-2 tabular-nums">
-              {item.label ?? item.formatted}
-            </span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-/**
- * The same reading, said out loud instead of drawn.
- *
- * It cannot be the panel above, and that is a constraint rather than a
- * preference: the panel is drawn inside the element carrying `role="img"`, and
- * `img` is a leaf role — everything under it is cut out of the accessibility
- * tree, so a live region in there announces to nobody. This is a **sibling** of
- * the picture, clipped rather than painted, and it is what makes the arrow keys
- * mean something to a reader who is not looking at the plot.
- *
- * Empty when nothing is active, so leaving the chart clears what was said
- * rather than leaving the last column standing in the region forever.
- */
-function ChartStatus({
-  heading,
-  items
-}: {
-  heading?: React.ReactNode;
-  items: readonly MPChartTooltipItem[];
-}) {
-  return (
-    <span role="status" aria-live="polite" className={VISUALLY_HIDDEN}>
-      {items.length === 0 ? null : (
-        <>
-          {heading === undefined || heading === null || heading === '' ? null : <>{heading}, </>}
-          {items.map((item, index) => (
-            <React.Fragment key={item.seriesIndex}>
-              {index > 0 ? ', ' : null}
-              {item.name ? `${item.name}: ` : null}
-              {item.label ?? item.formatted}
-            </React.Fragment>
-          ))}
-        </>
-      )}
-    </span>
-  );
-}
-
-/* ------------------------------------------------------------------- table */
-
-interface TableProps {
-  id: string;
-  caption: string;
-  corner: React.ReactNode;
-  categories: readonly MPChartCategory[];
-  series: readonly MPChartSeries[];
-  values: readonly (readonly ChartValue[])[];
-  format: (value: number) => string;
-  locale: string | undefined;
-  empty: string;
-}
-
-/**
- * The numbers behind the picture, as a grid.
- *
- * Clipped rather than drawn. Every chart here ships one and it is what
- * `aria-describedby` points at, so a reader who cannot see the plot has the
- * data itself rather than a summary of it — and a reader who can see the plot
- * is not made to scroll past a table they did not ask for.
- *
- * Rendered rather than built on demand, because it is the description of a
- * focusable element: an `aria-describedby` pointing at an id that does not
- * exist yet is an `aria-describedby` pointing at nothing.
- */
-function ChartTable({
-  id,
-  caption,
-  corner,
-  categories,
-  series,
-  values,
-  format,
-  locale,
-  empty
-}: TableProps) {
-  return (
-    <div id={id} className={VISUALLY_HIDDEN}>
-      <table>
-        <caption>{caption}</caption>
-        <thead>
-          <tr>
-            <th scope="col">{corner}</th>
-            {series.map((one, index) => (
-              <th key={index} scope="col">
-                {one.name ?? index + 1}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {categories.length === 0 ? (
-            <tr>
-              <td colSpan={series.length + 1}>{empty}</td>
-            </tr>
-          ) : (
-            categories.map((category, row) => (
-              <tr key={row}>
-                <th scope="row">{formatCategory(category, locale)}</th>
-                {series.map((_, column) => {
-                  const value = values[column]?.[row];
-
-                  return (
-                    <td key={column}>
-                      {value?.label ??
-                        (value?.value === null || value === undefined
-                          ? empty
-                          : format(value.value))}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    </div>
-  );
-}
+/** One array rather than a fresh `[]` per render, for the charts with no marks. */
+const NO_MARKS: readonly ChartMark[] = [];
 
 /* -------------------------------------------------------------------- axes */
 
@@ -893,6 +512,7 @@ export function CartesianFrame({
     () => series.map((one, index) => seriesColor(index, one.color)),
     [series]
   );
+  const seriesNames = React.useMemo(() => series.map((one) => one.name), [series]);
 
   const count = categoryCount(series);
   const labels = React.useMemo(
@@ -1304,152 +924,79 @@ export function CartesianFrame({
   const nothing = count === 0 || extent === null;
 
   return (
-    <div
-      data-mp-size={size}
-      className={['mp-chart flex min-w-0 flex-col gap-3', className ?? '']
-        .filter(Boolean)
-        .join(' ')}
-      style={style}
+    <ChartShell
       {...rest}
-    >
-      <div className={`flex min-w-0 gap-3 ${LEGEND_SIDE[legendSide]}`}>
-        {/*
-          Two children rather than one: the readout has to be a *sibling* of the
-          picture and not a child of it — see `ChartStatus`.
-        */}
-        <div
-          ref={hostRef}
-          role="img"
-          tabIndex={nothing ? undefined : 0}
-          // Never the bare prop: `label` is optional, and a focusable
-          // `role="img"` with nothing to be called by is a tab stop that
-          // announces silence.
-          aria-label={label ?? words.label}
-          aria-describedby={nothing ? undefined : tableId}
-          onPointerMove={
-            nothing || mode === 'none'
-              ? undefined
-              : (event) => {
-                  if (marks) {
-                    setMarkIndex(nearestMark(event.clientX, event.clientY));
-                  } else {
-                    setColumnIndex(indexAt(event.clientX, event.clientY));
-                  }
-
-                  // Only `item` mode reads this, and only it may pay for it. The
-                  // index above settles to the same value everywhere inside one
-                  // column, so React bails out of the re-render — but a pointer
-                  // offset is a fresh pixel on every event, and storing one
-                  // nothing consults would re-lay the chart out per pixel moved.
-                  if (mode === 'item') {
-                    setPointer(valueAt(event.clientX, event.clientY));
-                  }
+      size={size}
+      className={className}
+      style={style}
+      plotRef={hostRef}
+      // Never the bare prop: `label` is optional, and a focusable `role="img"`
+      // with nothing to be called by is a tab stop that announces silence.
+      name={label ?? words.label}
+      describedBy={nothing ? undefined : tableId}
+      interactive={!nothing}
+      height={height}
+      legendSide={legendSide}
+      plotProps={{
+        onPointerMove:
+          nothing || mode === 'none'
+            ? undefined
+            : (event) => {
+                if (marks) {
+                  setMarkIndex(nearestMark(event.clientX, event.clientY));
+                } else {
+                  setColumnIndex(indexAt(event.clientX, event.clientY));
                 }
-          }
-          onPointerLeave={clearActive}
-          // A key press moves the crosshair with no pointer to measure against,
-          // so `item` mode falls back to the whole column.
-          onKeyDown={nothing || mode === 'none' ? undefined : onKeyDown}
-          onBlur={clearActive}
-          className={[
-            'mp-chart__plot relative min-w-0 flex-1 rounded-mp-xs',
-            'focus-visible:outline-mp-primary focus-visible:outline-2 focus-visible:outline-offset-2'
-          ].join(' ')}
-          style={{ height: cssLength(height) ?? PLOT_HEIGHT[size] }}
-        >
-          {nothing ? (
-            <div className="text-mp-on-surface-variant text-mp-body-small flex h-full items-center justify-center">
-              {empty ?? table.empty}
-            </div>
-          ) : width > 0 && boxHeight > 0 ? (
-            <svg
-              width={width}
-              height={boxHeight}
-              viewBox={`0 0 ${width} ${boxHeight}`}
+
+                // Only `item` mode reads this, and only it may pay for it. The
+                // index above settles to the same value everywhere inside one
+                // column, so React bails out of the re-render — but a pointer
+                // offset is a fresh pixel on every event, and storing one
+                // nothing consults would re-lay the chart out per pixel moved.
+                if (mode === 'item') {
+                  setPointer(valueAt(event.clientX, event.clientY));
+                }
+              },
+        onPointerLeave: clearActive,
+        // A key press moves the crosshair with no pointer to measure against,
+        // so `item` mode falls back to the whole column.
+        onKeyDown: nothing || mode === 'none' ? undefined : onKeyDown,
+        onBlur: clearActive
+      }}
+      tooltip={
+        activeIndex !== null && items.length > 0 && mode !== 'none' ? (
+          options.render ? (
+            <div
               aria-hidden="true"
-              className="block overflow-visible"
+              className="pointer-events-none absolute z-10"
+              style={{
+                left: anchorX,
+                top: anchorY,
+                transform: `translate(${anchorFlip ? 'calc(-100% - 12px)' : '12px'}, -50%)`
+              }}
             >
-              <ChartAxes
-                plot={plot}
-                scale={scale}
-                horizontal={horizontal}
-                categoryPx={categoryPx}
-                valuePx={valuePx}
-                tickTexts={tickTexts}
-                categoryTexts={categoryTexts}
-                valueAxis={valueAxis}
-                categoryAxis={categoryAxis}
-                fontSize={fontSize}
-                zeroPx={zeroPx}
-              />
-
-              {/* No crosshair on a chart with marks, whatever mode was asked
-                  for: a crosshair says "these numbers all belong to this
-                  column", and where there is no column it is a line through one
-                  dot. */}
-              {activeIndex !== null && !marks && mode === 'index' && options.crosshair !== false
-                ? (() => {
-                    const along = categoryPx(activeIndex);
-
-                    return horizontal ? (
-                      <line
-                        x1={plot.left}
-                        x2={plot.left + plot.width}
-                        y1={plot.top + along}
-                        y2={plot.top + along}
-                        stroke={RULE_INK}
-                        strokeWidth={1}
-                      />
-                    ) : (
-                      <line
-                        x1={plot.left + along}
-                        x2={plot.left + along}
-                        y1={plot.top}
-                        y2={plot.top + plot.height}
-                        stroke={RULE_INK}
-                        strokeWidth={1}
-                      />
-                    );
-                  })()
-                : null}
-
-              {children(context)}
-            </svg>
-          ) : null}
-
-          {activeIndex !== null && items.length > 0 && mode !== 'none' ? (
-            options.render ? (
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute z-10"
-                style={{
-                  left: anchorX,
-                  top: anchorY,
-                  transform: `translate(${anchorFlip ? 'calc(-100% - 12px)' : '12px'}, -50%)`
-                }}
-              >
-                {options.render({
-                  index: activeIndex,
-                  category: labels[activeIndex] ?? activeIndex,
-                  items
-                })}
-              </div>
-            ) : (
-              <ChartTooltipPanel
-                heading={heading}
-                items={items}
-                x={anchorX}
-                y={anchorY}
-                flip={anchorFlip}
-                size={size}
-              />
-            )
-          ) : null}
-        </div>
-
-        {showLegend ? (
+              {options.render({
+                index: activeIndex,
+                category: labels[activeIndex] ?? activeIndex,
+                items
+              })}
+            </div>
+          ) : (
+            <ChartTooltipPanel
+              heading={heading}
+              items={items}
+              x={anchorX}
+              y={anchorY}
+              flip={anchorFlip}
+              size={size}
+            />
+          )
+        ) : null
+      }
+      legend={
+        showLegend ? (
           <ChartLegend
-            series={series}
+            names={seriesNames}
             colors={colors}
             options={legendOptions}
             visibility={visibility}
@@ -1465,24 +1012,83 @@ export function CartesianFrame({
                 : undefined
             }
           />
-        ) : null}
-      </div>
+        ) : null
+      }
+      status={{ heading, items }}
+      table={
+        nothing ? null : (
+          <ChartTable
+            id={tableId}
+            caption={label ?? words.table}
+            corner={categoryAxis?.label ?? words.category}
+            categories={labels}
+            names={seriesNames}
+            values={values}
+            format={formatValue}
+            locale={locale}
+            empty={table.empty}
+          />
+        )
+      }
+    >
+      {nothing ? (
+        <div className="text-mp-on-surface-variant text-mp-body-small flex h-full items-center justify-center">
+          {empty ?? table.empty}
+        </div>
+      ) : width > 0 && boxHeight > 0 ? (
+        <svg
+          width={width}
+          height={boxHeight}
+          viewBox={`0 0 ${width} ${boxHeight}`}
+          aria-hidden="true"
+          className="block overflow-visible"
+        >
+          <ChartAxes
+            plot={plot}
+            scale={scale}
+            horizontal={horizontal}
+            categoryPx={categoryPx}
+            valuePx={valuePx}
+            tickTexts={tickTexts}
+            categoryTexts={categoryTexts}
+            valueAxis={valueAxis}
+            categoryAxis={categoryAxis}
+            fontSize={fontSize}
+            zeroPx={zeroPx}
+          />
 
-      <ChartStatus heading={heading} items={items} />
+          {/* No crosshair on a chart with marks, whatever mode was asked for: a
+              crosshair says "these numbers all belong to this column", and where
+              there is no column it is a line through one dot. */}
+          {activeIndex !== null && !marks && mode === 'index' && options.crosshair !== false
+            ? (() => {
+                const along = categoryPx(activeIndex);
 
-      {nothing ? null : (
-        <ChartTable
-          id={tableId}
-          caption={label ?? words.table}
-          corner={categoryAxis?.label ?? words.category}
-          categories={labels}
-          series={series}
-          values={values}
-          format={formatValue}
-          locale={locale}
-          empty={table.empty}
-        />
-      )}
-    </div>
+                return horizontal ? (
+                  <line
+                    x1={plot.left}
+                    x2={plot.left + plot.width}
+                    y1={plot.top + along}
+                    y2={plot.top + along}
+                    stroke={RULE_INK}
+                    strokeWidth={1}
+                  />
+                ) : (
+                  <line
+                    x1={plot.left + along}
+                    x2={plot.left + along}
+                    y1={plot.top}
+                    y2={plot.top + plot.height}
+                    stroke={RULE_INK}
+                    strokeWidth={1}
+                  />
+                );
+              })()
+            : null}
+
+          {children(context)}
+        </svg>
+      ) : null}
+    </ChartShell>
   );
 }

@@ -982,3 +982,82 @@ export const BAR_MAX_THICKNESS: Record<MPSize, number> = {
  * intervals rather than separate things.
  */
 export const BAR_BAND_RATIO = 0.72;
+
+/* --------------------------------------------------------------------- arcs */
+
+/**
+ * A point on a circle, in the convention the round charts use: **zero is twelve
+ * o'clock and the angle grows clockwise**.
+ *
+ * Not the mathematical convention, where zero is three o'clock and the angle
+ * grows the other way. A chart of parts is read the way a clock is read, and
+ * every angle a caller passes — `startAngle`, a gauge's sweep — is easier to
+ * reason about in the one they already have.
+ */
+export function polarPoint(
+  cx: number,
+  cy: number,
+  radius: number,
+  angle: number
+): { x: number; y: number } {
+  return { x: cx + radius * Math.sin(angle), y: cy - radius * Math.cos(angle) };
+}
+
+/**
+ * A ring segment, or a pie slice when the inner radius is nothing.
+ *
+ * A full turn is drawn as **two** arcs rather than one, and that is not a
+ * flourish: an SVG arc is defined by its two endpoints, so a sweep of exactly
+ * 360° starts and ends at the same point and the renderer draws nothing at all.
+ * A single-category pie is a real chart, and it would come out blank.
+ */
+export function arcPath(
+  cx: number,
+  cy: number,
+  outer: number,
+  inner: number,
+  from: number,
+  to: number
+): string {
+  const sweep = to - from;
+
+  if (Math.abs(sweep) < 1e-9 || outer <= 0) {
+    return '';
+  }
+
+  const full = Math.abs(sweep) >= Math.PI * 2 - 1e-9;
+  const end = full ? from + Math.PI * 2 * Math.sign(sweep || 1) : to;
+  const half = from + (end - from) / 2;
+  const large = Math.abs(end - from) > Math.PI ? 1 : 0;
+  const forward = end > from ? 1 : 0;
+  const back = forward ? 0 : 1;
+
+  const outerFrom = polarPoint(cx, cy, outer, from);
+  const outerHalf = polarPoint(cx, cy, outer, half);
+  const outerTo = polarPoint(cx, cy, outer, end);
+
+  // Split at the halfway angle when the segment is a full turn, so neither arc
+  // is the degenerate same-point-to-same-point case.
+  const outward = full
+    ? `A${outer} ${outer} 0 0 ${forward} ${outerHalf.x} ${outerHalf.y}` +
+      `A${outer} ${outer} 0 0 ${forward} ${outerTo.x} ${outerTo.y}`
+    : `A${outer} ${outer} 0 ${large} ${forward} ${outerTo.x} ${outerTo.y}`;
+
+  if (inner <= 0) {
+    // A slice, not a ring: back to the centre rather than along an inner edge.
+    return full
+      ? `M${outerFrom.x} ${outerFrom.y}${outward}Z`
+      : `M${cx} ${cy}L${outerFrom.x} ${outerFrom.y}${outward}Z`;
+  }
+
+  const innerTo = polarPoint(cx, cy, inner, end);
+  const innerHalf = polarPoint(cx, cy, inner, half);
+  const innerFrom = polarPoint(cx, cy, inner, from);
+
+  const inward = full
+    ? `A${inner} ${inner} 0 0 ${back} ${innerHalf.x} ${innerHalf.y}` +
+      `A${inner} ${inner} 0 0 ${back} ${innerFrom.x} ${innerFrom.y}`
+    : `A${inner} ${inner} 0 ${large} ${back} ${innerFrom.x} ${innerFrom.y}`;
+
+  return `M${outerFrom.x} ${outerFrom.y}${outward}` + `L${innerTo.x} ${innerTo.y}${inward}Z`;
+}

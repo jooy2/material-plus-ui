@@ -94,6 +94,7 @@ import {
   MPPagination,
   MPPane,
   MPPanes,
+  MPPieChart,
   MPPill,
   MPPopconfirm,
   MPPopover,
@@ -1502,6 +1503,26 @@ const GROUPS: Group[] = [
                 { name: 'Referral', data: [31, 34, 40, 43, 41, 49] }
               ]}
               curve="smooth"
+              locale="en-US"
+            />
+          </div>
+        )
+      },
+      {
+        name: 'MPPieChart',
+        summary: {
+          ko: '전체에서 각 부분이 차지하는 몫',
+          en: 'Parts of a whole, at a glance'
+        },
+        path: '/components/display/pie-chart',
+        preview: (
+          <div style={{ width: 240 }}>
+            <MPPieChart
+              size="xs"
+              label="Sessions by source"
+              categories={['Search', 'Direct', 'Social', 'Referral']}
+              data={[52, 28, 14, 6]}
+              shape="donut"
               locale="en-US"
             />
           </div>
