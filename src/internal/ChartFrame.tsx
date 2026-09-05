@@ -23,6 +23,7 @@ import {
   bandScale,
   categoryAt,
   categoryCount,
+  categoryExtent,
   fitsLast,
   formatCategory,
   formatStatistic,
@@ -83,8 +84,11 @@ interface AxesProps {
   scale: ValueScale;
   horizontal: boolean;
   categoryPx: (index: number) => number;
+  categoryScale: ValueScale | null;
+  categoryValuePx: (value: number) => number;
   valuePx: (value: number) => number;
   tickTexts: readonly string[];
+  /** Either the category labels or, with `categoryScale`, that scale's ticks. */
   categoryTexts: readonly string[];
   valueAxis?: MPChartAxis;
   categoryAxis?: MPChartAxis;
@@ -110,6 +114,8 @@ function ChartAxes({
   scale,
   horizontal,
   categoryPx,
+  categoryScale,
+  categoryValuePx,
   valuePx,
   tickTexts,
   categoryTexts,
@@ -119,7 +125,22 @@ function ChartAxes({
   zeroPx
 }: AxesProps) {
   const grid = valueAxis?.grid !== false && !valueAxis?.hidden;
-  const categoryGrid = categoryAxis?.hidden ? false : (categoryAxis?.grid ?? false);
+  /* A grid in both directions is graph paper, and on a chart of columns the
+     vertical rules would be doing the job the crosshair already does under the
+     pointer. A plot with two value axes is the exception that makes the rule:
+     there is no column to be in, and reading a mark's x off the picture is half
+     of what the reader came for — so there, graph paper is the point. */
+  const categoryGrid = categoryAxis?.hidden
+    ? false
+    : (categoryAxis?.grid ?? categoryScale !== null);
+
+  /* Where each category label sits. Ticks and names are the same problem: a
+     value scale's steps are already evenly spaced, so both paths are a list of
+     texts laid along an axis at a stride. */
+  const categoryAlong = (index: number) =>
+    categoryScale
+      ? categoryValuePx(categoryScale.ticks[index])
+      : (horizontal ? plot.top : plot.left) + categoryPx(index);
 
   /*
    * How many labels each axis has room for. The two are measured differently
@@ -146,7 +167,7 @@ function ChartAxes({
   /* Whether each axis' last label still has room to be written down, measured
      from the step it would sit at rather than assumed from the stride. */
   const categoryStep =
-    categoryTexts.length > 1 ? Math.abs(categoryPx(1) - categoryPx(0)) : plot.width;
+    categoryTexts.length > 1 ? Math.abs(categoryAlong(1) - categoryAlong(0)) : plot.width;
   const valueStep =
     scale.ticks.length > 1
       ? Math.abs(valuePx(scale.ticks[1]) - valuePx(scale.ticks[0]))
@@ -217,7 +238,7 @@ function ChartAxes({
       })}
 
       {categoryTexts.map((text, index) => {
-        const along = (horizontal ? plot.top : plot.left) + categoryPx(index);
+        const along = categoryAlong(index);
         const written =
           !categoryAxis?.hidden &&
           showsTick(index, categoryTexts.length, categoryStride, lastCategory);
@@ -383,6 +404,17 @@ export interface CartesianLayout {
   categoryPx: (index: number) => number;
   /** The two combined, whichever way round the chart runs. */
   point: (index: number, value: number) => { x: number; y: number };
+  /**
+   * The scale the **category** axis runs on, where `xScale` made it a second
+   * value axis. `null` on every chart whose categories are columns.
+   */
+  categoryScale: ValueScale | null;
+  /**
+   * Where a value sits along the category axis, in pixels from the chart's
+   * edge — the same absolute reckoning `valuePx` uses, and deliberately not
+   * `categoryPx`'s offset-along-the-axis. Only meaningful with `xScale="value"`.
+   */
+  categoryValuePx: (value: number) => number;
   /** Where the baseline sits along the value axis. */
   zeroPx: number;
   categories: readonly MPChartCategory[];
@@ -403,6 +435,12 @@ export interface CartesianContext extends CartesianLayout {
 }
 
 interface CartesianFrameProps extends CartesianChartProps {
+  /**
+   * Makes the category axis a second **value** axis instead of a row of
+   * columns. What a scatter needs and what nothing else does.
+   * @default 'band'
+   */
+  xScale?: 'band' | 'value';
   /**
    * Builds every mark on the plot, which swaps the frame's column hit-testing
    * for a nearest-mark search and makes the arrow keys walk this list. The
@@ -469,6 +507,7 @@ export function CartesianFrame({
   inset = false,
   headroom = 0,
   markInset = 0,
+  xScale = 'band',
   marks,
   markRadius = 24,
   swatch,
@@ -544,17 +583,40 @@ export function CartesianFrame({
     includeZero
   });
 
+  /* And a second scale of the same kind where the categories are numbers rather
+     than columns. Zero is deliberately not forced in: what a position along an
+     axis encodes is a *place*, so cropping moves every mark by the same amount
+     and the picture survives — the argument a line chart already makes, and the
+     opposite of the one a bar's length makes. An x running from 100 to 140
+     dragged down to zero is a plot with all of its data in one corner. */
+  const spread = xScale === 'value' ? categoryExtent(shown, categories) : null;
+  const categoryScale =
+    xScale === 'value'
+      ? valueScale(spread, {
+          min: categoryAxis?.min,
+          max: categoryAxis?.max,
+          tickCount: categoryAxis?.tickCount,
+          includeZero: false
+        })
+      : null;
+
   const tickTexts = scale.ticks.map((tick, index) =>
     valueAxis?.tickFormat ? String(valueAxis.tickFormat(tick, index)) : formatValue(tick)
   );
 
   /* `format` belongs to the value axis and is deliberately not borrowed for the
      categories: a currency applied to an axis of years prints `$2,019`. */
-  const rawCategoryTexts = labels.map((category, index) =>
-    categoryAxis?.tickFormat
-      ? String(categoryAxis.tickFormat(category, index))
-      : formatCategory(category, locale)
-  );
+  const rawCategoryTexts = categoryScale
+    ? categoryScale.ticks.map((tick, index) =>
+        categoryAxis?.tickFormat
+          ? String(categoryAxis.tickFormat(tick, index))
+          : formatStatistic(tick, locale, undefined, true)
+      )
+    : labels.map((category, index) =>
+        categoryAxis?.tickFormat
+          ? String(categoryAxis.tickFormat(category, index))
+          : formatCategory(category, locale)
+      );
 
   const widestTick = tickTexts.reduce((most, text) => Math.max(most, textWidth(text, fontSize)), 0);
   const axisNameBand = fontSize + 6;
@@ -571,8 +633,9 @@ export function CartesianFrame({
      Below about four characters cutting stops helping and the stride takes over
      instead. A tick is never cut: it was already rounded to be short, and half
      of `12.4K` is not a smaller number, it is a wrong one. */
-  const categoryTexts =
-    horizontal || slot - 6 >= fontSize * 2.4
+  const categoryTexts = categoryScale
+    ? rawCategoryTexts
+    : horizontal || slot - 6 >= fontSize * 2.4
       ? rawCategoryTexts.map((text) => truncate(text, horizontal ? 150 : slot - 6, fontSize))
       : rawCategoryTexts;
 
@@ -655,6 +718,14 @@ export function CartesianFrame({
     [horizontal, plot.left, plot.top, plot.width, plot.height, scale]
   );
 
+  const categoryValuePx = React.useCallback(
+    (value: number) =>
+      horizontal
+        ? plot.top + (1 - (categoryScale?.fraction(value) ?? 0)) * plot.height
+        : plot.left + (categoryScale?.fraction(value) ?? 0) * plot.width,
+    [horizontal, plot.left, plot.top, plot.width, plot.height, categoryScale]
+  );
+
   const point = React.useCallback(
     (index: number, value: number) =>
       horizontal
@@ -676,6 +747,8 @@ export function CartesianFrame({
     valuePx,
     categoryPx,
     point,
+    categoryScale,
+    categoryValuePx,
     zeroPx,
     categories: labels,
     format: formatValue,
@@ -879,11 +952,27 @@ export function CartesianFrame({
         ]
       : column;
 
+  /*
+   * What the panel is titled.
+   *
+   * A column is titled with the category every series in it shares. A **mark**
+   * is titled with its own x, because on a plot with two value axes the x is
+   * data rather than a heading the marks were filed under — and two marks at
+   * the same index are two unrelated observations that happen to be the nth of
+   * their series, so the shared label would be the wrong number for one of them.
+   */
   const heading = supplied
     ? supplied.heading
-    : activeIndex === null
-      ? undefined
-      : formatCategory(labels[activeIndex] ?? activeIndex, locale);
+    : activeMark
+      ? formatCategory(
+          values[activeMark.series]?.[activeMark.index]?.x ??
+            categories?.[activeMark.index] ??
+            activeMark.index,
+          locale
+        )
+      : activeIndex === null
+        ? undefined
+        : formatCategory(labels[activeIndex] ?? activeIndex, locale);
 
   /* Where the panel hangs. A column is anchored on its own centre and a mark on
      itself, and both flip once they are past the far side of the plot so the
@@ -921,7 +1010,7 @@ export function CartesianFrame({
     activeMark
   };
 
-  const nothing = count === 0 || extent === null;
+  const nothing = count === 0 || extent === null || (xScale === 'value' && spread === null);
 
   return (
     <ChartShell
@@ -1048,6 +1137,8 @@ export function CartesianFrame({
             scale={scale}
             horizontal={horizontal}
             categoryPx={categoryPx}
+            categoryScale={categoryScale}
+            categoryValuePx={categoryValuePx}
             valuePx={valuePx}
             tickTexts={tickTexts}
             categoryTexts={categoryTexts}

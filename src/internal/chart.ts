@@ -1061,3 +1061,138 @@ export function arcPath(
 
   return `M${outerFrom.x} ${outerFrom.y}${outward}` + `L${innerTo.x} ${innerTo.y}${inward}Z`;
 }
+
+/**
+ * The extent of the **category** values, for an axis that runs on numbers.
+ *
+ * Only points that have a `y` count. A point with no value is not on the plot,
+ * so letting its `x` stretch the axis would leave a margin of empty plot
+ * standing in for data that was never drawn.
+ */
+export function categoryExtent(
+  values: readonly (readonly ChartValue[])[],
+  categories: readonly MPChartCategory[] | undefined
+): { min: number; max: number } | null {
+  let min = Infinity;
+  let max = -Infinity;
+  let seen = false;
+
+  values.forEach((one) => {
+    one.forEach((value, index) => {
+      if (value.value === null) {
+        return;
+      }
+
+      const x = toNumber(value.x ?? categories?.[index] ?? index);
+
+      if (x === null) {
+        return;
+      }
+
+      seen = true;
+      min = Math.min(min, x);
+      max = Math.max(max, x);
+    });
+  });
+
+  return seen ? { min, max } : null;
+}
+
+/** The shapes a mark can take, in the order they are handed out. */
+export type MPChartMarkShape = 'circle' | 'square' | 'triangle' | 'diamond' | 'cross';
+
+/**
+ * The five, in an order chosen for how quickly one is told from the next.
+ *
+ * A circle first because it is the mark a scatter is expected to use, then the
+ * two that differ from it most — a square by its corners, a triangle by having
+ * three of them — before the two that are refinements of those.
+ *
+ * They exist because the palette runs out sooner here than anywhere else.
+ * Colour alone separates **three** series where any two marks can touch, and a
+ * scatter is exactly that case; a shape is the second channel that carries the
+ * rest, and it survives greyscale, print and forced colours as well.
+ */
+export const MARK_SHAPES: readonly MPChartMarkShape[] = [
+  'circle',
+  'square',
+  'triangle',
+  'diamond',
+  'cross'
+];
+
+/**
+ * The scale that gives each shape the same **area** as a circle of radius `r`.
+ *
+ * Not the same width, which is what drawing them all to `r` would do. A square
+ * inscribed the same way covers a third more ink than the circle and a triangle
+ * covers half as much, so a chart whose series differed only in shape would be
+ * a chart where one series looked heavier than another for no reason in the
+ * data.
+ */
+const SHAPE_SCALE: Record<MPChartMarkShape, number> = {
+  circle: 1,
+  // √(π/4): the square whose area matches the circle it replaces.
+  square: 0.886,
+  // A triangle needs to be larger to weigh the same.
+  triangle: 1.35,
+  // A diamond is a square turned, so it needs the diagonal instead of the side.
+  diamond: 1.25,
+  // A stroke rather than a fill, so it is drawn to the full radius.
+  cross: 1.1
+};
+
+/** One mark, centred on a point. */
+export function markPath(shape: MPChartMarkShape, cx: number, cy: number, radius: number): string {
+  const r = radius * SHAPE_SCALE[shape];
+
+  switch (shape) {
+    case 'square':
+      return `M${cx - r} ${cy - r}h${r * 2}v${r * 2}h${-r * 2}Z`;
+    case 'triangle':
+      // Centred on its centroid rather than on the middle of its box, so a
+      // triangle and a circle at the same point sit on the same spot.
+      return `M${cx} ${cy - r}L${cx + r * 0.866} ${cy + r * 0.5}L${cx - r * 0.866} ${cy + r * 0.5}Z`;
+    case 'diamond':
+      return `M${cx} ${cy - r}L${cx + r} ${cy}L${cx} ${cy + r}L${cx - r} ${cy}Z`;
+    case 'cross':
+      return `M${cx - r} ${cy - r}L${cx + r} ${cy + r}M${cx + r} ${cy - r}L${cx - r} ${cy + r}`;
+    default:
+      return `M${cx - r} ${cy}a${r} ${r} 0 1 0 ${r * 2} 0a${r} ${r} 0 1 0 ${-r * 2} 0Z`;
+  }
+}
+
+/**
+ * Where one point sits along a category axis that runs on numbers.
+ *
+ * The same three sources `categoryAt` reads, in the same order — but per
+ * **point** rather than per column, because on a scatter each series has its
+ * own x at every index and there is no column for them to share.
+ */
+export function pointX(
+  value: ChartValue,
+  index: number,
+  categories: readonly MPChartCategory[] | undefined
+): number | null {
+  return toNumber(value.x ?? categories?.[index] ?? index);
+}
+
+/**
+ * How big a bubble is, for a magnitude carried by its **area**.
+ *
+ * The radius goes as the square root, and that is the whole of it: area grows
+ * as the square of the radius, so a bubble drawn with its radius proportional
+ * to the value shows four times the ink for twice the number. Every reader
+ * judges the blob and not the line across it, which makes the naive version a
+ * chart that doubles its own data.
+ *
+ * `min` is a floor rather than zero, because a bubble of no radius is a point
+ * that has been removed from the chart.
+ */
+export function bubbleRadius(z: number, maxZ: number, max: number, min: number): number {
+  if (maxZ <= 0 || z <= 0) {
+    return min;
+  }
+
+  return min + (max - min) * Math.sqrt(Math.min(1, z / maxZ));
+}

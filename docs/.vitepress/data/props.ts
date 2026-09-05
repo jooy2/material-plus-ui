@@ -2915,6 +2915,37 @@ const componentTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPScatterChart: [
+    ...chartBase,
+    {
+      name: 'bubble',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '각 표식을 점의 `z`로 키워 세 번째 숫자를 함께 나릅니다. 반지름이 아니라 **넓이**가 그 값을 나타냅니다 — 반지름을 값에 비례시키면 두 배의 숫자에 네 배의 잉크를 쓰고, 독자는 가로지르는 선이 아니라 덩어리를 봅니다',
+        en: 'Sizes each mark by its point’s `z`, so a third number rides along. The **area** carries it and not the radius: a bubble whose radius is proportional to the value shows four times the ink for twice the number, and every reader judges the blob rather than the line across it'
+      }
+    },
+    {
+      name: 'maxRadius',
+      type: 'number',
+      default: '22',
+      description: {
+        ko: '가장 큰 버블의 크기, 픽셀 단위',
+        en: 'How big the largest bubble gets, in pixels'
+      }
+    },
+    {
+      name: 'shapes',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '계열마다 색뿐 아니라 모양도 줍니다. 장식이 아닙니다 — 어떤 두 표식이든 나란히 놓일 수 있는 곳에서 색은 세 계열만 분리하고, 산점도가 정확히 그 경우입니다. 모양은 나머지를 나르는 두 번째 채널이고 흑백, 인쇄, 강제 색상에서도 살아남습니다',
+        en: 'Gives each series a mark of its own shape as well as its own colour. Not decoration: colour separates three series where any two marks can touch, and a scatter is exactly that case. A shape is the second channel that carries the rest, and it survives greyscale, print and forced colours'
+      }
+    }
+  ],
+
   MPSparkline: [
     {
       name: 'data',

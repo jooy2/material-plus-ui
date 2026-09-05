@@ -6,6 +6,20 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **`MPScatterChart`**, and the second value axis the frame did not have. Until now the category axis was either a row of columns or a set of evenly spaced ticks; `xScale="value"` makes it a scale of its own, so a point's `x` is a **position** rather than a column heading and two marks at the same index in two series are the unrelated observations they actually are.
+
+  **Neither axis starts at zero.** A position claims nothing about proportion, so cropping both scales moves every mark by the same amount and the relationship survives; forced to zero, two measures living between 40 and 60 end up in one corner.
+
+  **Three series is the cap on colour alone, so the marks take shapes too.** On a line or a bar only neighbours meet, and the palette's adjacent pairs were fitted for that. On a scatter any two marks can sit side by side, and eight slots are separable pairwise only to the third — a property of the colour space, not of this palette. The five shapes are each scaled to the same _area_, because a square inscribed like a circle carries a third more ink and a triangle half as much, and a series that looked heavier for no reason in the data would be the second lie fixing the first. The legend swatch is the shape rather than a dot.
+
+  The grid runs both ways here and nowhere else: there is no column to be in, and reading a mark's x off the picture is half of what the reader came for. For the same reason there is no crosshair — it would be a line through one dot.
+
+  Bubbles are sized by area rather than radius. Area goes as the square, so the naive version shows four times the ink for twice the number, and the smallest bubble is a floor rather than nothing because a mark of no radius is a point that has been deleted.
+
+  There is no trend line and there will not be one. A fitted line is a claim about which model over what range with what confidence, and a component that drew one would be putting that claim in the reader's head with no way to check it.
+
+  One frame fix came with it: a mark's hover panel is now titled with the mark's **own** x rather than with the label shared at its index. That was wrong for every chart that supplies marks, not only this one.
+
 - **`MPPieChart`**, and the split that made it possible. A pie has no axes, no scales and no columns to hit-test, so reaching into the cartesian frame for a legend would have carried all three; the legend, the hover panel, the spoken readout, the table and the arrangement holding them now live in `internal/ChartChrome.tsx`, and the frame is one more consumer rather than the owner. The split stylesheet is cut along the import graph a file at a time, which is what makes that a size question and not a taste one.
 
   **It takes `data` and not `series`**, because that is what a pie is: the slices are the entities, so each takes a palette slot of its own and the legend lists them. That also makes the legend do more work here than anywhere else — a slice has no axis to be read against, so the swatch and the name are the whole identity channel.

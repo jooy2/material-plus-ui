@@ -105,6 +105,7 @@ import {
   MPRadioGroup,
   MPRating,
   MPSegmentedButton,
+  MPScatterChart,
   MPScrollArea,
   MPScrollZone,
   MPSelect,
@@ -1523,6 +1524,42 @@ const GROUPS: Group[] = [
               categories={['Search', 'Direct', 'Social', 'Referral']}
               data={[52, 28, 14, 6]}
               shape="donut"
+              locale="en-US"
+            />
+          </div>
+        )
+      },
+      {
+        name: 'MPScatterChart',
+        summary: {
+          ko: '두 측정값을 서로 대조하는 관측들',
+          en: 'Two measures against each other'
+        },
+        path: '/components/display/scatter-chart',
+        preview: (
+          <div style={{ width: 280 }}>
+            <MPScatterChart
+              size="xs"
+              label="Sessions against days active"
+              series={[
+                {
+                  name: 'Free',
+                  data: [
+                    { x: 4, y: 21 },
+                    { x: 9, y: 20 },
+                    { x: 14, y: 26 },
+                    { x: 21, y: 30 }
+                  ]
+                },
+                {
+                  name: 'Paid',
+                  data: [
+                    { x: 6, y: 41 },
+                    { x: 13, y: 44 },
+                    { x: 22, y: 57 }
+                  ]
+                }
+              ]}
               locale="en-US"
             />
           </div>
