@@ -5,7 +5,8 @@
       "name": "docs",
       "runtimeExecutable": "npx",
       "runtimeArgs": ["vitepress", "dev", "docs"],
-      "port": 5173
+      "port": 5173,
+      "autoPort": true
     }
   ]
 }

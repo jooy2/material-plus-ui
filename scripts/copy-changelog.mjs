@@ -16,6 +16,22 @@
  * — it is about whichever release happens to be newest — so both the `<meta>`
  * and the site's `llms.txt` would otherwise describe the changelog as the
  * contents of its top entry.
+ *
+ * ## Why the whole page is `v-pre`
+ *
+ * Because a changelog for a React library writes JSX, and JSX writes `{{`. An
+ * entry explaining `direction={{ compact: 'column' }}` is a page VitePress
+ * cannot build at all: Vue reads a mustache as an interpolation wherever it
+ * finds one — inside an inline code span included — and tries to compile the
+ * object literal as an expression. The build fails with a parse error naming a
+ * generated file, which is a confusing place to be sent.
+ *
+ * Escaping the braces is not open to us: the changelog has to keep rendering on
+ * npm and GitHub, which know nothing about Vue, so the source file has to hold
+ * the real syntax. So the copy is wrapped instead. Nothing on this page is a
+ * component and nothing on it is meant to be interpolated — it is one long
+ * document — and `v-pre` says exactly that, once, rather than being remembered
+ * every time an entry quotes a prop.
  */
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
@@ -42,7 +58,8 @@ for (const [locale, { title, description }] of Object.entries(locales)) {
   mkdirSync(dirname(target), { recursive: true });
   writeFileSync(
     target,
-    `---\ntitle: ${title}\ndescription: ${description}\norder: 1\neditLink: false\n---\n\n${changelog}`,
+    `---\ntitle: ${title}\ndescription: ${description}\norder: 1\neditLink: false\n---\n\n` +
+      `::: v-pre\n${changelog}\n:::\n`,
     'utf8'
   );
 }
