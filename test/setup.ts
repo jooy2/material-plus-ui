@@ -35,3 +35,24 @@ import { registerMPMessages } from '../src';
 import { LOCALES } from '../src/locales';
 
 registerMPMessages(...LOCALES);
+
+/**
+ * And hands the finished file's iframe back to Chromium.
+ *
+ * Browser mode runs each test file in an iframe of one long-lived page, and
+ * Chromium detaches the finished one without collecting it — a page carrying a
+ * hundred dead documents is not under enough pressure to bother. Past somewhere
+ * between the seventy-second file and the hundred-and-twenty-seventh the run
+ * then dies with `[vitest] Browser connection was closed while running tests`,
+ * on a different file each time.
+ *
+ * `gc` exists because `vitest.config.ts` launches Chromium with
+ * `--js-flags=--expose-gc`, and it is optional here because Firefox and WebKit
+ * have no such hook and need none: both reclaim their own and finish the suite
+ * in a single page.
+ */
+import { afterAll } from 'vitest';
+
+afterAll(() => {
+  (globalThis as typeof globalThis & { gc?: () => void }).gc?.();
+});

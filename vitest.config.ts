@@ -126,7 +126,33 @@ export default defineConfig({
        * time: a test that says nothing about a locale is a test about the
        * machine it ran on.
        */
-      provider: playwright({ contextOptions: { locale: 'en-US' } }),
+      provider: playwright({
+        contextOptions: { locale: 'en-US' },
+        /*
+         * `--expose-gc`, so `test/setup.ts` can ask for the collection Chromium
+         * will not get round to on its own.
+         *
+         * Browser mode gives every test file its own iframe inside one page.
+         * Chromium detaches the finished one and then leaves it there: nothing
+         * about a page holding a hundred dead documents is urgent enough to
+         * collect, and somewhere between the seventy-second file and the
+         * hundred-and-twenty-seventh the run dies with `[vitest] Browser
+         * connection was closed while running tests`, on a different file every
+         * time.
+         *
+         * It is not a size limit, which is exactly what it looks like. Holding
+         * ten megabytes per file — enough to make the collection worth V8's
+         * while — finishes all 159 at a *higher* peak than the runs that die,
+         * and so does asking for the collection outright. Allocating the same
+         * ten megabytes and dropping them does not, and neither does running
+         * slower. What decides it is whether the dead iframe is reclaimed, not
+         * how much the page is carrying.
+         *
+         * Chromium only, and only behind this flag. Firefox and WebKit reclaim
+         * theirs and run the whole suite in one page with none of it.
+         */
+        launchOptions: { args: ['--js-flags=--expose-gc'] }
+      }),
       headless: true,
       screenshotFailures: false,
       // Vitest's default is 414×896 — a phone. A popup anchored to a trigger is

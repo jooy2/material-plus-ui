@@ -42,8 +42,8 @@ jobs:
 
   run-test:
     runs-on: ${{ matrix.os }}
-    name: Test Node.js ${{ matrix.node_version }} on ${{ matrix.os }} (${{ matrix.browser }} ${{ matrix.shard }})
-    # A healthy job here finishes in under six minutes, install included. The
+    name: Test Node.js ${{ matrix.node_version }} on ${{ matrix.os }} (${{ matrix.browser }})
+    # A healthy job here finishes in a handful of minutes, install included. The
     # ceiling is not for a slow run, it is for a wedged browser: a Playwright
     # process that stops making progress produces no output and never returns,
     # so without a limit of our own GitHub's default applies — 360 minutes of a
@@ -58,29 +58,6 @@ jobs:
         node_version: ['26']
         os: [ubuntu-latest, windows-latest, macos-latest]
         browser: [chromium, firefox, webkit]
-        # The suite runs in quarters, and it is not for speed.
-        #
-        # Vitest's browser mode drives every file through one page, and that page
-        # stops answering before the suite ends: `[vitest] Browser connection was
-        # closed while running tests`, with the files it never reached reported
-        # as neither passed nor failed. It is a ceiling rather than a defect, and
-        # what it is a ceiling *on* is not the file count — the run has died at
-        # 72, 86, 101, 107 and 127 files on different runners, and once at 72 on
-        # the same macOS runner where the other half of the same split finished
-        # 80. It dies on a different file every time.
-        #
-        # Two settings that look like they should reach it do not. With
-        # `--no-file-parallelism` the page died *sooner*, at 86, so the pressure
-        # is cumulative rather than concurrent. With `--no-isolate` — one reused
-        # iframe instead of one per file, which is the thing that accumulates —
-        # the run wedges outright: no output, no CPU, killed after seven minutes.
-        #
-        # So the only lever is how much any one page is asked to do. Four shards
-        # put about forty files through each, against a worst observed ceiling of
-        # 72. Three would be 53 and would probably hold; four is the one that
-        # does not need another CI cycle to find out. The sign that a fifth is
-        # needed is this error coming back.
-        shard: ['1/4', '2/4', '3/4', '4/4']
         exclude:
           # WebKit on the macOS runner, and nothing else in the matrix, hangs on
           # individual clicks: a handful of `.click()` calls sit at exactly the
@@ -112,6 +89,6 @@ jobs:
       - name: Install Playwright browser (${{ matrix.browser }})
         run: npx playwright install --with-deps ${{ matrix.browser }}
       - name: Test module script
-        run: npm run test -- --shard=${{ matrix.shard }}
+        run: npm run test
         env:
           VITEST_BROWSER: ${{ matrix.browser }}
