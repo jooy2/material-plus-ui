@@ -28,7 +28,7 @@ A bar's **length** means its value, so a bar chart cut off above zero is a lie a
 
 Forcing zero onto a series that runs between 3,200 and 3,400 draws a flat line, and a flat line reports a real change as nothing happening. So this chart leaves zero out and `MPBarChart` will not.
 
-Pass a `yAxis` with `min: 0` where zero genuinely is the baseline.
+Pass a `yAxis` with `min: 0` where zero genuinely is the baseline — and reach for [MPAreaChart](area-chart) where the quantity under the line is the point, since a fill has to measure from zero.
 
 ## A gap is a gap
 

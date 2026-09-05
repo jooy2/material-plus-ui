@@ -6,7 +6,17 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
-- **`MPLineChart`**, and the frame the other seven charts are going to arrive against: two axes, a value scale, a band scale, a grid, a legend, a crosshair, a hover panel and the table behind the picture. Written with one consumer, because a frame written for nobody is a frame that fits nobody.
+- **`MPAreaChart`**, the first chart to arrive against the frame rather than beside it — and the proof that the frame fits something other than what it was written for. Its whole implementation is the two edges of a band and how they stack.
+
+  **Its axis starts at zero and the line chart's does not**, which is the one place the two have to disagree. A filled area's _size_ encodes the quantity, so the fill is proportional to the value only from a zero baseline; a line encodes _position_ and claims nothing about proportion. Data that wants a cropped axis wants a line.
+
+  **The two pixels between stacked bands come out of the band above the boundary.** Every band's top edge stays exactly where its cumulative total puts it, because that edge is the data — taking the gap from below would move a value to make room for a separator. Positives stack up and negatives stack down, so a category holding +8 and −3 is two runs from the baseline eleven units apart rather than one band that has crossed itself, and a `null` contributes nothing rather than resetting the running total.
+
+  Only visible series are in the stack, so hiding one re-stacks the survivors instead of leaving a hole; the colours stay where they were, since a slot comes from a series' place in the array. Bands are faint where they overlap and nearly solid where they stack, which is the same rule stated twice: a fill is only as opaque as the thing behind it allows.
+
+  `areaPath` is now `bandPath` with a flat second edge. A ribbon between two runs is the general shape, a gap in _either_ edge is a gap in the band, and both edges take the same curve — a smoothed top over a straight bottom disagrees with itself about where the band is between two points.
+
+- **`MPLineChart`**, and the frame the other charts are going to arrive against: two axes, a value scale, a band scale, a grid, a legend, a crosshair, a hover panel and the table behind the picture. Written with one consumer, because a frame written for nobody is a frame that fits nobody.
 
   **The axis does not start at zero, and that is the one place this chart and the bar chart have to disagree.** A bar's _length_ means its value, so a bar chart cropped above zero lies about proportion. A line's _position_ means its value and nothing about the mark claims proportionality, so cropping moves every point by the same amount and the picture survives — while forcing zero onto a series that runs between 3,200 and 3,400 draws a flat line, which reports a real change as nothing happening. `yAxis={{ min: 0 }}` where zero genuinely is the baseline.
 

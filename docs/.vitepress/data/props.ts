@@ -3130,6 +3130,46 @@ const componentTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPAreaChart: [
+    ...chartBase,
+    {
+      name: 'stacked',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '계열을 서로 위에 쌓아 맨 위 가장자리가 합계가 되게 합니다. 구성을 보여주는 모양이고, 대가는 곧은 기준선을 두고 읽을 수 있는 것이 맨 아래 밴드와 합계뿐이라는 점입니다',
+        en: 'Stacks the series on each other, so the top edge is the total and each band is one part of it. The shape for a composition, and its cost is that only the bottom band and the total have a straight edge to be read against'
+      }
+    },
+    {
+      name: 'curve',
+      type: "'linear' | 'smooth' | 'step'",
+      default: "'linear'",
+      description: {
+        ko: '밴드의 가장자리가 두 점 사이를 어떻게 잇는지. 위아래 가장자리에 같은 곡선을 씁니다 — 한쪽만 부드럽게 하면 두 점 사이에서 밴드의 폭이 어긋납니다',
+        en: 'How the edge of the band gets from one point to the next. Both edges take the same curve: a smoothed top over a straight bottom disagrees with itself about where the band is between two points'
+      }
+    },
+    {
+      name: 'markers',
+      type: "boolean | 'auto'",
+      default: "'auto'",
+      description: {
+        ko: '이음매의 점. `auto`는 쌓지 않았고 자리가 있을 때만 그립니다. 쌓은 차트에서 꼭짓점은 선이 아니라 경계에 속합니다',
+        en: 'The dots on the joins. `auto` draws them on an unstacked chart with room for them and never on a stack, where a vertex belongs to a boundary rather than to a line'
+      }
+    },
+    {
+      name: 'valueLabels',
+      type: "'none' | 'last' | 'extremes' | 'all'",
+      default: "'none'",
+      description: {
+        ko: '윗변에 직접 쓰는 값',
+        en: 'Which values are written onto the top edge'
+      }
+    }
+  ],
+
   MPLineChart: [
     ...chartBase,
     {

@@ -272,29 +272,72 @@ export function linePath(points: readonly PlotPoint[], curve: MPChartCurve): str
 }
 
 /**
- * The same path closed down to a baseline, for an area.
+ * The ribbon between two runs of points.
  *
- * Built run by run, so a gap is a gap in the fill as well. An area that closed
- * across a missing month fills in a value that was never measured — the same lie
- * the bridged line tells, painted over a larger part of the chart.
+ * Built run by run, so a gap is a gap in the fill as well — and a gap in
+ * *either* edge is a gap in the band, because a ribbon with only one side is
+ * not a shape. An area that closed across a missing month would fill in a value
+ * that was never measured: the same lie the bridged line tells, painted over a
+ * larger part of the chart.
  *
- * The underside is drawn with the *same* curve and its opening `M` turned into
- * an `L`. Both halves matter: a smoothed top over a straight bottom disagrees
- * with itself about where the band is between two points, and a second `moveto`
- * inside the path lifts the pen and leaves the fill with no side.
+ * The underside is drawn with the **same** curve and its opening `M` turned
+ * into an `L`. Both halves matter: a smoothed top over a straight bottom
+ * disagrees with itself about where the band is between two points, and a
+ * second `moveto` inside the path lifts the pen and leaves the fill with no
+ * side.
+ */
+export function bandPath(
+  top: readonly PlotPoint[],
+  bottom: readonly PlotPoint[],
+  curve: MPChartCurve
+): string {
+  const out: string[] = [];
+  let upper: { x: number; y: number }[] = [];
+  let lower: { x: number; y: number }[] = [];
+
+  const close = () => {
+    if (upper.length > 0) {
+      out.push(
+        `${runPath(upper, curve)}${runPath([...lower].reverse(), curve).replace(/^M/, 'L')}Z`
+      );
+    }
+
+    upper = [];
+    lower = [];
+  };
+
+  top.forEach((point, at) => {
+    const under = bottom[at];
+
+    if (point === null || under === null || under === undefined) {
+      close();
+
+      return;
+    }
+
+    upper.push(point);
+    lower.push(under);
+  });
+
+  close();
+
+  return out.join('');
+}
+
+/**
+ * The same path closed down to a flat baseline, for an area standing on the
+ * axis rather than on another band.
  */
 export function areaPath(
   points: readonly PlotPoint[],
   baseline: number,
   curve: MPChartCurve
 ): string {
-  return runsOf(points)
-    .map((run) => {
-      const under = run.map((point) => ({ x: point.x, y: baseline })).reverse();
-
-      return `${runPath(run, curve)}${runPath(under, curve).replace(/^M/, 'L')}Z`;
-    })
-    .join('');
+  return bandPath(
+    points,
+    points.map((point) => (point === null ? null : { x: point.x, y: baseline })),
+    curve
+  );
 }
 
 /**

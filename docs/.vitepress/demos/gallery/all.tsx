@@ -23,6 +23,7 @@ import {
   MPAnimateSplit,
   MPAnimateTyping,
   MPAnimateZoom,
+  MPAreaChart,
   MPAspectRatio,
   MPAvatar,
   MPBadge,
@@ -1434,6 +1435,30 @@ const GROUPS: Group[] = [
               <MPTreeItem value="readme" label="README.md" />
             </MPTreeView>
           </Fit>
+        )
+      },
+      {
+        name: 'MPAreaChart',
+        summary: {
+          ko: '아래까지 채운 수치, 쌓으면 합계',
+          en: 'A quantity with the room under it filled in'
+        },
+        path: '/components/display/area-chart',
+        preview: (
+          <div style={{ width: 300 }}>
+            <MPAreaChart
+              size="xs"
+              label="Storage in use"
+              categories={['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']}
+              series={[
+                { name: 'Databases', data: [18, 20, 21, 24, 27, 28] },
+                { name: 'Backups', data: [6, 7, 7, 8, 9, 10] }
+              ]}
+              stacked
+              curve="smooth"
+              locale="en-US"
+            />
+          </div>
         )
       },
       {
