@@ -69,6 +69,7 @@ export * from './components/floating-action-button';
 export * from './components/floating-bottom-navigation';
 export * from './components/footer';
 export * from './components/form';
+export * from './components/gauge-chart';
 export * from './components/grid';
 export * from './components/header';
 export * from './components/highlight';

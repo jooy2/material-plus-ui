@@ -3299,6 +3299,101 @@ const componentTables: Record<string, PropRow[]> = {
     ...chartChrome
   ],
 
+  MPGaugeChart: [
+    {
+      name: 'value',
+      type: 'number',
+      required: true,
+      description: { ko: '수치', en: 'The reading' }
+    },
+    {
+      name: 'min',
+      type: 'number',
+      default: '0',
+      description: { ko: '눈금이 시작하는 값', en: 'Where the scale starts' }
+    },
+    {
+      name: 'max',
+      type: 'number',
+      default: '100',
+      description: { ko: '눈금이 끝나는 값', en: 'And where it ends' }
+    },
+    {
+      name: 'sweep',
+      type: 'number',
+      default: '240',
+      description: {
+        ko: '계기판이 도는 각도. 12시 방향을 중심으로 잰 도 단위입니다. `180`은 밑변으로 선 반원, `240`은 아래가 열린 전형적인 계기판입니다. 300도를 넘으면 양 끝이 만나 시작과 끝을 구별할 수 없습니다',
+        en: 'How far round the dial goes, in degrees, centred on twelve o’clock. `180` is a half dial standing on its base; `240` is the classic gauge, open at the bottom. Past about 300 the two ends meet and the reader can no longer tell the start from the finish'
+      }
+    },
+    {
+      name: 'label',
+      type: NODE,
+      description: {
+        ko: '숫자 아래에 놓이는, 이 수치의 이름',
+        en: 'What the reading is called, under the figure'
+      }
+    },
+    {
+      name: 'thresholds',
+      type: 'MPThreshold[]',
+      description: {
+        ko: '수치가 색을 바꾸는 지점. 지나온 마지막 임계값이 이기므로 작은 것부터 나열합니다. 색상값이 아니라 역할을 지목하므로 한 페이지의 계기판과 막대가 어긋날 수 없습니다',
+        en: 'Where the reading changes colour. The last one it has reached wins, so list them smallest first. They name roles rather than colours, so a dial and a bar on one page cannot disagree'
+      }
+    },
+    {
+      name: 'bands',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '임계값을 수치뿐 아니라 **트랙**에도 칠해서, 바늘이 닿기 전에 위험이 어디서 시작하는지 보이게 합니다. 이 모양을 막대 대신 고를 이유가 바로 이것입니다',
+        en: 'Paints the **track** in threshold bands as well as the fill, so a reader sees where the trouble starts before the reading gets there. This is the argument for the shape over a bar'
+      }
+    },
+    {
+      name: 'color',
+      type: COLOR,
+      default: "'primary'",
+      description: {
+        ko: '임계값에 닿기 전 계기판이 입는 계열',
+        en: 'The family the dial carries before any threshold is reached'
+      }
+    },
+    {
+      name: 'format',
+      type: 'Intl.NumberFormatOptions',
+      description: {
+        ko: '가운데 숫자를 어떻게 쓸지',
+        en: 'How the figure in the middle is written'
+      }
+    },
+    {
+      name: 'locale',
+      type: 'string',
+      description: { ko: '그 숫자의 언어', en: 'Which language that figure is written in' }
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      default: 'the size ladder',
+      description: {
+        ko: '그림의 높이. 숫자는 픽셀, 문자열은 임의의 CSS 길이입니다',
+        en: 'How tall the drawing is. A number is pixels; a string is any CSS length'
+      }
+    },
+    {
+      name: 'size',
+      type: SIZE,
+      default: "'md'",
+      description: {
+        ko: '계기판의 높이와 가운데 숫자의 타입 스케일',
+        en: 'The dial’s height and the type scale of the figure in it'
+      }
+    }
+  ],
+
   MPLineChart: [
     ...chartBase,
     {

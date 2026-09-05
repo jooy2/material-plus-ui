@@ -6,6 +6,16 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **`MPGaugeChart`**, one reading on a dial, with the trouble drawn on the face.
+
+  **It is a meter in the markup**, not a picture with a label — `role="meter"` carrying the value, the minimum and the maximum, exactly as `MPMeter` does, because they are the same quantity in two shapes. That is also why it has no table behind it and no hover layer: a chart of one number has nothing a reader could uncover that the figure in the middle is not already saying.
+
+  `thresholdColor` moved out of `MPMeter` into `internal/threshold.ts` so both read it. Two copies of a six-line scan would agree until the day one was edited alone, and where the amber starts is exactly the thing a dial and a bar on one page must not disagree about. Its own file rather than a section of `internal/chart.ts`, because a bar is not a chart and should not be handed the scales and the path builders for six lines.
+
+  `bands` paints the thresholds onto the **track** as well as into the reading, which is the argument for this shape over a bar: "how close is this to trouble" gets answered by where the reading stops rather than by arithmetic. The documentation says so, and says plainly that a gauge without thresholds is a statistic with a decoration round it.
+
+  How far the arc hangs below its centre is computed from the sweep rather than assumed, so a 240° dial does not float in its box and a 300° one is not clipped; past 300 the two ends meet and the reader cannot tell start from finish, so that is where `sweep` stops. Both ends carry a tick, because without them a full dial and a dial with no scale look the same.
+
 - **`MPScatterChart`**, and the second value axis the frame did not have. Until now the category axis was either a row of columns or a set of evenly spaced ticks; `xScale="value"` makes it a scale of its own, so a point's `x` is a **position** rather than a column heading and two marks at the same index in two series are the unrelated observations they actually are.
 
   **Neither axis starts at zero.** A position claims nothing about proportion, so cropping both scales moves every mark by the same amount and the relationship survives; forced to zero, two measures living between 40 and 60 end up in one corner.

@@ -66,6 +66,7 @@ import {
   MPFooter,
   MPForm,
   MPFlex,
+  MPGaugeChart,
   MPGrid,
   MPGridItem,
   MPHeader,
@@ -1480,6 +1481,29 @@ const GROUPS: Group[] = [
               series={[
                 { name: 'New', data: [18, 21, 24, 29] },
                 { name: 'Renewal', data: [24, 27, 27, 31] }
+              ]}
+              locale="en-US"
+            />
+          </div>
+        )
+      },
+      {
+        name: 'MPGaugeChart',
+        summary: {
+          ko: '계기판 위의 값 하나, 문자판에 그린 위험 구간',
+          en: 'One reading on a dial, trouble drawn on the face'
+        },
+        path: '/components/display/gauge-chart',
+        preview: (
+          <div style={{ width: 200 }}>
+            <MPGaugeChart
+              size="xs"
+              value={72}
+              label="CPU"
+              bands
+              thresholds={[
+                { from: 70, color: 'tertiary' },
+                { from: 90, color: 'error' }
               ]}
               locale="en-US"
             />

@@ -4,6 +4,7 @@ import { accentSlots } from '../../internal/accent';
 import { META_TEXT, STACK_GAP } from '../../internal/scale';
 import { BAR_THICKNESS, progressFraction } from '../../internal/progress';
 import { useMPColor, useMPSize } from '../../internal/config';
+import { thresholdColor } from '../../internal/threshold';
 import type { MPColor, MPSize, MPThreshold } from '../../types';
 
 export interface MPMeterProps extends Omit<
@@ -54,33 +55,6 @@ export interface MPMeterProps extends Omit<
    * @default 'primary'
    */
   color?: MPColor;
-}
-
-/**
- * Which family the value has earned.
- *
- * Written as a scan rather than a sort, so the array is read in the order it was
- * given. Thresholds are meant to be listed in ascending order, and quietly
- * reordering them would hide the one call site that did not.
- */
-function thresholdColor(
-  value: number,
-  color: MPColor,
-  thresholds: readonly MPThreshold[] | undefined
-): MPColor {
-  if (!thresholds || thresholds.length === 0) {
-    return color;
-  }
-
-  let current = color;
-
-  for (const threshold of thresholds) {
-    if (value >= threshold.from) {
-      current = threshold.color;
-    }
-  }
-
-  return current;
 }
 
 /**
