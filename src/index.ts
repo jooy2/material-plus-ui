@@ -72,6 +72,7 @@ export * from './components/form';
 export * from './components/gauge-chart';
 export * from './components/grid';
 export * from './components/header';
+export * from './components/heatmap-chart';
 export * from './components/highlight';
 export * from './components/hover-card';
 export * from './components/icon';

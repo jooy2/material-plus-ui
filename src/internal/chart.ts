@@ -1196,3 +1196,43 @@ export function bubbleRadius(z: number, maxZ: number, max: number, min: number):
 
   return min + (max - min) * Math.sqrt(Math.min(1, z / maxZ));
 }
+
+/* ---------------------------------------------------------------------- ramp */
+
+/** How many steps the sequential ramp has. */
+export const RAMP_STEPS = 5;
+
+/**
+ * Which step of the ramp a fraction of the range lands on.
+ *
+ * **Steps rather than a gradient**, and that is the decision worth stating. A
+ * continuous fill looks better and is read worse: a reader given a smooth ramp
+ * can say "darker" and nothing else, where five steps let them match a cell to
+ * a band in the legend and come away with a number. Five is about the most
+ * anybody tells apart in one hue.
+ */
+export function rampStep(fraction: number): number {
+  if (!Number.isFinite(fraction)) {
+    return 0;
+  }
+
+  return Math.min(RAMP_STEPS - 1, Math.max(0, Math.floor(fraction * RAMP_STEPS)));
+}
+
+/** The colour of one step, by its index from the low end. */
+export function rampFill(step: number): string {
+  return `var(--_mp-chart-scale-${Math.min(RAMP_STEPS, Math.max(1, step + 1))})`;
+}
+
+/**
+ * The ink a label sits in **on** a ramp step.
+ *
+ * The two darkest steps take the light ink and the rest take the dark one. It
+ * is a threshold rather than a computation because the ramp is five fixed
+ * colours: a contrast calculation here would be arithmetic performed on every
+ * cell, every render, to arrive at an answer that was settled when the ramp was
+ * fitted.
+ */
+export function rampInk(step: number): string {
+  return step >= RAMP_STEPS - 2 ? 'var(--_mp-color-surface)' : 'var(--_mp-color-on-surface)';
+}

@@ -70,6 +70,7 @@ import {
   MPGrid,
   MPGridItem,
   MPHeader,
+  MPHeatmapChart,
   MPHighlight,
   MPHoverCard,
   MPIcon,
@@ -1504,6 +1505,29 @@ const GROUPS: Group[] = [
               thresholds={[
                 { from: 70, color: 'tertiary' },
                 { from: 90, color: 'error' }
+              ]}
+              locale="en-US"
+            />
+          </div>
+        )
+      },
+      {
+        name: 'MPHeatmapChart',
+        summary: {
+          ko: '양이 색으로 칠해진 격자',
+          en: 'A grid of cells, coloured by how much'
+        },
+        path: '/components/display/heatmap-chart',
+        preview: (
+          <div style={{ width: 280 }}>
+            <MPHeatmapChart
+              size="xs"
+              label="Requests by hour"
+              categories={['Mon', 'Tue', 'Wed', 'Thu', 'Fri']}
+              series={[
+                { name: '09:00', data: [12, 14, 11, 15, 9] },
+                { name: '12:00', data: [61, 68, 64, 71, 52] },
+                { name: '15:00', data: [44, 49, 47, 51, 33] }
               ]}
               locale="en-US"
             />

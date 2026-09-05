@@ -3394,6 +3394,61 @@ const componentTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPHeatmapChart: [
+    {
+      name: 'series',
+      type: 'MPChartSeries[]',
+      required: true,
+      description: {
+        ko: '행들. 계열 하나가 행 하나이고, 그 `data`가 `categories`가 이름 붙인 순서대로의 칸입니다',
+        en: 'The rows. Each series is one row and its `data` are that row’s cells, in the order `categories` names the columns'
+      }
+    },
+    {
+      name: 'categories',
+      type: '(string | number | Date)[]',
+      description: { ko: '열 제목', en: 'The column headings' }
+    },
+    {
+      name: 'xAxis',
+      type: 'MPChartAxis',
+      description: {
+        ko: '열 축. 여기서는 `label`, `hidden`, `tickFormat`, `thickness`만 의미가 있습니다 — 두 축 모두 범주형이라 눈금도 격자도 없습니다',
+        en: 'The column axis. Only `label`, `hidden`, `tickFormat` and `thickness` mean anything here: both axes are categorical, so there are no ticks and no grid'
+      }
+    },
+    {
+      name: 'yAxis',
+      type: 'MPChartAxis',
+      description: { ko: '행 축, 같은 네 가지', en: 'The row axis, same four' }
+    },
+    {
+      name: 'min',
+      type: 'number',
+      default: "the data's floor",
+      description: {
+        ko: '색 눈금이 시작하는 값. 히트맵 둘을 비교하려면 고정하십시오 — 없으면 각자 자기 범위에 맞춰져서 한산한 주의 가장 짙은 칸이 나쁜 주의 것과 똑같이 보입니다',
+        en: 'Where the colour scale starts. Pin it to compare two heatmaps: without it each scales to its own range, and the darkest cell of a quiet week looks exactly like the darkest cell of a bad one'
+      }
+    },
+    {
+      name: 'max',
+      type: 'number',
+      default: "the data's ceiling",
+      description: { ko: '그리고 끝나는 값', en: 'And where it ends' }
+    },
+    {
+      name: 'valueLabels',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '칸 안에 값을 씁니다. 칸이 담을 수 없는 값은 잘리는 대신 빠집니다',
+        en: 'Writes each cell’s value in it, where the cell is big enough to hold the text. One that does not fit is dropped rather than clipped'
+      }
+    },
+    ...chartChrome
+  ],
+
   MPLineChart: [
     ...chartBase,
     {

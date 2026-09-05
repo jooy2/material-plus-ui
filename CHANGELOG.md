@@ -6,6 +6,18 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **`MPHeatmapChart`**, and a **sequential ramp** to colour it with. The eight chart slots are an identity channel — they say which series, and nobody can tell whether slot 6 is more than slot 3 — so a cell that has to say _how much_ needed a different kind of colour entirely.
+
+  Five steps on slot one's hue, fitted the same way the categorical palette was and validated against the skill's ordinal checks: monotone lightness, adjacent steps at least 0.06 apart, one hue throughout, and the step nearest the page clearing 2:1 against it. Both schemes pass all four. That last check is what put the light end at 0.755 rather than somewhere paler, and the dark end at 0.405: the lowest cell of a heatmap has to be a reading rather than a hole.
+
+  **The scheme flips the anchor, not the hue.** Pale to deep on a light page, deep to bright on a dark one, because "more" has to be further from the page in both — a ramp that ran the same way in the dark would put its high end where the eye reads nothing.
+
+  Steps rather than a gradient, and the documentation says why: given a smooth fill a reader can say "darker" and nothing else, where five bands let them match a cell against the legend and come away with a number. The legend is therefore the ramp itself rather than a key.
+
+  A `null` cell is an empty outline, not the lowest step. The bottom of a ramp is a reading, and painting "no data" as "the least" is the bridged line's mistake with the added problem that here it looks exactly like a real quiet hour. The cell under the pointer is ringed rather than recoloured, because a cell that changed colour on hover would be reporting a different number at the one moment it is being read.
+
+  It also sidesteps the cap `MPScatterChart` ran into from the other side: every cell touches its neighbours, and colour separates only three touching things — but a ramp is not being asked to separate anything, only to be ordered.
+
 - **`MPGaugeChart`**, one reading on a dial, with the trouble drawn on the face.
 
   **It is a meter in the markup**, not a picture with a label — `role="meter"` carrying the value, the minimum and the maximum, exactly as `MPMeter` does, because they are the same quantity in two shapes. That is also why it has no table behind it and no hover layer: a chart of one number has nothing a reader could uncover that the figure in the middle is not already saying.
