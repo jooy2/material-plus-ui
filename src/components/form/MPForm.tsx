@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Form } from '@base-ui/react/form';
+import { useMPSize } from '../../internal/config';
 import { SHEET_GAP } from '../../internal/scale';
 import type { MPSize } from '../../types';
 
@@ -77,9 +78,11 @@ export interface MPFormProps extends Omit<React.ComponentPropsWithoutRef<'form'>
  * submits it.
  */
 export const MPForm = React.forwardRef<HTMLFormElement, MPFormProps>(function MPForm(
-  { validationMode = 'onSubmit', errors, onSubmit, size = 'md', className, children, ...props },
+  { validationMode = 'onSubmit', errors, onSubmit, size: sizeProp, className, children, ...props },
   ref
 ) {
+  const size = useMPSize(sizeProp);
+
   return (
     <Form
       ref={ref}

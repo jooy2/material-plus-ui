@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Fieldset } from '@base-ui/react/fieldset';
+import { useMPSize } from '../../internal/config';
 import { hasContent, META_TEXT, SHEET_GAP, SHEET_TITLE, STACK_GAP } from '../../internal/scale';
 import type { MPSize } from '../../types';
 
@@ -55,9 +56,10 @@ export interface MPFieldsetProps extends Omit<React.ComponentPropsWithoutRef<'fi
  */
 export const MPFieldset = React.forwardRef<HTMLFieldSetElement, MPFieldsetProps>(
   function MPFieldset(
-    { legend, description, disabled = false, size = 'md', className, children, ...props },
+    { legend, description, disabled = false, size: sizeProp, className, children, ...props },
     ref
   ) {
+    const size = useMPSize(sizeProp);
     const named = hasContent(legend) || hasContent(description);
 
     return (

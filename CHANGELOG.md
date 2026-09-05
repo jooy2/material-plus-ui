@@ -4,6 +4,10 @@
 
 A second report from the application that filed the first one, a day after upgrading to 1.6.0.
 
+### Fixed
+
+- **`MPBox`, `MPFieldset` and `MPForm` now read `MPConfigProvider`'s `size`.** All three took `'md'` as a default parameter, which reads the prop and then stops — so an application that set the ladder once got `lg` controls standing in `md` room, which is the one thing a size ladder exists to prevent. `MPTooltip` and `MPTextLink` are deliberately not on that list: a tooltip drawn at a control's height is a slab, and a link inside a sentence is the size of the sentence.
+
 ### Added
 
 - **`MPTimelineChart`**, the last of the ten, and the only one whose marks have **two** ends. Every other chart here puts a mark at a single point on the value axis, which is why a span is its own type rather than an `end` bolted onto `MPChartPoint` — a field the other seven would carry and never read.

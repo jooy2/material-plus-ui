@@ -2,7 +2,7 @@
 
 The run that added the components `neba` has and this library did not. **It is finished** — all thirty-three units are on `main`.
 
-What is kept here is the part worth keeping: the two questions nobody has answered, the working method, and the environment traps that cost time to rediscover. The task list itself is gone. Delete the file when the rest has found a better home.
+What is kept here is the working method and the environment traps that cost time to rediscover. The task list is gone, and so are the two questions that outlived it — both answered, in `internal/transition.ts` and in `MPConfigProvider`'s tests. Delete the file when the rest has found a better home.
 
 ## Where it got to
 
@@ -51,13 +51,6 @@ cd test/components && ls -d */ | sed 's#/##' > /tmp/dirs.txt && cd -
 Then a `bash` script that reads `/tmp/dirs.txt`, splits it into four, and runs `npx vitest run` once per chunk with the directories as arguments. Note two traps: `mapfile` does not exist in macOS's bash 3.2, and an unquoted `$VAR` holding a space-separated list does **not** word-split in zsh, so the whole list arrives as one filter and vitest answers "No test files found".
 
 The other suites run in one go: `npx vitest run test/internal test/hooks test/styles test/locales test/types`.
-
-## Two open questions
-
-Both were raised during the run and neither was answered. Neither blocks anything.
-
-- **`transition` on `MPBox` costs 1.2 kB gzipped**, taking it from 0.4 kB to 1.7 kB, because the effect tables are object literals and a bundler cannot tree-shake a key. It is on eight display components. Worth deciding whether `MPBox` in particular should keep it.
-- **`MPBox` never calls `useMPSize`**, so an `MPConfigProvider`'s `size` does not reach it. Left alone deliberately as out of scope, but it is a real inconsistency: every other component that takes a `size` reads the provider.
 
 ## Things worth knowing before touching anything
 

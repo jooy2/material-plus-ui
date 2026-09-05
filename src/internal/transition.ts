@@ -24,10 +24,26 @@
  * ## What it costs
  *
  * It reads the same effect tables `MPAnimateFade` does, and those are object
- * literals rather than modules — a bundler cannot tree-shake a key. So a
- * component that takes this prop carries all seven effects whether or not a
- * caller ever passes one, which is roughly 1.0 kB gzipped and the six keyframes
- * on its stylesheet.
+ * literals rather than modules — a bundler cannot tree-shake a key. And it
+ * cannot: the effect is a runtime prop value, so a component that accepts one
+ * carries all seven whether or not a caller ever passes any.
+ *
+ * Measured on `MPBox`, which is the cheapest component that takes it and so the
+ * worst case: **1.0 kB gzipped and 2.1 kB of stylesheet**, taking it from 0.7 kB
+ * to 1.7 kB and its sheet from 8.2 kB to 10.3 kB.
+ *
+ * **It is paid once, not per component.** The five-component, ten-component and
+ * whole-library bundles measure the same byte for byte with the prop and
+ * without it, because the machinery is shared the moment a second display
+ * component is in the bundle. Only an application importing `MPBox` — or one of
+ * the other six — entirely alone pays anything at all.
+ *
+ * That is the answer to the question of whether `MPBox` in particular should
+ * keep it, which was open for a while: it should. The prop exists for the case
+ * where wrapping costs an element per item, and a grid of cards is exactly
+ * that case — `MPBox` is the component it was written for, and dropping it
+ * there to save a kilobyte in one narrow scenario would be paying for the
+ * measurement with the feature.
  *
  * `animate-core.ts` exists to stop it being more than that. Reaching into
  * `animate.ts` itself brought the marquee's rules and its two keyframes along,

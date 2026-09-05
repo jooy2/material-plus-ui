@@ -3,11 +3,14 @@ import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 import {
   MPBadge,
+  MPBox,
   MPButton,
   MPButtonGroup,
   MPChip,
   MPConfigProvider,
   MPDatePicker,
+  MPFieldset,
+  MPForm,
   MPLocaleProvider,
   MPContainer,
   MPShow,
@@ -64,6 +67,53 @@ describe('MPConfigProvider', () => {
       );
 
       expect(sizeOf(screen)).toBe('lg');
+    });
+
+    it('reaches the containers, whose rung is their padding and their gaps', async () => {
+      // These three took `'md'` as a default parameter, which reads the prop and
+      // then stops — so an application that said `lg` once got `lg` controls
+      // standing in `md` room, which is the one thing a size ladder is for.
+      const box = await render(
+        <MPConfigProvider size="lg">
+          <MPBox>panel</MPBox>
+        </MPConfigProvider>
+      );
+
+      expect(sizeOf(box, '.mp-box')).toBe('lg');
+    });
+
+    it('reaches a fieldset', async () => {
+      const screen = await render(
+        <MPConfigProvider size="xs">
+          <MPFieldset legend="Details">
+            <MPButton>Save</MPButton>
+          </MPFieldset>
+        </MPConfigProvider>
+      );
+
+      expect(sizeOf(screen, '.mp-fieldset')).toBe('xs');
+    });
+
+    it('reaches a form', async () => {
+      const screen = await render(
+        <MPConfigProvider size="sm">
+          <MPForm>
+            <MPButton>Save</MPButton>
+          </MPForm>
+        </MPConfigProvider>
+      );
+
+      expect(sizeOf(screen, '.mp-form')).toBe('sm');
+    });
+
+    it('is still beaten by a container’s own prop', async () => {
+      const screen = await render(
+        <MPConfigProvider size="lg">
+          <MPBox size="xs">panel</MPBox>
+        </MPConfigProvider>
+      );
+
+      expect(sizeOf(screen, '.mp-box')).toBe('xs');
     });
 
     it('reaches a picker, which resolves its own shell', async () => {

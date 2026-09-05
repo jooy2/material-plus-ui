@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { sheetPad } from '../../internal/density';
 import { containerSurface } from '../../internal/elevation';
-import { useMPDensity } from '../../internal/config';
+import { useMPDensity, useMPSize } from '../../internal/config';
 import { transitionProps } from '../../internal/transition';
 import type { MPDensity, MPElevation, MPSize, MPTransition, MPVariant } from '../../types';
 
@@ -120,7 +120,7 @@ export const MPBox = React.forwardRef<HTMLDivElement, MPBoxProps>(function MPBox
   {
     variant = 'outlined',
     elevation,
-    size = 'md',
+    size: sizeProp,
     density: densityProp,
     transition,
     padded = true,
@@ -132,6 +132,7 @@ export const MPBox = React.forwardRef<HTMLDivElement, MPBoxProps>(function MPBox
   },
   ref
 ) {
+  const size = useMPSize(sizeProp);
   const density = useMPDensity(densityProp);
   const entrance = transitionProps(transition);
 
