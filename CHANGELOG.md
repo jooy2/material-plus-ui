@@ -542,6 +542,10 @@ Eleven defects were fixed, and four of them had been shipping in plain sight: **
 
 ### Fixed
 
+- **`MPScrollZone`'s drag died on an unguarded `setPointerCapture`.** It throws `NotFoundError` for a pointer that is not active, and the throw abandoned everything after it: no `data-dragging`, no scrolling, and the page's own text selection taken away with nothing left to give it back. `MPPanes` was bitten by exactly this in 1.6.0 and carries the guard; this had the same line, and only Firefox showed it.
+
+- **`MPImage` silently dropped a caller's `onLoad` for a picture the browser already had** — precisely the case the component exists for. A cached image is `complete` before React attaches anything, so the `load` event has been and gone, and Firefox does not fire it again where Chromium does. `onStateChange` is reported from the `complete` check as well as from the event, so it is now documented as the signal to use and `onLoad` as the passthrough it is. No event is invented to hand the caller one.
+
 - **`MPBox`, `MPFieldset` and `MPForm` now read `MPConfigProvider`'s `size`.** All three took `'md'` as a default parameter, which reads the prop and then stops — so an application that set the ladder once got `lg` controls standing in `md` room, which is the one thing a size ladder exists to prevent. `MPTooltip` and `MPTextLink` are deliberately not on that list: a tooltip drawn at a control's height is a slab, and a link inside a sentence is the size of the sentence.
 
 - **A picker asked for without its glyph could not be opened with a mouse.** `startIcon={null}` is the configuration `floatingLabel` exists for — it is the only way the label ever rests on the trigger's own line — and it was the one configuration where a press did nothing at all.
@@ -623,7 +627,7 @@ The charts are 45 kB of the 45.3, and they are the reason to reach for the split
 
 The stylesheet grows from 114.9 kB to 144.8 kB, and 16.4 kB to 21.0 kB gzipped. The split sheets go from ninety-five to a hundred and twenty-nine, and the crossover — the point past which the whole sheet is the smaller download — moves from about thirty components to about forty, because the tokens file grew by the chart palette and the sequential ramp while the average component sheet did not.
 
-The suite goes from 1924 tests to 2676. Four hundred and fifty of the new ones are the charts, and the ones worth naming are the ones that would have caught a defect rather than described a behaviour: a stacked band's lower edge measured against the same band drawn alone, a bar's geometry read off `getBBox` rather than off the path commands — a rounded bar's first `h` is the width less two radii, so parsing them compared a rounded bar with a square one — a sideways value label asserted to be inside the plot, and a span's label asserted to be dropped rather than clipped.
+The suite goes from 1924 tests to 2678. Four hundred and fifty of the new ones are the charts, and the ones worth naming are the ones that would have caught a defect rather than described a behaviour: a stacked band's lower edge measured against the same band drawn alone, a bar's geometry read off `getBBox` rather than off the path commands — a rounded bar's first `h` is the width less two radii, so parsing them compared a rounded bar with a square one — a sideways value label asserted to be inside the plot, and a span's label asserted to be dropped rather than clipped.
 
 ## 1.6.0 (2026-08-31)
 
