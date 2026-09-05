@@ -1,0 +1,1 @@
+import{j as s}from"./jsx-runtime.BjG_zV1W.js";import{r as e}from"./index.CAJ_Adw3.js";import{M as m}from"./MPButton.B9-sXBCL.js";const u=e.forwardRef(function({icon:t,label:o,variant:r="text",...n},a){return s.jsx(m,{ref:a,"aria-label":o,variant:r,startIcon:t,...n})});export{u as M};

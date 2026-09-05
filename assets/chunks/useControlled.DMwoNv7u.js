@@ -1,0 +1,1 @@
+import{r as t}from"./index.CAJ_Adw3.js";function v({controlled:e,default:s,name:c,state:f="value"}){const{current:a}=t.useRef(e!==void 0),[u,o]=t.useState(s),n=a&&e!==void 0?e:u,r=t.useCallback(l=>{a||o(l)},[]);return[n,r]}export{v as u};

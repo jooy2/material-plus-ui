@@ -1,0 +1,1 @@
+import{r as t}from"./index.CAJ_Adw3.js";const e=Number.parseInt(t.version,10),n=!Number.isFinite(e)||e===0||e>=19,o=Object.freeze({inert:n?!0:""}),s=Object.freeze({});function c(r){return r?o:s}export{c as i};

@@ -1,0 +1,1 @@
+import{r as t}from"./index.CAJ_Adw3.js";const r=t.createContext(null),n={horizontal:"[&>*:not(:first-child)]:rounded-s-mp-sm [&>*:not(:last-child)]:rounded-e-mp-sm",vertical:"[&>*:not(:first-child)]:rounded-t-mp-sm [&>*:not(:last-child)]:rounded-b-mp-sm"};export{n as G,r as M};
