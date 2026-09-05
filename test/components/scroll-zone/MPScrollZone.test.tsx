@@ -41,10 +41,20 @@ async function settled(): Promise<void> {
  * to, and half a pixel is not a different child.
  */
 async function landsOn(index: number): Promise<void> {
-  const base = track().getBoundingClientRect().left + scroller().scrollLeft;
-  const target = track().children[index].getBoundingClientRect().left - base;
+  /*
+   * The child's offset *within the track*, which is what a scroll offset is
+   * measured against and is invariant as the strip moves: both rectangles shift
+   * by the same amount, so the difference does not depend on when it is read.
+   *
+   * The first version of this added `scrollLeft` back to the track's left edge,
+   * which subtracts the scroll twice — it read 208 while the strip was still
+   * travelling and 0 once it had arrived. It passed on a machine slow enough to
+   * measure mid-animation and failed on four CI runners that were not.
+   */
+  const offset = () =>
+    track().children[index].getBoundingClientRect().left - track().getBoundingClientRect().left;
 
-  await vi.waitFor(() => expect(Math.abs(scroller().scrollLeft - target)).toBeLessThanOrEqual(1));
+  await vi.waitFor(() => expect(Math.abs(scroller().scrollLeft - offset())).toBeLessThanOrEqual(1));
 }
 
 /**
