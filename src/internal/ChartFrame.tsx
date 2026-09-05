@@ -456,6 +456,24 @@ interface CartesianFrameProps extends CartesianChartProps {
   markRadius?: number;
   /** The legend's swatch, where a chart's marks are not all the same shape. */
   swatch?: (index: number, color: string) => React.ReactNode;
+  /**
+   * The value axis' scale, already worked out.
+   *
+   * For an axis that is not a count. `valueScale` rounds to 1-2-5-10, which is
+   * the family a reader does arithmetic in and exactly the wrong one for an
+   * instant — sixty, twenty-four, seven, twelve. A chart whose axis has its own
+   * arithmetic builds the scale itself and hands it over.
+   */
+  scale?: ValueScale;
+  /**
+   * The table behind the picture, for a chart whose data are not a grid of
+   * series against categories.
+   *
+   * The default one is right wherever the marks *are* that grid, and useless
+   * where they are not: a timeline's rows are the category axis and its marks
+   * are spans within them, so the frame has no cell to look an answer up in.
+   */
+  table?: (id: string) => React.ReactNode;
   /** What the panel says about a mark whose value is not a cell of the grid. */
   markTooltip?: (mark: ChartMark) => {
     heading: React.ReactNode;
@@ -511,6 +529,8 @@ export function CartesianFrame({
   marks,
   markRadius = 24,
   swatch,
+  scale: givenScale,
+  table: givenTable,
   markTooltip,
   height,
   format,
@@ -576,12 +596,14 @@ export function CartesianFrame({
   /* The value scale is settled before anything is measured, because how much
      room the axis needs depends on how wide its widest tick prints — which is
      not knowable until the ticks exist. */
-  const scale = valueScale(extent, {
-    min: valueAxis?.min,
-    max: valueAxis?.max,
-    tickCount: valueAxis?.tickCount,
-    includeZero
-  });
+  const scale =
+    givenScale ??
+    valueScale(extent, {
+      min: valueAxis?.min,
+      max: valueAxis?.max,
+      tickCount: valueAxis?.tickCount,
+      includeZero
+    });
 
   /* And a second scale of the same kind where the categories are numbers rather
      than columns. Zero is deliberately not forced in: what a position along an
@@ -1105,19 +1127,21 @@ export function CartesianFrame({
       }
       status={{ heading, items }}
       table={
-        nothing ? null : (
-          <ChartTable
-            id={tableId}
-            caption={label ?? words.table}
-            corner={categoryAxis?.label ?? words.category}
-            categories={labels}
-            names={seriesNames}
-            values={values}
-            format={formatValue}
-            locale={locale}
-            empty={table.empty}
-          />
-        )
+        nothing
+          ? null
+          : (givenTable?.(tableId) ?? (
+              <ChartTable
+                id={tableId}
+                caption={label ?? words.table}
+                corner={categoryAxis?.label ?? words.category}
+                categories={labels}
+                names={seriesNames}
+                values={values}
+                format={formatValue}
+                locale={locale}
+                empty={table.empty}
+              />
+            ))
       }
     >
       {nothing ? (

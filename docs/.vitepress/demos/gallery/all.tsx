@@ -131,6 +131,7 @@ import {
   MPTimeline,
   MPToggle,
   MPToggleGroup,
+  MPTimelineChart,
   MPTimelineItem,
   MPToolbar,
   MPTooltip,
@@ -1606,6 +1607,38 @@ const GROUPS: Group[] = [
                     { x: 13, y: 44 },
                     { x: 22, y: 57 }
                   ]
+                }
+              ]}
+              locale="en-US"
+            />
+          </div>
+        )
+      },
+      {
+        name: 'MPTimelineChart',
+        summary: {
+          ko: '무엇이 언제 진행됐는지, 하나에 한 줄씩',
+          en: 'What ran when, one row per thing'
+        },
+        path: '/components/display/timeline-chart',
+        preview: (
+          <div style={{ width: 300 }}>
+            <MPTimelineChart
+              size="xs"
+              height={120}
+              label="Release plan"
+              series={[
+                {
+                  name: 'Design',
+                  data: [{ start: new Date(2026, 2, 2), end: new Date(2026, 2, 6) }]
+                },
+                {
+                  name: 'Build',
+                  data: [{ start: new Date(2026, 2, 5), end: new Date(2026, 2, 16) }]
+                },
+                {
+                  name: 'Test',
+                  data: [{ start: new Date(2026, 2, 13), end: new Date(2026, 2, 18) }]
                 }
               ]}
               locale="en-US"

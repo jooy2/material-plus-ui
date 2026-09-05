@@ -345,8 +345,12 @@ export function areaPath(
  *
  * `none` is the inner segment of a stack, whose two faces are both boundaries
  * between shares rather than the end of anything, and so are both left square.
+ *
+ * `both` is a **span**: a stretch with two ends, neither of which is more the
+ * value than the other. A bar grows from a baseline and has one data end; a
+ * timeline's bar has no baseline at all.
  */
-export type BarEnd = 'top' | 'bottom' | 'left' | 'right' | 'none';
+export type BarEnd = 'top' | 'bottom' | 'left' | 'right' | 'none' | 'both';
 
 /**
  * A rectangle with the two corners at its **data end** cut off.
@@ -380,11 +384,12 @@ export function barPath(
   }
 
   const r = Math.max(0, Math.min(radius, w / 2, h / 2));
+  const all = end === 'both';
   const round = {
-    tl: end === 'top' || end === 'left' ? r : 0,
-    tr: end === 'top' || end === 'right' ? r : 0,
-    br: end === 'bottom' || end === 'right' ? r : 0,
-    bl: end === 'bottom' || end === 'left' ? r : 0
+    tl: all || end === 'top' || end === 'left' ? r : 0,
+    tr: all || end === 'top' || end === 'right' ? r : 0,
+    br: all || end === 'bottom' || end === 'right' ? r : 0,
+    bl: all || end === 'bottom' || end === 'left' ? r : 0
   };
 
   // Clockwise from the top-left corner, in relative commands, with an arc

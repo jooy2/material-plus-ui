@@ -6,6 +6,18 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **`MPTimelineChart`**, the last of the ten, and the only one whose marks have **two** ends. Every other chart here puts a mark at a single point on the value axis, which is why a span is its own type rather than an `end` bolted onto `MPChartPoint` — a field the other seven would carry and never read.
+
+  **The axis is a calendar rather than a number line.** The 1-2-5-10 steps every other value axis uses put a tick every 200,000,000 ms on epoch milliseconds, which lands at 14:53:20 on an arbitrary Tuesday. Time is not decimal below the year, so `internal/time-scale.ts` steps in seconds, minutes, hours, days, weeks, months and years, walks the ticks with real calendar arithmetic — a month step lands on the first whatever the month's length, a day step survives the clocks going back — and **aligns** them, so a three-hour axis reads 00:00, 03:00, 06:00 rather than 01:00, 04:00, 07:00.
+
+  The step is the one **nearest** the requested tick count rather than the first that is big enough, chosen by the ratio because the table spans nine orders of magnitude. Over a fortnight, "at least two and a third days" is a week — two ticks on the whole axis, which is what the first version drew.
+
+  No legend: the rows **are** the category axis and are already named down the side, so `legend` is `Omit`ted from the props rather than accepted and ignored. The pointer is measured to a mark's body rather than its centre, so anywhere along a bar counts — a span can be two hundred pixels whose centre a pointer never goes near. The arrow keys walk the spans, not the rows.
+
+  Both ends of a span are rounded, which needed a new `BarEnd`: a bar grows from a baseline and has one data end worth softening, and a span has no baseline at all. The first attempt drew it as a left-rounded path unioned with a right-rounded one, which is a rectangle with four square corners.
+
+  The frame gained the two things a chart whose marks are not a grid needs: a caller-supplied `scale`, and a caller-supplied `table`. A timeline's rows hold a variable number of spans, so a column per span would give the table as many columns as its busiest row; each row's cell writes its spans out instead.
+
 - **`MPHeatmapChart`**, and a **sequential ramp** to colour it with. The eight chart slots are an identity channel — they say which series, and nobody can tell whether slot 6 is more than slot 3 — so a cell that has to say _how much_ needed a different kind of colour entirely.
 
   Five steps on slot one's hue, fitted the same way the categorical palette was and validated against the skill's ordinal checks: monotone lightness, adjacent steps at least 0.06 apart, one hue throughout, and the step nearest the page clearing 2:1 against it. Both schemes pass all four. That last check is what put the light end at 0.755 rather than somewhere paler, and the dark end at 0.405: the lowest cell of a heatmap has to be a reading rather than a hole.

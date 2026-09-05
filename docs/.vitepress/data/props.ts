@@ -849,6 +849,17 @@ const chartPlot: PropRow[] = [
  * plot, split here the way `internal/ChartChrome.tsx` is split from
  * `internal/ChartFrame.tsx`.
  */
+/** Lifted out so a chart with no legend can drop it by identity, not by name. */
+const chartLegendRow: PropRow = {
+  name: 'legend',
+  type: 'boolean | MPChartLegend',
+  default: 'from two series up',
+  description: {
+    ko: '범례. 각 항목은 진짜 버튼이라 눌러서 계열을 숨기고 올려서 나머지를 흐립니다. 계열이 하나면 그리지 않습니다 — 견본 하나짜리 범례는 제목을 되풀이할 뿐입니다',
+    en: 'The legend. Each entry is a real button: press one to hide its series, hover one to dim the rest. Left off below two series, because a legend with one swatch in it restates the title'
+  }
+};
+
 const chartChrome: PropRow[] = [
   {
     name: 'label',
@@ -875,15 +886,7 @@ const chartChrome: PropRow[] = [
       en: 'How numbers are written everywhere they appear — the axis, the panel, the table. Without it a tick is compacted past ten thousand'
     }
   },
-  {
-    name: 'legend',
-    type: 'boolean | MPChartLegend',
-    default: 'from two series up',
-    description: {
-      ko: '범례. 각 항목은 진짜 버튼이라 눌러서 계열을 숨기고 올려서 나머지를 흐립니다. 계열이 하나면 그리지 않습니다 — 견본 하나짜리 범례는 제목을 되풀이할 뿐입니다',
-      en: 'The legend. Each entry is a real button: press one to hide its series, hover one to dim the rest. Left off below two series, because a legend with one swatch in it restates the title'
-    }
-  },
+  chartLegendRow,
   {
     name: 'tooltip',
     type: 'boolean | MPChartTooltip',
@@ -3447,6 +3450,41 @@ const componentTables: Record<string, PropRow[]> = {
       }
     },
     ...chartChrome
+  ],
+
+  MPTimelineChart: [
+    {
+      name: 'series',
+      type: 'MPTimelineSeries[]',
+      required: true,
+      description: {
+        ko: '행들, 위에서 아래로. 각 행이 자기 구간을 가집니다. 행이 곧 항목 축이라 범례가 없습니다',
+        en: 'The rows, top to bottom. Each carries its own spans. The rows are the category axis, which is why there is no legend'
+      }
+    },
+    {
+      name: 'yAxis',
+      type: 'MPChartAxis',
+      description: { ko: '행 축', en: 'The row axis' }
+    },
+    {
+      name: 'xAxis',
+      type: 'MPChartAxis',
+      description: {
+        ko: '시간 축. `min`과 `max`는 밀리초로 받고, `tickFormat`은 이 축이 스스로 고른 달력 표기를 대신합니다',
+        en: 'The time axis. `min` and `max` are milliseconds, and `tickFormat` replaces the calendar wording it picks for itself'
+      }
+    },
+    {
+      name: 'spanLabels',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '구간 이름을 막대 안에 씁니다. 막대가 담지 못하는 것은 잘리는 대신 막대에 맞춰 잘라 냅니다',
+        en: 'Writes each span’s label inside its bar, clipped to the bar rather than spilling past it'
+      }
+    },
+    ...chartChrome.filter((row) => row !== chartLegendRow)
   ],
 
   MPLineChart: [

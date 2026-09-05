@@ -284,6 +284,48 @@ export interface MPChartSeries {
   hidden?: boolean;
 }
 
+/**
+ * One span on a timeline — a stretch with two ends.
+ *
+ * Its own type rather than an `end` bolted onto `MPChartPoint`, because a
+ * second position on the axis is a field the other seven charts would carry and
+ * never read. The trade this file makes is that a name means one thing
+ * everywhere, and a point that sometimes has an end and usually does not is the
+ * opposite of that.
+ *
+ * `start` and `end` rather than `x` and `end`: a span has two places on the
+ * axis, and naming one of them `x` only reads correctly to somebody who already
+ * knows which one it is.
+ */
+export interface MPTimelineSpan {
+  /** When it begins. A `Date`, or a number of milliseconds. */
+  start: MPChartCategory;
+  /** And when it is done. One that ends before it starts is drawn either way round. */
+  end: MPChartCategory;
+  /** What the span is called, in the hover panel and the table. */
+  label?: React.ReactNode;
+  /** Overrides its row's colour for this one span. */
+  color?: MPColor | (string & {});
+}
+
+/**
+ * One row of a timeline, and everything on it.
+ *
+ * A row is a series — one entity, one name, one colour — but its data are spans
+ * rather than values, so it cannot be an `MPChartSeries`. There is no `hidden`
+ * here and no legend to pair one with: a timeline's rows **are** its category
+ * axis, already named down the side, and a twenty-entry legend restating them
+ * is not a filter anybody wants.
+ */
+export interface MPTimelineSeries {
+  /** Its name on the axis, in the hover panel and in the table. */
+  name?: string;
+  /** The spans on this row. Overlapping ones are drawn over each other. */
+  data: readonly MPTimelineSpan[];
+  /** Overrides the palette slot this row would otherwise take. */
+  color?: MPColor | (string & {});
+}
+
 /** How a line gets from one point to the next. */
 export type MPChartCurve = 'linear' | 'smooth' | 'step';
 

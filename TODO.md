@@ -1,12 +1,12 @@
 # TODO
 
-What is left of the run that added the components `neba` has and this library did not. The list of what to build came from the Prompter and is fixed; what follows is where it got to, how the finished ones were built, and what each unfinished one needs.
+The run that added the components `neba` has and this library did not. **It is finished** — all thirty-three units are on `main`.
 
-This file is a working note. Delete it when the list is empty.
+What is kept here is the part worth keeping: the two questions nobody has answered, the working method, and the environment traps that cost time to rediscover. The task list itself is gone. Delete the file when the rest has found a better home.
 
 ## Where it got to
 
-Thirty-two units landed on `main`, each as its own commit with implementation, tests, bilingual documentation, a props row, a demo, a gallery entry and a changelog entry.
+Thirty-three units landed on `main`, each as its own commit with implementation, tests, bilingual documentation, a props row, a demo, a gallery entry and a changelog entry.
 
 |  |  |
 | --- | --- |
@@ -16,10 +16,10 @@ Thirty-two units landed on `main`, each as its own commit with implementation, t
 | Layout | `MPFlex`, `MPPortal`, `MPScrollArea`, `MPScrollZone`, `MPToolbar`, `MPFloatingBottomNavigation`, `MPMockup` |
 | Display | `MPAnchor`, `MPAppLogo`, `MPDataList`, `MPCodeBlock`, `MPTreeView` |
 | Inputs | `MPTreeSelect` |
-| Data | `MPDataTable`, `MPStatistic`, `MPSparkline`, `MPLineChart`, `MPAreaChart`, `MPBarChart`, `MPPieChart`, `MPScatterChart`, `MPGaugeChart`, `MPHeatmapChart` |
+| Data | `MPDataTable`, `MPStatistic`, `MPSparkline`, `MPLineChart`, `MPAreaChart`, `MPBarChart`, `MPPieChart`, `MPScatterChart`, `MPGaugeChart`, `MPHeatmapChart`, `MPTimelineChart` |
 | Feedback | `MPMeter`, `MPHoverCard`, `MPTour` |
 
-One unit remains, listed below.
+**The list is empty.** What is left is the two questions below, which were raised and never answered.
 
 ## The working method
 
@@ -52,23 +52,9 @@ Then a `bash` script that reads `/tmp/dirs.txt`, splits it into four, and runs `
 
 The other suites run in one go: `npx vitest run test/internal test/hooks test/styles test/locales test/types`.
 
-## What is left
+## Two open questions
 
-### 1. The last chart
-
-`MPTimelineChart`.
-
-**The frame is built, and the chrome is split out from it.** `internal/ChartChrome.tsx` holds the legend, the hover panel, the clipped live region, the table behind the picture and `ChartShell`, the arrangement holding them — the parts a chart with no axes needs too. `internal/ChartFrame.tsx` holds the plot box, the axes, the grid and the crosshair; `internal/chart.ts` holds the arithmetic — `valueScale` with its 1-2-5-10 ticks and its pinned-ends fallback, `bandScale`, `seriesExtent` (stacked and not), `tickStride`/`showsTick`/`fitsLast`, `textWidth`/`truncate`, `toValues`/`categoryAt`/`formatCategory`, and the four size ladders. The public types are in `types.ts` and it takes them unchanged. `MPLineChart`, `MPAreaChart`, `MPBarChart` and `MPScatterChart` consume the frame; `MPPieChart` consumes only the chrome, which is what the split was for. Between them they exercise the value scale, both value axes, the band edges, the stack, both orientations, arc geometry, the mark builder and its nearest-mark search, the legend filter, the crosshair and the keyboard walk. **There is no piece of frame work left**: the three that remain are geometry.
-
-What it still has to decide:
-
-- **`MPTimelineChart`** — rows are the category axis and spans are the marks, so it needs `ChartMark`'s `rx`/`ry` body hit-testing and a `markTooltip`, both of which the frame has and nothing exercises yet.
-
-Two things the `dataviz` skill settles that are not negotiable: **never a dual-axis chart** (two measures of different scale are two charts), and **a hover layer by default** on it too. `MPSparkline` is the one exception and its documentation says why.
-
-## Two loose ends from earlier work
-
-Neither is on the list above; both were raised and neither was answered.
+Both were raised during the run and neither was answered. Neither blocks anything.
 
 - **`transition` on `MPBox` costs 1.2 kB gzipped**, taking it from 0.4 kB to 1.7 kB, because the effect tables are object literals and a bundler cannot tree-shake a key. It is on eight display components. Worth deciding whether `MPBox` in particular should keep it.
 - **`MPBox` never calls `useMPSize`**, so an `MPConfigProvider`'s `size` does not reach it. Left alone deliberately as out of scope, but it is a real inconsistency: every other component that takes a `size` reads the provider.
