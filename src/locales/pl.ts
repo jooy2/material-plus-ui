@@ -69,6 +69,15 @@ export const pl: MPLocale = {
     breadcrumb: { label: 'Ścieżka nawigacji', expand: 'Pokaż ukryte kroki' },
     combobox: { empty: 'Brak wyników', add: 'Dodaj „{label}”' },
     table: { empty: 'Brak danych' },
+    dataTable: {
+      selectAll: 'Zaznacz wszystkie wiersze',
+      selectRow: 'Zaznacz wiersz',
+      total: 'Wiersze: {total}',
+      selected: 'Zaznaczono: {count}',
+      download: 'Pobierz CSV',
+      perPage: 'Wierszy na stronę',
+      resize: 'Zmień szerokość kolumny'
+    },
     filePicker: { prompt: 'Upuść pliki tutaj albo kliknij, aby wybrać' },
     textLink: { newTab: 'Otwiera się w nowej karcie' },
     overlay: { label: 'Nakładka' },

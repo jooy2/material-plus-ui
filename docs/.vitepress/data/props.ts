@@ -2337,6 +2337,459 @@ const componentTables: Record<string, PropRow[]> = {
     id
   ],
 
+  MPDataTable: [
+    {
+      name: 'headers',
+      type: 'MPDataTableColumn<Row>[]',
+      required: true,
+      description: {
+        ko: '컬럼들. 그리는 순서대로입니다',
+        en: 'The columns, in the order they appear'
+      }
+    },
+    {
+      name: 'items',
+      type: 'Row[]',
+      required: true,
+      description: { ko: '행들', en: 'The rows' }
+    },
+    {
+      name: 'getRowKey',
+      type: '(row: Row, index: number) => Key',
+      default: 'the index',
+      description: {
+        ko: '행마다의 안정된 정체이자 `selected`가 나열하는 값. 행을 고르거나 정렬하거나 검색하는 순간 사실상 필수입니다 — 인덱스는 위치를 가리키고, 그 셋 모두가 어느 행이 그 위치에 있는지를 바꿉니다',
+        en: 'A stable identity per row, and the value `selected` is a list of. Required in practice the moment rows can be chosen, sorted or searched: an index identifies a position, and each of those three changes which row is in it'
+      }
+    },
+    {
+      name: 'sortable',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '모든 컬럼을 정렬 가능하게 합니다. 컬럼의 `sortable`이 어느 쪽으로든 뒤집습니다',
+        en: 'Makes every column sortable. A column overrides it either way with its own `sortable`'
+      }
+    },
+    {
+      name: 'sortMode',
+      type: "'single' | 'multiple'",
+      default: "'single'",
+      description: {
+        ko: '한 번에 둘 이상의 컬럼을 정렬할 수 있는지. `multiple`이면 Shift-누름이 정렬을 바꾸는 대신 컬럼을 더하고, 정렬된 헤딩마다 몇 번째 키인지가 붙습니다',
+        en: 'Whether more than one column can be sorted at a time. With `multiple`, a Shift-press adds a column instead of replacing it and each sorted heading carries its place in the order'
+      }
+    },
+    {
+      name: 'sort',
+      type: 'MPDataTableSort[]',
+      description: {
+        ko: '정렬. `onSortChange`와 함께 쓰면 controlled입니다',
+        en: 'The sort. Use with `onSortChange` for a controlled one'
+      }
+    },
+    {
+      name: 'defaultSort',
+      type: 'MPDataTableSort[]',
+      description: { ko: '처음의 정렬', en: 'What it starts as' }
+    },
+    {
+      name: 'onSortChange',
+      type: '(sort: MPDataTableSort[]) => void',
+      description: { ko: '정렬이 바뀔 때 호출됩니다', en: 'Called when the sort changes' }
+    },
+    {
+      name: 'searchable',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '표 위에 행을 거르는 필드를 답니다',
+        en: 'Draws a field above the table that filters the rows'
+      }
+    },
+    {
+      name: 'search',
+      type: 'string',
+      description: {
+        ko: '질의. `onSearchChange`와 함께 쓰면 controlled입니다',
+        en: 'The query. Use with `onSearchChange` for a controlled field'
+      }
+    },
+    {
+      name: 'defaultSearch',
+      type: 'string',
+      description: { ko: '처음의 질의', en: 'What it starts as' }
+    },
+    {
+      name: 'onSearchChange',
+      type: '(search: string) => void',
+      description: { ko: '질의가 바뀔 때 호출됩니다', en: 'Called when the query changes' }
+    },
+    {
+      name: 'searchLabel',
+      type: 'string',
+      description: {
+        ko: '필드에 적히는 단어이자 그 접근 가능한 이름. 플레이스홀더가 아니라 라벨인 이유는, 타이핑하는 순간 사라지는 단어는 이름이 아니기 때문입니다',
+        en: 'The word on the field, which is also its accessible name. A label rather than a placeholder, because a word that disappears the moment somebody types is not a name'
+      }
+    },
+    {
+      name: 'filter',
+      type: '(row: Row, index: number) => boolean',
+      description: {
+        ko: '검색 다음에 적용되는 여러분의 필터. `false`를 돌려주면 그 행이 빠집니다',
+        en: 'A filter of your own, applied after the search. Return `false` to drop a row'
+      }
+    },
+    {
+      name: 'toolbar',
+      type: NODE,
+      description: {
+        ko: '검색 필드가 있는 줄의 끝에 놓이는 내용',
+        en: 'Content at the end of the bar the search field sits in'
+      }
+    },
+    {
+      name: 'paged',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '행을 한 페이지씩 내주고 페이지를 푸터에 놓습니다. 그러지 않으면 모든 행이 그려지며 윈도잉은 없습니다 — 행 수에 대한 답이 이것입니다',
+        en: 'Hands the rows out a page at a time and puts the pages in the footer. Every row is rendered otherwise, and there is no windowing — this is the answer to the row count'
+      }
+    },
+    {
+      name: 'page',
+      type: 'number',
+      description: {
+        ko: '현재 페이지, 1부터. `onPageChange`와 함께 쓰면 controlled입니다',
+        en: 'The current page, 1-based. Use with `onPageChange`'
+      }
+    },
+    {
+      name: 'defaultPage',
+      type: 'number',
+      default: '1',
+      description: { ko: '처음 펼치는 페이지', en: 'The page it starts on' }
+    },
+    {
+      name: 'onPageChange',
+      type: '(page: number) => void',
+      description: { ko: '페이지가 바뀔 때 호출됩니다', en: 'Called when the page changes' }
+    },
+    {
+      name: 'pageSize',
+      type: 'number',
+      description: {
+        ko: '한 페이지가 담는 행 수. `onPageSizeChange`와 함께 쓰면 controlled입니다',
+        en: 'How many rows a page holds. Use with `onPageSizeChange`'
+      }
+    },
+    {
+      name: 'defaultPageSize',
+      type: 'number',
+      default: '25',
+      description: { ko: '처음의 페이지 크기', en: 'What it starts as' }
+    },
+    {
+      name: 'onPageSizeChange',
+      type: '(pageSize: number) => void',
+      description: {
+        ko: '페이지 크기가 바뀔 때 호출됩니다',
+        en: 'Called when the page size changes'
+      }
+    },
+    {
+      name: 'pageSizeOptions',
+      type: 'number[]',
+      default: '[10, 25, 50, 100]',
+      description: {
+        ko: '푸터의 페이지 크기 컨트롤이 제시하는 값들. 빈 목록이면 컨트롤이 사라집니다',
+        en: "What the footer's page-size control offers. An empty list drops the control"
+      }
+    },
+    {
+      name: 'resizable',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '헤딩을 끌어 넓히거나 좁힐 수 있게 하고, 두 컬럼 사이의 핸들을 키보드에도 내줍니다. **컬럼 레이아웃 방식도 함께 바뀝니다** — 균형 잡힌 레이아웃에서 너비는 힌트라서 드래그에서 튕겨 돌아옵니다',
+        en: 'Lets a heading be dragged wider or narrower, and gives the handle to the keyboard as well. **It also changes how the columns are laid out**: a width in the balanced layout is a hint, and a hint springs back from a drag'
+      }
+    },
+    {
+      name: 'columnWidths',
+      type: 'Record<string, number>',
+      description: {
+        ko: '컬럼별 너비. `onColumnWidthsChange`와 함께 쓰면 controlled입니다',
+        en: 'The widths, keyed by column. Use with `onColumnWidthsChange`'
+      }
+    },
+    {
+      name: 'defaultColumnWidths',
+      type: 'Record<string, number>',
+      description: { ko: '처음의 너비들', en: 'What they start as' }
+    },
+    {
+      name: 'onColumnWidthsChange',
+      type: '(widths: Record<string, number>) => void',
+      description: { ko: '너비가 바뀔 때 호출됩니다', en: 'Called when a width changes' }
+    },
+    {
+      name: 'selectionMode',
+      type: "'none' | 'single' | 'multiple'",
+      default: "'none'",
+      description: {
+        ko: '한 번에 몇 행을 고를 수 있는지. 단일 선택은 토글됩니다 — 표 위의 액션 바가 "아무것도 고르지 않음"을 기준으로 움직이기 때문입니다',
+        en: 'How many rows may be chosen. Single select toggles, because an action bar above a table keys off "nothing chosen" and that has to be reachable'
+      }
+    },
+    {
+      name: 'selected',
+      type: 'Key[]',
+      description: {
+        ko: '고른 행들의 키. `onSelectedChange`와 함께 쓰면 controlled입니다',
+        en: 'The chosen rows, as their keys. Use with `onSelectedChange`'
+      }
+    },
+    {
+      name: 'defaultSelected',
+      type: 'Key[]',
+      description: { ko: '처음 골라져 있는 행들', en: 'Which start chosen' }
+    },
+    {
+      name: 'onSelectedChange',
+      type: '(selected: Key[], rows: Row[]) => void',
+      description: {
+        ko: '키와 그 뒤의 행들로 호출됩니다. 검색이 감춘 행과 다른 페이지의 행도 포함되며, `items`의 순서로 돌아옵니다',
+        en: 'Called with the keys and the rows behind them — including rows the search has hidden and rows on other pages, in `items` order'
+      }
+    },
+    {
+      name: 'checkboxes',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '체크 컬럼과, 그 페이지 전체를 한 번에 가져가는 헤딩의 체크를 답니다. 행과 체크 중 무엇이 키보드의 길인지도 이것이 정합니다',
+        en: 'Adds a column of ticks, and one in the heading that takes the whole page at once. It also decides which of the row and the tick is the keyboard’s route into the row'
+      }
+    },
+    {
+      name: 'onRowClick',
+      type: '(row: Row, index: number) => void',
+      description: {
+        ko: '행이 눌릴 때마다, 선택이 바뀌기 전에 호출됩니다',
+        en: 'Fires on every press of a row, before the selection changes'
+      }
+    },
+    {
+      name: 'exportable',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '행들을 CSV 파일로 쓰는 버튼을 답니다. **지금 보고 있는 모든 행이고 펼친 페이지가 아닙니다** — 검색과 정렬은 적용되고 페이징은 적용되지 않습니다',
+        en: 'Adds a button that writes the rows out as a CSV file. **Every row the reader is looking at, not the page they are on**: the search and the sort are applied and the paging is not'
+      }
+    },
+    {
+      name: 'exportFileName',
+      type: 'string',
+      default: "'table.csv'",
+      description: { ko: '내려받는 파일의 이름', en: 'What the downloaded file is called' }
+    },
+    {
+      name: 'onExport',
+      type: '(csv: string) => void',
+      description: {
+        ko: '내려받는 대신 CSV를 받아 갑니다',
+        en: 'Takes the CSV instead of downloading it'
+      }
+    },
+    {
+      name: 'caption',
+      type: NODE,
+      description: {
+        ko: '표 위에 놓이고, 표의 접근 가능한 이름으로 읽힙니다',
+        en: 'Shown above the table, and read out as its accessible name'
+      }
+    },
+    {
+      name: 'empty',
+      type: NODE,
+      description: {
+        ko: '남은 행이 없을 때 행 대신 보이는 것',
+        en: 'What to show instead of rows when nothing is left'
+      }
+    },
+    {
+      name: 'striped',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '한 행 건너 하나에 색을 깝니다', en: 'Tints every other row' }
+    },
+    {
+      name: 'hoverable',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '포인터 아래의 행을 밝힙니다', en: 'Lights the row under the pointer' }
+    },
+    {
+      name: 'stickyHeader',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '본문이 스크롤되는 동안 헤딩을 고정합니다. 표의 높이를 실제로 제한하는 무언가가 둘레에 있을 때만 효과가 있습니다',
+        en: 'Pins the heading while the body scrolls. Only does anything if something around the table actually constrains its height'
+      }
+    },
+    {
+      ...containerVariant,
+      description: {
+        ko: '표를 둘러싼 시트가 칠하는 면의 양',
+        en: 'How much surface the sheet around the table paints'
+      }
+    },
+    elevation,
+    size,
+    {
+      ...color,
+      description: {
+        ko: '정렬 화살표, 체크, 골라진 행이 읽는 강조 색 계열. 셀 자체는 중립으로 남습니다',
+        en: 'Which accent family the sort arrow, the ticks and a chosen row read. The cells themselves stay neutral'
+      }
+    },
+    density,
+    {
+      name: 'locale',
+      type: 'string',
+      description: {
+        ko: '표가 스스로 말하는 단어들의 언어이며, 기본 정렬이 문자열을 비교하는 기준이기도 합니다. 서버에서 렌더한다면 반드시 넘기세요 — 서버와 브라우저가 로케일에 대해 다르게 답하면 같은 표가 두 가지 행 순서로 나옵니다',
+        en: 'The language the table’s own words are in, and what the default sort compares strings with. Pass it whenever the markup is rendered on a server: a server that disagrees with the browser about the locale produces two different row orders for the same table'
+      }
+    },
+    {
+      name: 'classNames',
+      type: "MPSlots<'toolbar' | 'table' | 'head' | 'row' | 'cell' | 'footer'>",
+      description: {
+        ko: '`className`이 닿지 못하는 부분에 클래스를 겁니다',
+        en: 'A class name for the parts `className` cannot reach'
+      }
+    }
+  ],
+
+  MPDataTableColumn: [
+    {
+      name: 'key',
+      type: 'string',
+      required: true,
+      description: {
+        ko: '컬럼을 식별하고, `value`나 `render`가 달리 말하지 않으면 행에서 읽을 속성의 이름이 됩니다',
+        en: 'Identifies the column, and unless `value` or `render` says otherwise it names the property to read off each row'
+      }
+    },
+    {
+      name: 'label',
+      type: NODE,
+      description: {
+        ko: '헤딩. 생략하면 `key`인데, 보통 원하는 것이 아닙니다',
+        en: 'The heading. Defaults to the `key`, which is usually not what you want'
+      }
+    },
+    {
+      name: 'width',
+      type: 'number',
+      default: '160',
+      description: {
+        ko: '픽셀 단위 너비. CSS 길이가 아니라 픽셀인 이유는 리사이즈 드래그가 이 숫자로 산술을 하기 때문입니다',
+        en: 'How wide, in pixels. Pixels rather than any CSS length, because a resize drag does arithmetic on this number'
+      }
+    },
+    {
+      name: 'minWidth',
+      type: 'number',
+      default: '48',
+      description: {
+        ko: '드래그가 좁힐 수 있는 하한',
+        en: 'How narrow a drag may make it'
+      }
+    },
+    {
+      name: 'align',
+      type: "'start' | 'center' | 'end'",
+      default: "'start'",
+      description: {
+        ko: '셀이 어느 쪽에 붙는지. 숫자는 자릿수를 맞추기 위해 보통 `end`를 원합니다',
+        en: 'Which edge the cells line up against. Numbers usually want `end` so their digits line up'
+      }
+    },
+    {
+      name: 'sortable',
+      type: 'boolean',
+      description: {
+        ko: '이 컬럼을 정렬할 수 있는지. 생략하면 표의 `sortable`을 따릅니다',
+        en: "Whether this column can be sorted. Defaults to the table's `sortable`"
+      }
+    },
+    {
+      name: 'resizable',
+      type: 'boolean',
+      description: {
+        ko: '이 컬럼을 끌어 넓힐 수 있는지. 생략하면 표의 `resizable`을 따릅니다',
+        en: "Whether this column can be dragged wider. Defaults to the table's `resizable`"
+      }
+    },
+    {
+      name: 'searchable',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '검색이 이 컬럼을 들여다보는지',
+        en: 'Whether the search looks in this column'
+      }
+    },
+    {
+      name: 'value',
+      type: '(row: Row) => unknown',
+      description: {
+        ko: '셀 뒤의 값 — 정렬되고 검색되는 것. 생략하면 `row[key]`입니다',
+        en: 'The value behind the cell: what is sorted, and what the search is matched against. Defaults to `row[key]`'
+      }
+    },
+    {
+      name: 'compare',
+      type: '(a: Row, b: Row) => number',
+      description: {
+        ko: '기본 비교가 순위를 매길 수 없는 값을 위해 두 행을 정렬합니다. 언제나 오름차순으로 쓰고, 뒤집는 일은 표가 합니다',
+        en: 'Orders two rows by this column, for a value the default comparison cannot rank. Always written ascending; the table reverses it'
+      }
+    },
+    {
+      name: 'render',
+      type: '(row: Row, index: number) => ReactNode',
+      description: {
+        ko: '셀을 그립니다. `index`는 정렬·검색된 순서에서의 자리이고 모든 페이지에 걸쳐 셉니다',
+        en: 'Draws the cell. `index` is the row’s place in the sorted, searched order, counted across every page'
+      }
+    },
+    {
+      name: 'exportValue',
+      type: '(row: Row) => unknown',
+      description: {
+        ko: '내려받기가 이 셀에 쓰는 것. `render`와 별개인 이유는, 칩이나 아바타를 그리는 셀에는 파일에 담을 텍스트가 없기 때문입니다',
+        en: 'What a download writes for this cell. Separate from `render` on purpose: a cell that draws a chip or an avatar has no text to put in a file'
+      }
+    },
+    {
+      name: 'exportable',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '이 컬럼을 내려받기에 넣을지',
+        en: 'Whether this column goes into a download'
+      }
+    }
+  ],
+
   MPTreeSelect: [
     {
       name: 'items',

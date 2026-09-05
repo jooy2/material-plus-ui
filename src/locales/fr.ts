@@ -76,6 +76,15 @@ export const fr: MPLocale = {
     breadcrumb: { label: 'Fil d’Ariane', expand: 'Afficher les étapes masquées' },
     combobox: { empty: 'Aucun résultat', add: 'Ajouter « {label} »' },
     table: { empty: 'Aucune donnée' },
+    dataTable: {
+      selectAll: 'Sélectionner toutes les lignes',
+      selectRow: 'Sélectionner la ligne',
+      total: 'Lignes : {total}',
+      selected: 'Sélectionnées : {count}',
+      download: 'Télécharger le CSV',
+      perPage: 'Lignes par page',
+      resize: 'Redimensionner la colonne'
+    },
     filePicker: { prompt: 'Déposez les fichiers ici, ou cliquez pour parcourir' },
     textLink: { newTab: 'S’ouvre dans un nouvel onglet' },
     overlay: { label: 'Superposition' },

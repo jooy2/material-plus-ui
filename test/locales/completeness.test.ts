@@ -8,6 +8,7 @@ import { COLOR_PICKER } from '../../src/internal/messages/color-picker';
 import { COMBOBOX } from '../../src/internal/messages/combobox';
 import { COMMAND } from '../../src/internal/messages/command';
 import { COMMON } from '../../src/internal/messages/common';
+import { DATA_TABLE } from '../../src/internal/messages/data-table';
 import { CONFIRM } from '../../src/internal/messages/confirm';
 import { EMPTY } from '../../src/internal/messages/empty';
 import { FILE_PICKER } from '../../src/internal/messages/file-picker';
@@ -47,6 +48,7 @@ const NAMESPACES = [
   COMBOBOX,
   COMMAND,
   COMMON,
+  DATA_TABLE,
   EMPTY,
   FILE_PICKER,
   LAYOUT,

@@ -69,6 +69,15 @@ export const nl: MPLocale = {
     breadcrumb: { label: 'Kruimelpad', expand: 'Verborgen stappen tonen' },
     combobox: { empty: 'Geen resultaten', add: '‘{label}’ toevoegen' },
     table: { empty: 'Geen gegevens' },
+    dataTable: {
+      selectAll: 'Alle rijen selecteren',
+      selectRow: 'Rij selecteren',
+      total: 'Rijen: {total}',
+      selected: 'Geselecteerd: {count}',
+      download: 'CSV downloaden',
+      perPage: 'Rijen per pagina',
+      resize: 'Kolombreedte aanpassen'
+    },
     filePicker: { prompt: 'Sleep bestanden hierheen of klik om te bladeren' },
     textLink: { newTab: 'Wordt geopend in een nieuw tabblad' },
     overlay: { label: 'Overlay' },

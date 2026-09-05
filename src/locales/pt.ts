@@ -69,6 +69,15 @@ export const pt: MPLocale = {
     breadcrumb: { label: 'Caminho de navegação', expand: 'Mostrar as etapas ocultas' },
     combobox: { empty: 'Sem correspondências', add: 'Adicionar “{label}”' },
     table: { empty: 'Sem dados' },
+    dataTable: {
+      selectAll: 'Selecionar todas as linhas',
+      selectRow: 'Selecionar linha',
+      total: 'Linhas: {total}',
+      selected: 'Selecionadas: {count}',
+      download: 'Baixar CSV',
+      perPage: 'Linhas por página',
+      resize: 'Alterar a largura da coluna'
+    },
     filePicker: { prompt: 'Solte os arquivos aqui, ou clique para procurar' },
     textLink: { newTab: 'Abre em uma nova aba' },
     overlay: { label: 'Sobreposição' },

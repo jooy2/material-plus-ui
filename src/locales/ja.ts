@@ -73,6 +73,15 @@ export const ja: MPLocale = {
     breadcrumb: { label: 'パンくずリスト', expand: '省略された階層を表示' },
     combobox: { empty: '一致するものがありません', add: '「{label}」を追加' },
     table: { empty: 'データがありません' },
+    dataTable: {
+      selectAll: 'すべての行を選択',
+      selectRow: '行を選択',
+      total: '{total} 行',
+      selected: '{count} 件を選択',
+      download: 'CSV をダウンロード',
+      perPage: '1 ページあたりの行数',
+      resize: '列幅を変更'
+    },
     filePicker: { prompt: 'ここにファイルをドロップ、またはクリックして選択' },
     textLink: { newTab: '新しいタブで開きます' },
     overlay: { label: 'オーバーレイ' },

@@ -73,6 +73,15 @@ export const hi: MPLocale = {
     breadcrumb: { label: 'ब्रेडक्रंब', expand: 'छिपे हुए चरण दिखाएँ' },
     combobox: { empty: 'कोई मेल नहीं', add: '“{label}” जोड़ें' },
     table: { empty: 'कोई डेटा नहीं' },
+    dataTable: {
+      selectAll: 'सभी पंक्तियाँ चुनें',
+      selectRow: 'पंक्ति चुनें',
+      total: 'पंक्तियाँ: {total}',
+      selected: 'चुनी गईं: {count}',
+      download: 'CSV डाउनलोड करें',
+      perPage: 'प्रति पृष्ठ पंक्तियाँ',
+      resize: 'कॉलम की चौड़ाई बदलें'
+    },
     filePicker: { prompt: 'फ़ाइलें यहाँ छोड़ें, या ब्राउज़ करने के लिए क्लिक करें' },
     textLink: { newTab: 'नए टैब में खुलता है' },
     overlay: { label: 'ओवरले' },

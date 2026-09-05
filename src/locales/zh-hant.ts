@@ -73,6 +73,15 @@ export const zhHant: MPLocale = {
     breadcrumb: { label: '麵包屑導覽', expand: '顯示隱藏的層級' },
     combobox: { empty: '沒有相符項目', add: '新增「{label}」' },
     table: { empty: '沒有資料' },
+    dataTable: {
+      selectAll: '選取所有列',
+      selectRow: '選取此列',
+      total: '{total} 列',
+      selected: '已選取 {count} 列',
+      download: '下載 CSV',
+      perPage: '每頁列數',
+      resize: '調整欄寬'
+    },
     filePicker: { prompt: '將檔案拖曳到這裡，或點按選擇' },
     textLink: { newTab: '在新分頁中開啟' },
     overlay: { label: '覆蓋層' },

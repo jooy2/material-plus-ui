@@ -278,6 +278,57 @@ export interface MPMessages {
     empty: string;
   };
   /**
+   * MPDataTable.
+   *
+   * The words the table says on its own behalf, and not one of them is the
+   * caller's data. Three are read out and never drawn — the ticks have no
+   * visible label, and a column of unnamed checkboxes is a column a screen
+   * reader announces as nothing at all — and three are drawn in the bar under
+   * the rows.
+   *
+   * The empty line is `table`'s, the search field's word is `transfer`'s and the
+   * pages are `pagination`'s: what is here is only what none of them says.
+   *
+   * `{count}` and `{total}` are filled in by `fillMessage`.
+   */
+  dataTable: {
+    /** The tick in the header, which chooses every row on the page. */
+    selectAll: string;
+    /** One row's tick. Read out with the row it is in. */
+    selectRow: string;
+    /**
+     * How many rows there are, after the search and before the page.
+     *
+     * A label with a number after it — "Rows: 7" — in every language that
+     * inflects a noun for number, and the natural phrase in the ones that do
+     * not. "1 rows" is what a single `{total} rows` says one row in seven times
+     * out of seven, and the alternative is a plural form per language in a table
+     * that holds one string per key: Polish and Arabic need four and six of
+     * them. Naming the thing and then counting it is right in every language and
+     * costs nothing.
+     */
+    total: string;
+    /**
+     * And how many of them are held, when any are.
+     *
+     * A second fact beside the first rather than a sentence joining the two.
+     * Written as one — "{count} of {total} selected" — the two numbers are
+     * counted over different sets, because a row the search has hidden is still
+     * chosen: a table of seven with one hidden row held would have said "1 of 1
+     * selected" the moment a search left one row on screen.
+     */
+    selected: string;
+    /** The button that writes the rows out as a file. */
+    download: string;
+    /** The label on the footer's page-size control. */
+    perPage: string;
+    /**
+     * The handle between two headings, which is a control a keyboard can reach:
+     * the arrow keys widen and narrow the column it belongs to.
+     */
+    resize: string;
+  };
+  /**
    * MPFilePicker.
    *
    * The line inside the box, and the largest piece of text this table holds. It

@@ -69,6 +69,15 @@ export const th: MPLocale = {
     breadcrumb: { label: 'เส้นทางนำทาง', expand: 'แสดงขั้นตอนที่ซ่อนอยู่' },
     combobox: { empty: 'ไม่พบรายการที่ตรงกัน', add: 'เพิ่ม “{label}”' },
     table: { empty: 'ไม่มีข้อมูล' },
+    dataTable: {
+      selectAll: 'เลือกทุกแถว',
+      selectRow: 'เลือกแถว',
+      total: '{total} แถว',
+      selected: 'เลือกแล้ว {count}',
+      download: 'ดาวน์โหลด CSV',
+      perPage: 'จำนวนแถวต่อหน้า',
+      resize: 'ปรับความกว้างคอลัมน์'
+    },
     filePicker: { prompt: 'วางไฟล์ที่นี่ หรือคลิกเพื่อเลือก' },
     textLink: { newTab: 'เปิดในแท็บใหม่' },
     overlay: { label: 'เลเยอร์ซ้อน' },

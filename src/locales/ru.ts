@@ -73,6 +73,15 @@ export const ru: MPLocale = {
     breadcrumb: { label: 'Навигационная цепочка', expand: 'Показать скрытые шаги' },
     combobox: { empty: 'Совпадений нет', add: 'Добавить «{label}»' },
     table: { empty: 'Нет данных' },
+    dataTable: {
+      selectAll: 'Выбрать все строки',
+      selectRow: 'Выбрать строку',
+      total: 'Строк: {total}',
+      selected: 'Выбрано: {count}',
+      download: 'Скачать CSV',
+      perPage: 'Строк на странице',
+      resize: 'Изменить ширину столбца'
+    },
     filePicker: { prompt: 'Перетащите файлы сюда или нажмите, чтобы выбрать' },
     textLink: { newTab: 'Откроется в новой вкладке' },
     overlay: { label: 'Наложение' },

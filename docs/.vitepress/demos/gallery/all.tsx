@@ -47,6 +47,7 @@ import {
   MPContainer,
   MPCalendar,
   MPDataList,
+  MPDataTable,
   MPDataListItem,
   MPDatePicker,
   MPDateRangePicker,
@@ -1404,6 +1405,34 @@ const GROUPS: Group[] = [
               </MPTreeItem>
               <MPTreeItem value="readme" label="README.md" />
             </MPTreeView>
+          </Fit>
+        )
+      },
+      {
+        name: 'MPDataTable',
+        summary: {
+          ko: '정렬하고 검색하고 넘겨 보고 골라 가는 표',
+          en: 'A table you can sort, search, step through and take rows out of'
+        },
+        path: '/components/display/data-table',
+        preview: (
+          <Fit width={300}>
+            <MPDataTable
+              size="xs"
+              sortable
+              striped
+              defaultSort={[{ key: 'score', direction: 'desc' }]}
+              getRowKey={(row: { id: string; name: string; score: number }) => row.id}
+              headers={[
+                { key: 'name', label: 'Name' },
+                { key: 'score', label: 'Score', align: 'end' }
+              ]}
+              items={[
+                { id: 'a', name: 'Ada', score: 30 },
+                { id: 'b', name: 'Bo', score: 10 },
+                { id: 'c', name: 'Cai', score: 20 }
+              ]}
+            />
           </Fit>
         )
       },

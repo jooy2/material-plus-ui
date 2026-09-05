@@ -69,6 +69,15 @@ export const ar: MPLocale = {
     breadcrumb: { label: 'مسار التنقل', expand: 'إظهار الخطوات المخفية' },
     combobox: { empty: 'لا توجد نتائج', add: 'إضافة ”{label}“' },
     table: { empty: 'لا توجد بيانات' },
+    dataTable: {
+      selectAll: 'تحديد كل الصفوف',
+      selectRow: 'تحديد الصف',
+      total: 'الصفوف: {total}',
+      selected: 'المحدد: {count}',
+      download: 'تنزيل CSV',
+      perPage: 'صفوف لكل صفحة',
+      resize: 'تغيير عرض العمود'
+    },
     filePicker: { prompt: 'أفلِت الملفات هنا، أو انقر للاستعراض' },
     textLink: { newTab: 'يُفتح في تبويب جديد' },
     overlay: { label: 'طبقة تراكب' },

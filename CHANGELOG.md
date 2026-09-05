@@ -6,6 +6,26 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **`MPDataTable`**, a grid of data with the four things a reader does to one: put it in order, cut it down, step through it and take some of it away — plus a file to keep. Sorting, a search, pages, resizable columns, row selection and a CSV download.
+
+  **It is a separate component from `MPTable` rather than a mode of it.** `MPTable` is the presentational half and should stay that way: a page that only shows a grid has no business shipping a comparator, a CSV writer and a page clamp to do it. What the two share is the geometry — `internal/table.ts` now holds the cells' room, the type they are set in and the slot a row's background is read from — so a data table never sits a pixel off the plain table beside it in the same form. The arithmetic went to `internal/data-table.ts` for the reason `internal/mockup.tsx` gives: a component whose interesting fifty lines are buried in machinery is a component nobody can read.
+
+  The rows are **searched, then filtered, then sorted, then paged**, which is the only order in which each step means what it says. Sorting before searching orders rows nobody will see; paging before either cuts a page out of a list the reader has not asked for yet.
+
+  Three sort states per column rather than two, because the order the rows arrived in is a state nobody can get back to by pressing anything if the cycle has only two. The direction is handed to the comparison rather than applied to what it returns, and that is load-bearing: **an empty cell sorts last whichever way the column runs**, and a sort that reversed the result would have reversed the empties with it. A run of digits inside a string reads as a number, so `item2` comes before `item10`.
+
+  A row's searchable values are folded **once** and joined into one string, on a character no keyboard produces — so a query cannot span the seam between two cells and find a row on text that is not next to itself. The alternative is a `toLocaleLowerCase` on every cell of every row on every keystroke, which is the shape of API a `matches(row, query)` signature quietly asks for.
+
+  **`resizable` changes how the columns are laid out, and it has to.** Without it the browser balances the columns against their contents, which is what makes a plain table read well; a balanced column springs back from a drag, because a width in that layout is a hint rather than a measurement. The handle is a control rather than a target — it takes focus, the arrow keys move it, and Home puts the column back — because column width is a real preference and there is no other way to get it.
+
+  A row that answers a press has to answer a keyboard, and two hundred rows that each did would be two hundred tab stops. So there is exactly one route into a row and `checkboxes` picks it: with ticks, the tick is the control; without them, the row is.
+
+  The download writes **every row the reader is looking at, not the page they are on** — the search and the sort applied, the paging not, because a file of page three is not a file anybody asked for. RFC 4180 escaping, and a byte-order mark in front: Excel reads a UTF-8 CSV without one as the local code page, so every non-ASCII name in it arrives as mojibake.
+
+  What it deliberately does not do: virtual scrolling, cell editing, grouped rows with aggregates, column reordering, frozen columns, and a server-side mode. Each is a component's worth of decisions rather than a prop, and a table that half-did six of them would be worse than one that does five things completely.
+
+  New in the message table: a `dataTable` namespace of seven strings, filled in for the eighteen locales. Its two counts read as labels — "Rows: 7" — in every language that inflects a noun for number, because `{total} rows` says "1 rows" one time in seven and the alternative is a plural form per language in a table that holds one string per key.
+
 - **`MPTreeSelect`**, a value chosen from a tree rather than from a list — the gap between `MPSelect`, which is a flat list behind a field, and `MPTreeView`, which is a hierarchy with no field. A category, a folder, an org-chart node and a region all live somewhere, and a flat list flattens the somewhere away.
 
   **Branches are not answers by default.** The branches are the taxonomy and the leaves are the answers, and a "Europe" that can be chosen alongside "France" is usually a data model nobody meant; `selectableBranches` is how the day it _was_ meant gets said, and an item's own `selectable` overrules the rule either way.

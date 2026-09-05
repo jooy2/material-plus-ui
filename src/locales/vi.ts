@@ -69,6 +69,15 @@ export const vi: MPLocale = {
     breadcrumb: { label: 'Đường dẫn', expand: 'Hiện các bước đã ẩn' },
     combobox: { empty: 'Không có kết quả', add: 'Thêm “{label}”' },
     table: { empty: 'Không có dữ liệu' },
+    dataTable: {
+      selectAll: 'Chọn tất cả các hàng',
+      selectRow: 'Chọn hàng',
+      total: '{total} hàng',
+      selected: 'Đã chọn {count}',
+      download: 'Tải CSV',
+      perPage: 'Số hàng mỗi trang',
+      resize: 'Đổi độ rộng cột'
+    },
     filePicker: { prompt: 'Thả tệp vào đây, hoặc bấm để chọn' },
     textLink: { newTab: 'Mở trong tab mới' },
     overlay: { label: 'Lớp phủ' },

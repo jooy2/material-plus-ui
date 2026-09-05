@@ -6,7 +6,7 @@ This file is a working note. Delete it when the list is empty.
 
 ## Where it got to
 
-Twenty-one units landed on `main`, each as its own commit with implementation, tests, bilingual documentation, a props row, a demo, a gallery entry and a changelog entry.
+Twenty-two units landed on `main`, each as its own commit with implementation, tests, bilingual documentation, a props row, a demo, a gallery entry and a changelog entry.
 
 |  |  |
 | --- | --- |
@@ -16,9 +16,10 @@ Twenty-one units landed on `main`, each as its own commit with implementation, t
 | Layout | `MPFlex`, `MPPortal`, `MPScrollArea`, `MPScrollZone`, `MPToolbar`, `MPFloatingBottomNavigation`, `MPMockup` |
 | Display | `MPAnchor`, `MPAppLogo`, `MPDataList`, `MPCodeBlock`, `MPTreeView` |
 | Inputs | `MPTreeSelect` |
+| Data | `MPDataTable` |
 | Feedback | `MPMeter`, `MPHoverCard` |
 
-Twelve units remain, listed below.
+Eleven units remain, listed below.
 
 ## The working method
 
@@ -53,19 +54,11 @@ The other suites run in one go: `npx vitest run test/internal test/hooks test/st
 
 ## What is left
 
-### 1. `MPDataTable`
-
-The largest single item left — `neba`'s is 2,516 lines plus a 319-line `internal/data-table.ts`. Sorting, filtering, pagination, column resizing, row selection, CSV export. Read `neba/src/components/data-table/DataTable.tsx` and `neba/src/internal/data-table.ts` before planning it.
-
-This library already has `MPTable`, which is the presentational half. Decide early whether `MPDataTable` wraps it or replaces it; `neba` keeps them separate and that is probably right here too.
-
-Expect this one to want its own `internal/data-table.ts` for the sort comparators, the filter predicates and the CSV writer, on the same reasoning `internal/mockup.tsx` gives: a component whose interesting fifty lines are buried in machinery is a component nobody can read.
-
-### 2. `MPTour`
+### 1. `MPTour`
 
 A guided walk-through: a sequence of steps, each anchored to an element, with a scrim that cuts a hole around the target. `neba`'s is 480 lines. Needs an i18n namespace of its own for the Back / Next / Skip / "Step 2 of 5" strings, filled in for the eighteen locales in `src/locales/`.
 
-### 3–12. The charts
+### 2–11. The charts
 
 Ten components, and they share almost everything, so they are one piece of work rather than ten:
 

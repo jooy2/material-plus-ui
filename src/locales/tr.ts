@@ -69,6 +69,15 @@ export const tr: MPLocale = {
     breadcrumb: { label: 'Gezinme yolu', expand: 'Gizli adımları göster' },
     combobox: { empty: 'Eşleşme yok', add: '“{label}” ekle' },
     table: { empty: 'Veri yok' },
+    dataTable: {
+      selectAll: 'Tüm satırları seç',
+      selectRow: 'Satırı seç',
+      total: 'Satır: {total}',
+      selected: 'Seçili: {count}',
+      download: "CSV'yi indir",
+      perPage: 'Sayfa başına satır',
+      resize: 'Sütun genişliğini değiştir'
+    },
     filePicker: { prompt: 'Dosyaları buraya bırakın veya seçmek için tıklayın' },
     textLink: { newTab: 'Yeni sekmede açılır' },
     overlay: { label: 'Yer paylaşımı' },

@@ -69,6 +69,15 @@ export const de: MPLocale = {
     breadcrumb: { label: 'Brotkrümelnavigation', expand: 'Ausgeblendete Schritte anzeigen' },
     combobox: { empty: 'Keine Treffer', add: '„{label}“ hinzufügen' },
     table: { empty: 'Keine Daten' },
+    dataTable: {
+      selectAll: 'Alle Zeilen auswählen',
+      selectRow: 'Zeile auswählen',
+      total: 'Zeilen: {total}',
+      selected: 'Ausgewählt: {count}',
+      download: 'CSV herunterladen',
+      perPage: 'Zeilen pro Seite',
+      resize: 'Spaltenbreite ändern'
+    },
     filePicker: { prompt: 'Dateien hier ablegen oder zum Auswählen klicken' },
     textLink: { newTab: 'Wird in einem neuen Tab geöffnet' },
     overlay: { label: 'Overlay' },

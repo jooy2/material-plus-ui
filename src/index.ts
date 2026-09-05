@@ -52,6 +52,7 @@ export * from './components/combobox';
 export * from './components/command-palette';
 export * from './components/container';
 export * from './components/data-list';
+export * from './components/data-table';
 export * from './components/date-picker';
 export * from './components/date-range-picker';
 export * from './components/date-time-picker';

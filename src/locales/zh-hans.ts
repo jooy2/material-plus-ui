@@ -74,6 +74,15 @@ export const zhHans: MPLocale = {
     breadcrumb: { label: '面包屑导航', expand: '显示隐藏的层级' },
     combobox: { empty: '无匹配项', add: '添加“{label}”' },
     table: { empty: '暂无数据' },
+    dataTable: {
+      selectAll: '选择所有行',
+      selectRow: '选择此行',
+      total: '{total} 行',
+      selected: '已选择 {count} 行',
+      download: '下载 CSV',
+      perPage: '每页行数',
+      resize: '调整列宽'
+    },
     filePicker: { prompt: '将文件拖到此处，或点击选择' },
     textLink: { newTab: '在新标签页中打开' },
     overlay: { label: '遮罩层' },

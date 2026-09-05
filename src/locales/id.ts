@@ -69,6 +69,15 @@ export const id: MPLocale = {
     breadcrumb: { label: 'Remah roti', expand: 'Tampilkan langkah tersembunyi' },
     combobox: { empty: 'Tidak ada yang cocok', add: 'Tambahkan “{label}”' },
     table: { empty: 'Tidak ada data' },
+    dataTable: {
+      selectAll: 'Pilih semua baris',
+      selectRow: 'Pilih baris',
+      total: '{total} baris',
+      selected: '{count} dipilih',
+      download: 'Unduh CSV',
+      perPage: 'Baris per halaman',
+      resize: 'Ubah lebar kolom'
+    },
     filePicker: { prompt: 'Letakkan berkas di sini, atau klik untuk menelusuri' },
     textLink: { newTab: 'Membuka di tab baru' },
     overlay: { label: 'Hamparan' },

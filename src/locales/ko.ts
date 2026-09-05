@@ -69,6 +69,15 @@ export const ko: MPLocale = {
     breadcrumb: { label: '탐색 경로', expand: '숨겨진 단계 보기' },
     combobox: { empty: '일치하는 항목이 없습니다', add: '“{label}” 추가' },
     table: { empty: '데이터가 없습니다' },
+    dataTable: {
+      selectAll: '모든 행 선택',
+      selectRow: '행 선택',
+      total: '{total}개 행',
+      selected: '{count}개 선택됨',
+      download: 'CSV 내려받기',
+      perPage: '페이지당 행 수',
+      resize: '열 너비 조절'
+    },
     filePicker: { prompt: '여기에 파일을 놓거나 클릭해서 찾아보세요' },
     textLink: { newTab: '새 탭에서 열림' },
     overlay: { label: '오버레이' },
