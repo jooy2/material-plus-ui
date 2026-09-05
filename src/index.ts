@@ -108,6 +108,7 @@ export * from './components/slider';
 export * from './components/snackbar';
 export * from './components/spoiler';
 export * from './components/stack';
+export * from './components/statistic';
 export * from './components/stepper';
 export * from './components/switch';
 export * from './components/table';

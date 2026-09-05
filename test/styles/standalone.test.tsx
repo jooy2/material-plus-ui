@@ -36,7 +36,10 @@ describe('dist/styles.css', () => {
     // stop that only got a light value would silently keep it in dark. Both
     // entry points have to carry the full set: the page's own
     // `prefers-color-scheme`, and the explicit attribute or class.
-    const stops = [...new Set(styles.match(/--_mp-(?:tone|chroma|hue)-[a-z-]+/g) ?? [])];
+    // Digits included, because the chart ramp's stops are numbered — a pattern
+    // that stopped at the hyphen would collapse all eight into one name that
+    // appears in neither block.
+    const stops = [...new Set(styles.match(/--_mp-(?:tone|chroma|hue)-[a-z0-9-]+/g) ?? [])];
 
     expect(stops.length).toBeGreaterThan(0);
 

@@ -2790,6 +2790,132 @@ const componentTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPStatistic: [
+    {
+      name: 'value',
+      type: `number | ${NODE}`,
+      required: true,
+      description: {
+        ko: '숫자. `number`는 `locale`과 `format`이 씁니다. 그 외에는 있는 그대로 그려집니다 — 이미 문자열인 값(`"2h 14m"`)이나 마크업을 위해서입니다',
+        en: 'The figure. A number is written by `locale` and `format`; anything else is drawn as it is, for a value that is already a string — `"2h 14m"` — or a piece of markup'
+      }
+    },
+    {
+      name: 'label',
+      type: NODE,
+      description: {
+        ko: '그 숫자가 무엇인지. 문장형 대소문자로 쓰고, 끝에 콜론은 붙이지 않습니다',
+        en: 'What the figure is. Sentence case, and no trailing colon'
+      }
+    },
+    {
+      name: 'format',
+      type: 'Intl.NumberFormatOptions',
+      description: {
+        ko: '숫자를 어떻게 쓸지. 이것을 주면 `compact`는 꺼집니다 — 통화를 요청한 사람은 무엇을 원하는지 말한 것입니다',
+        en: 'How a numeric value is written. Giving one turns `compact` off: a caller who has asked for a currency has said what they want'
+      }
+    },
+    {
+      name: 'compact',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '다섯 자리 이상을 줄입니다 — `12.9K`, `4.2M`. 네 자리는 남습니다: `1,284`는 한눈에 읽히고, `1.3K`는 두 글자를 아끼려고 두 자리를 버린 것입니다',
+        en: 'Shortens a number of five digits or more — `12.9K`, `4.2M`. Four digits stay: `1,284` is taken in at a glance, and `1.3K` threw two of them away to save two characters'
+      }
+    },
+    {
+      name: 'previousValue',
+      type: 'number',
+      description: {
+        ko: '이전 값. 이것이 있어야 변화가 그려집니다',
+        en: 'What the figure was, so the move from it can be drawn'
+      }
+    },
+    {
+      name: 'delta',
+      type: "'percent' | 'absolute' | 'both' | 'none'",
+      default: "'percent'",
+      description: {
+        ko: '변화를 어떻게 쓸지. 이전 값이 0이면 백분율 대신 절대값을 씁니다 — 없던 것이 생긴 것은 얼마만큼 자란 것이 아닙니다',
+        en: 'How that move is written. A move from zero is written as an absolute whatever this says: something that was nothing has not grown by an amount'
+      }
+    },
+    {
+      name: 'betterWhen',
+      type: "'up' | 'down'",
+      default: "'up'",
+      description: {
+        ko: '어느 방향이 좋은 방향인지. 이탈률·지연·비용·오류율은 전부 내려갈 때가 좋고, 모든 하락을 빨갛게 칠하는 컴포넌트는 대시보드의 절반에서 틀립니다',
+        en: 'Which direction is the good one. Churn, latency, cost and error rate are all better when they fall, and a component that painted every fall red would be wrong about half a dashboard'
+      }
+    },
+    {
+      name: 'period',
+      type: NODE,
+      description: {
+        ko: '무엇에 견준 변화인지 — "지난주 대비". 변화와 함께 읽힙니다',
+        en: 'What the move is measured against — "vs last week". Read out with it'
+      }
+    },
+    {
+      name: 'prefix',
+      type: NODE,
+      description: {
+        ko: '숫자 앞, 같은 줄에 놓이는 것 — 통화 기호, 아이콘',
+        en: 'Placed before the figure, on the same line — a currency mark, an icon'
+      }
+    },
+    {
+      name: 'unit',
+      type: NODE,
+      description: {
+        ko: '숫자 뒤, 한 단계 작게 놓이는 것 — 단위, 분모',
+        en: 'Placed after it, one step smaller — a unit, a denominator'
+      }
+    },
+    {
+      name: 'caption',
+      type: NODE,
+      description: {
+        ko: '숫자 아래 한 줄. 다른 어디에도 들어가지 않는 것을 위해',
+        en: 'A line under the figure, for the thing that does not fit anywhere else'
+      }
+    },
+    {
+      name: 'trend',
+      type: NODE,
+      description: {
+        ko: '숫자 아래에 그 숫자의 그림을 놓을 자리 — 보통 `MPSparkline`입니다. 자기 차트가 아니라 슬롯인 이유는, 스파크라인을 소유하면 다른 컴포넌트의 데이터 모양에 의견을 갖게 되기 때문입니다',
+        en: 'Room under the figure for a picture of it — an `MPSparkline`, usually. A slot rather than a chart of its own: one that owned a sparkline would have opinions about a second component’s data shape'
+      }
+    },
+    {
+      name: 'align',
+      type: "'start' | 'center' | 'end'",
+      default: "'start'",
+      description: { ko: '타일 안에서의 정렬', en: 'How the tile lines up' }
+    },
+    size,
+    {
+      name: 'locale',
+      type: 'string',
+      description: {
+        ko: '숫자와 변화가 쓰이는 언어. 생략하면 가장 가까운 `MPLocaleProvider`, 그다음 플랫폼 기본값입니다',
+        en: 'Which language the figure and the move are written in. Falls back to the nearest `MPLocaleProvider`, then to the platform’s own'
+      }
+    },
+    {
+      name: 'classNames',
+      type: "MPSlots<'label' | 'value' | 'delta' | 'caption' | 'trend'>",
+      description: {
+        ko: '`className`이 닿지 못하는 부분에 클래스를 겁니다',
+        en: 'A class name for the parts `className` cannot reach'
+      }
+    }
+  ],
+
   MPTreeSelect: [
     {
       name: 'items',

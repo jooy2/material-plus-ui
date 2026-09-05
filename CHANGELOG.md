@@ -6,6 +6,22 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **The chart palette**, and **`MPStatistic`**, which is the first of the ten chart components and the only one with no plot in it.
+
+  **The palette was going to be derived from `--mp-source-color` and it is not, because the measurement said no.** Rotating eight hues off the seed is the obvious answer — it themes for free and it is one line per slot. Colour-vision deficiency collapses the red-green axis at _absolute_ hues, though, so a ramp whose adjacent pairs are clear of that axis puts a different pair straight onto it the moment the whole thing is rotated: fitted to the default seed and re-checked against five others, the rotated ramp failed the protan/deutan separation for four of the five. So the hues are fixed and only the lightness follows the scheme. Slot one is the default seed's own blue, which is why an untouched theme looks of a piece, and that is where the resemblance ends.
+
+  The eight were fitted rather than chosen — hues at least 30° apart, chroma 0.15 browser-clamped per hue, and a lightness per slot per scheme, searched until all of it held in both schemes: lightness inside the readable band, chroma above the grey floor, every **adjacent** pair at ΔE 8 or better under protanopia and deuteranopia (the fit clears 16.2 light, 13.7 dark), every adjacent pair at ΔE 15 or better under ordinary vision (26.5 and 20.6), and 3:1 against the surface for all eight. `--mp-chart-3` overrides one, exactly as a colour role is overridden.
+
+  **Three is the cap where any two marks can touch** — a scatter, a bubble chart, a heatmap. Eight slots are pairwise-separable only to the third, and no ordering of eight does better; that is a property of the colour space rather than of this palette.
+
+  `MPStatistic` itself is the chart you draw when there is nothing to plot. A single number has no shape, no order and no second dimension, and putting one on a pair of axes is the most common way a dashboard wastes a panel.
+
+  Four digits stay and five do not: `1,284` is taken in at a glance and `1.3K` threw two of them away to save two characters, while at `12,900` the digits have stopped being read and started being counted. A `format` turns compacting off on its own.
+
+  **`betterWhen` is a prop and not an assumption.** Churn, latency, cost, error rate and open incidents are all better when they fall, and a component that painted every fall red would be wrong about four tiles in eight — wrong confidently, in the one colour a reader trusts without checking. Flat is a third state rather than a quiet rise, and a move from zero is written as an absolute, because something that was nothing has not grown by an amount and every percentage that could go there is one a reader would believe.
+
+  The arrow is the second channel, so the tile still reads in grayscale and in `forced-colors`; it stays `aria-hidden` with no sentence behind it, because the number beside it already carries a sign. And the figure itself is `on-surface` in every state — only the move is coloured, since a reported value that changes colour with its own trend is one the reader has to decode before reading.
+
 - **`MPTour`**, a guided walk over a page that already exists: a few steps, each anchored to something on screen, with the dimming cut away around it.
 
   **The dimming never takes the pointer, and that is the whole difference between a tour and a sequence of dialogs.** A reader can use the control being pointed at while the card is up, so everything they learn they learn by doing rather than by reading that it can be done. Nothing outside the card is blocked, no focus is trapped, and neither a press outside nor the focus leaving ends the tour — only Escape, the ×, and the card's own buttons. It does not blur the page either, where `MPOverlay` does: a 2px blur says "you cannot use this right now", and a tour is saying the opposite.

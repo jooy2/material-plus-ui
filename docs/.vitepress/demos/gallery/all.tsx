@@ -110,6 +110,7 @@ import {
   MPSlider,
   MPSnackbarProvider,
   MPSpoiler,
+  MPStatistic,
   MPStack,
   MPSwitch,
   MPTab,
@@ -1431,6 +1432,34 @@ const GROUPS: Group[] = [
               <MPTreeItem value="readme" label="README.md" />
             </MPTreeView>
           </Fit>
+        )
+      },
+      {
+        name: 'MPStatistic',
+        summary: {
+          ko: '숫자 하나를 한 번 말하는 타일',
+          en: 'One figure, said once and read from across a desk'
+        },
+        path: '/components/display/statistic',
+        preview: (
+          <div style={{ display: 'flex', gap: 28 }}>
+            <MPStatistic
+              size="sm"
+              label="Installs"
+              value={128400}
+              previousValue={119200}
+              locale="en-US"
+            />
+            <MPStatistic
+              size="sm"
+              label="Response"
+              value={182}
+              previousValue={247}
+              unit="ms"
+              betterWhen="down"
+              locale="en-US"
+            />
+          </div>
         )
       },
       {

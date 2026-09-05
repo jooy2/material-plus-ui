@@ -6,7 +6,7 @@ This file is a working note. Delete it when the list is empty.
 
 ## Where it got to
 
-Twenty-three units landed on `main`, each as its own commit with implementation, tests, bilingual documentation, a props row, a demo, a gallery entry and a changelog entry.
+Twenty-four units landed on `main`, each as its own commit with implementation, tests, bilingual documentation, a props row, a demo, a gallery entry and a changelog entry.
 
 |  |  |
 | --- | --- |
@@ -16,10 +16,10 @@ Twenty-three units landed on `main`, each as its own commit with implementation,
 | Layout | `MPFlex`, `MPPortal`, `MPScrollArea`, `MPScrollZone`, `MPToolbar`, `MPFloatingBottomNavigation`, `MPMockup` |
 | Display | `MPAnchor`, `MPAppLogo`, `MPDataList`, `MPCodeBlock`, `MPTreeView` |
 | Inputs | `MPTreeSelect` |
-| Data | `MPDataTable` |
+| Data | `MPDataTable`, `MPStatistic` |
 | Feedback | `MPMeter`, `MPHoverCard`, `MPTour` |
 
-Ten units remain, listed below.
+Nine units remain, listed below.
 
 ## The working method
 
@@ -54,20 +54,20 @@ The other suites run in one go: `npx vitest run test/internal test/hooks test/st
 
 ## What is left
 
-### 1–10. The charts
+### 1–9. The charts
 
 Ten components, and they share almost everything, so they are one piece of work rather than ten:
 
-`MPAreaChart`, `MPBarChart`, `MPLineChart`, `MPPieChart`, `MPScatterChart`, `MPGaugeChart`, `MPHeatmapChart`, `MPTimelineChart`, `MPSparkline`, `MPStatistic`.
+`MPAreaChart`, `MPBarChart`, `MPLineChart`, `MPPieChart`, `MPScatterChart`, `MPGaugeChart`, `MPHeatmapChart`, `MPTimelineChart`, `MPSparkline`.
 
 `neba` keeps the shared parts in `src/internal/chart.ts`, `chart-frame.tsx` and `chart-line.tsx`. Build the equivalent first — the scales, the axes, the grid, the legend, the tooltip and the frame — then each chart is the shape it draws.
 
 Two decisions to make before writing any of them:
 
-- **The palette.** A chart needs a series of distinguishable colours and MD3 has four accent families. `MPThreshold` (in `src/types.ts`) already established that a computed colour names a _role_ rather than a hex; the same rule should decide how a five-series chart is coloured. Deriving a series ramp from `--mp-source-color` is the obvious answer and has not been tried.
+- ~~**The palette.**~~ **Settled.** Deriving the ramp from `--mp-source-color` was tried and measured, and it does not work: colour-vision deficiency collapses the red–green axis at _absolute_ hues, so rotating a fitted ramp puts a different adjacent pair onto that axis — four of five test seeds failed. Eight fixed hues are in `src/styles.css` as `--_mp-chart-1…8`, with only the lightness following the scheme. `internal/chart.ts` hands them out with `seriesColor(index, explicit?)`, `test/styles/chart-palette.test.tsx` keeps them honest, and the note above the derivations has the numbers. **Three is the cap where any two marks can touch** (scatter, bubble, heatmap).
 - **Whether they carry an SVG library.** `neba` draws everything by hand. Doing the same here keeps the dependency count where it is; the arithmetic is the cost.
 
-`MPStatistic` is the odd one out — a big number with a label and a trend, no axes — and is the quickest of the ten. Consider doing it first to settle the palette question on something small.
+`MPStatistic` is done, and it took the palette with it. What is left is the nine that plot something, so the next piece of work is the shared frame — the scales, the axes, the grid, the legend and the tooltip — with whichever chart is first as its only consumer. `MPSparkline` is the smallest of them and needs no frame at all, so it is the one to take next.
 
 ## Two loose ends from earlier work
 
