@@ -39,7 +39,7 @@ Because [MPTable](table) is the presentational half and should stay that way. It
 
 What the two do share is the geometry. `internal/table.ts` holds the cells' room, the type they are set in and the slot a row's background is read from, so a data table never sits a pixel off the plain table beside it in the same form.
 
-The split is the one `neba` makes, and it is the same reason [MPTreeSelect](../inputs/tree-select) is not `MPSelect` with a `tree` prop.
+It is the same reason [MPTreeSelect](../inputs/tree-select) is not `MPSelect` with a `tree` prop: a component that grew a mode for every job it resembles ends up carrying all of them for every caller.
 
 ## What it does to the rows, and in what order
 

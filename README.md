@@ -74,7 +74,7 @@ If Tailwind v4 is already in your project, import the token sheet instead:
 @import 'material-plus-ui/tailwind.css';
 ```
 
-A page that renders a handful of components can take the tokens and a sheet each instead of the whole 143 kB — 4.6 kB gzipped for one component against 20.8 kB for the lot. [The guide](https://material-plus.cdget.com/guide/getting-started#if-you-only-render-a-few-components) has the numbers and where the two paths cross.
+A page that renders a handful of components can take the tokens and a sheet each instead of the whole 144.8 kB — 4.8 kB gzipped for one component against 21.0 kB for the lot. [The guide](https://material-plus.cdget.com/guide/getting-started#if-you-only-render-a-few-components) has the numbers and where the two paths cross.
 
 ```ts
 import 'material-plus-ui/styles/tokens.css';

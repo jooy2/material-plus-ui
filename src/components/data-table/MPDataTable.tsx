@@ -389,8 +389,8 @@ const RESIZE_HANDLE = [
  * <MPDataTable headers={columns} items={rows} sortable searchable paged />
  * ```
  *
- * It is a separate component from [MPTable](table) rather than a mode of it, and
- * that is the same split `neba` makes. `MPTable` is the presentational half: it
+ * It is a separate component from [MPTable](table) rather than a mode of it.
+ * `MPTable` is the presentational half: it
  * draws what it is given, in the order it is given, and a page that only shows a
  * grid should not carry a comparator, a CSV writer and a page clamp to do it.
  * What the two do share is the geometry — `internal/table.ts` holds the cells'

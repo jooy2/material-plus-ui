@@ -39,7 +39,7 @@ import { MPDataTable } from 'material-plus-ui';
 
 두 컴포넌트가 공유하는 것은 기하학입니다. `internal/table.ts`가 셀의 여백, 셀이 조판되는 활자, 행 배경을 읽어 오는 슬롯을 쥐고 있어서, 같은 폼 안에서 데이터 테이블이 옆의 평범한 테이블과 1픽셀도 어긋나지 않습니다.
 
-`neba`가 하는 것과 같은 분리이고, [MPTreeSelect](../inputs/tree-select)가 `tree` prop을 단 `MPSelect`가 아닌 것과 같은 이유입니다.
+[MPTreeSelect](../inputs/tree-select)가 `tree` prop을 단 `MPSelect`가 아닌 것과 같은 이유입니다. 닮은 일마다 모드를 하나씩 늘린 컴포넌트는 결국 모든 호출자에게 그 전부를 지웁니다.
 
 ## 행에 무엇을, 어떤 순서로 하는지
 

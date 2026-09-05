@@ -1,8 +1,22 @@
 # Changelog
 
-## vNext (2026--)
+## 1.7.0 (2026-09-05)
 
-A second report from the application that filed the first one, a day after upgrading to 1.6.0.
+A second report from the application that filed the first one, a day after upgrading to 1.6.0 — and then the largest addition in the library's history, which the report is only the first section of.
+
+**Ten of the fifty additions are charts**, and they are the release. Nothing here drew data before: an application that wanted a line over eight months reached for a charting library and got a second design system with it — its own colours, its own type, its own idea of what a tooltip is. The ten are `MPStatistic`, `MPSparkline`, and the eight that need a frame: line, area, bar, pie, scatter, gauge, heatmap and timeline.
+
+They were built frame first, with **one** consumer. `MPLineChart` was written against `internal/ChartFrame.tsx` before any of the others existed, because a frame written for nobody fits nobody; the area chart then arrived against it unchanged, which was the test of whether that had worked. Two things came out of the seven that followed rather than being designed in — the chrome split into `internal/ChartChrome.tsx` when the pie turned out to need a legend and none of the axes, and a second value axis when the scatter turned out to need an x that was a position rather than a column heading. Neither could have been guessed at the start, and both were cheap once something concrete asked for them.
+
+**The colour was computed, not chosen.** The obvious design was to rotate a series ramp off `--mp-source-color`, so a themed page got a themed palette for free. It was tried, measured, and it does not work: colour-vision deficiency collapses the red–green axis at _absolute_ hues, so a ramp fitted to clear that axis puts a different adjacent pair straight onto it the moment the whole thing is rotated — four of five test seeds failed. The eight slots are fixed hues with only their lightness following the scheme, fitted until every adjacent pair clears ΔE 8 under protanopia and deuteranopia and ΔE 15 under ordinary vision, in both schemes. The heatmap's sequential ramp was fitted the same way against its own checks. **Three is the cap where any two marks can touch** — a scatter, a bubble, a heatmap — and no ordering of eight does better, which is why the scatter's marks carry shapes and the heatmap's cells carry a ramp instead.
+
+Every chart ships a hover layer, a keyboard walk over the same readings, a clipped live region that is a _sibling_ of the picture rather than a child of it, and the data as a table behind it. `MPSparkline` is the one exception and its documentation argues the case: it is thirty pixels tall with no axis, and a card floating over a mark that size covers the mark.
+
+The other forty additions are the rest of the report: `MPDataTable`, `MPTreeView`, `MPTreeSelect`, `MPTour`, `MPCodeBlock`, `MPMockup`, `MPHoverCard`, `MPToolbar`, `MPDataList`, `MPAppLogo`, `MPMeter`, `MPAnchor`, `MPScrollArea`, `MPScrollZone`, `MPPortal`, `MPFlex`, `MPStack`, `MPShow`, `MPFloatingBottomNavigation`, four hooks, six more motion components, and four props — `density`, `elevation`, `transition` and `classNames` — given to every component that had the thing and no name for it.
+
+**One component was removed**, which has not happened before. `MPAvatarGroup` was a special case of stacking that happened to be about faces; `MPStack` is the general one, and every existing use of the group is a `MPStack` with the same props. It is the only breaking change in the release.
+
+Eleven defects were fixed, and four of them had been shipping in plain sight: **eleven modules went out without `"use client"`**, one of which took a whole site down on a server component; **the build never emptied `dist/`**, so a deleted module went on being published; **a picker asked for without its glyph could not be opened with a mouse at all**; and **a nested grid resolved the outer grid's column count**. Three more were found by looking at rendered pages rather than at code, which is the argument for looking.
 
 ### Added
 
@@ -583,6 +597,33 @@ A second report from the application that filed the first one, a day after upgra
 - **`MPGridItem` quietly ate a caller's left margin.** `.mp-grid-item` declared `margin-inline-start` for every item in every grid, resolving to `0px` for the ones that had never asked for an offset — and a declaration of nought is still a declaration. These rules are unlayered and a Tailwind utility is inside `@layer utilities`, so unlayered wins whatever the source order is: `<MPGridItem className="m-6">` came out with three sides of its margin and not the fourth, which is about the hardest thing there is to look at and see. The application that reported it found out when a thumbnail sat against the wall of the panel it was padded away from.
 
   `MPGridItem` writes a `data-mp-offset` attribute when an `offset` was passed, and the rule is `.mp-grid-item[data-mp-offset]` now. The arithmetic is untouched and so is every item that did ask. An explicit `offset={0}` counts as asking — naming the property is asking for it, and nought is what the declaration resolved to anyway.
+
+### The measurements
+
+`npm run measure`, against a build of this release and a build of `446426c` for the baseline — the 1.6.0 source measured with _this_ release's script, so the difference is the change and not the script. It reproduces 1.6.0's published figures, which is the check that says the two are comparable.
+
+| Scenario        | 1.6.0   | 1.7.0    |
+| --------------- | ------- | -------- |
+| `MPBox`         | 0.4 kB  | 1.7 kB   |
+| `MPButton`      | 3.0 kB  | 3.0 kB   |
+| `MPTextField`   | 4.4 kB  | 4.5 kB   |
+| Five components | 7.5 kB  | 9.0 kB   |
+| Ten components  | 11.6 kB | 13.3 kB  |
+| Everything      | 81.5 kB | 126.8 kB |
+
+Everything grows by 45.3 kB, and that is the honest headline: this release is 56% more library. Fifty additions, of which ten are charts and nineteen more are components — a chart frame, a calendar scale, an arc builder, five mark shapes and eight palette slots do not come free, and nothing here was made smaller to pay for them.
+
+What matters more is the two rows above it, because almost nobody imports everything. **Ten components move 1.7 kB and five move 1.5 kB**, and neither scenario contains a chart: that growth is the shared vocabulary — `density`, `elevation`, `transition` and `classNames` — reaching components that already existed. `MPButton` does not move at all and `MPTextField` moves a tenth.
+
+`MPBox` is the row that looks alarming and is the one worth reading carefully. It goes from 0.4 kB to 1.7 kB, and all of it is `transition`: the effect tables are read at runtime, so a component that accepts the prop carries all seven effects whether or not a caller passes one. It is paid **once**, not per component — the five- and ten-component bundles measure identically with the prop and without it, because the machinery is shared the moment a second display component is present. Only an application importing one of the seven entirely alone pays anything, and `internal/transition.ts` now carries the measurement so the question is not reopened.
+
+The charts are 45 kB of the 45.3, and they are the reason to reach for the split stylesheet or a subpath import rather than the barrel. A dashboard drawing three chart types pays for three, not for ten.
+
+`everything` also reports **49.7 kB deferred** for the first time, which is not a regression but a disclosure: `MPCodeBlock` fetches its grammars at runtime rather than bundling them, and the figure is what would be in the bundle if it did not. The scenario is measured twice, once with `highlight.js` external and once inlined, and the difference is printed rather than hidden in the total.
+
+The stylesheet grows from 114.9 kB to 144.8 kB, and 16.4 kB to 21.0 kB gzipped. The split sheets go from ninety-five to a hundred and twenty-nine, and the crossover — the point past which the whole sheet is the smaller download — moves from about thirty components to about forty, because the tokens file grew by the chart palette and the sequential ramp while the average component sheet did not.
+
+The suite goes from 1924 tests to 2676. Four hundred and fifty of the new ones are the charts, and the ones worth naming are the ones that would have caught a defect rather than described a behaviour: a stacked band's lower edge measured against the same band drawn alone, a bar's geometry read off `getBBox` rather than off the path commands — a rounded bar's first `h` is the width less two radii, so parsing them compared a rounded bar with a square one — a sideways value label asserted to be inside the plot, and a span's label asserted to be dropped rather than clipped.
 
 ## 1.6.0 (2026-08-31)
 
