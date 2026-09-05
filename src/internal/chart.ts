@@ -341,6 +341,14 @@ export function areaPath(
 }
 
 /**
+ * Which edge of a bar is its data end — the one the value is at.
+ *
+ * `none` is the inner segment of a stack, whose two faces are both boundaries
+ * between shares rather than the end of anything, and so are both left square.
+ */
+export type BarEnd = 'top' | 'bottom' | 'left' | 'right' | 'none';
+
+/**
  * A rectangle with the two corners at its **data end** cut off.
  *
  * Rounded at the end and square at the baseline, and that is not a stylistic
@@ -348,8 +356,13 @@ export function areaPath(
  * starts from, and a row of them turns the baseline into a scalloped edge. The
  * end is where the value is, and that is the end worth softening.
  *
+ * Which end that is comes from the caller rather than from the geometry,
+ * because it is the *sign* and the orientation together that decide: a negative
+ * bar hangs below the axis and a horizontal one grows sideways, and in both the
+ * corners to soften are the ones furthest from zero.
+ *
  * The radius shrinks to fit rather than clipping, so a bar two pixels tall is a
- * bar and not a circle.
+ * bar and not a dome.
  */
 export function barPath(
   x: number,
@@ -357,20 +370,41 @@ export function barPath(
   width: number,
   height: number,
   radius: number,
-  up: boolean
+  end: BarEnd
 ): string {
-  const r = Math.max(0, Math.min(radius, width / 2, Math.abs(height)));
+  const w = Math.abs(width);
   const h = Math.abs(height);
 
-  if (h === 0) {
+  if (w === 0 || h === 0) {
     return '';
   }
 
-  return up
-    ? `M${x} ${y + h}v${-(h - r)}a${r} ${r} 0 0 1 ${r} ${-r}h${width - r * 2}` +
-        `a${r} ${r} 0 0 1 ${r} ${r}v${h - r}Z`
-    : `M${x} ${y}v${h - r}a${r} ${r} 0 0 0 ${r} ${r}h${width - r * 2}` +
-        `a${r} ${r} 0 0 0 ${r} ${-r}v${-(h - r)}Z`;
+  const r = Math.max(0, Math.min(radius, w / 2, h / 2));
+  const round = {
+    tl: end === 'top' || end === 'left' ? r : 0,
+    tr: end === 'top' || end === 'right' ? r : 0,
+    br: end === 'bottom' || end === 'right' ? r : 0,
+    bl: end === 'bottom' || end === 'left' ? r : 0
+  };
+
+  // Clockwise from the top-left corner, in relative commands, with an arc
+  // emitted only where there is one — so the number of arcs in the `d` is the
+  // number of corners actually softened.
+  const arc = (size: number, dx: number, dy: number) =>
+    size > 0 ? `a${size} ${size} 0 0 1 ${dx} ${dy}` : '';
+
+  return (
+    `M${x + round.tl} ${y}` +
+    `h${w - round.tl - round.tr}` +
+    arc(round.tr, round.tr, round.tr) +
+    `v${h - round.tr - round.br}` +
+    arc(round.br, -round.br, round.br) +
+    `h${-(w - round.bl - round.br)}` +
+    arc(round.bl, -round.bl, -round.bl) +
+    `v${-(h - round.tl - round.bl)}` +
+    arc(round.tl, round.tl, -round.tl) +
+    'Z'
+  );
 }
 
 /* -------------------------------------------------------------------- scale */
@@ -922,3 +956,29 @@ export const MARK_GAP = 2;
 
 /** How much a bar's data end is rounded. */
 export const BAR_RADIUS = 4;
+
+/**
+ * How thick a bar is allowed to get.
+ *
+ * A cap rather than a size: bars are sized by their band, and two categories in
+ * a wide chart would otherwise be two slabs half the plot across. Past about
+ * this width a bar stops reading as a measured length and starts reading as a
+ * block of colour, and the axis it is measured against gets no easier to use.
+ */
+export const BAR_MAX_THICKNESS: Record<MPSize, number> = {
+  xs: 24,
+  sm: 32,
+  md: 40,
+  lg: 48,
+  xl: 56
+};
+
+/**
+ * How much of its slot a band of bars takes, leaving the rest as air.
+ *
+ * Bars need the gap and lines do not, which is the whole reason the frame takes
+ * a ratio at all: a row of bars with no space between them is a histogram, and
+ * a histogram means something else — that the categories are contiguous
+ * intervals rather than separate things.
+ */
+export const BAR_BAND_RATIO = 0.72;

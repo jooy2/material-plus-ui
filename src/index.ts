@@ -32,6 +32,7 @@ export * from './components/area-chart';
 export * from './components/aspect-ratio';
 export * from './components/avatar';
 export * from './components/badge';
+export * from './components/bar-chart';
 export * from './components/blockquote';
 export * from './components/bottom-navigation';
 export * from './components/box';

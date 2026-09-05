@@ -6,7 +6,7 @@ This file is a working note. Delete it when the list is empty.
 
 ## Where it got to
 
-Twenty-seven units landed on `main`, each as its own commit with implementation, tests, bilingual documentation, a props row, a demo, a gallery entry and a changelog entry.
+Twenty-eight units landed on `main`, each as its own commit with implementation, tests, bilingual documentation, a props row, a demo, a gallery entry and a changelog entry.
 
 |  |  |
 | --- | --- |
@@ -16,10 +16,10 @@ Twenty-seven units landed on `main`, each as its own commit with implementation,
 | Layout | `MPFlex`, `MPPortal`, `MPScrollArea`, `MPScrollZone`, `MPToolbar`, `MPFloatingBottomNavigation`, `MPMockup` |
 | Display | `MPAnchor`, `MPAppLogo`, `MPDataList`, `MPCodeBlock`, `MPTreeView` |
 | Inputs | `MPTreeSelect` |
-| Data | `MPDataTable`, `MPStatistic`, `MPSparkline`, `MPLineChart`, `MPAreaChart` |
+| Data | `MPDataTable`, `MPStatistic`, `MPSparkline`, `MPLineChart`, `MPAreaChart`, `MPBarChart` |
 | Feedback | `MPMeter`, `MPHoverCard`, `MPTour` |
 
-Six units remain, listed below.
+Five units remain, listed below.
 
 ## The working method
 
@@ -54,22 +54,21 @@ The other suites run in one go: `npx vitest run test/internal test/hooks test/st
 
 ## What is left
 
-### 1–6. The charts
+### 1–5. The charts
 
-`MPBarChart`, `MPPieChart`, `MPScatterChart`, `MPGaugeChart`, `MPHeatmapChart`, `MPTimelineChart`.
+`MPPieChart`, `MPScatterChart`, `MPGaugeChart`, `MPHeatmapChart`, `MPTimelineChart`.
 
-**The frame is built and has two consumers.** `internal/ChartFrame.tsx` holds the plot box, the axes, the grid, the legend, the crosshair, the hover panel, the clipped live region and the table behind the picture; `internal/chart.ts` holds the arithmetic — `valueScale` with its 1-2-5-10 ticks and its pinned-ends fallback, `bandScale`, `seriesExtent` (stacked and not), `tickStride`/`showsTick`/`fitsLast`, `textWidth`/`truncate`, `toValues`/`categoryAt`/`formatCategory`, and the four size ladders. The public types are in `types.ts` and the remaining six take them unchanged. `MPLineChart` and `MPAreaChart` are its two consumers, and between them they exercise the value scale, the band edges, the stack, the legend filter, the crosshair and the keyboard walk.
+**The frame is built and has three consumers.** `internal/ChartFrame.tsx` holds the plot box, the axes, the grid, the legend, the crosshair, the hover panel, the clipped live region and the table behind the picture; `internal/chart.ts` holds the arithmetic — `valueScale` with its 1-2-5-10 ticks and its pinned-ends fallback, `bandScale`, `seriesExtent` (stacked and not), `tickStride`/`showsTick`/`fitsLast`, `textWidth`/`truncate`, `toValues`/`categoryAt`/`formatCategory`, and the four size ladders. The public types are in `types.ts` and the remaining five take them unchanged. `MPLineChart`, `MPAreaChart` and `MPBarChart` are its consumers, and between them they exercise the value scale, the band edges, the stack, both orientations, the legend filter, the crosshair and the keyboard walk.
 
-What each of the six still has to decide:
+What each of the five still has to decide:
 
-- **`MPBarChart`** — `inset={false}`, a `bandRatio` below 1, and `barPath` with `MARK_GAP` between neighbours. Zero baseline, not negotiable. `horizontal` is already wired through the frame and untested by any consumer yet.
 - **`MPPieChart`** — no cartesian frame at all. Needs its own arc geometry and a legend that is the whole identity channel, since a slice has no axis. Worth checking whether `CartesianFrame`'s legend, status region and table can be lifted out for it rather than copied.
-- **`MPScatterChart`** — the first consumer of `marks` and the nearest-mark search, and the one that needs a **second value axis** on x. The frame does not have that yet: `categoryPx` is a band or an inset index, and a scatter needs `categoryValuePx`. That is the next piece of frame work.
+- **`MPScatterChart`** — the first consumer of `marks` and the nearest-mark search, and the one that needs a **second value axis** on x. The frame does not have that yet: `categoryPx` is a band or an inset index, and a scatter needs a value scale along the category axis too. That is the next piece of frame work, and it is the largest of the five.
 - **`MPGaugeChart`** — an arc and a reading, closer to `MPMeter` than to anything here. `MPThreshold` is the shared vocabulary and `MPMeter` already reads it; the two must not disagree about where amber starts.
 - **`MPHeatmapChart`** — two band scales and a sequential ramp rather than the categorical palette. **Three is the cap** on touching marks, and a heatmap's cells all touch, so the colour job here is sequential (one hue, light to dark) and not the eight slots.
 - **`MPTimelineChart`** — rows are the category axis and spans are the marks, so it needs `ChartMark`'s `rx`/`ry` body hit-testing and a `markTooltip`, both of which the frame has and nothing exercises yet.
 
-Two things the `dataviz` skill settles that are not negotiable: **never a dual-axis chart** (two measures of different scale are two charts), and **a hover layer by default** on every one of the six. `MPSparkline` is the one exception and its documentation says why.
+Two things the `dataviz` skill settles that are not negotiable: **never a dual-axis chart** (two measures of different scale are two charts), and **a hover layer by default** on every one of the five. `MPSparkline` is the one exception and its documentation says why.
 
 ## Two loose ends from earlier work
 

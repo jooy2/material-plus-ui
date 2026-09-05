@@ -3170,6 +3170,37 @@ const componentTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPBarChart: [
+    ...chartBase,
+    {
+      name: 'stacked',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '계열을 항목마다 막대 하나로 쌓습니다. 나란히 세우면 부분끼리 비교하고, 쌓으면 합계를 비교합니다. 둘 다일 수는 없습니다',
+        en: 'Stacks the series into one bar per category instead of standing them side by side. Grouped compares the parts with each other; stacked compares the totals. Both cannot be true at once'
+      }
+    },
+    {
+      name: 'horizontal',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '차트를 눕혀 막대가 좌우로 자라게 합니다. 긴 항목 이름이 원하는 prop입니다 — 이름마다 한 줄씩 주므로 자르거나 돌릴 것이 없습니다. `xAxis`는 눕혀도 여전히 항목 축입니다',
+        en: 'Turns the chart on its side, so the bars run left to right. The prop long category names want: each gets a whole row, so nothing has to be cut or turned to fit. `xAxis` is still the category axis when it is turned'
+      }
+    },
+    {
+      name: 'valueLabels',
+      type: "'none' | 'last' | 'extremes' | 'all'",
+      default: "'none'",
+      description: {
+        ko: '막대에 직접 쓰는 값. 막대 바깥, 데이터 끝 너머에 씁니다 — 안쪽에 쓰면 채움 색을 견뎌야 하고, 값에 따라 잉크가 바뀌는 레이블은 독자와 숫자 사이의 장애물이 하나 더 늘어나는 것입니다. 쌓은 차트에서는 그리지 않습니다',
+        en: 'Which values are written onto the bars, just past the data end and outside the fill: inside, a label has to survive the fill’s colour, and one that changes ink with its own value is another thing between the reader and the number. Not drawn on a stack'
+      }
+    }
+  ],
+
   MPLineChart: [
     ...chartBase,
     {

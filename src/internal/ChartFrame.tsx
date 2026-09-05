@@ -818,7 +818,12 @@ interface CartesianFrameProps extends CartesianChartProps {
    * chart's first point floating a centimetre off the axis.
    */
   inset?: boolean;
-  /** Extra room at the top of the plot, for value labels that ride the marks. */
+  /**
+   * Extra room at the **far end of the value axis**, for labels that ride the
+   * marks. The top of the plot on an upright chart and its right-hand edge on a
+   * horizontal one — a value label sits past the end of the mark, and which
+   * edge that is turns with the chart.
+   */
   headroom?: number;
   /**
    * Room on **every** side, for marks drawn from their centre. `headroom` is
@@ -983,8 +988,8 @@ export function CartesianFrame({
   // past the plot. Reserving that half is what stops a chart clipping the one
   // label a reader looks for first — and the value axis needs none of it,
   // because it anchors its labels inward instead.
-  const rightPad = (horizontal ? 12 : Math.max(8, widestCategory / 2)) + markInset;
-  const topPad = MARKER_RADIUS[size] + 4 + headroom + markInset;
+  const rightPad = (horizontal ? 12 + headroom : Math.max(8, widestCategory / 2)) + markInset;
+  const topPad = MARKER_RADIUS[size] + 4 + (horizontal ? 0 : headroom) + markInset;
 
   /*
    * How tall the box is. A number is pixels and `undefined` is the ladder;

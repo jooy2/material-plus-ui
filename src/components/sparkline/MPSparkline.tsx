@@ -256,7 +256,7 @@ export const MPSparkline = React.forwardRef<HTMLDivElement, MPSparklineProps>(fu
                   // 4px: the viewBox is 100 wide whatever the element is, so a
                   // pixel here is not a pixel on screen.
                   thickness / 3,
-                  value >= floor
+                  value >= floor ? 'top' : 'bottom'
                 )}
                 fill={paint}
                 // Only the newest bar is the point; the rest are the history.

@@ -27,6 +27,7 @@ import {
   MPAspectRatio,
   MPAvatar,
   MPBadge,
+  MPBarChart,
   MPBlockquote,
   MPBottomNavigation,
   MPBottomNavigationItem,
@@ -1456,6 +1457,28 @@ const GROUPS: Group[] = [
               ]}
               stacked
               curve="smooth"
+              locale="en-US"
+            />
+          </div>
+        )
+      },
+      {
+        name: 'MPBarChart',
+        summary: {
+          ko: '항목마다 하나씩 재어 놓은 길이',
+          en: 'A measured length per category'
+        },
+        path: '/components/display/bar-chart',
+        preview: (
+          <div style={{ width: 300 }}>
+            <MPBarChart
+              size="xs"
+              label="Revenue by quarter"
+              categories={['Q1', 'Q2', 'Q3', 'Q4']}
+              series={[
+                { name: 'New', data: [18, 21, 24, 29] },
+                { name: 'Renewal', data: [24, 27, 27, 31] }
+              ]}
               locale="en-US"
             />
           </div>

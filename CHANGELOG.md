@@ -6,6 +6,16 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **`MPBarChart`**, grouped or stacked, upright or on its side. The third consumer of the frame, and the first to use the orientation the frame has carried since it was written.
+
+  **Its axis starts at zero and there is no prop to stop it.** A bar's length is proportional to its value only from a zero baseline, and a cropped one makes a bar twice the height of its neighbour stand for a value five percent larger — in the shape a reader trusts most. `yAxis={{ min }}` still moves the scale, because a caller who says so has said so; it is simply the wrong tool, and the right one is a line chart, whose marks claim nothing about proportion.
+
+  Rounded at the data end and square at the baseline, with **which end that is** coming from the sign and the orientation together: a negative bar hangs below the axis and a horizontal one grows sideways, and in both the corners to soften are the ones furthest from zero. An inner segment of a stack is rounded nowhere — both of its faces are boundaries between shares rather than the end of anything, which is now a fifth value of `barPath`'s `end` rather than a cast.
+
+  Hiding a series widens the survivors instead of leaving a hole in every category, because the band is divided between the series that are actually drawn. Bars have a maximum thickness so that two categories in a wide chart are not two slabs half the plot across.
+
+  `barPath` was rewritten to round any two corners rather than only the top or bottom pair, which is what the sideways case needed; the sparkline's one call site now names its end instead of passing a boolean.
+
 - **`MPAreaChart`**, the first chart to arrive against the frame rather than beside it — and the proof that the frame fits something other than what it was written for. Its whole implementation is the two edges of a band and how they stack.
 
   **Its axis starts at zero and the line chart's does not**, which is the one place the two have to disagree. A filled area's _size_ encodes the quantity, so the fill is proportional to the value only from a zero baseline; a line encodes _position_ and claims nothing about proportion. Data that wants a cropped axis wants a line.
