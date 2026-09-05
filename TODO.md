@@ -24,7 +24,7 @@ Twelve units remain, listed below.
 
 Each unit is one commit, and nothing is committed until all of it is done:
 
-1. Read `neba`'s version at `/Users/jooyeon/PersonalSrc/neba` for the problem it solves and the decisions it made. **Do not transcribe it.** The prop surface is usually the right one; the implementation, the tables and every comment are written fresh in this library's vocabulary — MD3 roles, `MPDensity` as `0…-3`, `containerSurface`, `MPStateLayer`, the `--_mp-color-*` indirections.
+1. Read `neba`'s version at `/Users/joo/LocalSrc/neba` for the problem it solves and the decisions it made. **Do not transcribe it.** The prop surface is usually the right one; the implementation, the tables and every comment are written fresh in this library's vocabulary — MD3 roles, `MPDensity` as `0…-3`, `containerSurface`, `MPStateLayer`, the `--_mp-color-*` indirections.
 2. Implement under `src/components/<kebab>/MP<Name>.tsx` plus an `index.ts`, and register it in `src/index.ts` (alphabetical).
 3. Add any Base UI entry point to `optimizeDeps.include` in `vitest.config.ts`, or the first test that touches it reloads the page mid-run.
 4. Hand-written CSS, if any, goes at the end of `src/styles.css` with a section banner.
