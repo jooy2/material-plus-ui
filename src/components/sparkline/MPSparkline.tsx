@@ -11,10 +11,9 @@ import {
   extentOf,
   linePath,
   seriesColor,
-  type MPChartCurve,
-  type MPChartPoint
+  type PlotPoint
 } from '../../internal/chart';
-import type { MPColor, MPSize } from '../../types';
+import type { MPChartCurve, MPColor, MPSize } from '../../types';
 
 /** What the series is drawn as. */
 export type MPSparklineShape = 'line' | 'area' | 'bar';
@@ -177,7 +176,7 @@ export const MPSparkline = React.forwardRef<HTMLDivElement, MPSparklineProps>(fu
     boxHeight - inset - ((value - extent.min) / span) * (boxHeight - inset * 2);
 
   const step = data.length > 1 ? boxWidth / (data.length - 1) : 0;
-  const points: MPChartPoint[] = data.map((value, index) =>
+  const points: PlotPoint[] = data.map((value, index) =>
     value === null || !Number.isFinite(value)
       ? null
       : { x: data.length > 1 ? index * step : boxWidth / 2, y: yOf(value) }

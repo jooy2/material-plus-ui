@@ -79,6 +79,7 @@ export const hi: MPLocale = {
       skip: 'छोड़ें',
       position: 'चरण {index} / {total}'
     },
+    chart: { label: 'चार्ट', table: 'चार्ट डेटा', category: 'श्रेणी' },
     sparkline: { summary: '{count} बिंदु, {first} से {last} तक' },
     table: { empty: 'कोई डेटा नहीं' },
     dataTable: {

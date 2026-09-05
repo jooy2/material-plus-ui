@@ -75,6 +75,7 @@ export const vi: MPLocale = {
       skip: 'Bỏ qua',
       position: 'Bước {index} trên {total}'
     },
+    chart: { label: 'Biểu đồ', table: 'Dữ liệu biểu đồ', category: 'Danh mục' },
     sparkline: { summary: '{count} điểm, từ {first} đến {last}' },
     table: { empty: 'Không có dữ liệu' },
     dataTable: {

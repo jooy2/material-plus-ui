@@ -6,7 +6,7 @@ This file is a working note. Delete it when the list is empty.
 
 ## Where it got to
 
-Twenty-five units landed on `main`, each as its own commit with implementation, tests, bilingual documentation, a props row, a demo, a gallery entry and a changelog entry.
+Twenty-six units landed on `main`, each as its own commit with implementation, tests, bilingual documentation, a props row, a demo, a gallery entry and a changelog entry.
 
 |  |  |
 | --- | --- |
@@ -16,10 +16,10 @@ Twenty-five units landed on `main`, each as its own commit with implementation, 
 | Layout | `MPFlex`, `MPPortal`, `MPScrollArea`, `MPScrollZone`, `MPToolbar`, `MPFloatingBottomNavigation`, `MPMockup` |
 | Display | `MPAnchor`, `MPAppLogo`, `MPDataList`, `MPCodeBlock`, `MPTreeView` |
 | Inputs | `MPTreeSelect` |
-| Data | `MPDataTable`, `MPStatistic`, `MPSparkline` |
+| Data | `MPDataTable`, `MPStatistic`, `MPSparkline`, `MPLineChart` |
 | Feedback | `MPMeter`, `MPHoverCard`, `MPTour` |
 
-Eight units remain, listed below.
+Seven units remain, listed below.
 
 ## The working method
 
@@ -54,24 +54,23 @@ The other suites run in one go: `npx vitest run test/internal test/hooks test/st
 
 ## What is left
 
-### 1–8. The charts
+### 1–7. The charts
 
-Ten components, and they share almost everything, so they are one piece of work rather than ten:
+`MPAreaChart`, `MPBarChart`, `MPPieChart`, `MPScatterChart`, `MPGaugeChart`, `MPHeatmapChart`, `MPTimelineChart`.
 
-`MPAreaChart`, `MPBarChart`, `MPLineChart`, `MPPieChart`, `MPScatterChart`, `MPGaugeChart`, `MPHeatmapChart`, `MPTimelineChart`.
+**The frame is built and has one consumer.** `internal/ChartFrame.tsx` holds the plot box, the axes, the grid, the legend, the crosshair, the hover panel, the clipped live region and the table behind the picture; `internal/chart.ts` holds the arithmetic — `valueScale` with its 1-2-5-10 ticks and its pinned-ends fallback, `bandScale`, `seriesExtent` (stacked and not), `tickStride`/`showsTick`/`fitsLast`, `textWidth`/`truncate`, `toValues`/`categoryAt`/`formatCategory`, and the four size ladders. The public types are in `types.ts` and the remaining seven take them unchanged.
 
-`neba` keeps the shared parts in `src/internal/chart.ts`, `chart-frame.tsx` and `chart-line.tsx`. Build the equivalent first — the scales, the axes, the grid, the legend, the tooltip and the frame — then each chart is the shape it draws.
+What each of the seven still has to decide:
 
-Two decisions to make before writing any of them:
+- **`MPAreaChart`** — the same marks as the line plus `areaPath`, so it is the smallest of the seven. `includeZero` is **true** here and false on the line: a filled area's size claims magnitude where a line's position does not. Stacking is its real question — `seriesExtent(values, true)` already answers the axis half of it.
+- **`MPBarChart`** — `inset={false}`, a `bandRatio` below 1, and `barPath` with `MARK_GAP` between neighbours. Zero baseline, not negotiable. `horizontal` is already wired through the frame and untested by any consumer yet.
+- **`MPPieChart`** — no cartesian frame at all. Needs its own arc geometry and a legend that is the whole identity channel, since a slice has no axis. Worth checking whether `CartesianFrame`'s legend, status region and table can be lifted out for it rather than copied.
+- **`MPScatterChart`** — the first consumer of `marks` and the nearest-mark search, and the one that needs a **second value axis** on x. The frame does not have that yet: `categoryPx` is a band or an inset index, and a scatter needs `categoryValuePx`. That is the next piece of frame work.
+- **`MPGaugeChart`** — an arc and a reading, closer to `MPMeter` than to anything here. `MPThreshold` is the shared vocabulary and `MPMeter` already reads it; the two must not disagree about where amber starts.
+- **`MPHeatmapChart`** — two band scales and a sequential ramp rather than the categorical palette. **Three is the cap** on touching marks, and a heatmap's cells all touch, so the colour job here is sequential (one hue, light to dark) and not the eight slots.
+- **`MPTimelineChart`** — rows are the category axis and spans are the marks, so it needs `ChartMark`'s `rx`/`ry` body hit-testing and a `markTooltip`, both of which the frame has and nothing exercises yet.
 
-- ~~**The palette.**~~ **Settled.** Deriving the ramp from `--mp-source-color` was tried and measured, and it does not work: colour-vision deficiency collapses the red–green axis at _absolute_ hues, so rotating a fitted ramp puts a different adjacent pair onto that axis — four of five test seeds failed. Eight fixed hues are in `src/styles.css` as `--_mp-chart-1…8`, with only the lightness following the scheme. `internal/chart.ts` hands them out with `seriesColor(index, explicit?)`, `test/styles/chart-palette.test.tsx` keeps them honest, and the note above the derivations has the numbers. **Three is the cap where any two marks can touch** (scatter, bubble, heatmap).
-- **Whether they carry an SVG library.** `neba` draws everything by hand. Doing the same here keeps the dependency count where it is; the arithmetic is the cost.
-
-`MPStatistic` and `MPSparkline` are done. Between them they settled the palette and put the path builders — `linePath`, `areaPath`, `barPath`, `monotoneSegments`, `extentOf` — into `internal/chart.ts`, so the marks are already written.
-
-What is left is the eight that need a **frame**: the plot box once the axes have taken their bands, the value scale and its 1-2-5-10 ticks, a band scale for the categories, the grid, the legend and the hover layer. Build that with `MPLineChart` as its only consumer and let the other seven arrive against it — a frame written for nobody is a frame that fits nobody. `neba`'s equivalents are `internal/chart-frame.tsx` (1,912 lines) and the second half of its `internal/chart.ts`.
-
-Two things the `dataviz` skill settles that are not negotiable: **never a dual-axis chart** (two measures of different scale are two charts), and **a hover layer by default** on every one of the eight — a crosshair and tooltip on line and area, a per-mark tooltip on bar, dot and cell. `MPSparkline` is the one exception and its documentation says why.
+Two things the `dataviz` skill settles that are not negotiable: **never a dual-axis chart** (two measures of different scale are two charts), and **a hover layer by default** on every one of the seven. `MPSparkline` is the one exception and its documentation says why.
 
 ## Two loose ends from earlier work
 
@@ -86,4 +85,5 @@ Neither is on the list above; both were raised and neither was answered.
 - **Comments count as source for the stylesheet split.** `scripts/build-split-styles.mjs` attributes a hand-written rule to a component by looking for the class name in that component's files — including its comments. Naming another component's class in a comment pulls its CSS into your sheet. `internal/animate-core.ts` says so at the top.
 - **A table of literal class strings in a shared file is paid for by every component that imports the file**, not only by the ones that read the table. That is why `internal/density.ts` and `internal/elevation.ts` exist separately from `internal/scale.ts`. Where a value is genuinely computed from two axes — `MPDataList`'s gaps, `MPCodeBlock`'s padding — a custom property set inline is smaller and exact; where it is one axis, keep the literal table.
 - **`npm run measure` reports a deferred figure** because `MPCodeBlock` fetches its grammars. Each scenario is bundled twice, the second time with `highlight.js` external, and the difference is printed beside the total. Do not switch it to `splitting: true` — esbuild emits a chunk for every `import()` it parsed, before tree shaking decides the module is unreachable, so an `import { MPButton }` came out carrying thirty-six grammar chunks no real build emits.
+- **`npx tsc --noEmit` does not check the docs.** The root `tsconfig.json` excludes `docs` and `test`, so a demo with a bad prop typechecks clean and then throws in the browser — `level="title-medium"` on `MPTypography` got as far as a rendered page saying _Element type is invalid_. `npm run typecheck` is the one that runs all three projects, and it is what step 8 means.
 - **The library ships no preflight.** An element whose size a caller sets needs `box-border` written on it, or the number means the content box. `MPCodeBlock`'s `maxHeight` was off by its padding until it got one.

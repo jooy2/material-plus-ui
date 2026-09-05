@@ -799,6 +799,120 @@ const styleRow: PropRow = {
   }
 };
 
+/* ---------------------------------------------------------------------------
+ * Charts
+ *
+ * The rows every framed chart carries. Written once here rather than eight
+ * times, for the reason `size` is: a `tooltip` that means one thing on a line
+ * chart and another on a bar chart is exactly the drift this file exists to
+ * prevent, and the frame that implements them is one file too.
+ * ------------------------------------------------------------------------- */
+
+const chartBase: PropRow[] = [
+  {
+    name: 'series',
+    type: 'MPChartSeries[]',
+    required: true,
+    description: {
+      ko: '계열. 색은 이 배열에서의 자리로 정해지고, 지금 몇 개가 보이는지와는 무관합니다 — 범례로 하나를 숨겨도 나머지는 원래 색 그대로입니다',
+      en: "The series. A colour comes from a series' place in this array and never from how many of its neighbours are visible, so hiding one with the legend leaves the rest the colours they were"
+    }
+  },
+  {
+    name: 'categories',
+    type: '(string | number | Date)[]',
+    description: {
+      ko: '항목 축의 이름들. 주지 않으면 각 점의 `x`를, 그것도 없으면 인덱스를 씁니다',
+      en: "The category axis' labels. Without them a point's own `x` is used, and without that, its index"
+    }
+  },
+  {
+    name: 'xAxis',
+    type: 'MPChartAxis',
+    description: {
+      ko: '항목 축. 가로 막대로 눕혀도 이 prop은 여전히 항목 축입니다 — 방향을 바꾸는 것은 그림이지 데이터의 의미가 아닙니다',
+      en: 'The category axis. It stays the category axis when a chart is turned on its side: the orientation changes the drawing, not what the data means'
+    }
+  },
+  {
+    name: 'yAxis',
+    type: 'MPChartAxis',
+    description: {
+      ko: '값 축. `min`, `max`, `tickCount`, `label`, `grid`, `hidden`, `thickness`, `tickFormat`을 받습니다',
+      en: 'The value axis. Takes `min`, `max`, `tickCount`, `label`, `grid`, `hidden`, `thickness` and `tickFormat`'
+    }
+  },
+  {
+    name: 'label',
+    type: 'string',
+    description: {
+      ko: '이 차트가 무엇의 차트인지. 접근 가능한 이름이자 뒤에 놓인 표의 캡션입니다',
+      en: 'What the chart is a chart **of**. The accessible name, and the caption of the table behind it'
+    }
+  },
+  {
+    name: 'height',
+    type: 'number | string',
+    default: 'the size ladder',
+    description: {
+      ko: '그림의 높이. 숫자는 픽셀, 문자열은 임의의 CSS 길이입니다. 축 레이블은 이 높이 **안에** 그려집니다',
+      en: 'How tall the drawing is. A number is pixels; a string is any CSS length. The axis labels are drawn **inside** it rather than under it'
+    }
+  },
+  {
+    name: 'format',
+    type: 'Intl.NumberFormatOptions',
+    description: {
+      ko: '숫자가 나타나는 모든 곳 — 축, 패널, 표 — 에서의 표기. 주지 않으면 만 단위부터 축약합니다',
+      en: 'How numbers are written everywhere they appear — the axis, the panel, the table. Without it a tick is compacted past ten thousand'
+    }
+  },
+  {
+    name: 'legend',
+    type: 'boolean | MPChartLegend',
+    default: 'from two series up',
+    description: {
+      ko: '범례. 각 항목은 진짜 버튼이라 눌러서 계열을 숨기고 올려서 나머지를 흐립니다. 계열이 하나면 그리지 않습니다 — 견본 하나짜리 범례는 제목을 되풀이할 뿐입니다',
+      en: 'The legend. Each entry is a real button: press one to hide its series, hover one to dim the rest. Left off below two series, because a legend with one swatch in it restates the title'
+    }
+  },
+  {
+    name: 'tooltip',
+    type: 'boolean | MPChartTooltip',
+    default: 'true',
+    description: {
+      ko: '포인터가 드러내는 것. 브라우저에 그려진 차트는 캐묻는 대상이라 기본값이 켬입니다. 끄려면 숫자를 읽을 다른 경로가 있어야 하고, 뒤에 놓인 표가 언제나 그중 하나입니다',
+      en: 'What the pointer uncovers, on by default because a chart drawn in a browser is a thing a reader interrogates. Turning it off needs another route to the numbers, and the table behind the chart is always one'
+    }
+  },
+  {
+    name: 'empty',
+    type: NODE,
+    default: "the locale's “No data”",
+    description: {
+      ko: '그릴 것이 없을 때 그리는 것',
+      en: 'What to draw when there is nothing to draw'
+    }
+  },
+  {
+    name: 'locale',
+    type: 'string',
+    description: {
+      ko: '차트가 스스로 말하는 단어와 날짜의 언어',
+      en: "Which language the chart's own words and dates are in"
+    }
+  },
+  {
+    name: 'size',
+    type: SIZE,
+    default: "'md'",
+    description: {
+      ko: '플롯의 높이와 축 글자 크기. 컨트롤 사다리가 아니라 차트의 것입니다 — 차트는 줄 안의 컨트롤이 아니라 지면 위의 도형입니다',
+      en: "The plot's height and the size of its axis type. Not the control ladder but the chart's own: a chart is a figure on a page rather than a control in a row"
+    }
+  }
+];
+
 /**
  * The tables that describe something with no element behind it, and so take
  * neither prop: two providers that render only their children, and three plain
@@ -3012,6 +3126,37 @@ const componentTables: Record<string, PropRow[]> = {
       description: {
         ko: '`className`이 닿지 못하는 부분에 클래스를 겁니다',
         en: 'A class name for the parts `className` cannot reach'
+      }
+    }
+  ],
+
+  MPLineChart: [
+    ...chartBase,
+    {
+      name: 'curve',
+      type: "'linear' | 'smooth' | 'step'",
+      default: "'linear'",
+      description: {
+        ko: '두 점 사이를 어떻게 잇는지. `smooth`는 단조 보간이라 올라가던 구간이 되돌아가지 않고 데이터의 최솟값이 화면의 최저점이 됩니다',
+        en: 'How the line gets from one point to the next. `smooth` is a monotone fit, so a rising run never turns back on its way up and the lowest number in the data is the lowest point on screen'
+      }
+    },
+    {
+      name: 'markers',
+      type: "boolean | 'auto'",
+      default: "'auto'",
+      description: {
+        ko: '이음매의 점. `auto`는 점들이 별개의 표식일 여유가 있는 동안만 그립니다 — 3픽셀마다 찍힌 점은 점의 행렬이 아니라 두꺼운 선입니다. 활성 열의 점은 설정과 무관하게 남습니다',
+        en: 'The dots on the joins. `auto` draws them while they still have room to be separate marks — a dot every three pixels is a thicker line, not a row of dots. The active column keeps its dot whatever this says'
+      }
+    },
+    {
+      name: 'valueLabels',
+      type: "'none' | 'last' | 'extremes' | 'all'",
+      default: "'none'",
+      description: {
+        ko: '선 위에 직접 쓰는 값. 기본이 `none`인 이유는 모든 점 옆에 숫자를 붙이는 것이 차트를 읽을 수 없게 만드는 가장 확실한 방법이기 때문입니다',
+        en: 'Which values are written onto the line itself. `none` by default, because a number beside every point is the most reliable way to make a chart unreadable'
       }
     }
   ],

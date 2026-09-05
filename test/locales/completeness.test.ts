@@ -3,6 +3,7 @@ import { LOCALES } from '../../src/locales';
 import { ALERT } from '../../src/internal/messages/alert';
 import { BREADCRUMB } from '../../src/internal/messages/breadcrumb';
 import { CAROUSEL } from '../../src/internal/messages/carousel';
+import { CHART } from '../../src/internal/messages/chart';
 import { CHAT } from '../../src/internal/messages/chat';
 import { COLOR_PICKER } from '../../src/internal/messages/color-picker';
 import { COMBOBOX } from '../../src/internal/messages/combobox';
@@ -45,6 +46,7 @@ const NAMESPACES = [
   CONFIRM,
   BREADCRUMB,
   CAROUSEL,
+  CHART,
   CHAT,
   COLOR_PICKER,
   COMBOBOX,

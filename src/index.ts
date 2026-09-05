@@ -74,6 +74,7 @@ export * from './components/hover-card';
 export * from './components/icon';
 export * from './components/icon-button';
 export * from './components/image';
+export * from './components/line-chart';
 export * from './components/list';
 export * from './components/locale';
 export * from './components/menu';

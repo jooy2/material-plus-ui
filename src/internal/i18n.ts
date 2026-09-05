@@ -279,6 +279,31 @@ export interface MPMessages {
    * wants from a sparkline: 120 to 400 says which way it went, and 90 to 410
    * does not.
    */
+  /**
+   * The framed charts.
+   *
+   * Three words, and every one of them is a name for a thing the chart drew
+   * rather than a thing the caller wrote. A chart's own content — its series
+   * names, its categories, its title — is the caller's and is never translated
+   * here; these are the scaffolding around it.
+   *
+   * `label` is the fallback accessible name. A chart is a focusable
+   * `role="img"`, and one with nothing to be called by is a tab stop that
+   * announces silence, so there is always a name even when the caller gave
+   * none.
+   *
+   * `table` names the grid under every chart — the relief channel that makes a
+   * picture readable to somebody who cannot see it — and `category` heads its
+   * first column, the one holding whatever the marks are filed under.
+   */
+  chart: {
+    /** What an unnamed chart is called. */
+    label: string;
+    /** The caption on the table under it. */
+    table: string;
+    /** The heading over that table's first column. */
+    category: string;
+  };
   sparkline: {
     summary: string;
   };

@@ -21,7 +21,7 @@ import { MPSparkline } from 'material-plus-ui';
 
 ## It has no hover layer, on purpose
 
-Every other chart in this library ships one, because a chart is a thing a reader interrogates. A sparkline is not. It is thirty pixels tall, it has no axis to read a value against, and a floating card over a mark that size covers the mark. A reader who needs the numbers needs a line chart; a reader who needs one number has it in the [MPStatistic](statistic) this is sitting under.
+Every other chart in this library ships one, because a chart is a thing a reader interrogates. A sparkline is not. It is thirty pixels tall, it has no axis to read a value against, and a floating card over a mark that size covers the mark. A reader who needs the numbers needs [MPLineChart](line-chart); a reader who needs one number has it in the [MPStatistic](statistic) this is sitting under.
 
 What it has instead is a **sentence**: the accessible name says how many points there are and the two ends they run between, so the thing a sighted reader gets from the outline is a thing every reader gets. `label` replaces it when the caller has a better one.
 

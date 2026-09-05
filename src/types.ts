@@ -203,6 +203,214 @@ export type MPSide = 'top' | 'right' | 'bottom' | 'left';
 export type MPCorner = 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end';
 
 /**
+ * Where a point sits along the category axis.
+ *
+ * A string is a name and has no position of its own, so it takes the slot its
+ * index gives it. A number or a `Date` is a place on a number line, which is
+ * what lets a chart of readings taken at uneven times draw the gaps between
+ * them rather than spacing them evenly and reporting a pause as a steady rate.
+ */
+export type MPChartCategory = string | number | Date;
+
+/**
+ * One value, and everything a chart might want to know about it.
+ *
+ * `y: null` is a **gap** rather than a zero — a sensor that was offline, a month
+ * that has not closed. A line breaks across it, an area breaks with it, and a
+ * bar is not drawn. That distinction is the whole reason a datum may be `null`
+ * at all: a chart that draws missing data as zero reports an outage as a
+ * collapse, and it does it in the one shape a reader trusts without checking.
+ */
+export interface MPChartPoint {
+  /** The value. `null` is a gap. */
+  y: number | null;
+  /**
+   * Its place on the category axis. Without one the point is placed by its
+   * index, against the chart's `categories` if it was given any.
+   */
+  x?: MPChartCategory;
+  /**
+   * A second magnitude, for the marks that carry one — a bubble's radius, a
+   * cell's weight. The charts with no use for it ignore it.
+   */
+  z?: number;
+  /**
+   * Overrides its series' colour for this one point: the slice worth pointing
+   * at, the bar that went over budget. An `MPColor` family, or any CSS colour.
+   */
+  color?: MPColor | (string & {});
+  /** What the tooltip, the table and any value label say in place of `y`. */
+  label?: React.ReactNode;
+}
+
+/** A number, a gap, or a point with more to say about itself. */
+export type MPChartDatum = number | null | MPChartPoint;
+
+/**
+ * One line, one band of bars, one ring of slices — the unit identity attaches
+ * to.
+ *
+ * Colour follows the series and never its position in the drawing. Hiding
+ * Europe has to leave Asia the colour it already was, so the palette slot comes
+ * from where a series sits in this array rather than from how many of its
+ * neighbours happen to be visible: a reader who learned that blue is Europe
+ * learned something a re-render is not allowed to take back.
+ */
+export interface MPChartSeries {
+  /**
+   * Its name in the legend, the tooltip and the table. Two series or more
+   * always draw a legend, so a series without a name is one the reader has no
+   * way to tell from the others.
+   */
+  name?: string;
+  /** Its values, in category order. */
+  data: readonly MPChartDatum[];
+  /**
+   * Overrides the palette slot this series would take. An `MPColor` family, or
+   * any CSS colour.
+   *
+   * The one place in this library where a colour is not a semantic role, and
+   * deliberately so: a series is an *entity* — a region, a plan, a competitor —
+   * and nothing about being one means success or danger. Reach for it to match
+   * a brand, or to hold one entity's colour steady across two charts. Not to
+   * say how a number should be felt.
+   */
+  color?: MPColor | (string & {});
+  /**
+   * Starts the series hidden. Only means anything beside an interactive legend,
+   * which is what turns it back on.
+   * @default false
+   */
+  hidden?: boolean;
+}
+
+/** How a line gets from one point to the next. */
+export type MPChartCurve = 'linear' | 'smooth' | 'step';
+
+/**
+ * Which values are written onto the marks themselves.
+ *
+ * `none` by default everywhere, which is not timidity: a number beside every
+ * point is the most reliable way to make a chart unreadable. Label the last one
+ * or the two extremes, and let the axis and the hover layer carry the rest.
+ * `all` is there for the eight-bar chart where it genuinely is the answer.
+ */
+export type MPChartValueLabels = 'none' | 'last' | 'extremes' | 'all';
+
+/**
+ * What the pointer uncovers.
+ *
+ * - `index` — every series at the category under the pointer, with a crosshair
+ *   dropped through it. The default wherever the series share an x, because the
+ *   question a line chart is asked is "what happened in March" and not "what is
+ *   this pixel".
+ * - `item` — the one mark being pointed at.
+ * - `none` — nothing, and then the numbers have to be readable some other way.
+ *   The table under every chart is that way.
+ */
+export type MPChartTooltipMode = 'index' | 'item' | 'none';
+
+/** One series' answer at the category the pointer is resting on. */
+export interface MPChartTooltipItem {
+  /** Its place in the `series` array — the same index its colour came from. */
+  seriesIndex: number;
+  name?: string;
+  color: string;
+  value: number | null;
+  /** `value`, written the way this chart writes numbers. */
+  formatted: string;
+  /** What the point called itself, if it said. */
+  label?: React.ReactNode;
+}
+
+/** What a replacement tooltip is handed. */
+export interface MPChartTooltipContext {
+  index: number;
+  category: MPChartCategory;
+  /** Only the series that are visible and have a value here. */
+  items: readonly MPChartTooltipItem[];
+}
+
+/** The hover layer, where `true` and `false` are not enough. */
+export interface MPChartTooltip {
+  /** @default 'index', or 'item' where the marks are not arranged in columns */
+  mode?: MPChartTooltipMode;
+  /**
+   * The line dropped through the plot at the active category. On in `index`
+   * mode and never drawn in `item` mode: a crosshair says "these numbers all
+   * belong to this column", and where there is no column it is a line through
+   * one dot.
+   * @default true
+   */
+  crosshair?: boolean;
+  /** Draws the panel yourself. The frame still decides when it opens and where. */
+  render?: (context: MPChartTooltipContext) => React.ReactNode;
+}
+
+/**
+ * One of a chart's two axes.
+ *
+ * `xAxis` is the category axis and `yAxis` is the value axis on every chart and
+ * in both orientations. Turning a bar chart on its side changes the drawing and
+ * not what the caller's data means, so it must not also move their axis options
+ * from one prop to the other.
+ */
+export interface MPChartAxis {
+  /**
+   * Leaves it undrawn — its rule, its ticks and its labels — and gives the room
+   * back to the plot.
+   */
+  hidden?: boolean;
+  /** A name for what it measures, set beside it. */
+  label?: React.ReactNode;
+  /**
+   * The gridlines it casts across the plot. On for the value axis and off for
+   * the category axis, which is the one arrangement that helps a value be read
+   * without turning the plot into graph paper.
+   */
+  grid?: boolean;
+  /**
+   * Where the scale starts and ends. Taken from the data otherwise, and from
+   * zero on the value axis — a bar's length is proportional to its value only
+   * when the baseline is zero. Set `min` where zero genuinely is not it.
+   */
+  min?: number;
+  max?: number;
+  /**
+   * Roughly how many ticks. The scale still rounds them to numbers a reader can
+   * do arithmetic on, so this is a target and not a count.
+   */
+  tickCount?: number;
+  /** How a tick is written, overriding the chart's own `format`. */
+  tickFormat?: (value: MPChartCategory, index: number) => React.ReactNode;
+  /**
+   * How much room it keeps for its ticks and its label, in pixels. Measured off
+   * the ticks themselves otherwise. Set it when a long category name needs
+   * more, or when two charts stacked on a dashboard have to line their plots up.
+   */
+  thickness?: number;
+}
+
+/** Where the legend sits, and what it does when it is used. */
+export interface MPChartLegend {
+  /** Which edge of the plot. @default 'bottom' */
+  side?: MPSide;
+  /** Where along that edge. @default 'center' */
+  align?: MPAlign;
+  /**
+   * Clicking an entry hides and shows its series, and hovering one dims the
+   * rest.
+   * @default true
+   */
+  interactive?: boolean;
+  /**
+   * Writes each series' value at the active category beside its name.
+   * @default false
+   */
+  showValue?: boolean;
+}
+
+/**
  * Which day a week is drawn as starting on. `0` is Sunday, the way `Date`
  * counts.
  *

@@ -6,6 +6,24 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **`MPLineChart`**, and the frame the other seven charts are going to arrive against: two axes, a value scale, a band scale, a grid, a legend, a crosshair, a hover panel and the table behind the picture. Written with one consumer, because a frame written for nobody is a frame that fits nobody.
+
+  **The axis does not start at zero, and that is the one place this chart and the bar chart have to disagree.** A bar's _length_ means its value, so a bar chart cropped above zero lies about proportion. A line's _position_ means its value and nothing about the mark claims proportionality, so cropping moves every point by the same amount and the picture survives — while forcing zero onto a series that runs between 3,200 and 3,400 draws a flat line, which reports a real change as nothing happening. `yAxis={{ min: 0 }}` where zero genuinely is the baseline.
+
+  The scale rounds **outward** to 1-2-5-10, so a maximum of 4,830 becomes 5,000 and the tallest mark stops short of the ceiling; a plot whose last point touches the frame reads as clipped even when it is exactly right. Where both ends are pinned the ends cannot move, so the _step_ gives instead, searched across a family widened by a half step until one divides the range exactly — on an axis pinned to 99.5 and 100, the alternative is leaving 100 off it.
+
+  **The hit target is the whole column, not the line.** A two-pixel stroke is not something a pointer can be asked to land on. Everything the pointer does the keyboard does too: the plot is one tab stop, the arrows walk the columns, `Home` and `End` reach the ends, and `Escape` clears the reading. The live region announcing each column is a **sibling** of the plot rather than a child of it — `role="img"` is a leaf role, so everything inside it is cut out of the accessibility tree and a live region in there announces to nobody.
+
+  Every chart renders its data as a table, clipped rather than drawn, and points `aria-describedby` at it. A reader who cannot see the plot gets the numbers themselves rather than a summary; a reader who can is not made to scroll past a table they did not ask for.
+
+  Labels are cut to their slot rather than dropped — five categories called "Onboarding flow" would otherwise leave one label on the axis, and an axis with one label is not a shorter axis but an unlabelled one. Ticks are never cut, because half of `12.4K` is not a smaller number but a wrong one. Both axes keep their last label when it fits and drop it when it would overlap, which is measured rather than assumed: forcing it turns a missing "Jun" into "MayJun".
+
+  Written values and legend names wear ordinary ink, never the series colour. A number in the mark's colour is one the reader decodes before they read it, and it fails outright in `forced-colors`. `markers="auto"` drops the dots once the line is denser than they are, keeping only the active column's — a crosshair with nothing on it leaves the reader to work out which line it crossed.
+
+  The chart brings no surface of its own. It draws a figure, not a card, so a dashboard's panels stay the caller's decision.
+
+  New in the message table: a `chart` namespace of three strings, filled in for the eighteen locales. New in `types.ts`: `MPChartSeries`, `MPChartPoint`, `MPChartDatum`, `MPChartCategory`, `MPChartAxis`, `MPChartLegend`, `MPChartTooltip` and the three unions beside them, which the remaining seven charts will take unchanged.
+
 - **`MPSparkline`**, a series as a mark, in the space of a word. Three shapes, three curves, and nothing else: no axes, no legend, and nothing to read a value against. It answers which way this has been going.
 
   **It has no hover layer, and that is the deviation worth stating.** Every other chart here ships one, because a chart is a thing a reader interrogates — but this is thirty pixels tall, has no axis to read a value against, and a floating card over a mark that size covers the mark. What it has instead is a sentence: the accessible name gives the point count and the two **ends**, which is where the direction lives. "120 to 400" says which way it went; "90 to 410" does not.

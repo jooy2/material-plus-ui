@@ -80,6 +80,7 @@ export const zhHans: MPLocale = {
       skip: '跳过',
       position: '第 {index} 步，共 {total} 步'
     },
+    chart: { label: '图表', table: '图表数据', category: '类别' },
     sparkline: { summary: '{count} 个点，从 {first} 到 {last}' },
     table: { empty: '暂无数据' },
     dataTable: {

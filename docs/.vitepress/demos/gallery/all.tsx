@@ -72,6 +72,7 @@ import {
   MPIcon,
   MPIconButton,
   MPImage,
+  MPLineChart,
   MPList,
   MPListItem,
   MPMenu,
@@ -1433,6 +1434,29 @@ const GROUPS: Group[] = [
               <MPTreeItem value="readme" label="README.md" />
             </MPTreeView>
           </Fit>
+        )
+      },
+      {
+        name: 'MPLineChart',
+        summary: {
+          ko: '순서가 있는 축 위의 수치',
+          en: 'A quantity over an ordered axis'
+        },
+        path: '/components/display/line-chart',
+        preview: (
+          <div style={{ width: 300 }}>
+            <MPLineChart
+              size="xs"
+              label="Sessions by source"
+              categories={['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']}
+              series={[
+                { name: 'Organic', data: [42, 46, 44, 51, 56, 54] },
+                { name: 'Referral', data: [31, 34, 40, 43, 41, 49] }
+              ]}
+              curve="smooth"
+              locale="en-US"
+            />
+          </div>
         )
       },
       {

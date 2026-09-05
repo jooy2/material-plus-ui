@@ -75,6 +75,7 @@ export const ko: MPLocale = {
       skip: '건너뛰기',
       position: '{total}단계 중 {index}단계'
     },
+    chart: { label: '차트', table: '차트 데이터', category: '항목' },
     sparkline: { summary: '{count}개 지점, {first}에서 {last}까지' },
     table: { empty: '데이터가 없습니다' },
     dataTable: {

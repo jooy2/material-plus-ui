@@ -75,6 +75,7 @@ export const th: MPLocale = {
       skip: 'ข้าม',
       position: 'ขั้นตอนที่ {index} จาก {total}'
     },
+    chart: { label: 'แผนภูมิ', table: 'ข้อมูลแผนภูมิ', category: 'หมวดหมู่' },
     sparkline: { summary: '{count} จุด จาก {first} ถึง {last}' },
     table: { empty: 'ไม่มีข้อมูล' },
     dataTable: {

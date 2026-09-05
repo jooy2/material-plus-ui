@@ -75,6 +75,7 @@ export const nl: MPLocale = {
       skip: 'Overslaan',
       position: 'Stap {index} van {total}'
     },
+    chart: { label: 'Grafiek', table: 'Grafiekgegevens', category: 'Categorie' },
     sparkline: { summary: '{count} punten, van {first} naar {last}' },
     table: { empty: 'Geen gegevens' },
     dataTable: {
