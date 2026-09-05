@@ -6,7 +6,7 @@ This file is a working note. Delete it when the list is empty.
 
 ## Where it got to
 
-Twenty units landed on `main`, each as its own commit with implementation, tests, bilingual documentation, a props row, a demo, a gallery entry and a changelog entry.
+Twenty-one units landed on `main`, each as its own commit with implementation, tests, bilingual documentation, a props row, a demo, a gallery entry and a changelog entry.
 
 |  |  |
 | --- | --- |
@@ -15,9 +15,10 @@ Twenty units landed on `main`, each as its own commit with implementation, tests
 | Hooks | `useMPDisclosure`, `useMPMediaQuery`, `useMPElementSize`, `useMPOnScreen` |
 | Layout | `MPFlex`, `MPPortal`, `MPScrollArea`, `MPScrollZone`, `MPToolbar`, `MPFloatingBottomNavigation`, `MPMockup` |
 | Display | `MPAnchor`, `MPAppLogo`, `MPDataList`, `MPCodeBlock`, `MPTreeView` |
+| Inputs | `MPTreeSelect` |
 | Feedback | `MPMeter`, `MPHoverCard` |
 
-Thirteen units remain, listed below.
+Twelve units remain, listed below.
 
 ## The working method
 
@@ -36,6 +37,8 @@ Each unit is one commit, and nothing is committed until all of it is done:
 
 ### Running the tests
 
+**The browser has to be installed before any of this works.** `npx playwright install chromium` — a `playwright` version bump leaves the cache holding the revision the previous version wanted, and vitest reports the mismatch as an unhandled error with no test results rather than as a missing browser.
+
 **The full component suite cannot be run in one go on this machine.** The browser page closes partway through — `[vitest] Browser connection was closed while running tests` — somewhere after about seventy files, and the run reports the files it never reached rather than a failure. It is the environment, not the tests.
 
 Run it in four chunks instead. `scripts/` has nothing for this; the script that was used is below, and it takes about four minutes.
@@ -50,27 +53,7 @@ The other suites run in one go: `npx vitest run test/internal test/hooks test/st
 
 ## What is left
 
-### 1. `MPTreeSelect` — written, parked on `wip/tree-select`
-
-**The branch `wip/tree-select` holds a complete implementation and a test file that does not pass.** Start there rather than from nothing; the design below is already in the code.
-
-A value chosen from a tree rather than from a list — the gap between `MPSelect` (a flat list behind a field) and `MPTreeView` (a hierarchy with no field).
-
-Settled decisions, all of them already written into the branch:
-
-- `items` is nested `MPTreeSelectItem[]`, each with `value`, `label`, `searchLabel?`, `startIcon?`, `disabled?`, `selectable?`, `children?`.
-- `selectableBranches` is **off** by default: the branches are the taxonomy and the leaves are the answers, and a "Europe" chosen alongside "France" is usually a data model nobody meant. An item's own `selectable` overrides it either way.
-- A branch that cannot be chosen still opens and shuts, so what comes back from `MPTreeView`'s `onSelectedChange` is filtered rather than trusted.
-- `searchable` filters the tree and **keeps every ancestor of a match** — filtered to bare matches a tree is a list, and a list of leaves is what a tree was chosen over. A node that matches keeps all of its own children. Every branch the filter kept is force-opened, because a match folded inside a shut parent was not shown.
-- The search field's placeholder comes from the `command` namespace rather than a new string: `MPCommandPalette` already writes "Search" down once.
-- The tree inside the popup is `variant="text"` — the popup is already a sheet at elevation 2.
-- It is built on `MPPickerShell` from `internal/Picker.tsx`, with `slug="tree-select"`.
-
-**What is unfinished.** The tests fail at the first step: clicking the trigger does not open the popup, so fourteen of eighteen fall over together. Every other picker in the library opens from a plain click on `getByRole('button', { name: <label> })` — compare `test/components/time-picker/MPTimePicker.test.tsx`, which does exactly that and passes. The difference has not been found. Look first at whether `MPTreeSelect` is swallowing something the shell needs, and at the probe technique that was being used when the session ended: render, dump `screen.container.querySelectorAll('button')` and `document.querySelectorAll('.mp-portal').length` through a deliberately failing `expect(...).toBe('DUMP')`.
-
-Nothing else is done: no documentation, no props rows, no demo, no gallery entry, no changelog.
-
-### 2. `MPDataTable`
+### 1. `MPDataTable`
 
 The largest single item left — `neba`'s is 2,516 lines plus a 319-line `internal/data-table.ts`. Sorting, filtering, pagination, column resizing, row selection, CSV export. Read `neba/src/components/data-table/DataTable.tsx` and `neba/src/internal/data-table.ts` before planning it.
 
@@ -78,11 +61,11 @@ This library already has `MPTable`, which is the presentational half. Decide ear
 
 Expect this one to want its own `internal/data-table.ts` for the sort comparators, the filter predicates and the CSV writer, on the same reasoning `internal/mockup.tsx` gives: a component whose interesting fifty lines are buried in machinery is a component nobody can read.
 
-### 3. `MPTour`
+### 2. `MPTour`
 
 A guided walk-through: a sequence of steps, each anchored to an element, with a scrim that cuts a hole around the target. `neba`'s is 480 lines. Needs an i18n namespace of its own for the Back / Next / Skip / "Step 2 of 5" strings, filled in for the eighteen locales in `src/locales/`.
 
-### 4–13. The charts
+### 3–12. The charts
 
 Ten components, and they share almost everything, so they are one piece of work rather than ten:
 

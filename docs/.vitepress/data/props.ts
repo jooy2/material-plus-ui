@@ -2337,6 +2337,182 @@ const componentTables: Record<string, PropRow[]> = {
     id
   ],
 
+  MPTreeSelect: [
+    {
+      name: 'items',
+      type: 'MPTreeSelectItem[]',
+      required: true,
+      description: {
+        ko: '나무. `{ value, label, searchLabel?, startIcon?, disabled?, selectable?, children? }`의 중첩 배열입니다. `MPSelect`와 같은 이유로 컴포지션이 아니라 데이터입니다 — 닫힌 트리거도 고른 노드의 *라벨*을 보여줘야 합니다',
+        en: 'The tree, as nested `{ value, label, searchLabel?, startIcon?, disabled?, selectable?, children? }`. Data rather than composed children for the reason `MPSelect`’s options are: a closed trigger has to show the chosen node’s *label*'
+      }
+    },
+    {
+      name: 'value',
+      type: '(string | number) | (string | number)[] | null',
+      description: {
+        ko: '고른 값, `multiple`이면 값들. `onValueChange`와 함께 쓰면 controlled입니다',
+        en: 'The chosen value, or values when `multiple`. Use with `onValueChange` for a controlled tree select'
+      }
+    },
+    {
+      name: 'defaultValue',
+      type: '(string | number) | (string | number)[] | null',
+      description: { ko: '처음 고른 값', en: 'What is chosen at the start' }
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: (string | number)[]) => void',
+      description: {
+        ko: '새로 고른 값들로 호출됩니다. 하나만 고를 수 있을 때도 배열입니다 — `multiple`을 켠다고 값의 타입까지 바뀌지는 않습니다',
+        en: 'Called with what is now held. An array even when only one may be chosen, so turning `multiple` on does not also change the type of the value'
+      }
+    },
+    {
+      name: 'multiple',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '한 번에 둘 이상을 지닐 수 있는지',
+        en: 'Whether more than one node may be held'
+      }
+    },
+    {
+      name: 'selectableBranches',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '자식이 있는 노드를 자기 자신으로 고를 수 있는지. 기본이 꺼짐인 이유는 가지가 분류이고 잎이 답이기 때문입니다. item의 `selectable`이 어느 쪽으로든 뒤집습니다',
+        en: 'Whether a node that has children may itself be chosen. Off by default, because the branches are the taxonomy and the leaves are the answers. An item’s own `selectable` overrules it either way'
+      }
+    },
+    {
+      name: 'searchable',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '나무 위에 거르는 필드를 답니다. 일치한 노드는 조상을 데리고 남습니다 — 부모가 잘려 나간 노드는 어디에 있는 노드인지 알 수 없습니다',
+        en: 'Offers a field above the tree that filters it. A match keeps its ancestors: a node with its parents cut away is a node the reader cannot place'
+      }
+    },
+    {
+      name: 'searchPlaceholder',
+      type: 'string',
+      description: {
+        ko: '거르는 필드의 문구. 기본값은 `MPTransfer`가 이미 한 번 적어 둔 "검색"입니다 — 같은 일을 하는 같은 필드입니다',
+        en: 'The filter field’s placeholder. Defaults to the "Search" `MPTransfer` has already written down once, for the same field doing the same job'
+      }
+    },
+    {
+      name: 'expanded',
+      type: '(string | number)[]',
+      description: {
+        ko: '열려 있는 가지들. 검색이 켜져 있는 동안은 검색이 정합니다',
+        en: 'Which branches are open. While a search is on, the search decides'
+      }
+    },
+    {
+      name: 'defaultExpanded',
+      type: '(string | number)[]',
+      description: { ko: '처음 열려 있는 가지들', en: 'Which start open' }
+    },
+    {
+      name: 'onExpandedChange',
+      type: '(expanded: (string | number)[]) => void',
+      description: {
+        ko: '가지가 열리거나 닫힐 때 호출됩니다. 검색이 켜져 있는 동안은 조용합니다 — 그때 열려 있는 것은 읽는 사람의 답이 아니라 검색의 답입니다',
+        en: 'Called when a branch opens or shuts. Quiet while a search is on: what stands open then is the search’s answer rather than the reader’s'
+      }
+    },
+    {
+      name: 'closeOnSelect',
+      type: 'boolean',
+      default: '!multiple',
+      description: {
+        ko: '노드를 고르는 즉시 팝업을 닫습니다. 여럿을 지닐 수 있는 나무는 열린 채로 두는 것이 기본입니다',
+        en: 'Closes the popup as soon as a node is chosen. A tree that may hold more than one stays open by default'
+      }
+    },
+    {
+      name: 'format',
+      type: '(chosen: MPTreeSelectItem[]) => ReactNode',
+      description: {
+        ko: '트리거가 지닌 것을 쓰는 방법. 기본값은 레이블을 쉼표로 이은 것이고, 백 개짜리 다중 선택이 이 prop이 있는 이유입니다',
+        en: 'How the trigger writes what is held. Defaults to the labels, comma-joined; a multi-select of a hundred nodes is what this exists for'
+      }
+    },
+    {
+      name: 'placeholder',
+      type: NODE,
+      description: {
+        ko: '아무것도 고르지 않았을 때 트리거에 보이는 문구',
+        en: 'Shown in the trigger while nothing is chosen'
+      }
+    },
+    {
+      name: 'label',
+      type: NODE,
+      description: {
+        ko: '외곽선의 홈에 놓이는 라벨. 고른 값이 없고 팝업도 닫혀 있고 `startIcon`도 없는 동안에는 트리거 줄 위 플레이스홀더 자리에 내려와 있습니다 — `floatingLabel` 참고',
+        en: "Label in the outline's notch, resting on the trigger's own line — where the placeholder would be — while nothing is chosen, the popup is shut and there is no `startIcon`. See `floatingLabel`"
+      }
+    },
+    {
+      name: 'floatingLabel',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '비어 있는 동안 라벨을 트리거 줄에 내려두고 포커스나 첫 선택에서 홈으로 올릴지 여부. `false`면 홈에 고정됩니다. `startIcon`이 있으면 언제나 홈에 있습니다',
+        en: "Whether the label rests on the trigger's line while nothing is chosen and rises into the notch on focus or on the first choice. `false` pins it in the notch, and a `startIcon` holds it up regardless"
+      }
+    },
+    description,
+    errorMessage,
+    {
+      name: 'startIcon',
+      type: NODE,
+      description: {
+        ko: '값 앞에 놓이는 내용. 보통 `MPIcon`입니다',
+        en: 'Content placed before the value — an `MPIcon`, usually'
+      }
+    },
+    pickerClearable,
+    pickerOpen,
+    pickerDefaultOpen,
+    pickerOnOpenChange,
+    pickerLabels,
+    {
+      name: 'locale',
+      type: 'string',
+      description: {
+        ko: 'BCP 47 태그. 이 컨트롤이 스스로 말하는 문구 — 검색 필드의 문구, 빈 나무가 쓰는 줄, 값을 비우는 × — 의 언어입니다. 생략하면 가장 가까운 `MPLocaleProvider`, 그다음 플랫폼 기본값을 따릅니다',
+        en: 'A BCP 47 tag deciding the language of the strings this control says on its own behalf — the filter’s placeholder, the line an empty tree shows, the × that empties it. Falls back to the nearest `MPLocaleProvider`, then to the platform’s own'
+      }
+    },
+    size,
+    color,
+    fullWidth,
+    required,
+    disabled,
+    readOnly,
+    {
+      ...name,
+      description: {
+        ko: '폼 제출에 쓰이는 이름. 값 하나당 hidden input 하나이고 전부 같은 이름 아래라, 폼이 다중 선택을 반복되는 필드로 읽습니다',
+        en: 'Identifies the field when a form is submitted. One hidden input per value, all under the same name, so a form reads a multi-select as a repeated field'
+      }
+    },
+    id,
+    {
+      name: 'classNames',
+      type: "MPSlots<'popup' | 'tree' | 'item' | 'empty'>",
+      description: {
+        ko: '`className`이 닿지 못하는 부분에 클래스를 겁니다. 팝업은 `<body>` 끝에 그려지고 행들은 `items`에서 나오므로 둘 다 호출부에서 손댈 방법이 달리 없습니다',
+        en: 'A class name for the parts `className` cannot reach: the popup renders at the end of `<body>` and the rows come from `items`, so neither has an element of yours to carry a class'
+      }
+    }
+  ],
+
   MPTreeView: [
     {
       name: 'children',

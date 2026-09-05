@@ -204,11 +204,20 @@ export interface MPFieldLabelProps extends MPFieldOutlineProps {
  * outline is `pointer-events-none` so that clicks land on the control
  * underneath, and a label inside it would stop being clickable.
  *
- * Resting, it is `pointer-events-none` instead — it is lying over the text the
- * caret goes into, and a click on it has to reach the control so the caret
- * lands where the pointer did. A `<label for>` would only have focused the
- * control, which puts the caret at the end of the text rather than under the
- * pointer.
+ * It is `pointer-events-none` in both states, and for a different reason in
+ * each. Resting, it is lying over the text the caret goes into, and a click on
+ * it has to reach the control so the caret lands where the pointer did. A
+ * `<label for>` would only have focused the control, which puts the caret at the
+ * end of the text rather than under the pointer.
+ *
+ * Shrunk, it is out of the way and could safely take a click. What it cannot do
+ * is take one *halfway*. The press focuses the control, the focus is what starts
+ * the label rising, and the label arrives under the pointer before the button
+ * comes back up: the press goes down on the control and up on the label, and a
+ * press whose two ends disagree is delivered to their nearest common ancestor
+ * rather than to either. The control never sees the click. That is what made a
+ * picker asked for without its glyph — `startIcon={null}`, which is the whole
+ * point of `floatingLabel` on a picker — impossible to open with a mouse.
  */
 export function MPFieldLabel({
   size,
@@ -228,15 +237,15 @@ export function MPFieldLabel({
         // label and the ring arrive together rather than one snapping ahead.
         'ease-mp-standard transition-[color,top,font-size,max-width]',
         'duration-(--mp-sys-motion-duration-short4)',
-        'absolute -translate-y-1/2 px-1 leading-none',
+        'pointer-events-none absolute -translate-y-1/2 px-1 leading-none',
         LABEL_INSET[size],
         shrunk
-          ? 'text-mp-body-small pointer-events-auto top-0 max-w-none'
+          ? 'text-mp-body-small top-0 max-w-none'
           : [
               PROSE_TEXT[size],
               // Kept clear of the trailing adornment a resting label would
               // otherwise run under — a password toggle, a chevron, a stepper.
-              'pointer-events-none max-w-[calc(100%-2rem)] truncate',
+              'max-w-[calc(100%-2rem)] truncate',
               multiline ? MULTILINE_REST[size] : 'top-1/2'
             ].join(' '),
         'group-focus-within:text-mp-primary',

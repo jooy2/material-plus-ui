@@ -43,6 +43,21 @@ describe('MPTimePicker', () => {
       await expect.element(screen.getByRole('button', { name: 'Starts at' })).toBeInTheDocument();
     });
 
+    it('opens on a press even with no glyph holding the label up', async () => {
+      /*
+       * `startIcon={null}` is the one configuration where the label rests on the
+       * trigger's own line, so it is the only one where the label *moves* when
+       * the trigger is pressed. It used to move under the pointer: the press
+       * went down on the trigger and up on the label, and a press whose two ends
+       * disagree is delivered to their common ancestor rather than to either.
+       */
+      const screen = await render(<Controlled startIcon={null} />);
+
+      await screen.getByRole('button', { name: 'Starts at' }).click();
+
+      await expect.element(screen.getByRole('listbox', { name: 'Hour' })).toBeInTheDocument();
+    });
+
     it('writes the chosen time the way the locale writes it', async () => {
       const screen = await render(<Controlled initial={new Date(2026, 6, 15, 9, 5)} />);
 

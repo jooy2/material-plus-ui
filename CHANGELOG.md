@@ -6,6 +6,16 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **`MPTreeSelect`**, a value chosen from a tree rather than from a list — the gap between `MPSelect`, which is a flat list behind a field, and `MPTreeView`, which is a hierarchy with no field. A category, a folder, an org-chart node and a region all live somewhere, and a flat list flattens the somewhere away.
+
+  **Branches are not answers by default.** The branches are the taxonomy and the leaves are the answers, and a "Europe" that can be chosen alongside "France" is usually a data model nobody meant; `selectableBranches` is how the day it _was_ meant gets said, and an item's own `selectable` overrules the rule either way.
+
+  A branch that cannot be chosen is deliberately **not a disabled row**. It looks like every other row, takes focus, and opens and shuts — a taxonomy whose branches do not open is a list with extra steps, which is what a tree was chosen over. Its press is answered before the tree sees it rather than filtered out of what the tree reports, because the tree reports a press in single-value mode as the whole new selection: filtered, `['europe']` would arrive as an empty one and a press on a heading would clear the field and shut the popup on the way past.
+
+  **A search keeps the ancestors of a match.** Filtered to bare matches a tree is a list, and "Seoul" under nothing at all does not say which Seoul. Two rules follow from the same reasoning: a node that matches keeps _all_ of its children, because having found the branch the reader asked for, hiding what is inside it is the opposite of helpful; and every branch the filter kept is opened, because a match folded inside a shut parent is a match the reader was not shown. The field's placeholder is the "Search" `MPTransfer` already writes down — the same field doing the same job — rather than a nineteenth translation of the same word.
+
+  It is built on the shell the four date and time pickers wear, so the trigger is an `MPTextField`'s notched outline to the pixel — and it is the first of them with no glyph of its own, which is what turned up the label bug below.
+
 - **`MPTreeView`** and **`MPTreeItem`**, a tree of rows that open and shut. There is no Base UI primitive under it — the library has no tree — so the three things the pattern owes are most of the component: the `tree`/`treeitem`/`group` roles, one tab stop for the whole widget, and the arrow keys that walk it.
 
   The keyboard is handled once, at the top, because a tree's arrow keys are questions about the _tree_ — what is the next visible row, where is my parent — and the only element that can answer them is the one holding all of them. Right and Left swap under RTL, read off the element rather than off a prop: a caller may have set `dir` three ancestors up.
@@ -357,6 +367,12 @@ A second report from the application that filed the first one, a day after upgra
   The behaviour is right and is unchanged: a field that stayed blank over a value it is holding, and will submit, is worse — and on `MPCombobox` a value the list does not have is what `allowCustom` is for. It is the sentinel that was undocumented.
 
 ### Fixed
+
+- **A picker asked for without its glyph could not be opened with a mouse.** `startIcon={null}` is the configuration `floatingLabel` exists for — it is the only way the label ever rests on the trigger's own line — and it was the one configuration where a press did nothing at all.
+
+  The label is what broke it. Pressing the trigger focuses it, the focus is what starts the label rising into the notch, and the label arrived under the pointer before the button came back up. The press therefore went down on the trigger and up on the label, and a press whose two ends disagree is delivered to their nearest common ancestor rather than to either — so the trigger never saw a click. It went unnoticed because all four pickers draw a calendar or a clock, and a glyph pins the label in the notch where it never moves.
+
+  The label is `pointer-events-none` in both states now. Resting, it always was, for a reason that reads across unchanged: it lies over the text the caret goes into, and a click on it has to reach the control so the caret lands where the pointer did. Shrunk, it is on the border line, so a press there now falls through to the control underneath rather than to a label that only ever forwarded focus.
 
 - **The `mono` code theme drew no colours at all.** It reached for `--mp-sys-color-*`, which are the roles a _consumer_ sets and are undefined on a page that has not overridden them; the sheet's own derivations are `--_mp-color-*`. Found while writing `MPTreeView`'s guide lines, which had the same bug and were the visible half of it.
 

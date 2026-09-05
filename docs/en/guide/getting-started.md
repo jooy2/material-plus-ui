@@ -52,7 +52,7 @@ This is **finished CSS**: the design tokens and the real rules behind every util
 
 ### If you only render a few components
 
-The sheet above is every rule the library has, and for most projects that is the right trade: one line, and never a thought about which components are on the page. It is also 120 kB — 17.4 kB compressed — whether the page renders one component or all of them, because Tailwind generates from a file scan and not from your imports.
+The sheet above is every rule the library has, and for most projects that is the right trade: one line, and never a thought about which components are on the page. It is also 138 kB — 20.2 kB compressed — whether the page renders one component or all of them, because Tailwind generates from a file scan and not from your imports.
 
 So the package also ships the same rules cut along the same seams the components are: the tokens once, and a sheet per component.
 
@@ -66,12 +66,12 @@ import 'material-plus-ui/styles/text-field.css';
 
 | Components on the page | The whole sheet | Tokens plus a sheet each |
 | ---------------------- | --------------- | ------------------------ |
-| 1                      | 17.4 kB         | 4.4 kB                   |
-| 5                      | 17.4 kB         | 6.9 kB                   |
-| 10                     | 17.4 kB         | 9.7 kB                   |
-| 35 or more             | 17.4 kB         | 17.4 kB and climbing     |
+| 1                      | 20.2 kB         | 4.5 kB                   |
+| 5                      | 20.2 kB         | 7.4 kB                   |
+| 10                     | 20.2 kB         | 10.3 kB                  |
+| 38 or more             | 20.2 kB         | 20.2 kB and climbing     |
 
-Compressed, as a bundler would concatenate them, and against the same sets the bundle table below uses. The sheets repeat each other — `flex` is in a dozen of them — so their total climbs faster than the whole sheet's does and eventually passes it, at around thirty-five components. Past that, `styles.css` is both smaller and one line.
+Compressed, as a bundler would concatenate them, and against the same sets the bundle table below uses. The sheets repeat each other — `flex` is in a dozen of them — so their total climbs faster than the whole sheet's does and eventually passes it, at around thirty-eight components. Past that, `styles.css` is both smaller and one line.
 
 Two things this path is not. It is not tree-shaking: nothing drops a sheet you imported and did not use, so the list is yours to keep honest. And it is not for a project running Tailwind — that one generates the utilities in its own pass, and the section below is the whole of its setup.
 
@@ -343,15 +343,15 @@ Gzipped, from a real bundler, with React and `@base-ui/react` held external — 
 | --------------------- | ---------- | ----------------- |
 | `MPBox` alone         | 1.7 kB     | 4.5 kB            |
 | `MPButton` alone      | 3.0 kB     | 4.5 kB            |
-| Five components       | 9.0 kB     | 7.5 kB            |
+| Five components       | 9.0 kB     | 7.4 kB            |
 | Ten components        | 13.3 kB    | 10.3 kB           |
-| Every export there is | 102.0 kB   | 20.2 kB           |
+| Every export there is | 103.1 kB   | 20.2 kB           |
 
 The last row leaves out one thing on purpose: `MPCodeBlock`'s grammars are 49.7 kB more, fetched only when a block colours something and never at all on a page that has none. `npm run measure` prints it as a separate figure for that reason.
 
 Two things to read off it. The first column is marginal: a component you did not import is not in it, which is what `sideEffects`, the build's `@__PURE__` annotations and a message table per namespace are all for. The second column is not marginal — a stylesheet is a file you either imported or did not — so it assumes the list of sheets matches what the page renders.
 
-Base UI is the larger half of a real download and is in neither column. Five components come to 20.3 kB with it bundled in and ten to 93.0 kB, but it is a peer dependency: shared with anything else that uses it, and versioned by you.
+Base UI is the larger half of a real download and is in neither column. Five components come to 20.6 kB with it bundled in and ten to 94.8 kB, but it is a peer dependency: shared with anything else that uses it, and versioned by you.
 
 Both sets of figures are printed by the build rather than remembered, so they cannot quietly stop being true.
 

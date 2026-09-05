@@ -128,6 +128,7 @@ import {
   MPStep,
   MPStepper,
   MPTreeItem,
+  MPTreeSelect,
   MPTreeView,
   MPTypography,
   MPVisuallyHidden,
@@ -1042,6 +1043,35 @@ const GROUPS: Group[] = [
         preview: (
           <Fit width={200}>
             <ColorPickerPreview />
+          </Fit>
+        )
+      },
+      {
+        name: 'MPTreeSelect',
+        summary: {
+          ko: '목록이 아니라 나무에서 고르는 값',
+          en: 'A value chosen from a tree rather than from a list'
+        },
+        path: '/components/inputs/tree-select',
+        preview: (
+          <Fit width={220}>
+            <MPTreeSelect
+              size="sm"
+              fullWidth
+              label="Region"
+              defaultValue="seoul"
+              items={[
+                {
+                  value: 'asia',
+                  label: 'Asia',
+                  children: [
+                    { value: 'seoul', label: 'Seoul' },
+                    { value: 'tokyo', label: 'Tokyo' }
+                  ]
+                },
+                { value: 'europe', label: 'Europe', children: [{ value: 'paris', label: 'Paris' }] }
+              ]}
+            />
           </Fit>
         )
       }
