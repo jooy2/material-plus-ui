@@ -2790,6 +2790,106 @@ const componentTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPSparkline: [
+    {
+      name: 'data',
+      type: '(number | null)[]',
+      required: true,
+      description: {
+        ko: '시계열, 오래된 것부터. `null`은 구멍 — 아무것도 측정되지 않은 지점 — 이고, 이어 붙이는 대신 선을 끊습니다',
+        en: 'The series, oldest first. A `null` is a gap — a point nothing was measured at — and it breaks the line rather than being joined across'
+      }
+    },
+    {
+      name: 'shape',
+      type: "'line' | 'area' | 'bar'",
+      default: "'line'",
+      description: { ko: '무엇으로 그릴지', en: 'What the series is drawn as' }
+    },
+    {
+      name: 'curve',
+      type: "'linear' | 'smooth' | 'step'",
+      default: "'linear'",
+      description: {
+        ko: '두 점 사이를 어떻게 잇는지. `smooth`는 단조 보간이라 올라가던 선이 도중에 되돌아가지 않습니다. `step`은 두 점의 중간에서 꺾습니다',
+        en: 'How the line between two points is drawn. `smooth` is a monotone fit, so a rising run never turns back on its way up; `step` turns halfway between the two'
+      }
+    },
+    {
+      name: 'endDot',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '가장 최근 지점을 표시합니다. 전체 모양은 마지막 값의 맥락이고, 이것이 없으면 어느 쪽 끝이 지금인지를 직접 알아내야 합니다',
+        en: 'Marks the newest point. The whole shape is context for the last value, and without it a reader has to work out which end is now'
+      }
+    },
+    {
+      name: 'baseline',
+      type: 'number',
+      default: "the series' floor",
+      description: {
+        ko: '영역과 막대가 어디에서부터 재어지는지',
+        en: 'The value the area or the bars are measured from'
+      }
+    },
+    {
+      name: 'min',
+      type: 'number',
+      description: {
+        ko: '스케일의 바닥을 고정합니다. 기본적으로 각 스파크라인은 자기 범위에 맞추므로, 두 개를 견주려면 둘 다에 같은 값을 주세요',
+        en: 'Pins the bottom of the scale. Each sparkline scales to its own range by default, so give two of them the same value when the comparison is the point'
+      }
+    },
+    {
+      name: 'max',
+      type: 'number',
+      description: { ko: '그리고 천장', en: 'And the top' }
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      default: "'100%'",
+      description: {
+        ko: '너비. 숫자는 픽셀, 문자열은 아무 CSS 길이나',
+        en: 'How wide. A number is pixels; a string is any CSS length'
+      }
+    },
+    {
+      name: 'height',
+      type: 'number',
+      description: {
+        ko: '높이. 생략하면 `size` 사다리를 따릅니다',
+        en: 'How tall. Defaults to the `size` ladder'
+      }
+    },
+    {
+      name: 'color',
+      type: 'MPColor | string',
+      description: {
+        ko: '마크가 읽는 강조 색 계열이거나 아무 CSS 색. 생략하면 차트 팔레트의 첫 슬롯입니다',
+        en: 'Which accent family the mark reads, or any CSS colour. Left out, it takes the first slot of the chart palette'
+      }
+    },
+    {
+      name: 'label',
+      type: 'string',
+      description: {
+        ko: '눈으로 볼 수 없는 사람에게 이 도형이 하는 말. 생략하면 숫자에서 문장을 만듭니다 — 점의 개수와 양 끝. 양 극단이 아니라 양 끝인 이유는 그것이 방향이기 때문입니다',
+        en: 'What the shape says to a reader who cannot see it. Left out, one is written from the numbers: how many points, and the two ends — the ends rather than the extremes, because that is the direction'
+      }
+    },
+    size,
+    {
+      name: 'locale',
+      type: 'string',
+      description: {
+        ko: '생성되는 문장의 언어',
+        en: 'Which language the generated sentence is written in'
+      }
+    }
+  ],
+
   MPStatistic: [
     {
       name: 'value',

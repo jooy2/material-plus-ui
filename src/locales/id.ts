@@ -75,6 +75,7 @@ export const id: MPLocale = {
       skip: 'Lewati',
       position: 'Langkah {index} dari {total}'
     },
+    sparkline: { summary: '{count} titik, dari {first} ke {last}' },
     table: { empty: 'Tidak ada data' },
     dataTable: {
       selectAll: 'Pilih semua baris',

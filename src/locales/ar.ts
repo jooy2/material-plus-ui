@@ -75,6 +75,7 @@ export const ar: MPLocale = {
       skip: 'تخطي',
       position: 'الخطوة {index} من {total}'
     },
+    sparkline: { summary: 'نقاط: {count}، من {first} إلى {last}' },
     table: { empty: 'لا توجد بيانات' },
     dataTable: {
       selectAll: 'تحديد كل الصفوف',

@@ -75,6 +75,7 @@ export const it: MPLocale = {
       skip: 'Salta',
       position: 'Passo {index} di {total}'
     },
+    sparkline: { summary: '{count} punti, da {first} a {last}' },
     table: { empty: 'Nessun dato' },
     dataTable: {
       selectAll: 'Seleziona tutte le righe',

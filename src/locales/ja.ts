@@ -79,6 +79,7 @@ export const ja: MPLocale = {
       skip: 'スキップ',
       position: '{total} 件中 {index} 件目'
     },
+    sparkline: { summary: '{count} 点、{first} から {last} まで' },
     table: { empty: 'データがありません' },
     dataTable: {
       selectAll: 'すべての行を選択',

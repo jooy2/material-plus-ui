@@ -6,7 +6,7 @@ This file is a working note. Delete it when the list is empty.
 
 ## Where it got to
 
-Twenty-four units landed on `main`, each as its own commit with implementation, tests, bilingual documentation, a props row, a demo, a gallery entry and a changelog entry.
+Twenty-five units landed on `main`, each as its own commit with implementation, tests, bilingual documentation, a props row, a demo, a gallery entry and a changelog entry.
 
 |  |  |
 | --- | --- |
@@ -16,10 +16,10 @@ Twenty-four units landed on `main`, each as its own commit with implementation, 
 | Layout | `MPFlex`, `MPPortal`, `MPScrollArea`, `MPScrollZone`, `MPToolbar`, `MPFloatingBottomNavigation`, `MPMockup` |
 | Display | `MPAnchor`, `MPAppLogo`, `MPDataList`, `MPCodeBlock`, `MPTreeView` |
 | Inputs | `MPTreeSelect` |
-| Data | `MPDataTable`, `MPStatistic` |
+| Data | `MPDataTable`, `MPStatistic`, `MPSparkline` |
 | Feedback | `MPMeter`, `MPHoverCard`, `MPTour` |
 
-Nine units remain, listed below.
+Eight units remain, listed below.
 
 ## The working method
 
@@ -54,11 +54,11 @@ The other suites run in one go: `npx vitest run test/internal test/hooks test/st
 
 ## What is left
 
-### 1–9. The charts
+### 1–8. The charts
 
 Ten components, and they share almost everything, so they are one piece of work rather than ten:
 
-`MPAreaChart`, `MPBarChart`, `MPLineChart`, `MPPieChart`, `MPScatterChart`, `MPGaugeChart`, `MPHeatmapChart`, `MPTimelineChart`, `MPSparkline`.
+`MPAreaChart`, `MPBarChart`, `MPLineChart`, `MPPieChart`, `MPScatterChart`, `MPGaugeChart`, `MPHeatmapChart`, `MPTimelineChart`.
 
 `neba` keeps the shared parts in `src/internal/chart.ts`, `chart-frame.tsx` and `chart-line.tsx`. Build the equivalent first — the scales, the axes, the grid, the legend, the tooltip and the frame — then each chart is the shape it draws.
 
@@ -67,7 +67,11 @@ Two decisions to make before writing any of them:
 - ~~**The palette.**~~ **Settled.** Deriving the ramp from `--mp-source-color` was tried and measured, and it does not work: colour-vision deficiency collapses the red–green axis at _absolute_ hues, so rotating a fitted ramp puts a different adjacent pair onto that axis — four of five test seeds failed. Eight fixed hues are in `src/styles.css` as `--_mp-chart-1…8`, with only the lightness following the scheme. `internal/chart.ts` hands them out with `seriesColor(index, explicit?)`, `test/styles/chart-palette.test.tsx` keeps them honest, and the note above the derivations has the numbers. **Three is the cap where any two marks can touch** (scatter, bubble, heatmap).
 - **Whether they carry an SVG library.** `neba` draws everything by hand. Doing the same here keeps the dependency count where it is; the arithmetic is the cost.
 
-`MPStatistic` is done, and it took the palette with it. What is left is the nine that plot something, so the next piece of work is the shared frame — the scales, the axes, the grid, the legend and the tooltip — with whichever chart is first as its only consumer. `MPSparkline` is the smallest of them and needs no frame at all, so it is the one to take next.
+`MPStatistic` and `MPSparkline` are done. Between them they settled the palette and put the path builders — `linePath`, `areaPath`, `barPath`, `monotoneSegments`, `extentOf` — into `internal/chart.ts`, so the marks are already written.
+
+What is left is the eight that need a **frame**: the plot box once the axes have taken their bands, the value scale and its 1-2-5-10 ticks, a band scale for the categories, the grid, the legend and the hover layer. Build that with `MPLineChart` as its only consumer and let the other seven arrive against it — a frame written for nobody is a frame that fits nobody. `neba`'s equivalents are `internal/chart-frame.tsx` (1,912 lines) and the second half of its `internal/chart.ts`.
+
+Two things the `dataviz` skill settles that are not negotiable: **never a dual-axis chart** (two measures of different scale are two charts), and **a hover layer by default** on every one of the eight — a crosshair and tooltip on line and area, a per-mark tooltip on bar, dot and cell. `MPSparkline` is the one exception and its documentation says why.
 
 ## Two loose ends from earlier work
 

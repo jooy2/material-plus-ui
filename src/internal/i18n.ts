@@ -268,6 +268,21 @@ export interface MPMessages {
     add: string;
   };
   /**
+   * MPSparkline.
+   *
+   * One string, and it is the whole of what a sparkline says to a reader who
+   * cannot see it. The mark has no axis and no tooltip — see the note on the
+   * component — so the shape has to arrive as a sentence or not at all.
+   *
+   * `{count}`, `{first}` and `{last}` are filled in by `fillMessage`, and the
+   * two ends rather than the two extremes because it is the direction a reader
+   * wants from a sparkline: 120 to 400 says which way it went, and 90 to 410
+   * does not.
+   */
+  sparkline: {
+    summary: string;
+  };
+  /**
    * MPTour.
    *
    * The four buttons and the counter — every one of them drawn, and none of

@@ -75,6 +75,7 @@ export const tr: MPLocale = {
       skip: 'Atla',
       position: 'Adım {index} / {total}'
     },
+    sparkline: { summary: '{count} nokta, {first} değerinden {last} değerine' },
     table: { empty: 'Veri yok' },
     dataTable: {
       selectAll: 'Tüm satırları seç',

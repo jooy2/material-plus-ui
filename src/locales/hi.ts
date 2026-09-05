@@ -79,6 +79,7 @@ export const hi: MPLocale = {
       skip: 'छोड़ें',
       position: 'चरण {index} / {total}'
     },
+    sparkline: { summary: '{count} बिंदु, {first} से {last} तक' },
     table: { empty: 'कोई डेटा नहीं' },
     dataTable: {
       selectAll: 'सभी पंक्तियाँ चुनें',

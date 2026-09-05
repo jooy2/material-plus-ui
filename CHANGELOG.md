@@ -6,6 +6,18 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **`MPSparkline`**, a series as a mark, in the space of a word. Three shapes, three curves, and nothing else: no axes, no legend, and nothing to read a value against. It answers which way this has been going.
+
+  **It has no hover layer, and that is the deviation worth stating.** Every other chart here ships one, because a chart is a thing a reader interrogates — but this is thirty pixels tall, has no axis to read a value against, and a floating card over a mark that size covers the mark. What it has instead is a sentence: the accessible name gives the point count and the two **ends**, which is where the direction lives. "120 to 400" says which way it went; "90 to 410" does not.
+
+  A `null` breaks the line rather than being joined across. A straight line through a value nobody has is the one kind of invented data a reader would never guess was invented, because it looks exactly like the rest of the line — and an area closed over the same gap paints the lie across more of the picture. A lone point between two gaps is drawn as a dot, having no line to be part of.
+
+  `smooth` is a monotone fit, so a rising run never turns back on its way up and the lowest number in the data is the lowest point on screen; an ordinary spline overshoots both, and a chart that draws a dip has reported one. `step` turns halfway between two points, because turning at either end draws one of the two values as lasting longer than it did.
+
+  The shape is drawn in a fixed viewBox and stretched to fit — eight points and a hundred fill the same width, since a mark that narrowed as its series grew would change meaning with its own length — with `non-scaling-stroke` keeping two pixels two pixels inside it. The end dot is a zero-length round-capped path rather than a `<circle>` for the same reason: a radius is in viewBox units, and in a stretched box it comes out an ellipse as wide as the element.
+
+  New in the message table: a `sparkline` namespace of one string, filled in for the eighteen locales.
+
 - **The chart palette**, and **`MPStatistic`**, which is the first of the ten chart components and the only one with no plot in it.
 
   **The palette was going to be derived from `--mp-source-color` and it is not, because the measurement said no.** Rotating eight hues off the seed is the obvious answer — it themes for free and it is one line per slot. Colour-vision deficiency collapses the red-green axis at _absolute_ hues, though, so a ramp whose adjacent pairs are clear of that axis puts a different pair straight onto it the moment the whole thing is rotated: fitted to the default seed and re-checked against five others, the rotated ramp failed the protan/deutan separation for four of the five. So the hues are fixed and only the lightness follows the scheme. Slot one is the default seed's own blue, which is why an untouched theme looks of a piece, and that is where the resemblance ends.

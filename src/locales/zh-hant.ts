@@ -79,6 +79,7 @@ export const zhHant: MPLocale = {
       skip: '略過',
       position: '第 {index} 步，共 {total} 步'
     },
+    sparkline: { summary: '{count} 個點，從 {first} 到 {last}' },
     table: { empty: '沒有資料' },
     dataTable: {
       selectAll: '選取所有列',

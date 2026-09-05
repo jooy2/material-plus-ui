@@ -109,6 +109,7 @@ import {
   MPSkeleton,
   MPSlider,
   MPSnackbarProvider,
+  MPSparkline,
   MPSpoiler,
   MPStatistic,
   MPStack,
@@ -1432,6 +1433,20 @@ const GROUPS: Group[] = [
               <MPTreeItem value="readme" label="README.md" />
             </MPTreeView>
           </Fit>
+        )
+      },
+      {
+        name: 'MPSparkline',
+        summary: {
+          ko: '단어 하나만 한 자리에 놓인 시계열',
+          en: 'A series as a mark, in the space of a word'
+        },
+        path: '/components/display/sparkline',
+        preview: (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, width: 200 }}>
+            <MPSparkline data={[12, 15, 14, 19, 22, 21, 27]} shape="area" curve="smooth" />
+            <MPSparkline data={[8, 11, 9, 14, 12, 17, 21]} shape="bar" color="tertiary" />
+          </div>
         )
       },
       {

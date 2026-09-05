@@ -18,6 +18,7 @@ import { OVERLAY } from '../../src/internal/messages/overlay';
 import { PAGINATION } from '../../src/internal/messages/pagination';
 import { PICKER } from '../../src/internal/messages/picker';
 import { RATING } from '../../src/internal/messages/rating';
+import { SPARKLINE } from '../../src/internal/messages/sparkline';
 import { SPOILER } from '../../src/internal/messages/spoiler';
 import { TABLE } from '../../src/internal/messages/table';
 import { TEXT_FIELD } from '../../src/internal/messages/text-field';
@@ -58,6 +59,7 @@ const NAMESPACES = [
   PAGINATION,
   PICKER,
   RATING,
+  SPARKLINE,
   SPOILER,
   TABLE,
   TEXT_FIELD,

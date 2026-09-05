@@ -54,4 +54,4 @@ And the **figure** is `on-surface` in every state. Only the move is coloured. A 
 
 ## The trend is a slot, not a chart
 
-`trend` takes anything; a sparkline is the usual thing to put there. It is a slot rather than a chart of its own because a statistic that owned a sparkline would be a statistic with opinions about a second component's data shape, and the two are separable.
+`trend` takes anything — an [MPSparkline](sparkline) is the usual thing to put there. It is a slot rather than a chart of its own because a statistic that owned a sparkline would be a statistic with opinions about a second component's data shape, and the two are separable.

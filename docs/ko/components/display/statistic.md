@@ -49,4 +49,4 @@ import { MPStatistic } from 'material-plus-ui';
 
 ## 추세는 차트가 아니라 슬롯입니다
 
-`trend`는 무엇이든 받습니다. 보통 거기 들어가는 것은 스파크라인입니다. 자기 차트가 아니라 슬롯인 이유는, 스파크라인을 소유한 statistic은 다른 컴포넌트의 데이터 모양에 대해 의견을 가진 statistic이 되기 때문이고, 둘은 분리할 수 있기 때문입니다.
+`trend`는 무엇이든 받습니다. 보통 거기 들어가는 것은 [MPSparkline](sparkline)입니다. 자기 차트가 아니라 슬롯인 이유는, 스파크라인을 소유한 statistic은 다른 컴포넌트의 데이터 모양에 대해 의견을 가진 statistic이 되기 때문이고, 둘은 분리할 수 있기 때문입니다.
