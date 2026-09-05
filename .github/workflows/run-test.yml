@@ -42,7 +42,7 @@ jobs:
 
   run-test:
     runs-on: ${{ matrix.os }}
-    name: Test Node.js ${{ matrix.node_version }} on ${{ matrix.os }} (${{ matrix.browser }})
+    name: Test Node.js ${{ matrix.node_version }} on ${{ matrix.os }} (${{ matrix.browser }} ${{ matrix.shard }})
     # A healthy job here finishes in under six minutes, install included. The
     # ceiling is not for a slow run, it is for a wedged browser: a Playwright
     # process that stops making progress produces no output and never returns,
@@ -58,6 +58,21 @@ jobs:
         node_version: ['26']
         os: [ubuntu-latest, windows-latest, macos-latest]
         browser: [chromium, firefox, webkit]
+        # The suite runs in halves, and it is not for speed.
+        #
+        # Vitest's browser mode drives every file through one page, and past
+        # roughly a hundred files that page stops answering: `[vitest] Browser
+        # connection was closed while running tests`, with the files it never
+        # reached reported as neither passed nor failed. It is a ceiling rather
+        # than a defect — the run dies at a different file every time (101 on
+        # Ubuntu, 127 on macOS, 107 on a developer machine) — and it is
+        # cumulative rather than concurrent, so no parallelism setting reaches
+        # it: with `--no-file-parallelism` the page died *sooner*, at 86.
+        #
+        # Two shards put about eighty files through each page, which both halves
+        # clear. Add a third when the suite grows enough to need one; the sign is
+        # this error coming back.
+        shard: ['1/2', '2/2']
         exclude:
           # WebKit on the macOS runner, and nothing else in the matrix, hangs on
           # individual clicks: a handful of `.click()` calls sit at exactly the
@@ -89,6 +104,6 @@ jobs:
       - name: Install Playwright browser (${{ matrix.browser }})
         run: npx playwright install --with-deps ${{ matrix.browser }}
       - name: Test module script
-        run: npm run test
+        run: npm run test -- --shard=${{ matrix.shard }}
         env:
           VITEST_BROWSER: ${{ matrix.browser }}

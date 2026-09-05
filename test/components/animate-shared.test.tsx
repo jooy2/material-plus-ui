@@ -101,21 +101,37 @@ describe('one effect across a set', () => {
         </MPAnimateFade>
       );
       const box = screen.getByTestId('box').element() as HTMLElement;
-      const supported = CSS.supports('animation-timeline: view()');
-      const resolved = getComputedStyle(box).animationTimeline;
+      const style = getComputedStyle(box);
 
-      // Degraded rather than blank is the contract. Where `view()` is there, the
-      // animation is on it; where it is not, the `@supports` drops the pair and
-      // the effect plays once on the clock the way it always did.
-      expect(resolved).toBe(supported ? 'view()' : 'auto');
-      expect(getComputedStyle(box).animationName).toBe('mp-anim-fade');
+      // Degraded rather than blank is the contract, and the half of it that
+      // holds everywhere is that the effect still runs. That is asserted first
+      // and unconditionally, because it is the promise.
+      expect(style.animationName).toBe('mp-anim-fade');
+
+      // The timeline itself can only be read where the engine has the property
+      // at all. Firefox does not, so `animationTimeline` is not a key on the
+      // declaration and comes back `undefined` — which is neither `view()` nor
+      // `auto`, and nothing for this to assert.
+      if ('animationTimeline' in style) {
+        expect(style.animationTimeline).toBe(
+          CSS.supports('animation-timeline: view()') ? 'view()' : 'auto'
+        );
+      }
     });
 
     it('leaves an ordinary effect on the clock', async () => {
       const screen = await render(<MPAnimateFade data-testid="box">One</MPAnimateFade>);
       const box = screen.getByTestId('box').element() as HTMLElement;
+      const style = getComputedStyle(box);
 
-      expect(getComputedStyle(box).animationTimeline).toBe('auto');
+      // Same guard, same reason: an engine with no `animation-timeline` has
+      // every animation on the clock by construction, so there is nothing here
+      // that could be otherwise.
+      if ('animationTimeline' in style) {
+        expect(style.animationTimeline).toBe('auto');
+      }
+
+      expect(style.animationName).toBe('mp-anim-fade');
     });
   });
 

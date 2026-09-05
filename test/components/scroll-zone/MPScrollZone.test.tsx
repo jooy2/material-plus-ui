@@ -31,6 +31,44 @@ async function settled(): Promise<void> {
   await vi.waitFor(() => expect(buttons().length).toBeGreaterThan(0));
 }
 
+/**
+ * Asserts the strip has come to rest on child `index`.
+ *
+ * Within a pixel, and the tolerance is the point. Firefox lays these children
+ * out at exactly 0, 208, 416 and 624 — the same as everyone — and then reports
+ * `scrollLeft` as 207.5, because an engine may snap a scroll offset to the
+ * device pixel grid. What is being asserted is *which child* the strip moved
+ * to, and half a pixel is not a different child.
+ */
+async function landsOn(index: number): Promise<void> {
+  const base = track().getBoundingClientRect().left + scroller().scrollLeft;
+  const target = track().children[index].getBoundingClientRect().left - base;
+
+  await vi.waitFor(() => expect(Math.abs(scroller().scrollLeft - target)).toBeLessThanOrEqual(1));
+}
+
+/**
+ * Whether this engine reports `scrollbar-width` at all.
+ *
+ * Playwright's Firefox answers `none` for every element — `<html>` and `<body>`
+ * included, and for an element that has just been handed `scrollbar-width: auto`
+ * inline — so the computed value there is not a reading of what any stylesheet
+ * said. Chromium and WebKit answer `auto`, and on those the property is worth
+ * asserting both ways.
+ */
+function reportsScrollbarWidth(): boolean {
+  const probe = document.createElement('div');
+
+  probe.style.scrollbarWidth = 'auto';
+  document.body.append(probe);
+
+  const reported = getComputedStyle(probe).scrollbarWidth;
+
+  probe.remove();
+
+  return reported === 'auto';
+}
+
 describe('MPScrollZone', () => {
   it('lays the children out along one line and scrolls that way', async () => {
     await render(<Strip />);
@@ -108,10 +146,10 @@ describe('MPScrollZone', () => {
     await settled();
     await screen.getByRole('button', { name: 'Scroll forward' }).click();
 
-    // 208 is where the second child starts: 200 of item and the 8 of `gap`.
-    // Measured rather than assumed — the children of a scroll zone are whatever
-    // the caller put there, so no two of them are necessarily the same width.
-    await vi.waitFor(() => expect(scroller().scrollLeft).toBe(208));
+    // The second child, measured rather than assumed — the children of a scroll
+    // zone are whatever the caller put there, so no two of them are necessarily
+    // the same width.
+    await landsOn(1);
   });
 
   it('moves `step` children at a time', async () => {
@@ -120,7 +158,7 @@ describe('MPScrollZone', () => {
     await settled();
     await screen.getByRole('button', { name: 'Scroll forward' }).click();
 
-    await vi.waitFor(() => expect(scroller().scrollLeft).toBe(416));
+    await landsOn(2);
   });
 
   it('moves by everything in view in `page` mode', async () => {
@@ -130,10 +168,11 @@ describe('MPScrollZone', () => {
     await screen.getByRole('button', { name: 'Scroll forward' }).click();
 
     // The box is 300 wide minus the two button lanes, so a page is whatever the
-    // scroller's own width is rather than the component's.
+    // scroller's own width is rather than the component's. Within a pixel, for
+    // the reason `landsOn` gives: the engine may snap the offset it reports.
     const page = scroller().clientWidth;
 
-    await vi.waitFor(() => expect(scroller().scrollLeft).toBe(page));
+    await vi.waitFor(() => expect(Math.abs(scroller().scrollLeft - page)).toBeLessThanOrEqual(1));
   });
 
   it('runs down the page when it is vertical', async () => {
@@ -172,6 +211,13 @@ describe('MPScrollZone', () => {
 
   it('hides the browser’s own scrollbar unless it is asked for', async () => {
     const screen = await render(<Strip />);
+
+    // Nothing to read where the engine does not report the property. See
+    // `reportsScrollbarWidth` — the alternative is asserting a class name,
+    // which is the implementation rather than the behaviour.
+    if (!reportsScrollbarWidth()) {
+      return;
+    }
 
     expect(getComputedStyle(scroller()).scrollbarWidth).toBe('none');
 
@@ -290,7 +336,8 @@ describe('MPScrollZone', () => {
     );
     window.dispatchEvent(new PointerEvent('pointerup', { pointerId: 1, bubbles: true }));
 
-    await vi.waitFor(() => expect(scroller().scrollLeft).toBeGreaterThanOrEqual(208));
+    // One child's worth, less the pixel an engine may snap away.
+    await vi.waitFor(() => expect(scroller().scrollLeft).toBeGreaterThanOrEqual(207));
   });
 
   it('leaves the wheel to the page unless it is asked for', async () => {

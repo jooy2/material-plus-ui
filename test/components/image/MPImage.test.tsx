@@ -28,6 +28,23 @@ async function settled(container: Element, state: string) {
   return false;
 }
 
+/**
+ * A one-pixel picture this page has not loaded before.
+ *
+ * Unique per call, because a browser that already has the bytes may not fire
+ * `load` again — which makes a shared fixture a test that passes or fails on
+ * what ran before it.
+ */
+let dots = 0;
+
+function freshDot(): string {
+  dots += 1;
+
+  return `data:image/svg+xml,${encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${dots}" height="1"><rect width="${dots}" height="1" fill="red"/></svg>`
+  )}`;
+}
+
 describe('MPImage', () => {
   describe('when it arrives', () => {
     it('shows the picture', async () => {
@@ -64,13 +81,46 @@ describe('MPImage', () => {
 
     it("does not swallow a caller's own `onLoad`", async () => {
       // The component listens for `load` itself, so the question is whether the
-      // caller's handler survives that. It does: the component's own listener
-      // and the caller's are both called, in that order.
+      // caller's handler survives that. It does: both are called.
+      //
+      // A picture this page has not seen before, and that is not incidental —
+      // `RED_DOT` has been loaded by the tests above, and a browser that already
+      // has the bytes may not fire `load` again at all. Firefox does not, which
+      // is the case the next test is about.
       const onLoad = vi.fn();
-      const screen = await render(<MPImage src={RED_DOT} alt="A red dot" onLoad={onLoad} />);
+      const screen = await render(<MPImage src={freshDot()} alt="A dot" onLoad={onLoad} />);
 
       expect(await settled(screen.container, 'loaded')).toBe(true);
       expect(onLoad).toHaveBeenCalled();
+    });
+
+    /*
+     * The next two are one test in two halves, and they have to be: a second
+     * `render()` inside one test leaves the rest of the file rendering into
+     * nothing. The first warms the browser's cache, the second reads it, and
+     * they run in order because vitest runs a file in order.
+     */
+    const CACHED = freshDot();
+
+    it('loads a picture for the first time', async () => {
+      const screen = await render(<MPImage src={CACHED} alt="A dot" />);
+
+      expect(await settled(screen.container, 'loaded')).toBe(true);
+    });
+
+    it('reports `loaded` for that same picture the second time', async () => {
+      // The whole reason the component exists. A cached image is `complete`
+      // before React attaches anything, so its `load` event has been and gone —
+      // and Firefox does not fire it again. `onStateChange` is reported from the
+      // `complete` check as well as from the event, so it is the signal that
+      // arrives either way, and the one the prop documentation points at.
+      const onStateChange = vi.fn();
+      const screen = await render(
+        <MPImage src={CACHED} alt="A dot" onStateChange={onStateChange} />
+      );
+
+      expect(await settled(screen.container, 'loaded')).toBe(true);
+      expect(onStateChange).toHaveBeenCalledWith('loaded');
     });
   });
 

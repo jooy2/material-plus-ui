@@ -74,7 +74,16 @@ export interface MPImageProps extends Omit<React.ComponentPropsWithoutRef<'img'>
   previewSrc?: string;
   /** The label on the button `preview` turns the box into. */
   previewLabel?: string;
-  /** Called when the state changes, for a caller that wants to know. */
+  /**
+   * Called when the state changes, for a caller that wants to know.
+   *
+   * **This is the signal to use, not `onLoad`.** `onLoad` is the `<img>`'s own
+   * event and is passed straight through, so it does not fire for a picture the
+   * browser already has: the load has been and gone before React attached
+   * anything, which is the whole reason this component exists. `onStateChange`
+   * is reported from the `complete` check as well as from the event, so it
+   * arrives either way.
+   */
   onStateChange?: (state: MPImageState) => void;
   /** The corner and type scale of the placeholder and the fallback. @default 'md' */
   size?: MPSize;

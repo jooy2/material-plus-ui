@@ -398,7 +398,13 @@ describe('MPTabs', () => {
       // one over the hairline itself. The divider is the boundary between the
       // bar and the panel and runs the full width whatever the bar is doing.
       expect(mask.maskSize).toBe('100% calc(100% - 1px), 100% 1px');
-      expect(mask.maskRepeat).toBe('no-repeat, no-repeat');
+
+      // Every layer, rather than the string `mask-repeat` serialises to. The
+      // sheet declares one `no-repeat` for both layers; Chromium expands that
+      // to one value per layer and the other two engines leave it as written,
+      // so asserting the joined string was asserting Chromium's serialisation
+      // rather than the component's behaviour.
+      expect(mask.maskRepeat.split(',').every((layer) => layer.trim() === 'no-repeat')).toBe(true);
     });
   });
 

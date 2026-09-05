@@ -518,7 +518,24 @@ export const MPScrollZone = React.forwardRef<HTMLDivElement, MPScrollZoneProps>(
           }
 
           dragging = true;
-          el.setPointerCapture(moveEvent.pointerId);
+
+          /*
+           * Capture keeps the strip following a pointer that has left it, since
+           * the listeners are on the scroller rather than on the window.
+           *
+           * It is allowed to fail. `setPointerCapture` throws `NotFoundError`
+           * for a `pointerId` that is not an active pointer, and an exception
+           * here would abandon everything after it: no `data-dragging`, no
+           * scrolling, and the page's own selection taken away with nothing
+           * left to give it back. `MPPanes` was bitten by exactly this and
+           * carries the same guard.
+           */
+          try {
+            el.setPointerCapture(moveEvent.pointerId);
+          } catch {
+            // Nothing to do about it, and nothing below depends on it.
+          }
+
           el.dataset.dragging = 'true';
           document.body.style.setProperty('-webkit-user-select', 'none');
         }
