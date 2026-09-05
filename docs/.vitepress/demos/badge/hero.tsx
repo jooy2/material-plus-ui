@@ -16,7 +16,7 @@ export default function BadgeHero() {
       </MPBadge>
 
       <MPBadge dot color="tertiary" overlap="circle" placement="bottom-end" label="Online">
-        <MPAvatar name="Jane Doe" />
+        <MPAvatar src="/samples/people/sam-arden.webp" name="Sam Arden" />
       </MPBadge>
 
       <MPBadge content="NEW" variant="tonal" color="primary" />

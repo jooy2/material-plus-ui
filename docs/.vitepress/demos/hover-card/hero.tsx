@@ -7,12 +7,12 @@ export default function HoverCardHero() {
       <MPTypography>
         The change was reviewed by{' '}
         <MPHoverCard
-          trigger={<MPTextLink href="#priya">Priya Raman</MPTextLink>}
-          title="Priya Raman"
+          trigger={<MPTextLink href="#farah">Farah Wells</MPTextLink>}
+          title="Farah Wells"
           description="Platform team"
         >
           <MPFlex gap={12} align="center">
-            <MPAvatar name="Priya Raman" />
+            <MPAvatar src="/samples/people/farah-wells.webp" name="Farah Wells" />
             <MPTypography level="caption">
               Joined 2023. Owns the deployment pipeline and the release notes nobody reads.
             </MPTypography>
@@ -23,8 +23,14 @@ export default function HoverCardHero() {
 
       <MPFlex gap={12} align="center">
         <MPHoverCard
-          trigger={<MPAvatar name="Dara Okafor" style={{ cursor: 'pointer' }} />}
-          title="Dara Okafor"
+          trigger={
+            <MPAvatar
+              src="/samples/people/victor-saye.webp"
+              name="Victor Saye"
+              style={{ cursor: 'pointer' }}
+            />
+          }
+          title="Victor Saye"
           description="Design systems"
           side="right"
           arrow

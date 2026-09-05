@@ -29,7 +29,7 @@ import { MPEmpty, MPButton } from 'material-plus-ui';
 
 `Nothing here`는 바닥이고, 그 위의 모든 자리 — 글리프, 문장, 동작 — 는 실제로 무엇이 없는지로 채우라고 있는 것입니다. 결과 없는 검색, 아무도 쓰지 않은 받은 편지함, 첫 파일 이전의 폴더는 서로 다른 세 가지이고, 어느 것인지는 호출자만 압니다.
 
-<Demo src="empty/slots">
+<Demo src="empty/slots" :minHeight="720">
 
 <<< @/.vitepress/demos/empty/slots.tsx
 

@@ -7,7 +7,7 @@ order: 1
 
 <p class="mp-lede">어떤 너비를 받든 비율을 지키는 상자. 아무것도 그리지 않고, 대신 공간을 미리 잡아 둡니다 — 이미지가 늦게 도착하는 카드가 주변 페이지를 밀어내지 않도록.</p>
 
-<Demo src="aspect-ratio/hero" :minHeight="180" />
+<Demo src="aspect-ratio/hero" :minHeight="220" />
 
 ```tsx
 import { MPAspectRatio } from 'material-plus-ui';

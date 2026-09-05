@@ -7,12 +7,12 @@ order: 4
 
 <p class="mp-lede">A picture of a person or a thing, at a known size, that is never an empty box. If the picture is missing or slow, the initials stand in; if there are no initials, a silhouette does.</p>
 
-<Demo src="avatar/hero" :minHeight="120" />
+<Demo src="avatar/hero" :minHeight="140" />
 
 ```tsx
 import { MPAvatar } from 'material-plus-ui';
 
-<MPAvatar src="/jane.jpg" name="Jane Doe" />
+<MPAvatar src="/anya.jpg" name="Anya Sol" />
 <MPAvatar name="홍길동" color="tertiary" />
 <MPAvatar shape="square" variant="outlined" initials="MP" />;
 ```
@@ -54,7 +54,7 @@ When the rule gets it wrong, `initials` writes them out.
 
 The control heights, so an avatar and the button beside it in a toolbar are the same height.
 
-<Demo src="avatar/sizes">
+<Demo src="avatar/sizes" :minHeight="160">
 
 <<< @/.vitepress/demos/avatar/sizes.tsx
 

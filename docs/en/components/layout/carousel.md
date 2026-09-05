@@ -12,9 +12,9 @@ order: 6
 ```tsx
 import { MPCarousel } from 'material-plus-ui';
 
-<MPCarousel label="Mountains">
-  <img src="/namsan.jpg" alt="Namsan at sunrise" />
-  <img src="/bukhansan.jpg" alt="Bukhansan in snow" />
+<MPCarousel label="Trails">
+  <img src="/forest-trail.jpg" alt="A path through tall trees" />
+  <img src="/snowy-cabin.jpg" alt="A cabin in snow beside a frozen stream" />
 </MPCarousel>;
 ```
 

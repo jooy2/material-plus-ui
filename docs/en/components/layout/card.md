@@ -44,7 +44,7 @@ None of them is dyed, and there is no `color`. The argument is [MPBox](./box#why
 
 ## media
 
-<Demo src="card/media" :minHeight="320">
+<Demo src="card/media" :minHeight="400">
 
 <<< @/.vitepress/demos/card/media.tsx
 

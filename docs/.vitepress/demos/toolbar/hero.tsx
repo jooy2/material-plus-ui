@@ -21,7 +21,7 @@ export default function ToolbarHero() {
         render={<header />}
         variant="filled"
         divider
-        start={<MPAppLogo name="Voltage" shape="app" size="sm" />}
+        start={<MPAppLogo name="Voltage" src="/samples/marks/magnet-lightning.webp" size="sm" />}
         end={
           <MPFlex gap={4} align="center">
             <MPIconButton

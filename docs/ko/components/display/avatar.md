@@ -7,12 +7,12 @@ order: 4
 
 <p class="mp-lede">사람이나 사물의 사진을, 아는 크기로, 절대 빈 상자가 되지 않게 그립니다. 사진이 없거나 늦으면 이니셜이 대신하고, 이니셜도 없으면 실루엣이 대신합니다.</p>
 
-<Demo src="avatar/hero" :minHeight="120" />
+<Demo src="avatar/hero" :minHeight="140" />
 
 ```tsx
 import { MPAvatar } from 'material-plus-ui';
 
-<MPAvatar src="/jane.jpg" name="Jane Doe" />
+<MPAvatar src="/anya.jpg" name="Anya Sol" />
 <MPAvatar name="홍길동" color="tertiary" />
 <MPAvatar shape="square" variant="outlined" initials="MP" />;
 ```
@@ -54,7 +54,7 @@ import { MPAvatar } from 'material-plus-ui';
 
 컨트롤 높이입니다. 그래서 툴바에서 아바타와 그 옆 버튼의 높이가 같습니다.
 
-<Demo src="avatar/sizes">
+<Demo src="avatar/sizes" :minHeight="160">
 
 <<< @/.vitepress/demos/avatar/sizes.tsx
 

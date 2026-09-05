@@ -15,7 +15,17 @@ function Screen() {
   return (
     <MPFlex direction="column" gap={16} style={{ padding: 16 }}>
       <MPTypography level="h4">Today</MPTypography>
-      <MPCard title="Deploy" footer={<MPButton variant="filled">Run</MPButton>}>
+      <MPCard
+        title="Deploy"
+        media={
+          <img
+            src="/samples/photos/thumbs/lakeside-observatory-blue-hour.webp"
+            alt="A small observatory beside a lake at dusk"
+            style={{ display: 'block', width: '100%', height: 72, objectFit: 'cover' }}
+          />
+        }
+        footer={<MPButton variant="filled">Run</MPButton>}
+      >
         <MPTypography level="caption">Six commits since the last release.</MPTypography>
       </MPCard>
       <MPList dividers>

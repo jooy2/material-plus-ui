@@ -35,6 +35,22 @@ export default function AppLogoHero() {
           </MPAppLogo>
         </MPFlex>
       </MPFlex>
+
+      <MPFlex direction="column" gap={8}>
+        <MPTypography level="caption">A file, which brings its own colour</MPTypography>
+        <MPFlex gap={24} align="center" wrap>
+          <MPAppLogo name="Voltage" src="/samples/marks/magnet-lightning.webp" href="#" showName />
+          <MPAppLogo name="Truenorth" src="/samples/marks/compass-navigation.webp" />
+          <MPAppLogo
+            name="Lanternpeak"
+            src="/samples/marks/lantern-mountain.webp"
+            shape="circle"
+            variant="tonal"
+            color="tertiary"
+          />
+          <MPAppLogo name="Solarfield" src="/samples/marks/solar-panel-sun.webp" size="sm" />
+        </MPFlex>
+      </MPFlex>
     </MPFlex>
   );
 }

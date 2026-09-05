@@ -3,6 +3,7 @@ import {
   ICONS,
   MPAccordion,
   MPAccordionItem,
+  MPAppLogo,
   MPAvatar,
   MPBlockquote,
   MPButton,
@@ -237,10 +238,13 @@ export default function LandingConcept() {
           padding: '12px 14px'
         }}
       >
-        <MPIcon icon={ICONS.check} size={22} />
-        <span className="text-mp-title-medium" style={{ marginInlineEnd: 'auto' }}>
-          Kestrel
-        </span>
+        <MPAppLogo
+          name="Kestrel"
+          src="/samples/marks/kite-wind.webp"
+          size="sm"
+          showName
+          style={{ marginInlineEnd: 'auto' }}
+        />
 
         <MPButton size="sm" variant="text">
           Product
@@ -292,12 +296,12 @@ export default function LandingConcept() {
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 4 }}>
               <div style={{ display: 'flex' }}>
-                {['Ada Lovelace', 'Grace Hopper', '홍길동'].map((name, index) => (
+                {['joon-mercer', 'helen-voss', 'theo-quinn'].map((person, index) => (
                   <MPAvatar
-                    key={name}
+                    key={person}
                     size="xs"
-                    name={name}
-                    color={(['primary', 'secondary', 'tertiary'] as const)[index]}
+                    src={`/samples/people/${person}.webp`}
+                    alt=""
                     style={{ marginInlineStart: index === 0 ? 0 : -8 }}
                   />
                 ))}

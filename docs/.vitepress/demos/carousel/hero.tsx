@@ -8,29 +8,31 @@ import { MPCarousel } from 'material-plus-ui';
  * points rather than a gesture handler pretending to be it.
  */
 const SLIDES = [
-  { title: 'Namsan', tone: 'var(--_mp-color-primary-container)' },
-  { title: 'Bukhansan', tone: 'var(--_mp-color-secondary-container)' },
-  { title: 'Gwanaksan', tone: 'var(--_mp-color-tertiary-container)' }
+  {
+    src: '/samples/photos/thumbs/forest-trail-sunbeams.webp',
+    alt: 'A path through tall trees with sunbeams coming down between them'
+  },
+  {
+    src: '/samples/photos/thumbs/lakeside-observatory-blue-hour.webp',
+    alt: 'A small observatory beside a lake at dusk'
+  },
+  {
+    src: '/samples/photos/thumbs/snowy-cabin-frozen-stream.webp',
+    alt: 'A cabin in snow beside a frozen stream'
+  }
 ];
 
 export default function CarouselHero() {
   return (
     <div style={{ width: '100%', maxWidth: 480 }}>
-      <MPCarousel label="Mountains">
+      <MPCarousel label="Trails">
         {SLIDES.map((slide) => (
-          <div
-            key={slide.title}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: 180,
-              background: slide.tone,
-              color: 'var(--_mp-color-on-surface)'
-            }}
-          >
-            {slide.title}
-          </div>
+          <img
+            key={slide.src}
+            src={slide.src}
+            alt={slide.alt}
+            style={{ display: 'block', width: '100%', height: 180, objectFit: 'cover' }}
+          />
         ))}
       </MPCarousel>
     </div>

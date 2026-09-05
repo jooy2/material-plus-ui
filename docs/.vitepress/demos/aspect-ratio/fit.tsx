@@ -13,9 +13,8 @@ import type { MPAspectFit } from 'material-plus-ui';
  */
 const FITS: MPAspectFit[] = ['cover', 'contain', 'fill', 'none'];
 
-/** A tall gradient, so the difference between the four is actually visible. */
-const PHOTO =
-  "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='200'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%231976d2'/><stop offset='1' stop-color='%239c27b0'/></linearGradient></defs><rect width='80' height='200' fill='url(%23g)'/></svg>";
+/** A portrait photo in a landscape box, so the four are actually different. */
+const PHOTO = '/samples/photos/thumbs/red-umbrella-autumn-path.webp';
 
 export default function AspectRatioFit() {
   return (

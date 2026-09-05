@@ -1,4 +1,4 @@
-import { MPButton, MPCard } from 'material-plus-ui';
+import { MPButton, MPCard, MPImage } from 'material-plus-ui';
 
 /**
  * `media` is drawn edge to edge across the top, so the card's own corners crop
@@ -14,14 +14,13 @@ export default function CardMedia() {
     <div style={{ display: 'grid', gap: 12, width: '100%', maxWidth: 320 }}>
       <MPCard
         variant="filled"
-        title="Sunrise over Namsan"
-        subtitle="Seoul, 05:41"
+        title="Sunrise over the terraces"
+        subtitle="05:41, from the top of the ridge"
         media={
-          <div
-            style={{
-              height: 120,
-              background: 'linear-gradient(120deg, var(--mp-source-color), transparent)'
-            }}
+          <MPImage
+            src="/samples/photos/thumbs/misty-tea-terraces-sunrise.webp"
+            alt="Rows of tea terraces in low mist, with the sun just over the hills"
+            ratio="16 / 9"
           />
         }
         footer={<MPButton variant="text">Open</MPButton>}

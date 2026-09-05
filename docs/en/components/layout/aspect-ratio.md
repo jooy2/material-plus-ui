@@ -7,7 +7,7 @@ order: 1
 
 <p class="mp-lede">A box that keeps a proportion whatever width it is given. It draws nothing — what it does is reserve the space, so a card whose image arrives late does not reflow the page around it.</p>
 
-<Demo src="aspect-ratio/hero" :minHeight="180" />
+<Demo src="aspect-ratio/hero" :minHeight="220" />
 
 ```tsx
 import { MPAspectRatio } from 'material-plus-ui';

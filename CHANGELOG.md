@@ -1,5 +1,15 @@
 # Changelog
 
+## vNext (2026--)
+
+### Documentation
+
+- **The demos draw real pictures now, where before they drew gradients.** A component whose whole argument is "a picture that is never an empty box" was showing the empty box: every `MPAvatar` on the site was a pair of initials, `MPImage` opened an inline SVG, and `MPAppLogo`'s `src` — one of the four things the page says can be the mark — had no example at all. Twenty-one demos and the all-components grid now carry photographs, portraits, drawn artwork and product marks.
+
+  Two props got their first demonstration out of it. `previewSrc` is finally the pair it was written for: a 480px thumbnail on the page and the 1200px file fetched only when somebody opens the picture, which is visible in the network panel rather than only claimed in prose. `MPChatBubble`'s `preview.image` was documented and never drawn.
+
+  The files sit in `docs/public/samples` as resized WebP copies of [jooy2/sample-assets](https://github.com/jooy2/sample-assets), which carries this repository's licence and copyright, and the photographs and drawings keep a thumbnail beside the full file. The demos reach for the thumbnail: a 320px card holding a 1200px photograph is the mistake a component library's own site is the last place to make.
+
 ## 1.7.0 (2026-09-05)
 
 A second report from the application that filed the first one, a day after upgrading to 1.6.0 — and then the largest addition in the library's history, which the report is only the first section of.

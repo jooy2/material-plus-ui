@@ -1130,7 +1130,13 @@ const GROUPS: Group[] = [
         preview: (
           <Fit>
             <div style={{ display: 'grid', gap: 8 }}>
-              <MPChatBubble size="sm" time="18:01">
+              <MPChatBubble
+                size="sm"
+                time="18:01"
+                avatar={
+                  <MPAvatar size="xs" src="/samples/people/nadia-rowan.webp" name="Nadia Rowan" />
+                }
+              >
                 Still on for six?
               </MPChatBubble>
               <MPChatBubble size="sm" side="end" variant="filled" status="read">
@@ -1238,7 +1244,8 @@ const GROUPS: Group[] = [
         path: '/components/display/avatar',
         preview: (
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <MPAvatar size="sm" name="Jane Doe" />
+            <MPAvatar size="sm" src="/samples/people/anya-sol.webp" name="Anya Sol" />
+            <MPAvatar size="sm" src="/samples/people/lucas-adebayo.webp" name="Lucas Adebayo" />
             <MPAvatar size="sm" name="홍길동" color="tertiary" />
             <MPAvatar size="sm" variant="outlined" />
           </div>
@@ -1254,7 +1261,7 @@ const GROUPS: Group[] = [
         preview: (
           <div style={{ display: 'flex', alignItems: 'center', gap: 22 }}>
             <MPBadge content={3} label="3 unread" overlap="circle">
-              <MPAvatar size="sm" name="Jane Doe" />
+              <MPAvatar size="sm" src="/samples/people/noa-marin.webp" name="Noa Marin" />
             </MPBadge>
             <MPBadge content={128} label="128 notifications">
               <MPButton size="sm" variant="tonal">
@@ -1309,9 +1316,11 @@ const GROUPS: Group[] = [
         preview: (
           <div style={{ width: 132 }}>
             <MPImage
-              src="/mp-gallery-nothing-here.png"
-              alt="A photo that never arrived"
+              src="/samples/photos/thumbs/alpine-lake-dawn.webp"
+              previewSrc="/samples/photos/alpine-lake-dawn.webp"
+              alt="A still lake below a low sun"
               ratio="16 / 9"
+              preview
             />
           </div>
         )
@@ -1411,6 +1420,7 @@ const GROUPS: Group[] = [
         path: '/components/display/app-logo',
         preview: (
           <MPFlex gap={12} align="center">
+            <MPAppLogo name="Voltage" src="/samples/marks/magnet-lightning.webp" size="sm" />
             <MPAppLogo name="Voltage" shape="app" size="sm" />
             <MPAppLogo name="Voltage" shape="circle" variant="tonal" color="tertiary" size="sm" />
             <MPAppLogo name="Voltage" size="sm" />
@@ -2084,16 +2094,8 @@ const GROUPS: Group[] = [
         preview: (
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, width: '100%' }}>
             {['1 / 1', '4 / 3', '16 / 9'].map((ratio) => (
-              <MPAspectRatio
-                key={ratio}
-                ratio={ratio}
-                rounded
-                size="sm"
-                className="bg-mp-surface-container-highest"
-              >
-                <div className="text-mp-on-surface-variant text-mp-label-small flex h-full w-full items-center justify-center">
-                  {ratio}
-                </div>
+              <MPAspectRatio key={ratio} ratio={ratio} fit="cover" rounded size="sm">
+                <img src="/samples/photos/thumbs/red-umbrella-autumn-path.webp" alt="" />
               </MPAspectRatio>
             ))}
           </div>
@@ -2240,7 +2242,11 @@ const GROUPS: Group[] = [
         preview: (
           <Fit>
             <MPMockup device="mobile" height={110} systemUi={false}>
-              <div className="bg-mp-surface-container-high size-full" />
+              <img
+                src="/samples/photos/thumbs/lakeside-observatory-blue-hour.webp"
+                alt="A small observatory beside a lake at dusk"
+                className="size-full object-cover"
+              />
             </MPMockup>
           </Fit>
         )
@@ -2359,6 +2365,13 @@ const GROUPS: Group[] = [
               variant="elevated"
               title="Weekly digest"
               subtitle="Every Monday"
+              media={
+                <img
+                  src="/samples/photos/thumbs/misty-tea-terraces-sunrise.webp"
+                  alt="Tea terraces in low mist at sunrise"
+                  className="block h-16 w-full object-cover"
+                />
+              }
               footer={
                 <MPButton size="xs" variant="text">
                   Send
@@ -2379,19 +2392,18 @@ const GROUPS: Group[] = [
         path: '/components/layout/carousel',
         preview: (
           <Fit>
-            <MPCarousel size="xs" label="Mountains">
-              {['Namsan', 'Bukhansan', 'Gwanaksan'].map((name, index) => (
-                <div
+            <MPCarousel size="xs" label="Trails">
+              {[
+                ['forest-trail-sunbeams', 'A path through tall trees with sunbeams between them'],
+                ['snowy-cabin-frozen-stream', 'A cabin in snow beside a frozen stream'],
+                ['rowboat-misty-pond-sunrise', 'A rowboat on a still pond at sunrise']
+              ].map(([name, alt]) => (
+                <img
                   key={name}
-                  className="text-mp-on-surface text-mp-label-large flex h-20 items-center justify-center"
-                  style={{
-                    background: `var(--_mp-color-${
-                      ['primary', 'secondary', 'tertiary'][index]
-                    }-container)`
-                  }}
-                >
-                  {name}
-                </div>
+                  src={`/samples/photos/thumbs/${name}.webp`}
+                  alt={alt}
+                  className="block h-20 w-full object-cover"
+                />
               ))}
             </MPCarousel>
           </Fit>
@@ -2551,9 +2563,9 @@ const GROUPS: Group[] = [
               total={9}
               overflow={(n) => <MPAvatar initials={`+${n}`} />}
             >
-              <MPAvatar size="sm" name="Ada Lovelace" />
-              <MPAvatar size="sm" name="Alan Turing" />
-              <MPAvatar size="sm" name="Grace Hopper" />
+              <MPAvatar size="sm" src="/samples/people/anya-sol.webp" name="Anya Sol" />
+              <MPAvatar size="sm" src="/samples/people/lucas-adebayo.webp" name="Lucas Adebayo" />
+              <MPAvatar size="sm" src="/samples/people/noa-marin.webp" name="Noa Marin" />
             </MPStack>
           </Fit>
         )

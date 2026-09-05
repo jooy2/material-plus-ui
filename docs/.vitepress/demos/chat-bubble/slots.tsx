@@ -17,18 +17,17 @@ export default function ChatBubbleSlots() {
   return (
     <div style={{ display: 'grid', gap: 10, width: '100%', maxWidth: 460 }}>
       <MPChatBubble
-        avatar={<MPAvatar size="sm">A</MPAvatar>}
-        name="Ada"
+        avatar={<MPAvatar size="sm" src="/samples/people/theo-quinn.webp" name="Theo Quinn" />}
+        name="Theo"
         time="09:12"
         actions={
           <MPIconButton size="xs" icon={<MPIcon icon={ICONS.more} />} label="Message menu" />
         }
         media={
-          <div
-            style={{
-              height: 100,
-              background: 'linear-gradient(120deg, var(--mp-source-color), transparent)'
-            }}
+          <img
+            src="/samples/photos/thumbs/rainy-city-crosswalk-reflections.webp"
+            alt="A city crossing in the rain, the lights running down the wet road"
+            style={{ display: 'block', width: '100%', height: 120, objectFit: 'cover' }}
           />
         }
       >
@@ -44,7 +43,8 @@ export default function ChatBubbleSlots() {
           site: 'm3.material.io',
           title: 'Cards — Material Design 3',
           description:
-            'Cards contain content and actions about a single subject, and come in three variants.'
+            'Cards contain content and actions about a single subject, and come in three variants.',
+          image: '/samples/illustrations/thumbs/layered-mountains-rising-sun.webp'
         }}
       >
         This is the page I meant.

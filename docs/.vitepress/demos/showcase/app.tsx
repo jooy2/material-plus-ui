@@ -243,7 +243,7 @@ function AppBar({
           <MPIconButton
             size="sm"
             variant="text"
-            icon={<MPAvatar size="xs" name="Ada Lovelace" />}
+            icon={<MPAvatar size="xs" src="/samples/people/sam-arden.webp" name="Sam Arden" />}
             label="Account"
           />
         }
@@ -362,8 +362,8 @@ function Deploys() {
 
 /** A form and a settings panel, which is the pair every application has. */
 function Forms() {
-  const [name, setName] = useState('Ada Lovelace');
-  const [email, setEmail] = useState('ada@kestrel.dev');
+  const [name, setName] = useState('Sam Arden');
+  const [email, setEmail] = useState('sam@kestrel.dev');
   const [digest, setDigest] = useState(true);
   const [notify, setNotify] = useState(true);
   const [scheme, setScheme] = useState('system');

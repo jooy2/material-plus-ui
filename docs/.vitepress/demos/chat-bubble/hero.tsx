@@ -1,5 +1,8 @@
 import { MPAvatar, MPChatBubble } from 'material-plus-ui';
 
+/** One picture, shared by the two rows the same person sent. */
+const NADIA = <MPAvatar size="sm" src="/samples/people/nadia-rowan.webp" name="Nadia Rowan" />;
+
 /**
  * A thread, which is a column of these.
  *
@@ -10,7 +13,7 @@ import { MPAvatar, MPChatBubble } from 'material-plus-ui';
 export default function ChatBubbleHero() {
   return (
     <div style={{ display: 'grid', gap: 10, width: '100%', maxWidth: 460 }}>
-      <MPChatBubble avatar={<MPAvatar size="sm">A</MPAvatar>} name="Ada" time="18:01">
+      <MPChatBubble avatar={NADIA} name="Nadia" time="18:01">
         Are we still on for six?
       </MPChatBubble>
 
@@ -18,7 +21,7 @@ export default function ChatBubbleHero() {
         Yes — I booked the corner table.
       </MPChatBubble>
 
-      <MPChatBubble avatar={<MPAvatar size="sm">A</MPAvatar>} typing />
+      <MPChatBubble avatar={NADIA} typing />
     </div>
   );
 }

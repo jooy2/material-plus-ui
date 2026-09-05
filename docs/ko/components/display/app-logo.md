@@ -7,7 +7,7 @@ order: 25
 
 <p class="mp-lede">정해진 크기로 그려지는 제품의 마크, 결코 빈 상자가 되지 않습니다. 아트워크, 이미지, 이니셜, 아니면 이름 자체 — 그중 있는 것이 그 마크가 그려진 방식대로 담깁니다.</p>
 
-<Demo src="app-logo/hero" :minHeight="260" />
+<Demo src="app-logo/hero" :minHeight="300" />
 
 ```tsx
 import { MPAppLogo } from 'material-plus-ui';

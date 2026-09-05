@@ -12,9 +12,9 @@ order: 6
 ```tsx
 import { MPCarousel } from 'material-plus-ui';
 
-<MPCarousel label="산">
-  <img src="/namsan.jpg" alt="해 뜰 무렵의 남산" />
-  <img src="/bukhansan.jpg" alt="눈 덮인 북한산" />
+<MPCarousel label="숲길">
+  <img src="/forest-trail.jpg" alt="키 큰 나무 사이로 난 오솔길" />
+  <img src="/snowy-cabin.jpg" alt="얼어붙은 개울 옆 눈 덮인 오두막" />
 </MPCarousel>;
 ```
 

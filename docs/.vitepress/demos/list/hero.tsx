@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import { ICONS, MPAvatar, MPIcon, MPList, MPListItem, MPSwitch } from 'material-plus-ui';
 
-const PEOPLE = [
-  { name: 'Jane Doe', role: 'Design' },
-  { name: 'Ada Lovelace', role: 'Engineering' },
+/** The third has no picture, which is the row a real directory always has. */
+const PEOPLE: { name: string; role: string; src?: string }[] = [
+  { name: 'Anya Sol', role: 'Design', src: '/samples/people/anya-sol.webp' },
+  { name: 'Joon Mercer', role: 'Engineering', src: '/samples/people/joon-mercer.webp' },
   { name: '홍길동', role: 'Research' }
 ];
 
 export default function ListHero() {
-  const [open, setOpen] = useState('Jane Doe');
+  const [open, setOpen] = useState('Anya Sol');
   const [notify, setNotify] = useState(true);
 
   return (
@@ -19,7 +20,7 @@ export default function ListHero() {
             key={person.name}
             description={person.role}
             selected={open === person.name}
-            startIcon={<MPAvatar size="xs" name={person.name} />}
+            startIcon={<MPAvatar size="xs" name={person.name} src={person.src} />}
             endIcon={<MPIcon icon={ICONS['chevron-right']} size={18} />}
             onClick={() => setOpen(person.name)}
           >

@@ -44,7 +44,7 @@ import { MPCard, MPButton } from 'material-plus-ui';
 
 ## media
 
-<Demo src="card/media" :minHeight="320">
+<Demo src="card/media" :minHeight="400">
 
 <<< @/.vitepress/demos/card/media.tsx
 

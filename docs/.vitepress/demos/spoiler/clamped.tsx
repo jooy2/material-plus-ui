@@ -25,11 +25,10 @@ export default function SpoilerClamped() {
       </MPSpoiler>
 
       <MPSpoiler padded={false} description="Contains flashing images">
-        <div
-          style={{
-            height: 120,
-            background: 'linear-gradient(120deg, var(--mp-source-color), transparent)'
-          }}
+        <img
+          src="/samples/photos/thumbs/rainy-city-crosswalk-reflections.webp"
+          alt="A city crossing at night, headlights running down the wet road"
+          style={{ display: 'block', width: '100%', height: 120, objectFit: 'cover' }}
         />
       </MPSpoiler>
     </div>

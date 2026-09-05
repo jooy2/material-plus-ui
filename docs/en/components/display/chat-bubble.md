@@ -87,7 +87,7 @@ That is the opposite of what [MPDialog](../feedback/dialog) does with `closeLabe
 
 ## Examples
 
-<Demo src="chat-bubble/slots" :minHeight="420">
+<Demo src="chat-bubble/slots" :minHeight="490">
 
 <<< @/.vitepress/demos/chat-bubble/slots.tsx
 

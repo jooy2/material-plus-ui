@@ -87,7 +87,7 @@ const mine = message.authorId === me.id;
 
 ## 예시
 
-<Demo src="chat-bubble/slots" :minHeight="420">
+<Demo src="chat-bubble/slots" :minHeight="490">
 
 <<< @/.vitepress/demos/chat-bubble/slots.tsx
 

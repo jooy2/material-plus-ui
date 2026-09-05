@@ -29,7 +29,7 @@ It is the only text in the library a component invents at full size. It is defau
 
 `Nothing here` is a floor, and every slot above it — the glyph, the sentence, the action — is there to be filled with what is actually missing. A search with no matches, an inbox nobody has written to and a folder before the first file are three different things, and only the caller knows which one this is.
 
-<Demo src="empty/slots">
+<Demo src="empty/slots" :minHeight="720">
 
 <<< @/.vitepress/demos/empty/slots.tsx
 

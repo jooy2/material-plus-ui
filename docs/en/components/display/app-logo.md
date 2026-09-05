@@ -7,7 +7,7 @@ order: 25
 
 <p class="mp-lede">A product's mark, at a known size, that is never an empty box. Artwork, an image, a pair of initials or the name itself — whichever of those exists, framed the way the mark was drawn to be framed.</p>
 
-<Demo src="app-logo/hero" :minHeight="260" />
+<Demo src="app-logo/hero" :minHeight="300" />
 
 ```tsx
 import { MPAppLogo } from 'material-plus-ui';

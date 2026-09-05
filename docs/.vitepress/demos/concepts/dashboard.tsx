@@ -343,7 +343,7 @@ function Screen() {
             />
           </MPBadge>
         </MPTooltip>
-        <MPAvatar size="sm" name="Mina Park" color="tertiary" />
+        <MPAvatar size="sm" src="/samples/people/nadia-rowan.webp" name="Mina Park" />
       </header>
 
       <div style={{ display: 'flex', alignItems: 'stretch', gap: 12, padding: 12 }}>

@@ -1,7 +1,12 @@
 import { useState } from 'react';
 import { MPAvatar, MPBox, MPButton, MPStack, MPTypography } from 'material-plus-ui';
 
-const PEOPLE = ['Ada Lovelace', 'Alan Turing', 'Grace Hopper', 'Katherine Johnson'];
+const PEOPLE = [
+  { name: 'Anya Sol', src: '/samples/people/anya-sol.webp' },
+  { name: 'Lucas Adebayo', src: '/samples/people/lucas-adebayo.webp' },
+  { name: 'Noa Marin', src: '/samples/people/noa-marin.webp' },
+  { name: 'Helen Voss', src: '/samples/people/helen-voss.webp' }
+];
 
 /**
  * The three directions, and the point they are here to make: each box is
@@ -23,8 +28,8 @@ export default function StackHero() {
           play={dealt}
           overflow={(hidden) => <MPAvatar initials={`+${hidden}`} />}
         >
-          {PEOPLE.slice(0, 3).map((name) => (
-            <MPAvatar key={name} name={name} />
+          {PEOPLE.slice(0, 3).map((person) => (
+            <MPAvatar key={person.name} name={person.name} src={person.src} />
           ))}
         </MPStack>
         <MPTypography level="caption">horizontal, ringed, with a count</MPTypography>
