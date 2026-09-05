@@ -58,21 +58,29 @@ jobs:
         node_version: ['26']
         os: [ubuntu-latest, windows-latest, macos-latest]
         browser: [chromium, firefox, webkit]
-        # The suite runs in halves, and it is not for speed.
+        # The suite runs in quarters, and it is not for speed.
         #
-        # Vitest's browser mode drives every file through one page, and past
-        # roughly a hundred files that page stops answering: `[vitest] Browser
-        # connection was closed while running tests`, with the files it never
-        # reached reported as neither passed nor failed. It is a ceiling rather
-        # than a defect — the run dies at a different file every time (101 on
-        # Ubuntu, 127 on macOS, 107 on a developer machine) — and it is
-        # cumulative rather than concurrent, so no parallelism setting reaches
-        # it: with `--no-file-parallelism` the page died *sooner*, at 86.
+        # Vitest's browser mode drives every file through one page, and that page
+        # stops answering before the suite ends: `[vitest] Browser connection was
+        # closed while running tests`, with the files it never reached reported
+        # as neither passed nor failed. It is a ceiling rather than a defect, and
+        # what it is a ceiling *on* is not the file count — the run has died at
+        # 72, 86, 101, 107 and 127 files on different runners, and once at 72 on
+        # the same macOS runner where the other half of the same split finished
+        # 80. It dies on a different file every time.
         #
-        # Two shards put about eighty files through each page, which both halves
-        # clear. Add a third when the suite grows enough to need one; the sign is
-        # this error coming back.
-        shard: ['1/2', '2/2']
+        # Two settings that look like they should reach it do not. With
+        # `--no-file-parallelism` the page died *sooner*, at 86, so the pressure
+        # is cumulative rather than concurrent. With `--no-isolate` — one reused
+        # iframe instead of one per file, which is the thing that accumulates —
+        # the run wedges outright: no output, no CPU, killed after seven minutes.
+        #
+        # So the only lever is how much any one page is asked to do. Four shards
+        # put about forty files through each, against a worst observed ceiling of
+        # 72. Three would be 53 and would probably hold; four is the one that
+        # does not need another CI cycle to find out. The sign that a fifth is
+        # needed is this error coming back.
+        shard: ['1/4', '2/4', '3/4', '4/4']
         exclude:
           # WebKit on the macOS runner, and nothing else in the matrix, hangs on
           # individual clicks: a handful of `.click()` calls sit at exactly the

@@ -40,6 +40,32 @@ function Probe({ width, padded = false }: { width: number; padded?: boolean }) {
 const read = (screen: { getByTestId: (id: string) => { element: () => Element } }, id: string) =>
   Number(screen.getByTestId(id).element().textContent);
 
+/**
+ * The render count once the observer has stopped firing.
+ *
+ * A `ResizeObserver` may deliver more than once as a page settles, and how many
+ * times is the engine's business — Firefox and WebKit deliver an extra callback
+ * on some runners where Chromium does not. Reading the count before it has
+ * settled is what made the assertion below depend on which browser ran it.
+ */
+async function settledRenders(screen: {
+  getByTestId: (id: string) => { element: () => Element };
+}): Promise<number> {
+  let last = -1;
+  let same = 0;
+
+  while (same < 3) {
+    await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
+
+    const now = read(screen, 'renders');
+
+    same = now === last ? same + 1 : 0;
+    last = now;
+  }
+
+  return last;
+}
+
 describe('useMPElementSize', () => {
   it('measures the element it was pointed at', async () => {
     const screen = await render(<Probe width={320} />);
@@ -91,12 +117,24 @@ describe('useMPElementSize', () => {
     const screen = await render(<Probe width={320} />);
 
     await expect.element(screen.getByTestId('width')).toHaveTextContent('320');
-    const settled = read(screen, 'renders');
 
-    // The same width said again. A hook that set state on every observer
-    // callback would re-render here.
-    await screen.rerender(<Probe width={320} />);
+    const settled = await settledRenders(screen);
+    const box = screen.getByTestId('box').element() as HTMLElement;
 
-    expect(read(screen, 'renders')).toBe(settled + 1);
+    /*
+     * A real resize the observer will report, to a width that rounds to the one
+     * already held. A hook that set state on every callback would re-render
+     * here; this one compares the rounded numbers and returns the state it was
+     * given, so React has nothing to do.
+     *
+     * The count is asserted not to move, rather than to move by exactly one.
+     * How many renders a *rerender* costs is React's bookkeeping and it is not
+     * one on every version — the claim being made here is only that the
+     * observer firing is not itself a render.
+     */
+    box.style.width = '320.4px';
+
+    expect(await settledRenders(screen)).toBe(settled);
+    await expect.element(screen.getByTestId('width')).toHaveTextContent('320');
   });
 });
