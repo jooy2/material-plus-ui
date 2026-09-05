@@ -68,6 +68,13 @@ export const ko: MPLocale = {
     },
     breadcrumb: { label: '탐색 경로', expand: '숨겨진 단계 보기' },
     combobox: { empty: '일치하는 항목이 없습니다', add: '“{label}” 추가' },
+    tour: {
+      previous: '이전',
+      next: '다음',
+      done: '완료',
+      skip: '건너뛰기',
+      position: '{total}단계 중 {index}단계'
+    },
     table: { empty: '데이터가 없습니다' },
     dataTable: {
       selectAll: '모든 행 선택',

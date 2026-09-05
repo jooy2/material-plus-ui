@@ -68,6 +68,13 @@ export const id: MPLocale = {
     },
     breadcrumb: { label: 'Remah roti', expand: 'Tampilkan langkah tersembunyi' },
     combobox: { empty: 'Tidak ada yang cocok', add: 'Tambahkan “{label}”' },
+    tour: {
+      previous: 'Kembali',
+      next: 'Berikutnya',
+      done: 'Selesai',
+      skip: 'Lewati',
+      position: 'Langkah {index} dari {total}'
+    },
     table: { empty: 'Tidak ada data' },
     dataTable: {
       selectAll: 'Pilih semua baris',

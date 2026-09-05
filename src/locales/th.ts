@@ -68,6 +68,13 @@ export const th: MPLocale = {
     },
     breadcrumb: { label: 'เส้นทางนำทาง', expand: 'แสดงขั้นตอนที่ซ่อนอยู่' },
     combobox: { empty: 'ไม่พบรายการที่ตรงกัน', add: 'เพิ่ม “{label}”' },
+    tour: {
+      previous: 'ย้อนกลับ',
+      next: 'ถัดไป',
+      done: 'เสร็จสิ้น',
+      skip: 'ข้าม',
+      position: 'ขั้นตอนที่ {index} จาก {total}'
+    },
     table: { empty: 'ไม่มีข้อมูล' },
     dataTable: {
       selectAll: 'เลือกทุกแถว',

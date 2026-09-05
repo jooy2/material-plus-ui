@@ -68,6 +68,13 @@ export const nl: MPLocale = {
     },
     breadcrumb: { label: 'Kruimelpad', expand: 'Verborgen stappen tonen' },
     combobox: { empty: 'Geen resultaten', add: '‘{label}’ toevoegen' },
+    tour: {
+      previous: 'Terug',
+      next: 'Volgende',
+      done: 'Klaar',
+      skip: 'Overslaan',
+      position: 'Stap {index} van {total}'
+    },
     table: { empty: 'Geen gegevens' },
     dataTable: {
       selectAll: 'Alle rijen selecteren',

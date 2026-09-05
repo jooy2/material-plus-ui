@@ -125,6 +125,7 @@ import {
   MPTimelineItem,
   MPToolbar,
   MPTooltip,
+  MPTour,
   MPTransfer,
   MPStep,
   MPStepper,
@@ -412,6 +413,30 @@ function OverlayPreview() {
       <MPOverlay open={open} label="Working" onOpenChange={setOpen}>
         <MPProgressCircular size="lg" />
       </MPOverlay>
+    </>
+  );
+}
+
+function TourPreview() {
+  const [running, setRunning] = useState(false);
+
+  return (
+    <>
+      <MPButton id="mp-gallery-tour" size="sm" variant="outlined" onClick={() => setRunning(true)}>
+        Take the tour
+      </MPButton>
+      <MPTour
+        open={running}
+        onOpenChange={setRunning}
+        size="sm"
+        steps={[
+          {
+            target: '#mp-gallery-tour',
+            title: 'This button',
+            content: 'The page still works while the card is up — that is the whole idea.'
+          }
+        ]}
+      />
     </>
   );
 }
@@ -1746,6 +1771,15 @@ const GROUPS: Group[] = [
             <MPProgressCircular size="sm" />
           </div>
         )
+      },
+      {
+        name: 'MPTour',
+        summary: {
+          ko: '이미 있는 페이지 위를 걷는 안내',
+          en: 'A guided walk over a page that already exists'
+        },
+        path: '/components/feedback/tour',
+        preview: <TourPreview />
       },
       {
         name: 'MPProgressBox',

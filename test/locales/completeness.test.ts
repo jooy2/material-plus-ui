@@ -22,6 +22,7 @@ import { SPOILER } from '../../src/internal/messages/spoiler';
 import { TABLE } from '../../src/internal/messages/table';
 import { TEXT_FIELD } from '../../src/internal/messages/text-field';
 import { TEXT_LINK } from '../../src/internal/messages/text-link';
+import { TOUR } from '../../src/internal/messages/tour';
 import { TRANSFER } from '../../src/internal/messages/transfer';
 
 /**
@@ -61,6 +62,7 @@ const NAMESPACES = [
   TABLE,
   TEXT_FIELD,
   TEXT_LINK,
+  TOUR,
   TRANSFER
 ];
 

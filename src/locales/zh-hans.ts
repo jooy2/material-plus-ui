@@ -73,6 +73,13 @@ export const zhHans: MPLocale = {
     },
     breadcrumb: { label: '面包屑导航', expand: '显示隐藏的层级' },
     combobox: { empty: '无匹配项', add: '添加“{label}”' },
+    tour: {
+      previous: '上一步',
+      next: '下一步',
+      done: '完成',
+      skip: '跳过',
+      position: '第 {index} 步，共 {total} 步'
+    },
     table: { empty: '暂无数据' },
     dataTable: {
       selectAll: '选择所有行',

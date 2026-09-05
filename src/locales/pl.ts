@@ -68,6 +68,13 @@ export const pl: MPLocale = {
     },
     breadcrumb: { label: 'Ścieżka nawigacji', expand: 'Pokaż ukryte kroki' },
     combobox: { empty: 'Brak wyników', add: 'Dodaj „{label}”' },
+    tour: {
+      previous: 'Wstecz',
+      next: 'Dalej',
+      done: 'Gotowe',
+      skip: 'Pomiń',
+      position: 'Krok {index} z {total}'
+    },
     table: { empty: 'Brak danych' },
     dataTable: {
       selectAll: 'Zaznacz wszystkie wiersze',

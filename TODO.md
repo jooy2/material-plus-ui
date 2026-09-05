@@ -6,7 +6,7 @@ This file is a working note. Delete it when the list is empty.
 
 ## Where it got to
 
-Twenty-two units landed on `main`, each as its own commit with implementation, tests, bilingual documentation, a props row, a demo, a gallery entry and a changelog entry.
+Twenty-three units landed on `main`, each as its own commit with implementation, tests, bilingual documentation, a props row, a demo, a gallery entry and a changelog entry.
 
 |  |  |
 | --- | --- |
@@ -17,9 +17,9 @@ Twenty-two units landed on `main`, each as its own commit with implementation, t
 | Display | `MPAnchor`, `MPAppLogo`, `MPDataList`, `MPCodeBlock`, `MPTreeView` |
 | Inputs | `MPTreeSelect` |
 | Data | `MPDataTable` |
-| Feedback | `MPMeter`, `MPHoverCard` |
+| Feedback | `MPMeter`, `MPHoverCard`, `MPTour` |
 
-Eleven units remain, listed below.
+Ten units remain, listed below.
 
 ## The working method
 
@@ -54,11 +54,7 @@ The other suites run in one go: `npx vitest run test/internal test/hooks test/st
 
 ## What is left
 
-### 1. `MPTour`
-
-A guided walk-through: a sequence of steps, each anchored to an element, with a scrim that cuts a hole around the target. `neba`'s is 480 lines. Needs an i18n namespace of its own for the Back / Next / Skip / "Step 2 of 5" strings, filled in for the eighteen locales in `src/locales/`.
-
-### 2–11. The charts
+### 1–10. The charts
 
 Ten components, and they share almost everything, so they are one piece of work rather than ten:
 

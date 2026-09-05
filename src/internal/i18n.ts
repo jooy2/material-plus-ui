@@ -268,6 +268,34 @@ export interface MPMessages {
     add: string;
   };
   /**
+   * MPTour.
+   *
+   * The four buttons and the counter — every one of them drawn, and none of
+   * them the caller's. A tour is a component whose whole content is somebody
+   * else's writing, so these five are the only words it says on its own behalf,
+   * and a tour whose steps are in Korean under a *Next* button is a tour that
+   * was translated halfway.
+   *
+   * The × is `common`'s, because it is the same × every sheet in the library
+   * closes with.
+   *
+   * `{index}` and `{total}` are filled in by `fillMessage`, and they are
+   * positional for the reason the pagination's are: a language that counts the
+   * total first is not one an argument order can serve.
+   */
+  tour: {
+    /** Back one step. Missing on the first. */
+    previous: string;
+    /** On one step. */
+    next: string;
+    /** What Next becomes on the last step. */
+    done: string;
+    /** Leaves the tour without finishing it. */
+    skip: string;
+    /** Where the reader is: "Step 2 of 5". */
+    position: string;
+  };
+  /**
    * MPTable.
    *
    * One string, drawn across the whole width where the rows would be. A table

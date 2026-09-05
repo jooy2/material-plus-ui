@@ -72,6 +72,13 @@ export const ru: MPLocale = {
     },
     breadcrumb: { label: 'Навигационная цепочка', expand: 'Показать скрытые шаги' },
     combobox: { empty: 'Совпадений нет', add: 'Добавить «{label}»' },
+    tour: {
+      previous: 'Назад',
+      next: 'Далее',
+      done: 'Готово',
+      skip: 'Пропустить',
+      position: 'Шаг {index} из {total}'
+    },
     table: { empty: 'Нет данных' },
     dataTable: {
       selectAll: 'Выбрать все строки',

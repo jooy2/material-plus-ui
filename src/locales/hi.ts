@@ -72,6 +72,13 @@ export const hi: MPLocale = {
     },
     breadcrumb: { label: 'ब्रेडक्रंब', expand: 'छिपे हुए चरण दिखाएँ' },
     combobox: { empty: 'कोई मेल नहीं', add: '“{label}” जोड़ें' },
+    tour: {
+      previous: 'पीछे',
+      next: 'आगे',
+      done: 'हो गया',
+      skip: 'छोड़ें',
+      position: 'चरण {index} / {total}'
+    },
     table: { empty: 'कोई डेटा नहीं' },
     dataTable: {
       selectAll: 'सभी पंक्तियाँ चुनें',

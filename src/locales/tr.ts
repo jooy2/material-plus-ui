@@ -68,6 +68,13 @@ export const tr: MPLocale = {
     },
     breadcrumb: { label: 'Gezinme yolu', expand: 'Gizli adımları göster' },
     combobox: { empty: 'Eşleşme yok', add: '“{label}” ekle' },
+    tour: {
+      previous: 'Geri',
+      next: 'İleri',
+      done: 'Bitti',
+      skip: 'Atla',
+      position: 'Adım {index} / {total}'
+    },
     table: { empty: 'Veri yok' },
     dataTable: {
       selectAll: 'Tüm satırları seç',

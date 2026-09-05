@@ -68,6 +68,13 @@ export const ar: MPLocale = {
     },
     breadcrumb: { label: 'مسار التنقل', expand: 'إظهار الخطوات المخفية' },
     combobox: { empty: 'لا توجد نتائج', add: 'إضافة ”{label}“' },
+    tour: {
+      previous: 'رجوع',
+      next: 'التالي',
+      done: 'تم',
+      skip: 'تخطي',
+      position: 'الخطوة {index} من {total}'
+    },
     table: { empty: 'لا توجد بيانات' },
     dataTable: {
       selectAll: 'تحديد كل الصفوف',

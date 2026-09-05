@@ -120,6 +120,7 @@ export * from './components/toggle';
 export * from './components/toggle-group';
 export * from './components/toolbar';
 export * from './components/tooltip';
+export * from './components/tour';
 export * from './components/transfer';
 export * from './components/tree-select';
 export * from './components/tree-view';

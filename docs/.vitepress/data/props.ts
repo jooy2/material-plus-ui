@@ -11849,6 +11849,177 @@ const componentTables: Record<string, PropRow[]> = {
     }
   ],
 
+  MPTour: [
+    {
+      name: 'steps',
+      type: 'MPTourStep[]',
+      required: true,
+      description: { ko: '들르는 곳들, 순서대로', en: 'The stops, in order' }
+    },
+    {
+      name: 'open',
+      type: 'boolean',
+      description: {
+        ko: '투어가 진행 중인지. `onOpenChange`와 함께 쓰면 controlled입니다',
+        en: 'Whether the tour is running. Use with `onOpenChange` for a controlled one'
+      }
+    },
+    {
+      name: 'defaultOpen',
+      type: 'boolean',
+      default: 'false',
+      description: { ko: '처음부터 진행 중인지', en: 'Whether it starts running' }
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: {
+        ko: '투어가 시작되거나 끝날 때 호출됩니다',
+        en: 'Called when the tour starts or ends'
+      }
+    },
+    {
+      name: 'step',
+      type: 'number',
+      description: {
+        ko: '몇 번째 단계인지, `0`부터. `onStepChange`와 함께 쓰면 controlled입니다',
+        en: 'Which stop, from `0`. Use with `onStepChange` for a controlled one'
+      }
+    },
+    {
+      name: 'defaultStep',
+      type: 'number',
+      default: '0',
+      description: { ko: '처음 서는 단계', en: 'Which one it starts on' }
+    },
+    {
+      name: 'onStepChange',
+      type: '(step: number) => void',
+      description: { ko: '단계가 바뀔 때 호출됩니다', en: 'Called when the step changes' }
+    },
+    {
+      name: 'onFinish',
+      type: '() => void',
+      description: {
+        ko: '마지막 단계의 버튼이 눌릴 때, 투어가 닫히기 전에 호출됩니다. 건너뛰기·Escape·×는 이것 없이 닫습니다 — 건너뛰기는 완료가 아닙니다',
+        en: "Called when the last step's button is pressed, before the tour closes. Skip, Escape and the × all close it without this: skipping is not finishing"
+      }
+    },
+    {
+      name: 'scrim',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '페이지를 어둡게 하고 타깃만 도려냅니다. 끄면 투어가 그리는 것은 카드뿐입니다',
+        en: 'Dims the page and cuts the target out of the dimming. Off, the card is the only thing the tour draws'
+      }
+    },
+    {
+      name: 'skippable',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '카운터 옆에 건너뛰기 버튼을 답니다. 마지막 단계에는 나타나지 않습니다',
+        en: 'Offers the Skip button beside the counter. It does not appear on the last step'
+      }
+    },
+    {
+      name: 'dismissible',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: 'Escape와 ×로 투어를 끝낼 수 있는지. `false`면 ×도 그려지지 않습니다 — 아무 일도 하지 않는 ×는 없는 것보다 나쁩니다',
+        en: 'Whether Escape and the × end the tour. `false` draws no × either: one that did nothing would be worse than none'
+      }
+    },
+    {
+      name: 'scrollIntoView',
+      type: 'boolean',
+      default: 'true',
+      description: {
+        ko: '단계에 도달할 때 그 타깃을 화면 안으로 스크롤합니다',
+        en: 'Scrolls each target into view as the tour reaches it'
+      }
+    },
+    {
+      name: 'labels',
+      type: "Partial<MPMessages['tour']>",
+      description: {
+        ko: '투어가 스스로 말하는 다섯 단어의 개별 override. 지정하지 않은 것은 `locale`의 번역, 그다음 영어로 내려갑니다',
+        en: 'Individual overrides for the five words the tour says on its own behalf. Whatever is not given falls back to the translation for `locale`, then to English'
+      }
+    },
+    {
+      name: 'locale',
+      type: 'string',
+      description: {
+        ko: '그 다섯 단어의 언어. 생략하면 가장 가까운 `MPLocaleProvider`, 그다음 영어입니다',
+        en: 'Which language those five words are in. Falls back to the nearest `MPLocaleProvider`, then to English'
+      }
+    },
+    size,
+    {
+      ...color,
+      description: {
+        ko: '카드의 버튼들이 읽는 강조 색 계열',
+        en: "Which accent family the card's buttons read"
+      }
+    },
+    {
+      name: 'classNames',
+      type: "MPSlots<'scrim' | 'title' | 'content' | 'close' | 'footer'>",
+      description: {
+        ko: '카드 둘레의 부분들에 클래스를 겁니다. `className`이 카드 자체이므로, 뒤의 어둠은 `classNames.scrim`입니다',
+        en: 'Class names for the parts around the card. `className` is the card, so the dimming behind it is `classNames.scrim`'
+      }
+    }
+  ],
+
+  MPTourStep: [
+    {
+      name: 'target',
+      type: 'string',
+      description: {
+        ko: '이 단계가 말하는 대상의 CSS 선택자. 생략하면 아무것도 도려내지 않은 채 카드가 페이지 가운데에 놓입니다 — 환영 단계와 마무리 단계가 그것입니다',
+        en: 'A CSS selector for what this step is about. Left out, the card is centred over the page with nothing cut out — which is what a welcome step and a closing step are'
+      }
+    },
+    {
+      name: 'title',
+      type: NODE,
+      description: { ko: '단계의 제목', en: "The step's heading" }
+    },
+    {
+      name: 'content',
+      type: NODE,
+      description: { ko: '단계가 하는 말', en: 'What it says' }
+    },
+    {
+      name: 'side',
+      type: "'top' | 'right' | 'bottom' | 'left'",
+      default: "'bottom'",
+      description: {
+        ko: '카드가 타깃의 어느 변에 붙는지',
+        en: 'Which edge of the target the card sits on'
+      }
+    },
+    {
+      name: 'align',
+      type: "'start' | 'center' | 'end'",
+      default: "'center'",
+      description: { ko: '그 변의 어디쯤에', en: 'Where along that edge' }
+    },
+    {
+      name: 'padding',
+      type: 'number',
+      default: '6',
+      description: {
+        ko: '구멍이 타깃보다 몇 픽셀 부풀려지는지. 포커스 링이 있는 컨트롤은 몇 픽셀을 원하고, 패널 전체는 0을 원합니다',
+        en: 'How far the hole is inflated past the target, in pixels. A control with a focus ring wants a couple; a whole panel wants none'
+      }
+    }
+  ],
+
   MPTransfer: [
     {
       name: 'items',

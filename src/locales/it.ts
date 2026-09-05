@@ -68,6 +68,13 @@ export const it: MPLocale = {
     },
     breadcrumb: { label: 'Percorso di navigazione', expand: 'Mostra i passaggi nascosti' },
     combobox: { empty: 'Nessuna corrispondenza', add: 'Aggiungi «{label}»' },
+    tour: {
+      previous: 'Indietro',
+      next: 'Avanti',
+      done: 'Fatto',
+      skip: 'Salta',
+      position: 'Passo {index} di {total}'
+    },
     table: { empty: 'Nessun dato' },
     dataTable: {
       selectAll: 'Seleziona tutte le righe',

@@ -72,6 +72,13 @@ export const zhHant: MPLocale = {
     },
     breadcrumb: { label: '麵包屑導覽', expand: '顯示隱藏的層級' },
     combobox: { empty: '沒有相符項目', add: '新增「{label}」' },
+    tour: {
+      previous: '上一步',
+      next: '下一步',
+      done: '完成',
+      skip: '略過',
+      position: '第 {index} 步，共 {total} 步'
+    },
     table: { empty: '沒有資料' },
     dataTable: {
       selectAll: '選取所有列',

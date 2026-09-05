@@ -52,7 +52,7 @@ This is **finished CSS**: the design tokens and the real rules behind every util
 
 ### If you only render a few components
 
-The sheet above is every rule the library has, and for most projects that is the right trade: one line, and never a thought about which components are on the page. It is also 140 kB — 20.4 kB compressed — whether the page renders one component or all of them, because Tailwind generates from a file scan and not from your imports.
+The sheet above is every rule the library has, and for most projects that is the right trade: one line, and never a thought about which components are on the page. It is also 141 kB — 20.6 kB compressed — whether the page renders one component or all of them, because Tailwind generates from a file scan and not from your imports.
 
 So the package also ships the same rules cut along the same seams the components are: the tokens once, and a sheet per component.
 
@@ -66,10 +66,10 @@ import 'material-plus-ui/styles/text-field.css';
 
 | Components on the page | The whole sheet | Tokens plus a sheet each |
 | ---------------------- | --------------- | ------------------------ |
-| 1                      | 20.4 kB         | 4.5 kB                   |
-| 5                      | 20.4 kB         | 7.4 kB                   |
-| 10                     | 20.4 kB         | 10.3 kB                  |
-| 38 or more             | 20.4 kB         | 20.4 kB and climbing     |
+| 1                      | 20.6 kB         | 4.5 kB                   |
+| 5                      | 20.6 kB         | 7.4 kB                   |
+| 10                     | 20.6 kB         | 10.3 kB                  |
+| 38 or more             | 20.6 kB         | 20.6 kB and climbing     |
 
 Compressed, as a bundler would concatenate them, and against the same sets the bundle table below uses. The sheets repeat each other — `flex` is in a dozen of them — so their total climbs faster than the whole sheet's does and eventually passes it, at around thirty-eight components. Past that, `styles.css` is both smaller and one line.
 
@@ -345,7 +345,7 @@ Gzipped, from a real bundler, with React and `@base-ui/react` held external — 
 | `MPButton` alone      | 3.0 kB     | 4.5 kB            |
 | Five components       | 9.0 kB     | 7.4 kB            |
 | Ten components        | 13.3 kB    | 10.3 kB           |
-| Every export there is | 107.5 kB   | 20.4 kB           |
+| Every export there is | 108.8 kB   | 20.6 kB           |
 
 The last row leaves out one thing on purpose: `MPCodeBlock`'s grammars are 49.7 kB more, fetched only when a block colours something and never at all on a page that has none. `npm run measure` prints it as a separate figure for that reason.
 

@@ -68,6 +68,13 @@ export const vi: MPLocale = {
     },
     breadcrumb: { label: 'Đường dẫn', expand: 'Hiện các bước đã ẩn' },
     combobox: { empty: 'Không có kết quả', add: 'Thêm “{label}”' },
+    tour: {
+      previous: 'Quay lại',
+      next: 'Tiếp theo',
+      done: 'Xong',
+      skip: 'Bỏ qua',
+      position: 'Bước {index} trên {total}'
+    },
     table: { empty: 'Không có dữ liệu' },
     dataTable: {
       selectAll: 'Chọn tất cả các hàng',

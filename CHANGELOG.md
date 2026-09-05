@@ -6,6 +6,20 @@ A second report from the application that filed the first one, a day after upgra
 
 ### Added
 
+- **`MPTour`**, a guided walk over a page that already exists: a few steps, each anchored to something on screen, with the dimming cut away around it.
+
+  **The dimming never takes the pointer, and that is the whole difference between a tour and a sequence of dialogs.** A reader can use the control being pointed at while the card is up, so everything they learn they learn by doing rather than by reading that it can be done. Nothing outside the card is blocked, no focus is trapped, and neither a press outside nor the focus leaving ends the tour — only Escape, the ×, and the card's own buttons. It does not blur the page either, where `MPOverlay` does: a 2px blur says "you cannot use this right now", and a tour is saying the opposite.
+
+  The hole is **one element carrying a shadow larger than any screen**, not four rectangles around the target. Four rectangles never quite meet at the corners, and the seams show as hairlines across the page the moment the dimming is anything but opaque — which MD3's scrim, at 32%, is not.
+
+  Steps are given by **selector** rather than by element or ref, because what a tour is about is already on the page: a step can point at something another part of the application renders, or at a route that had not loaded when the tour was written. A step with no target is centred over the page with nothing cut out, which is what a welcome step and a closing step are.
+
+  **Nothing in the platform reports that an element has moved.** A `ResizeObserver` fires when it changes size; `scroll` and `resize` fire when the window does. A banner loading above the target moves it and says nothing, and the hole is left beside the thing it was pointing at. So the tour reads the target's position every frame while it runs, which is the answer a positioning library gives to the same question — with the rect compared before any state is set, so a page holding still costs a read and nothing else. It is bounded by what makes it acceptable: a tour is up for seconds, one at a time, over a page the reader is looking at rather than working in.
+
+  `onFinish` fires on the last step's button and nowhere else. Skip, Escape and the × all close the tour without it, which is what keeps an onboarding flow that writes "seen" on finish from marking itself complete for somebody who left.
+
+  New in the message table: a `tour` namespace of five strings — the four buttons and the counter — filled in for the eighteen locales. The × is `common`'s, because it is the same × every sheet in the library closes with.
+
 - **`MPDataTable`**, a grid of data with the four things a reader does to one: put it in order, cut it down, step through it and take some of it away — plus a file to keep. Sorting, a search, pages, resizable columns, row selection and a CSV download.
 
   **It is a separate component from `MPTable` rather than a mode of it.** `MPTable` is the presentational half and should stay that way: a page that only shows a grid has no business shipping a comparator, a CSV writer and a page clamp to do it. What the two share is the geometry — `internal/table.ts` now holds the cells' room, the type they are set in and the slot a row's background is read from — so a data table never sits a pixel off the plain table beside it in the same form. The arithmetic went to `internal/data-table.ts` for the reason `internal/mockup.tsx` gives: a component whose interesting fifty lines are buried in machinery is a component nobody can read.

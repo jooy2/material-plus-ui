@@ -72,6 +72,13 @@ export const ja: MPLocale = {
     },
     breadcrumb: { label: 'パンくずリスト', expand: '省略された階層を表示' },
     combobox: { empty: '一致するものがありません', add: '「{label}」を追加' },
+    tour: {
+      previous: '戻る',
+      next: '次へ',
+      done: '完了',
+      skip: 'スキップ',
+      position: '{total} 件中 {index} 件目'
+    },
     table: { empty: 'データがありません' },
     dataTable: {
       selectAll: 'すべての行を選択',

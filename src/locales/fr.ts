@@ -75,6 +75,13 @@ export const fr: MPLocale = {
     },
     breadcrumb: { label: 'Fil d’Ariane', expand: 'Afficher les étapes masquées' },
     combobox: { empty: 'Aucun résultat', add: 'Ajouter « {label} »' },
+    tour: {
+      previous: 'Retour',
+      next: 'Suivant',
+      done: 'Terminé',
+      skip: 'Passer',
+      position: 'Étape {index} sur {total}'
+    },
     table: { empty: 'Aucune donnée' },
     dataTable: {
       selectAll: 'Sélectionner toutes les lignes',

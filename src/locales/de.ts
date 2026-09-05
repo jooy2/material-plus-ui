@@ -68,6 +68,13 @@ export const de: MPLocale = {
     },
     breadcrumb: { label: 'Brotkrümelnavigation', expand: 'Ausgeblendete Schritte anzeigen' },
     combobox: { empty: 'Keine Treffer', add: '„{label}“ hinzufügen' },
+    tour: {
+      previous: 'Zurück',
+      next: 'Weiter',
+      done: 'Fertig',
+      skip: 'Überspringen',
+      position: 'Schritt {index} von {total}'
+    },
     table: { empty: 'Keine Daten' },
     dataTable: {
       selectAll: 'Alle Zeilen auswählen',
