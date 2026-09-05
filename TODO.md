@@ -19,8 +19,6 @@ Thirty-three units landed on `main`, each as its own commit with implementation,
 | Data | `MPDataTable`, `MPStatistic`, `MPSparkline`, `MPLineChart`, `MPAreaChart`, `MPBarChart`, `MPPieChart`, `MPScatterChart`, `MPGaugeChart`, `MPHeatmapChart`, `MPTimelineChart` |
 | Feedback | `MPMeter`, `MPHoverCard`, `MPTour` |
 
-**The list is empty.** What is left is the two questions below, which were raised and never answered.
-
 ## The working method
 
 Each unit is one commit, and nothing is committed until all of it is done:

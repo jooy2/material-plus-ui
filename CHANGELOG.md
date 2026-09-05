@@ -4,10 +4,6 @@
 
 A second report from the application that filed the first one, a day after upgrading to 1.6.0.
 
-### Fixed
-
-- **`MPBox`, `MPFieldset` and `MPForm` now read `MPConfigProvider`'s `size`.** All three took `'md'` as a default parameter, which reads the prop and then stops — so an application that set the ladder once got `lg` controls standing in `md` room, which is the one thing a size ladder exists to prevent. `MPTooltip` and `MPTextLink` are deliberately not on that list: a tooltip drawn at a control's height is a slab, and a link inside a sentence is the size of the sentence.
-
 ### Added
 
 - **`MPTimelineChart`**, the last of the ten, and the only one whose marks have **two** ends. Every other chart here puts a mark at a single point on the value axis, which is why a span is its own type rather than an `end` bolted onto `MPChartPoint` — a field the other seven would carry and never read.
@@ -531,6 +527,8 @@ A second report from the application that filed the first one, a day after upgra
   The behaviour is right and is unchanged: a field that stayed blank over a value it is holding, and will submit, is worse — and on `MPCombobox` a value the list does not have is what `allowCustom` is for. It is the sentinel that was undocumented.
 
 ### Fixed
+
+- **`MPBox`, `MPFieldset` and `MPForm` now read `MPConfigProvider`'s `size`.** All three took `'md'` as a default parameter, which reads the prop and then stops — so an application that set the ladder once got `lg` controls standing in `md` room, which is the one thing a size ladder exists to prevent. `MPTooltip` and `MPTextLink` are deliberately not on that list: a tooltip drawn at a control's height is a slab, and a link inside a sentence is the size of the sentence.
 
 - **A picker asked for without its glyph could not be opened with a mouse.** `startIcon={null}` is the configuration `floatingLabel` exists for — it is the only way the label ever rests on the trigger's own line — and it was the one configuration where a press did nothing at all.
 
