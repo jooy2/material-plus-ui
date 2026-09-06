@@ -21,14 +21,42 @@
 @import './scope.css';
 
 @import 'tailwindcss/theme.css' layer(theme);
-@import 'tailwindcss/utilities.css';
+@import 'tailwindcss/utilities.css' source(none);
 
 @import '../../../../src/styles.css';
 
 @import './docs.css';
 
-/* Tailwind only emits classes it can see spelled out. `src/` is not listed:
-   `src/styles.css` registers its own directory, exactly as it does for a
-   consumer who installed the package. These two are the docs' own classes. */
+/*
+ * Tailwind only emits classes it can see spelled out, and `source(none)` above
+ * is what makes that sentence true here. Without it Tailwind adds its automatic
+ * detection on top of whatever is listed below and walks the whole repository,
+ * which means it reads class names out of prose. `CHANGELOG.md` quotes a broken
+ * arbitrary value in a code fence — the one the 1.4.0 entry exists to explain —
+ * and Tailwind compiled it straight back into a rule that lightningcss then
+ * rejected on every build. Twenty-eight utilities came from documentation that
+ * was describing them rather than using them.
+ *
+ * So the sources are named, and these three are all of them.
+ *
+ * `src` has to be one of them, which is the surprise. `src/styles.css` above
+ * carries its own `@source '.'`, and that line does work — a consumer who
+ * installs the package gets the components' utilities from it, through both the
+ * Tailwind CLI and a `source(none)` of their own, which was checked rather than
+ * assumed. What it does not survive is this file's relative `@import`: Vite
+ * inlines that before `@tailwindcss/postcss` sees it, so the `.` resolves
+ * against this directory instead of `src/`. Automatic detection used to cover
+ * that up. It no longer does, and without the line below every component on the
+ * site renders unstyled.
+ *
+ * Nothing in `docs/` needs to be scanned. The Markdown's own live HTML writes
+ * `mp-lede`, `mp-why` and `mp-why-card`, all three of them `docs.css`'s; a
+ * utility class anywhere in a page is inside a fence or a code span, where it is
+ * an example rather than a class.
+ *
+ * A new directory of demos or theme components needs a line here, or its classes
+ * will not be generated.
+ */
 @source '../../demos';
 @source '../components';
+@source '../../../../src';
