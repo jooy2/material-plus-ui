@@ -38,6 +38,10 @@
 
   Turning detection off exposed a second thing. `src/styles.css` carries its own `@source '.'`, which is what gives a consumer the components' utilities — that line works, through the Tailwind CLI and under a `source(none)` of their own, both checked rather than assumed. What it does not survive is the documentation entry point's relative `@import`: Vite inlines that before `@tailwindcss/postcss` sees it, so the `.` resolves against the wrong directory. Automatic detection had been covering for it, and the site now names `src` itself.
 
+### Fixed
+
+- **A field with no label drew its outline five pixels above the control.** A browser paints a fieldset's block-start border through the middle of its legend rather than along the box's own top edge, so the shell pulls the box up by five to land that line on the control's top edge. The legend is rendered only when there is a label; the offset was applied either way. A labelless field therefore wore a 37px ring around a 32px `xs` control, sitting 2.5px above the centre of whatever row it was in — which is how it was reported: a search box in a 48px header bar that does not quite line up with the icons beside it. The five pixels are now reserved only when there is a legend to reserve them for, on every control drawn on the shell: `MPTextField`, `MPSelect`, `MPNumberField`, `MPCombobox`, `MPColorPicker` and the four pickers.
+
 ## 1.7.0 (2026-09-05)
 
 A second report from the application that filed the first one, a day after upgrading to 1.6.0 — and then the largest addition in the library's history, which the report is only the first section of.

@@ -117,7 +117,22 @@ export function MPFieldOutline({ label, required = false, notched = true }: MPFi
     <fieldset
       aria-hidden="true"
       className={[
-        'pointer-events-none absolute inset-0 -top-[5px] m-0 min-w-0 px-2 pt-0',
+        'pointer-events-none absolute inset-0 m-0 min-w-0 px-2 pt-0',
+        /*
+         * The five pixels belong to the legend, so they are only reserved when
+         * there is one.
+         *
+         * A browser paints a fieldset's block-start border through the middle of
+         * its rendered legend rather than along its own top edge, so an 11px
+         * legend puts the line 5.5px down. Pulling the box up by five is what
+         * lands that line on the control's own top edge — with a label. Without
+         * one there is no legend, nothing moves the line down, and the same
+         * offset drew the whole outline five pixels high of the control it is
+         * meant to be around: a 37px ring on a 32px `xs` field, sitting 2.5px
+         * above the centre of the row and reading as a search box that does not
+         * quite line up with the icons beside it.
+         */
+        label ? '-top-[5px]' : '',
         'rounded-mp-xs border border-mp-outline',
         /*
          * The colour eases; the width does not, and must not.
@@ -146,7 +161,9 @@ export function MPFieldOutline({ label, required = false, notched = true }: MPFi
         'group-data-invalid:border-mp-error',
         // The spec's disabled outline: `on-surface` at 12%.
         'group-data-disabled:border-mp-on-surface/12'
-      ].join(' ')}
+      ]
+        .filter(Boolean)
+        .join(' ')}
     >
       {label ? (
         /*
