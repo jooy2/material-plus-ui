@@ -48,4 +48,27 @@ describe('the field outline', () => {
       expect(outline.top).toBeCloseTo(row.top - 5, 1);
     });
   });
+
+  describe('where the notch is cut', () => {
+    /*
+     * A legend is placed within the border it interrupts by its fieldset's
+     * `text-align`, and the label is placed by `start-*`. With no alignment of
+     * its own the outline took the page's, so inside a centred card the gap
+     * opened in the middle of the top border with the label still at the inline
+     * start — 165px apart on a 345px card.
+     */
+    it('is at the inline start, whatever the page is aligned to', async () => {
+      const screen = await render(
+        <div style={{ textAlign: 'center', width: 360 }}>
+          <MPTextField value="a" label="Email" fullWidth />
+        </div>
+      );
+      const outline = screen.container.querySelector('fieldset')!.getBoundingClientRect();
+      const notch = screen.container.querySelector('legend')!.getBoundingClientRect();
+      const label = screen.container.querySelector('label')!.getBoundingClientRect();
+
+      expect(notch.left - outline.left).toBeLessThan(16);
+      expect(Math.abs(notch.left - label.left)).toBeLessThan(8);
+    });
+  });
 });

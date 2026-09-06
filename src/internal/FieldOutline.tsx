@@ -133,6 +133,21 @@ export function MPFieldOutline({ label, required = false, notched = true }: MPFi
          * quite line up with the icons beside it.
          */
         label ? '-top-[5px]' : '',
+        /*
+         * The notch is placed by this element's `text-align`; the label is not.
+         *
+         * A rendered `<legend>` is aligned within the border it interrupts by
+         * whatever `text-align` its `<fieldset>` resolves to, and with nothing
+         * declared here that was the surrounding page's. `MPFieldLabel` is
+         * absolutely positioned at `start-*` and never moved. So inside anything
+         * centred — a sign-in card is the obvious one — the gap opened in the
+         * middle of the top border while the label sat at the inline start,
+         * measured 165px apart on a 345px card.
+         *
+         * `start` rather than `left`, so the notch still follows the writing
+         * direction under RTL, which is the whole reason the label is `start-*`.
+         */
+        'text-start',
         'rounded-mp-xs border border-mp-outline',
         /*
          * The colour eases; the width does not, and must not.
