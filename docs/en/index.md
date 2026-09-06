@@ -3,7 +3,7 @@ layout: home
 
 title: Material Plus
 titleTemplate: Material Design 3 components for React
-description: A React component library implementing Material Design 3 — the components other Material libraries do not ship, and wider versions of the ones they do. Themed with CSS custom properties. TypeScript types included, ESM only.
+description: A React component library written from the Material Design 3 specification and extended past it — the charts, data table and command palette Material never names. Themed with CSS custom properties. TypeScript types included, ESM only.
 
 hero:
   name: Material Plus
@@ -39,9 +39,9 @@ features:
 
 ## Why Material Plus
 
-Every Material library leaves you writing the same four or five components in every project — the field that handles composition properly, the icon wrapper that agrees with your set, the form row that assembles a label, supporting text and two adornments the same way every time.
+Material Design 3 is a written specification, and a component library can start either from that document or from somebody else's reading of it. This one started from the document, which is why its colour roles, type scale and shape tokens carry the names the specification gives them.
 
-Material Plus is that pile, extracted and tested.
+Then there is where the specification stops and a screen does not. The button ladder is the plain example: `xs`, `sm` and `md` are the specification's 32, 40 and 56px, and `lg` and `xl` are this library's 64 and 72px — the next size the specification names is 96px, and a 96px button beside a 64px field is not a row. Charts, a data table and a command palette are the same thing one level up. The specification does not name them; applications have them anyway.
 
 <div class="mp-why">
   <div class="mp-why-card">
