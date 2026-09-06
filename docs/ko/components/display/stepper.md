@@ -35,7 +35,7 @@ const [step, setStep] = useState(0);
 
 ## `MPTimeline`과 무엇이 다른가
 
-둘은 같은 표에서 같은 그림을 그립니다 — 불릿, 커넥터, 그것들이 놓인 사다리는 [`internal/step.ts`](https://github.com/jooy2/material-plus/blob/main/src/internal/step.ts) 한 파일입니다. 두 개의 표가 지키는 그림은 둘 중 하나가 혼자 수정되는 순간 어긋나기 때문입니다.
+둘은 같은 표에서 같은 그림을 그립니다 — 불릿, 커넥터, 그것들이 놓인 사다리는 [`internal/step.ts`](https://github.com/jooy2/material-plus-ui/blob/main/src/internal/step.ts) 한 파일입니다. 두 개의 표가 지키는 그림은 둘 중 하나가 혼자 수정되는 순간 어긋나기 때문입니다.
 
 둘이 별개인 이유는 하는 일이 둘이기 때문입니다.
 

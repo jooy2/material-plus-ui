@@ -12,10 +12,10 @@
   "homepage": "https://material-plus.cdget.com",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jooy2/material-plus.git"
+    "url": "git+https://github.com/jooy2/material-plus-ui.git"
   },
   "bugs": {
-    "url": "https://github.com/jooy2/material-plus/issues"
+    "url": "https://github.com/jooy2/material-plus-ui/issues"
   },
   "scripts": {
     "build": "npm run format:fix && node scripts/clean-dist.mjs && tsc --project tsconfig.prod.json && node scripts/specify-imports.mjs && node scripts/annotate-pure.mjs && npm run minify && node scripts/mark-client.mjs && node scripts/build-styles.mjs && node scripts/build-split-styles.mjs && node scripts/measure-bundle.mjs",

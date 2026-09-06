@@ -39,7 +39,7 @@ Every documentation page exists in both `docs/en` and `docs/ko`. Add the English
 
 ## Issues
 
-Issues can be created on the following page: https://github.com/jooy2/material-plus/issues
+Issues can be created on the following page: https://github.com/jooy2/material-plus-ui/issues
 
 Alternatively, you can reach the maintainers at https://cdget.com/contact. However, we prefer to track progress via GitHub Issues.
 

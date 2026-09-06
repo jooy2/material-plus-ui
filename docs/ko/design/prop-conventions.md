@@ -5,7 +5,7 @@ order: 2
 
 # Prop 규약
 
-`size="md"`는 텍스트 필드에서든 버튼에서든 다이얼로그에서든 같은 것을 뜻해야 합니다. 공유 어휘는 [`src/types.ts`](https://github.com/jooy2/material-plus/blob/main/src/types.ts)에 있고, 각 컴포넌트는 자기가 필요한 축만 가져갑니다.
+`size="md"`는 텍스트 필드에서든 버튼에서든 다이얼로그에서든 같은 것을 뜻해야 합니다. 공유 어휘는 [`src/types.ts`](https://github.com/jooy2/material-plus-ui/blob/main/src/types.ts)에 있고, 각 컴포넌트는 자기가 필요한 축만 가져갑니다.
 
 아래 전체를 지배하는 규칙이 두 개입니다.
 

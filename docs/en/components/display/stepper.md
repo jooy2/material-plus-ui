@@ -35,7 +35,7 @@ const [step, setStep] = useState(0);
 
 ## How it differs from `MPTimeline`
 
-They draw the same picture from the same table — the bullet, the connector and the ladder they sit on are one file, [`internal/step.ts`](https://github.com/jooy2/material-plus/blob/main/src/internal/step.ts), because a picture kept by two tables is a picture that drifts the first time one of them is edited alone.
+They draw the same picture from the same table — the bullet, the connector and the ladder they sit on are one file, [`internal/step.ts`](https://github.com/jooy2/material-plus-ui/blob/main/src/internal/step.ts), because a picture kept by two tables is a picture that drifts the first time one of them is edited alone.
 
 They are two components because they are two jobs:
 

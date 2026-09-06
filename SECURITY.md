@@ -6,7 +6,7 @@ Security fixes go into the latest release of `material-plus-ui`. Before reportin
 
 ## Reporting Security Issues
 
-To report a security vulnerability, open a draft security advisory on GitHub: https://github.com/jooy2/material-plus/security/advisories/new
+To report a security vulnerability, open a draft security advisory on GitHub: https://github.com/jooy2/material-plus-ui/security/advisories/new
 
 Do not report a vulnerability as a general issue, and do not describe it in a pull request before it is fixed. If you cannot use the advisory page, write to the maintainers at https://cdget.com/contact and wait for a reply before disclosing anything.
 

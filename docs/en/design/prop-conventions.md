@@ -5,7 +5,7 @@ order: 2
 
 # Prop conventions
 
-`size="md"` has to mean the same thing on a text field, a button and a dialog. The shared vocabulary lives in [`src/types.ts`](https://github.com/jooy2/material-plus/blob/main/src/types.ts), and each component takes only the axes it needs.
+`size="md"` has to mean the same thing on a text field, a button and a dialog. The shared vocabulary lives in [`src/types.ts`](https://github.com/jooy2/material-plus-ui/blob/main/src/types.ts), and each component takes only the axes it needs.
 
 Two rules govern everything below.
 
