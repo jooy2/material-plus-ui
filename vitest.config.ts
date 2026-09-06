@@ -75,9 +75,13 @@ const contextOptions = { locale: 'en-US' };
  *
  * The flag goes on the instance rather than on the provider they all share
  * because WebKit on Linux parses its arguments strictly: handed an option it
- * does not know, it prints `Cannot parse arguments` and never starts. Firefox
- * and WebKit need none of this anyway — both reclaim their own and finish the
- * suite in a single page.
+ * does not know, it prints `Cannot parse arguments` and never starts.
+ *
+ * Neither of the other two has an equivalent hook, and neither has needed one.
+ * Firefox finished the suite in a single page seven runs out of seven; WebKit
+ * eight out of ten, dropping the connection at 106 files once and answering
+ * nothing at all once, both while the machine was busy with other work. If that
+ * turns common, sharding those two is the lever this replaced.
  */
 function providerFor(browser: SupportedBrowser) {
   return browser === 'chromium'

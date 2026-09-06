@@ -47,9 +47,10 @@ registerMPMessages(...LOCALES);
  * on a different file each time.
  *
  * `gc` exists because `vitest.config.ts` launches Chromium with
- * `--js-flags=--expose-gc`, and it is optional here because Firefox and WebKit
- * have no such hook and need none: both reclaim their own and finish the suite
- * in a single page.
+ * `--js-flags=--expose-gc`, and it is optional here because neither of the
+ * other two engines has an equivalent hook. Neither has needed one: Firefox
+ * finished the suite in a single page every run it was asked for, and WebKit in
+ * eight out of ten.
  */
 import { afterAll } from 'vitest';
 

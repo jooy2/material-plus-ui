@@ -108,8 +108,11 @@ describe('MPBottomNavigation', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Search' }));
 
+    // Both polled. The two pills run their own transitions, so the one shrinking
+    // can still be a pixel out when the one growing has arrived — Firefox read
+    // 33 where the assertion wanted 32.
     await expect.poll(() => Math.round(pill(1))).toBe(64);
-    expect(Math.round(pill(0))).toBe(32);
+    await expect.poll(() => Math.round(pill(0))).toBe(32);
 
     // The slots never moved.
     expect(Math.round(slot(0))).toBe(64);
