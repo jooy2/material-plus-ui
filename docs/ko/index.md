@@ -7,8 +7,8 @@ description: Material Design 3를 구현한 React 컴포넌트 라이브러리�
 
 hero:
   name: Material Plus
-  text: 매번 직접 만들게 되는 머터리얼 컴포넌트들
-  tagline: 'Material Design 3를 스펙에서 직접 따랐습니다. 테마가 CSS 커스텀 프로퍼티라, 이미 머터리얼을 쓰는 프로젝트에 두 번째 디자인 시스템을 들이지 않고 들어갑니다.'
+  text: 머터리얼 스펙을 준수하면서도 확장시킬 수 있는 컴포넌트 라이브러리
+  tagline: 'Material Design의 최신 사양 그대로, 대신 더 넓은 범위의 컴포넌트와 개선된 디자인을 사용합니다. 여러 가지 사용자 지정 옵션으로 조금 더 컴팩트하게 쓰거나, 더 넓은 폭의 기기를 지원하세요.'
   image:
     src: /logo-large.png
     alt: Material Plus
@@ -58,6 +58,32 @@ Material Plus는 그렇게 쌓인 것들을 꺼내어 테스트까지 붙여 둔
   </div>
 </div>
 
+## 주요 기능
+
+<ul class="mp-feature-list">
+  <li>Material Design 3 색상·타입·모양 토큰</li>
+  <li>소스 색상 하나로 생성되는 색상 스킴</li>
+  <li>라이트·다크 스킴 전환</li>
+  <li>한국어·일본어·중국어 IME 입력</li>
+  <li>18개 언어 번역</li>
+  <li>RTL 레이아웃</li>
+  <li>반응형 브레이크포인트와 창 크기 클래스</li>
+  <li>xs부터 xl까지의 크기 단계</li>
+  <li>차트 10종</li>
+  <li>날짜·시간 선택기</li>
+  <li>데이터 테이블과 트리 뷰</li>
+  <li>커맨드 팔레트와 키보드 단축키</li>
+  <li>모션 컴포넌트 17종</li>
+  <li>레이아웃 프리미티브와 페이지 레이아웃</li>
+  <li>훅 9종</li>
+  <li>TypeScript 타입 정의 포함</li>
+  <li>ESM 전용, 트리 셰이킹</li>
+  <li>컴포넌트별로 나뉘는 스타일시트</li>
+  <li>Next.js 서버 컴포넌트 지원</li>
+  <li>Tailwind CSS v4 토큰 시트</li>
+  <li>Chromium·Firefox·WebKit 테스트</li>
+</ul>
+
 ## 설치
 
 ```bash
@@ -79,3 +105,11 @@ export default function SignIn() {
   return <MPTextField label="이메일" type="email" value={email} onChange={setEmail} />;
 }
 ```
+
+## 미리보기
+
+여섯 개만 꺼내 왔습니다. 카드 안의 것은 그림이 아니라 이 페이지에서 돌고 있는 컴포넌트입니다.
+
+<Demo src="home/preview" plain :minHeight="420" />
+
+나머지는 [모든 컴포넌트](/ko/components/)에 있습니다.

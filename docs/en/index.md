@@ -7,8 +7,8 @@ description: A React component library implementing Material Design 3 — the co
 
 hero:
   name: Material Plus
-  text: The Material components you keep writing yourself
-  tagline: Material Design 3, followed from the specification. Themed in CSS custom properties, so it drops into a project that already has Material without a second design system to reconcile.
+  text: A component library that follows the Material specification and extends it
+  tagline: The latest Material Design specification as it stands, with a wider range of components on top of it and a design that goes further. Its options let you run the whole thing more compactly, or open it out for a wider screen.
   image:
     src: /logo-large.png
     alt: Material Plus
@@ -58,6 +58,32 @@ Material Plus is that pile, extracted and tested.
   </div>
 </div>
 
+## Features
+
+<ul class="mp-feature-list">
+  <li>Material Design 3 colour, type and shape tokens</li>
+  <li>A colour scheme generated from one source colour</li>
+  <li>Light and dark schemes</li>
+  <li>Korean, Japanese and Chinese IME input</li>
+  <li>Translations in 18 languages</li>
+  <li>Right-to-left layout</li>
+  <li>Responsive breakpoints and window size classes</li>
+  <li>A size ladder from xs to xl</li>
+  <li>Ten charts</li>
+  <li>Date and time pickers</li>
+  <li>Data table and tree view</li>
+  <li>Command palette and keyboard shortcuts</li>
+  <li>Seventeen motion components</li>
+  <li>Layout primitives and page layouts</li>
+  <li>Nine hooks</li>
+  <li>TypeScript declarations included</li>
+  <li>ESM only, tree-shakeable</li>
+  <li>A stylesheet that splits per component</li>
+  <li>Next.js server components</li>
+  <li>A Tailwind CSS v4 token sheet</li>
+  <li>Tested in Chromium, Firefox and WebKit</li>
+</ul>
+
 ## Install
 
 ```bash
@@ -79,3 +105,11 @@ export default function SignIn() {
   return <MPTextField label="Email" type="email" value={email} onChange={setEmail} />;
 }
 ```
+
+## Preview
+
+Six of them. What is inside a card is not a picture — it is the component, running in this page.
+
+<Demo src="home/preview" plain :minHeight="420" />
+
+The rest are in [All components](/components/).

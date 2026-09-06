@@ -10,6 +10,12 @@
 
 ### Documentation
 
+- **The front page says what the library is, and then shows six of it running.** The headline was "the Material components you keep writing yourself", which is the argument the section below it already makes at length rather than the thing a reader opens the page to find out. It is the specification claim now, and the tagline is what the library puts on top of that claim: a wider range of components, a design that goes further, and the options for running the whole thing tighter or spreading it across more width.
+
+  Two sections are new. **Features** is twenty-one names and no prose, for a reader who is scanning rather than reading — every one of them a thing the library has, from the IME-safe field to the Tailwind v4 token sheet. **Preview** sits under the install instructions and holds `MPTextField`, `MPButton`, `MPDatePicker`, `MPLineChart`, `MPDataTable` and `MPAlert`, running in the page and each linking to its own documentation. Until now the front page asked a reader to install the package before it showed them a single component.
+
+  The hero mark is a 512px file where it was 256px, re-exported from the full-size artwork and framed exactly as the old one was. It is drawn at 256px rather than 160px and still has pixels in hand on a 2× display, and the same file is the site's `og:image`, where 256px was small for a social card.
+
 - **The demos draw real pictures now, where before they drew gradients.** A component whose whole argument is "a picture that is never an empty box" was showing the empty box: every `MPAvatar` on the site was a pair of initials, `MPImage` opened an inline SVG, and `MPAppLogo`'s `src` — one of the four things the page says can be the mark — had no example at all. Twenty-one demos and the all-components grid now carry photographs, portraits, drawn artwork and product marks.
 
   Two props got their first demonstration out of it. `previewSrc` is finally the pair it was written for: a 480px thumbnail on the page and the 1200px file fetched only when somebody opens the picture, which is visible in the network panel rather than only claimed in prose. `MPChatBubble`'s `preview.image` was documented and never drawn.

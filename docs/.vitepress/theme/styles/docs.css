@@ -288,6 +288,59 @@
   line-height: 1.65;
 }
 
+/*
+ * The feature list: names only, in as many columns as the page has room for.
+ *
+ * A bare `ul` would run one item per line down a 896px column and turn twenty
+ * short phrases into a page of its own. The marker is drawn rather than typed,
+ * so it stays a marker at every font size and reads as nothing at all to a
+ * screen reader, which already has the list semantics.
+ */
+.vp-doc .mp-feature-list {
+  display: grid;
+  gap: 10px 24px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  margin: 24px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vp-doc .mp-feature-list li {
+  position: relative;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--vp-c-text-2);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.vp-doc .mp-feature-list li::before {
+  position: absolute;
+  top: 0.55em;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+  background-color: var(--vp-c-brand-1);
+  content: '';
+}
+
+/*
+ * Six cards, three and three.
+ *
+ * The gallery's own track is 260px, which on the home page's undivided 1152px
+ * column fits four — and six cards in fours is a row of four above a row of two
+ * with a hole where the page stops. A wider track ends the first row where the
+ * second one does.
+ *
+ * Both class names are in the selector because the rule this one narrows is
+ * further down the file, and two selectors of equal weight are settled by
+ * order.
+ */
+.vp-doc .mp-scope .mp-gallery-grid.mp-home-preview {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+}
+
 /* ---------------------------------------------------------------------------
  * Palette table
  *
