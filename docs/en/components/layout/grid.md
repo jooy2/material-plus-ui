@@ -83,6 +83,35 @@ It is responsive like any other value:
 
 Full width on a phone, the rest of the row from 600dp.
 
+## `span="auto"`
+
+The other end of the same question: **exactly the width of what is inside the item**, however much that turns out to be.
+
+<Demo src="grid/auto" :minHeight="240">
+
+<<< @/.vitepress/demos/grid/auto.tsx
+
+</Demo>
+
+It is the span for a group whose size is a runtime question. A player's control bar carries between one and five icon buttons depending on what the page can do, and a share of twelve columns has to be written down in advance — so it is either too small or too large. Four 32px buttons need 128px; `large: 2` of a 768px bar is exactly 128px, and the fraction of a pixel that sub-pixel rounding takes off is enough to wrap the last button onto a second row and double the height of the bar. One button on the same row leaves a gap instead.
+
+`'auto'` and `'grow'` are made to pair — one item takes what it needs, the other takes the rest, and neither side names a number:
+
+```tsx
+<MPGrid alignItems="center">
+  <MPGridItem span="grow">Transport controls</MPGridItem>
+  <MPGridItem span="auto">However many buttons there are</MPGridItem>
+</MPGrid>
+```
+
+It is responsive like any other value, and a number at a wider class writes the columns back over it:
+
+```tsx
+<MPGridItem span={{ compact: 12, medium: 'auto' }} />
+```
+
+Full width on a phone, the width of the contents from 600dp. An `'auto'` item does not shrink — nothing in this grid does — so contents wider than the row overflow rather than squeezing what is beside them.
+
 ## offset
 
 Columns left empty _before_ the item — space pushed in ahead of it, not an absolute position in the row.
@@ -113,7 +142,7 @@ A span wider than the row is clamped to the row rather than overflowing, which i
 
 An `MPGrid` inside an `MPGridItem`, not a grid that is also an item. The inner grid redeclares the column count for its own subtree while the item around it keeps the width the outer grid gave it.
 
-A grid is also where a `span` stops meaning anything, and it says so: `.mp-grid` resets the five span slots and the five offset slots to `initial`. Without that reset an inner item that only declared `compact` would resolve the **outer** item's `large` at every class above compact — `span={12}` coming out a sixth of the row it is actually in — because the slots are inherited custom properties. Nothing to write; it is in the stylesheet.
+A grid is also where a `span` stops meaning anything, and it says so: `.mp-grid` resets every slot it hands out — the spans, the offsets, the growth flags and the widths — to `initial`. Without that reset an inner item that only declared `compact` would resolve the **outer** item's `large` at every class above compact — `span={12}` coming out a sixth of the row it is actually in — because the slots are inherited custom properties. Nothing to write; it is in the stylesheet.
 
 ```tsx
 <MPGrid>

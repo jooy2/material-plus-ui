@@ -508,6 +508,109 @@ describe('MPGrid', () => {
     });
   });
 
+  describe('span="auto"', () => {
+    it('takes exactly the width of what is inside it', async () => {
+      const screen = await render(
+        <div style={{ width: 1200 }}>
+          <MPGrid spacing={0}>
+            <MPGridItem span="auto" className="buttons">
+              <div style={{ width: 96 }}>Four buttons</div>
+            </MPGridItem>
+          </MPGrid>
+        </div>
+      );
+
+      expect(width(screen.container.querySelector('.buttons')!)).toBeCloseTo(96, 0);
+    });
+
+    it('pairs with grow, one taking what it needs and the other the rest', async () => {
+      // The layout the value exists for: a control bar whose right-hand group is
+      // however many buttons the page turned out to need, and whose left-hand
+      // group takes everything else. Neither side names a number.
+      const screen = await render(
+        <div style={{ width: 1200 }}>
+          <MPGrid spacing={0}>
+            <MPGridItem span="grow" className="transport">
+              Transport
+            </MPGridItem>
+            <MPGridItem span="auto" className="buttons">
+              <div style={{ width: 96 }}>Four buttons</div>
+            </MPGridItem>
+          </MPGrid>
+        </div>
+      );
+
+      expect(width(screen.container.querySelector('.buttons')!)).toBeCloseTo(96, 0);
+      expect(width(screen.container.querySelector('.transport')!)).toBeCloseTo(1104, 0);
+    });
+
+    it('is responsive like any other span', async () => {
+      // The suite runs in a `large` window, so a number at `large` has to write
+      // the column arithmetic back over the `auto` the class below it named.
+      const screen = await render(
+        <div style={{ width: 1200 }}>
+          <MPGrid spacing={0}>
+            <MPGridItem span={{ compact: 'auto', large: 2 }} className="cell">
+              <div style={{ width: 96 }}>Cell</div>
+            </MPGridItem>
+          </MPGrid>
+        </div>
+      );
+
+      expect(width(screen.container.querySelector('.cell')!)).toBeCloseTo(200, 0);
+    });
+
+    it('is what a number below it cascades into', async () => {
+      const screen = await render(
+        <div style={{ width: 1200 }}>
+          <MPGrid spacing={0}>
+            <MPGridItem span={{ compact: 6, large: 'auto' }} className="cell">
+              <div style={{ width: 96 }}>Cell</div>
+            </MPGridItem>
+          </MPGrid>
+        </div>
+      );
+
+      expect(width(screen.container.querySelector('.cell')!)).toBeCloseTo(96, 0);
+    });
+
+    it('stops at a nested grid, like every other slot', async () => {
+      const screen = await render(
+        <div style={{ width: 1200 }}>
+          <MPGrid spacing={0}>
+            <MPGridItem span="auto" className="outer">
+              <div style={{ width: 200 }}>
+                <MPGrid spacing={0}>
+                  <MPGridItem span={6} className="inner">
+                    Inner
+                  </MPGridItem>
+                </MPGrid>
+              </div>
+            </MPGridItem>
+          </MPGrid>
+        </div>
+      );
+
+      expect(width(screen.container.querySelector('.outer')!)).toBeCloseTo(200, 0);
+      expect(width(screen.container.querySelector('.inner')!)).toBeCloseTo(100, 0);
+    });
+
+    it('writes no width slot for a span that never mentions it', async () => {
+      const screen = await render(
+        <MPGrid>
+          <MPGridItem span={{ compact: 12, large: 'grow' }} className="plain">
+            Plain
+          </MPGridItem>
+        </MPGrid>
+      );
+      const style = (screen.container.querySelector('.plain') as HTMLElement).getAttribute(
+        'style'
+      )!;
+
+      expect(style).not.toContain('--_mp-width');
+    });
+  });
+
   it('passes through the attributes a div takes', async () => {
     const screen = await render(
       <MPGrid id="layout" aria-label="Dashboard">

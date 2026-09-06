@@ -22,19 +22,28 @@ export type MPGridAlign = 'start' | 'center' | 'end' | 'stretch' | 'baseline';
 export type MPGridAlignSelf = MPGridAlign | 'auto';
 
 /**
- * How wide one item is: a number of the grid's columns, or `'grow'`.
+ * How wide one item is: a number of the grid's columns, `'grow'` or `'auto'`.
  *
- * `'grow'` is the one value that is not a measurement. It is "whatever the row
- * has left after everybody else has taken theirs", which is the width a
- * thumbnail's neighbour wants and the one thing a twelve-column arithmetic
- * cannot express — the remainder is only known once the other items in *that*
- * row have been laid out, and no `span` a caller writes down knows what else is
- * in the row.
+ * Neither word is a measurement, and they are the two ends of the same question
+ * a column count cannot answer. `'grow'` is "whatever the row has left after
+ * everybody else has taken theirs" — the width a thumbnail's neighbour wants,
+ * and one the arithmetic cannot reach because the remainder is only known once
+ * the other items in *that* row have been laid out. `'auto'` is "exactly what is
+ * inside me", which the arithmetic cannot reach either: what is inside an item
+ * is measured by the browser, and a share of twelve columns has to be written
+ * down in advance.
+ *
+ * They pair. A control bar whose left half is a set of transport buttons and
+ * whose right half is however many icon buttons the page turned out to need is
+ * `span="grow"` and `span="auto"`, and neither side has a number in it — which
+ * matters because the number would be wrong: four 32px buttons in `span={2}` of
+ * a 768px bar is 128px against 128px, and the pixel that sub-pixel rounding
+ * takes off wraps the last button onto a second row.
  *
  * Two growing items in a row split the remainder equally rather than by their
  * contents, which is the useful half of what makes it predictable.
  */
-export type MPGridSpan = number | 'grow';
+export type MPGridSpan = number | 'grow' | 'auto';
 
 /**
  * How many columns a row is divided into when nobody says.
@@ -85,23 +94,28 @@ function spanValue(value: number): string {
 }
 
 /**
- * The two slot families a `span` writes, which is one family more than it looks.
+ * The three slot families a `span` writes, which is two families more than it
+ * looks.
  *
- * `'grow'` is not a column count, so it cannot be written as one: the width
+ * Neither word is a column count, so neither can be written as one. The width
  * declaration multiplies by `1 - grow`, and the grid item that is growing has to
- * hand the row a `0` there and a `flex-grow: 1` beside it. So a span that
- * mentions `'grow'` anywhere emits a `--_mp-grow-*` for **every** class it
- * names, including the numeric ones — a `0` at `expanded` is what stops the
- * `1` at `compact` cascading up into it, exactly as an explicit span stops a
+ * hand the row a `0` there and a `flex-grow: 1` beside it; `'auto'` is a keyword
+ * no arithmetic produces, so it arrives as the whole `width` rather than as a
+ * number inside one. So a span that mentions either word anywhere emits that
+ * word's slot for **every** class it names, including the numeric ones — a `0`
+ * at `expanded`, or the column arithmetic written back in, is what stops the
+ * value at `compact` cascading up into it, exactly as an explicit span stops a
  * narrower one.
  *
- * A span with no `'grow'` in it emits nothing extra, and that is the point: the
+ * A span with neither word in it emits nothing extra, and that is the point: the
  * common case is a number and stays one property per class, which is the
  * arithmetic the whole file is written around.
  */
 function spanSlots(value: MPResponsive<MPGridSpan> | undefined): React.CSSProperties {
   const map = classMap(value);
-  const growing = Object.values(map).some((entry) => entry === 'grow');
+  const entries = Object.values(map);
+  const growing = entries.some((entry) => entry === 'grow');
+  const contentSized = entries.some((entry) => entry === 'auto');
   const slots: Record<string, string> = {};
 
   for (const windowClass of WINDOW_CLASSES) {
@@ -111,12 +125,18 @@ function spanSlots(value: MPResponsive<MPGridSpan> | undefined): React.CSSProper
       continue;
     }
 
-    if (entry !== 'grow') {
+    if (entry !== 'grow' && entry !== 'auto') {
       slots[`--_mp-span-${windowClass}`] = spanValue(entry);
     }
 
     if (growing) {
       slots[`--_mp-grow-${windowClass}`] = entry === 'grow' ? '1' : '0';
+    }
+
+    if (contentSized) {
+      // `--_mp-span-width` is the columns the stylesheet worked out, so a class
+      // that is not `'auto'` is written back to the width it would have had.
+      slots[`--_mp-width-${windowClass}`] = entry === 'auto' ? 'auto' : 'var(--_mp-span-width)';
     }
   }
 
@@ -257,6 +277,14 @@ export interface MPGridItemProps extends React.ComponentPropsWithoutRef<'div'> {
    * when the picture's column count changes. It is responsive like any other
    * value: `span={{ compact: 12, medium: 'grow' }}` stacks on a phone and fills
    * the rest of the row from 600dp.
+   *
+   * `span="auto"` is the other end of that: exactly the width of what is inside
+   * the item, however much that turns out to be. It is the span for a group
+   * whose size is a runtime question — a row of icon buttons where how many
+   * there are depends on what the page can do — and it pairs with `'grow'`, one
+   * item taking what it needs and the other taking the rest. An `'auto'` item
+   * does not shrink, so contents wider than the row overflow rather than
+   * squeezing what is beside them.
    * @default the grid's full width
    */
   span?: MPResponsive<MPGridSpan>;

@@ -8719,10 +8719,10 @@ const componentTables: Record<string, PropRow[]> = {
   MPGridItem: [
     {
       name: 'span',
-      type: "MPResponsive<number | 'grow'>",
+      type: "MPResponsive<number | 'grow' | 'auto'>",
       description: {
-        ko: "그리드의 열 중 몇 개를 가져갈지. 그리드의 `columns` 기준이라 기본 12열에서 `span={6}`은 절반입니다. `{ compact: 12, medium: 6 }`처럼 윈도우 크기 클래스별로 줄 수 있고, 행보다 넓으면 넘치는 대신 행에 맞춰 잘립니다. `'grow'`는 열의 개수가 아니라 **행에 남은 폭**이라 썸네일 옆 본문이 원하는 값입니다. 기본값은 행 전체입니다",
-        en: "How many of the grid's columns the item takes, read against `columns` — `span={6}` is half of the default twelve. Responsive as `{ compact: 12, medium: 6 }`, and a span wider than the row is clamped to it rather than overflowing. `'grow'` is not a column count but **the width the row has left**, which is what the body of text beside a thumbnail wants. Defaults to the whole row"
+        ko: "그리드의 열 중 몇 개를 가져갈지. 그리드의 `columns` 기준이라 기본 12열에서 `span={6}`은 절반입니다. `{ compact: 12, medium: 6 }`처럼 윈도우 크기 클래스별로 줄 수 있고, 행보다 넓으면 넘치는 대신 행에 맞춰 잘립니다. 열의 개수가 아닌 값이 둘 있습니다. `'grow'`는 **행에 남은 폭**이라 썸네일 옆 본문이 원하는 값이고, `'auto'`는 **안에 든 것의 폭**이라 개수가 그때그때 달라지는 버튼 묶음이 원하는 값입니다. 기본값은 행 전체입니다",
+        en: "How many of the grid's columns the item takes, read against `columns` — `span={6}` is half of the default twelve. Responsive as `{ compact: 12, medium: 6 }`, and a span wider than the row is clamped to it rather than overflowing. Two values are not column counts: `'grow'` is **the width the row has left**, which is what the body of text beside a thumbnail wants, and `'auto'` is **the width of what is inside the item**, which is what a group of however many buttons wants. Defaults to the whole row"
       }
     },
     {

@@ -1460,10 +1460,14 @@
  * `min(span, columns)` is the clamp: `span={99}` fills its row instead of
  * running off the page, which is what the caller meant.
  *
- * `span="grow"` is the one width that is not this arithmetic. It is the row's
- * remainder, which nothing here can compute — only the flex algorithm knows what
- * is left after the other items have been laid out — so a growing item is given
- * a width of nought and a `flex-grow` of one, and takes the rest.
+ * `span="grow"` and `span="auto"` are the two widths that are not this
+ * arithmetic, and they are the two ends of it. `'grow'` is the row's remainder,
+ * which nothing here can compute — only the flex algorithm knows what is left
+ * after the other items have been laid out — so a growing item is given a width
+ * of nought and a `flex-grow` of one, and takes the rest. `'auto'` is the width
+ * of what is inside the item, which is `width: auto` and a keyword no `calc()`
+ * produces — so it arrives as the whole declaration rather than as a number
+ * inside one, on the `--_mp-width-*` rung.
  *
  * ## The rungs
  *
@@ -1643,8 +1647,8 @@
    * A grid is where a span stops meaning anything, so a grid is where the slots
    * are put back to nothing. `initial` on a custom property is the guaranteed-
    * invalid value, which is what makes the `var()` fallbacks above take over
-   * rather than a number from two levels up. Thirty declarations, once per grid,
-   * and the arithmetic under them is the same as it was.
+   * rather than a number from two levels up. Thirty-five declarations, once per
+   * grid, and the arithmetic under them is the same as it was.
    *
    * The grid's own three are here for the same reason the item's three are, and
    * were missing: a responsive prop writes only the classes the caller named, so
@@ -1687,6 +1691,11 @@
   --_mp-grow-expanded: initial;
   --_mp-grow-large: initial;
   --_mp-grow-extra-large: initial;
+  --_mp-width-compact: initial;
+  --_mp-width-medium: initial;
+  --_mp-width-expanded: initial;
+  --_mp-width-large: initial;
+  --_mp-width-extra-large: initial;
 
   @variant mp-medium {
     --_mp-cols-1: var(--_mp-cols-medium, var(--_mp-cols-0));
@@ -1732,6 +1741,19 @@
   --_mp-grow-3: var(--_mp-grow-2);
   --_mp-grow: var(--_mp-grow-3);
 
+  /* The one rung that carries a whole width rather than a number, because
+     `span="auto"` is the width of what is inside the item and no arithmetic
+     produces the keyword that says so. `MPGridItem` writes `auto` into the
+     classes that asked for it and the columns below into the ones that did not,
+     which is what stops an `auto` at `compact` reaching a number at `large` —
+     the same job `--_mp-grow`'s explicit `0` does. A span that never mentions
+     `auto` writes none of these and falls straight through to the columns. */
+  --_mp-width-0: var(--_mp-width-compact, var(--_mp-span-width));
+  --_mp-width-1: var(--_mp-width-0);
+  --_mp-width-2: var(--_mp-width-1);
+  --_mp-width-3: var(--_mp-width-2);
+  --_mp-width: var(--_mp-width-3);
+
   /* One column plus one gutter. `--_mp-cols` and `--_mp-gap-x` are inherited
      from the grid, so this re-resolves on its own at every window class. */
   --_mp-track: calc((100% + var(--_mp-gap-x, 0px)) / var(--_mp-cols, 12));
@@ -1739,6 +1761,8 @@
   /* Inseparable from the width under them: the three `flex` longhands stop the
      row resizing the item, `min-width` stops a long unbroken word doing the
      same, and `box-sizing` is what makes the percentage mean the whole item.
+     `flex-basis: auto` is also the half of `span="auto"` that flex owns — the
+     basis defers to `width`, and there `width` is the keyword itself.
 
      Longhands rather than `flex: 0 0 auto` because `--_mp-grow` is the one part
      of the shorthand that varies, and a shorthand cannot be half a variable. */
@@ -1748,38 +1772,47 @@
   flex-basis: auto;
   min-width: 0;
 
-  /* `1 - grow` is the switch, and it is arithmetic rather than a second
+  /* What a span in columns comes to, and what the rung above falls back to when
+     no class asked for `auto`.
+
+     `1 - grow` is the switch, and it is arithmetic rather than a second
      declaration because a custom property cannot choose between two rules.
      A growing item measures nought and is then handed the row's remainder by
      `flex-grow`, which is the only place that remainder is known; every other
      item multiplies its column count by one and is the width it always was. */
-  width: calc(
+  --_mp-span-width: calc(
     (1 - var(--_mp-grow)) *
       (var(--_mp-track) * min(var(--_mp-span), var(--_mp-cols, 12)) - var(--_mp-gap-x, 0px))
   );
+
+  width: var(--_mp-width);
 
   @variant mp-medium {
     --_mp-span-1: var(--_mp-span-medium, var(--_mp-span-0));
     --_mp-offset-1: var(--_mp-offset-medium, var(--_mp-offset-0));
     --_mp-grow-1: var(--_mp-grow-medium, var(--_mp-grow-0));
+    --_mp-width-1: var(--_mp-width-medium, var(--_mp-width-0));
   }
 
   @variant mp-expanded {
     --_mp-span-2: var(--_mp-span-expanded, var(--_mp-span-1));
     --_mp-offset-2: var(--_mp-offset-expanded, var(--_mp-offset-1));
     --_mp-grow-2: var(--_mp-grow-expanded, var(--_mp-grow-1));
+    --_mp-width-2: var(--_mp-width-expanded, var(--_mp-width-1));
   }
 
   @variant mp-large {
     --_mp-span-3: var(--_mp-span-large, var(--_mp-span-2));
     --_mp-offset-3: var(--_mp-offset-large, var(--_mp-offset-2));
     --_mp-grow-3: var(--_mp-grow-large, var(--_mp-grow-2));
+    --_mp-width-3: var(--_mp-width-large, var(--_mp-width-2));
   }
 
   @variant mp-extra-large {
     --_mp-span: var(--_mp-span-extra-large, var(--_mp-span-3));
     --_mp-offset: var(--_mp-offset-extra-large, var(--_mp-offset-3));
     --_mp-grow: var(--_mp-grow-extra-large, var(--_mp-grow-3));
+    --_mp-width: var(--_mp-width-extra-large, var(--_mp-width-3));
   }
 }
 

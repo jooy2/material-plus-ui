@@ -2,6 +2,12 @@
 
 ## vNext (2026--)
 
+### Added
+
+- **`MPGridItem` takes `span="auto"`: exactly the width of what is inside it.** `MPGridSpan` had `'grow'` for one end of the question a column count cannot answer — the width the row has left — and nothing for the other end, an item that is the size of its own contents. The two pair, and the layout that wants both is a bar with a group at each end: transport controls at `'grow'`, and at `'auto'` however many icon buttons the page turned out to need. That count is a runtime question, so a share of twelve columns is either too small or too large — four 32px buttons need 128px, `large: 2` of a 768px bar is exactly 128px, and the fraction of a pixel rounding takes off wrapped the last button onto a second row and doubled the height of the bar.
+
+  It is responsive like every other span, and a number at a wider class writes the columns back over it. An `'auto'` item does not shrink, which nothing in this grid does, so contents wider than the row overflow rather than squeezing what is beside them. The keyword is one no `calc()` can produce, so it arrives as a whole `width` on a rung of its own rather than as a number inside the column arithmetic — thirty-five slots reset at a grid boundary now rather than thirty.
+
 ### Changed
 
 - **The package's links point at the repository that exists.** `repository`, `bugs` and the README's badges all named `jooy2/material-plus`; the repository is `jooy2/material-plus-ui` and has been answering for the old name on a redirect. npm renders `repository` as the source link on the package page and `bugs` is where `npm bugs` sends a reader, so both were one cleared redirect away from being dead rather than merely indirect. Twelve links across nine files, including the documentation site's own GitHub and edit links, which are derived from `repository.url` and moved on their own.
