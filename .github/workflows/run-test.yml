@@ -42,12 +42,11 @@ jobs:
 
   run-test:
     runs-on: ${{ matrix.os }}
-    name: Test Node.js ${{ matrix.node_version }} on ${{ matrix.os }} (${{ matrix.browser }})
-    # A job here runs the whole suite, and the spread is wide: four minutes on
-    # Ubuntu with Chromium, nine on Windows, and Firefox on Windows is slower
-    # than that again — fifteen was the ceiling while each job ran a quarter of
-    # the files, and it cut that square off mid-run the first time one job ran
-    # all of them.
+    name: Test Node.js ${{ matrix.node_version }} on ${{ matrix.os }} (${{ matrix.browser }}${{ matrix.shard && format(' {0}', matrix.shard) || '' }})
+    # A job here runs the whole suite, or half of it on WebKit, and the spread is
+    # wide: four minutes on Ubuntu with Chromium, nine on Windows, and Firefox on
+    # Windows is slower than that again at fifteen and a half — which is why
+    # fifteen was not enough the first time one job ran all the files.
     #
     # The ceiling is not for a slow run, it is for a wedged browser: a Playwright
     # process that stops making progress produces no output and never returns,
@@ -60,23 +59,37 @@ jobs:
       matrix:
         node_version: ['26']
         os: [ubuntu-latest, windows-latest, macos-latest]
-        browser: [chromium, firefox, webkit]
-        exclude:
-          # WebKit on the macOS runner, and nothing else in the matrix, hangs on
-          # individual clicks: a handful of `.click()` calls sit at exactly the
-          # locator timeout — measured at eleven of them across `MPSwitch` and
-          # `MPDateRangePicker` — while every other test in the same files runs
-          # at its usual few milliseconds. It is not general slowness and it is
-          # not the components: the same files pass on a real macOS in 3s, and
-          # WebKit itself is green on both Ubuntu and Windows. So the engine is
-          # covered twice over and this square adds a red check nobody can act
-          # on, which is the worst thing a required check can be.
-          #
-          # Worth retrying when the runner image or Playwright moves. The one
-          # thing lost meanwhile is WebKit on Apple hardware, which is the
-          # closest the matrix gets to Safari proper.
-          - os: macos-latest
-            browser: webkit
+        browser: [chromium, firefox]
+        # WebKit, listed rather than crossed, because it is the one engine that
+        # still splits the suite and the one that is not on every runner.
+        #
+        # It has no equivalent of the `--expose-gc` that lets Chromium hand a
+        # finished test file's iframe back, so `[vitest] Browser connection was
+        # closed while running tests` is still reachable on it: ten local runs of
+        # all 159 files gave eight clean ones, one that stopped at 106, and one
+        # that answered nothing at all and had to be killed. Halves put about
+        # eighty files through each page, which is under the only count the error
+        # has actually been seen at. The sign that quarters are needed again is
+        # that error coming back.
+        #
+        # There is no macOS square. WebKit there, and nothing else in the matrix,
+        # hangs on individual clicks: a handful of `.click()` calls sit at exactly
+        # the locator timeout — measured at eleven of them across `MPSwitch` and
+        # `MPDateRangePicker` — while every other test in the same files runs at
+        # its usual few milliseconds. It is not general slowness and it is not the
+        # components: the same files pass on a real macOS in 3s, and WebKit itself
+        # is green on both Ubuntu and Windows. So the engine is covered twice over
+        # and that square adds a red check nobody can act on, which is the worst
+        # thing a required check can be.
+        #
+        # Worth retrying when the runner image or Playwright moves. The one thing
+        # lost meanwhile is WebKit on Apple hardware, which is the closest the
+        # matrix gets to Safari proper.
+        include:
+          - { node_version: '26', os: ubuntu-latest, browser: webkit, shard: '1/2' }
+          - { node_version: '26', os: ubuntu-latest, browser: webkit, shard: '2/2' }
+          - { node_version: '26', os: windows-latest, browser: webkit, shard: '1/2' }
+          - { node_version: '26', os: windows-latest, browser: webkit, shard: '2/2' }
 
     steps:
       - uses: actions/checkout@v5
@@ -92,6 +105,6 @@ jobs:
       - name: Install Playwright browser (${{ matrix.browser }})
         run: npx playwright install --with-deps ${{ matrix.browser }}
       - name: Test module script
-        run: npm run test
+        run: npm run test ${{ matrix.shard && format('-- --shard={0}', matrix.shard) || '' }}
         env:
           VITEST_BROWSER: ${{ matrix.browser }}
