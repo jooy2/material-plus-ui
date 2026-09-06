@@ -93,6 +93,18 @@ export const MPIcon = React.forwardRef<HTMLSpanElement, MPIconProps>(function MP
 ) {
   const classNames = [
     'mp-icon inline-flex shrink-0 items-center justify-center align-middle',
+    /*
+     * The glyph is drawn at the size it was given, and a margin on it overflows
+     * rather than eating into the artwork.
+     *
+     * It is a flex item at `width: 100%`, so `100% + margin` overflows a box
+     * whose width is fixed and flex takes the difference out of the glyph. A
+     * `[&_svg]:mr-1.25` on the page around it — which is where a margin ends up
+     * after a migration off `SvgIcon`, the element that *was* the thing to put a
+     * margin on — drew a `size={16}` icon at 11×16, silently and looking only a
+     * size too small.
+     */
+    '[&>svg]:shrink-0 [&>img]:shrink-0',
     // Whatever was drawn fills the box, however the set authored it — an `<svg>`
     // carrying its own `width`, or one sized in `em`. Only when a `size` was
     // asked for: without one the box is sized by its content, so a percentage

@@ -97,6 +97,22 @@ import { MPIcon, ICONS } from 'material-plus-ui';
 
 `label`이 있으면 박스가 그 이름을 가진 `role="img"`이 됩니다.
 
+## 아이콘 주변 여백은 박스에 줍니다
+
+글리프는 `MPIcon`이 그리는 박스를 가득 채웁니다. 그래서 margin은 안쪽 그림이 아니라 그 박스에 주어야 합니다. 이 컴포넌트가 그리는 모든 박스에는 `.mp-icon`이 붙어 있고, 클래스는 바로 이럴 때 쓰라고 있습니다.
+
+```css
+.toolbar .mp-icon {
+  margin-inline-end: 5px;
+} /* 박스 */
+
+.toolbar svg {
+  margin-inline-end: 5px;
+} /* 그림 */
+```
+
+두 번째 규칙은 Material UI에서 넘어올 때 남는 형태입니다. 거기서는 `SvgIcon`이 곧 margin을 주는 대상이었습니다. 여기서는 이미 박스를 가득 채운 flex 항목에 margin이 붙으므로 들어갈 자리가 없고, 그대로 눈에 보이게 넘칩니다. 의도한 동작입니다. 예전에는 그 차이를 글리프에서 빼 갔고, `size={16}`인 아이콘이 11×16으로 그려지면서 그저 한 치수 작아 보이기만 했습니다.
+
 ## 함께 들어 있는 아이콘 세트
 
 `lucide-react`는 이 패키지의 dependency이고, 라이브러리 자체 컴포넌트가 그리는 모든 글리프는 `src/constants/icons.ts` 한 파일에 이름이 붙어 있습니다. 꺼내 쓰는 방법은 두 가지입니다.

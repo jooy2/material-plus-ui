@@ -97,6 +97,22 @@ Without `label` the icon is `aria-hidden` and leaves the accessibility tree. Tha
 
 With a `label` the box becomes `role="img"` with that name.
 
+## Space around the icon goes on the box
+
+The glyph fills the box `MPIcon` draws, so a margin belongs on that box rather than on the artwork inside it. Every box the component renders carries `.mp-icon`, which is what the class is there for.
+
+```css
+.toolbar .mp-icon {
+  margin-inline-end: 5px;
+} /* the box */
+
+.toolbar svg {
+  margin-inline-end: 5px;
+} /* the artwork */
+```
+
+The second rule is what a migration off Material UI leaves behind, where the `SvgIcon` _was_ the element to put a margin on. Here it lands on a flex item that already fills the box, so the margin has nowhere to go: it overflows, visibly. That is deliberate — it used to be taken out of the glyph instead, which drew a `size={16}` icon at 11×16 and merely looked a size too small.
+
 ## The bundled icon set
 
 `lucide-react` is a dependency of this package, and every glyph the library's own components draw is named in one file — `src/constants/icons.ts`. There are two ways to reach it.

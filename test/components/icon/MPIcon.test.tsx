@@ -128,6 +128,26 @@ describe('MPIcon', () => {
 
       expect(screen.getByTestId('glyph').element()).toHaveAttribute('width', '20');
     });
+
+    it('draws the glyph at that size even when the glyph carries a margin', async () => {
+      // A margin aimed at `svg` is what a migration off MUI's `SvgIcon` leaves
+      // behind, since the `SvgIcon` *was* the element to put one on. The glyph
+      // here is a flex item at `width: 100%`, so `100% + margin` overflows a box
+      // whose width is fixed — and without `shrink-0` flex took the difference
+      // out of the artwork instead, drawing a `size={16}` icon at 11×16.
+      const screen = await render(
+        <MPIcon
+          icon={<svg viewBox="0 0 16 16" style={{ marginRight: 5 }} data-testid="glyph" />}
+          label="Status"
+          size={16}
+        />
+      );
+
+      expect(screen.getByTestId('glyph').element().getBoundingClientRect().width).toBeCloseTo(
+        16,
+        1
+      );
+    });
   });
 
   describe('color', () => {
