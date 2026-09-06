@@ -357,9 +357,14 @@ describe('MPDataTable', () => {
 
       await screen.getByRole('checkbox', { name: 'Select all rows' }).click();
 
-      expect(onSelectedChange).toHaveBeenLastCalledWith(
-        ['a', 'b', 'c'],
-        [ROWS[0], ROWS[1], ROWS[2]]
+      // Waited for rather than read straight after the click: the tick commits
+      // through a state update, and WebKit on a loaded runner had not run it by
+      // the time the assertion looked — the mock had not been called at all.
+      await vi.waitFor(() =>
+        expect(onSelectedChange).toHaveBeenLastCalledWith(
+          ['a', 'b', 'c'],
+          [ROWS[0], ROWS[1], ROWS[2]]
+        )
       );
     });
 

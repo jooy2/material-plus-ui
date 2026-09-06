@@ -30,23 +30,6 @@ function tick() {
 }
 
 /**
- * Waits out the longest transition a component runs.
- *
- * Read from the token rather than hardcoded, so shortening the duration does not
- * quietly turn this into a race. `getComputedStyle` on a transitioning colour
- * returns an interpolated `oklab()` with no hue component, which is what makes
- * this necessary at all.
- */
-function settled() {
-  const declared = getComputedStyle(document.documentElement).getPropertyValue(
-    '--mp-sys-motion-duration-short4'
-  );
-  const ms = Number.parseFloat(declared) * (declared.trim().endsWith('ms') ? 1 : 1000);
-
-  return new Promise((resolve) => setTimeout(resolve, (Number.isFinite(ms) ? ms : 200) + 60));
-}
-
-/**
  * A field whose parent rejects everything outside ASCII.
  *
  * This is the shape of parent that breaks a naively controlled input: every
@@ -875,6 +858,22 @@ describe('MPTextField', () => {
    * catch it is to resolve a colour on an element that is not the root.
    */
   describe('theming', () => {
+    /**
+     * The colour an element has stopped transitioning towards.
+     *
+     * A colour mid-transition comes back as an interpolated `oklab()` with no
+     * hue component at all, so every read below has to happen after the
+     * transition rather than during it. Waited for rather than slept through:
+     * the token's own duration plus a margin is long enough on this machine and
+     * not on a loaded runner, where Chromium read the `oklab()` and the hue came
+     * back undefined.
+     */
+    async function settledColor(element: Element) {
+      await vi.waitFor(() => expect(getComputedStyle(element).color).toMatch(/^oklch\(/));
+
+      return getComputedStyle(element).color;
+    }
+
     /** The hue of whatever colour an element actually resolved. */
     function hueOf(element: Element, property: 'color' | 'borderColor') {
       const resolved = getComputedStyle(element)[property];
@@ -953,7 +952,7 @@ describe('MPTextField', () => {
 
       // Same hue, and a lighter tone: the dark scheme is the same tonal palette
       // read further up, not a second set of colours.
-      const dark = getComputedStyle(document.querySelector('label')!).color;
+      const dark = await settledColor(document.querySelector('label')!);
       const darkHue = hueOf(document.querySelector('label')!, 'color');
 
       await screen.rerender(
@@ -962,12 +961,7 @@ describe('MPTextField', () => {
         </div>
       );
 
-      // The label's colour is transitioned, and a colour mid-transition comes
-      // back as an interpolated `oklab()` with no hue component at all. So the
-      // read waits for it to settle rather than racing it.
-      await settled();
-
-      const light = getComputedStyle(document.querySelector('label')!).color;
+      const light = await settledColor(document.querySelector('label')!);
       const lightnessOf = (value: string) => Number(/okl(?:ch|ab)\(([\d.]+)/.exec(value)![1]);
 
       expect(lightnessOf(dark)).toBeGreaterThan(lightnessOf(light));
