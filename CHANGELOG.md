@@ -6,6 +6,10 @@
 
 - **The package's links point at the repository that exists.** `repository`, `bugs` and the README's badges all named `jooy2/material-plus`; the repository is `jooy2/material-plus-ui` and has been answering for the old name on a redirect. npm renders `repository` as the source link on the package page and `bugs` is where `npm bugs` sends a reader, so both were one cleared redirect away from being dead rather than merely indirect. Twelve links across nine files, including the documentation site's own GitHub and edit links, which are derived from `repository.url` and moved on their own.
 
+- **The package describes itself by what it is, rather than by what other libraries are not.** `description` read "the components other Material libraries do not ship, and wider versions of the ones they do", which places the library next to its neighbours instead of saying what it is. It now leads with the specification it was written from and with what it adds past that — the charts, the data table and the command palette the specification does not name.
+
+  npm prints that sentence on the package page, and the documentation site prints it on every page that declares no description of its own, so the site's English copy is now **read** from `package.json` rather than kept beside it: two hand-maintained copies of one paragraph is how a package and its site end up describing different libraries. The Korean is a translation of the same sentence, `llms.txt` takes both from there, and the README's opening paragraph and the two pages that quoted the old sentence say the new one instead.
+
 - **`author` and the licence carry a contact page rather than a personal address.** Both named a personal mailbox and now read `CDGet (https://cdget.com)`. `author` is published metadata, so the old address was on the npm page; every contact route in the project is [cdget.com/contact](https://cdget.com/contact).
 
 ### Documentation

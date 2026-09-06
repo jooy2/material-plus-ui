@@ -109,9 +109,17 @@ const vitePressI18nConfig: VitePressI18nOptions = {
   debugPrint: false,
   rootLocale: defaultLocale,
   searchProvider: 'local',
+  /**
+   * What the library is, in one paragraph.
+   *
+   * The English one is `package.json`'s own, read rather than copied: npm shows
+   * that sentence on the package page and this shows it on the site, and two
+   * hand-kept copies of one paragraph is how the two end up describing
+   * different libraries. Every other locale is a translation of it.
+   */
   description: {
-    ko: 'Material Design 3를 구현한 React 컴포넌트 라이브러리입니다. 다른 머터리얼 라이브러리가 제공하지 않는 컴포넌트와, 제공하더라도 기능을 더 넓힌 컴포넌트를 모았습니다. Base UI와 Tailwind CSS v4 기반이고, 테마를 CSS 커스텀 프로퍼티로 다루기 때문에 이미 머터리얼을 쓰는 프로젝트와 공존할 수 있습니다. ESM 전용이며 타입 정의가 포함되어 있습니다.',
-    en: 'A React component library implementing Material Design 3 — the components other Material libraries do not ship, and wider versions of the ones they do. Built on Base UI and Tailwind CSS v4, themed with CSS custom properties so it can coexist with an existing Material setup. ESM only, types included.'
+    ko: 'Material Design 3 사양에서 직접 옮기고, 사양이 멈춘 곳부터는 더 넓힌 React 컴포넌트 라이브러리입니다. 사양이 정의한 컴포넌트는 기능을 더 넓혔고, 사양에 없는 차트와 데이터 테이블과 커맨드 팔레트를 더했습니다. Base UI와 Tailwind CSS v4 기반이고, 테마를 CSS 커스텀 프로퍼티로 다루기 때문에 이미 머터리얼을 쓰는 프로젝트와 공존합니다. ESM 전용이며 타입 정의가 포함되어 있습니다.',
+    en: packageJson.description
   },
   themeConfig: {
     ko: { nav: navFor('ko', ['가이드', '디자인', '컴포넌트', '예제']) },

@@ -21,7 +21,7 @@ import { MPProgressBox } from 'material-plus-ui';
 
 ## This one is not in the specification
 
-MD3 has a bar and a ring and stops there. This is the library's own third shape — which is the whole premise of Material Plus: the components other Material libraries do not ship.
+MD3 has a bar and a ring and stops there. This is the library's own third shape — which is the whole premise of Material Plus: where the specification stops, this library does not.
 
 It is drawn out of the spec's own parts all the same — `corner-extra-small` tiles, the accent, `on-surface` at 12% — so a row of them sits in a Material page without announcing that it is extra.
 

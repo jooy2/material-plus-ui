@@ -1,7 +1,7 @@
 {
   "name": "material-plus-ui",
   "version": "1.7.0",
-  "description": "A React component library implementing Material Design 3 — the components other Material libraries do not ship, and wider versions of the ones they do. Built on Base UI and Tailwind CSS v4, themed with CSS custom properties so it can coexist with an existing Material setup. ESM only, types included.",
+  "description": "A React component library written from the Material Design 3 specification and extended past it — wider versions of the components it names, and the charts, data table and command palette it does not. Built on Base UI and Tailwind CSS v4, themed with CSS custom properties so it coexists with an existing Material setup. ESM only, types included.",
   "type": "module",
   "sideEffects": [
     "**/*.css"

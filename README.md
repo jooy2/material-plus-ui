@@ -14,9 +14,9 @@ Live previews and full props for every component. This README is just the quick 
 
 ---
 
-**Material Plus is a React component library implementing Material Design 3.** It is the pile of components you end up writing in every Material project — the field that handles IME composition properly, the icon wrapper that agrees with your set — extracted, documented and tested.
+**Material Plus is a React component library implementing Material Design 3.** It follows the specification directly rather than wrapping somebody's implementation of it, so its colour roles, type scale and shapes are the ones the spec names.
 
-It follows the specification directly rather than wrapping somebody's implementation of it, so its colour roles, type scale and shapes are the ones the spec names.
+It also goes on past where the specification stops. The button ladder keeps the spec's 32, 40 and 56px and adds 64 and 72 — the next size the spec names is 96, and a 96px button beside a 64px field is not a row — and the charts, the data table and the command palette are components the spec never named at all.
 
 - **Themed in one line.** Set `--mp-source-color` and every colour role follows, the way Material generates a scheme from a source colour. No provider, no theme object, no re-render.
 - **It coexists.** Nothing here is page-level — no reset, no provider, no global styling — and it reads the `--md-sys-color-*` tokens your page already has if they are there. A project already running Material keeps its own setup.

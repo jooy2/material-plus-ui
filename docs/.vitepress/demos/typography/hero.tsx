@@ -6,7 +6,7 @@ export default function TypographyHero() {
       <MPTypography level="overline">Release notes</MPTypography>
       <MPTypography level="h2">Material Plus 1.0</MPTypography>
       <MPTypography level="lead">
-        The components other Material libraries do not ship, and wider versions of the ones they do.
+        Written from the Material Design 3 specification, and extended past where it stops.
       </MPTypography>
       <MPTypography>
         Every level below is one of MD3’s own type roles, at the specification’s size, leading,
