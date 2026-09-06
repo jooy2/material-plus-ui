@@ -7,7 +7,7 @@
     "**/*.css"
   ],
   "types": "dist/index.d.ts",
-  "author": "CDGet <jooy2.contact@gmail.com>",
+  "author": "CDGet (https://cdget.com)",
   "license": "MIT",
   "homepage": "https://material-plus.cdget.com",
   "repository": {
