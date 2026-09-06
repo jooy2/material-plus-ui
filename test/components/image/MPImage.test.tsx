@@ -14,6 +14,16 @@ import { MPImage } from 'material-plus-ui';
 const RED_DOT =
   'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
 const MISSING = '/there-is-no-file-here.png';
+/**
+ * A source the dev server holds rather than answers, served by the
+ * `mp-pending-image` plugin in `vitest.config.ts`.
+ *
+ * `loading` is the only state a test cannot reach by waiting, and a 404 does not
+ * hold it: the server answers a missing file at once, so the box has settled to
+ * `error` before the assertion looks — on a CI runner, at least, which is where
+ * this was read as `error` where `loading` was expected.
+ */
+const PENDING = '/__pending-image.png';
 
 /** Waits for the component to settle on a state, without naming a frame. */
 async function settled(container: Element, state: string) {
@@ -140,17 +150,15 @@ describe('MPImage', () => {
     });
 
     it('draws nothing at all when the placeholder is switched off', async () => {
-      const screen = await render(<MPImage src={MISSING} alt="Something" placeholder={false} />);
+      const screen = await render(<MPImage src={PENDING} alt="Something" placeholder={false} />);
 
       expect(screen.container.querySelector('.animate-pulse')).toBeNull();
     });
 
     it('takes a placeholder of its own', async () => {
-      // No `src` at all would settle straight to `error`, so the loading state
-      // is held by giving it a source the browser is still thinking about.
       const screen = await render(
         <MPImage
-          src={`${MISSING}?slow=${Math.random()}`}
+          src={PENDING}
           alt="Something"
           placeholder={<span data-testid="mine">loading…</span>}
         />

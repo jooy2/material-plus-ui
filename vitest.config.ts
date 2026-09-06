@@ -3,6 +3,7 @@ import ReactPlugin from '@vitejs/plugin-react';
 import { playwright } from '@vitest/browser-playwright';
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
+import type { Plugin } from 'vite';
 
 const rootDir = dirname(fileURLToPath(import.meta.url));
 
@@ -36,6 +37,35 @@ function resolveBrowsers(): SupportedBrowser[] {
   }
 
   return names as SupportedBrowser[];
+}
+
+/**
+ * A picture the server is still thinking about, for the one state a test cannot
+ * otherwise hold on to.
+ *
+ * `MPImage` draws its placeholder while `state` is `loading`, and a test that
+ * wants to see one has to keep it there. A source that 404s does not: the dev
+ * server answers a missing file at once, so the box is in `error` before the
+ * assertion runs — usually. It stayed in `loading` long enough on every machine
+ * this was written on and did not on a CI runner, which is the whole of the
+ * defect.
+ *
+ * So the request is answered late rather than never. Late enough that nothing
+ * moves under a test, and answered at all so the connection is not left hanging
+ * for the rest of the run.
+ */
+function pendingImage(): Plugin {
+  return {
+    name: 'mp-pending-image',
+    configureServer(server) {
+      server.middlewares.use('/__pending-image', (_request, response) => {
+        setTimeout(() => {
+          response.statusCode = 404;
+          response.end();
+        }, 30_000).unref();
+      });
+    }
+  };
 }
 
 /**
@@ -90,7 +120,7 @@ function providerFor(browser: SupportedBrowser) {
 }
 
 export default defineConfig({
-  plugins: [ReactPlugin()],
+  plugins: [ReactPlugin(), pendingImage()],
   resolve: {
     alias: {
       // Tests import from 'material-plus-ui' exactly as a consumer would.
