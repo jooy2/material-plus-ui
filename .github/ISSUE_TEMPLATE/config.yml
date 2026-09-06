@@ -1,8 +1,11 @@
 blank_issues_enabled: true
-#contact_links:
-#  - name: GitHub Community Support
-#    url: https://github.com/orgs/community/discussions
-#    about: Please ask and answer questions here.
-#  - name: GitHub Security Bug Bounty
-#    url: https://bounty.github.com/
-#    about: Please report security vulnerabilities here.
+contact_links:
+  - name: Documentation
+    url: https://material-plus.cdget.com
+    about: Every component, with live previews and the full props table, in English and Korean.
+  - name: Contact the maintainers
+    url: https://cdget.com/contact
+    about: Reach CDGet for anything that does not belong in a public issue.
+  - name: Report a security vulnerability
+    url: https://github.com/jooy2/material-plus/security/advisories/new
+    about: Open a draft security advisory. Do not report a vulnerability as a public issue.

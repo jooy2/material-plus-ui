@@ -151,7 +151,7 @@ A controlled `<input>` renders from its `value`. While an input method is compos
 
 ## Contributing
 
-Issues and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
+Issues and pull requests are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) has the repository layout, the commands and what a component is expected to own. Participation is subject to the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ```bash
 npm install        # also builds, via `prepare`
@@ -159,6 +159,14 @@ npm run test       # vitest, in a real browser
 npm run typecheck  # src, test and docs
 npm run docs:dev   # the documentation site
 ```
+
+To report a security issue, follow the process in [SECURITY.md](SECURITY.md) instead of opening a public issue.
+
+For anything else that does not belong in a public issue, write to CDGet at [cdget.com/contact](https://cdget.com/contact).
+
+## Sponsor
+
+Material Plus is free to use and maintained in the open. If it saves you time, you can support the work at [cdget.com/donate](https://cdget.com/donate) or through the Sponsor button on GitHub.
 
 ## License
 
