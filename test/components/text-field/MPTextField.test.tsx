@@ -987,11 +987,26 @@ describe('MPTextField', () => {
       const screen = await render(<MPTextField value="" label="Password" type="password" />);
       const toggle = screen.getByRole('button', { name: 'Show the password' }).element();
 
-      // Tabbed to rather than focused by script: the ring is `focus-visible`,
-      // and that is exactly the distinction the pseudo-class is drawing.
-      screen.getByRole('textbox').element().focus();
-      await userEvent.tab();
+      /*
+       * `focusVisible` rather than a Tab, and the pseudo-class asserted on its
+       * own so that what the ring hangs on is still what is being checked.
+       *
+       * Tabbing to the toggle cannot be the vehicle: Safari keeps buttons out
+       * of the sequential focus order unless full keyboard access is switched
+       * on, so a Tab out of the field lands on the body in WebKit and the
+       * toggle is never reached. That is every button on every page rather than
+       * anything about this one.
+       *
+       * A bare `focus()` will not do it either. Firefox decides `:focus-visible`
+       * from the last input modality, and the tests above this one click things
+       * — so the same call matches on a page nobody has touched and does not
+       * here. `focusVisible: true` asks for the indicator outright, which is the
+       * one way to say "a keyboard user is looking at this" that all three
+       * engines agree on.
+       */
+      (toggle as HTMLButtonElement).focus({ focusVisible: true });
       expect(document.activeElement).toBe(toggle);
+      expect(toggle.matches(':focus-visible')).toBe(true);
 
       const ring = getComputedStyle(toggle);
 

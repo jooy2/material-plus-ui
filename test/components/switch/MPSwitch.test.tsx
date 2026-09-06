@@ -85,19 +85,28 @@ describe('MPSwitch', () => {
        * two can be stacked.
        */
       const screen = await render(<ControlledSwitch icons />);
+      /*
+       * Counted above a threshold rather than at exactly `1`, and waited for
+       * rather than sampled once after a sleep.
+       *
+       * A cross-fade is a range: partway through it both glyphs are somewhere
+       * between 0 and 1 and neither is opaque, which reads as zero shown rather
+       * than as one. A fixed wait long enough on this machine is not long enough
+       * on a loaded runner — Ubuntu with WebKit read zero — and an engine that
+       * settles at `0.999999` reads zero however long it is given.
+       */
       const opaque = () =>
         [...document.querySelectorAll('.mp-switch__thumb > span')].filter(
-          (glyph) => getComputedStyle(glyph).opacity === '1'
+          (glyph) => Number.parseFloat(getComputedStyle(glyph).opacity) > 0.99
         ).length;
 
       // The state layer is the third of the thumb's children and is transparent
       // until the switch is hovered, so a settled thumb has exactly one.
-      expect(opaque()).toBe(1);
+      await vi.waitFor(() => expect(opaque()).toBe(1));
 
       await screen.getByRole('switch').click();
-      await settled();
 
-      expect(opaque()).toBe(1);
+      await vi.waitFor(() => expect(opaque()).toBe(1));
     });
   });
 

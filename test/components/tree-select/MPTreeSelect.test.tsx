@@ -288,7 +288,20 @@ describe('MPTreeSelect', () => {
     await search(screen, 'seoul');
     await userEvent.keyboard('{Escape}');
 
-    await vi.waitFor(() => expect(row('europe')).toBeNull());
+    /*
+     * Waited on the tree leaving rather than on a row leaving, because by this
+     * point every row the search rejected has already left: `europe` is filtered
+     * out the moment `seoul` is typed, so a wait for it to go is a wait that was
+     * already over before the Escape.
+     *
+     * What that left behind was a reopen on top of a popup that had not finished
+     * closing. The query is cleared as it goes, so the dying tree redraws
+     * unfiltered — and a branch keeps its children mounted while it animates
+     * shut, so `asia` and `korea` were still standing open underneath. Five rows
+     * where the test wanted two, on whichever engine was slowest to take the
+     * popup away.
+     */
+    await vi.waitFor(() => expect(document.querySelector('[role="tree"]')).toBeNull());
     await open(screen);
 
     expect(screen.getByRole('textbox').element()).toHaveValue('');
