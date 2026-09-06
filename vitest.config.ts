@@ -38,6 +38,53 @@ function resolveBrowsers(): SupportedBrowser[] {
   return names as SupportedBrowser[];
 }
 
+/**
+ * The locale the browser is given, and it has to be given one.
+ *
+ * Half a dozen components write a number, a date or a time through `Intl`, and
+ * `Intl` with no locale named answers in the *browser's* — which is Playwright's
+ * `en-US` for Chromium and the machine's own for WebKit and Firefox. So
+ * `{ style: 'currency', currency: 'USD' }` reads `$40` on a runner set to
+ * English and `US$40` on a laptop set to Korean, and a suite that passed
+ * everywhere it was written stops passing where it is read.
+ *
+ * `en-US` because that is what the assertions are written against, and naming it
+ * here is the same rule the date tests already follow one at a time: a test that
+ * says nothing about a locale is a test about the machine it ran on.
+ */
+const contextOptions = { locale: 'en-US' };
+
+/**
+ * A provider per engine, because one of them takes a flag the others reject.
+ *
+ * Chromium is launched with `--expose-gc` so `test/setup.ts` can ask for the
+ * collection it will not get round to on its own. Browser mode gives every test
+ * file its own iframe inside one page; Chromium detaches the finished one and
+ * then leaves it there, since nothing about a page holding a hundred dead
+ * documents is urgent enough to collect. Somewhere between the seventy-second
+ * file and the hundred-and-twenty-seventh the run then dies with `[vitest]
+ * Browser connection was closed while running tests`, on a different file every
+ * time.
+ *
+ * It is not a size limit, which is exactly what it looks like. Holding ten
+ * megabytes per file — enough to make the collection worth V8's while —
+ * finishes all 159 at a *higher* peak than the runs that die, and so does asking
+ * for the collection outright. Allocating the same ten megabytes and dropping
+ * them does not, and neither does running slower. What decides it is whether the
+ * dead iframe is reclaimed, not how much the page is carrying.
+ *
+ * The flag goes on the instance rather than on the provider they all share
+ * because WebKit on Linux parses its arguments strictly: handed an option it
+ * does not know, it prints `Cannot parse arguments` and never starts. Firefox
+ * and WebKit need none of this anyway — both reclaim their own and finish the
+ * suite in a single page.
+ */
+function providerFor(browser: SupportedBrowser) {
+  return browser === 'chromium'
+    ? playwright({ contextOptions, launchOptions: { args: ['--js-flags=--expose-gc'] } })
+    : playwright({ contextOptions });
+}
+
 export default defineConfig({
   plugins: [ReactPlugin()],
   resolve: {
@@ -111,48 +158,9 @@ export default defineConfig({
     // real browser rather than polyfilling a DOM emulator.
     browser: {
       enabled: true,
-      /*
-       * The browser is given a locale, and it has to be.
-       *
-       * Half a dozen components write a number, a date or a time through `Intl`,
-       * and `Intl` with no locale named answers in the *browser's* — which is
-       * Playwright's `en-US` for Chromium and the machine's own for WebKit and
-       * Firefox. So `{ style: 'currency', currency: 'USD' }` reads `$40` on a
-       * runner set to English and `US$40` on a laptop set to Korean, and a suite
-       * that passed everywhere it was written stops passing where it is read.
-       *
-       * `en-US` because that is what the assertions are written against, and
-       * naming it here is the same rule the date tests already follow one at a
-       * time: a test that says nothing about a locale is a test about the
-       * machine it ran on.
-       */
-      provider: playwright({
-        contextOptions: { locale: 'en-US' },
-        /*
-         * `--expose-gc`, so `test/setup.ts` can ask for the collection Chromium
-         * will not get round to on its own.
-         *
-         * Browser mode gives every test file its own iframe inside one page.
-         * Chromium detaches the finished one and then leaves it there: nothing
-         * about a page holding a hundred dead documents is urgent enough to
-         * collect, and somewhere between the seventy-second file and the
-         * hundred-and-twenty-seventh the run dies with `[vitest] Browser
-         * connection was closed while running tests`, on a different file every
-         * time.
-         *
-         * It is not a size limit, which is exactly what it looks like. Holding
-         * ten megabytes per file — enough to make the collection worth V8's
-         * while — finishes all 159 at a *higher* peak than the runs that die,
-         * and so does asking for the collection outright. Allocating the same
-         * ten megabytes and dropping them does not, and neither does running
-         * slower. What decides it is whether the dead iframe is reclaimed, not
-         * how much the page is carrying.
-         *
-         * Chromium only, and only behind this flag. Firefox and WebKit reclaim
-         * theirs and run the whole suite in one page with none of it.
-         */
-        launchOptions: { args: ['--js-flags=--expose-gc'] }
-      }),
+      // The default, for anything that reads `browser.provider` before it
+      // reaches an instance. Every instance names its own below.
+      provider: playwright({ contextOptions }),
       headless: true,
       screenshotFailures: false,
       // Vitest's default is 414×896 — a phone. A popup anchored to a trigger is
@@ -163,7 +171,7 @@ export default defineConfig({
       // those clicks silently missed on some browsers and not others. Give the
       // suite the desktop the components are drawn for.
       viewport: { width: 1280, height: 900 },
-      instances: resolveBrowsers().map((browser) => ({ browser }))
+      instances: resolveBrowsers().map((browser) => ({ browser, provider: providerFor(browser) }))
     }
   }
 });
