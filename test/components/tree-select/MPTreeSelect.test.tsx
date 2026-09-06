@@ -49,6 +49,20 @@ async function open(screen: Screen) {
 }
 
 /**
+ * Shut again, through the field rather than through Escape.
+ *
+ * Waited on the tree leaving rather than on a row leaving: a row the search
+ * rejected has left already, so a wait for one of those is a wait that was over
+ * before the close began. And the tree has to be gone rather than merely on its
+ * way, because a branch keeps its children mounted while it animates shut — a
+ * reopen on top of that reads the closing popup's rows as well as the new one's.
+ */
+async function close(screen: Screen) {
+  await screen.getByRole('button', { name: 'Region' }).click();
+  await vi.waitFor(() => expect(document.querySelector('[role="tree"]')).toBeNull());
+}
+
+/**
  * The row for one value, pressed on the line a reader would press.
  *
  * Not the `<li>` itself: a `treeitem` contains the whole branch under it, so
@@ -286,22 +300,7 @@ describe('MPTreeSelect', () => {
 
     await open(screen);
     await search(screen, 'seoul');
-    await userEvent.keyboard('{Escape}');
-
-    /*
-     * Waited on the tree leaving rather than on a row leaving, because by this
-     * point every row the search rejected has already left: `europe` is filtered
-     * out the moment `seoul` is typed, so a wait for it to go is a wait that was
-     * already over before the Escape.
-     *
-     * What that left behind was a reopen on top of a popup that had not finished
-     * closing. The query is cleared as it goes, so the dying tree redraws
-     * unfiltered — and a branch keeps its children mounted while it animates
-     * shut, so `asia` and `korea` were still standing open underneath. Five rows
-     * where the test wanted two, on whichever engine was slowest to take the
-     * popup away.
-     */
-    await vi.waitFor(() => expect(document.querySelector('[role="tree"]')).toBeNull());
+    await close(screen);
     await open(screen);
 
     expect(screen.getByRole('textbox').element()).toHaveValue('');
