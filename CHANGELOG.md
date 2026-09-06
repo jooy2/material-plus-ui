@@ -2,6 +2,12 @@
 
 ## vNext (2026--)
 
+### Changed
+
+- **The package's links point at the repository that exists.** `repository`, `bugs` and the README's badges all named `jooy2/material-plus`; the repository is `jooy2/material-plus-ui` and has been answering for the old name on a redirect. npm renders `repository` as the source link on the package page and `bugs` is where `npm bugs` sends a reader, so both were one cleared redirect away from being dead rather than merely indirect. Twelve links across nine files, including the documentation site's own GitHub and edit links, which are derived from `repository.url` and moved on their own.
+
+- **`author` and the licence carry a contact page rather than a personal address.** Both named a personal mailbox and now read `CDGet (https://cdget.com)`. `author` is published metadata, so the old address was on the npm page; every contact route in the project is [cdget.com/contact](https://cdget.com/contact).
+
 ### Documentation
 
 - **The demos draw real pictures now, where before they drew gradients.** A component whose whole argument is "a picture that is never an empty box" was showing the empty box: every `MPAvatar` on the site was a pair of initials, `MPImage` opened an inline SVG, and `MPAppLogo`'s `src` — one of the four things the page says can be the mark — had no example at all. Twenty-one demos and the all-components grid now carry photographs, portraits, drawn artwork and product marks.
@@ -9,6 +15,16 @@
   Two props got their first demonstration out of it. `previewSrc` is finally the pair it was written for: a 480px thumbnail on the page and the 1200px file fetched only when somebody opens the picture, which is visible in the network panel rather than only claimed in prose. `MPChatBubble`'s `preview.image` was documented and never drawn.
 
   The files sit in `docs/public/samples` as resized WebP copies of [jooy2/sample-assets](https://github.com/jooy2/sample-assets), which carries this repository's licence and copyright, and the photographs and drawings keep a thumbnail beside the full file. The demos reach for the thumbnail: a 320px card holding a 1200px photograph is the mistake a component library's own site is the last place to make.
+
+- **The community files were templates with the blanks still in them.** `CONTRIBUTING.md` opened with "Contributing to Project", told a reader to email a maintainer who is not named anywhere, and described no part of this repository. It now carries the layout, the commands, the fact that the tests need a real browser installed and how `VITEST_BROWSER` picks the engine, and the rule that a page added to `docs/en` gets one in `docs/ko` even if nobody translates it yet. `SECURITY.md` says which version is supported and what a useful report contains. The issue template's contact links were three commented-out examples pointing at GitHub's own pages, and are now the documentation, the contact page and the advisory form.
+
+- **The code of conduct is Contributor Covenant 2.1.** It had been 2.0, which is the version before caste and colour were added to the pledge.
+
+- **The README stopped listing two components as though they were all of them.** The table held `MPTextField` and `MPIcon` against a hundred and twenty-six components with pages of their own, and read as a complete inventory rather than a sample. It is a sentence and a link now. The README also links the code of conduct and the security process, which it never did, and says where to support the work.
+
+- **The documentation stylesheet names its sources, and Tailwind stopped reading class names out of prose.** The entry point listed two `@source` directories and a comment claiming those were all Tailwind could see. They were not: without `source(none)` Tailwind adds automatic detection on top of whatever is listed and walks the whole repository, Markdown included. It found the broken arbitrary value this changelog quotes in a code fence — the one the 1.4.0 entry exists to explain — compiled it back into a rule, and lightningcss rejected it on every build. That warning has been in the build output ever since the entry was written. Twenty-eight utilities in the site's stylesheet came from documentation describing them rather than using them; the sheet is 4.7 kB smaller without them, and no class a page actually uses was lost.
+
+  Turning detection off exposed a second thing. `src/styles.css` carries its own `@source '.'`, which is what gives a consumer the components' utilities — that line works, through the Tailwind CLI and under a `source(none)` of their own, both checked rather than assumed. What it does not survive is the documentation entry point's relative `@import`: Vite inlines that before `@tailwindcss/postcss` sees it, so the `.` resolves against the wrong directory. Automatic detection had been covering for it, and the site now names `src` itself.
 
 ## 1.7.0 (2026-09-05)
 
