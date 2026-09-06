@@ -133,10 +133,7 @@ Full details, including scoped and runtime theming, are in [the theming guide](h
 
 ## Components
 
-| Component | What it is |
-| --- | --- |
-| [`MPTextField`](https://material-plus.cdget.com/components/inputs/text-field) | An outlined text field that survives an IME, with the label, supporting text, adornments and password toggle already assembled. |
-| [`MPIcon`](https://material-plus.cdget.com/components/display/icon) | A glyph at a known size in a known colour, from whichever icon set you use. |
+There are over 120, grouped into layout, inputs, display, feedback and motion. Each has a page of its own at [material-plus.cdget.com/components/](https://material-plus.cdget.com/components/), with the full props table and previews that are the component running in the page.
 
 ### Why `MPTextField` exists
 
