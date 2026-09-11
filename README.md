@@ -12,6 +12,8 @@
 
 Live previews and full props for every component. This README is just the quick start.
 
+![Material Plus components arranged around the Material Plus mark: a search field, a settings card, radio buttons and checkboxes, buttons and chips, a segmented button and pagination, an alert, a slider, a progress bar and a meter, an avatar stack, a badge and a rating](https://raw.githubusercontent.com/jooy2/material-plus-ui/main/.github/showcase.png)
+
 ---
 
 **Material Plus is a React component library implementing Material Design 3.** It follows the specification directly rather than wrapping somebody's implementation of it, so its colour roles, type scale and shapes are the ones the spec names.
