@@ -398,7 +398,9 @@ export const MPNavigationMenu = React.forwardRef<HTMLElement, MPNavigationMenuPr
         >
           <NavigationMenu.List
             className={[
-              'flex items-center',
+              // Base UI renders a `<ul>`, which arrives with a margin, an indent and
+              // a marker on every item.
+              'm-0 flex list-none items-center p-0',
               orientation === 'vertical' ? 'flex-col items-stretch' : 'flex-row',
               CONTROL_GAP[size]
             ].join(' ')}

@@ -265,7 +265,8 @@ export const MPList = React.forwardRef<HTMLUListElement, MPListProps>(function M
   );
 
   const classNames = [
-    'mp-list rounded-mp-md flex flex-col',
+    // A `<ul>` arrives with a block margin, an indent and a marker on every row.
+    'mp-list rounded-mp-md m-0 flex list-none flex-col',
     // The sheet is never dyed: a list holds other people's content, and tinting
     // the sheet under it puts every colour in it on a background it was not
     // chosen against. `text` is the one to reach for inside a card, where a
@@ -275,7 +276,7 @@ export const MPList = React.forwardRef<HTMLUListElement, MPListProps>(function M
     // Without dividers the rows are tiles and the sheet keeps a hair of padding
     // so a hovered row does not run into the edge. With them the rules have to
     // reach the edge, so the padding goes and the rows square off.
-    dividers ? `overflow-hidden ${DIVIDERS}` : 'p-1',
+    dividers ? `overflow-hidden p-0 ${DIVIDERS}` : 'p-1',
     className ?? ''
   ]
     .filter(Boolean)

@@ -265,7 +265,7 @@ export const MPStepper = React.forwardRef<HTMLDivElement, MPStepperProps>(functi
          */}
         <ol
           className={[
-            'mp-stepper__rail flex list-none p-0',
+            'mp-stepper__rail m-0 flex list-none p-0',
             horizontal ? 'flex-row items-start' : 'flex-col'
           ].join(' ')}
           style={{ '--_mp-bullet': BULLET_SIZE[size] } as React.CSSProperties}

@@ -331,7 +331,8 @@ export const MPTimeline = React.forwardRef<HTMLOListElement, MPTimelineProps>(fu
       role: 'list',
       'data-mp-size': size,
       className: [
-        'mp-timeline flex',
+        // An `<ol>` arrives with a block margin, an indent and a number per step.
+        'mp-timeline m-0 flex list-none p-0',
         orientation === 'horizontal' ? 'flex-row' : 'flex-col',
         className ?? ''
       ]

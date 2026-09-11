@@ -182,7 +182,8 @@ export function ChartLegend({
   return (
     <ul
       className={[
-        'mp-chart__legend flex flex-wrap items-center gap-x-4 gap-y-1',
+        // A `<ul>` arrives with a margin, an indent and a bullet before every series.
+        'mp-chart__legend m-0 flex list-none flex-wrap items-center gap-x-4 gap-y-1 p-0',
         LEGEND_ALIGN[options.align ?? 'center'],
         text
       ].join(' ')}
@@ -291,7 +292,7 @@ export function ChartTooltipPanel({ heading, items, x, y, flip, size }: PanelPro
       {heading === undefined || heading === null || heading === '' ? null : (
         <div className="text-mp-on-surface-variant mb-1 truncate">{heading}</div>
       )}
-      <ul className="flex flex-col gap-0.5">
+      <ul className="m-0 flex list-none flex-col gap-0.5 p-0">
         {items.map((item) => (
           <li key={item.seriesIndex} className="flex items-center gap-1.5">
             <span

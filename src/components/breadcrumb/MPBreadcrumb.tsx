@@ -329,7 +329,7 @@ export const MPBreadcrumb = React.forwardRef<HTMLElement, MPBreadcrumbProps>(fun
         // to what is drawn or announced.
         itemScope={structuredData || undefined}
         itemType={structuredData ? 'https://schema.org/BreadcrumbList' : undefined}
-        className={`flex list-none flex-wrap items-center p-0 ${TRAIL_GAP[size]}`}
+        className={`m-0 flex list-none flex-wrap items-center p-0 ${TRAIL_GAP[size]}`}
       >
         {shown.map((step, index) => (
           <React.Fragment key={step ? (step.key ?? index) : 'fold'}>
