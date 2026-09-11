@@ -1,0 +1,1 @@
+import{r as o}from"./index.CAJ_Adw3.js";import{r as a}from"./i18n.C-ZC5DTO.js";const u=o.createContext(void 0);function m(t){const e=o.useContext(u);return t??e}function M(t,e,s){const r=s===void 0?"":JSON.stringify(s);return o.useMemo(()=>{const n=a(t,e);return s?{...n,...s}:n},[t,e,r])}export{u as M,M as a,m as u};

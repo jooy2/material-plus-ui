@@ -1,0 +1,1 @@
+import{r as a}from"./index.CAJ_Adw3.js";import{u as n}from"./useRenderElement.m0eeexqx.js";const u=a.forwardRef(function(e,t){const{className:i,render:m,orientation:r="horizontal",style:p,...o}=e;return n("div",e,{state:{orientation:r},ref:t,props:[{role:"separator","aria-orientation":r},o]})});export{u as S};

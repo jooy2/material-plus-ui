@@ -1,0 +1,1 @@
+import{j as t}from"./jsx-runtime.BjG_zV1W.js";import{r as i}from"./index.CAJ_Adw3.js";import{V as n}from"./visually-hidden.CdZNKP38.js";import{u as m}from"./useRender.CpLcHgGS.js";const x=i.forwardRef(function({render:r,className:o,children:s,...e},a){return m({render:r??t.jsx("span",{}),ref:a,props:{...e,className:[n,o].filter(Boolean).join(" "),children:s}})});export{x as M};

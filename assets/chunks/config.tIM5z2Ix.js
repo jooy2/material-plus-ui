@@ -1,0 +1,1 @@
+import{r as n}from"./index.CAJ_Adw3.js";const s=Object.freeze({}),o=n.createContext(s);function c(){return n.useContext(o)}function u(t){const e=n.useContext(o);return t??e.size??"md"}function i(t){const e=n.useContext(o);return t??e.color??"primary"}function f(t){const e=n.useContext(o);return t??e.density??0}export{o as M,f as a,i as b,c,u};

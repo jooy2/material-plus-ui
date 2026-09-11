@@ -1,0 +1,1 @@
+function e(t){const r=t.normalize("NFC").trim().split(/\s+/).filter(Boolean);if(r.length===0)return"";const n=Array.from(r[0])[0]??"",o=r.length>1?Array.from(r[r.length-1])[0]??"":"";return(n+o).toLocaleUpperCase()}export{e as i};
