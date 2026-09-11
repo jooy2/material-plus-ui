@@ -255,7 +255,7 @@ export function MPNavigationMenuItem({
   const chrome = [
     'mp-navigation-menu__item group text-mp-on-surface relative inline-flex shrink-0',
     'rounded-mp-full cursor-pointer items-center justify-center bg-transparent',
-    'appearance-none font-[inherit] whitespace-nowrap no-underline select-none',
+    'appearance-none border-0 font-[inherit] whitespace-nowrap no-underline select-none',
     'outline-mp-secondary focus-visible:outline-2 focus-visible:outline-offset-2',
     'focus-visible:outline-solid outline-none',
     'transition-colors duration-(--mp-sys-motion-duration-short4)',

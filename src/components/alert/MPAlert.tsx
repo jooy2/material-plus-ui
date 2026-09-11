@@ -402,7 +402,7 @@ export const MPAlert = React.forwardRef<HTMLDivElement, MPAlertProps>(function M
               // reads its ancestor's hover, and an alert-wide group would light
               // the × whenever the pointer was anywhere in the message.
               'group rounded-mp-full relative -m-1 flex size-8 cursor-pointer items-center',
-              'justify-center bg-transparent text-inherit',
+              'justify-center appearance-none border-0 bg-transparent p-0 text-inherit',
               'outline-mp-secondary focus-visible:outline-2 focus-visible:outline-offset-2',
               'focus-visible:outline-solid outline-none'
             ].join(' ')}

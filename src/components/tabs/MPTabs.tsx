@@ -547,7 +547,7 @@ export const MPTab = React.forwardRef<HTMLButtonElement, MPTabProps>(function MP
       disabled={disabled}
       className={[
         'mp-tabs__tab group relative flex shrink-0 items-center justify-center',
-        'box-border appearance-none bg-transparent font-[inherit] whitespace-nowrap select-none',
+        'box-border appearance-none border-0 bg-transparent font-[inherit] whitespace-nowrap select-none',
         // `overflow-hidden` is load-bearing beyond clipping the state layer: it
         // is what takes a flex item's automatic minimum size to zero, and
         // without it `fullWidth` cannot divide the bar evenly — the tab with the

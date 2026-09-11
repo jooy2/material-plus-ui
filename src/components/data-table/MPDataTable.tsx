@@ -353,7 +353,7 @@ const TICK_WIDTH: Record<MPSize, number> = {
  */
 const SORT_BUTTON = [
   'group/sort -m-1 flex w-full cursor-pointer items-center gap-1 rounded-mp-xs p-1',
-  'appearance-none border-0 bg-transparent font-[inherit] text-inherit text-start',
+  'appearance-none border-0 bg-transparent text-inherit text-start [font:inherit]',
   'transition-[color] duration-(--mp-sys-motion-duration-short4) ease-mp-standard',
   'hover:text-mp-on-surface',
   'outline-mp-secondary focus-visible:outline-2 focus-visible:outline-offset-1',

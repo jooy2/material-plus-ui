@@ -346,7 +346,7 @@ export const MPPill = React.forwardRef<HTMLDivElement, MPPillProps>(function MPP
             type="button"
             className={[
               'group relative flex min-w-0 flex-1 cursor-pointer items-center justify-center',
-              'self-stretch appearance-none border-0 bg-transparent font-[inherit] text-inherit',
+              'self-stretch appearance-none border-0 bg-transparent text-inherit [font:inherit]',
               // `inherit`, so the state layer and the focus ring trace the
               // lozenge's own corners rather than drawing a squarer rectangle
               // inside them.

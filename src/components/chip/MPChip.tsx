@@ -158,11 +158,11 @@ const RADIUS: Record<MPSize, string> = {
  * that looks like it is all switched on.
  */
 const REST: Record<MPVariant, string> = {
-  filled: 'bg-(--_mp-accent) text-(--_mp-on-accent)',
-  tonal: 'bg-(--_mp-accent-container) text-(--_mp-on-accent-container)',
-  elevated: 'shadow-mp-1 bg-mp-surface-container-low text-mp-on-surface-variant',
+  filled: 'border-0 bg-(--_mp-accent) text-(--_mp-on-accent)',
+  tonal: 'border-0 bg-(--_mp-accent-container) text-(--_mp-on-accent-container)',
+  elevated: 'shadow-mp-1 border-0 bg-mp-surface-container-low text-mp-on-surface-variant',
   outlined: 'border-mp-outline text-mp-on-surface-variant border bg-transparent',
-  text: 'text-mp-on-surface-variant bg-transparent'
+  text: 'text-mp-on-surface-variant border-0 bg-transparent'
 };
 
 /**
@@ -171,11 +171,11 @@ const REST: Record<MPVariant, string> = {
  * stays where it is and lets the state layer and the tick say it.
  */
 const SELECTED: Record<MPVariant, string> = {
-  filled: 'bg-(--_mp-accent) text-(--_mp-on-accent)',
-  tonal: 'bg-(--_mp-accent-container) text-(--_mp-on-accent-container)',
-  elevated: 'shadow-mp-1 bg-(--_mp-accent-container) text-(--_mp-on-accent-container)',
+  filled: 'border-0 bg-(--_mp-accent) text-(--_mp-on-accent)',
+  tonal: 'border-0 bg-(--_mp-accent-container) text-(--_mp-on-accent-container)',
+  elevated: 'shadow-mp-1 border-0 bg-(--_mp-accent-container) text-(--_mp-on-accent-container)',
   outlined: 'border-mp-outline bg-(--_mp-accent-container) text-(--_mp-on-accent-container) border',
-  text: 'bg-(--_mp-accent-container) text-(--_mp-on-accent-container)'
+  text: 'border-0 bg-(--_mp-accent-container) text-(--_mp-on-accent-container)'
 };
 
 /**
@@ -185,11 +185,11 @@ const SELECTED: Record<MPVariant, string> = {
  * only in saturation, which is the one axis a reader cannot judge in isolation.
  */
 const DISABLED: Record<MPVariant, string> = {
-  filled: 'bg-mp-on-surface/12 text-mp-on-surface/38',
-  tonal: 'bg-mp-on-surface/12 text-mp-on-surface/38',
-  elevated: 'bg-mp-on-surface/12 text-mp-on-surface/38 shadow-none',
+  filled: 'border-0 bg-mp-on-surface/12 text-mp-on-surface/38',
+  tonal: 'border-0 bg-mp-on-surface/12 text-mp-on-surface/38',
+  elevated: 'border-0 bg-mp-on-surface/12 text-mp-on-surface/38 shadow-none',
   outlined: 'border-mp-on-surface/12 text-mp-on-surface/38 border bg-transparent',
-  text: 'bg-transparent text-mp-on-surface/38'
+  text: 'border-0 bg-transparent text-mp-on-surface/38'
 };
 
 /**
@@ -202,6 +202,9 @@ const DISABLED: Record<MPVariant, string> = {
  */
 const REMOVE = [
   'ms-0.5 -me-1 inline-flex shrink-0 cursor-pointer items-center justify-center',
+  // The whole of a native button's own styling, including its 13px type — the
+  // box is sized in `em`, so it has to be the label's em it is sized in.
+  'appearance-none border-0 bg-transparent p-0 text-inherit [font:inherit]',
   'rounded-mp-full size-[1.35em] opacity-70',
   'transition-opacity duration-(--mp-sys-motion-duration-short4)',
   'hover:opacity-100 focus-visible:opacity-100',

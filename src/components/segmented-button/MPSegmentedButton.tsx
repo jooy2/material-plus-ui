@@ -162,7 +162,9 @@ export const MPSegmentedButton = React.forwardRef<HTMLDivElement, MPSegmentedBut
                 CONTROL_PAD_X[size],
                 // The divider is the segment's own leading edge, so it lands
                 // between every pair and never at either end of the run.
-                index === 0 ? '' : 'border-s',
+                // Every side is named, rather than a `border-0` under a `border-s`:
+                // those are two widths on one element, decided by stylesheet order.
+                index === 0 ? 'border-0' : 'border-y-0 border-e-0 border-s',
                 itemDisabled
                   ? 'border-mp-on-surface/12 text-mp-on-surface/38 cursor-default'
                   : [

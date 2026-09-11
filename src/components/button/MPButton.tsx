@@ -43,11 +43,12 @@ import type { MPColor, MPStyleProps, MPVariant } from '../../types';
  * reset, so nothing else is going to take it off.
  */
 const REST: Record<MPVariant, string> = {
-  filled: 'bg-(--_mp-accent) text-(--_mp-on-accent)',
-  tonal: 'bg-(--_mp-accent-container) text-(--_mp-on-accent-container)',
-  elevated: 'shadow-mp-1 hover:shadow-mp-2 bg-mp-surface-container-low text-(--_mp-accent)',
+  filled: 'border-0 bg-(--_mp-accent) text-(--_mp-on-accent)',
+  tonal: 'border-0 bg-(--_mp-accent-container) text-(--_mp-on-accent-container)',
+  elevated:
+    'shadow-mp-1 hover:shadow-mp-2 border-0 bg-mp-surface-container-low text-(--_mp-accent)',
   outlined: 'border-mp-outline border bg-transparent text-(--_mp-accent)',
-  text: 'bg-transparent text-(--_mp-accent)'
+  text: 'border-0 bg-transparent text-(--_mp-accent)'
 };
 
 /**
@@ -60,11 +61,11 @@ const REST: Record<MPVariant, string> = {
  * isolation.
  */
 const DISABLED: Record<MPVariant, string> = {
-  filled: 'bg-mp-on-surface/12 text-mp-on-surface/38',
-  tonal: 'bg-mp-on-surface/12 text-mp-on-surface/38',
-  elevated: 'bg-mp-on-surface/12 text-mp-on-surface/38 shadow-none',
+  filled: 'border-0 bg-mp-on-surface/12 text-mp-on-surface/38',
+  tonal: 'border-0 bg-mp-on-surface/12 text-mp-on-surface/38',
+  elevated: 'border-0 bg-mp-on-surface/12 text-mp-on-surface/38 shadow-none',
   outlined: 'border-mp-on-surface/12 border bg-transparent text-mp-on-surface/38',
-  text: 'bg-transparent text-mp-on-surface/38'
+  text: 'border-0 bg-transparent text-mp-on-surface/38'
 };
 
 export interface MPButtonProps

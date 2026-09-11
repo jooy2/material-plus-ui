@@ -232,7 +232,7 @@ export function MPNumberField({
 
   const stepperClasses = [
     'mp-number-field__stepper group relative flex shrink-0 items-center justify-center',
-    'rounded-mp-full cursor-pointer appearance-none bg-transparent p-0 font-[inherit]',
+    'rounded-mp-full cursor-pointer appearance-none border-0 bg-transparent p-0 font-[inherit]',
     'text-mp-on-surface-variant outline-none',
     'disabled:text-mp-on-surface/38 disabled:cursor-default',
     scale.stepper

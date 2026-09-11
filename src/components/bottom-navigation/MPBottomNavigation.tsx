@@ -348,7 +348,7 @@ export const MPBottomNavigationItem = React.forwardRef<HTMLElement, MPBottomNavi
       // floating one is only as wide as what is in it, and a `flex-1`
       // destination inside a lozenge would take a fifth of nothing.
       bar.floating ? 'shrink-0' : 'flex-1',
-      'box-border appearance-none bg-transparent px-1 font-[inherit] no-underline select-none',
+      'box-border appearance-none border-0 bg-transparent px-1 font-[inherit] no-underline select-none',
       ITEM_GAP[bar.size],
       'outline-mp-secondary focus-visible:outline-2 focus-visible:-outline-offset-2',
       'focus-visible:outline-solid outline-none',

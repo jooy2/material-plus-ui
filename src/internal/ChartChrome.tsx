@@ -224,6 +224,9 @@ export function ChartLegend({
                 onBlur={() => visibility.setHovered(null)}
                 className={[
                   'flex min-w-0 cursor-pointer items-center gap-1.5 rounded-mp-xs',
+                  // A native button's own border, fill, padding, ink and 13px type,
+                  // none of which the list it sits in would otherwise reach.
+                  'appearance-none border-0 bg-transparent p-0 text-inherit [font:inherit]',
                   'focus-visible:outline-mp-primary focus-visible:outline-2 focus-visible:outline-offset-2',
                   // Struck through as well as faded, because "off" has to survive
                   // being looked at in grayscale — and a row at 40% opacity is a

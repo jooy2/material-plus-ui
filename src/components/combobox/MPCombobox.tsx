@@ -540,13 +540,16 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
     // own text in its box, so letting the box be the full height of the row it
     // sits on is what puts the placeholder on the same baseline as the chips
     // beside it.
-    'min-w-0 flex-1 self-stretch bg-transparent font-[inherit] text-inherit outline-none',
+    // `font` whole rather than `font-family`: an input takes its size from the
+    // browser too, and the row it sits in is what names the size.
+    'min-w-0 flex-1 self-stretch border-0 bg-transparent text-inherit [font:inherit] outline-none',
     'placeholder:text-mp-on-surface-variant',
     disabled ? 'text-mp-on-surface/38 cursor-default' : 'text-mp-on-surface caret-mp-primary'
   ].join(' ');
 
   const adornment = [
     'group rounded-mp-full relative flex size-8 shrink-0 cursor-pointer items-center justify-center',
+    'appearance-none border-0 bg-transparent p-0',
     'text-mp-on-surface-variant',
     'outline-mp-secondary focus-visible:outline-2 focus-visible:outline-offset-1',
     'focus-visible:outline-solid outline-none',
@@ -690,7 +693,7 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
                                             label: entry.label
                                           })
                                     }
-                                    className="flex cursor-pointer items-center opacity-70 hover:opacity-100"
+                                    className="flex cursor-pointer appearance-none items-center border-0 bg-transparent p-0 text-inherit opacity-70 hover:opacity-100"
                                   >
                                     <MPIcon icon={CloseIcon} size={16} />
                                   </Combobox.ChipRemove>

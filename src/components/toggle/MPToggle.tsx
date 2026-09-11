@@ -27,11 +27,11 @@ import type { MPColor, MPStyleProps, MPVariant } from '../../types';
  * accent free to mean one thing here: on.
  */
 const OFF: Record<MPVariant, string> = {
-  filled: 'bg-mp-surface-container-highest text-mp-on-surface-variant',
-  tonal: 'bg-mp-surface-container text-mp-on-surface-variant',
-  elevated: 'shadow-mp-1 bg-mp-surface-container-low text-mp-on-surface-variant',
+  filled: 'border-0 bg-mp-surface-container-highest text-mp-on-surface-variant',
+  tonal: 'border-0 bg-mp-surface-container text-mp-on-surface-variant',
+  elevated: 'shadow-mp-1 border-0 bg-mp-surface-container-low text-mp-on-surface-variant',
   outlined: 'border-mp-outline border bg-transparent text-mp-on-surface-variant',
-  text: 'bg-transparent text-mp-on-surface-variant'
+  text: 'border-0 bg-transparent text-mp-on-surface-variant'
 };
 
 /**
@@ -48,21 +48,21 @@ const OFF: Record<MPVariant, string> = {
  * the only thing that moves is colour.
  */
 const ON: Record<MPVariant, string> = {
-  filled: 'bg-(--_mp-accent) text-(--_mp-on-accent)',
-  tonal: 'bg-(--_mp-accent-container) text-(--_mp-on-accent-container)',
-  elevated: 'shadow-mp-1 bg-(--_mp-accent-container) text-(--_mp-on-accent-container)',
+  filled: 'border-0 bg-(--_mp-accent) text-(--_mp-on-accent)',
+  tonal: 'border-0 bg-(--_mp-accent-container) text-(--_mp-on-accent-container)',
+  elevated: 'shadow-mp-1 border-0 bg-(--_mp-accent-container) text-(--_mp-on-accent-container)',
   outlined:
     'border-(--_mp-accent) border bg-(--_mp-accent-container) text-(--_mp-on-accent-container)',
-  text: 'bg-transparent text-(--_mp-accent)'
+  text: 'border-0 bg-transparent text-(--_mp-accent)'
 };
 
 /** The spec's disabled treatment, unchanged from [MPButton](./button)'s. */
 const DISABLED: Record<MPVariant, string> = {
-  filled: 'bg-mp-on-surface/12 text-mp-on-surface/38',
-  tonal: 'bg-mp-on-surface/12 text-mp-on-surface/38',
-  elevated: 'bg-mp-on-surface/12 text-mp-on-surface/38 shadow-none',
+  filled: 'border-0 bg-mp-on-surface/12 text-mp-on-surface/38',
+  tonal: 'border-0 bg-mp-on-surface/12 text-mp-on-surface/38',
+  elevated: 'border-0 bg-mp-on-surface/12 text-mp-on-surface/38 shadow-none',
   outlined: 'border-mp-on-surface/12 border bg-transparent text-mp-on-surface/38',
-  text: 'bg-transparent text-mp-on-surface/38'
+  text: 'border-0 bg-transparent text-mp-on-surface/38'
 };
 
 export interface MPToggleProps

@@ -135,7 +135,7 @@ export function MPMenubarMenu({
           className={[
             'mp-menubar__menu group text-mp-on-surface relative inline-flex shrink-0',
             'rounded-mp-xs cursor-pointer items-center justify-center bg-transparent',
-            'appearance-none font-[inherit] whitespace-nowrap select-none',
+            'appearance-none border-0 font-[inherit] whitespace-nowrap select-none',
             'transition-colors duration-(--mp-sys-motion-duration-short4)',
             // The one thing a menu bar has to make legible from across the
             // strip: which of the words is open. It is still colour and nothing

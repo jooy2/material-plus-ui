@@ -127,7 +127,7 @@ const CELL_BASE = [
   // `box-border` explicitly, for the reason `MPButton` gives: this library ships
   // no page reset, so today's 1px outline would otherwise be added *outside* the
   // cell's 40px and today would come out two pixels wider than every other day.
-  'box-border appearance-none font-[inherit] tabular-nums select-none',
+  'box-border appearance-none p-0 font-[inherit] tabular-nums select-none',
   'transition-[background-color,border-color,color]',
   'duration-(--mp-sys-motion-duration-short4)',
   'outline-mp-secondary focus-visible:z-10 focus-visible:outline-2',
@@ -213,17 +213,19 @@ function Cell({
   // That is what keeps this an `if`/`else` rather than a cascade: exactly one
   // `background-color` utility reaches the element, so which branch was taken
   // decides the fill instead of the stylesheet's own ordering.
+  // The border is named in every branch for the same reason: today's outline is
+  // one of them, and a native button arrives with a border of its own.
   const state = disabled
-    ? 'bg-transparent cursor-default text-mp-on-surface/38'
+    ? 'border-0 bg-transparent cursor-default text-mp-on-surface/38'
     : selected
-      ? 'bg-(--_mp-accent) text-(--_mp-on-accent)'
+      ? 'border-0 bg-(--_mp-accent) text-(--_mp-on-accent)'
       : inRange
-        ? 'bg-(--_mp-accent-container) text-(--_mp-on-accent-container)'
+        ? 'border-0 bg-(--_mp-accent-container) text-(--_mp-on-accent-container)'
         : current
           ? 'bg-transparent border border-(--_mp-accent) text-(--_mp-accent)'
           : muted
-            ? 'bg-transparent text-mp-on-surface-variant'
-            : 'bg-transparent text-mp-on-surface';
+            ? 'border-0 bg-transparent text-mp-on-surface-variant'
+            : 'border-0 bg-transparent text-mp-on-surface';
 
   // Square through the middle of a run and rounded where the run stops, so a
   // week of banded days reads as one shape rather than as seven tokens.
@@ -1456,7 +1458,7 @@ export function MPTimeGrid({
               tabIndex={index === at ? 0 : -1}
               className={[
                 CELL_BASE,
-                'rounded-mp-full h-(--_mp-cell) w-full shrink-0',
+                'rounded-mp-full h-(--_mp-cell) w-full shrink-0 border-0',
                 PROSE_TEXT[size],
                 disabled
                   ? 'bg-transparent cursor-default text-mp-on-surface/38'

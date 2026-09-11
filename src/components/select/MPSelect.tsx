@@ -289,7 +289,7 @@ export const MPSelect = React.forwardRef<HTMLButtonElement, MPSelectProps>(funct
             onContextMenu={onContextMenu}
             className={[
               'relative flex w-full items-center gap-2 select-none',
-              'appearance-none bg-transparent font-[inherit] outline-none',
+              'appearance-none border-0 bg-transparent font-[inherit] outline-none',
               scale.padding,
               scale.height,
               PROSE_TEXT[size],

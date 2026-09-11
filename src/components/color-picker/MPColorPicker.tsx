@@ -926,7 +926,7 @@ export const MPColorPicker = React.forwardRef<HTMLDivElement, MPColorPickerProps
               nativeButton
               className={[
                 'relative flex w-full items-center gap-2 select-none',
-                'appearance-none bg-transparent font-[inherit] outline-none',
+                'appearance-none border-0 bg-transparent font-[inherit] outline-none',
                 scale.padding,
                 // The × is drawn over the trigger rather than inside it — a
                 // button inside a button is not a button — so the room for it
@@ -974,6 +974,7 @@ export const MPColorPicker = React.forwardRef<HTMLDivElement, MPColorPickerProps
                 className={[
                   'group/clear rounded-mp-full text-mp-on-surface-variant absolute inset-y-0',
                   'end-1 my-auto flex size-8 cursor-pointer items-center justify-center',
+                  'appearance-none border-0 bg-transparent p-0',
                   'outline-mp-secondary focus-visible:outline-2 focus-visible:outline-offset-1',
                   'focus-visible:outline-solid outline-none'
                 ].join(' ')}

@@ -296,7 +296,7 @@ export const MPFloatingActionButton = React.forwardRef<
       className={[
         'mp-fab group inline-flex shrink-0 items-center justify-center',
         'box-border overflow-hidden align-middle whitespace-nowrap select-none',
-        'cursor-pointer appearance-none font-[inherit]',
+        'cursor-pointer appearance-none border-0 font-[inherit]',
         // The focus indicator is `secondary` and sits outside the button, which
         // is MD3's own rule — a ring drawn inside a filled container is a ring
         // drawn on top of the fill it is meant to be distinguishable from.
