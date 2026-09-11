@@ -8,8 +8,6 @@
 
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/jooy2/material-plus-ui/blob/main/LICENSE) ![Programming Language Usage](https://img.shields.io/github/languages/top/jooy2/material-plus-ui) [![npm downloads](https://img.shields.io/npm/dm/material-plus-ui.svg)](https://www.npmjs.com/package/material-plus-ui) [![npm latest package](https://img.shields.io/npm/v/material-plus-ui/latest.svg)](https://www.npmjs.com/package/material-plus-ui) ![npm bundle size](https://img.shields.io/bundlephobia/min/material-plus-ui)
 
-### 📘 [**material-plus.cdget.com**](https://material-plus.cdget.com)
-
 Live previews and full props for every component. This README is just the quick start.
 
 ![Material Plus components arranged around the Material Plus mark: a search field, a settings card, radio buttons and checkboxes, buttons and chips, a segmented button and pagination, an alert, a slider, a progress bar and a meter, an avatar stack, a badge and a rating](https://raw.githubusercontent.com/jooy2/material-plus-ui/main/.github/showcase.png)
