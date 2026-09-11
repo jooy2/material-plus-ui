@@ -18,6 +18,23 @@ describe('MPChip', () => {
       expect(screen.getByRole('button').query()).toBeNull();
     });
 
+    it('leaves its label room for the descenders', async () => {
+      // The shell is `leading-none` and the label is `truncate`, which is
+      // `overflow: hidden`. A one-em line box is shorter than the glyphs in it,
+      // so the clip took the tail off every g, j, p, q and y. What is measured
+      // is the text's own content area against the box that clips it.
+      const screen = await render(<MPChip>Typography</MPChip>);
+      const label = screen.getByText('Typography').element() as HTMLElement;
+      const glyphs = document.createRange();
+
+      glyphs.selectNodeContents(label);
+
+      expect(getComputedStyle(label).overflow).toBe('hidden');
+      expect(label.clientHeight).toBeGreaterThanOrEqual(
+        Math.floor(glyphs.getBoundingClientRect().height)
+      );
+    });
+
     it('is outlined by default, which is Material’s chip', async () => {
       const screen = await render(<MPChip data-testid="chip">Draft</MPChip>);
 

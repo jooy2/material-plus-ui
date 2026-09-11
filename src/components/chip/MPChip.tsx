@@ -344,7 +344,13 @@ export const MPChip = React.forwardRef<HTMLElement, MPChipProps>(function MPChip
   const label = (
     <>
       {startIcon}
-      {hasContent(children) ? <span className="min-w-0 truncate">{children}</span> : null}
+      {/* `truncate` clips at the line box, and the shell's `leading-none` makes
+          that box one em — shorter than the glyphs, so it cut every descender.
+          `normal` sizes it to the font's own ascent and descent, and it grows
+          evenly above and below, so the words sit exactly where they did. */}
+      {hasContent(children) ? (
+        <span className="min-w-0 truncate leading-[normal]">{children}</span>
+      ) : null}
       {endIcon}
       {hasContent(count) ? (
         <span
