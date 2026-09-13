@@ -16,7 +16,13 @@ export type MPImageState = 'loading' | 'loaded' | 'error';
 
 /** A picture that stands in while the real one arrives. */
 export interface MPImagePlaceholder {
-  /** A URL, a data URI, or a `Blob` such as a file the reader has just picked. */
+  /**
+   * A URL, a data URI, or a `Blob` such as a file the reader has just picked.
+   *
+   * A `Blob` is drawn through an object URL made for it, so keep the same Blob
+   * from one render to the next: a new one on every render makes a new URL on
+   * every render, and each of those renders again.
+   */
   src: string | Blob;
   /**
    * Blurs the stand-in. `true` is a 20px radius, and a number is a radius in
@@ -638,6 +644,7 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
   const oriented = orientation(turn, flip);
   const placed: React.CSSProperties =
     position === 'center' ? {} : { objectPosition: objectPosition(position, turn, flip) };
+
   /*
    * `width` and `height` together are the file's size, as they are on an
    * `<img>`. One of them alone is the size of the box on that axis.
