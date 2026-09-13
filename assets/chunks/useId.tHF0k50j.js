@@ -1,0 +1,1 @@
+import{r as s}from"./index.CAJ_Adw3.js";import{S as f}from"./useIsoLayoutEffect.rsVFvFvq.js";let a=0;function l(u,t="mui"){const[e,o]=s.useState(u),c=u||e;return s.useEffect(()=>{e==null&&(a+=1,o(`${t}-${a}`))},[e,t]),c}const n=f.useId;function I(u,t){if(n!==void 0){const e=n();return u??(t?`${t}-${e}`:e)}return l(u,t)}export{I as u};

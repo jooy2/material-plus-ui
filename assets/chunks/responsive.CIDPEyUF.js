@@ -1,0 +1,1 @@
+import{W as f}from"./window-class.DqAEU_YQ.js";function p(t){return t==null?{}:typeof t=="object"?t:{compact:t}}function m(t,o,c){const i=p(o),n={};for(const r of f){const s=i[r];s!==void 0&&(n[`--_mp-${t}-${r}`]=c(s))}return n}function d(t,o){return t==null?o:typeof t=="object"?{compact:o,...t}:t}export{p as c,m as r,d as w};

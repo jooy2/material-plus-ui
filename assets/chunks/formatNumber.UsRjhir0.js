@@ -1,0 +1,1 @@
+import{s as c}from"./stringifyLocale.BMPUsiav.js";const a=new Map;function f(t,r){const n=JSON.stringify({locale:c(t),options:r}),e=a.get(n);if(e)return e;const o=new Intl.NumberFormat(t,r);return a.set(n,o),o}function i(t,r,n){return t==null?"":f(r,n).format(t)}export{i as f,f as g};
