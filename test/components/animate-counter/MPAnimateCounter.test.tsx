@@ -20,6 +20,35 @@ describe('MPAnimateCounter', () => {
     );
   });
 
+  it('lands the counting copy on the value, not only the copy a screen reader gets', async () => {
+    const screen = await render(<MPAnimateCounter value={42} duration={80} data-testid="count" />);
+    const visible = screen
+      .getByTestId('count')
+      .element()
+      .querySelector('[aria-hidden="true"]') as HTMLElement;
+
+    await vi.waitFor(() => expect(visible.textContent).toBe('42'));
+  });
+
+  /*
+   * `prefers-reduced-motion` switches the keyframes off in the stylesheet, which
+   * leaves the registered property on its initial `0`. Reading that back drew a
+   * zero in place of the statistic for exactly the readers who asked for less
+   * motion. `animation: none` on the element is the same state without having
+   * to emulate the media query.
+   */
+  it('shows the value when there is no animation to read', async () => {
+    const screen = await render(
+      <MPAnimateCounter value={1234} style={{ animation: 'none' }} data-testid="count" />
+    );
+    const visible = screen
+      .getByTestId('count')
+      .element()
+      .querySelector('[aria-hidden="true"]') as HTMLElement;
+
+    await vi.waitFor(() => expect(visible.textContent).toBe('1,234'));
+  });
+
   /*
    * The rule for anything driven rather than declared: before it is triggered it
    * has to look like its own first frame. The first implementation of a counter

@@ -145,17 +145,38 @@ export const MPAnimateCounter = React.forwardRef<HTMLSpanElement, MPAnimateCount
 
       let frame = 0;
       let live = true;
+      // A browser without scroll-driven animations runs a `view` counter on the
+      // clock, so it finishes like any other.
+      const scrollDriven = timeline === 'view' && CSS.supports('animation-timeline', 'view()');
 
       const read = () => {
         if (!live) {
           return;
         }
 
-        const raw = getComputedStyle(element).getPropertyValue('--mp-count');
-        const next = Number.parseFloat(raw);
+        const own = element
+          .getAnimations()
+          .filter((animation) => (animation as CSSAnimation).animationName === 'mp-anim-count');
+        const finished = own.every((animation) => animation.playState === 'finished');
 
-        if (Number.isFinite(next)) {
-          setShown(next);
+        /*
+         * Two cases where the property has nothing to say, and both show the
+         * value. With no animation at all, the reader asked for less motion and
+         * the stylesheet switched the keyframes off — an entrance that does not
+         * play has still delivered its content, so the answer is the value and
+         * not the registration's `0`. And once the animation has finished, the
+         * value is where it ended; reading it back would only be wrong in an
+         * engine that does not animate the property at all and leaves it where
+         * it started, as Firefox 113 does.
+         */
+        if (own.length === 0 || (finished && !scrollDriven)) {
+          setShown(value);
+        } else {
+          const next = Number.parseFloat(getComputedStyle(element).getPropertyValue('--mp-count'));
+
+          if (Number.isFinite(next)) {
+            setShown(next);
+          }
         }
 
         /*
@@ -164,9 +185,7 @@ export const MPAnimateCounter = React.forwardRef<HTMLSpanElement, MPAnimateCount
          * progress is the reader's position and can go back — so that one keeps
          * reading.
          */
-        const running =
-          timeline === 'view' ||
-          element.getAnimations().some((animation) => animation.playState !== 'finished');
+        const running = own.length > 0 && (scrollDriven || !finished);
 
         if (running) {
           frame = requestAnimationFrame(read);
@@ -181,7 +200,7 @@ export const MPAnimateCounter = React.forwardRef<HTMLSpanElement, MPAnimateCount
       };
       // `animate.style` rather than its parts: a new run writes new slots, and a
       // finished loop has to be restarted when it does.
-    }, [animate.style, animate.props['data-mp-state'], timeline]);
+    }, [animate.style, animate.props['data-mp-state'], timeline, value]);
 
     return (
       <span
