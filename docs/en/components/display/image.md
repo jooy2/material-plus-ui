@@ -146,10 +146,29 @@ The turn is drawn with the CSS `rotate` property and the mirror with `scale`, ra
 
 A picture on its side is laid out of the flow and cannot give its box a width. The box takes the width of wherever it is placed, so in a flex row, or anywhere else that sizes a box by its contents, give it a width.
 
+## When the picture loads
+
+`loading`, `decoding` and `fetchPriority` are the `<img>`'s own attributes, and they pass straight through to it.
+
+- `loading="lazy"` waits to fetch a picture until it comes near the viewport. Use it for pictures below the fold.
+- `decoding="async"` lets the browser decode the file without holding up the rest of the page.
+- `fetchPriority` raises or lowers how urgently the file is fetched, compared with the page's other requests.
+
+`priority` is for the picture a page is judged by, which is usually its Largest Contentful Paint. It sets `loading="eager"` and a high fetch priority, and an attribute you write out yourself still wins. Give it to one picture per page, because a high priority on every picture raises none of them above the others.
+
+```tsx
+<MPImage src={cover} alt="The east face at dawn" ratio="16 / 9" priority />
+<MPImage src={thumb} alt="The hut below the ridge" ratio="4 / 3" loading="lazy" decoding="async" />
+```
+
+A lazy picture still needs a reserved box. Until it loads, the box is only as large as `ratio`, or `width` and `height`, make it, so without either the page moves when the picture arrives.
+
+React 19 spells the attribute `fetchPriority` and React 18 spells it `fetchpriority`. `priority` writes the spelling the running React knows, so neither version warns about it.
+
 ## What it is not
 
 - **Not a gallery.** `preview` opens _this_ picture and nothing else. A lightbox that walked between images would need to know which images and in what order, and that is a component holding a collection rather than a picture.
-- **Not a `next/image`.** No `srcset` generation, no loader, no format negotiation — those belong to whatever is serving the file, and a library guessing at them would be guessing about somebody else's CDN. `srcSet`, `sizes`, `loading` and `decoding` pass straight through to the `<img>`.
+- **Not a `next/image`.** No `srcset` generation, no loader, no format negotiation — those belong to whatever is serving the file, and a library guessing at them would be guessing about somebody else's CDN. `srcSet`, `sizes`, `loading`, `decoding` and `fetchPriority` pass straight through to the `<img>`.
 
 ## Sharp edges
 

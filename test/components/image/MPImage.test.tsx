@@ -1070,6 +1070,66 @@ describe('MPImage', () => {
     });
   });
 
+  describe('when it loads', () => {
+    it('passes the native loading attributes through', async () => {
+      const screen = await render(
+        <MPImage
+          src={RED_DOT}
+          alt="A red dot"
+          loading="lazy"
+          decoding="async"
+          fetchPriority="low"
+        />
+      );
+      const img = screen.container.querySelector('img') as HTMLImageElement;
+
+      expect(img.getAttribute('loading')).toBe('lazy');
+      expect(img.getAttribute('decoding')).toBe('async');
+      // Attribute names are not case-sensitive in HTML, and the DOM reports them in lowercase.
+      expect(img.getAttribute('fetchpriority')).toBe('low');
+    });
+
+    it('sets no loading attributes by default', async () => {
+      const screen = await render(<MPImage src={RED_DOT} alt="A red dot" />);
+      const img = screen.container.querySelector('img') as HTMLImageElement;
+
+      expect(img.hasAttribute('loading')).toBe(false);
+      expect(img.hasAttribute('fetchpriority')).toBe(false);
+    });
+
+    it('loads a `priority` picture eagerly and first', async () => {
+      const error = vi.spyOn(console, 'error');
+      const screen = await render(<MPImage src={RED_DOT} alt="A red dot" priority />);
+      const img = screen.container.querySelector('img') as HTMLImageElement;
+
+      expect(img.getAttribute('loading')).toBe('eager');
+      expect(img.getAttribute('fetchpriority')).toBe('high');
+      // Spelled the way this React knows it, so it says nothing about it.
+      expect(error.mock.calls.flat().join(' ')).not.toMatch(/fetchpriority/i);
+      error.mockRestore();
+    });
+
+    it('lets an attribute the caller writes out win over `priority`', async () => {
+      const screen = await render(
+        <MPImage src={RED_DOT} alt="A red dot" priority loading="lazy" fetchPriority="auto" />
+      );
+      const img = screen.container.querySelector('img') as HTMLImageElement;
+
+      expect(img.getAttribute('loading')).toBe('lazy');
+      expect(img.getAttribute('fetchpriority')).toBe('auto');
+    });
+
+    it('gives the letterbox copy the same urgency as the picture', async () => {
+      const screen = await render(
+        <MPImage src={RED_DOT} alt="A red dot" fit="contain" letterbox="blur" priority />
+      );
+      const copy = screen.container.querySelector('img[aria-hidden="true"]') as HTMLImageElement;
+
+      expect(copy.getAttribute('loading')).toBe('eager');
+      expect(copy.getAttribute('fetchpriority')).toBe('high');
+    });
+  });
+
   describe('preview', () => {
     it('is not a button unless it is asked for', async () => {
       const screen = await render(<MPImage src={RED_DOT} alt="A red dot" />);

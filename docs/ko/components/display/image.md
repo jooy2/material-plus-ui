@@ -146,10 +146,29 @@ import { MPImage } from 'material-plus-ui';
 
 옆으로 누운 그림은 흐름 밖에 놓이므로 상자에 너비를 줄 수 없습니다. 상자는 놓인 곳의 너비를 따릅니다. 플렉스 행처럼 내용으로 상자 크기를 정하는 곳에서는 너비를 따로 주세요.
 
+## 그림을 불러오는 시점
+
+`loading`, `decoding`, `fetchPriority`는 `<img>` 자신의 속성이고 `<img>`로 그대로 전달됩니다.
+
+- `loading="lazy"`는 그림이 뷰포트 가까이 올 때까지 가져오기를 미룹니다. 스크롤해야 보이는 그림에 쓰세요.
+- `decoding="async"`는 페이지의 나머지를 붙잡지 않고 파일을 디코딩하게 합니다.
+- `fetchPriority`는 페이지의 다른 요청에 비해 이 파일을 얼마나 급하게 가져올지 올리거나 내립니다.
+
+`priority`는 페이지를 평가받는 그림, 보통 최대 콘텐츠풀 페인트(LCP) 그림에 씁니다. `loading="eager"`와 높은 가져오기 우선순위를 설정하고, 직접 쓴 속성이 있으면 그 값을 따릅니다. 페이지마다 그림 하나에만 주세요. 모든 그림의 우선순위를 올리면 어느 그림도 다른 그림보다 먼저 오지 않습니다.
+
+```tsx
+<MPImage src={cover} alt="The east face at dawn" ratio="16 / 9" priority />
+<MPImage src={thumb} alt="The hut below the ridge" ratio="4 / 3" loading="lazy" decoding="async" />
+```
+
+지연 로딩하는 그림도 자리를 잡아 두어야 합니다. 불러오기 전까지 상자의 크기는 `ratio`나 `width`와 `height`가 정한 만큼이므로, 둘 다 없으면 그림이 도착할 때 페이지가 움직입니다.
+
+React 19는 이 속성을 `fetchPriority`로, React 18은 `fetchpriority`로 씁니다. `priority`는 실행 중인 React가 아는 표기로 쓰므로 어느 버전에서도 경고가 나지 않습니다.
+
 ## 이것이 아닌 것
 
 - **갤러리가 아닙니다.** `preview`는 _이_ 그림 하나를 엽니다. 이미지 사이를 걸어 다니는 라이트박스는 어떤 이미지들이 어떤 순서로 있는지 알아야 하고, 그건 그림이 아니라 컬렉션을 든 컴포넌트입니다.
-- **`next/image`가 아닙니다.** `srcset` 생성도, loader도, 포맷 협상도 없습니다. 그건 파일을 서빙하는 쪽의 일이고, 그걸 추측하는 라이브러리는 남의 CDN에 대해 추측하는 것입니다. `srcSet` · `sizes` · `loading` · `decoding`은 `<img>`로 그대로 통과합니다.
+- **`next/image`가 아닙니다.** `srcset` 생성도, loader도, 포맷 협상도 없습니다. 그건 파일을 서빙하는 쪽의 일이고, 그걸 추측하는 라이브러리는 남의 CDN에 대해 추측하는 것입니다. `srcSet` · `sizes` · `loading` · `decoding` · `fetchPriority`는 `<img>`로 그대로 통과합니다.
 
 ## 날카로운 모서리
 

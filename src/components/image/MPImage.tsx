@@ -191,6 +191,16 @@ export interface MPImageProps extends Omit<React.ComponentPropsWithoutRef<'img'>
    * @default 'none'
    */
   letterbox?: 'none' | 'blur' | (string & {});
+  /**
+   * Loads this picture first: the one a page is judged by, which is usually its
+   * Largest Contentful Paint.
+   *
+   * Sets `loading="eager"` and a high fetch priority. A `loading` or
+   * `fetchPriority` of your own still wins. Give it to one picture per page: a
+   * high priority on every picture raises none of them above the others.
+   * @default false
+   */
+  priority?: boolean;
   /** The corner and type scale of the placeholder and the fallback. @default 'md' */
   size?: MPSize;
 }
@@ -234,6 +244,28 @@ const SIDEWAYS: React.CSSProperties = {
   maxWidth: 'none',
   translate: '-50% -50%'
 };
+
+/**
+ * The attribute name for an `<img>`'s fetch priority, spelled the way the running
+ * React writes it.
+ *
+ * React 19 knows it as `fetchPriority` and warns about the lowercase form. React
+ * 18 does not know it: it warns about the camel-case form, though it writes the
+ * attribute either way, and passes the lowercase one through without a word.
+ * The version is parsed the way `internal/inert.ts` parses it, so a canary whose
+ * major does not read as a number takes the modern spelling.
+ */
+const reactMajor = Number.parseInt(React.version, 10);
+const FETCH_PRIORITY =
+  !Number.isFinite(reactMajor) || reactMajor === 0 || reactMajor >= 19
+    ? 'fetchPriority'
+    : 'fetchpriority';
+
+/** What `priority` sets, before the caller's own attributes. */
+const PRIORITY = {
+  loading: 'eager',
+  [FETCH_PRIORITY]: 'high'
+} as React.ImgHTMLAttributes<HTMLImageElement>;
 
 /** The blur radius of the `blur` letterbox, in pixels. */
 const LETTERBOX_BLUR = 24;
@@ -520,6 +552,7 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
     flip = 'none',
     position = 'center',
     letterbox = 'none',
+    priority = false,
     size: sizeProp,
     className,
     style,
@@ -663,6 +696,11 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
     'transition-opacity duration-(--mp-sys-motion-duration-short4)'
   ].join(' ');
 
+  // When the picture is fetched and how urgently, which the letterbox copy
+  // shares so that it waits for, and hurries, the same request.
+  const loading = props.loading ?? (priority ? 'eager' : undefined);
+  const fetchPriority = props.fetchPriority ?? (priority ? 'high' : undefined);
+
   // Only a fit that can leave room around the picture has room to fill.
   const blurred =
     letterbox === 'blur' && (fit === 'contain' || fit === 'none' || fit === 'scale-down');
@@ -689,10 +727,11 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
          * not offer to save a copy nobody can see is there.
          */
         <img
+          {...(fetchPriority ? { [FETCH_PRIORITY]: fetchPriority } : null)}
           src={src}
           srcSet={props.srcSet}
           sizes={props.sizes}
-          loading={props.loading}
+          loading={loading}
           decoding={props.decoding}
           crossOrigin={props.crossOrigin}
           referrerPolicy={props.referrerPolicy}
@@ -737,6 +776,7 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
       ) : null}
 
       <img
+        {...(priority ? PRIORITY : null)}
         {...props}
         ref={(node) => {
           imageRef.current = node;

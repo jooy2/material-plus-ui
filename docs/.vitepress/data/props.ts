@@ -4855,6 +4855,15 @@ const componentTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'priority',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '페이지를 평가받는 그림, 보통 최대 콘텐츠풀 페인트(LCP) 그림을 먼저 불러옵니다. `loading="eager"`와 높은 가져오기 우선순위를 설정하고, 직접 쓴 `loading`이나 `fetchPriority`가 있으면 그 값을 따릅니다. 페이지마다 그림 하나에만 주세요',
+        en: 'Loads the picture a page is judged by first, usually its Largest Contentful Paint. Sets `loading="eager"` and a high fetch priority, and a `loading` or `fetchPriority` you write out still wins. Give it to one picture per page'
+      }
+    },
+    {
       name: 'onStateChange',
       type: "(state: 'loading' | 'loaded' | 'error') => void",
       description: {
