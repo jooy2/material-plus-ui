@@ -263,7 +263,14 @@ export const MPRating = React.forwardRef<HTMLDivElement, MPRatingProps>(function
             ? ''
             : [
                 'outline-mp-secondary has-[:focus-visible]:outline-2',
-                'has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-solid'
+                'has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-solid',
+                // Firefox before 121 has no `:has()`, and without this a star
+                // focused from the keyboard showed no ring at all. `:focus-within`
+                // is the nearest it has; it rings a star clicked with a pointer
+                // as well, which is the smaller of the two faults.
+                'supports-[not_selector(:has(*))]:focus-within:outline-2',
+                'supports-[not_selector(:has(*))]:focus-within:outline-offset-2',
+                'supports-[not_selector(:has(*))]:focus-within:outline-solid'
               ].join(' ')
         ]
           .filter(Boolean)

@@ -48,6 +48,8 @@
 
 ### Fixed
 
+- **`MPRating` rings the focused star in Firefox before 121.** The ring was drawn with `:has(:focus-visible)`, which those versions do not have, so a star reached from the keyboard showed nothing. They now ring it through `:focus-within`, which rings a star clicked with a pointer as well.
+
 - **`MPPill` no longer crashes Safari 16.4.** The description is drawn in `color: color-mix(in oklab, currentColor 72%, transparent)`, and a `color-mix()` that reads `currentColor` inside `color` itself is what WebKit 16.4 took the whole tab down on — any page with a pill on it. The rule now sits behind the `@supports` condition Tailwind uses for its own placeholder colour, which lets in every browser that is not Safari and Safari from 17. An older Safari draws the description in the title's colour.
 
 - **`MPAnimateCounter` shows its value to a reader who asked for less motion.** The counting copy read the animated `--mp-count` back on every frame, and with the keyframes switched off by `prefers-reduced-motion` that is the registration's `0`: the tile said 0, 0 € and 0.00% where the statistic was, in every current browser, while the screen-reader copy said the right number. The counter now shows the value when there is no animation to read and once the run has finished. The same change lands it on the value in a Firefox old enough not to animate the property at all, where it used to stay at `from` — Firefox 113 is one.
