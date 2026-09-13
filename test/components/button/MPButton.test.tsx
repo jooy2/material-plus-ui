@@ -15,6 +15,10 @@ function heightOf(screen: { getByRole: (role: string) => { element: () => Elemen
  * transition — and the container colour is, for the first 200ms of a button's
  * life — comes back as an interpolated `oklab()` with no hue component at all,
  * so the angle is recovered from the a/b pair rather than waited for.
+ *
+ * A settled accent role is a third spelling, `color(srgb-linear …)`, because
+ * the stylesheet brings it inside sRGB in linear light. That one is taken to
+ * OKLab the way the colour spaces define it and read the same way.
  */
 function hueOf(element: Element, property: 'color' | 'backgroundColor') {
   const resolved = getComputedStyle(element)[property];
@@ -24,13 +28,31 @@ function hueOf(element: Element, property: 'color' | 'backgroundColor') {
     return Number(oklch[1]);
   }
 
+  const angle = (a: number, b: number) => {
+    const degrees = (Math.atan2(b, a) * 180) / Math.PI;
+
+    return degrees < 0 ? degrees + 360 : degrees;
+  };
+
+  const linear = /color\(srgb-linear\s+(-?[\d.e-]+)\s+(-?[\d.e-]+)\s+(-?[\d.e-]+)/.exec(resolved);
+
+  if (linear) {
+    const [r, g, b] = linear.slice(1).map(Number);
+    const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+    const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+    const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+
+    return angle(
+      1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s,
+      0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s
+    );
+  }
+
   const oklab = /oklab\(\s*[\d.]+\s+(-?[\d.]+)\s+(-?[\d.]+)/.exec(resolved);
 
-  expect(oklab, `expected an oklch or oklab colour, got ${resolved}`).not.toBeNull();
+  expect(oklab, `expected an oklch, oklab or srgb-linear colour, got ${resolved}`).not.toBeNull();
 
-  const degrees = (Math.atan2(Number(oklab![2]), Number(oklab![1])) * 180) / Math.PI;
-
-  return degrees < 0 ? degrees + 360 : degrees;
+  return angle(Number(oklab![1]), Number(oklab![2]));
 }
 
 describe('MPButton', () => {

@@ -324,13 +324,13 @@
      * boundary take back whatever will not fit — which is why `primary` at tone 40
      * is vivid and `primary-container` at tone 90 is a pale wash, from one number.
      * The container and `on-` roles are written the same way: the palette's chroma
-     * goes in unmodified and the browser's own gamut mapping does the clipping, at
-     * constant lightness and hue, exactly as HCT's does.
+     * goes in unmodified, and the roles themselves take back what sRGB cannot
+     * show — see "Inside sRGB" on the roles below. The browser does not: it clips
+     * each channel on its own, which moves the hue and the lightness with it.
      *
-     * Fed the baseline source, that lands the twelve container and `on-` roles
-     * within 0.01 of MD3's own — bar the two `error` containers, which come out up
-     * to 0.025 more chromatic because sRGB's boundary is a blunter clip than HCT's
-     * and the error palette is the only one saturated enough to notice.
+     * Fed the baseline source, that lands the eighteen container and `on-` roles
+     * of the three accent families within a ΔE of 0.02 of MD3's own, and
+     * `on-primary`, `on-secondary` and `on-tertiary` exactly on its white.
      *
      * `error` is an absolute chroma rather than a multiplier, because it is not
      * derived from the source colour at all.
@@ -491,17 +491,127 @@
    *
    * `oklch(from … h)` keeps the source colour's hue and replaces lightness and
    * chroma. See the note above for why this is on `*` rather than `:root`.
+   *
+   * ## Inside sRGB
+   *
+   * A palette's chroma is too much for the ends of its own ramp. At the tone of
+   * `on-primary` there is no chroma left inside sRGB at all, and at the tone of
+   * a container there is a fraction of it. A browser handed such a colour does
+   * not bring it in at constant lightness and hue, which is what CSS Color 4
+   * describes: it clips each channel on its own. Measured in Chromium, Firefox
+   * and WebKit alike, the default `on-primary` came out `#b8ffff` instead of
+   * white, its container a saturated cyan, and `error-container` a salmon at a
+   * ΔE of 0.1 from MD3's.
+   *
+   * So the accent and error roles bring the colour in themselves, written as
+   * nested relative colours. The innermost converts the role to linear sRGB
+   * and works out, for each channel, how far along the straight line from the
+   * grey of the same lightness the colour can go before that channel leaves
+   * [0, 1]; the smallest of the three is carried in the alpha channel. The
+   * next scales the colour's OKLab chroma by that factor, which keeps its
+   * lightness and hue exactly and lands it at or near the edge of sRGB. The
+   * last two repeat the measurement on that colour and move whatever still
+   * does not fit along the line in linear light, then set the alpha back to 1.
+   * A colour already inside sRGB comes out unchanged, because every channel
+   * then allows the whole line.
+   *
+   * The factor comes from a line in linear light rather than from the curved
+   * edge of the gamut, so the result is near an exact chroma reduction rather
+   * than on it. For the default source the worst role is a ΔE of 0.004 from
+   * that colour, where clipping each channel was 0.084 off. Across every hue
+   * at the same saturation the worst is 0.009 against 0.122, and at the
+   * saturation of the most vivid sRGB sources 0.099 against 0.299. An
+   * estimate can also stop short of the edge: a pure `#0000ff` source comes
+   * out 0.072 away, where the linear line alone gave 0.053. The `0.0000001`
+   * keeps a channel that sits exactly on the grey from dividing zero by zero.
+   *
+   * The neutral roles carry too little chroma to leave sRGB, and stay as they
+   * are. The one exception is the light `surface` near a hue of 270°, which
+   * passes the edge by less than 4% of one channel.
    */
   *,
   ::before,
   ::after,
   ::backdrop {
+    /*
+     * The grey each accent tone sits on, in linear light: an OKLCh lightness
+     * with no chroma is the same value in all three sRGB channels, and that
+     * value is the lightness cubed. The roles below pull a colour towards it
+     * when the colour will not fit sRGB — see "Inside sRGB" above.
+     */
+    --_mp-grey-accent: calc(
+      var(--_mp-tone-accent) * var(--_mp-tone-accent) * var(--_mp-tone-accent)
+    );
+    --_mp-grey-on-accent: calc(
+      var(--_mp-tone-on-accent) * var(--_mp-tone-on-accent) * var(--_mp-tone-on-accent)
+    );
+    --_mp-grey-accent-container: calc(
+      var(--_mp-tone-accent-container) * var(--_mp-tone-accent-container) *
+        var(--_mp-tone-accent-container)
+    );
+    --_mp-grey-on-accent-container: calc(
+      var(--_mp-tone-on-accent-container) * var(--_mp-tone-on-accent-container) *
+        var(--_mp-tone-on-accent-container)
+    );
+    --_mp-grey-inverse-accent: calc(
+      var(--_mp-tone-inverse-accent) * var(--_mp-tone-inverse-accent) *
+        var(--_mp-tone-inverse-accent)
+    );
+    --_mp-grey-error: calc(var(--_mp-tone-error) * var(--_mp-tone-error) * var(--_mp-tone-error));
+
     --_mp-color-primary: var(
       --mp-sys-color-primary,
       var(
         --md-sys-color-primary,
-        oklch(
-          from var(--mp-source-color) var(--_mp-tone-accent) calc(c * var(--_mp-chroma-primary)) h
+        color(
+          from
+            color(
+              from
+                oklab(
+                  from
+                    color(
+                      from
+                        oklch(
+                          from var(--mp-source-color) var(--_mp-tone-accent)
+                            calc(c * var(--_mp-chroma-primary)) h
+                        )
+                        srgb-linear r g b /
+                        min(
+                          calc(
+                            (clamp(0, r, 1) - var(--_mp-grey-accent) + 0.0000001) /
+                              (r - var(--_mp-grey-accent) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, g, 1) - var(--_mp-grey-accent) + 0.0000001) /
+                              (g - var(--_mp-grey-accent) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, b, 1) - var(--_mp-grey-accent) + 0.0000001) /
+                              (b - var(--_mp-grey-accent) + 0.0000001)
+                          )
+                        )
+                    )
+                    l calc(a * alpha) calc(b * alpha) / 1
+                )
+                srgb-linear r g b /
+                min(
+                  calc(
+                    (clamp(0, r, 1) - var(--_mp-grey-accent) + 0.0000001) /
+                      (r - var(--_mp-grey-accent) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, g, 1) - var(--_mp-grey-accent) + 0.0000001) /
+                      (g - var(--_mp-grey-accent) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, b, 1) - var(--_mp-grey-accent) + 0.0000001) /
+                      (b - var(--_mp-grey-accent) + 0.0000001)
+                  )
+                )
+            )
+            srgb-linear calc(var(--_mp-grey-accent) + alpha * (r - var(--_mp-grey-accent)))
+            calc(var(--_mp-grey-accent) + alpha * (g - var(--_mp-grey-accent)))
+            calc(var(--_mp-grey-accent) + alpha * (b - var(--_mp-grey-accent))) / 1
         )
       )
     );
@@ -509,9 +619,55 @@
       --mp-sys-color-on-primary,
       var(
         --md-sys-color-on-primary,
-        oklch(
-          from var(--mp-source-color) var(--_mp-tone-on-accent) calc(c * var(--_mp-palette-primary))
-            h
+        color(
+          from
+            color(
+              from
+                oklab(
+                  from
+                    color(
+                      from
+                        oklch(
+                          from var(--mp-source-color) var(--_mp-tone-on-accent)
+                            calc(c * var(--_mp-palette-primary)) h
+                        )
+                        srgb-linear r g b /
+                        min(
+                          calc(
+                            (clamp(0, r, 1) - var(--_mp-grey-on-accent) + 0.0000001) /
+                              (r - var(--_mp-grey-on-accent) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, g, 1) - var(--_mp-grey-on-accent) + 0.0000001) /
+                              (g - var(--_mp-grey-on-accent) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, b, 1) - var(--_mp-grey-on-accent) + 0.0000001) /
+                              (b - var(--_mp-grey-on-accent) + 0.0000001)
+                          )
+                        )
+                    )
+                    l calc(a * alpha) calc(b * alpha) / 1
+                )
+                srgb-linear r g b /
+                min(
+                  calc(
+                    (clamp(0, r, 1) - var(--_mp-grey-on-accent) + 0.0000001) /
+                      (r - var(--_mp-grey-on-accent) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, g, 1) - var(--_mp-grey-on-accent) + 0.0000001) /
+                      (g - var(--_mp-grey-on-accent) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, b, 1) - var(--_mp-grey-on-accent) + 0.0000001) /
+                      (b - var(--_mp-grey-on-accent) + 0.0000001)
+                  )
+                )
+            )
+            srgb-linear calc(var(--_mp-grey-on-accent) + alpha * (r - var(--_mp-grey-on-accent)))
+            calc(var(--_mp-grey-on-accent) + alpha * (g - var(--_mp-grey-on-accent)))
+            calc(var(--_mp-grey-on-accent) + alpha * (b - var(--_mp-grey-on-accent))) / 1
         )
       )
     );
@@ -519,9 +675,59 @@
       --mp-sys-color-primary-container,
       var(
         --md-sys-color-primary-container,
-        oklch(
-          from var(--mp-source-color) var(--_mp-tone-accent-container)
-            calc(c * var(--_mp-palette-primary)) h
+        color(
+          from
+            color(
+              from
+                oklab(
+                  from
+                    color(
+                      from
+                        oklch(
+                          from var(--mp-source-color) var(--_mp-tone-accent-container)
+                            calc(c * var(--_mp-palette-primary)) h
+                        )
+                        srgb-linear r g b /
+                        min(
+                          calc(
+                            (clamp(0, r, 1) - var(--_mp-grey-accent-container) + 0.0000001) /
+                              (r - var(--_mp-grey-accent-container) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, g, 1) - var(--_mp-grey-accent-container) + 0.0000001) /
+                              (g - var(--_mp-grey-accent-container) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, b, 1) - var(--_mp-grey-accent-container) + 0.0000001) /
+                              (b - var(--_mp-grey-accent-container) + 0.0000001)
+                          )
+                        )
+                    )
+                    l calc(a * alpha) calc(b * alpha) / 1
+                )
+                srgb-linear r g b /
+                min(
+                  calc(
+                    (clamp(0, r, 1) - var(--_mp-grey-accent-container) + 0.0000001) /
+                      (r - var(--_mp-grey-accent-container) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, g, 1) - var(--_mp-grey-accent-container) + 0.0000001) /
+                      (g - var(--_mp-grey-accent-container) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, b, 1) - var(--_mp-grey-accent-container) + 0.0000001) /
+                      (b - var(--_mp-grey-accent-container) + 0.0000001)
+                  )
+                )
+            )
+            srgb-linear
+            calc(var(--_mp-grey-accent-container) + alpha * (r - var(--_mp-grey-accent-container)))
+            calc(var(--_mp-grey-accent-container) + alpha * (g - var(--_mp-grey-accent-container)))
+            calc(
+              var(--_mp-grey-accent-container) + alpha * (b - var(--_mp-grey-accent-container))
+            ) /
+            1
         )
       )
     );
@@ -529,9 +735,66 @@
       --mp-sys-color-on-primary-container,
       var(
         --md-sys-color-on-primary-container,
-        oklch(
-          from var(--mp-source-color) var(--_mp-tone-on-accent-container)
-            calc(c * var(--_mp-palette-primary)) h
+        color(
+          from
+            color(
+              from
+                oklab(
+                  from
+                    color(
+                      from
+                        oklch(
+                          from var(--mp-source-color) var(--_mp-tone-on-accent-container)
+                            calc(c * var(--_mp-palette-primary)) h
+                        )
+                        srgb-linear r g b /
+                        min(
+                          calc(
+                            (clamp(0, r, 1) - var(--_mp-grey-on-accent-container) + 0.0000001) /
+                              (r - var(--_mp-grey-on-accent-container) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, g, 1) - var(--_mp-grey-on-accent-container) + 0.0000001) /
+                              (g - var(--_mp-grey-on-accent-container) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, b, 1) - var(--_mp-grey-on-accent-container) + 0.0000001) /
+                              (b - var(--_mp-grey-on-accent-container) + 0.0000001)
+                          )
+                        )
+                    )
+                    l calc(a * alpha) calc(b * alpha) / 1
+                )
+                srgb-linear r g b /
+                min(
+                  calc(
+                    (clamp(0, r, 1) - var(--_mp-grey-on-accent-container) + 0.0000001) /
+                      (r - var(--_mp-grey-on-accent-container) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, g, 1) - var(--_mp-grey-on-accent-container) + 0.0000001) /
+                      (g - var(--_mp-grey-on-accent-container) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, b, 1) - var(--_mp-grey-on-accent-container) + 0.0000001) /
+                      (b - var(--_mp-grey-on-accent-container) + 0.0000001)
+                  )
+                )
+            )
+            srgb-linear
+            calc(
+              var(--_mp-grey-on-accent-container) + alpha *
+                (r - var(--_mp-grey-on-accent-container))
+            )
+            calc(
+              var(--_mp-grey-on-accent-container) + alpha *
+                (g - var(--_mp-grey-on-accent-container))
+            )
+            calc(
+              var(--_mp-grey-on-accent-container) + alpha *
+                (b - var(--_mp-grey-on-accent-container))
+            ) /
+            1
         )
       )
     );
@@ -540,8 +803,55 @@
       --mp-sys-color-secondary,
       var(
         --md-sys-color-secondary,
-        oklch(
-          from var(--mp-source-color) var(--_mp-tone-accent) calc(c * var(--_mp-chroma-secondary)) h
+        color(
+          from
+            color(
+              from
+                oklab(
+                  from
+                    color(
+                      from
+                        oklch(
+                          from var(--mp-source-color) var(--_mp-tone-accent)
+                            calc(c * var(--_mp-chroma-secondary)) h
+                        )
+                        srgb-linear r g b /
+                        min(
+                          calc(
+                            (clamp(0, r, 1) - var(--_mp-grey-accent) + 0.0000001) /
+                              (r - var(--_mp-grey-accent) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, g, 1) - var(--_mp-grey-accent) + 0.0000001) /
+                              (g - var(--_mp-grey-accent) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, b, 1) - var(--_mp-grey-accent) + 0.0000001) /
+                              (b - var(--_mp-grey-accent) + 0.0000001)
+                          )
+                        )
+                    )
+                    l calc(a * alpha) calc(b * alpha) / 1
+                )
+                srgb-linear r g b /
+                min(
+                  calc(
+                    (clamp(0, r, 1) - var(--_mp-grey-accent) + 0.0000001) /
+                      (r - var(--_mp-grey-accent) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, g, 1) - var(--_mp-grey-accent) + 0.0000001) /
+                      (g - var(--_mp-grey-accent) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, b, 1) - var(--_mp-grey-accent) + 0.0000001) /
+                      (b - var(--_mp-grey-accent) + 0.0000001)
+                  )
+                )
+            )
+            srgb-linear calc(var(--_mp-grey-accent) + alpha * (r - var(--_mp-grey-accent)))
+            calc(var(--_mp-grey-accent) + alpha * (g - var(--_mp-grey-accent)))
+            calc(var(--_mp-grey-accent) + alpha * (b - var(--_mp-grey-accent))) / 1
         )
       )
     );
@@ -549,9 +859,55 @@
       --mp-sys-color-on-secondary,
       var(
         --md-sys-color-on-secondary,
-        oklch(
-          from var(--mp-source-color) var(--_mp-tone-on-accent)
-            calc(c * var(--_mp-palette-secondary)) h
+        color(
+          from
+            color(
+              from
+                oklab(
+                  from
+                    color(
+                      from
+                        oklch(
+                          from var(--mp-source-color) var(--_mp-tone-on-accent)
+                            calc(c * var(--_mp-palette-secondary)) h
+                        )
+                        srgb-linear r g b /
+                        min(
+                          calc(
+                            (clamp(0, r, 1) - var(--_mp-grey-on-accent) + 0.0000001) /
+                              (r - var(--_mp-grey-on-accent) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, g, 1) - var(--_mp-grey-on-accent) + 0.0000001) /
+                              (g - var(--_mp-grey-on-accent) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, b, 1) - var(--_mp-grey-on-accent) + 0.0000001) /
+                              (b - var(--_mp-grey-on-accent) + 0.0000001)
+                          )
+                        )
+                    )
+                    l calc(a * alpha) calc(b * alpha) / 1
+                )
+                srgb-linear r g b /
+                min(
+                  calc(
+                    (clamp(0, r, 1) - var(--_mp-grey-on-accent) + 0.0000001) /
+                      (r - var(--_mp-grey-on-accent) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, g, 1) - var(--_mp-grey-on-accent) + 0.0000001) /
+                      (g - var(--_mp-grey-on-accent) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, b, 1) - var(--_mp-grey-on-accent) + 0.0000001) /
+                      (b - var(--_mp-grey-on-accent) + 0.0000001)
+                  )
+                )
+            )
+            srgb-linear calc(var(--_mp-grey-on-accent) + alpha * (r - var(--_mp-grey-on-accent)))
+            calc(var(--_mp-grey-on-accent) + alpha * (g - var(--_mp-grey-on-accent)))
+            calc(var(--_mp-grey-on-accent) + alpha * (b - var(--_mp-grey-on-accent))) / 1
         )
       )
     );
@@ -559,9 +915,59 @@
       --mp-sys-color-secondary-container,
       var(
         --md-sys-color-secondary-container,
-        oklch(
-          from var(--mp-source-color) var(--_mp-tone-accent-container)
-            calc(c * var(--_mp-palette-secondary)) h
+        color(
+          from
+            color(
+              from
+                oklab(
+                  from
+                    color(
+                      from
+                        oklch(
+                          from var(--mp-source-color) var(--_mp-tone-accent-container)
+                            calc(c * var(--_mp-palette-secondary)) h
+                        )
+                        srgb-linear r g b /
+                        min(
+                          calc(
+                            (clamp(0, r, 1) - var(--_mp-grey-accent-container) + 0.0000001) /
+                              (r - var(--_mp-grey-accent-container) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, g, 1) - var(--_mp-grey-accent-container) + 0.0000001) /
+                              (g - var(--_mp-grey-accent-container) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, b, 1) - var(--_mp-grey-accent-container) + 0.0000001) /
+                              (b - var(--_mp-grey-accent-container) + 0.0000001)
+                          )
+                        )
+                    )
+                    l calc(a * alpha) calc(b * alpha) / 1
+                )
+                srgb-linear r g b /
+                min(
+                  calc(
+                    (clamp(0, r, 1) - var(--_mp-grey-accent-container) + 0.0000001) /
+                      (r - var(--_mp-grey-accent-container) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, g, 1) - var(--_mp-grey-accent-container) + 0.0000001) /
+                      (g - var(--_mp-grey-accent-container) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, b, 1) - var(--_mp-grey-accent-container) + 0.0000001) /
+                      (b - var(--_mp-grey-accent-container) + 0.0000001)
+                  )
+                )
+            )
+            srgb-linear
+            calc(var(--_mp-grey-accent-container) + alpha * (r - var(--_mp-grey-accent-container)))
+            calc(var(--_mp-grey-accent-container) + alpha * (g - var(--_mp-grey-accent-container)))
+            calc(
+              var(--_mp-grey-accent-container) + alpha * (b - var(--_mp-grey-accent-container))
+            ) /
+            1
         )
       )
     );
@@ -569,9 +975,66 @@
       --mp-sys-color-on-secondary-container,
       var(
         --md-sys-color-on-secondary-container,
-        oklch(
-          from var(--mp-source-color) var(--_mp-tone-on-accent-container)
-            calc(c * var(--_mp-palette-secondary)) h
+        color(
+          from
+            color(
+              from
+                oklab(
+                  from
+                    color(
+                      from
+                        oklch(
+                          from var(--mp-source-color) var(--_mp-tone-on-accent-container)
+                            calc(c * var(--_mp-palette-secondary)) h
+                        )
+                        srgb-linear r g b /
+                        min(
+                          calc(
+                            (clamp(0, r, 1) - var(--_mp-grey-on-accent-container) + 0.0000001) /
+                              (r - var(--_mp-grey-on-accent-container) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, g, 1) - var(--_mp-grey-on-accent-container) + 0.0000001) /
+                              (g - var(--_mp-grey-on-accent-container) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, b, 1) - var(--_mp-grey-on-accent-container) + 0.0000001) /
+                              (b - var(--_mp-grey-on-accent-container) + 0.0000001)
+                          )
+                        )
+                    )
+                    l calc(a * alpha) calc(b * alpha) / 1
+                )
+                srgb-linear r g b /
+                min(
+                  calc(
+                    (clamp(0, r, 1) - var(--_mp-grey-on-accent-container) + 0.0000001) /
+                      (r - var(--_mp-grey-on-accent-container) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, g, 1) - var(--_mp-grey-on-accent-container) + 0.0000001) /
+                      (g - var(--_mp-grey-on-accent-container) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, b, 1) - var(--_mp-grey-on-accent-container) + 0.0000001) /
+                      (b - var(--_mp-grey-on-accent-container) + 0.0000001)
+                  )
+                )
+            )
+            srgb-linear
+            calc(
+              var(--_mp-grey-on-accent-container) + alpha *
+                (r - var(--_mp-grey-on-accent-container))
+            )
+            calc(
+              var(--_mp-grey-on-accent-container) + alpha *
+                (g - var(--_mp-grey-on-accent-container))
+            )
+            calc(
+              var(--_mp-grey-on-accent-container) + alpha *
+                (b - var(--_mp-grey-on-accent-container))
+            ) /
+            1
         )
       )
     );
@@ -581,9 +1044,55 @@
       --mp-sys-color-tertiary,
       var(
         --md-sys-color-tertiary,
-        oklch(
-          from var(--mp-source-color) var(--_mp-tone-accent) calc(c * var(--_mp-chroma-tertiary))
-            calc(h + var(--_mp-hue-tertiary))
+        color(
+          from
+            color(
+              from
+                oklab(
+                  from
+                    color(
+                      from
+                        oklch(
+                          from var(--mp-source-color) var(--_mp-tone-accent)
+                            calc(c * var(--_mp-chroma-tertiary)) calc(h + var(--_mp-hue-tertiary))
+                        )
+                        srgb-linear r g b /
+                        min(
+                          calc(
+                            (clamp(0, r, 1) - var(--_mp-grey-accent) + 0.0000001) /
+                              (r - var(--_mp-grey-accent) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, g, 1) - var(--_mp-grey-accent) + 0.0000001) /
+                              (g - var(--_mp-grey-accent) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, b, 1) - var(--_mp-grey-accent) + 0.0000001) /
+                              (b - var(--_mp-grey-accent) + 0.0000001)
+                          )
+                        )
+                    )
+                    l calc(a * alpha) calc(b * alpha) / 1
+                )
+                srgb-linear r g b /
+                min(
+                  calc(
+                    (clamp(0, r, 1) - var(--_mp-grey-accent) + 0.0000001) /
+                      (r - var(--_mp-grey-accent) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, g, 1) - var(--_mp-grey-accent) + 0.0000001) /
+                      (g - var(--_mp-grey-accent) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, b, 1) - var(--_mp-grey-accent) + 0.0000001) /
+                      (b - var(--_mp-grey-accent) + 0.0000001)
+                  )
+                )
+            )
+            srgb-linear calc(var(--_mp-grey-accent) + alpha * (r - var(--_mp-grey-accent)))
+            calc(var(--_mp-grey-accent) + alpha * (g - var(--_mp-grey-accent)))
+            calc(var(--_mp-grey-accent) + alpha * (b - var(--_mp-grey-accent))) / 1
         )
       )
     );
@@ -591,9 +1100,55 @@
       --mp-sys-color-on-tertiary,
       var(
         --md-sys-color-on-tertiary,
-        oklch(
-          from var(--mp-source-color) var(--_mp-tone-on-accent)
-            calc(c * var(--_mp-palette-tertiary)) calc(h + var(--_mp-hue-tertiary))
+        color(
+          from
+            color(
+              from
+                oklab(
+                  from
+                    color(
+                      from
+                        oklch(
+                          from var(--mp-source-color) var(--_mp-tone-on-accent)
+                            calc(c * var(--_mp-palette-tertiary)) calc(h + var(--_mp-hue-tertiary))
+                        )
+                        srgb-linear r g b /
+                        min(
+                          calc(
+                            (clamp(0, r, 1) - var(--_mp-grey-on-accent) + 0.0000001) /
+                              (r - var(--_mp-grey-on-accent) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, g, 1) - var(--_mp-grey-on-accent) + 0.0000001) /
+                              (g - var(--_mp-grey-on-accent) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, b, 1) - var(--_mp-grey-on-accent) + 0.0000001) /
+                              (b - var(--_mp-grey-on-accent) + 0.0000001)
+                          )
+                        )
+                    )
+                    l calc(a * alpha) calc(b * alpha) / 1
+                )
+                srgb-linear r g b /
+                min(
+                  calc(
+                    (clamp(0, r, 1) - var(--_mp-grey-on-accent) + 0.0000001) /
+                      (r - var(--_mp-grey-on-accent) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, g, 1) - var(--_mp-grey-on-accent) + 0.0000001) /
+                      (g - var(--_mp-grey-on-accent) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, b, 1) - var(--_mp-grey-on-accent) + 0.0000001) /
+                      (b - var(--_mp-grey-on-accent) + 0.0000001)
+                  )
+                )
+            )
+            srgb-linear calc(var(--_mp-grey-on-accent) + alpha * (r - var(--_mp-grey-on-accent)))
+            calc(var(--_mp-grey-on-accent) + alpha * (g - var(--_mp-grey-on-accent)))
+            calc(var(--_mp-grey-on-accent) + alpha * (b - var(--_mp-grey-on-accent))) / 1
         )
       )
     );
@@ -601,9 +1156,59 @@
       --mp-sys-color-tertiary-container,
       var(
         --md-sys-color-tertiary-container,
-        oklch(
-          from var(--mp-source-color) var(--_mp-tone-accent-container)
-            calc(c * var(--_mp-palette-tertiary)) calc(h + var(--_mp-hue-tertiary))
+        color(
+          from
+            color(
+              from
+                oklab(
+                  from
+                    color(
+                      from
+                        oklch(
+                          from var(--mp-source-color) var(--_mp-tone-accent-container)
+                            calc(c * var(--_mp-palette-tertiary)) calc(h + var(--_mp-hue-tertiary))
+                        )
+                        srgb-linear r g b /
+                        min(
+                          calc(
+                            (clamp(0, r, 1) - var(--_mp-grey-accent-container) + 0.0000001) /
+                              (r - var(--_mp-grey-accent-container) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, g, 1) - var(--_mp-grey-accent-container) + 0.0000001) /
+                              (g - var(--_mp-grey-accent-container) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, b, 1) - var(--_mp-grey-accent-container) + 0.0000001) /
+                              (b - var(--_mp-grey-accent-container) + 0.0000001)
+                          )
+                        )
+                    )
+                    l calc(a * alpha) calc(b * alpha) / 1
+                )
+                srgb-linear r g b /
+                min(
+                  calc(
+                    (clamp(0, r, 1) - var(--_mp-grey-accent-container) + 0.0000001) /
+                      (r - var(--_mp-grey-accent-container) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, g, 1) - var(--_mp-grey-accent-container) + 0.0000001) /
+                      (g - var(--_mp-grey-accent-container) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, b, 1) - var(--_mp-grey-accent-container) + 0.0000001) /
+                      (b - var(--_mp-grey-accent-container) + 0.0000001)
+                  )
+                )
+            )
+            srgb-linear
+            calc(var(--_mp-grey-accent-container) + alpha * (r - var(--_mp-grey-accent-container)))
+            calc(var(--_mp-grey-accent-container) + alpha * (g - var(--_mp-grey-accent-container)))
+            calc(
+              var(--_mp-grey-accent-container) + alpha * (b - var(--_mp-grey-accent-container))
+            ) /
+            1
         )
       )
     );
@@ -611,9 +1216,66 @@
       --mp-sys-color-on-tertiary-container,
       var(
         --md-sys-color-on-tertiary-container,
-        oklch(
-          from var(--mp-source-color) var(--_mp-tone-on-accent-container)
-            calc(c * var(--_mp-palette-tertiary)) calc(h + var(--_mp-hue-tertiary))
+        color(
+          from
+            color(
+              from
+                oklab(
+                  from
+                    color(
+                      from
+                        oklch(
+                          from var(--mp-source-color) var(--_mp-tone-on-accent-container)
+                            calc(c * var(--_mp-palette-tertiary)) calc(h + var(--_mp-hue-tertiary))
+                        )
+                        srgb-linear r g b /
+                        min(
+                          calc(
+                            (clamp(0, r, 1) - var(--_mp-grey-on-accent-container) + 0.0000001) /
+                              (r - var(--_mp-grey-on-accent-container) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, g, 1) - var(--_mp-grey-on-accent-container) + 0.0000001) /
+                              (g - var(--_mp-grey-on-accent-container) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, b, 1) - var(--_mp-grey-on-accent-container) + 0.0000001) /
+                              (b - var(--_mp-grey-on-accent-container) + 0.0000001)
+                          )
+                        )
+                    )
+                    l calc(a * alpha) calc(b * alpha) / 1
+                )
+                srgb-linear r g b /
+                min(
+                  calc(
+                    (clamp(0, r, 1) - var(--_mp-grey-on-accent-container) + 0.0000001) /
+                      (r - var(--_mp-grey-on-accent-container) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, g, 1) - var(--_mp-grey-on-accent-container) + 0.0000001) /
+                      (g - var(--_mp-grey-on-accent-container) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, b, 1) - var(--_mp-grey-on-accent-container) + 0.0000001) /
+                      (b - var(--_mp-grey-on-accent-container) + 0.0000001)
+                  )
+                )
+            )
+            srgb-linear
+            calc(
+              var(--_mp-grey-on-accent-container) + alpha *
+                (r - var(--_mp-grey-on-accent-container))
+            )
+            calc(
+              var(--_mp-grey-on-accent-container) + alpha *
+                (g - var(--_mp-grey-on-accent-container))
+            )
+            calc(
+              var(--_mp-grey-on-accent-container) + alpha *
+                (b - var(--_mp-grey-on-accent-container))
+            ) /
+            1
         )
       )
     );
@@ -700,9 +1362,56 @@
       --mp-sys-color-inverse-primary,
       var(
         --md-sys-color-inverse-primary,
-        oklch(
-          from var(--mp-source-color) var(--_mp-tone-inverse-accent)
-            calc(c * var(--_mp-chroma-inverse-primary)) h
+        color(
+          from
+            color(
+              from
+                oklab(
+                  from
+                    color(
+                      from
+                        oklch(
+                          from var(--mp-source-color) var(--_mp-tone-inverse-accent)
+                            calc(c * var(--_mp-chroma-inverse-primary)) h
+                        )
+                        srgb-linear r g b /
+                        min(
+                          calc(
+                            (clamp(0, r, 1) - var(--_mp-grey-inverse-accent) + 0.0000001) /
+                              (r - var(--_mp-grey-inverse-accent) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, g, 1) - var(--_mp-grey-inverse-accent) + 0.0000001) /
+                              (g - var(--_mp-grey-inverse-accent) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, b, 1) - var(--_mp-grey-inverse-accent) + 0.0000001) /
+                              (b - var(--_mp-grey-inverse-accent) + 0.0000001)
+                          )
+                        )
+                    )
+                    l calc(a * alpha) calc(b * alpha) / 1
+                )
+                srgb-linear r g b /
+                min(
+                  calc(
+                    (clamp(0, r, 1) - var(--_mp-grey-inverse-accent) + 0.0000001) /
+                      (r - var(--_mp-grey-inverse-accent) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, g, 1) - var(--_mp-grey-inverse-accent) + 0.0000001) /
+                      (g - var(--_mp-grey-inverse-accent) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, b, 1) - var(--_mp-grey-inverse-accent) + 0.0000001) /
+                      (b - var(--_mp-grey-inverse-accent) + 0.0000001)
+                  )
+                )
+            )
+            srgb-linear
+            calc(var(--_mp-grey-inverse-accent) + alpha * (r - var(--_mp-grey-inverse-accent)))
+            calc(var(--_mp-grey-inverse-accent) + alpha * (g - var(--_mp-grey-inverse-accent)))
+            calc(var(--_mp-grey-inverse-accent) + alpha * (b - var(--_mp-grey-inverse-accent))) / 1
         )
       )
     );
@@ -844,28 +1553,234 @@
       --mp-sys-color-error,
       var(
         --md-sys-color-error,
-        oklch(var(--_mp-tone-error) var(--_mp-chroma-error) var(--_mp-hue-error))
+        color(
+          from
+            color(
+              from
+                oklab(
+                  from
+                    color(
+                      from oklch(var(--_mp-tone-error) var(--_mp-chroma-error) var(--_mp-hue-error))
+                        srgb-linear r g b /
+                        min(
+                          calc(
+                            (clamp(0, r, 1) - var(--_mp-grey-error) + 0.0000001) /
+                              (r - var(--_mp-grey-error) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, g, 1) - var(--_mp-grey-error) + 0.0000001) /
+                              (g - var(--_mp-grey-error) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, b, 1) - var(--_mp-grey-error) + 0.0000001) /
+                              (b - var(--_mp-grey-error) + 0.0000001)
+                          )
+                        )
+                    )
+                    l calc(a * alpha) calc(b * alpha) / 1
+                )
+                srgb-linear r g b /
+                min(
+                  calc(
+                    (clamp(0, r, 1) - var(--_mp-grey-error) + 0.0000001) /
+                      (r - var(--_mp-grey-error) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, g, 1) - var(--_mp-grey-error) + 0.0000001) /
+                      (g - var(--_mp-grey-error) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, b, 1) - var(--_mp-grey-error) + 0.0000001) /
+                      (b - var(--_mp-grey-error) + 0.0000001)
+                  )
+                )
+            )
+            srgb-linear calc(var(--_mp-grey-error) + alpha * (r - var(--_mp-grey-error)))
+            calc(var(--_mp-grey-error) + alpha * (g - var(--_mp-grey-error)))
+            calc(var(--_mp-grey-error) + alpha * (b - var(--_mp-grey-error))) / 1
+        )
       )
     );
     --_mp-color-on-error: var(
       --mp-sys-color-on-error,
       var(
         --md-sys-color-on-error,
-        oklch(var(--_mp-tone-on-accent) var(--_mp-palette-error) var(--_mp-hue-error))
+        color(
+          from
+            color(
+              from
+                oklab(
+                  from
+                    color(
+                      from
+                        oklch(
+                          var(--_mp-tone-on-accent) var(--_mp-palette-error) var(--_mp-hue-error)
+                        )
+                        srgb-linear r g b /
+                        min(
+                          calc(
+                            (clamp(0, r, 1) - var(--_mp-grey-on-accent) + 0.0000001) /
+                              (r - var(--_mp-grey-on-accent) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, g, 1) - var(--_mp-grey-on-accent) + 0.0000001) /
+                              (g - var(--_mp-grey-on-accent) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, b, 1) - var(--_mp-grey-on-accent) + 0.0000001) /
+                              (b - var(--_mp-grey-on-accent) + 0.0000001)
+                          )
+                        )
+                    )
+                    l calc(a * alpha) calc(b * alpha) / 1
+                )
+                srgb-linear r g b /
+                min(
+                  calc(
+                    (clamp(0, r, 1) - var(--_mp-grey-on-accent) + 0.0000001) /
+                      (r - var(--_mp-grey-on-accent) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, g, 1) - var(--_mp-grey-on-accent) + 0.0000001) /
+                      (g - var(--_mp-grey-on-accent) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, b, 1) - var(--_mp-grey-on-accent) + 0.0000001) /
+                      (b - var(--_mp-grey-on-accent) + 0.0000001)
+                  )
+                )
+            )
+            srgb-linear calc(var(--_mp-grey-on-accent) + alpha * (r - var(--_mp-grey-on-accent)))
+            calc(var(--_mp-grey-on-accent) + alpha * (g - var(--_mp-grey-on-accent)))
+            calc(var(--_mp-grey-on-accent) + alpha * (b - var(--_mp-grey-on-accent))) / 1
+        )
       )
     );
     --_mp-color-error-container: var(
       --mp-sys-color-error-container,
       var(
         --md-sys-color-error-container,
-        oklch(var(--_mp-tone-accent-container) var(--_mp-palette-error) var(--_mp-hue-error))
+        color(
+          from
+            color(
+              from
+                oklab(
+                  from
+                    color(
+                      from
+                        oklch(
+                          var(--_mp-tone-accent-container) var(--_mp-palette-error)
+                            var(--_mp-hue-error)
+                        )
+                        srgb-linear r g b /
+                        min(
+                          calc(
+                            (clamp(0, r, 1) - var(--_mp-grey-accent-container) + 0.0000001) /
+                              (r - var(--_mp-grey-accent-container) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, g, 1) - var(--_mp-grey-accent-container) + 0.0000001) /
+                              (g - var(--_mp-grey-accent-container) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, b, 1) - var(--_mp-grey-accent-container) + 0.0000001) /
+                              (b - var(--_mp-grey-accent-container) + 0.0000001)
+                          )
+                        )
+                    )
+                    l calc(a * alpha) calc(b * alpha) / 1
+                )
+                srgb-linear r g b /
+                min(
+                  calc(
+                    (clamp(0, r, 1) - var(--_mp-grey-accent-container) + 0.0000001) /
+                      (r - var(--_mp-grey-accent-container) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, g, 1) - var(--_mp-grey-accent-container) + 0.0000001) /
+                      (g - var(--_mp-grey-accent-container) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, b, 1) - var(--_mp-grey-accent-container) + 0.0000001) /
+                      (b - var(--_mp-grey-accent-container) + 0.0000001)
+                  )
+                )
+            )
+            srgb-linear
+            calc(var(--_mp-grey-accent-container) + alpha * (r - var(--_mp-grey-accent-container)))
+            calc(var(--_mp-grey-accent-container) + alpha * (g - var(--_mp-grey-accent-container)))
+            calc(
+              var(--_mp-grey-accent-container) + alpha * (b - var(--_mp-grey-accent-container))
+            ) /
+            1
+        )
       )
     );
     --_mp-color-on-error-container: var(
       --mp-sys-color-on-error-container,
       var(
         --md-sys-color-on-error-container,
-        oklch(var(--_mp-tone-on-accent-container) var(--_mp-palette-error) var(--_mp-hue-error))
+        color(
+          from
+            color(
+              from
+                oklab(
+                  from
+                    color(
+                      from
+                        oklch(
+                          var(--_mp-tone-on-accent-container) var(--_mp-palette-error)
+                            var(--_mp-hue-error)
+                        )
+                        srgb-linear r g b /
+                        min(
+                          calc(
+                            (clamp(0, r, 1) - var(--_mp-grey-on-accent-container) + 0.0000001) /
+                              (r - var(--_mp-grey-on-accent-container) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, g, 1) - var(--_mp-grey-on-accent-container) + 0.0000001) /
+                              (g - var(--_mp-grey-on-accent-container) + 0.0000001)
+                          ),
+                          calc(
+                            (clamp(0, b, 1) - var(--_mp-grey-on-accent-container) + 0.0000001) /
+                              (b - var(--_mp-grey-on-accent-container) + 0.0000001)
+                          )
+                        )
+                    )
+                    l calc(a * alpha) calc(b * alpha) / 1
+                )
+                srgb-linear r g b /
+                min(
+                  calc(
+                    (clamp(0, r, 1) - var(--_mp-grey-on-accent-container) + 0.0000001) /
+                      (r - var(--_mp-grey-on-accent-container) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, g, 1) - var(--_mp-grey-on-accent-container) + 0.0000001) /
+                      (g - var(--_mp-grey-on-accent-container) + 0.0000001)
+                  ),
+                  calc(
+                    (clamp(0, b, 1) - var(--_mp-grey-on-accent-container) + 0.0000001) /
+                      (b - var(--_mp-grey-on-accent-container) + 0.0000001)
+                  )
+                )
+            )
+            srgb-linear
+            calc(
+              var(--_mp-grey-on-accent-container) + alpha *
+                (r - var(--_mp-grey-on-accent-container))
+            )
+            calc(
+              var(--_mp-grey-on-accent-container) + alpha *
+                (g - var(--_mp-grey-on-accent-container))
+            )
+            calc(
+              var(--_mp-grey-on-accent-container) + alpha *
+                (b - var(--_mp-grey-on-accent-container))
+            ) /
+            1
+        )
       )
     );
 
@@ -996,6 +1911,256 @@
     --shadow-mp-5: var(--mp-sys-elevation-level5);
 
     --ease-mp-standard: var(--mp-sys-motion-easing-standard);
+  }
+
+  /*
+   * The colour roles again, for a browser that cannot compute them.
+   *
+   * The roles above need relative colour syntax, and the gamut step inside the
+   * accent and error roles needs `clamp()` and `min()` on a channel, which is
+   * newer still. A role a browser cannot compute does not fail loudly: it is
+   * invalid at computed-value time, so every property that reads it falls back
+   * to its initial value — a filled button with no fill, a dialog with no sheet
+   * behind its text. The block below keeps the colours in the browsers without
+   * that syntax, Chrome and Edge before 119, Firefox before 128 and Safari
+   * before 18, and every browser that has it skips the block.
+   *
+   * What those browsers get is the default scheme, light and dark, written out
+   * as the colours a current browser draws for the default `--mp-source-color`.
+   * A `--mp-source-color` set by a consumer changes nothing there, because
+   * reading a hue out of a colour is exactly what they cannot do. A role set
+   * through `--mp-sys-color-*` or `--md-sys-color-*` still wins, as it does
+   * everywhere.
+   *
+   * The condition asks for the syntax the roles are written in rather than
+   * naming a browser. The origin is a literal `red` and not `var()`, because any
+   * declaration containing `var()` passes `@supports` unparsed. Safari 16.4 to
+   * 17.6 implement an earlier draft of relative colour syntax, in which hue
+   * arithmetic needs a unit and a channel cannot go inside `clamp()`, and both
+   * halves of the condition turn them away. Measured in WebKit 16.4 and 17.4.
+   *
+   * `test/styles/relative-colour.test.tsx` holds every value below to the colour
+   * the roles above draw, in both schemes, and names the new value when a tone
+   * stop moves.
+   */
+  @supports not (
+    (color: oklch(from red l c calc(h + 1))) and
+      (color: color(from red srgb-linear clamp(0, r, 1) g b / min(1, r)))
+  ) {
+    :root,
+    [data-mp-scheme='light'] {
+      --_mp-fallback-primary: #0a67a0;
+      --_mp-fallback-on-primary: #ffffff;
+      --_mp-fallback-primary-container: #cfe8fd;
+      --_mp-fallback-on-primary-container: #00213b;
+      --_mp-fallback-secondary: #536574;
+      --_mp-fallback-on-secondary: #ffffff;
+      --_mp-fallback-secondary-container: #d2e7f8;
+      --_mp-fallback-on-secondary-container: #12212e;
+      --_mp-fallback-tertiary: #6b5a7a;
+      --_mp-fallback-on-tertiary: #ffffff;
+      --_mp-fallback-tertiary-container: #eedbff;
+      --_mp-fallback-on-tertiary-container: #271833;
+      --_mp-fallback-surface: #f3fbff;
+      --_mp-fallback-surface-container-low: #eef5fc;
+      --_mp-fallback-surface-container: #e8f1f9;
+      --_mp-fallback-surface-container-high: #e1eaf2;
+      --_mp-fallback-surface-container-highest: #dbe4eb;
+      --_mp-fallback-inverse-surface: #2c3237;
+      --_mp-fallback-inverse-on-surface: #ebf3f9;
+      --_mp-fallback-inverse-primary: #99d0fd;
+      --_mp-fallback-on-surface: #181d21;
+      --_mp-fallback-on-surface-variant: #3f4850;
+      --_mp-fallback-outline: #6f7880;
+      --_mp-fallback-outline-variant: #bec9d2;
+      --_mp-fallback-error: #b3261e;
+      --_mp-fallback-on-error: #ffffff;
+      --_mp-fallback-error-container: #fddbd5;
+      --_mp-fallback-on-error-container: #400705;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-mp-scheme='light']) {
+        --_mp-fallback-primary: #99d0fd;
+        --_mp-fallback-on-primary: #00375b;
+        --_mp-fallback-primary-container: #004e7d;
+        --_mp-fallback-on-primary-container: #cfe8fd;
+        --_mp-fallback-secondary: #b7ccde;
+        --_mp-fallback-on-secondary: #263644;
+        --_mp-fallback-secondary-container: #3b4d5b;
+        --_mp-fallback-on-secondary-container: #d2e7f8;
+        --_mp-fallback-tertiary: #d5bfe7;
+        --_mp-fallback-on-tertiary: #3d2c49;
+        --_mp-fallback-tertiary-container: #534261;
+        --_mp-fallback-on-tertiary-container: #eedbff;
+        --_mp-fallback-surface: #0e1418;
+        --_mp-fallback-surface-container-low: #181d21;
+        --_mp-fallback-surface-container: #1b2126;
+        --_mp-fallback-surface-container-high: #252b30;
+        --_mp-fallback-surface-container-highest: #30363b;
+        --_mp-fallback-inverse-surface: #dbe4eb;
+        --_mp-fallback-inverse-on-surface: #2c3237;
+        --_mp-fallback-inverse-primary: #0a67a0;
+        --_mp-fallback-on-surface: #dbe4eb;
+        --_mp-fallback-on-surface-variant: #bec9d2;
+        --_mp-fallback-outline: #8a939a;
+        --_mp-fallback-outline-variant: #3f4850;
+        --_mp-fallback-error: #f2b8b5;
+        --_mp-fallback-on-error: #650714;
+        --_mp-fallback-error-container: #8e031d;
+        --_mp-fallback-on-error-container: #fedad8;
+      }
+    }
+
+    [data-mp-scheme='dark'],
+    .dark {
+      --_mp-fallback-primary: #99d0fd;
+      --_mp-fallback-on-primary: #00375b;
+      --_mp-fallback-primary-container: #004e7d;
+      --_mp-fallback-on-primary-container: #cfe8fd;
+      --_mp-fallback-secondary: #b7ccde;
+      --_mp-fallback-on-secondary: #263644;
+      --_mp-fallback-secondary-container: #3b4d5b;
+      --_mp-fallback-on-secondary-container: #d2e7f8;
+      --_mp-fallback-tertiary: #d5bfe7;
+      --_mp-fallback-on-tertiary: #3d2c49;
+      --_mp-fallback-tertiary-container: #534261;
+      --_mp-fallback-on-tertiary-container: #eedbff;
+      --_mp-fallback-surface: #0e1418;
+      --_mp-fallback-surface-container-low: #181d21;
+      --_mp-fallback-surface-container: #1b2126;
+      --_mp-fallback-surface-container-high: #252b30;
+      --_mp-fallback-surface-container-highest: #30363b;
+      --_mp-fallback-inverse-surface: #dbe4eb;
+      --_mp-fallback-inverse-on-surface: #2c3237;
+      --_mp-fallback-inverse-primary: #0a67a0;
+      --_mp-fallback-on-surface: #dbe4eb;
+      --_mp-fallback-on-surface-variant: #bec9d2;
+      --_mp-fallback-outline: #8a939a;
+      --_mp-fallback-outline-variant: #3f4850;
+      --_mp-fallback-error: #f2b8b5;
+      --_mp-fallback-on-error: #650714;
+      --_mp-fallback-error-container: #8e031d;
+      --_mp-fallback-on-error-container: #fedad8;
+    }
+
+    *,
+    ::before,
+    ::after,
+    ::backdrop {
+      --_mp-color-primary: var(
+        --mp-sys-color-primary,
+        var(--md-sys-color-primary, var(--_mp-fallback-primary))
+      );
+      --_mp-color-on-primary: var(
+        --mp-sys-color-on-primary,
+        var(--md-sys-color-on-primary, var(--_mp-fallback-on-primary))
+      );
+      --_mp-color-primary-container: var(
+        --mp-sys-color-primary-container,
+        var(--md-sys-color-primary-container, var(--_mp-fallback-primary-container))
+      );
+      --_mp-color-on-primary-container: var(
+        --mp-sys-color-on-primary-container,
+        var(--md-sys-color-on-primary-container, var(--_mp-fallback-on-primary-container))
+      );
+      --_mp-color-secondary: var(
+        --mp-sys-color-secondary,
+        var(--md-sys-color-secondary, var(--_mp-fallback-secondary))
+      );
+      --_mp-color-on-secondary: var(
+        --mp-sys-color-on-secondary,
+        var(--md-sys-color-on-secondary, var(--_mp-fallback-on-secondary))
+      );
+      --_mp-color-secondary-container: var(
+        --mp-sys-color-secondary-container,
+        var(--md-sys-color-secondary-container, var(--_mp-fallback-secondary-container))
+      );
+      --_mp-color-on-secondary-container: var(
+        --mp-sys-color-on-secondary-container,
+        var(--md-sys-color-on-secondary-container, var(--_mp-fallback-on-secondary-container))
+      );
+      --_mp-color-tertiary: var(
+        --mp-sys-color-tertiary,
+        var(--md-sys-color-tertiary, var(--_mp-fallback-tertiary))
+      );
+      --_mp-color-on-tertiary: var(
+        --mp-sys-color-on-tertiary,
+        var(--md-sys-color-on-tertiary, var(--_mp-fallback-on-tertiary))
+      );
+      --_mp-color-tertiary-container: var(
+        --mp-sys-color-tertiary-container,
+        var(--md-sys-color-tertiary-container, var(--_mp-fallback-tertiary-container))
+      );
+      --_mp-color-on-tertiary-container: var(
+        --mp-sys-color-on-tertiary-container,
+        var(--md-sys-color-on-tertiary-container, var(--_mp-fallback-on-tertiary-container))
+      );
+      --_mp-color-surface: var(
+        --mp-sys-color-surface,
+        var(--md-sys-color-surface, var(--_mp-fallback-surface))
+      );
+      --_mp-color-surface-container-low: var(
+        --mp-sys-color-surface-container-low,
+        var(--md-sys-color-surface-container-low, var(--_mp-fallback-surface-container-low))
+      );
+      --_mp-color-surface-container: var(
+        --mp-sys-color-surface-container,
+        var(--md-sys-color-surface-container, var(--_mp-fallback-surface-container))
+      );
+      --_mp-color-surface-container-high: var(
+        --mp-sys-color-surface-container-high,
+        var(--md-sys-color-surface-container-high, var(--_mp-fallback-surface-container-high))
+      );
+      --_mp-color-surface-container-highest: var(
+        --mp-sys-color-surface-container-highest,
+        var(--md-sys-color-surface-container-highest, var(--_mp-fallback-surface-container-highest))
+      );
+      --_mp-color-inverse-surface: var(
+        --mp-sys-color-inverse-surface,
+        var(--md-sys-color-inverse-surface, var(--_mp-fallback-inverse-surface))
+      );
+      --_mp-color-inverse-on-surface: var(
+        --mp-sys-color-inverse-on-surface,
+        var(--md-sys-color-inverse-on-surface, var(--_mp-fallback-inverse-on-surface))
+      );
+      --_mp-color-inverse-primary: var(
+        --mp-sys-color-inverse-primary,
+        var(--md-sys-color-inverse-primary, var(--_mp-fallback-inverse-primary))
+      );
+      --_mp-color-on-surface: var(
+        --mp-sys-color-on-surface,
+        var(--md-sys-color-on-surface, var(--_mp-fallback-on-surface))
+      );
+      --_mp-color-on-surface-variant: var(
+        --mp-sys-color-on-surface-variant,
+        var(--md-sys-color-on-surface-variant, var(--_mp-fallback-on-surface-variant))
+      );
+      --_mp-color-outline: var(
+        --mp-sys-color-outline,
+        var(--md-sys-color-outline, var(--_mp-fallback-outline))
+      );
+      --_mp-color-outline-variant: var(
+        --mp-sys-color-outline-variant,
+        var(--md-sys-color-outline-variant, var(--_mp-fallback-outline-variant))
+      );
+      --_mp-color-error: var(
+        --mp-sys-color-error,
+        var(--md-sys-color-error, var(--_mp-fallback-error))
+      );
+      --_mp-color-on-error: var(
+        --mp-sys-color-on-error,
+        var(--md-sys-color-on-error, var(--_mp-fallback-on-error))
+      );
+      --_mp-color-error-container: var(
+        --mp-sys-color-error-container,
+        var(--md-sys-color-error-container, var(--_mp-fallback-error-container))
+      );
+      --_mp-color-on-error-container: var(
+        --mp-sys-color-on-error-container,
+        var(--md-sys-color-on-error-container, var(--_mp-fallback-on-error-container))
+      );
+    }
   }
 
   :root {

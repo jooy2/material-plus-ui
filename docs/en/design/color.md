@@ -58,6 +58,12 @@ The tone and chroma values were read off Material's own baseline reference palet
 
 One divergence is known and accepted: every derived role keeps the source colour's hue, while Material's neutral palettes sit 10–20° off it. At a chroma of 0.01–0.02 that is a couple of thousandths of a difference in a/b — below anything perceptible, and chasing it would be fitting to noise, since hue is barely determined that close to grey.
 
+### Inside sRGB
+
+A palette's chroma is more than the ends of its own ramp can hold. At the tone of `on-primary` sRGB has no chroma left at all, and at the tone of a container it has a fraction of what the palette carries. A browser does not bring such a colour in at constant lightness and hue: it clips each channel on its own. In Chromium, Firefox and WebKit alike that turned the default `on-primary` from white into `#b8ffff`, and `error-container` into a salmon.
+
+So the accent and error roles bring the colour inside sRGB themselves. They first reduce its chroma in OKLab, keeping the lightness and hue, by an estimate of how much sRGB can hold there. Whatever still does not fit is then moved in linear light towards the grey of the same lightness. A colour that already fits comes out unchanged. Fed the baseline source, the container and `on-` roles land within a ΔE of 0.02 of Material's, and `on-primary`, `on-secondary` and `on-tertiary` exactly on its white. A role you set through `--mp-sys-color-*` is used as you wrote it.
+
 ### `error` is not derived from your colour
 
 Material's error palette is a fixed red whatever the seed is, and so is this one. An error that shifted hue with the brand would stop reading as an error.
