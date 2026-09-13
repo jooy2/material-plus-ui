@@ -897,6 +897,179 @@ describe('MPImage', () => {
     });
   });
 
+  describe('a picture as the placeholder', () => {
+    /** The stand-in, which is the hidden `<img>` that is not the letterbox's. */
+    function standInOf(container: Element) {
+      return container.querySelector('img[aria-hidden="true"]') as HTMLImageElement | null;
+    }
+
+    it('is drawn instead of the shimmer while the file is on its way', async () => {
+      const screen = await render(
+        <MPImage src={PENDING} alt="Something" ratio={2} placeholder={{ src: RED_DOT }} />
+      );
+      const standIn = standInOf(screen.container);
+
+      expect(screen.container.querySelector('.animate-pulse')).toBeNull();
+      expect(standIn?.getAttribute('src')).toBe(RED_DOT);
+      expect(standIn?.getAttribute('alt')).toBe('');
+      expect(standIn?.getAttribute('draggable')).toBe('false');
+      expect(getComputedStyle(standIn as HTMLImageElement).pointerEvents).toBe('none');
+      expect(getComputedStyle(standIn as HTMLImageElement).opacity).toBe('1');
+      expect(standIn?.style.filter).toBe('');
+      // Under the picture, which is positioned so the stand-in does not paint over it.
+      expect(standIn?.nextElementSibling?.getAttribute('alt')).toBe('Something');
+      expect((standIn?.nextElementSibling as HTMLElement).style.position).toBe('relative');
+    });
+
+    it('fills the box when it is not blurred', async () => {
+      const screen = await render(
+        <div style={{ width: 300 }}>
+          <MPImage src={PENDING} alt="Something" ratio={2} placeholder={{ src: RED_DOT }} />
+        </div>
+      );
+      const box = screen.container.querySelector('.mp-image') as HTMLElement;
+
+      expect(rounded(standInOf(box) as HTMLImageElement)).toEqual(rounded(box));
+    });
+
+    it('is blurred, and grown by two radii for the box to clip', async () => {
+      const screen = await render(
+        <div style={{ width: 300 }}>
+          <MPImage
+            src={PENDING}
+            alt="default radius"
+            ratio={2}
+            placeholder={{ src: RED_DOT, blur: true }}
+          />
+          <MPImage
+            src={PENDING}
+            alt="own radius"
+            ratio={2}
+            placeholder={{ src: RED_DOT, blur: 8 }}
+          />
+        </div>
+      );
+      const [first, second] = [...screen.container.querySelectorAll('.mp-image')] as HTMLElement[];
+      const outer = rounded(second);
+
+      expect(standInOf(first)?.style.filter).toBe('blur(20px)');
+      expect(standInOf(second)?.style.filter).toBe('blur(8px)');
+      expect(rounded(standInOf(second) as HTMLImageElement)).toEqual({
+        left: outer.left - 16,
+        top: outer.top - 16,
+        width: outer.width + 32,
+        height: outer.height + 32
+      });
+    });
+
+    it('is fitted, turned, mirrored and placed the way the picture is', async () => {
+      const screen = await render(
+        <MPImage
+          src={PENDING}
+          alt="Something"
+          ratio={1}
+          fit="contain"
+          rotate={270}
+          flip="vertical"
+          position="bottom right"
+          placeholder={{ src: RED_DOT, blur: 10 }}
+        />
+      );
+      const standIn = standInOf(screen.container) as HTMLImageElement;
+      const img = screen.container.querySelector('img[alt="Something"]') as HTMLImageElement;
+
+      expect(standIn.className).toContain('object-contain');
+      expect(standIn.style.rotate).toBe('270deg');
+      expect(scaleOf(standIn)).toBe(scaleOf(img));
+      expect(standIn.style.objectPosition).toBe(img.style.objectPosition);
+      expect(standIn.style.width).toBe('calc(100cqh + 40px)');
+      expect(standIn.style.height).toBe('calc(100cqw + 40px)');
+    });
+
+    it('draws a Blob through an object URL, and revokes it on unmount', async () => {
+      const revoke = vi.spyOn(URL, 'revokeObjectURL');
+      const blob = new Blob(
+        [
+          '<svg xmlns="http://www.w3.org/2000/svg" width="4" height="2"><rect width="4" height="2" fill="navy"/></svg>'
+        ],
+        { type: 'image/svg+xml' }
+      );
+      const screen = await render(
+        <MPImage src={PENDING} alt="Something" ratio={2} placeholder={{ src: blob }} />
+      );
+
+      await expect
+        .poll(() => standInOf(screen.container)?.getAttribute('src') ?? '')
+        .toMatch(/^blob:/);
+
+      const url = standInOf(screen.container)?.getAttribute('src');
+
+      await screen.unmount();
+
+      expect(revoke).toHaveBeenCalledWith(url);
+      revoke.mockRestore();
+    });
+
+    it("never draws the previous Blob's URL for a new Blob", async () => {
+      const revoke = vi.spyOn(URL, 'revokeObjectURL');
+      const svg = (fill: string) =>
+        new Blob(
+          [
+            `<svg xmlns="http://www.w3.org/2000/svg" width="4" height="2"><rect width="4" height="2" fill="${fill}"/></svg>`
+          ],
+          { type: 'image/svg+xml' }
+        );
+      const first = svg('navy');
+      const second = svg('teal');
+      const screen = await render(
+        <MPImage src={PENDING} alt="Something" ratio={2} placeholder={{ src: first }} />
+      );
+
+      await expect
+        .poll(() => standInOf(screen.container)?.getAttribute('src') ?? '')
+        .toMatch(/^blob:/);
+
+      const before = standInOf(screen.container)?.getAttribute('src');
+
+      await screen.rerender(
+        <MPImage src={PENDING} alt="Something" ratio={2} placeholder={{ src: second }} />
+      );
+
+      await expect
+        .poll(() => standInOf(screen.container)?.getAttribute('src') ?? '')
+        .not.toBe(before);
+      expect(standInOf(screen.container)?.getAttribute('src') ?? '').toMatch(/^blob:/);
+      expect(revoke).toHaveBeenCalledWith(before);
+      revoke.mockRestore();
+    });
+
+    it('is hidden only after the picture has faded in over it', async () => {
+      const screen = await render(
+        <MPImage src={picture(8, 4)} alt="Something" ratio={2} placeholder={{ src: RED_DOT }} />
+      );
+
+      expect(await settled(screen.container, 'loaded')).toBe(true);
+
+      const standIn = standInOf(screen.container) as HTMLImageElement;
+
+      expect(standIn.style.opacity).toBe('0');
+      // No fade of its own: a step, delayed by the picture's fade.
+      expect(standIn.style.transition).toBe(
+        'opacity 0ms linear var(--mp-sys-motion-duration-short4)'
+      );
+      await expect.poll(() => getComputedStyle(standIn).opacity).toBe('0');
+    });
+
+    it('is removed when the file fails', async () => {
+      const screen = await render(
+        <MPImage src={MISSING} alt="Something" ratio={2} placeholder={{ src: RED_DOT }} />
+      );
+
+      expect(await settled(screen.container, 'error')).toBe(true);
+      expect(standInOf(screen.container)).toBeNull();
+    });
+  });
+
   describe('preview', () => {
     it('is not a button unless it is asked for', async () => {
       const screen = await render(<MPImage src={RED_DOT} alt="A red dot" />);

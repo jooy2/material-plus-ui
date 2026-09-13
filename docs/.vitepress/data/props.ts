@@ -4813,10 +4813,10 @@ const componentTables: Record<string, PropRow[]> = {
     },
     {
       name: 'placeholder',
-      type: `${NODE} | false`,
+      type: `${NODE} | false | { src: string | Blob; blur?: boolean | number }`,
       description: {
-        ko: '오는 중에 그리는 것. 기본은 반짝임이고, `false`는 아무것도 그리지 않습니다 — 이미 자체 로딩 처리를 가진 것 안의 그림이 원하는 값입니다',
-        en: 'Drawn while the picture is on its way. A shimmer by default; `false` draws nothing, which is what a picture inside something with its own loading treatment wants'
+        ko: '오는 중에 그리는 것. 기본은 반짝임이고, `false`는 아무것도 그리지 않습니다 — 이미 자체 로딩 처리를 가진 것 안의 그림이 원하는 값입니다. `{ src, blur }`는 작은 사본, 데이터 URI, `Blob` 같은 그림을 그림과 같은 방식으로 맞추고 돌려서 대신 깔아 둡니다. `blur: true`는 20px, 숫자는 픽셀 반경입니다. 상자를 채우므로 `ratio`나 `width`와 `height`로 자리를 잡아야 합니다',
+        en: 'Drawn while the picture is on its way. A shimmer by default; `false` draws nothing, which is what a picture inside something with its own loading treatment wants. `{ src, blur }` stands a picture in instead, such as a small copy, a data URI or a `Blob`, fitted and turned like the picture. `blur: true` is 20px and a number is a radius in pixels. It fills the box, so the box needs a `ratio`, or both `width` and `height`'
       }
     },
     {

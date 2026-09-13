@@ -3,6 +3,7 @@ export type {
   MPImageProps,
   MPImageFit,
   MPImageFlip,
+  MPImagePlaceholder,
   MPImagePosition,
   MPImageRotate,
   MPImageState

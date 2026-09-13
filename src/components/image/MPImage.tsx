@@ -14,6 +14,18 @@ export type MPImageFit = 'cover' | 'contain' | 'fill' | 'none' | 'scale-down';
 /** What the picture is doing right now. */
 export type MPImageState = 'loading' | 'loaded' | 'error';
 
+/** A picture that stands in while the real one arrives. */
+export interface MPImagePlaceholder {
+  /** A URL, a data URI, or a `Blob` such as a file the reader has just picked. */
+  src: string | Blob;
+  /**
+   * Blurs the stand-in. `true` is a 20px radius, and a number is a radius in
+   * pixels.
+   * @default false
+   */
+  blur?: boolean | number;
+}
+
 /** A turn in degrees, clockwise, a quarter at a time. */
 export type MPImageRotate = 0 | 90 | 180 | 270;
 
@@ -88,8 +100,14 @@ export interface MPImageProps extends Omit<React.ComponentPropsWithoutRef<'img'>
    * A shimmer by default, on the surface the box sits on. `false` draws nothing,
    * which is what a picture inside something that already has its own loading
    * treatment wants.
+   *
+   * `{ src, blur }` draws a picture instead: a small copy of the file, a data
+   * URI or a `Blob`, fitted, placed, turned and mirrored like the picture, and
+   * blurred if `blur` says so. It gives way once the picture has faded in over
+   * it. Like the shimmer, it fills the box, so the box needs a reserved size: a
+   * `ratio`, or both `width` and `height`.
    */
-  placeholder?: React.ReactNode | false;
+  placeholder?: React.ReactNode | false | MPImagePlaceholder;
   /**
    * Drawn instead of the picture when it does not arrive.
    *
@@ -219,6 +237,53 @@ const SIDEWAYS: React.CSSProperties = {
 
 /** The blur radius of the `blur` letterbox, in pixels. */
 const LETTERBOX_BLUR = 24;
+
+/** The blur radius of a picture placeholder given `blur: true`, in pixels. */
+const PLACEHOLDER_BLUR = 20;
+
+/**
+ * Whether `placeholder` is a picture rather than something to render: an object
+ * that is not an element and has a `src`.
+ */
+function isPicturePlaceholder(value: unknown): value is MPImagePlaceholder {
+  return (
+    typeof value === 'object' && value !== null && !React.isValidElement(value) && 'src' in value
+  );
+}
+
+/**
+ * The URL a picture placeholder is drawn from.
+ *
+ * A string is used as it is. A `Blob` needs an object URL, which is created in
+ * an effect and revoked in its cleanup: created during render, it would leak
+ * whenever React threw that render away. The URL is kept together with the Blob
+ * it was made for, and handed out only while that Blob is still the one given,
+ * so a new Blob never draws the previous one's URL for a render.
+ */
+function usePlaceholderUrl(source: string | Blob | undefined): string | undefined {
+  const [objectUrl, setObjectUrl] = React.useState<{ blob: Blob; url: string }>();
+
+  React.useEffect(() => {
+    if (source === undefined || typeof source === 'string') {
+      return undefined;
+    }
+
+    const url = URL.createObjectURL(source);
+
+    // State set from an effect on purpose: the object URL is the outside
+    // resource this effect creates and releases, and rendering has to wait for
+    // it.
+    setObjectUrl({ blob: source, url });
+
+    return () => URL.revokeObjectURL(url);
+  }, [source]);
+
+  if (source === undefined || typeof source === 'string') {
+    return source;
+  }
+
+  return objectUrl?.blob === source ? objectUrl.url : undefined;
+}
 
 /**
  * A layer drawn under the picture, grown past the box by `margin` on every side.
@@ -469,6 +534,9 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
   const locale = useMPLocale();
   const messages = useMPMessages(COMMON, locale);
 
+  const standIn = isPicturePlaceholder(placeholder) ? placeholder : undefined;
+  const standInUrl = usePlaceholderUrl(standIn?.src);
+
   const [progress, setProgress] = React.useState<Progress>({ state: src ? 'loading' : 'error' });
   const [previewNatural, setPreviewNatural] = React.useState<PictureSize & { src?: string }>();
   const imageRef = React.useRef<HTMLImageElement | null>(null);
@@ -600,6 +668,15 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
     letterbox === 'blur' && (fit === 'contain' || fit === 'none' || fit === 'scale-down');
   const painted = letterbox !== 'none' && letterbox !== 'blur' ? letterbox : undefined;
 
+  // A stand-in has nothing to stand in for once the file has failed.
+  const standing = Boolean(standInUrl) && state !== 'error';
+  const standInBlur =
+    standIn?.blur === true
+      ? PLACEHOLDER_BLUR
+      : typeof standIn?.blur === 'number' && Number.isFinite(standIn.blur)
+        ? Math.max(0, standIn.blur)
+        : 0;
+
   const picture = (
     <>
       {blurred ? (
@@ -632,6 +709,33 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
         />
       ) : null}
 
+      {standing ? (
+        <img
+          src={standInUrl}
+          alt=""
+          aria-hidden="true"
+          draggable={false}
+          className={`pointer-events-none select-none ${FIT[fit]}`}
+          style={{
+            ...oriented,
+            ...placed,
+            ...(standInBlur ? { filter: `blur(${standInBlur}px)` } : null),
+            ...underlay(standInBlur * 2, sideways),
+            /*
+             * Gone in one step once the picture has finished fading in over it.
+             * Fading the two against each other would leave both half
+             * transparent in the middle, and the page would show through.
+             */
+            ...(showing
+              ? {
+                  opacity: 0,
+                  transition: 'opacity 0ms linear var(--mp-sys-motion-duration-short4)'
+                }
+              : null)
+          }}
+        />
+      ) : null}
+
       <img
         {...props}
         ref={(node) => {
@@ -653,7 +757,7 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
           ...placed,
           // An absolutely positioned layer before it would otherwise paint over
           // it, whatever the order in the document.
-          ...(blurred ? { position: 'relative' } : null),
+          ...(blurred || standing ? { position: 'relative' } : null),
           ...(sideways ? SIDEWAYS : null)
         }}
         onLoad={(event) => {
@@ -663,9 +767,9 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
         onError={() => report('error')}
       />
 
-      {state === 'loading' && placeholder !== false ? (
+      {state === 'loading' && placeholder !== false && !standIn ? (
         <span aria-hidden="true" className="absolute inset-0">
-          {placeholder ?? defaultPlaceholder}
+          {(placeholder as React.ReactNode) ?? defaultPlaceholder}
         </span>
       ) : null}
 

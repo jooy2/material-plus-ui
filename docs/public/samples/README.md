@@ -11,9 +11,11 @@ The pictures the component demos are drawn with. Everything under this folder is
 
 `photos/thumbs/` and `illustrations/thumbs/` hold the same pictures at 480px and 400px. Use a thumbnail wherever the box is small, which is nearly everywhere: the full-size file is for `MPImage`'s `previewSrc`, the one place a reader asks for the whole picture.
 
+`photos/tiny/` holds a copy of one photograph at 24px on the long edge. It is the picture `MPImage`'s placeholder demo stands in, blurred, while the full-size file loads.
+
 ## Where they came from
 
-Every file is a resized WebP of an asset in [jooy2/sample-assets](https://github.com/jooy2/sample-assets), which is MIT licensed and carries the same copyright as this repository. The portraits are of wholly fictional people; the photographs are generated and are not of a real place.
+Every file is a resized WebP of an asset in [jooy2/sample-assets](https://github.com/jooy2/sample-assets), which is MIT licensed and carries the same copyright as this repository. The file in `photos/tiny/` was resized with `cwebp` from the photograph of the same name in `photos/`. The portraits are of wholly fictional people; the photographs are generated and are not of a real place.
 
 ## Adding one
 

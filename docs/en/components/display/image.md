@@ -108,6 +108,22 @@ Fills the room `fit` leaves around the picture. `none` leaves the box empty, `bl
 
 It is drawn only when `fit` can leave room, which is `contain`, `none` and `scale-down`. Under `cover` and `fill` the picture covers the whole box, and there is nothing to fill.
 
+## A picture as the placeholder
+
+`placeholder` also takes a picture, written `{ src, blur }`. A small copy of the file, a data URI or a `Blob` is drawn in place of the shimmer while the file arrives.
+
+<Demo src="image/placeholder" :minHeight="400">
+
+<<< @/.vitepress/demos/image/placeholder.tsx
+
+</Demo>
+
+The stand-in is fitted, placed, turned and mirrored the way the picture is. `blur: true` blurs it with a 20 pixel radius, and a number sets the radius in pixels. It stays opaque until the picture has faded in over it, and then it is hidden in one step: fading the two against each other would leave both half transparent, and the page would show through. If the file fails, the stand-in is removed and `fallback` is drawn.
+
+A `Blob` is drawn through an object URL. The URL is created when the Blob is given and revoked when the Blob is replaced or the image unmounts. Keep the same Blob from one render to the next, in state for example, because a new Blob on every render makes a new URL every time.
+
+Like the shimmer, the stand-in fills the box, so the box needs a reserved size: a `ratio`, or both `width` and `height`. Without one, nothing gives the box a height before the picture arrives, and the stand-in has no room to be drawn in.
+
 ## `rotate` and `flip`
 
 `rotate` turns the picture clockwise, a quarter at a time: `0`, `90`, `180` or `270`. `flip` mirrors it: `horizontal`, `vertical` or `both`.
