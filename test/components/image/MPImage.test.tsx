@@ -69,6 +69,16 @@ function picture(width: number, height: number): string {
   )}`;
 }
 
+/**
+ * `scale` with both factors written out. A browser serialises a uniform
+ * `scale: -1 -1` back as `-1`, which is the same mirror.
+ */
+function scaleOf(element: HTMLElement): string {
+  const [x, y = x] = element.style.scale.split(' ');
+
+  return x ? `${x} ${y}` : '';
+}
+
 /** The two rectangles a turned picture is judged by, rounded to the pixel. */
 function rounded(element: Element) {
   const { left, top, width, height } = element.getBoundingClientRect();
@@ -429,6 +439,82 @@ describe('MPImage', () => {
       await expect.poll(() => rounded(frame).width).toBe(40);
       expect(rounded(frame).height).toBe(60);
       expect(rounded(full)).toEqual(rounded(frame));
+    });
+  });
+
+  describe('flip', () => {
+    it('writes no `scale` by default', async () => {
+      const screen = await render(<MPImage src={RED_DOT} alt="A red dot" />);
+
+      expect((screen.container.querySelector('img') as HTMLImageElement).style.scale).toBe('');
+    });
+
+    it('mirrors along the axis it names', async () => {
+      const screen = await render(
+        <>
+          <MPImage src={RED_DOT} alt="none" flip="none" />
+          <MPImage src={RED_DOT} alt="horizontal" flip="horizontal" />
+          <MPImage src={RED_DOT} alt="vertical" flip="vertical" />
+          <MPImage src={RED_DOT} alt="both" flip="both" />
+        </>
+      );
+      const mirror = (alt: string) =>
+        scaleOf(screen.container.querySelector(`img[alt="${alt}"]`) as HTMLImageElement);
+
+      expect(mirror('none')).toBe('');
+      expect(mirror('horizontal')).toBe('-1 1');
+      expect(mirror('vertical')).toBe('1 -1');
+      expect(mirror('both')).toBe('-1 -1');
+    });
+
+    it('swaps the two factors on a quarter turn, so the mirror stays on the screen axis', async () => {
+      // Scale is applied before the turn, so on its side the element's x axis is
+      // the screen's y axis.
+      const screen = await render(
+        <>
+          <MPImage src={RED_DOT} alt="quarter" flip="horizontal" rotate={90} />
+          <MPImage src={RED_DOT} alt="three quarters" flip="vertical" rotate={270} />
+          <MPImage src={RED_DOT} alt="half" flip="horizontal" rotate={180} />
+        </>
+      );
+      const img = (alt: string) =>
+        screen.container.querySelector(`img[alt="${alt}"]`) as HTMLImageElement;
+
+      expect(scaleOf(img('quarter'))).toBe('1 -1');
+      expect(scaleOf(img('three quarters'))).toBe('-1 1');
+      expect(scaleOf(img('half'))).toBe('-1 1');
+      expect(img('quarter').style.rotate).toBe('90deg');
+      expect(img('quarter').style.transform).toBe('');
+    });
+
+    it('opens the preview mirrored', async () => {
+      const screen = await render(
+        <MPImage src={RED_DOT} alt="A mirrored dot" flip="horizontal" rotate={90} preview />
+      );
+
+      expect(await settled(screen.container, 'loaded')).toBe(true);
+      await screen.getByRole('button', { name: 'A mirrored dot' }).click();
+      await expect.element(screen.getByRole('dialog')).toBeInTheDocument();
+
+      const full = document.querySelector('[role="dialog"] img') as HTMLImageElement;
+
+      expect(scaleOf(full)).toBe('1 -1');
+      expect(full.style.rotate).toBe('90deg');
+    });
+
+    it('mirrors an unturned preview in place', async () => {
+      const screen = await render(
+        <MPImage src={RED_DOT} alt="A flipped dot" flip="vertical" preview />
+      );
+
+      expect(await settled(screen.container, 'loaded')).toBe(true);
+      await screen.getByRole('button', { name: 'A flipped dot' }).click();
+      await expect.element(screen.getByRole('dialog')).toBeInTheDocument();
+
+      const full = document.querySelector('[role="dialog"] img') as HTMLImageElement;
+
+      expect(scaleOf(full)).toBe('1 -1');
+      expect(full.parentElement?.getAttribute('role')).toBe('dialog');
     });
   });
 

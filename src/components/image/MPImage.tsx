@@ -17,6 +17,9 @@ export type MPImageState = 'loading' | 'loaded' | 'error';
 /** A turn in degrees, clockwise, a quarter at a time. */
 export type MPImageRotate = 0 | 90 | 180 | 270;
 
+/** Which way the picture is mirrored, along the axes it is shown on. */
+export type MPImageFlip = 'none' | 'horizontal' | 'vertical' | 'both';
+
 export interface MPImageProps extends Omit<React.ComponentPropsWithoutRef<'img'>, 'onError'> {
   /** Where the picture is. */
   src?: string;
@@ -103,6 +106,15 @@ export interface MPImageProps extends Omit<React.ComponentPropsWithoutRef<'img'>
    * @default 0
    */
   rotate?: MPImageRotate;
+  /**
+   * Mirrors the picture along the axes it is shown on.
+   *
+   * `horizontal` swaps left and right on the screen whether or not the picture
+   * is turned. Drawn with the `scale` property, so it leaves `transform` free as
+   * `rotate` does, and `preview` opens the picture mirrored.
+   * @default 'none'
+   */
+  flip?: MPImageFlip;
   /** The corner and type scale of the placeholder and the fallback. @default 'md' */
   size?: MPSize;
 }
@@ -156,6 +168,25 @@ function quarterTurn(rotate: number | undefined): MPImageRotate {
   }
 
   return ((((Math.round(rotate / 90) % 4) + 4) % 4) * 90) as MPImageRotate;
+}
+
+/**
+ * The `rotate` and `scale` a picture is drawn with.
+ *
+ * The individual transform properties apply translate, then rotate, then scale,
+ * so the scale acts on the element before it is turned. On a quarter turn the
+ * element's axes are the screen's swapped, and so are the two scale factors: a
+ * mirror lands on the screen axis the caller named.
+ */
+function orientation(turn: MPImageRotate, flip: MPImageFlip): React.CSSProperties {
+  const across = flip === 'horizontal' || flip === 'both';
+  const down = flip === 'vertical' || flip === 'both';
+  const [x, y] = turn === 90 || turn === 270 ? [down, across] : [across, down];
+
+  return {
+    ...(turn ? { rotate: `${turn}deg` } : null),
+    ...(x || y ? { scale: `${x ? -1 : 1} ${y ? -1 : 1}` } : null)
+  };
 }
 
 /** A `width` or `height` in pixels: a number, or a string of digits. */
@@ -261,6 +292,7 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
     previewLabel,
     onStateChange,
     rotate,
+    flip = 'none',
     size: sizeProp,
     className,
     style,
@@ -340,6 +372,7 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
 
   const turn = quarterTurn(rotate);
   const sideways = turn === 90 || turn === 270;
+  const oriented = orientation(turn, flip);
   const declaredWidth = pixels(width);
   const declaredHeight = pixels(height);
   const declared =
@@ -406,7 +439,7 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
           showing ? 'opacity-100' : 'opacity-0',
           'transition-opacity duration-(--mp-sys-motion-duration-short4)'
         ].join(' ')}
-        style={turn ? { rotate: `${turn}deg`, ...(sideways ? SIDEWAYS : null) } : undefined}
+        style={{ ...oriented, ...(sideways ? SIDEWAYS : null) }}
         onLoad={(event) => {
           report('loaded', event.currentTarget);
           onLoad?.(event);
@@ -511,7 +544,7 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
                 src={full}
                 alt={alt}
                 className="object-contain"
-                style={{ rotate: `${turn}deg`, ...SIDEWAYS }}
+                style={{ ...oriented, ...SIDEWAYS }}
                 onLoad={recordPreview}
               />
             </span>
@@ -520,7 +553,7 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
               src={full}
               alt={alt}
               className="max-h-full max-w-full object-contain"
-              style={turn ? { rotate: `${turn}deg` } : undefined}
+              style={oriented}
               onLoad={recordPreview}
             />
           )}

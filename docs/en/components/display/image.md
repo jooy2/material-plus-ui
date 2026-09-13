@@ -61,9 +61,9 @@ Off by default: most pictures on a page are not worth opening, and one that sile
 
 A picture that **failed** refuses to open. A scrim over a broken-image glyph is not worth the gesture.
 
-## `rotate`
+## `rotate` and `flip`
 
-Turns the picture clockwise, a quarter at a time: `0`, `90`, `180` or `270`.
+`rotate` turns the picture clockwise, a quarter at a time: `0`, `90`, `180` or `270`. `flip` mirrors it: `horizontal`, `vertical` or `both`.
 
 <Demo src="image/rotate" :minHeight="440">
 
@@ -75,9 +75,11 @@ A half turn keeps the shape of the box. A quarter turn swaps it, so the box has 
 
 Only quarter turns are accepted. A picture turned by any other angle no longer covers its box, and filling the corners would mean enlarging the picture by an amount you would then want to adjust. A number passed from JavaScript is rounded to the nearest quarter, so `-90` is `270`.
 
-`preview` opens the picture turned as well.
+`flip` mirrors along the axes the picture is shown on, so `horizontal` swaps left and right on the screen whether or not the picture is turned.
 
-The turn is drawn with the CSS `rotate` property rather than with `transform`, so a `transform` of your own, such as a zoom on hover, still applies on top of it.
+`preview` opens the picture turned and mirrored as well.
+
+The turn is drawn with the CSS `rotate` property and the mirror with `scale`, rather than with `transform`. A `transform` of your own, such as a zoom on hover, still applies on top of both.
 
 A picture on its side is laid out of the flow and cannot give its box a width. The box takes the width of wherever it is placed, so in a flex row, or anywhere else that sizes a box by its contents, give it a width.
 

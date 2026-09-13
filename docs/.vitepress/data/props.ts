@@ -4769,6 +4769,15 @@ const componentTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'flip',
+      type: "'none' | 'horizontal' | 'vertical' | 'both'",
+      default: "'none'",
+      description: {
+        ko: '그림을 화면에 보이는 축을 따라 뒤집습니다. `horizontal`은 그림을 돌렸든 아니든 화면의 좌우를 바꿉니다. `scale` 속성으로 그리므로 `transform`은 비어 있습니다',
+        en: 'Mirrors the picture along the axes it is shown on. `horizontal` swaps left and right on the screen whether or not the picture is turned. Drawn with the `scale` property, so `transform` stays free'
+      }
+    },
+    {
       name: 'placeholder',
       type: `${NODE} | false`,
       description: {

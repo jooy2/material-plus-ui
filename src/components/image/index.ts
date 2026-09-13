@@ -1,2 +1,2 @@
 export { MPImage } from './MPImage';
-export type { MPImageProps, MPImageFit, MPImageRotate, MPImageState } from './MPImage';
+export type { MPImageProps, MPImageFit, MPImageFlip, MPImageRotate, MPImageState } from './MPImage';
