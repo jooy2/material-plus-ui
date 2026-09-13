@@ -172,10 +172,21 @@ function pageOf(filePath: string): string {
   return filePath.split('/').slice(1).join('/');
 }
 
-/** Inline Markdown and HTML dropped: a `<meta>` carries text and nothing else. */
+/**
+ * Inline Markdown and HTML dropped: a `<meta>` carries text and nothing else.
+ *
+ * An inline tag goes without a trace, so the comma after `<strong>…</strong>,`
+ * stays against the word before it rather than a space away. A tag that ends a
+ * line of text — a block element or a `<br>` — becomes a space instead, so the
+ * words on either side of it do not run together.
+ */
+const BLOCK_TAG =
+  /<\/?(?:address|article|aside|blockquote|br|dd|div|dl|dt|figcaption|figure|footer|h[1-6]|header|hr|li|main|nav|ol|p|pre|section|table|tbody|td|tfoot|th|thead|tr|ul)\b[^>]*>/gi;
+
 function plainText(source: string): string {
   return source
-    .replace(/<[^>]+>/g, ' ')
+    .replace(BLOCK_TAG, ' ')
+    .replace(/<[^>]+>/g, '')
     .replace(/!\[[^\]]*]\([^)]*\)/g, ' ')
     .replace(/\[([^\]]*)]\([^)]*\)/g, '$1')
     .replace(/[`*_]/g, '')
