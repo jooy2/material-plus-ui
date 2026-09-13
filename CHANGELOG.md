@@ -2,7 +2,13 @@
 
 ## vNext (2026--)
 
+### Breaking changes
+
+- **A lone `width` or `height` on `MPImage` sizes the box.** The two together are still the file's size and still reserve its proportion. One of them alone used to reach the `<img>` and change nothing, because the picture always filled its box. Now `height` alone makes the box that tall and as wide as its container, or as wide as `ratio` makes it, and `width` alone makes the box that wide, no wider than its container. Code that passed one dimension as a hint about the file now draws at that size: pass both dimensions, or remove the one.
+
 ### Added
+
+- **`fit="scale-down"` on `MPImage` and `MPAspectRatio`.** It draws like `contain`, but never enlarges a file smaller than its box. `MPImageFit` and `MPAspectFit` both take it, and a box with a fixed height, from the change above, is where the choice of fit shows.
 
 - **`MPImage` turns a picture with `rotate`, a quarter turn at a time.** It takes `0`, `90`, `180` or `270` degrees clockwise, and any other number is rounded to the nearest quarter. A quarter turn swaps the box's proportion: it is reserved from `width` and `height` when both are given, read from the file when it loads otherwise, and left alone when `ratio` is set. The turn is drawn with the `rotate` property, so a `transform` of your own still applies, and `preview` opens the picture turned.
 

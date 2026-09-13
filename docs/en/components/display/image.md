@@ -61,6 +61,23 @@ Off by default: most pictures on a page are not worth opening, and one that sile
 
 A picture that **failed** refuses to open. A scrim over a broken-image glyph is not worth the gesture.
 
+## `fit`, `width` and `height`
+
+`fit` takes the words CSS uses for `object-fit`: `cover`, `contain`, `fill`, `none` and `scale-down`. `scale-down` draws like `contain`, but never enlarges a file that is smaller than its box.
+
+<Demo src="image/fit" :minHeight="440">
+
+<<< @/.vitepress/demos/image/fit.tsx
+
+</Demo>
+
+`width` and `height` given together are the file's size in pixels, as they are on an `<img>`, and they reserve its proportion. Given alone, one of them sizes the box on that axis, and `fit` decides what the picture does with the room around it:
+
+- `height` alone makes the box that tall and as wide as its container. With a `ratio` as well, the width comes from the ratio, and the box is no wider than its container.
+- `width` alone makes the box that wide, no wider than its container, and as tall as the picture or `ratio` makes it.
+
+A number or a string of digits is pixels, and any other string is a CSS length, so `height={240}`, `height="240"` and `height="15rem"` all work. When the box is narrower than its container, the button `preview` draws is narrowed with it, and its focus ring stays around the picture.
+
 ## `rotate` and `flip`
 
 `rotate` turns the picture clockwise, a quarter at a time: `0`, `90`, `180` or `270`. `flip` mirrors it: `horizontal`, `vertical` or `both`.

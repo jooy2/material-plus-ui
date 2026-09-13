@@ -94,6 +94,16 @@ describe('MPAspectRatio', () => {
       expect(getComputedStyle(screen.getByTestId('photo').element()).objectFit).toBe('contain');
     });
 
+    it('takes `scale-down`, which never enlarges a small file', async () => {
+      const screen = await render(
+        <MPAspectRatio fit="scale-down">
+          <img data-testid="photo" alt="" src={PIXEL} />
+        </MPAspectRatio>
+      );
+
+      expect(getComputedStyle(screen.getByTestId('photo').element()).objectFit).toBe('scale-down');
+    });
+
     it('leaves anything that is not media alone', async () => {
       // `fit` reaches an `img`, a `video`, a `canvas`, an `svg`, a `picture` and
       // an `iframe`. A `div` is laid out normally.

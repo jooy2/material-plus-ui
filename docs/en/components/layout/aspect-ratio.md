@@ -45,7 +45,7 @@ The one convenience on top of the proportion. The media inside is stretched to t
 
 </Demo>
 
-The values are `object-fit`'s own — `cover`, `contain`, `fill`, `none` — for the same reason the ratio is: inventing `fill-the-box` would only make a reader look up which CSS it maps to.
+The values are `object-fit`'s own — `cover`, `contain`, `fill`, `none`, `scale-down` — for the same reason the ratio is: inventing `fill-the-box` would only make a reader look up which CSS it maps to.
 
 It reaches an `img`, a `video`, a `canvas`, an `svg`, a `picture` or an `iframe` that is a **direct child**. Anything else is laid out normally and the prop does not touch it, so a box holding a `<div>` of your own is simply a box with a proportion.
 

@@ -45,7 +45,7 @@ import { MPAspectRatio } from 'material-plus-ui';
 
 </Demo>
 
-값은 `object-fit` 자신의 단어들 — `cover`, `contain`, `fill`, `none` — 이고, 비율과 같은 이유입니다. `fill-the-box` 같은 걸 지어내 봐야 읽는 사람이 그게 어떤 CSS에 대응하는지 찾아보게 만들 뿐입니다.
+값은 `object-fit` 자신의 단어들 — `cover`, `contain`, `fill`, `none`, `scale-down` — 이고, 비율과 같은 이유입니다. `fill-the-box` 같은 걸 지어내 봐야 읽는 사람이 그게 어떤 CSS에 대응하는지 찾아보게 만들 뿐입니다.
 
 **직계 자식**인 `img`, `video`, `canvas`, `svg`, `picture`, `iframe`에 닿습니다. 그 밖의 것은 평범하게 배치되고 이 prop이 건드리지 않으므로, 직접 만든 `<div>`를 담은 상자는 그냥 비율을 가진 상자입니다.
 

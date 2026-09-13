@@ -8,8 +8,8 @@ import { FADE, PORTAL_LAYER, SCRIM } from '../../internal/surface';
 import { useMPSize } from '../../internal/config';
 import type { MPSize } from '../../types';
 
-/** How the picture is fitted into the box it was given. CSS's own four. */
-export type MPImageFit = 'cover' | 'contain' | 'fill' | 'none';
+/** How the picture is fitted into the box it was given. CSS's own words. */
+export type MPImageFit = 'cover' | 'contain' | 'fill' | 'none' | 'scale-down';
 
 /** What the picture is doing right now. */
 export type MPImageState = 'loading' | 'loaded' | 'error';
@@ -42,10 +42,30 @@ export interface MPImageProps extends Omit<React.ComponentPropsWithoutRef<'img'>
    */
   ratio?: number | string;
   /**
-   * How the picture is fitted into that box.
+   * How the picture is fitted into that box. `scale-down` is `contain` that
+   * never enlarges a file smaller than the box.
    * @default 'cover'
    */
   fit?: MPImageFit;
+  /**
+   * The width of the file, or of the box when it is given without `height`.
+   *
+   * With `height` as well, the two are the file's size in pixels, as on an
+   * `<img>`, and they reserve its proportion. Alone, it makes the box that wide,
+   * no wider than its container, and as tall as the picture or `ratio` makes
+   * it. A number or a string of digits is pixels, and any other string is a CSS
+   * length.
+   */
+  width?: number | string;
+  /**
+   * The height of the file, or of the box when it is given without `width`.
+   *
+   * With `width` as well, the two are the file's size in pixels. Alone, it makes
+   * the box that tall and as wide as its container, or as wide as `ratio` makes
+   * it when there is one. A number or a string of digits is pixels, and any
+   * other string is a CSS length.
+   */
+  height?: number | string;
   /**
    * Drawn while the picture is on its way.
    *
@@ -135,7 +155,8 @@ const FIT: Record<MPImageFit, string> = {
   cover: 'object-cover',
   contain: 'object-contain',
   fill: 'object-fill',
-  none: 'object-none'
+  none: 'object-none',
+  'scale-down': 'object-scale-down'
 };
 
 /**
@@ -196,6 +217,13 @@ function pixels(value: number | string | undefined): number | undefined {
   }
 
   return value !== undefined && /^\d+$/.test(value.trim()) ? Number(value) : undefined;
+}
+
+/** A lone `width` or `height` as the box's size: pixels, or the length as written. */
+function boxLength(value: number | string): string {
+  const px = pixels(value);
+
+  return px === undefined ? String(value) : `${px}px`;
 }
 
 /**
@@ -373,8 +401,15 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
   const turn = quarterTurn(rotate);
   const sideways = turn === 90 || turn === 270;
   const oriented = orientation(turn, flip);
-  const declaredWidth = pixels(width);
-  const declaredHeight = pixels(height);
+  /*
+   * `width` and `height` together are the file's size, as they are on an
+   * `<img>`. One of them alone is the size of the box on that axis.
+   */
+  const both = width !== undefined && height !== undefined;
+  const loneWidth = width !== undefined && !both ? boxLength(width) : undefined;
+  const loneHeight = height !== undefined && !both ? boxLength(height) : undefined;
+  const declaredWidth = both ? pixels(width) : undefined;
+  const declaredHeight = both ? pixels(height) : undefined;
   const declared =
     declaredWidth && declaredHeight ? { width: declaredWidth, height: declaredHeight } : undefined;
   // What the file is known to measure: what the caller said, or what arrived.
@@ -386,10 +421,13 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
    * The picture is taken out of the flow, so nothing inside the box gives it a
    * height any more. An explicit `ratio` is the layout's shape and stays; failing
    * that, the file's own proportion is written turned, from the declared size
-   * or, once it has loaded, from the file itself.
+   * or, once it has loaded, from the file itself. A lone `height` has already
+   * fixed the box, and a proportion as well would recompute its width.
    */
   const boxRatio =
-    sideways && ratio === undefined && file ? `${file.height} / ${file.width}` : ratio;
+    sideways && ratio === undefined && file && loneHeight === undefined
+      ? `${file.height} / ${file.width}`
+      : ratio;
 
   const showing = state === 'loaded';
 
@@ -428,8 +466,8 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
         }}
         src={src}
         alt={alt}
-        width={width}
-        height={height}
+        width={both ? width : undefined}
+        height={both ? height : undefined}
         className={[
           'size-full',
           FIT[fit],
@@ -464,6 +502,17 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
     .join(' ');
   const boxStyle = {
     aspectRatio: boxRatio,
+    /*
+     * A lone `width` narrows the box, and a lone `height` narrows it too when a
+     * ratio turns that height into a width. Either way the box is no wider than
+     * its container. The box is also the preview's button, so the focus ring
+     * follows it.
+     */
+    ...(loneWidth !== undefined ? { width: loneWidth, maxWidth: '100%' } : null),
+    ...(loneHeight !== undefined ? { height: loneHeight } : null),
+    ...(loneHeight !== undefined && ratio !== undefined
+      ? { width: 'auto', maxWidth: '100%' }
+      : null),
     // Only while the picture is on its side: size containment changes how the
     // box is measured, and nothing else needs it.
     ...(sideways ? { containerType: 'size' } : null),

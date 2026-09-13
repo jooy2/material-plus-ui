@@ -4752,11 +4752,27 @@ const componentTables: Record<string, PropRow[]> = {
     },
     {
       name: 'fit',
-      type: "'cover' | 'contain' | 'fill' | 'none'",
+      type: "'cover' | 'contain' | 'fill' | 'none' | 'scale-down'",
       default: "'cover'",
       description: {
-        ko: '그림을 상자에 어떻게 맞출지',
-        en: 'How the picture is fitted into that box'
+        ko: '그림을 상자에 어떻게 맞출지. `scale-down`은 `contain`과 같지만 상자보다 작은 파일을 키우지 않습니다',
+        en: 'How the picture is fitted into that box. `scale-down` is `contain` that never enlarges a file smaller than the box'
+      }
+    },
+    {
+      name: 'width',
+      type: 'number | string',
+      description: {
+        ko: '`height`와 함께 주면 파일의 픽셀 너비이고, `<img>`에서처럼 파일의 비율로 자리를 잡습니다. 혼자 주면 상자의 너비가 됩니다. 상자는 컨테이너보다 넓어지지 않고, 높이는 그림이나 `ratio`가 정합니다. 숫자와 숫자로만 된 문자열은 픽셀이고, 다른 문자열은 CSS 길이로 그대로 씁니다',
+        en: 'With `height`, the width of the file in pixels, which reserves its proportion as on an `<img>`. Alone, the width of the box, no wider than its container and as tall as the picture or `ratio` makes it. A number or a string of digits is pixels, and any other string is a CSS length'
+      }
+    },
+    {
+      name: 'height',
+      type: 'number | string',
+      description: {
+        ko: '`width`와 함께 주면 파일의 픽셀 높이입니다. 혼자 주면 상자의 높이가 되고, 상자는 컨테이너만큼 넓습니다. `ratio`도 주면 너비는 비율에서 나옵니다. 숫자와 숫자로만 된 문자열은 픽셀이고, 다른 문자열은 CSS 길이로 그대로 씁니다',
+        en: 'With `width`, the height of the file in pixels. Alone, the height of the box, which is as wide as its container, or as wide as `ratio` makes it when there is one. A number or a string of digits is pixels, and any other string is a CSS length'
       }
     },
     {
@@ -7547,7 +7563,7 @@ const componentTables: Record<string, PropRow[]> = {
     },
     {
       name: 'fit',
-      type: "'cover' | 'contain' | 'fill' | 'none'",
+      type: "'cover' | 'contain' | 'fill' | 'none' | 'scale-down'",
       default: "'cover'",
       description: {
         ko: '안의 미디어를 어떻게 맞출지. 직계 자식인 `img`, `video`, `canvas`, `svg`, `picture`, `iframe`에 적용됩니다',

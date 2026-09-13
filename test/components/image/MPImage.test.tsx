@@ -287,6 +287,149 @@ describe('MPImage', () => {
 
       expect(screen.container.querySelector('img')?.className).toContain('object-contain');
     });
+
+    it('takes `scale-down`, which never enlarges a small file', async () => {
+      const screen = await render(<MPImage src={RED_DOT} alt="A red dot" fit="scale-down" />);
+      const img = screen.container.querySelector('img') as HTMLImageElement;
+
+      expect(img.className).toContain('object-scale-down');
+      expect(getComputedStyle(img).objectFit).toBe('scale-down');
+    });
+
+    it("keeps both dimensions on the `<img>`, where they reserve the file's proportion", async () => {
+      const screen = await render(
+        <div style={{ width: 300 }}>
+          <MPImage src={PENDING} alt="A picture" width={1200} height={800} />
+        </div>
+      );
+      const box = screen.container.querySelector('.mp-image') as HTMLElement;
+      const img = screen.container.querySelector('img') as HTMLImageElement;
+
+      expect(img.getAttribute('width')).toBe('1200');
+      expect(img.getAttribute('height')).toBe('800');
+      expect(box.style.width).toBe('');
+      expect(box.style.height).toBe('');
+      expect(rounded(img).height).toBe(200);
+    });
+  });
+
+  describe('a lone width or height', () => {
+    it('makes a box that tall, as wide as its container', async () => {
+      const screen = await render(
+        <div style={{ width: 300 }}>
+          <MPImage src={PENDING} alt="A picture" height={120} />
+        </div>
+      );
+      const box = screen.container.querySelector('.mp-image') as HTMLElement;
+
+      expect(box.style.height).toBe('120px');
+      expect(screen.container.querySelector('img')?.hasAttribute('height')).toBe(false);
+      expect(rounded(box).width).toBe(300);
+      expect(rounded(box).height).toBe(120);
+    });
+
+    it('reads a string of digits as pixels and passes any other length through', async () => {
+      const screen = await render(
+        <>
+          <MPImage src={PENDING} alt="digits" height="96" />
+          <MPImage src={PENDING} alt="length" height="6rem" />
+          <MPImage src={PENDING} alt="share" width="50%" />
+        </>
+      );
+      const box = (alt: string) =>
+        screen.container.querySelector(`img[alt="${alt}"]`)?.parentElement as HTMLElement;
+
+      expect(box('digits').style.height).toBe('96px');
+      expect(box('length').style.height).toBe('6rem');
+      expect(box('share').style.width).toBe('50%');
+    });
+
+    it('takes the width from a ratio beside a lone height', async () => {
+      const screen = await render(
+        <div style={{ width: 300 }}>
+          <MPImage src={PENDING} alt="A picture" height={100} ratio={2} />
+        </div>
+      );
+      const box = screen.container.querySelector('.mp-image') as HTMLElement;
+
+      expect(box.style.width).toBe('auto');
+      expect(box.style.maxWidth).toBe('100%');
+      expect(rounded(box).width).toBe(200);
+      expect(rounded(box).height).toBe(100);
+    });
+
+    it('makes a box that wide, no wider than its container', async () => {
+      const screen = await render(
+        <div style={{ width: 300 }}>
+          <MPImage src={PENDING} alt="narrow" width={120} ratio={1} />
+          <MPImage src={PENDING} alt="wide" width={500} ratio={1} />
+        </div>
+      );
+      const box = (alt: string) =>
+        screen.container.querySelector(`img[alt="${alt}"]`)?.parentElement as HTMLElement;
+
+      expect(box('narrow').style.maxWidth).toBe('100%');
+      expect(rounded(box('narrow')).width).toBe(120);
+      expect(rounded(box('narrow')).height).toBe(120);
+      expect(rounded(box('wide')).width).toBe(300);
+    });
+
+    it('lets the picture decide the height beside a lone width', async () => {
+      const screen = await render(
+        <div style={{ width: 300 }}>
+          <MPImage src={picture(40, 30)} alt="A picture" width={160} />
+        </div>
+      );
+      const img = screen.container.querySelector('img') as HTMLImageElement;
+
+      expect(await settled(screen.container, 'loaded')).toBe(true);
+      expect(rounded(img).width).toBe(160);
+      expect(rounded(img).height).toBe(120);
+    });
+
+    it('shrinks the preview button to a narrowed box', async () => {
+      const screen = await render(
+        <div style={{ width: 300 }}>
+          <MPImage src={RED_DOT} alt="by width" width={120} ratio={1} preview />
+          <MPImage src={RED_DOT} alt="by height" height={100} ratio={2} preview />
+          <MPImage src={RED_DOT} alt="turned" height={100} ratio={2} rotate={90} preview />
+        </div>
+      );
+
+      expect(rounded(screen.getByRole('button', { name: 'by width' }).element()).width).toBe(120);
+      expect(rounded(screen.getByRole('button', { name: 'by height' }).element()).width).toBe(200);
+      expect(rounded(screen.getByRole('button', { name: 'turned' }).element()).width).toBe(200);
+    });
+
+    it('keeps the height it was given while the picture is on its side', async () => {
+      // The file's proportion would recompute the width, so it is not written.
+      const screen = await render(
+        <div style={{ width: 300 }}>
+          <MPImage src={picture(30, 20)} alt="A picture" height={80} rotate={90} />
+        </div>
+      );
+      const box = screen.container.querySelector('.mp-image') as HTMLElement;
+      const img = screen.container.querySelector('img') as HTMLImageElement;
+
+      expect(await settled(screen.container, 'loaded')).toBe(true);
+      expect(box.style.aspectRatio).toBe('');
+      expect(rounded(box).width).toBe(300);
+      expect(rounded(box).height).toBe(80);
+      expect(rounded(img)).toEqual(rounded(box));
+    });
+
+    it("writes the file's proportion beside a lone width while the picture is on its side", async () => {
+      const screen = await render(
+        <div style={{ width: 300 }}>
+          <MPImage src={picture(30, 20)} alt="A picture" width={100} rotate={270} />
+        </div>
+      );
+      const box = screen.container.querySelector('.mp-image') as HTMLElement;
+
+      expect(await settled(screen.container, 'loaded')).toBe(true);
+      await expect.poll(() => rounded(box).height).toBe(150);
+      expect(rounded(box).width).toBe(100);
+    });
   });
 
   describe('rotate', () => {

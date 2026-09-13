@@ -10,7 +10,7 @@ import type { MPSize } from '../../types';
  * the same reason `MPSide` keeps `top`/`right`/`bottom`/`left`: inventing
  * `fill-the-box` would only make a reader look up which CSS it maps to.
  */
-export type MPAspectFit = 'cover' | 'contain' | 'fill' | 'none';
+export type MPAspectFit = 'cover' | 'contain' | 'fill' | 'none' | 'scale-down';
 
 /**
  * The corner, when `rounded` asks for one.
@@ -53,7 +53,9 @@ const FIT: Record<MPAspectFit, string> = {
   cover: '[&>img]:object-cover [&>video]:object-cover [&>picture>img]:object-cover',
   contain: '[&>img]:object-contain [&>video]:object-contain [&>picture>img]:object-contain',
   fill: '[&>img]:object-fill [&>video]:object-fill [&>picture>img]:object-fill',
-  none: '[&>img]:object-none [&>video]:object-none [&>picture>img]:object-none'
+  none: '[&>img]:object-none [&>video]:object-none [&>picture>img]:object-none',
+  'scale-down':
+    '[&>img]:object-scale-down [&>video]:object-scale-down [&>picture>img]:object-scale-down'
 };
 
 export interface MPAspectRatioProps extends React.ComponentPropsWithoutRef<'div'> {

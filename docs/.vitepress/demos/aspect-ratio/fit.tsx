@@ -2,7 +2,7 @@ import { MPAspectRatio } from 'material-plus-ui';
 import type { MPAspectFit } from 'material-plus-ui';
 
 /**
- * The same picture in the same box, fitted four ways.
+ * The same picture in the same box, fitted five ways.
  *
  * `fit` is the one convenience the component adds on top of the proportion: the
  * media is stretched to the box and *then* fitted, which is the pair of
@@ -11,14 +11,17 @@ import type { MPAspectFit } from 'material-plus-ui';
  * The values are `object-fit`'s own words rather than a nicer set, so there is
  * nothing to look up.
  */
-const FITS: MPAspectFit[] = ['cover', 'contain', 'fill', 'none'];
+const FITS: MPAspectFit[] = ['cover', 'contain', 'fill', 'none', 'scale-down'];
 
-/** A portrait photo in a landscape box, so the four are actually different. */
+/**
+ * A portrait photo in a landscape box, so the fits are actually different.
+ * `scale-down` matches `contain` here, because the file is larger than the box.
+ */
 const PHOTO = '/samples/photos/thumbs/red-umbrella-autumn-path.webp';
 
 export default function AspectRatioFit() {
   return (
-    <div style={{ display: 'grid', gap: 16, gridTemplateColumns: 'repeat(4, 1fr)', width: '100%' }}>
+    <div style={{ display: 'grid', gap: 16, gridTemplateColumns: 'repeat(5, 1fr)', width: '100%' }}>
       {FITS.map((fit) => (
         <div key={fit} style={{ display: 'grid', gap: 8 }}>
           <MPAspectRatio

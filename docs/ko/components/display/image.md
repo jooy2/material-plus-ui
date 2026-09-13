@@ -61,6 +61,23 @@ import { MPImage } from 'material-plus-ui';
 
 **실패한** 그림은 열리기를 거부합니다. 깨진 이미지 글리프 위의 스크림은 그 제스처만큼의 가치가 없습니다.
 
+## `fit`, `width`, `height`
+
+`fit`은 CSS `object-fit`의 값을 그대로 받습니다. `cover`, `contain`, `fill`, `none`, `scale-down`입니다. `scale-down`은 `contain`처럼 그리지만, 상자보다 작은 파일은 키우지 않습니다.
+
+<Demo src="image/fit" :minHeight="440">
+
+<<< @/.vitepress/demos/image/fit.tsx
+
+</Demo>
+
+`width`와 `height`를 함께 주면 `<img>`에서처럼 파일의 픽셀 크기가 되고, 파일의 비율로 자리를 잡습니다. 하나만 주면 그 축의 상자 크기가 되고, 남는 공간에서 그림이 어떻게 놓일지는 `fit`이 정합니다.
+
+- `height`만 주면 상자가 그 높이가 되고 너비는 컨테이너를 채웁니다. `ratio`도 주면 너비는 비율에서 나오고, 컨테이너보다 넓어지지 않습니다.
+- `width`만 주면 상자가 그 너비가 되고 컨테이너보다 넓어지지 않습니다. 높이는 그림이나 `ratio`가 정합니다.
+
+숫자와 숫자로만 된 문자열은 픽셀이고, 다른 문자열은 CSS 길이로 그대로 씁니다. 그래서 `height={240}`, `height="240"`, `height="15rem"`이 모두 됩니다. 상자가 컨테이너보다 좁아지면 `preview`가 그리는 버튼도 함께 좁아지므로, 포커스 링이 그림 둘레에 머뭅니다.
+
 ## `rotate`와 `flip`
 
 `rotate`는 그림을 시계 방향으로 90도씩 돌립니다. 값은 `0`, `90`, `180`, `270`입니다. `flip`은 그림을 뒤집으며, 값은 `horizontal`, `vertical`, `both`입니다.
