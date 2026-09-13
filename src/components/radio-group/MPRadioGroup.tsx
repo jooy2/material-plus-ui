@@ -188,7 +188,8 @@ export const MPRadio = React.forwardRef<HTMLElement, MPRadioProps>(function MPRa
             ) : null}
             {hasContent(description) ? (
               <Field.Description
-                className={`${META_TEXT} text-mp-on-surface-variant data-disabled:text-mp-on-surface/38`}
+                // A `<p>`, which arrives with a block margin of one em.
+                className={`${META_TEXT} text-mp-on-surface-variant data-disabled:text-mp-on-surface/38 m-0`}
               >
                 {description}
               </Field.Description>

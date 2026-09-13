@@ -135,7 +135,11 @@ export function MPSupportingText({
   if (hasContent(description)) {
     return (
       <div ref={reveal} className="mp-supporting-text__reveal">
-        <Field.Description className={`${classNames} text-mp-on-surface-variant`}>
+        {/* `m-0` here and not on the error: `Field.Description` renders a `<p>`,
+            which arrives with a block margin of one em, while `Field.Error`
+            renders a `<div>` with none — and `MPTextField` gives its error a
+            `mt-1` the zero would otherwise sit beside. */}
+        <Field.Description className={`${classNames} text-mp-on-surface-variant m-0`}>
           {description}
         </Field.Description>
       </div>

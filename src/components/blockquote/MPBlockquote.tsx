@@ -146,6 +146,14 @@ function QuoteMarkIcon() {
  * outrank, so a rule drawn on the quote itself would silently come out grey and
  * a pixel too thin.
  *
+ * The one thing said on it is `m-0`, and that is taking something off rather
+ * than drawing: a browser gives every `<blockquote>` and every `<figure>` a
+ * margin of `1em 40px`, and a page with no reset would otherwise set the words
+ * forty pixels in from their own rule. A host that styles `blockquote` by name
+ * still outranks the zero, and that is left alone on purpose. A `.prose
+ * blockquote` margin is a page deciding how its quotes sit in its text, and a
+ * quote dropped into that text should sit the same way.
+ *
  * The wrapper is a `<figure>` when there is an attribution and a `<div>` when
  * there is not, because the HTML specification is explicit that the attribution
  * goes *outside* the blockquote — a name inside it claims the speaker said their
@@ -177,7 +185,9 @@ export const MPBlockquote = React.forwardRef<HTMLElement, MPBlockquoteProps>(fun
 
   const entrance = transitionProps(transition);
   const shellClasses = [
-    'mp-blockquote flex flex-col',
+    // `m-0` for the `<figure>`, which arrives with the browser's `1em 40px`. The
+    // `<div>` has no margin to take off, and the zero costs it nothing.
+    'mp-blockquote m-0 flex flex-col',
     // The type scale is on the shell rather than on the `<blockquote>`, and it
     // is on the shell for the reason everything else is: a host stylesheet
     // styles `blockquote` by name at a specificity a utility cannot outrank —
@@ -199,7 +209,7 @@ export const MPBlockquote = React.forwardRef<HTMLElement, MPBlockquoteProps>(fun
     .join(' ');
 
   const quote = (
-    <blockquote cite={cite}>
+    <blockquote cite={cite} className="m-0">
       {hasContent(glyph) ? (
         // The mark tracks the quote's own type scale at twice its size, so one
         // drawing is the right size at every step of the ladder. It sits at 38%
