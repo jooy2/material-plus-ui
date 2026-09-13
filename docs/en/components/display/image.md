@@ -61,6 +61,28 @@ Off by default: most pictures on a page are not worth opening, and one that sile
 
 A picture that **failed** refuses to open. A scrim over a broken-image glyph is not worth the gesture.
 
+## `rotate` and `flip`
+
+`rotate` turns the picture clockwise, a quarter at a time: `0`, `90`, `180` or `270`. `flip` mirrors it: `horizontal`, `vertical` or `both`.
+
+<Demo src="image/rotate" :minHeight="440">
+
+<<< @/.vitepress/demos/image/rotate.tsx
+
+</Demo>
+
+A half turn keeps the shape of the box. A quarter turn swaps it, so the box has to know the file's proportion before the picture arrives. Pass the file's `width` and `height` and the box reserves the turned shape: `width={1200} height={800}` on its side is 2 wide by 3 tall. Without them the shape is read from the file when it loads, and the page moves at that moment. An explicit `ratio` is kept, because it is the shape of the layout, and `fit` decides how the turned picture fills it.
+
+Only quarter turns are accepted. A picture turned by any other angle no longer covers its box, and filling the corners would mean enlarging the picture by an amount you would then want to adjust. A number passed from JavaScript is rounded to the nearest quarter, so `-90` is `270`.
+
+`flip` mirrors along the axes the picture is shown on, so `horizontal` swaps left and right on the screen whether or not the picture is turned.
+
+`preview` opens the picture turned and mirrored as well.
+
+The turn is drawn with the CSS `rotate` property and the mirror with `scale`, rather than with `transform`. A `transform` of your own, such as a zoom on hover, still applies on top of both.
+
+A picture on its side is laid out of the flow and cannot give its box a width. The box takes the width of wherever it is placed, so in a flex row, or anywhere else that sizes a box by its contents, give it a width.
+
 ## `fit`, `width` and `height`
 
 `fit` takes the words CSS uses for `object-fit`: `cover`, `contain`, `fill`, `none` and `scale-down`. `scale-down` draws like `contain`, but never enlarges a file that is smaller than its box.
@@ -123,28 +145,6 @@ The stand-in is fitted, placed, turned and mirrored the way the picture is. `blu
 A `Blob` is drawn through an object URL. The URL is created when the Blob is given and revoked when the Blob is replaced or the image unmounts. Keep the same Blob from one render to the next, in state for example, because a new Blob on every render makes a new URL every time.
 
 Like the shimmer, the stand-in fills the box, so the box needs a reserved size: a `ratio`, or both `width` and `height`. Without one, nothing gives the box a height before the picture arrives, and the stand-in has no room to be drawn in.
-
-## `rotate` and `flip`
-
-`rotate` turns the picture clockwise, a quarter at a time: `0`, `90`, `180` or `270`. `flip` mirrors it: `horizontal`, `vertical` or `both`.
-
-<Demo src="image/rotate" :minHeight="440">
-
-<<< @/.vitepress/demos/image/rotate.tsx
-
-</Demo>
-
-A half turn keeps the shape of the box. A quarter turn swaps it, so the box has to know the file's proportion before the picture arrives. Pass the file's `width` and `height` and the box reserves the turned shape: `width={1200} height={800}` on its side is 2 wide by 3 tall. Without them the shape is read from the file when it loads, and the page moves at that moment. An explicit `ratio` is kept, because it is the shape of the layout, and `fit` decides how the turned picture fills it.
-
-Only quarter turns are accepted. A picture turned by any other angle no longer covers its box, and filling the corners would mean enlarging the picture by an amount you would then want to adjust. A number passed from JavaScript is rounded to the nearest quarter, so `-90` is `270`.
-
-`flip` mirrors along the axes the picture is shown on, so `horizontal` swaps left and right on the screen whether or not the picture is turned.
-
-`preview` opens the picture turned and mirrored as well.
-
-The turn is drawn with the CSS `rotate` property and the mirror with `scale`, rather than with `transform`. A `transform` of your own, such as a zoom on hover, still applies on top of both.
-
-A picture on its side is laid out of the flow and cannot give its box a width. The box takes the width of wherever it is placed, so in a flex row, or anywhere else that sizes a box by its contents, give it a width.
 
 ## When the picture loads
 
