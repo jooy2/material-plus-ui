@@ -11,6 +11,17 @@ const COMMANDS: MPCommand[] = [
   { value: 'paste', label: 'Paste', group: 'Edit', disabled: true }
 ];
 
+/*
+ * The platform's own Mod key, rather than both of them at once.
+ *
+ * Holding Control *and* Command is a different combination from either, and
+ * a shortcut that answered it would be taking a chord the page may have
+ * given to something else — so the tests press what a reader on this
+ * machine would press, and ask the library which key that is through the
+ * same function the component does.
+ */
+const MOD = detectOS() === 'mac' ? { metaKey: true } : { ctrlKey: true };
+
 describe('MPCommandPalette', () => {
   describe('the sheet', () => {
     it('is out of the document until it is opened', async () => {
@@ -139,17 +150,6 @@ describe('MPCommandPalette', () => {
   });
 
   describe('the key that opens it', () => {
-    /*
-     * The platform's own Mod key, rather than both of them at once.
-     *
-     * Holding Control *and* Command is a different combination from either, and
-     * a shortcut that answered it would be taking a chord the page may have
-     * given to something else — so the test presses what a reader on this
-     * machine would press, and asks the library which key that is through the
-     * same function the component does.
-     */
-    const MOD = detectOS() === 'mac' ? { metaKey: true } : { ctrlKey: true };
-
     it('binds Mod+K on the window by default', async () => {
       await render(<MPCommandPalette items={COMMANDS} />);
 
@@ -175,9 +175,11 @@ describe('MPCommandPalette', () => {
     it('binds nothing at all when told not to', async () => {
       await render(<MPCommandPalette items={COMMANDS} shortcut={false} />);
 
-      window.dispatchEvent(
-        new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, metaKey: true, bubbles: true })
-      );
+      // The key that would open it, so the test fails if `false` is ignored —
+      // and a moment to open in, as for the chord above.
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ...MOD, bubbles: true }));
+
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       expect(document.querySelector('.mp-command-palette')).toBeNull();
     });
@@ -197,9 +199,12 @@ describe('MPCommandPalette', () => {
     await screen.getByRole('combobox').fill('copy');
     await screen.getByRole('option', { name: /Copy/ }).click();
 
-    window.dispatchEvent(
-      new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, metaKey: true, bubbles: true })
-    );
+    // Gone before it is opened again. Without this the sheet still fading out
+    // was the one found below, and the test passed on how long the exit took
+    // rather than on the shortcut reopening anything.
+    await expect.poll(() => document.querySelector('.mp-command-palette')).toBeNull();
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ...MOD, bubbles: true }));
 
     await expect.poll(() => document.querySelector('.mp-command-palette')).not.toBeNull();
     await expect.element(screen.getByRole('combobox')).toHaveValue('');
