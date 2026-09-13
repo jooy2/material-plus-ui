@@ -34,6 +34,7 @@ Everything is documented at **[material-plus.cdget.com](https://material-plus.cd
 | --- | --- |
 | [**Getting started**](https://material-plus.cdget.com/guide/getting-started) | Install and setup, end to end. |
 | [**All components**](https://material-plus.cdget.com/components/) | Every component, one page each: live previews and the full props table. |
+| [**Browser support**](https://material-plus.cdget.com/browser-support) | Which browsers and versions it runs in, and what is reduced in the older ones. |
 | [**Changelog**](https://material-plus.cdget.com/changelog) | What changed in each release. |
 
 Also available in Korean / 한국어 문서: **[material-plus.cdget.com/ko/](https://material-plus.cdget.com/ko/)**

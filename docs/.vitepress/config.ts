@@ -53,9 +53,10 @@ const commonSidebarConfig: VitePressSidebarOptions = {
 /**
  * The sidebar groups the folder tree cannot name.
  *
- * The changelog is a loose page with no folder of its own, and the components
- * index cannot both be a heading and a row under it. Left to the generator the
- * changelog would sit at the root with no heading over it at all.
+ * The changelog and the browser support page are loose pages with no folder of
+ * their own, and the components index cannot both be a heading and a row under
+ * it. Left to the generator the two loose pages would sit at the root with no
+ * heading over them at all.
  *
  * `examples/` has no `index.md` on purpose, so it cannot take its heading from a
  * page either: `/examples/` is not a page, it is four of them — one screen each
@@ -645,6 +646,7 @@ function arrangeSidebar<T extends GeneratedSidebarItem>(items: T[], lang: string
   const components = items.find(startsWith('components/'));
   const examples = items.find(startsWith('examples/'));
   const changelog = items.find(startsWith('changelog'));
+  const browserSupport = items.find(startsWith('browser-support'));
 
   // The folder is `design/` in every locale, so the generator can only ever
   // capitalise it into the English word. The label is named here instead, the
@@ -685,10 +687,16 @@ function arrangeSidebar<T extends GeneratedSidebarItem>(items: T[], lang: string
   }
 
   // A loose page has no group of its own, so it is given one — the place
-  // anything that is neither a guide nor a component ends up.
-  const more = changelog ? ({ text: labels.more, items: [changelog] } as unknown as T) : undefined;
+  // anything that is neither a guide nor a component ends up. The order here is
+  // the order in the menu.
+  const loosePages = [changelog, browserSupport].filter(Boolean) as T[];
+  const more = loosePages.length
+    ? ({ text: labels.more, items: loosePages } as unknown as T)
+    : undefined;
 
-  const moved = new Set([guide, design, components, examples, changelog].filter(Boolean));
+  const moved = new Set(
+    [guide, design, components, examples, changelog, browserSupport].filter(Boolean)
+  );
 
   return [
     ...([guide, design, components, more].filter(Boolean) as T[]),
@@ -874,11 +882,18 @@ function llmsTxt(lang: string): string {
    * `Optional` is the one heading the format gives a meaning to: everything
    * under it may be skipped when there is not enough context for all of it. The
    * changelog is exactly that — long, and not what anyone came here to read —
-   * so the group holding it is folded in rather than given a section, together
-   * with the links that leave the site. The word stays English in every locale
-   * because it is read by the consumer, not by a person.
+   * so it is taken out of its group and listed there, together with the links
+   * that leave the site. The rest of its group keeps a section of its own:
+   * which browsers the library runs in is a question a model does get asked.
+   * The word stays English in every locale because it is read by the consumer,
+   * not by a person.
    */
-  const optional = groups.find(startsWith('changelog'));
+  const isChangelog = startsWith('changelog');
+  const optional = groups.flatMap((group) => (group.items ?? []).filter(isChangelog));
+  const sections = groups.map((group) => ({
+    ...group,
+    items: group.items?.filter((item) => !isChangelog(item))
+  }));
 
   return [
     `# ${vitePressConfig.title}`,
@@ -887,12 +902,10 @@ function llmsTxt(lang: string): string {
     '',
     ...preamble.map((line) => `- ${line}`),
     '',
-    ...groups
-      .filter((group) => group !== optional)
-      .flatMap((group) => llmsSection(group, lang, group.text ?? '')),
+    ...sections.flatMap((group) => llmsSection(group, lang, group.text ?? '')),
     '## Optional',
     '',
-    ...((optional?.items ?? []).map((item) => llmsRow(item, lang)).filter(Boolean) as string[]),
+    ...(optional.map((item) => llmsRow(item, lang)).filter(Boolean) as string[]),
     ...supportLocales
       .filter((other) => other !== lang)
       .map(

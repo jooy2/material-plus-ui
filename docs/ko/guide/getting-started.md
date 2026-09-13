@@ -34,6 +34,10 @@ Material Plus가 자기 사본을 들고 오는 대신 프로젝트에 있을 �
 
 `highlight.js`가 다른 하나이고, 여기서 import되는 대신 _불러와지는_ 유일한 dependency입니다. 모든 문법이 `import()` 뒤에 있어서 자기 청크로, 한 번에 한 언어씩, 칠해 달라고 한 [MPCodeBlock](../components/display/code-block)에만 도착합니다. 코드 블록이 없는 페이지는 그중 아무것도 받지 않습니다.
 
+### 브라우저
+
+데스크톱과 모바일의 Chrome·Edge 111, Firefox 113, Safari 16.4 이상입니다. 이 범위의 오래된 쪽에서는 몇몇 효과가 줄어듭니다. 그 목록과 버전마다 확인한 방법은 [브라우저 지원](../browser-support)에 있습니다.
+
 ## 스타일시트 연결
 
 앱의 CSS 진입점에 한 줄 추가합니다.

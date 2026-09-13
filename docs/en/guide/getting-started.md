@@ -34,6 +34,10 @@ These are the packages Material Plus expects to find in your project rather than
 
 `highlight.js` is the other one, and it is the only dependency here that is _loaded_ rather than imported. Every grammar sits behind an `import()`, so it arrives as its own chunk, one language at a time, and only for an [MPCodeBlock](../components/display/code-block) that asked to be coloured — a page with no code block downloads none of it.
 
+### Browsers
+
+Chrome and Edge 111, Firefox 113 and Safari 16.4 or later, on desktop and mobile. A few effects are reduced at the older end of that range; [Browser support](../browser-support) lists them and how each version was checked.
+
 ## Wiring up the stylesheet
 
 Add one line to your app's CSS entry point.
