@@ -162,6 +162,17 @@ export interface MPImageProps extends Omit<React.ComponentPropsWithoutRef<'img'>
    * @default 'center'
    */
   position?: MPImagePosition;
+  /**
+   * What fills the room `fit` leaves around the picture.
+   *
+   * `blur` draws the same picture behind itself, covering the box and blurred,
+   * the way a video player fills the sides of a portrait clip. It reuses the
+   * picture's request, and it is drawn only for a `fit` that can leave room:
+   * `contain`, `none` and `scale-down`. Any other string is a CSS `background`
+   * painted behind the picture: a colour, a custom property or a gradient.
+   * @default 'none'
+   */
+  letterbox?: 'none' | 'blur' | (string & {});
   /** The corner and type scale of the placeholder and the fallback. @default 'md' */
   size?: MPSize;
 }
@@ -205,6 +216,32 @@ const SIDEWAYS: React.CSSProperties = {
   maxWidth: 'none',
   translate: '-50% -50%'
 };
+
+/** The blur radius of the `blur` letterbox, in pixels. */
+const LETTERBOX_BLUR = 24;
+
+/**
+ * A layer drawn under the picture, grown past the box by `margin` on every side.
+ *
+ * A blur fades to transparent over about two radii at the element's edge, so a
+ * blurred layer the size of the box would let the page show through around its
+ * rim. Grown by that much, the fade falls outside the box, and the box's
+ * `overflow: hidden` clips it.
+ */
+function underlay(margin: number, sideways: boolean): React.CSSProperties {
+  const grow = `${margin * 2}px`;
+
+  return sideways
+    ? { ...SIDEWAYS, width: `calc(100cqh + ${grow})`, height: `calc(100cqw + ${grow})` }
+    : {
+        position: 'absolute',
+        top: -margin,
+        left: -margin,
+        width: `calc(100% + ${grow})`,
+        height: `calc(100% + ${grow})`,
+        maxWidth: 'none'
+      };
+}
 
 /**
  * Any number, as the nearest quarter turn: `-90` is `270`, `450` is `90`, and a
@@ -417,6 +454,7 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
     rotate,
     flip = 'none',
     position = 'center',
+    letterbox = 'none',
     size: sizeProp,
     className,
     style,
@@ -549,8 +587,51 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
     />
   );
 
+  const fade = [
+    // Held rather than hidden: the element has to stay in the layout for the
+    // browser to fetch it, and `display: none` on an `<img>` is a fetch some
+    // browsers will skip.
+    showing ? 'opacity-100' : 'opacity-0',
+    'transition-opacity duration-(--mp-sys-motion-duration-short4)'
+  ].join(' ');
+
+  // Only a fit that can leave room around the picture has room to fill.
+  const blurred =
+    letterbox === 'blur' && (fit === 'contain' || fit === 'none' || fit === 'scale-down');
+  const painted = letterbox !== 'none' && letterbox !== 'blur' ? letterbox : undefined;
+
   const picture = (
     <>
+      {blurred ? (
+        /*
+         * The same picture, covering the box behind itself.
+         *
+         * Given exactly what the picture loads from, so the browser reuses the
+         * one request rather than fetching the file twice. Hidden from assistive
+         * technology and from the pointer: a right-click on the empty area does
+         * not offer to save a copy nobody can see is there.
+         */
+        <img
+          src={src}
+          srcSet={props.srcSet}
+          sizes={props.sizes}
+          loading={props.loading}
+          decoding={props.decoding}
+          crossOrigin={props.crossOrigin}
+          referrerPolicy={props.referrerPolicy}
+          alt=""
+          aria-hidden="true"
+          draggable={false}
+          className={`pointer-events-none select-none object-cover ${fade}`}
+          style={{
+            ...oriented,
+            ...placed,
+            filter: `blur(${LETTERBOX_BLUR}px)`,
+            ...underlay(LETTERBOX_BLUR * 2, sideways)
+          }}
+        />
+      ) : null}
+
       <img
         {...props}
         ref={(node) => {
@@ -566,16 +647,15 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
         alt={alt}
         width={both ? width : undefined}
         height={both ? height : undefined}
-        className={[
-          'size-full',
-          FIT[fit],
-          // Held rather than hidden: the element has to stay in the layout for
-          // the browser to fetch it, and `display: none` on an `<img>` is a
-          // fetch some browsers will skip.
-          showing ? 'opacity-100' : 'opacity-0',
-          'transition-opacity duration-(--mp-sys-motion-duration-short4)'
-        ].join(' ')}
-        style={{ ...oriented, ...placed, ...(sideways ? SIDEWAYS : null) }}
+        className={`size-full ${FIT[fit]} ${fade}`}
+        style={{
+          ...oriented,
+          ...placed,
+          // An absolutely positioned layer before it would otherwise paint over
+          // it, whatever the order in the document.
+          ...(blurred ? { position: 'relative' } : null),
+          ...(sideways ? SIDEWAYS : null)
+        }}
         onLoad={(event) => {
           report('loaded', event.currentTarget);
           onLoad?.(event);
@@ -614,6 +694,7 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
     // Only while the picture is on its side: size containment changes how the
     // box is measured, and nothing else needs it.
     ...(sideways ? { containerType: 'size' } : null),
+    ...(painted !== undefined ? { background: painted } : null),
     ...style
   } as React.CSSProperties;
 

@@ -758,6 +758,145 @@ describe('MPImage', () => {
     });
   });
 
+  describe('letterbox', () => {
+    it('draws nothing extra by default', async () => {
+      const screen = await render(<MPImage src={RED_DOT} alt="A red dot" fit="contain" />);
+      const box = screen.container.querySelector('.mp-image') as HTMLElement;
+
+      expect(box.style.background).toBe('');
+      expect(box.querySelectorAll('img')).toHaveLength(1);
+    });
+
+    it('paints any other string behind the picture', async () => {
+      const screen = await render(
+        <MPImage src={RED_DOT} alt="A red dot" fit="contain" letterbox="rebeccapurple" />
+      );
+      const box = screen.container.querySelector('.mp-image') as HTMLElement;
+
+      expect(getComputedStyle(box).backgroundColor).toBe('rgb(102, 51, 153)');
+      expect(box.querySelectorAll('img')).toHaveLength(1);
+    });
+
+    it('draws one hidden, blurred copy of the picture behind it', async () => {
+      const screen = await render(
+        <div style={{ width: 300 }}>
+          <MPImage
+            src={RED_DOT}
+            srcSet={`${RED_DOT} 1x`}
+            sizes="300px"
+            loading="lazy"
+            alt="A red dot"
+            ratio={2}
+            fit="contain"
+            letterbox="blur"
+          />
+        </div>
+      );
+      const box = screen.container.querySelector('.mp-image') as HTMLElement;
+      const [copy, img] = [...box.querySelectorAll('img')];
+
+      expect(box.querySelectorAll('img')).toHaveLength(2);
+      expect(copy.getAttribute('alt')).toBe('');
+      expect(copy.getAttribute('aria-hidden')).toBe('true');
+      expect(copy.getAttribute('draggable')).toBe('false');
+      expect(getComputedStyle(copy).pointerEvents).toBe('none');
+      expect(getComputedStyle(copy).userSelect).toBe('none');
+      expect(getComputedStyle(copy).objectFit).toBe('cover');
+      expect(copy.style.filter).toBe('blur(24px)');
+      expect(copy.getAttribute('src')).toBe(img.getAttribute('src'));
+      expect(copy.getAttribute('srcset')).toBe(img.getAttribute('srcset'));
+      expect(copy.getAttribute('sizes')).toBe('300px');
+      expect(copy.getAttribute('loading')).toBe('lazy');
+      // The picture is positioned, so the copy before it does not paint over it.
+      expect(img.style.position).toBe('relative');
+      // Only the picture is announced.
+      await expect.element(screen.getByRole('img', { name: 'A red dot' })).toBeInTheDocument();
+      expect(screen.container.querySelectorAll('img:not([aria-hidden])')).toHaveLength(1);
+    });
+
+    it('grows the copy past the box by two blur radii, for the box to clip', async () => {
+      const screen = await render(
+        <div style={{ width: 300 }}>
+          <MPImage src={RED_DOT} alt="A red dot" ratio={2} fit="contain" letterbox="blur" />
+        </div>
+      );
+      const box = screen.container.querySelector('.mp-image') as HTMLElement;
+      const copy = box.querySelector('img') as HTMLImageElement;
+      const outer = rounded(box);
+
+      expect(rounded(copy)).toEqual({
+        left: outer.left - 48,
+        top: outer.top - 48,
+        width: outer.width + 96,
+        height: outer.height + 96
+      });
+      expect(getComputedStyle(box).overflow).toBe('hidden');
+    });
+
+    it('turns, mirrors and places the copy the way the picture is', async () => {
+      const screen = await render(
+        <MPImage
+          src={RED_DOT}
+          alt="A red dot"
+          fit="scale-down"
+          letterbox="blur"
+          rotate={90}
+          flip="horizontal"
+          position="top"
+        />
+      );
+      const [copy, img] = [...screen.container.querySelectorAll('img')];
+
+      expect(copy.style.rotate).toBe(img.style.rotate);
+      expect(scaleOf(copy)).toBe(scaleOf(img));
+      expect(copy.style.objectPosition).toBe(img.style.objectPosition);
+      expect(copy.style.width).toBe('calc(100cqh + 96px)');
+      expect(copy.style.height).toBe('calc(100cqw + 96px)');
+      expect(img.style.position).toBe('absolute');
+    });
+
+    it('fades the copy in with the picture', async () => {
+      const screen = await render(
+        <MPImage src={PENDING} alt="Something" fit="none" letterbox="blur" />
+      );
+      const [copy, img] = [...screen.container.querySelectorAll('img')];
+
+      expect(getComputedStyle(copy).opacity).toBe('0');
+      expect(copy.className).toContain('transition-opacity');
+      expect(img.className).toContain('transition-opacity');
+    });
+
+    it('draws no copy for a fit that leaves no room', async () => {
+      const screen = await render(
+        <>
+          <MPImage src={RED_DOT} alt="cover" fit="cover" letterbox="blur" />
+          <MPImage src={RED_DOT} alt="fill" fit="fill" letterbox="blur" />
+        </>
+      );
+
+      expect(screen.container.querySelectorAll('img')).toHaveLength(2);
+      expect(screen.container.querySelectorAll('img[aria-hidden]')).toHaveLength(0);
+    });
+
+    it('fetches the file once for the picture and its copy', async () => {
+      const src = `/docs/public/samples/marks/kite-wind.webp?letterbox=${Date.now()}`;
+
+      // The buffer holds 250 entries, and loading the suite has filled it.
+      performance.clearResourceTimings();
+
+      const screen = await render(
+        <MPImage src={src} alt="A kite" ratio={2} fit="contain" letterbox="blur" />
+      );
+
+      expect(await settled(screen.container, 'loaded')).toBe(true);
+
+      const url = new URL(src, location.href).href;
+
+      await expect.poll(() => performance.getEntriesByName(url).length).toBeGreaterThan(0);
+      expect(performance.getEntriesByName(url)).toHaveLength(1);
+    });
+  });
+
   describe('preview', () => {
     it('is not a button unless it is asked for', async () => {
       const screen = await render(<MPImage src={RED_DOT} alt="A red dot" />);

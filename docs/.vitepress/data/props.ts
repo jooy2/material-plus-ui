@@ -4803,6 +4803,15 @@ const componentTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'letterbox',
+      type: "'none' | 'blur' | string",
+      default: "'none'",
+      description: {
+        ko: '`fit`이 그림 둘레에 남긴 공간을 무엇으로 채울지. `blur`는 같은 그림을 상자에 꽉 차게 흐리게 깔고, 그림과 같은 요청을 다시 씁니다. `contain`, `none`, `scale-down`일 때만 그립니다. 다른 문자열은 그림 뒤에 칠하는 CSS `background`입니다',
+        en: 'What fills the room `fit` leaves around the picture. `blur` draws the same picture behind it, covering the box and blurred, from the same request, and only for `contain`, `none` and `scale-down`. Any other string is a CSS `background` painted behind the picture'
+      }
+    },
+    {
       name: 'placeholder',
       type: `${NODE} | false`,
       description: {

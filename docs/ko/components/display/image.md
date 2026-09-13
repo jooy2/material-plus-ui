@@ -94,6 +94,20 @@ import { MPImage } from 'material-plus-ui';
 
 길이가 들어간 값처럼 다른 형태의 값은 바꾸지 않고 그대로 `object-position`에 들어갑니다.
 
+## `letterbox`
+
+`fit`이 그림 둘레에 남긴 공간을 채웁니다. `none`은 비워 두고, `blur`는 그림 뒤에 같은 그림을 한 번 더 그리며, 다른 문자열은 색, 커스텀 프로퍼티, 그라디언트 같은 CSS `background`로 칠합니다.
+
+<Demo src="image/letterbox" :minHeight="220">
+
+<<< @/.vitepress/demos/image/letterbox.tsx
+
+</Demo>
+
+`blur`는 동영상 플레이어가 세로 영상의 양옆을 채우는 방식과 같습니다. 같은 파일의 `<img>`를 하나 더 두어 상자를 흐리게 덮고, 그림과 함께 페이드 인합니다. 이 `<img>`는 그림과 같은 `src`, `srcSet`, `sizes`, `loading`, `decoding`, `crossOrigin`, `referrerPolicy`를 받으므로 브라우저는 파일을 한 번만 가져옵니다. 보조 기술에는 숨겨지고 포인터도 받지 않으므로, 흐린 부분을 오른쪽 클릭해도 이미지 저장 메뉴가 뜨지 않습니다.
+
+`fit`이 공간을 남길 수 있을 때, 즉 `contain`, `none`, `scale-down`일 때만 그립니다. `cover`와 `fill`은 그림이 상자 전체를 덮으므로 채울 공간이 없습니다.
+
 ## `rotate`와 `flip`
 
 `rotate`는 그림을 시계 방향으로 90도씩 돌립니다. 값은 `0`, `90`, `180`, `270`입니다. `flip`은 그림을 뒤집으며, 값은 `horizontal`, `vertical`, `both`입니다.

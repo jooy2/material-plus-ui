@@ -94,6 +94,20 @@ It is physical rather than logical. The subject of a photograph does not move to
 
 A value in any other form, such as one with a length in it, reaches `object-position` as written and is not converted.
 
+## `letterbox`
+
+Fills the room `fit` leaves around the picture. `none` leaves the box empty, `blur` draws the picture again behind itself, and any other string is a CSS `background`: a colour, a custom property or a gradient.
+
+<Demo src="image/letterbox" :minHeight="220">
+
+<<< @/.vitepress/demos/image/letterbox.tsx
+
+</Demo>
+
+`blur` fills the sides the way a video player fills them around a portrait clip: a second `<img>` of the same file covers the box, blurred, and fades in with the picture. It is given the same `src`, `srcSet`, `sizes`, `loading`, `decoding`, `crossOrigin` and `referrerPolicy` as the picture, so the browser fetches the file once. It is hidden from assistive technology and ignores the pointer, so a right-click on the blurred area does not offer to save it.
+
+It is drawn only when `fit` can leave room, which is `contain`, `none` and `scale-down`. Under `cover` and `fill` the picture covers the whole box, and there is nothing to fill.
+
 ## `rotate` and `flip`
 
 `rotate` turns the picture clockwise, a quarter at a time: `0`, `90`, `180` or `270`. `flip` mirrors it: `horizontal`, `vertical` or `both`.
