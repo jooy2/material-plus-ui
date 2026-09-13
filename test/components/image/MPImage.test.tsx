@@ -1167,11 +1167,25 @@ describe('MPImage', () => {
       await expect.element(screen.getByRole('button', { name: 'A red dot' })).toBeInTheDocument();
     });
 
-    /*
-     * The pictures these open are larger than a pixel. The button is as wide as
-     * the picture it holds, and a one-pixel button is not one a pointer can be
-     * relied on to press.
-     */
+    it('fills its container, as the box without `preview` does', async () => {
+      // A button is otherwise as wide as the picture in it, so a file narrower
+      // than its container drew a smaller box once it could be opened.
+      const screen = await render(
+        <div style={{ width: 300 }}>
+          <MPImage src={picture(60, 40)} alt="plain" />
+          <MPImage src={picture(60, 40)} alt="pressable" preview />
+        </div>
+      );
+      const box = (alt: string) =>
+        screen.container.querySelector(`img[alt="${alt}"]`)?.parentElement as HTMLElement;
+
+      await expect.poll(() => rounded(box('pressable')).height).toBe(200);
+      expect(box('pressable').tagName).toBe('BUTTON');
+      expect(rounded(box('pressable')).width).toBe(300);
+      expect(rounded(box('plain')).width).toBe(rounded(box('pressable')).width);
+      expect(rounded(box('plain')).height).toBe(rounded(box('pressable')).height);
+    });
+
     it('opens the picture over a scrim', async () => {
       const screen = await render(<MPImage src={picture(40, 30)} alt="A picture" preview />);
 

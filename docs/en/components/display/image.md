@@ -61,6 +61,8 @@ Off by default: most pictures on a page are not worth opening, and one that sile
 
 A picture that **failed** refuses to open. A scrim over a broken-image glyph is not worth the gesture.
 
+The button fills its container the way the box without `preview` does, so turning `preview` on does not change the size of the picture. A lone `width` narrows the button along with the box.
+
 ## `rotate` and `flip`
 
 `rotate` turns the picture clockwise, a quarter at a time: `0`, `90`, `180` or `270`. `flip` mirrors it: `horizontal`, `vertical` or `both`.

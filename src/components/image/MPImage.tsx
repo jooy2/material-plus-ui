@@ -886,9 +886,11 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
         aria-label={(previewLabel ?? alt) || messages.open}
         className={[
           boxClass,
-          // A button is as wide as its contents, and a picture on its side is
-          // out of the flow and contributes none, so the button would collapse.
-          sideways ? 'w-full' : '',
+          // A button is as wide as its contents, where the box without `preview`
+          // fills its container. Filled here too, the two are the same width,
+          // and a picture on its side, which lends the button no width at all,
+          // does not collapse it. A lone `width` still narrows it inline.
+          'w-full',
           'outline-mp-secondary cursor-zoom-in appearance-none border-0 bg-transparent p-0',
           'focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-default',
           'outline-none'

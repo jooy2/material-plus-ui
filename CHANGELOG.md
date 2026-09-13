@@ -6,6 +6,8 @@
 
 - **A lone `width` or `height` on `MPImage` sizes the box.** The two together are still the file's size and still reserve its proportion. One of them alone used to reach the `<img>` and change nothing, because the picture always filled its box. Now `height` alone makes the box that tall and as wide as its container, or as wide as `ratio` makes it, and `width` alone makes the box that wide, no wider than its container. Code that passed one dimension as a hint about the file now draws at that size: pass both dimensions, or remove the one.
 
+- **An `MPImage` with `preview` fills its container, as one without it does.** The button `preview` draws was as wide as the picture inside it, so a file narrower than its container drew at its own width once it could be opened, and at the container's width when it could not. Both are the container's width now. To keep a small picture at its own size, give it a lone `width`, such as the file's width in pixels: the box is then that wide and no wider than its container, which is what the button used to do.
+
 ### Added
 
 - **`fit="scale-down"` on `MPImage` and `MPAspectRatio`.** It draws like `contain`, but never enlarges a file smaller than its box. `MPImageFit` and `MPAspectFit` both take it, and a box with a fixed height, from the change above, is where the choice of fit shows.
