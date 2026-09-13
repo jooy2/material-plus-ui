@@ -5,7 +5,7 @@ order: 23
 
 # MPImage
 
-<p class="mp-lede">A picture that says what it is doing — while it is on its way, and when it never arrives.</p>
+<p class="mp-lede">A picture that says what it is doing — while it is on its way, and when it never arrives — and that can be turned, mirrored and cropped within its box.</p>
 
 <Demo src="image/hero" :minHeight="240">
 
