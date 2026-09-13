@@ -184,8 +184,15 @@ const MEDIA =
  * `primary`. Taking the ink that is already there and letting some of the
  * surface through is the one form of "one step quieter" that holds on all five
  * variants.
+ *
+ * The rule sits inside the same `@supports` condition Tailwind wraps its own
+ * placeholder colour in, and for the same reason: Safari 16.4 crashes the tab on
+ * a `color-mix()` that reads `currentColor` inside `color` itself. The condition
+ * lets in every browser that is not Safari, and Safari from 17. An older Safari
+ * draws the description in the title's ink, which is the whole of what it loses.
  */
-const DESCRIPTION = '[color:color-mix(in_oklab,currentColor_72%,transparent)]';
+const DESCRIPTION =
+  'supports-[(not_(-webkit-appearance:-apple-pay-button))_or_(contain-intrinsic-size:1px)]:[color:color-mix(in_oklab,currentColor_72%,transparent)]';
 
 /**
  * A floating lozenge holding a small amount of live information.
