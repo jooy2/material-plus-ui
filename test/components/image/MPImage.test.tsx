@@ -661,6 +661,103 @@ describe('MPImage', () => {
     });
   });
 
+  describe('position', () => {
+    /** The `object-position` each of several pictures was drawn with, by `alt`. */
+    async function positions(pictures: React.ReactElement[]) {
+      const screen = await render(<>{pictures}</>);
+
+      return (alt: string) =>
+        (screen.container.querySelector(`img[alt="${alt}"]`) as HTMLImageElement).style
+          .objectPosition;
+    }
+
+    it('writes nothing for the centre', async () => {
+      const at = await positions([
+        <MPImage key="1" src={RED_DOT} alt="default" />,
+        <MPImage key="2" src={RED_DOT} alt="centre" position="center" rotate={90} flip="both" />
+      ]);
+
+      expect(at('default')).toBe('');
+      expect(at('centre')).toBe('');
+    });
+
+    it('writes a side, a corner or a pair as percentages', async () => {
+      const at = await positions([
+        <MPImage key="1" src={RED_DOT} alt="top" position="top" />,
+        <MPImage key="2" src={RED_DOT} alt="right" position="right" />,
+        <MPImage key="3" src={RED_DOT} alt="top left" position="top left" />,
+        <MPImage key="4" src={RED_DOT} alt="bottom right" position="bottom right" />,
+        <MPImage key="5" src={RED_DOT} alt="pair" position="30% 20%" />
+      ]);
+
+      expect(at('top')).toBe('50% 0%');
+      expect(at('right')).toBe('100% 50%');
+      expect(at('top left')).toBe('0% 0%');
+      expect(at('bottom right')).toBe('100% 100%');
+      expect(at('pair')).toBe('30% 20%');
+    });
+
+    it('keeps what is shown at the top of a turned picture', async () => {
+      // `object-position` works before the turn, so the top of the screen is the
+      // element's bottom after a half turn and its left edge after a quarter.
+      const at = await positions([
+        <MPImage key="1" src={RED_DOT} alt="half" position="top" rotate={180} />,
+        <MPImage key="2" src={RED_DOT} alt="quarter" position="top" rotate={90} />,
+        <MPImage key="3" src={RED_DOT} alt="three quarters" position="30% 20%" rotate={270} />
+      ]);
+
+      expect(at('half')).toBe('50% 100%');
+      expect(at('quarter')).toBe('0% 50%');
+      expect(at('three quarters')).toBe('80% 30%');
+    });
+
+    it('undoes a mirror before the turn', async () => {
+      const at = await positions([
+        <MPImage key="1" src={RED_DOT} alt="mirrored" position="left" flip="horizontal" />,
+        <MPImage key="2" src={RED_DOT} alt="upside down" position="top" flip="vertical" />,
+        <MPImage
+          key="3"
+          src={RED_DOT}
+          alt="both"
+          position="30% 20%"
+          flip="horizontal"
+          rotate={90}
+        />
+      ]);
+
+      expect(at('mirrored')).toBe('100% 50%');
+      expect(at('upside down')).toBe('50% 100%');
+      // Mirrored to 70% 20%, then the quarter turn undone.
+      expect(at('both')).toBe('20% 30%');
+    });
+
+    it('passes a value it cannot read straight through', async () => {
+      const at = await positions([
+        <MPImage
+          key="1"
+          src={RED_DOT}
+          alt="lengths"
+          position={'10px 20px' as never}
+          rotate={180}
+        />,
+        <MPImage key="2" src={RED_DOT} alt="mixed" position={'left 10px' as never} />
+      ]);
+
+      expect(at('lengths')).toBe('10px 20px');
+      expect(at('mixed')).toBe('left 10px');
+    });
+
+    it('reads a keyword beside a percentage', async () => {
+      const at = await positions([
+        <MPImage key="1" src={RED_DOT} alt="left then down" position={'left 30%' as never} />,
+        <MPImage key="2" src={RED_DOT} alt="across then top" position={'30% top' as never} />
+      ]);
+
+      expect(at('left then down')).toBe('0% 30%');
+      expect(at('across then top')).toBe('30% 0%');
+    });
+  });
+
   describe('preview', () => {
     it('is not a button unless it is asked for', async () => {
       const screen = await render(<MPImage src={RED_DOT} alt="A red dot" />);

@@ -4794,6 +4794,15 @@ const componentTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'position',
+      type: "'center' | 'top' | 'right' | 'bottom' | 'left' | 'top left' | 'top right' | 'bottom left' | 'bottom right' | `${number}% ${number}%`",
+      default: "'center'",
+      description: {
+        ko: '`cover`로 잘릴 때 그림의 어느 부분을 남길지, `contain`, `none`, `scale-down`이 빈 공간을 어디에 둘지 정합니다. 화면에 보이는 그림 기준이라 돌리거나 뒤집은 그림에서도 `top`은 위쪽을 남깁니다. 오른쪽에서 왼쪽으로 쓰는 페이지에서도 뒤바뀌지 않습니다. 읽을 수 없는 값은 그대로 `object-position`에 들어갑니다',
+        en: 'Which part of the picture a `cover` crop keeps, and where `contain`, `none` and `scale-down` leave their empty space. Read on the picture as shown, so `top` keeps the top of a turned or mirrored picture. Physical, so it does not swap on a right-to-left page. A value in any other form reaches `object-position` as written'
+      }
+    },
+    {
       name: 'placeholder',
       type: `${NODE} | false`,
       description: {

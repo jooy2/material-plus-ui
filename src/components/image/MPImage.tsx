@@ -20,6 +20,22 @@ export type MPImageRotate = 0 | 90 | 180 | 270;
 /** Which way the picture is mirrored, along the axes it is shown on. */
 export type MPImageFlip = 'none' | 'horizontal' | 'vertical' | 'both';
 
+/**
+ * The part of the picture a crop keeps, in `object-position`'s words: the
+ * centre, a side, a corner, or two percentages across and down.
+ */
+export type MPImagePosition =
+  | 'center'
+  | 'top'
+  | 'right'
+  | 'bottom'
+  | 'left'
+  | 'top left'
+  | 'top right'
+  | 'bottom left'
+  | 'bottom right'
+  | `${number}% ${number}%`;
+
 export interface MPImageProps extends Omit<React.ComponentPropsWithoutRef<'img'>, 'onError'> {
   /** Where the picture is. */
   src?: string;
@@ -135,6 +151,17 @@ export interface MPImageProps extends Omit<React.ComponentPropsWithoutRef<'img'>
    * @default 'none'
    */
   flip?: MPImageFlip;
+  /**
+   * Which part of the picture a `cover` crop keeps, and where `contain`, `none`
+   * and `scale-down` leave their empty space.
+   *
+   * Read on the picture as it is shown, so `top` keeps the top of a picture
+   * that has been turned or mirrored. Physical rather than logical: the subject
+   * of a photograph does not move to the other side on a right-to-left page. A
+   * value in any other form reaches `object-position` as written.
+   * @default 'center'
+   */
+  position?: MPImagePosition;
   /** The corner and type scale of the placeholder and the fallback. @default 'md' */
   size?: MPSize;
 }
@@ -208,6 +235,74 @@ function orientation(turn: MPImageRotate, flip: MPImageFlip): React.CSSPropertie
     ...(turn ? { rotate: `${turn}deg` } : null),
     ...(x || y ? { scale: `${x ? -1 : 1} ${y ? -1 : 1}` } : null)
   };
+}
+
+/** Where each side keyword puts the point: which axis, and how far along it. */
+const SIDES = new Map<string, readonly [axis: 0 | 1, at: number]>([
+  ['left', [0, 0]],
+  ['right', [0, 1]],
+  ['top', [1, 0]],
+  ['bottom', [1, 1]]
+]);
+
+/**
+ * `position` on the picture as shown, rewritten for the element's own frame.
+ *
+ * `object-position` places the picture inside the element before the element is
+ * turned or mirrored, so `top` on a picture turned upside down would keep what
+ * ends up at the bottom. The point is read as fractions across and down, the
+ * mirror is undone first because it applies on the screen's axes after the
+ * turn, and then each clockwise quarter is undone in turn. The result is written
+ * as percentages, which every engine serialises the same way.
+ *
+ * A value this cannot read, such as one with a length in it, is returned as
+ * written for the browser to interpret.
+ */
+function objectPosition(position: string, turn: MPImageRotate, flip: MPImageFlip): string {
+  const words = position.trim().split(/\s+/);
+  const point = [0.5, 0.5];
+  const named = [false, false];
+
+  if (words.length > 2) {
+    return position;
+  }
+
+  for (const [index, word] of words.entries()) {
+    if (word === 'center') {
+      continue;
+    }
+
+    // A side names its own axis; a percentage is across first and down second.
+    const side = SIDES.get(word);
+    const percentage = /^(-?\d*\.?\d+)%$/.exec(word);
+    const axis = side ? side[0] : index;
+    const at = side ? side[1] : percentage ? Number(percentage[1]) / 100 : undefined;
+
+    if (at === undefined || named[axis]) {
+      return position;
+    }
+
+    point[axis] = at;
+    named[axis] = true;
+  }
+
+  let [across, down] = point;
+
+  if (flip === 'horizontal' || flip === 'both') {
+    across = 1 - across;
+  }
+
+  if (flip === 'vertical' || flip === 'both') {
+    down = 1 - down;
+  }
+
+  for (let quarter = 0; quarter < turn / 90; quarter++) {
+    [across, down] = [down, 1 - across];
+  }
+
+  const percent = (fraction: number) => `${Math.round(fraction * 10000) / 100}%`;
+
+  return `${percent(across)} ${percent(down)}`;
 }
 
 /** A `width` or `height` in pixels: a number, or a string of digits. */
@@ -321,6 +416,7 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
     onStateChange,
     rotate,
     flip = 'none',
+    position = 'center',
     size: sizeProp,
     className,
     style,
@@ -401,6 +497,8 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
   const turn = quarterTurn(rotate);
   const sideways = turn === 90 || turn === 270;
   const oriented = orientation(turn, flip);
+  const placed: React.CSSProperties =
+    position === 'center' ? {} : { objectPosition: objectPosition(position, turn, flip) };
   /*
    * `width` and `height` together are the file's size, as they are on an
    * `<img>`. One of them alone is the size of the box on that axis.
@@ -477,7 +575,7 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
           showing ? 'opacity-100' : 'opacity-0',
           'transition-opacity duration-(--mp-sys-motion-duration-short4)'
         ].join(' ')}
-        style={{ ...oriented, ...(sideways ? SIDEWAYS : null) }}
+        style={{ ...oriented, ...placed, ...(sideways ? SIDEWAYS : null) }}
         onLoad={(event) => {
           report('loaded', event.currentTarget);
           onLoad?.(event);

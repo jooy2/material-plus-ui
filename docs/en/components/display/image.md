@@ -78,6 +78,22 @@ A picture that **failed** refuses to open. A scrim over a broken-image glyph is 
 
 A number or a string of digits is pixels, and any other string is a CSS length, so `height={240}`, `height="240"` and `height="15rem"` all work. When the box is narrower than its container, the button `preview` draws is narrowed with it, and its focus ring stays around the picture.
 
+## `position`
+
+Chooses which part of the picture a `cover` crop keeps, and where `contain`, `none` and `scale-down` leave their empty space. It takes the centre, a side, a corner written the way CSS writes it (`'top left'`), or two percentages across and down (`'30% 20%'`).
+
+<Demo src="image/position" :minHeight="200">
+
+<<< @/.vitepress/demos/image/position.tsx
+
+</Demo>
+
+It is read on the picture as it is shown. `object-position` works in the element's own frame, before the element is turned or mirrored, so the component converts the value: `position="top"` keeps the top of the picture on the screen whatever `rotate` and `flip` are set to.
+
+It is physical rather than logical. The subject of a photograph does not move to the other side on a right-to-left page, so `left` stays on the left.
+
+A value in any other form, such as one with a length in it, reaches `object-position` as written and is not converted.
+
 ## `rotate` and `flip`
 
 `rotate` turns the picture clockwise, a quarter at a time: `0`, `90`, `180` or `270`. `flip` mirrors it: `horizontal`, `vertical` or `both`.

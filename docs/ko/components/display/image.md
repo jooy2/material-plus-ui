@@ -78,6 +78,22 @@ import { MPImage } from 'material-plus-ui';
 
 숫자와 숫자로만 된 문자열은 픽셀이고, 다른 문자열은 CSS 길이로 그대로 씁니다. 그래서 `height={240}`, `height="240"`, `height="15rem"`이 모두 됩니다. 상자가 컨테이너보다 좁아지면 `preview`가 그리는 버튼도 함께 좁아지므로, 포커스 링이 그림 둘레에 머뭅니다.
 
+## `position`
+
+`cover`로 잘릴 때 그림의 어느 부분을 남길지, `contain`, `none`, `scale-down`이 빈 공간을 어디에 둘지 정합니다. 가운데, 한 변, CSS 방식으로 쓴 모서리(`'top left'`), 가로와 세로 백분율 두 개(`'30% 20%'`)를 받습니다.
+
+<Demo src="image/position" :minHeight="200">
+
+<<< @/.vitepress/demos/image/position.tsx
+
+</Demo>
+
+값은 화면에 보이는 그림을 기준으로 읽습니다. `object-position`은 요소를 돌리거나 뒤집기 전의 요소 좌표에서 동작하므로, 컴포넌트가 값을 바꿔서 씁니다. 그래서 `rotate`와 `flip`이 무엇이든 `position="top"`은 화면에서 위쪽을 남깁니다.
+
+논리 방향이 아니라 물리 방향입니다. 오른쪽에서 왼쪽으로 쓰는 페이지라고 사진 속 피사체가 반대편으로 옮겨 가지는 않으므로, `left`는 계속 왼쪽입니다.
+
+길이가 들어간 값처럼 다른 형태의 값은 바꾸지 않고 그대로 `object-position`에 들어갑니다.
+
 ## `rotate`와 `flip`
 
 `rotate`는 그림을 시계 방향으로 90도씩 돌립니다. 값은 `0`, `90`, `180`, `270`입니다. `flip`은 그림을 뒤집으며, 값은 `horizontal`, `vertical`, `both`입니다.
