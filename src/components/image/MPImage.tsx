@@ -798,7 +798,10 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
         alt={alt}
         width={both ? width : undefined}
         height={both ? height : undefined}
-        className={`size-full ${FIT[fit]} ${fade}`}
+        // A block, because an inline `<img>` sits on a line box that keeps room
+        // below it for descenders, and a box with no ratio would end that far
+        // below the picture on a page without a reset.
+        className={`block size-full ${FIT[fit]} ${fade}`}
         style={{
           ...oriented,
           ...placed,

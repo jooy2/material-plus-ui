@@ -313,6 +313,30 @@ describe('MPImage', () => {
     });
   });
 
+  describe('a box with no reserved size', () => {
+    it('ends where the picture ends', async () => {
+      // An inline `<img>` would leave the room a line keeps for descenders
+      // under it, which a page without a reset shows as a strip.
+      const screen = await render(
+        <div style={{ width: 300 }}>
+          <MPImage src={picture(30, 20)} alt="A picture" letterbox="rebeccapurple" />
+          <MPImage src={picture(30, 20)} alt="Narrowed" width={120} />
+        </div>
+      );
+      const img = (alt: string) =>
+        screen.container.querySelector(`img[alt="${alt}"]`) as HTMLImageElement;
+
+      await expect.poll(() => rounded(img('A picture')).height).toBe(200);
+      await expect.poll(() => rounded(img('Narrowed')).height).toBe(80);
+      expect(rounded(img('A picture').parentElement as HTMLElement)).toEqual(
+        rounded(img('A picture'))
+      );
+      expect(rounded(img('Narrowed').parentElement as HTMLElement)).toEqual(
+        rounded(img('Narrowed'))
+      );
+    });
+  });
+
   describe('a lone width or height', () => {
     it('makes a box that tall, as wide as its container', async () => {
       const screen = await render(
@@ -647,7 +671,7 @@ describe('MPImage', () => {
 
     it('mirrors an unturned preview in place', async () => {
       const screen = await render(
-        <MPImage src={RED_DOT} alt="A flipped dot" flip="vertical" preview />
+        <MPImage src={picture(40, 30)} alt="A flipped dot" flip="vertical" preview />
       );
 
       expect(await settled(screen.container, 'loaded')).toBe(true);
@@ -1143,24 +1167,29 @@ describe('MPImage', () => {
       await expect.element(screen.getByRole('button', { name: 'A red dot' })).toBeInTheDocument();
     });
 
+    /*
+     * The pictures these open are larger than a pixel. The button is as wide as
+     * the picture it holds, and a one-pixel button is not one a pointer can be
+     * relied on to press.
+     */
     it('opens the picture over a scrim', async () => {
-      const screen = await render(<MPImage src={RED_DOT} alt="A red dot" preview />);
+      const screen = await render(<MPImage src={picture(40, 30)} alt="A picture" preview />);
 
       await settled(screen.container, 'loaded');
-      await screen.getByRole('button', { name: 'A red dot' }).click();
+      await screen.getByRole('button', { name: 'A picture' }).click();
 
       await expect.element(screen.getByRole('dialog')).toBeInTheDocument();
       // Two now: the thumbnail and the full one.
-      expect(document.querySelectorAll('img[alt="A red dot"]').length).toBeGreaterThan(1);
+      expect(document.querySelectorAll('img[alt="A picture"]').length).toBeGreaterThan(1);
     });
 
     it('opens `previewSrc` when there is one', async () => {
       const screen = await render(
-        <MPImage src={RED_DOT} alt="A red dot" preview previewSrc={MISSING} />
+        <MPImage src={picture(40, 30)} alt="A picture" preview previewSrc={MISSING} />
       );
 
       await settled(screen.container, 'loaded');
-      await screen.getByRole('button', { name: 'A red dot' }).click();
+      await screen.getByRole('button', { name: 'A picture' }).click();
 
       const full = [...document.querySelectorAll('[role="dialog"] img')] as HTMLImageElement[];
       expect(full[0].getAttribute('src')).toBe(MISSING);

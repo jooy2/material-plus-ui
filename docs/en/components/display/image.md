@@ -174,6 +174,7 @@ React 19 spells the attribute `fetchPriority` and React 18 spells it `fetchprior
 
 - **The `<img>` stays in the layout while it loads**, transparent rather than hidden. `display: none` on an image is a fetch some browsers skip, which would mean a picture that never starts arriving.
 - **A new `src` goes back to `loading`** rather than holding the old picture under the new source's placeholder.
+- **The `<img>` is a block**, so a box with no reserved size ends where the picture ends. An inline image would leave a few pixels under it, the room a line of text keeps for descenders.
 - **Give `alt` to the picture, not to the preview.** The button's name comes from `alt` unless `previewLabel` says otherwise, so a good `alt` is two things at once.
 
 ## Next
