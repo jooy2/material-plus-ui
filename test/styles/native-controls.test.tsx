@@ -49,6 +49,14 @@ import {
  * than against a written-down value, because the three engines draw a native
  * button three different ways. A property counts as left over only when it is
  * exactly what the bare one got.
+ *
+ * The type is compared twice, at two root font sizes. A bare control takes its
+ * size from the browser's system font and keeps it whatever the root is set
+ * to, while the library's type is in `rem` and follows the root. Compared once,
+ * the two can simply coincide: WebKit on Linux draws a bare control at 16px,
+ * which is also `body-large` and `title-medium` at the default root, so every
+ * component whose words are 16px on purpose was reported as left over. A size
+ * that matches the bare control at both roots is the browser's.
  */
 
 interface Native {
@@ -81,11 +89,61 @@ function nativeOf(tag: 'button' | 'input'): Native {
   return native;
 }
 
+/** The elements whose font size sets a control's words: an input itself, or every
+ * element holding text inside a button. */
+function typeHolders(element: HTMLElement): Element[] {
+  if (element.tagName !== 'BUTTON') {
+    return [element];
+  }
+
+  const holders: Element[] = [];
+  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    if (node.textContent?.trim() && node.parentElement) {
+      holders.push(node.parentElement);
+    }
+  }
+
+  return holders;
+}
+
+/** The two root font sizes the type is compared at — the default, and one none of
+ * the engines this suite runs in draws a bare control at. */
+const ROOT_SIZES = ['16px', '20px'];
+
+/** Whatever `read` returns with the root font size set to `size`. */
+function atRootSize<T>(size: string, read: () => T): T {
+  const root = document.documentElement;
+  const previous = root.style.fontSize;
+
+  root.style.fontSize = size;
+
+  try {
+    return read();
+  } finally {
+    root.style.fontSize = previous;
+  }
+}
+
 /** Every native control on the page still showing something the browser gave it. */
 function leftovers(): string[] {
   const nativeButton = nativeOf('button');
   const nativeInput = nativeOf('input');
   const found: string[] = [];
+
+  // Each control's type holders and the bare controls, read at both roots.
+  const measured = ROOT_SIZES.map((size) =>
+    atRootSize(size, () => ({
+      button: nativeOf('button').type,
+      input: nativeOf('input').type,
+      sizes: new Map(
+        [...document.body.querySelectorAll<HTMLElement>('button, input')].flatMap((element) =>
+          typeHolders(element).map((holder) => [holder, getComputedStyle(holder).fontSize] as const)
+        )
+      )
+    }))
+  );
 
   for (const element of document.body.querySelectorAll<HTMLElement>('button, input')) {
     const box = element.getBoundingClientRect();
@@ -111,25 +169,14 @@ function leftovers(): string[] {
       found.push(`${name}: fill`);
     }
 
-    if (!isButton && styles.fontSize === native.type) {
+    const keepsType = typeHolders(element).some((holder) =>
+      measured.every(
+        (atRoot) => atRoot.sizes.get(holder) === (isButton ? atRoot.button : atRoot.input)
+      )
+    );
+
+    if (keepsType) {
       found.push(`${name}: type`);
-    }
-
-    if (isButton) {
-      const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
-
-      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
-        const holder = node.parentElement;
-
-        if (
-          node.textContent?.trim() &&
-          holder &&
-          getComputedStyle(holder).fontSize === native.type
-        ) {
-          found.push(`${name}: type`);
-          break;
-        }
-      }
     }
   }
 
