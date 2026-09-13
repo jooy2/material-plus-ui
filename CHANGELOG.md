@@ -52,6 +52,8 @@
 
 - **The site says which browsers the library runs in.** A Browser support page under Discover more puts the floor at Chrome and Edge 111, Firefox 113 and Safari 16.4, says what sets each number, and lists the eight things that are reduced at the older end — theming from the source colour before Chrome 119, Firefox 128 and Safari 18, and the counter and the lighting effect's motion before Firefox 128, among them. Every figure on it was either run in that engine or taken from MDN's compatibility data and the two libraries' own statements, and the page says which. Getting started and the README link to it. In `llms.txt` it has a section of its own, and the changelog alone stays under `Optional`.
 
+- **The size figures in the README and the guide are the current build's.** The whole stylesheet is 171.4 kB, 23.3 kB compressed, and the split sheets for one, five and ten components are 6.4, 9.3 and 12.1 kB; the JavaScript for five, ten and every component is 9.1, 13.4 and 127.2 kB. The old figures were measured for 1.7.0, before the fixes in this release and the colour changes above and below.
+
 - **The Korean colour page stopped striking out half a sentence.** The formatter had turned the two ranges in its paragraph on neutral hues into a pair of `~~` marks, and everything between the two rendered struck out. The ranges are written with a dash now, as in English.
 
 - **A page description no longer puts a space before the punctuation after inline markup.** The site builds each page's `<meta name="description">` and its `llms.txt` line from the lede, and replaced every tag with a space, so `<strong>window size classes</strong>, not` came out as `classes , not`. Inline tags now go without a trace; a tag that ends a line of text still becomes a space.

@@ -56,7 +56,7 @@ This is **finished CSS**: the design tokens and the real rules behind every util
 
 ### If you only render a few components
 
-The sheet above is every rule the library has, and for most projects that is the right trade: one line, and never a thought about which components are on the page. It is also 144.8 kB — 21.0 kB compressed — whether the page renders one component or all of them, because Tailwind generates from a file scan and not from your imports.
+The sheet above is every rule the library has, and for most projects that is the right trade: one line, and never a thought about which components are on the page. It is also 171.4 kB — 23.3 kB compressed — whether the page renders one component or all of them, because Tailwind generates from a file scan and not from your imports.
 
 So the package also ships the same rules cut along the same seams the components are: the tokens once, and a sheet per component.
 
@@ -70,12 +70,12 @@ import 'material-plus-ui/styles/text-field.css';
 
 | Components on the page | The whole sheet | Tokens plus a sheet each |
 | ---------------------- | --------------- | ------------------------ |
-| 1                      | 21.0 kB         | 4.8 kB                   |
-| 5                      | 21.0 kB         | 7.8 kB                   |
-| 10                     | 21.0 kB         | 10.6 kB                  |
-| 40 or more             | 21.0 kB         | 21.0 kB and climbing     |
+| 1                      | 23.3 kB         | 6.4 kB                   |
+| 5                      | 23.3 kB         | 9.3 kB                   |
+| 10                     | 23.3 kB         | 12.1 kB                  |
+| 40 or more             | 23.3 kB         | 23.3 kB and climbing     |
 
-Compressed, as a bundler would concatenate them, and against the same sets the bundle table below uses. The sheets repeat each other — `flex` is in a dozen of them — so their total climbs faster than the whole sheet's does and eventually passes it, at around thirty-eight components. Past that, `styles.css` is both smaller and one line.
+Compressed, as a bundler would concatenate them, and against the same sets the bundle table below uses. The sheets repeat each other — `flex` is in a dozen of them — so their total climbs faster than the whole sheet's does and eventually passes it, at around forty components. Past that, `styles.css` is both smaller and one line.
 
 Two things this path is not. It is not tree-shaking: nothing drops a sheet you imported and did not use, so the list is yours to keep honest. And it is not for a project running Tailwind — that one generates the utilities in its own pass, and the section below is the whole of its setup.
 
@@ -345,17 +345,17 @@ Gzipped, from a real bundler, with React and `@base-ui/react` held external — 
 
 | On the page           | JavaScript | Stylesheet, split |
 | --------------------- | ---------- | ----------------- |
-| `MPBox` alone         | 1.7 kB     | 4.8 kB            |
-| `MPButton` alone      | 3.0 kB     | 4.8 kB            |
-| Five components       | 9.0 kB     | 7.8 kB            |
-| Ten components        | 13.3 kB    | 10.6 kB           |
-| Every export there is | 126.8 kB   | 21.0 kB           |
+| `MPBox` alone         | 1.7 kB     | 6.3 kB            |
+| `MPButton` alone      | 3.0 kB     | 6.4 kB            |
+| Five components       | 9.1 kB     | 9.3 kB            |
+| Ten components        | 13.4 kB    | 12.1 kB           |
+| Every export there is | 127.2 kB   | 23.3 kB           |
 
-The last row leaves out one thing on purpose: `MPCodeBlock`'s grammars are 49.7 kB more, fetched only when a block colours something and never at all on a page that has none. `npm run measure` prints it as a separate figure for that reason.
+The last row leaves out one thing on purpose: `MPCodeBlock`'s grammars are 49.6 kB more, fetched only when a block colours something and never at all on a page that has none. `npm run measure` prints it as a separate figure for that reason.
 
 Two things to read off it. The first column is marginal: a component you did not import is not in it, which is what `sideEffects`, the build's `@__PURE__` annotations and a message table per namespace are all for. The second column is not marginal — a stylesheet is a file you either imported or did not — so it assumes the list of sheets matches what the page renders.
 
-Base UI is the larger half of a real download and is in neither column. Five components come to 20.6 kB with it bundled in and ten to 94.8 kB, but it is a peer dependency: shared with anything else that uses it, and versioned by you.
+Base UI is the larger half of a real download and is in neither column. Five components come to 20.6 kB with it bundled in and ten to 94.9 kB, but it is a peer dependency: shared with anything else that uses it, and versioned by you.
 
 Both sets of figures are printed by the build rather than remembered, so they cannot quietly stop being true.
 
