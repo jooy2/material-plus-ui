@@ -61,6 +61,26 @@ Off by default: most pictures on a page are not worth opening, and one that sile
 
 A picture that **failed** refuses to open. A scrim over a broken-image glyph is not worth the gesture.
 
+## `rotate`
+
+Turns the picture clockwise, a quarter at a time: `0`, `90`, `180` or `270`.
+
+<Demo src="image/rotate" :minHeight="440">
+
+<<< @/.vitepress/demos/image/rotate.tsx
+
+</Demo>
+
+A half turn keeps the shape of the box. A quarter turn swaps it, so the box has to know the file's proportion before the picture arrives. Pass the file's `width` and `height` and the box reserves the turned shape: `width={1200} height={800}` on its side is 2 wide by 3 tall. Without them the shape is read from the file when it loads, and the page moves at that moment. An explicit `ratio` is kept, because it is the shape of the layout, and `fit` decides how the turned picture fills it.
+
+Only quarter turns are accepted. A picture turned by any other angle no longer covers its box, and filling the corners would mean enlarging the picture by an amount you would then want to adjust. A number passed from JavaScript is rounded to the nearest quarter, so `-90` is `270`.
+
+`preview` opens the picture turned as well.
+
+The turn is drawn with the CSS `rotate` property rather than with `transform`, so a `transform` of your own, such as a zoom on hover, still applies on top of it.
+
+A picture on its side is laid out of the flow and cannot give its box a width. The box takes the width of wherever it is placed, so in a flex row, or anywhere else that sizes a box by its contents, give it a width.
+
 ## What it is not
 
 - **Not a gallery.** `preview` opens _this_ picture and nothing else. A lightbox that walked between images would need to know which images and in what order, and that is a component holding a collection rather than a picture.

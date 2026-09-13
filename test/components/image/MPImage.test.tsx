@@ -55,6 +55,32 @@ function freshDot(): string {
   )}`;
 }
 
+/**
+ * A picture of a given size that this page has not loaded before, so a test can
+ * read a non-square file's proportion without a network.
+ */
+let pictures = 0;
+
+function picture(width: number, height: number): string {
+  pictures += 1;
+
+  return `data:image/svg+xml,${encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" data-n="${pictures}"><rect width="${width}" height="${height}" fill="teal"/></svg>`
+  )}`;
+}
+
+/** The two rectangles a turned picture is judged by, rounded to the pixel. */
+function rounded(element: Element) {
+  const { left, top, width, height } = element.getBoundingClientRect();
+
+  return {
+    left: Math.round(left),
+    top: Math.round(top),
+    width: Math.round(width),
+    height: Math.round(height)
+  };
+}
+
 describe('MPImage', () => {
   describe('when it arrives', () => {
     it('shows the picture', async () => {
@@ -250,6 +276,159 @@ describe('MPImage', () => {
       const screen = await render(<MPImage src={RED_DOT} alt="A red dot" fit="contain" />);
 
       expect(screen.container.querySelector('img')?.className).toContain('object-contain');
+    });
+  });
+
+  describe('rotate', () => {
+    it('writes nothing new by default', async () => {
+      const screen = await render(<MPImage src={RED_DOT} alt="A red dot" />);
+      const box = screen.container.querySelector('.mp-image') as HTMLElement;
+      const img = screen.container.querySelector('img') as HTMLImageElement;
+
+      expect(img.style.rotate).toBe('');
+      expect(img.style.position).toBe('');
+      expect(box.style.containerType).toBe('');
+      expect(box.querySelectorAll('img')).toHaveLength(1);
+    });
+
+    it('turns with the `rotate` property and leaves `transform` free', async () => {
+      const screen = await render(<MPImage src={RED_DOT} alt="A red dot" rotate={180} />);
+      const img = screen.container.querySelector('img') as HTMLImageElement;
+
+      expect(img.style.rotate).toBe('180deg');
+      expect(img.style.transform).toBe('');
+    });
+
+    it('keeps a half turn in the flow', async () => {
+      const screen = await render(
+        <div style={{ width: 300 }}>
+          <MPImage src={picture(30, 20)} alt="A picture" rotate={180} />
+        </div>
+      );
+      const box = screen.container.querySelector('.mp-image') as HTMLElement;
+      const img = screen.container.querySelector('img') as HTMLImageElement;
+
+      expect(await settled(screen.container, 'loaded')).toBe(true);
+      expect(getComputedStyle(img).position).toBe('static');
+      expect(box.style.containerType).toBe('');
+      expect(rounded(img).height).toBe(200);
+    });
+
+    it('rounds any other number to the nearest quarter', async () => {
+      const screen = await render(
+        <>
+          <MPImage src={RED_DOT} alt="minus" rotate={-90 as never} />
+          <MPImage src={RED_DOT} alt="over" rotate={450 as never} />
+          <MPImage src={RED_DOT} alt="near" rotate={100 as never} />
+          <MPImage src={RED_DOT} alt="nothing" rotate={Number.NaN as never} />
+        </>
+      );
+      const turn = (alt: string) =>
+        (screen.container.querySelector(`img[alt="${alt}"]`) as HTMLImageElement).style.rotate;
+
+      expect(turn('minus')).toBe('270deg');
+      expect(turn('over')).toBe('90deg');
+      expect(turn('near')).toBe('90deg');
+      expect(turn('nothing')).toBe('');
+    });
+
+    it('lays a quarter turn out at the swapped size and turns it into place', async () => {
+      const screen = await render(<MPImage src={RED_DOT} alt="A red dot" rotate={90} />);
+      const box = screen.container.querySelector('.mp-image') as HTMLElement;
+      const img = screen.container.querySelector('img') as HTMLImageElement;
+
+      expect(img.style.rotate).toBe('90deg');
+      expect(img.style.position).toBe('absolute');
+      expect(img.style.top).toBe('50%');
+      expect(img.style.left).toBe('50%');
+      expect(img.style.width).toBe('100cqh');
+      expect(img.style.height).toBe('100cqw');
+      expect(img.style.maxWidth).toBe('none');
+      expect(img.style.translate).toBe('-50% -50%');
+      expect(img.style.transform).toBe('');
+      expect(box.style.containerType).toBe('size');
+    });
+
+    it('reserves the turned proportion of a declared size', async () => {
+      // 1200 × 800 on its side is 2 wide by 3 tall, before anything has loaded.
+      const screen = await render(
+        <div style={{ width: 300 }}>
+          <MPImage src={PENDING} alt="A picture" width={1200} height={800} rotate={90} />
+        </div>
+      );
+      const box = screen.container.querySelector('.mp-image') as HTMLElement;
+
+      expect(Math.round(box.getBoundingClientRect().height)).toBe(450);
+    });
+
+    it('keeps an explicit ratio, which is the shape of the layout', async () => {
+      const screen = await render(
+        <div style={{ width: 320 }}>
+          <MPImage
+            src={PENDING}
+            alt="A picture"
+            ratio="16 / 9"
+            width={1200}
+            height={800}
+            rotate={270}
+          />
+        </div>
+      );
+      const box = screen.container.querySelector('.mp-image') as HTMLElement;
+
+      expect(Math.round(box.getBoundingClientRect().height)).toBe(180);
+    });
+
+    it('reads the proportion from the file when nothing was declared', async () => {
+      const screen = await render(
+        <div style={{ width: 300 }}>
+          <MPImage src={picture(30, 20)} alt="A picture" rotate={90} />
+        </div>
+      );
+      const box = screen.container.querySelector('.mp-image') as HTMLElement;
+      const img = screen.container.querySelector('img') as HTMLImageElement;
+
+      expect(await settled(screen.container, 'loaded')).toBe(true);
+      await expect.poll(() => Math.round(box.getBoundingClientRect().height)).toBe(450);
+      // The turned picture covers its box exactly.
+      expect(rounded(img)).toEqual(rounded(box));
+    });
+
+    it('reads it from a file the browser already had', async () => {
+      // The `complete` check has to carry the size too, or a cached picture on
+      // its side would have no height.
+      const src = picture(40, 20);
+      const first = await render(<MPImage src={src} alt="warm" />);
+      expect(await settled(first.container, 'loaded')).toBe(true);
+
+      const screen = await render(
+        <div style={{ width: 200 }}>
+          <MPImage src={src} alt="A picture" rotate={270} />
+        </div>
+      );
+      const box = screen.container.querySelector('.mp-image') as HTMLElement;
+
+      await expect.poll(() => Math.round(box.getBoundingClientRect().height)).toBe(400);
+    });
+
+    it('opens the preview turned, in a box of the turned shape', async () => {
+      const screen = await render(
+        <MPImage src={picture(60, 40)} alt="A turned picture" rotate={90} preview />
+      );
+
+      expect(await settled(screen.container, 'loaded')).toBe(true);
+      await screen.getByRole('button', { name: 'A turned picture' }).click();
+      await expect.element(screen.getByRole('dialog')).toBeInTheDocument();
+
+      const full = document.querySelector('[role="dialog"] img') as HTMLImageElement;
+      const frame = full.parentElement as HTMLElement;
+
+      expect(full.style.rotate).toBe('90deg');
+      expect(frame.style.containerType).toBe('size');
+      // No larger than the file: 40 wide and 60 tall once turned.
+      await expect.poll(() => rounded(frame).width).toBe(40);
+      expect(rounded(frame).height).toBe(60);
+      expect(rounded(full)).toEqual(rounded(frame));
     });
   });
 

@@ -4760,6 +4760,15 @@ const componentTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'rotate',
+      type: '0 | 90 | 180 | 270',
+      default: '0',
+      description: {
+        ko: '그림을 시계 방향으로 90도 단위로 돌립니다. 90도나 270도는 상자의 가로세로를 바꿉니다. `width`와 `height`를 둘 다 주면 돌린 모양으로 자리를 잡고, 없으면 파일이 도착할 때 파일에서 읽습니다. `ratio`를 주면 그 비율을 그대로 씁니다. `transform`이 아니라 `rotate` 속성으로 그리므로 직접 건 `transform`도 함께 적용됩니다',
+        en: 'Turns the picture clockwise, a quarter at a time. A quarter turn swaps the box: `width` and `height`, when both are given, reserve the turned shape, and without them the shape is read from the file when it loads. An explicit `ratio` is kept. Drawn with the `rotate` property, so a `transform` of your own still applies'
+      }
+    },
+    {
       name: 'placeholder',
       type: `${NODE} | false`,
       description: {

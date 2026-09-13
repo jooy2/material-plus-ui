@@ -14,6 +14,9 @@ export type MPImageFit = 'cover' | 'contain' | 'fill' | 'none';
 /** What the picture is doing right now. */
 export type MPImageState = 'loading' | 'loaded' | 'error';
 
+/** A turn in degrees, clockwise, a quarter at a time. */
+export type MPImageRotate = 0 | 90 | 180 | 270;
+
 export interface MPImageProps extends Omit<React.ComponentPropsWithoutRef<'img'>, 'onError'> {
   /** Where the picture is. */
   src?: string;
@@ -85,8 +88,35 @@ export interface MPImageProps extends Omit<React.ComponentPropsWithoutRef<'img'>
    * arrives either way.
    */
   onStateChange?: (state: MPImageState) => void;
+  /**
+   * Turns the picture clockwise, in quarter turns.
+   *
+   * Only quarters, because a picture turned by any other angle stops covering
+   * its box, and filling the corners would mean enlarging it by an amount the
+   * caller would then want to tune. A quarter turn swaps the box's proportion:
+   * `width` and `height`, when both are given, are read as the file's size and
+   * reserve the turned shape, and without them the shape is read from the file
+   * once it arrives. An explicit `ratio` is the layout's shape and is kept.
+   *
+   * Drawn with the `rotate` property rather than `transform`, so a `transform`
+   * of your own, such as a hover zoom, still applies on top.
+   * @default 0
+   */
+  rotate?: MPImageRotate;
   /** The corner and type scale of the placeholder and the fallback. @default 'md' */
   size?: MPSize;
+}
+
+/** The size of a file, in its own pixels. */
+interface PictureSize {
+  width: number;
+  height: number;
+}
+
+/** The state, and the file's size once it has arrived, written in one update. */
+interface Progress {
+  state: MPImageState;
+  natural?: PictureSize;
 }
 
 const FIT: Record<MPImageFit, string> = {
@@ -95,6 +125,88 @@ const FIT: Record<MPImageFit, string> = {
   fill: 'object-fill',
   none: 'object-none'
 };
+
+/**
+ * A picture on its side, laid out at the box's height by the box's width and
+ * then turned into place.
+ *
+ * `object-fit` fits the element's own box, so the element has to have the
+ * turned proportion before it is turned. The container units read the wrapper,
+ * which is a size container only while this applies. `max-width: none` undoes
+ * the `max-width: 100%` most resets put on an `<img>`: on a tall box that cap is
+ * shorter than the length the turned picture needs.
+ */
+const SIDEWAYS: React.CSSProperties = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  width: '100cqh',
+  height: '100cqw',
+  maxWidth: 'none',
+  translate: '-50% -50%'
+};
+
+/**
+ * Any number, as the nearest quarter turn: `-90` is `270`, `450` is `90`, and a
+ * value that is not a finite number is no turn at all.
+ */
+function quarterTurn(rotate: number | undefined): MPImageRotate {
+  if (rotate === undefined || !Number.isFinite(rotate)) {
+    return 0;
+  }
+
+  return ((((Math.round(rotate / 90) % 4) + 4) % 4) * 90) as MPImageRotate;
+}
+
+/** A `width` or `height` in pixels: a number, or a string of digits. */
+function pixels(value: number | string | undefined): number | undefined {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : undefined;
+  }
+
+  return value !== undefined && /^\d+$/.test(value.trim()) ? Number(value) : undefined;
+}
+
+/**
+ * The box a preview on its side is drawn in.
+ *
+ * A content-sized `<img>` cannot be turned in place, because its box keeps the
+ * unturned shape. So the preview gets a box of the turned shape, as large as the
+ * popup allows and no larger than the file, and the picture is laid out inside
+ * it the way the thumbnail is. `shown` is the preview's own file once it has
+ * loaded. Before that the proportion comes from the thumbnail, and so does the
+ * pixel cap when the two are the same file. With nothing known the box is
+ * square.
+ */
+function turnedPreviewBox(
+  shown: PictureSize | undefined,
+  thumbnail: PictureSize | undefined,
+  sameFile: boolean
+): React.CSSProperties {
+  const shape = shown ?? thumbnail;
+  const cap = shown ?? (sameFile ? thumbnail : undefined);
+
+  if (!shape) {
+    return { aspectRatio: '1', width: 'min(100%, 100cqh)', containerType: 'size' };
+  }
+
+  const across = shape.height;
+  const down = shape.width;
+  const limit = cap ? `${cap.height}px, ` : '';
+
+  return {
+    aspectRatio: `${across} / ${down}`,
+    width: `min(100%, ${limit}calc(100cqh * ${across} / ${down}))`,
+    containerType: 'size'
+  };
+}
+
+/** The size of a loaded `<img>`, or nothing for a file that has none. */
+function naturalSize(node: HTMLImageElement): PictureSize | undefined {
+  return node.naturalWidth > 0 && node.naturalHeight > 0
+    ? { width: node.naturalWidth, height: node.naturalHeight }
+    : undefined;
+}
 
 /**
  * A picture that says what it is doing.
@@ -148,9 +260,12 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
     previewSrc,
     previewLabel,
     onStateChange,
+    rotate,
     size: sizeProp,
     className,
     style,
+    width,
+    height,
     onLoad,
     ...props
   },
@@ -160,17 +275,30 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
   const locale = useMPLocale();
   const messages = useMPMessages(COMMON, locale);
 
-  const [state, setState] = React.useState<MPImageState>(src ? 'loading' : 'error');
+  const [progress, setProgress] = React.useState<Progress>({ state: src ? 'loading' : 'error' });
+  const [previewNatural, setPreviewNatural] = React.useState<PictureSize & { src?: string }>();
   const imageRef = React.useRef<HTMLImageElement | null>(null);
+  const { state, natural } = progress;
 
   const report = React.useCallback(
-    (next: MPImageState) => {
-      setState((current) => {
-        if (current !== next) {
+    (next: MPImageState, node?: HTMLImageElement) => {
+      // Read here rather than in a second update, so a load costs one render.
+      const measured = next === 'loaded' && node ? naturalSize(node) : undefined;
+
+      setProgress((current) => {
+        if (
+          current.state === next &&
+          current.natural?.width === measured?.width &&
+          current.natural?.height === measured?.height
+        ) {
+          return current;
+        }
+
+        if (current.state !== next) {
           onStateChange?.(next);
         }
 
-        return next;
+        return { state: next, natural: measured };
       });
     },
     [onStateChange]
@@ -183,7 +311,7 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
 
   if (src !== lastSrc) {
     setLastSrc(src);
-    setState(src ? 'loading' : 'error');
+    setProgress({ state: src ? 'loading' : 'error' });
   }
 
   React.useEffect(() => {
@@ -206,9 +334,29 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
      * image has a width, and one that failed is also `complete` and has none.
      */
     if (node.complete) {
-      report(node.naturalWidth > 0 ? 'loaded' : 'error');
+      report(node.naturalWidth > 0 ? 'loaded' : 'error', node);
     }
   }, [src, report]);
+
+  const turn = quarterTurn(rotate);
+  const sideways = turn === 90 || turn === 270;
+  const declaredWidth = pixels(width);
+  const declaredHeight = pixels(height);
+  const declared =
+    declaredWidth && declaredHeight ? { width: declaredWidth, height: declaredHeight } : undefined;
+  // What the file is known to measure: what the caller said, or what arrived.
+  const file = declared ?? natural;
+
+  /*
+   * The box a picture on its side needs.
+   *
+   * The picture is taken out of the flow, so nothing inside the box gives it a
+   * height any more. An explicit `ratio` is the layout's shape and stays; failing
+   * that, the file's own proportion is written turned, from the declared size
+   * or, once it has loaded, from the file itself.
+   */
+  const boxRatio =
+    sideways && ratio === undefined && file ? `${file.height} / ${file.width}` : ratio;
 
   const showing = state === 'loaded';
 
@@ -247,6 +395,8 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
         }}
         src={src}
         alt={alt}
+        width={width}
+        height={height}
         className={[
           'size-full',
           FIT[fit],
@@ -256,8 +406,9 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
           showing ? 'opacity-100' : 'opacity-0',
           'transition-opacity duration-(--mp-sys-motion-duration-short4)'
         ].join(' ')}
+        style={turn ? { rotate: `${turn}deg`, ...(sideways ? SIDEWAYS : null) } : undefined}
         onLoad={(event) => {
-          report('loaded');
+          report('loaded', event.currentTarget);
           onLoad?.(event);
         }}
         onError={() => report('error')}
@@ -278,7 +429,28 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
   const boxClass = ['mp-image relative block overflow-hidden', className ?? '']
     .filter(Boolean)
     .join(' ');
-  const boxStyle = { aspectRatio: ratio, ...style } as React.CSSProperties;
+  const boxStyle = {
+    aspectRatio: boxRatio,
+    // Only while the picture is on its side: size containment changes how the
+    // box is measured, and nothing else needs it.
+    ...(sideways ? { containerType: 'size' } : null),
+    ...style
+  } as React.CSSProperties;
+
+  // The preview's own file, which is not the thumbnail's when `previewSrc` is set.
+  const full = previewSrc ?? src;
+  const previewKnown = previewNatural?.src === full ? previewNatural : undefined;
+
+  const recordPreview = (event: React.SyntheticEvent<HTMLImageElement>) => {
+    const measured = naturalSize(event.currentTarget);
+
+    if (
+      measured &&
+      (measured.width !== previewKnown?.width || measured.height !== previewKnown?.height)
+    ) {
+      setPreviewNatural({ ...measured, src: full });
+    }
+  };
 
   if (!preview) {
     return (
@@ -299,10 +471,15 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
         aria-label={(previewLabel ?? alt) || messages.open}
         className={[
           boxClass,
+          // A button is as wide as its contents, and a picture on its side is
+          // out of the flow and contributes none, so the button would collapse.
+          sideways ? 'w-full' : '',
           'outline-mp-secondary cursor-zoom-in appearance-none border-0 bg-transparent p-0',
           'focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-default',
           'outline-none'
-        ].join(' ')}
+        ]
+          .filter(Boolean)
+          .join(' ')}
         style={boxStyle}
       >
         {picture}
@@ -316,6 +493,8 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
             FADE,
             'fixed inset-0 flex items-center justify-center p-6'
           ].join(' ')}
+          // The turned preview's box is sized against the room this leaves.
+          style={sideways ? { containerType: 'size' } : undefined}
         >
           {/*
            * The full picture is a second `<img>` rather than the same element
@@ -323,7 +502,28 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
            * scrim and leave a hole to close back into. `previewSrc` is what
            * makes the thumbnail worth being a thumbnail.
            */}
-          <img src={previewSrc ?? src} alt={alt} className="max-h-full max-w-full object-contain" />
+          {sideways ? (
+            <span
+              className="relative block shrink-0"
+              style={turnedPreviewBox(previewKnown, file, previewSrc === undefined)}
+            >
+              <img
+                src={full}
+                alt={alt}
+                className="object-contain"
+                style={{ rotate: `${turn}deg`, ...SIDEWAYS }}
+                onLoad={recordPreview}
+              />
+            </span>
+          ) : (
+            <img
+              src={full}
+              alt={alt}
+              className="max-h-full max-w-full object-contain"
+              style={turn ? { rotate: `${turn}deg` } : undefined}
+              onLoad={recordPreview}
+            />
+          )}
         </Dialog.Popup>
       </Dialog.Portal>
     </Dialog.Root>
