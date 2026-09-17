@@ -636,17 +636,27 @@ function byText(a: GeneratedSidebarItem, b: GeneratedSidebarItem): number {
 /**
  * The component groups that come after the alphabetical run, in this order.
  *
- * `charts/` is one folder of nine components the specification does not name —
- * a family rather than a category, and one a reader either wants all of or none
- * of. Alphabetically it would open the list, which puts the thing furthest from
- * Material Design 3 in front of the button and the text field. It goes last
- * instead, under Motion, which is where the library's own additions already
- * sit.
+ * The run itself is the five categories a component falls into — Display,
+ * Feedback, Inputs, Layout, Motion — and sorting those by name is right because
+ * a reader looking for one has a word in mind. These two are not that, and both
+ * would land in the middle of the run alphabetically:
+ *
+ * - `hooks/` holds no components at all. It is the library without the markup,
+ *   and a reader scanning for a control should reach the end of the controls
+ *   before it appears.
+ * - `charts/` is nine components the specification does not name — a family
+ *   rather than a category, and one a reader wants all of or none of.
+ *   Alphabetically it would *open* the list, putting the thing furthest from
+ *   Material Design 3 in front of the button and the text field.
+ *
+ * So both go under Motion, where the library's own additions already sit, with
+ * the hooks first: they are the smaller of the two and the one a reader is more
+ * likely to be looking for by name.
  *
  * Named by folder rather than by label, because the label is translated and the
  * folder is not.
  */
-const GROUP_TAIL = ['charts'];
+const GROUP_TAIL = ['hooks', 'charts'];
 
 /** `0` for the alphabetical run, then one rank per pinned group. */
 function groupRank(item: GeneratedSidebarItem): number {
