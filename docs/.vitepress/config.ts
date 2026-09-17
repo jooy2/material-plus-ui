@@ -423,7 +423,7 @@ const vitePressConfig: UserConfig = {
     hostname: packageJson.homepage
   },
   /**
-   * `robots.txt` and `llms.txt`, written rather than committed.
+   * `robots.txt`, `llms.txt` and the stubs at the addresses pages used to have.
    *
    * `robots.txt` exists to name the sitemap, and the sitemap's own URL is
    * already derived from `package.json`. A copy of that host sitting in
@@ -438,6 +438,7 @@ const vitePressConfig: UserConfig = {
       `User-agent: *\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\n`
     );
     await writeLlmsTxt(outDir);
+    await writeMovedPages(outDir);
   },
   /**
    * A description that is about this page rather than about the library.
@@ -971,6 +972,77 @@ function llmsTxt(lang: string): string {
 }
 
 /** `/llms.txt` for the default locale, `/{lang}/llms.txt` for every other one. */
+/**
+ * Pages that used to answer at another address.
+ *
+ * The site is GitHub Pages, which serves files and nothing else: there is no
+ * server to answer 301, and a page that moves simply stops existing at the
+ * address anybody had bookmarked or linked. So a stub is written where the page
+ * used to be.
+ *
+ * It is a meta refresh with a `canonical` beside it, which is the pair a static
+ * host has. A crawler reads a zero-second refresh as the permanent move it is
+ * and follows the canonical to the one copy; a reader is taken there before they
+ * notice, and the link in the body is what they get if their browser refuses.
+ * `noindex` is deliberately **not** on it — a page that says both "do not index
+ * me" and "the real one is over there" has told a crawler two things.
+ *
+ * Keyed on the path without a locale. Both locales get a stub, because both had
+ * the page.
+ *
+ * Entries here are permanent. A redirect that is deleted once "enough time has
+ * passed" is a link rot with a timer on it, and these cost a few hundred bytes.
+ */
+const MOVED_PAGES: Record<string, string> = {
+  // `useMPConfirm` is a hook rather than a component, and hooks have their own
+  // group now.
+  '/components/feedback/confirm': '/components/hooks/confirm',
+  // And the nine charts left Display for a group of their own.
+  '/components/display/area-chart': '/components/charts/area-chart',
+  '/components/display/bar-chart': '/components/charts/bar-chart',
+  '/components/display/gauge-chart': '/components/charts/gauge-chart',
+  '/components/display/heatmap-chart': '/components/charts/heatmap-chart',
+  '/components/display/line-chart': '/components/charts/line-chart',
+  '/components/display/pie-chart': '/components/charts/pie-chart',
+  '/components/display/scatter-chart': '/components/charts/scatter-chart',
+  '/components/display/sparkline': '/components/charts/sparkline',
+  '/components/display/timeline-chart': '/components/charts/timeline-chart'
+};
+
+/** The stub itself. `to` is site-absolute; the canonical needs the whole URL. */
+function movedPage(to: string): string {
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Moved</title>
+    <link rel="canonical" href="${siteUrl}${to}" />
+    <meta http-equiv="refresh" content="0; url=${to}" />
+  </head>
+  <body>
+    <p>This page has moved to <a href="${to}">${to}</a>.</p>
+  </body>
+</html>
+`;
+}
+
+async function writeMovedPages(outDir: string): Promise<void> {
+  await Promise.all(
+    supportLocales.flatMap((lang) =>
+      Object.entries(MOVED_PAGES).map(async ([from, to]) => {
+        // `localeBase` ends in a slash and both paths start with one, so the
+        // locale prefix is taken without it.
+        const prefix = localeBase(lang).slice(0, -1);
+        // `cleanUrls` serves `a/b` from `a/b.html`, so that is the file to write.
+        const file = resolve(outDir, `.${prefix}${from}.html`);
+
+        await mkdir(dirname(file), { recursive: true });
+        await writeFile(file, movedPage(`${prefix}${to}`), 'utf8');
+      })
+    )
+  );
+}
+
 async function writeLlmsTxt(outDir: string): Promise<void> {
   await Promise.all(
     supportLocales.map(async (lang) => {
