@@ -16,14 +16,12 @@ import { CONTROL_ICON } from '../../internal/scale';
 import {
   formatDate,
   isUnitOutside,
+  TO_ISO,
   isValidDate,
   localeWeekStart,
   mergeDateAndTime,
   startOfMonth,
   startOfUnit,
-  toISODate,
-  toISOMonth,
-  toISOYear,
   today,
   withPlaceholder,
   type MPDatePrecision
@@ -52,20 +50,6 @@ const TRIGGER_FORMAT: Record<MPDatePrecision, Intl.DateTimeFormatOptions> = {
   day: { dateStyle: 'medium' },
   month: { year: 'numeric', month: 'long' },
   year: { year: 'numeric' }
-};
-
-/**
- * What the hidden input submits, at the precision that was asked for.
- *
- * `YYYY-MM-DD` and `YYYY-MM` are what `<input type="date">` and
- * `<input type="month">` submit. A year on its own has no input type behind it
- * and is simply `YYYY` — the same string with the parts nobody chose taken off,
- * rather than a day the server would have to know to ignore.
- */
-const TO_ISO: Record<MPDatePrecision, (date: Date) => string> = {
-  day: toISODate,
-  month: toISOMonth,
-  year: toISOYear
 };
 
 export interface MPDatePickerProps extends MPPickerShellProps {

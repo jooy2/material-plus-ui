@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { POPUP_ARROW_TURN, PopupArrow } from '../../internal/PopupArrow';
 import { Tooltip as BaseUITooltip } from '@base-ui/react/tooltip';
 import { accentSlots } from '../../internal/accent';
 import type { MPAlign, MPColor, MPSide, MPSize } from '../../types';
@@ -263,22 +264,9 @@ export function MPTooltip({
                 // on. The wedge is drawn pointing down and turned to match — a
                 // rotation of a glyph, which is allowed because nothing with
                 // text in it moves.
-                className={[
-                  'data-[side=top]:bottom-[-1px]',
-                  'data-[side=bottom]:top-[-1px] data-[side=bottom]:rotate-180',
-                  'data-[side=left]:right-[-1px] data-[side=left]:-rotate-90',
-                  'data-[side=right]:left-[-1px] data-[side=right]:rotate-90'
-                ].join(' ')}
+                className={POPUP_ARROW_TURN}
               >
-                <svg
-                  width={arrowSize}
-                  height={arrowSize / 2}
-                  viewBox="0 0 10 5"
-                  aria-hidden="true"
-                  className="block"
-                >
-                  <path d="M0 0h10L5 5z" fill="var(--_mp-tooltip)" />
-                </svg>
+                <PopupArrow size={arrowSize} fill="var(--_mp-tooltip)" />
               </BaseUITooltip.Arrow>
             ) : null}
             {content}

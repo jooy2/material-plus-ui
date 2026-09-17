@@ -29,17 +29,6 @@ import type {
  */
 export const CHART_SLOTS = 8;
 
-/**
- * How many series may be told apart when **any two marks can touch** — a
- * scatter, a bubble chart, a heatmap.
- *
- * Three. The eight slots are separable pair-by-pair only that far, and no
- * ordering of eight does better; it is a property of the colour space rather
- * than of this palette. The stylesheet's note on `--_mp-chart-1` has the
- * measurements.
- */
-export const CHART_TOUCHING_SLOTS = 3;
-
 const ACCENTS = new Set<string>(['primary', 'secondary', 'tertiary', 'error']);
 
 /**

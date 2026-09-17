@@ -125,7 +125,7 @@ export function useVisibility(series: readonly { hidden?: boolean }[]): Visibili
 
 /* ------------------------------------------------------------------ legend */
 
-export const LEGEND_SIDE = {
+const LEGEND_SIDE = {
   top: 'flex-col-reverse',
   bottom: 'flex-col',
   left: 'flex-row-reverse',

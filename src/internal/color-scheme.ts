@@ -90,7 +90,7 @@ function write(storageKey: string, scheme: MPColorScheme) {
  * either by `prefers-color-scheme` on a root that is not forced light, or by the
  * attribute. An attribute spelling out `system` would match neither.
  */
-export function applyScheme(scheme: MPColorScheme) {
+function applyScheme(scheme: MPColorScheme) {
   if (typeof document === 'undefined') {
     return;
   }

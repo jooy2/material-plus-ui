@@ -6,14 +6,12 @@ import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { PICKER } from '../../internal/messages/picker';
 import { CONTAINER_SURFACE } from '../../internal/surface';
 import {
+  TO_ISO,
   isValidDate,
   localeWeekStart,
   mergeDateAndTime,
   startOfMonth,
   startOfUnit,
-  toISODate,
-  toISOMonth,
-  toISOYear,
   today,
   type MPDatePrecision
 } from '../../internal/date';
@@ -22,18 +20,6 @@ import type { MPPickerLabels } from '../../internal/Calendar';
 import type { MPColor, MPSize, MPVariant, MPWeekday } from '../../types';
 
 export type { MPDatePrecision };
-
-/**
- * What the hidden input submits, at the precision that was asked for. The same
- * three as `MPDatePicker`'s, and the same table, because a calendar and a picker
- * that submitted the same day two different ways would be two answers to one
- * question.
- */
-const TO_ISO: Record<MPDatePrecision, (date: Date) => string> = {
-  day: toISODate,
-  month: toISOMonth,
-  year: toISOYear
-};
 
 export interface MPCalendarProps extends Omit<
   React.ComponentPropsWithoutRef<'div'>,

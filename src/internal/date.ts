@@ -86,12 +86,12 @@ export function startOfMonth(date: Date): Date {
 }
 
 /** The first day of the year this date is in, at midnight. */
-export function startOfYear(date: Date): Date {
+function startOfYear(date: Date): Date {
   return makeDate(date.getFullYear(), 0, 1);
 }
 
 /** How many days a month has, leap years included. */
-export function daysInMonth(year: number, month: number): number {
+function daysInMonth(year: number, month: number): number {
   return makeDate(year, month + 1, 0).getDate();
 }
 
@@ -113,7 +113,7 @@ export function startOfUnit(date: Date, unit: MPCalendarView): Date {
 }
 
 /** The last day of that same unit, at midnight — the other end of its span. */
-export function endOfUnit(date: Date, unit: MPCalendarView): Date {
+function endOfUnit(date: Date, unit: MPCalendarView): Date {
   if (unit === 'year') {
     return makeDate(date.getFullYear(), 11, 31);
   }
@@ -447,6 +447,25 @@ export function toISOMonth(date: Date): string {
 export function toISODate(date: Date): string {
   return `${toISOMonth(date)}-${String(date.getDate()).padStart(2, '0')}`;
 }
+
+/**
+ * The spelling a given precision submits, as a table to look up.
+ *
+ * `MPCalendar` and `MPDatePicker` each kept this, identically, and each said in
+ * its own comment that the two had to agree — which is the argument for there
+ * being one of it. A calendar and a picker that submitted the same day two
+ * different ways would be two answers to one question.
+ *
+ * `YYYY-MM-DD` and `YYYY-MM` are what `<input type="date">` and
+ * `<input type="month">` submit. A year on its own has no input type behind it
+ * and is simply `YYYY` — the same string with the parts nobody chose taken off,
+ * rather than a day the server would have to know to ignore.
+ */
+export const TO_ISO: Record<MPDatePrecision, (date: Date) => string> = {
+  day: toISODate,
+  month: toISOMonth,
+  year: toISOYear
+};
 
 export function toISOTime(date: Date, withSeconds = false): string {
   const pad = (value: number) => String(value).padStart(2, '0');

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { POPUP_ARROW_SIZE, POPUP_ARROW_TURN, PopupArrow } from '../../internal/PopupArrow';
 import { Popover } from '@base-ui/react/popover';
 import { MPIcon } from '../icon/MPIcon';
 import { CloseIcon } from '../../constants/icons';
@@ -143,13 +144,6 @@ const MAX_WIDTH: Record<MPSize, string> = {
 };
 
 /** The wedge, at roughly a third of the sheet's corner per step. */
-const ARROW_SIZE: Record<MPSize, number> = {
-  xs: 8,
-  sm: 9,
-  md: 10,
-  lg: 11,
-  xl: 12
-};
 
 /**
  * Closes the popover it is inside.
@@ -212,7 +206,7 @@ export function MPPopover({
   const locale = useMPLocale(localeProp);
   const messages = useMPMessages(COMMON, locale);
   const hasHeader = hasContent(title) || hasContent(description);
-  const arrowSize = ARROW_SIZE[size];
+  const arrowSize = POPUP_ARROW_SIZE[size];
 
   return (
     <Popover.Root
@@ -278,22 +272,9 @@ export function MPPopover({
                 // on. It is drawn pointing down once and turned to match — a
                 // rotation of a glyph, which is the one allowance the rule
                 // against moving a surface makes.
-                className={[
-                  'data-[side=top]:bottom-[-1px]',
-                  'data-[side=bottom]:top-[-1px] data-[side=bottom]:rotate-180',
-                  'data-[side=left]:right-[-1px] data-[side=left]:-rotate-90',
-                  'data-[side=right]:left-[-1px] data-[side=right]:rotate-90'
-                ].join(' ')}
+                className={POPUP_ARROW_TURN}
               >
-                <svg
-                  width={arrowSize}
-                  height={arrowSize / 2}
-                  viewBox="0 0 10 5"
-                  aria-hidden="true"
-                  className="block"
-                >
-                  <path d="M0 0h10L5 5z" fill="var(--_mp-color-surface-container)" />
-                </svg>
+                <PopupArrow size={arrowSize} fill="var(--_mp-color-surface-container)" />
               </Popover.Arrow>
             ) : null}
 
