@@ -213,6 +213,120 @@ describe('MPAnchor', () => {
     await vi.waitFor(() => expect(marked()).toHaveAttribute('href', '#usage'));
   });
 
+  /*
+   * A fragment link needs no handler of its own: the browser scrolls whatever
+   * scrollport holds the target, writes the hash and adds the history entry.
+   * What none of that survives is a router — VitePress, Docusaurus, Astro and
+   * Nuxt all claim same-page hash clicks, cancel them, and scroll the *window*
+   * instead, which inside a `container` is the one scrollport they cannot mean.
+   */
+  describe('pressing a row a router has cancelled', () => {
+    function Probe({ offset }: { offset?: number }) {
+      const box = React.useRef<HTMLDivElement>(null);
+
+      return (
+        <div>
+          <MPAnchor items={ITEMS} container={box} offset={offset} />
+          <div ref={box} data-testid="scroller" style={{ height: 200, overflowY: 'auto' }}>
+            {ITEMS.map((item) => (
+              <section key={item.href} id={item.href.slice(1)} style={{ height: 600 }}>
+                {item.href}
+              </section>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    /**
+     * A router's own listener, cut down to the part that matters: it runs on
+     * `window` in the capture phase, ahead of the component's, and it cancels
+     * the navigation.
+     *
+     * The click is dispatched rather than driven through the browser, for two
+     * reasons — a cancelled click is not something to hand back to the runner
+     * that issued it, and a real one would move the runner's own URL.
+     */
+    function pressUnderRouter(name: string) {
+      const link = [...document.querySelectorAll('.mp-anchor__link')].find(
+        (row) => row.textContent === name
+      )!;
+      const router = (event: MouseEvent) => {
+        if ((event.target as Element | null)?.closest('.mp-anchor__link')) {
+          event.preventDefault();
+        }
+      };
+
+      window.addEventListener('click', router, { capture: true });
+
+      try {
+        link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+      } finally {
+        window.removeEventListener('click', router, { capture: true });
+      }
+    }
+
+    it('scrolls the container to the heading', async () => {
+      const screen = await render(<Probe />);
+
+      pressUnderRouter('Usage');
+
+      await vi.waitFor(() => expect(screen.getByTestId('scroller').element().scrollTop).toBe(600));
+    });
+
+    it('lands the heading `offset` below the top, as the tracking measures it', async () => {
+      const screen = await render(<Probe offset={40} />);
+
+      pressUnderRouter('Options');
+
+      await vi.waitFor(() => expect(screen.getByTestId('scroller').element().scrollTop).toBe(1160));
+    });
+
+    it('marks the row it scrolled to', async () => {
+      await render(<Probe />);
+
+      pressUnderRouter('Usage');
+
+      await vi.waitFor(() => expect(marked()).toHaveAttribute('href', '#usage'));
+    });
+
+    /*
+     * The other half of the contract, and the more important one. A press
+     * nobody cancelled is the browser's to answer: it scrolls the container,
+     * writes the hash and adds the history entry, all of which this component
+     * would only be doing a second time.
+     */
+    it('leaves an uncancelled press to the browser', async () => {
+      /*
+       * `offset` is what tells the two apart. The browser puts the heading at
+       * the very top of the scrollport; the component puts it `offset` below,
+       * where the tracking reads it. So a press that lands at 600 rather than
+       * 560 is the browser's own, and the component stayed out of it — which is
+       * the whole of what this contract promises.
+       */
+      const screen = await render(<Probe offset={40} />);
+      const link = [...document.querySelectorAll('.mp-anchor__link')].find(
+        (row) => row.textContent === 'Usage'
+      )!;
+      const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+
+      link.dispatchEvent(event);
+
+      expect(event.defaultPrevented).toBe(false);
+      await vi.waitFor(() => expect(screen.getByTestId('scroller').element().scrollTop).toBe(600));
+    });
+
+    it('binds nothing at all without a container', async () => {
+      // The document case is the browser's, and a router's own scroll is
+      // already right there.
+      await render(<MPAnchor items={ITEMS} />);
+
+      expect(
+        (document.querySelector('.mp-anchor__link') as HTMLElement | null)?.onclick
+      ).toBeFalsy();
+    });
+  });
+
   it('marks the last heading once the page has run out', async () => {
     // The last section on a page often has less under it than a viewport, so its
     // top never reaches the line — without this it is the one heading that can

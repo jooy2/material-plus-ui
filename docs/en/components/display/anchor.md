@@ -31,6 +31,12 @@ The rows are `<a href="#…">` in a `<nav>`, which is what makes them jump to th
 
 The marked row carries `aria-current="location"` rather than `"true"`. That value means "where the reader is within a set of links", which is exactly what a table of contents reports; `"true"` means the current _page_, which is what a navigation menu's own entry says.
 
+### Unless a router takes the click
+
+VitePress, Docusaurus, Astro and Nuxt all claim same-page hash clicks, cancel them, and scroll the **window** to where they think the target is. Give `container` and the window is the one scrollport they cannot mean: the page jumps and the panel stays where it was.
+
+So a press that has already been cancelled by the time it reaches the rows is one the rows answer themselves — they scroll `container` to the heading, `offset` included. A press nobody cancelled is left exactly as it was, because the browser already does all of it: the scroll, the hash and the history entry. Without `container` nothing is bound at all.
+
 ## The headings are given, not scraped
 
 `items` is a list the caller already has. Whatever produced the page — an MDX pipeline, a CMS, a route's frontmatter — knows its own headings and the ids it wrote on them. A component that went looking for `<h2>`s in the document would be guessing at which of them were content and which were chrome, and would find the ones in the sidebar too.

@@ -258,9 +258,20 @@ onBeforeUnmount(() => {
           <path d="M13.4 10.1A5.7 5.7 0 0 1 5.9 2.6a5.7 5.7 0 1 0 7.5 7.5Z" />
         </svg>
       </button>
+      <!--
+        `vp-raw` is what keeps VitePress's router out of a running component.
+
+        The router claims every same-page `<a href="#…">` click in the document,
+        cancels it and scrolls the *window* to where it thinks the target is.
+        Inside a preview that is always wrong: a demo's links belong to the
+        component, and the one in `anchor/hero` points at headings in a panel of
+        its own, so the page jumped and the panel stayed where it was. `vp-raw`
+        is the marker the router checks before it touches anything, and a live
+        preview is exactly the subtree it means.
+      -->
       <div
         ref="host"
-        class="mp-scope mp-demo-mount"
+        class="vp-raw mp-scope mp-demo-mount"
         :style="{ minHeight: typeof minHeight === 'number' ? `${minHeight}px` : minHeight }"
       />
     </div>

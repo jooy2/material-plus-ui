@@ -277,6 +277,73 @@ export const MPAnchor = React.forwardRef<HTMLElement, MPAnchorProps>(function MP
     };
   }, [keys, offset, container, controlled]);
 
+  /*
+   * The press, when something else has already cancelled it.
+   *
+   * A fragment link needs no handler of its own. The browser scrolls whatever
+   * scrollport holds the target — nested ones included — writes the hash and
+   * adds the history entry, and that is what these rows have always relied on.
+   *
+   * What none of it survives is a router. VitePress, Docusaurus, Astro and Nuxt
+   * all claim same-page hash clicks, cancel them, and scroll the **window** to
+   * where they think the target is. Inside a `container` the window is the one
+   * scrollport they cannot mean, so the page jumps and the panel stays exactly
+   * where it was.
+   *
+   * So the test is `defaultPrevented`, and it reads backwards on purpose: this
+   * runs **only** when the navigation is already gone. Left alone, nothing here
+   * fires and the link is precisely the link it was — which is the whole
+   * argument for these being real `<a>`s, and it still holds with JavaScript
+   * off, on a middle-click, and in the link list a screen reader pulls up.
+   *
+   * Nothing is written to the URL either. Whoever cancelled the click owns the
+   * address bar, and every router named above sets it before this runs; a second
+   * write here would be this component arguing with the thing driving the page.
+   *
+   * Bound only where `container` is set, which is the caller saying the document
+   * is not what moves. Where it is the document, a router's own scroll is
+   * already right.
+   */
+  const press = container
+    ? (event: React.MouseEvent<HTMLAnchorElement>) => {
+        if (!event.defaultPrevented) {
+          return;
+        }
+
+        const href = event.currentTarget.getAttribute('href');
+        const scroller = container.current;
+
+        if (!href?.startsWith('#') || !scroller) {
+          return;
+        }
+
+        const target = document.getElementById(href.slice(1));
+
+        if (!target) {
+          return;
+        }
+
+        // Measured against the scrollport rather than the page, so the heading
+        // lands `offset` below the top of the panel — the same number the
+        // tracking uses to decide which row is the one being read.
+        const top =
+          scroller.scrollTop +
+          (target.getBoundingClientRect().top - scroller.getBoundingClientRect().top) -
+          offset;
+
+        /*
+         * No `behavior`, which is not an omission. Left out, the scroll takes
+         * the container's own computed `scroll-behavior` — so it lands exactly
+         * as a fragment link lands, and a page that wrote
+         * `scroll-behavior: smooth` on its scrollport gets the smooth scroll it
+         * asked for, `prefers-reduced-motion` included. Naming `smooth` here
+         * would override both: it would animate a component whose own design
+         * note is that nothing in it slides, on a page that had said otherwise.
+         */
+        scroller.scrollTo({ top });
+      }
+    : undefined;
+
   return (
     <nav
       ref={ref}
@@ -301,6 +368,7 @@ export const MPAnchor = React.forwardRef<HTMLElement, MPAnchorProps>(function MP
           <li key={item.href} className={rail ? '-ms-px' : undefined}>
             <a
               href={item.href}
+              onClick={press}
               aria-current={active === item.href ? 'location' : undefined}
               className={[
                 'mp-anchor__link block min-w-0 truncate no-underline',

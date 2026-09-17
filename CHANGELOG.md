@@ -90,6 +90,8 @@
 
 ### Fixed
 
+- **`MPAnchor` answers a press a router has already taken.** VitePress, Docusaurus, Astro and Nuxt all claim same-page hash clicks, cancel them and scroll the _window_ to where they think the target is — which, given a `container`, is the one scrollport they cannot mean, so the page jumped and the panel stayed where it was. A press that arrives already cancelled now scrolls `container` to the heading, `offset` included. One that nobody cancelled is untouched: the browser scrolls, writes the hash and adds the history entry on its own, and without `container` nothing is bound at all.
+
 - **A new tab opened from `MPAppLogo` no longer gets a handle on the page it left.** `target="_blank"` hands the opened page a `window.opener` back into this one unless it is told not to, and the referrer travels with it. Five components work this out through one internal helper; `MPAppLogo` took an `<a>`'s whole prop set and did not, so a lockup linking off-site was the one link in the library with neither `noopener` nor `noreferrer`. It now gets `noopener noreferrer`, and a `rel` of your own replaces that rather than extending it — the same bargain the other five document.
 
 - **`MPTour` says where the reader has arrived when the step changes.** The card is announced once, when it opens, out of its title and description; every step after the first swaps those two inside a popup that never closed, so a reader pressing Next heard the button they were standing on and nothing about the step they had reached. The card now carries a polite live region with the position and the title — "Step 2 of 3. The second" — which is empty on the step it opened on, so the opening announcement is not doubled.
