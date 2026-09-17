@@ -75,7 +75,7 @@ If Tailwind v4 is already in your project, import the token sheet instead:
 @import 'material-plus-ui/tailwind.css';
 ```
 
-A page that renders a handful of components can take the tokens and a sheet each instead of the whole 171.6 kB — 6.4 kB gzipped for one component against 23.4 kB for the lot. [The guide](https://material-plus.cdget.com/guide/getting-started#if-you-only-render-a-few-components) has the numbers and where the two paths cross.
+A page that renders a handful of components can take the tokens and a sheet each instead of the whole 172.2 kB — 6.4 kB gzipped for one component against 23.4 kB for the lot. [The guide](https://material-plus.cdget.com/guide/getting-started#if-you-only-render-a-few-components) has the numbers and where the two paths cross.
 
 ```ts
 import 'material-plus-ui/styles/tokens.css';
@@ -134,7 +134,7 @@ Full details, including scoped and runtime theming, are in [the theming guide](h
 
 ## Components
 
-There are over 120, grouped into layout, inputs, display, feedback and motion. Each has a page of its own at [material-plus.cdget.com/components/](https://material-plus.cdget.com/components/), with the full props table and previews that are the component running in the page.
+There are over 120, grouped into layout, inputs, display, feedback, motion and charts. Each has a page of its own at [material-plus.cdget.com/components/](https://material-plus.cdget.com/components/), with the full props table and previews that are the component running in the page.
 
 ### Why `MPTextField` exists
 

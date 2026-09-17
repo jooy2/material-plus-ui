@@ -95,7 +95,7 @@ const ENTRIES: Entry[] = [
   },
   {
     name: 'MPLineChart',
-    path: '/components/display/line-chart',
+    path: '/components/charts/line-chart',
     preview: (
       <Fit width={300}>
         <MPLineChart
