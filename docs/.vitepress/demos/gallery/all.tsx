@@ -173,6 +173,17 @@ interface Entry {
   /** Appended to the locale's base path. */
   path: string;
   preview: ReactNode;
+  /**
+   * Gives the card two columns of the grid instead of one.
+   *
+   * For the handful of components that lay themselves out against the *window*
+   * rather than against their own box. `MPTransfer` is the case: it puts its two
+   * lists side by side from the medium window class up, so a 215px card on a
+   * wide screen gets two 99px panels and a heading with thirty pixels for its
+   * title. There is no label short enough for that, and the answer is a wider
+   * card rather than a shorter word.
+   */
+  wide?: boolean;
 }
 
 interface Group {
@@ -605,7 +616,7 @@ function TransferPreview() {
   return (
     <MPTransfer
       size="xs"
-      height={96}
+      height={72}
       items={[
         { value: 'name', label: 'Name' },
         { value: 'email', label: 'Email' },
@@ -853,8 +864,9 @@ const GROUPS: Group[] = [
           en: 'Two lists and the arrows between them, for a long choice'
         },
         path: '/components/inputs/transfer',
+        wide: true,
         preview: (
-          <Fit width={300}>
+          <Fit width={420}>
             <TransferPreview />
           </Fit>
         )
@@ -2915,7 +2927,10 @@ const GROUPS: Group[] = [
 
 function EntryCard({ entry, locale, base }: { entry: Entry; locale: Locale; base: string }) {
   return (
-    <a href={`${base}${entry.path}`} className="mp-gallery-card">
+    <a
+      href={`${base}${entry.path}`}
+      className={entry.wide ? 'mp-gallery-card mp-gallery-card--wide' : 'mp-gallery-card'}
+    >
       <div className="mp-gallery-preview">{entry.preview}</div>
       <div className="mp-gallery-meta">
         <span className="mp-gallery-name">{entry.name}</span>

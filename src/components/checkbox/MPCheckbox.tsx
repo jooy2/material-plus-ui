@@ -145,7 +145,19 @@ export const MPCheckbox = React.forwardRef<HTMLElement, MPCheckboxProps>(functio
 
   return (
     <Field.Root
-      className={['mp-checkbox inline-block align-top', className ?? ''].filter(Boolean).join(' ')}
+      /*
+       * `max-w-full` is what makes the label's own truncation reachable.
+       *
+       * An `inline-block` is a shrink-to-fit box: it takes the width of its
+       * contents and **overflows** a narrower parent rather than being capped by
+       * it. So a long label in a narrow column laid itself out at its full width
+       * and printed straight over whatever was beside it — in `MPTransfer`'s
+       * heading strip, over the count — and the `truncate` inside never had a
+       * width small enough to act on.
+       */
+      className={['mp-checkbox inline-block max-w-full align-top', className ?? '']
+        .filter(Boolean)
+        .join(' ')}
       disabled={disabled}
       invalid={invalid}
       data-mp-size={size}

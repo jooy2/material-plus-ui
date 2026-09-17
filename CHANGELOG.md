@@ -90,6 +90,8 @@
 
 ### Fixed
 
+- **`MPCheckbox` and `MPRadio` stay inside a column narrower than their label.** Both are `inline-block`, which is a shrink-to-fit box: it takes the width of its contents and overflows a narrower parent rather than being capped by it. So a long label in a narrow column laid itself out at full width and printed over whatever was beside it — in `MPTransfer`'s heading strip, the list's name ran straight over its count — and a `truncate` inside the label never had a width small enough to act on. Both are now held to their container's width, and a label that truncates does.
+
 - **`MPAnchor` answers a press a router has already taken.** VitePress, Docusaurus, Astro and Nuxt all claim same-page hash clicks, cancel them and scroll the _window_ to where they think the target is — which, given a `container`, is the one scrollport they cannot mean, so the page jumped and the panel stayed where it was. A press that arrives already cancelled now scrolls `container` to the heading, `offset` included. One that nobody cancelled is untouched: the browser scrolls, writes the hash and adds the history entry on its own, and without `container` nothing is bound at all.
 
 - **A new tab opened from `MPAppLogo` no longer gets a handle on the page it left.** `target="_blank"` hands the opened page a `window.opener` back into this one unless it is told not to, and the referrer travels with it. Five components work this out through one internal helper; `MPAppLogo` took an `<a>`'s whole prop set and did not, so a lockup linking off-site was the one link in the library with neither `noopener` nor `noreferrer`. It now gets `noopener noreferrer`, and a `rel` of your own replaces that rather than extending it — the same bargain the other five document.

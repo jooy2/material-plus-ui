@@ -102,7 +102,19 @@ export const MPRadio = React.forwardRef<HTMLElement, MPRadioProps>(function MPRa
 
   return (
     <Field.Root
-      className={['mp-radio inline-block align-top', className ?? ''].filter(Boolean).join(' ')}
+      /*
+       * `max-w-full` is what makes the label's own truncation reachable.
+       *
+       * An `inline-block` is a shrink-to-fit box: it takes the width of its
+       * contents and **overflows** a narrower parent rather than being capped by
+       * it. So a long label in a narrow column laid itself out at its full width
+       * and printed straight over whatever was beside it — in `MPTransfer`'s
+       * heading strip, over the count — and the `truncate` inside never had a
+       * width small enough to act on.
+       */
+      className={['mp-radio inline-block max-w-full align-top', className ?? '']
+        .filter(Boolean)
+        .join(' ')}
       style={style}
       disabled={disabled}
       data-mp-value={value}

@@ -251,6 +251,42 @@ describe('MPCheckbox', () => {
     });
   });
 
+  /*
+   * An `inline-block` is a shrink-to-fit box: it takes the width of its contents
+   * and overflows a narrower parent rather than being capped by it. So a long
+   * label in a narrow column laid itself out at full width and printed over
+   * whatever was beside it — in `MPTransfer`'s heading strip, over the count —
+   * and a `truncate` inside the label never had a width small enough to act on.
+   */
+  describe('in a column narrower than its label', () => {
+    it('stays inside the box it was given', async () => {
+      const screen = await render(
+        <div data-testid="column" style={{ width: 90 }}>
+          <MPCheckbox label="A label far wider than ninety pixels could hold" />
+        </div>
+      );
+      const column = screen.getByTestId('column').element().getBoundingClientRect();
+      const box = (document.querySelector('.mp-checkbox') as HTMLElement).getBoundingClientRect();
+
+      expect(box.width).toBeLessThanOrEqual(column.width);
+      expect(box.right).toBeLessThanOrEqual(column.right + 1);
+    });
+
+    it('leaves a label of its own free to truncate', async () => {
+      await render(
+        <div style={{ width: 90 }}>
+          <MPCheckbox
+            label={<span className="block truncate">A label far wider than ninety pixels</span>}
+          />
+        </div>
+      );
+      const label = document.querySelector('.mp-checkbox .truncate') as HTMLElement;
+
+      // Clipped rather than spilling, which is what `truncate` was asked for.
+      expect(label.scrollWidth).toBeGreaterThan(label.clientWidth);
+    });
+  });
+
   describe('passthrough', () => {
     it('keeps caller-supplied class names and styles alongside its own', async () => {
       await render(

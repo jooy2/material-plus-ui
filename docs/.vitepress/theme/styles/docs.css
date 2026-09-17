@@ -440,6 +440,16 @@
   border-color: var(--vp-c-brand-1);
 }
 
+/* Two columns for a preview whose component lays itself out against the window.
+   Only once the grid has two to give: below that the card is the row's whole
+   width already, and a span would either overflow or leave a hole beside it.
+   260px a column and a 16px gap is where the second one arrives. */
+@media (min-width: 536px) {
+  .vp-doc .mp-scope .mp-gallery-card--wide {
+    grid-column: span 2;
+  }
+}
+
 /* The preview sits on the same soft surface a `Demo` canvas uses, so a card and
    a full preview frame read as the same kind of thing. */
 .vp-doc .mp-scope .mp-gallery-preview {
