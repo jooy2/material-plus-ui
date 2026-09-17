@@ -23,7 +23,7 @@ It also goes on past where the specification stops. The button ladder keeps the 
 - **IME-safe by construction.** Korean, Japanese and Chinese composition survives whatever your `onChange` does with the value.
 - **Bring your own icons.** `MPIcon` takes a component or an element from any set. `lucide-react` ships with the package, gathered in one readable constants file.
 - **Works in a Next.js server component**, and in any bundler: the components carry `"use client"`, the barrel and the data do not, and every specifier in `dist/` names a file — so webpack, Vite, esbuild, Rollup and plain Node all resolve it.
-- **ESM only**, TypeScript declarations included, and tree-shakeable for real: one component is 3.0 kB gzipped and five are 9.1 kB, against 129.7 kB for every export there is. `npm run measure` prints those numbers off a real bundler, so they cannot quietly stop being true. The stylesheet splits the same way.
+- **ESM only**, TypeScript declarations included, and tree-shakeable for real: one component is 3.8 kB gzipped and five are 9.8 kB, against 130.6 kB for every export there is. `npm run measure` prints those numbers off a real bundler, so they cannot quietly stop being true. The stylesheet splits the same way.
 - **Two runtime dependencies**, and the second is loaded rather than bundled: `lucide-react` for the glyphs, and `highlight.js` behind `MPCodeBlock` — every grammar sits behind an `import()`, so a page that renders no code block never downloads one. React 18 or 19, Node.js 22 or later.
 
 ## Documentation
@@ -75,7 +75,7 @@ If Tailwind v4 is already in your project, import the token sheet instead:
 @import 'material-plus-ui/tailwind.css';
 ```
 
-A page that renders a handful of components can take the tokens and a sheet each instead of the whole 172.2 kB — 6.4 kB gzipped for one component against 23.4 kB for the lot. [The guide](https://material-plus.cdget.com/guide/getting-started#if-you-only-render-a-few-components) has the numbers and where the two paths cross.
+A page that renders a handful of components can take the tokens and a sheet each instead of the whole 172.2 kB — 6.3 kB gzipped for one component against 23.4 kB for the lot. [The guide](https://material-plus.cdget.com/guide/getting-started#if-you-only-render-a-few-components) has the numbers and where the two paths cross.
 
 ```ts
 import 'material-plus-ui/styles/tokens.css';

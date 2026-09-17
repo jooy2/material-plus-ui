@@ -70,7 +70,7 @@ import 'material-plus-ui/styles/text-field.css';
 
 | Components on the page | The whole sheet | Tokens plus a sheet each |
 | ---------------------- | --------------- | ------------------------ |
-| 1                      | 23.4 kB         | 6.4 kB                   |
+| 1                      | 23.4 kB         | 6.3 kB                   |
 | 5                      | 23.4 kB         | 9.4 kB                   |
 | 10                     | 23.4 kB         | 12.2 kB                  |
 | 40 or more             | 23.4 kB         | 23.4 kB and climbing     |
@@ -309,7 +309,7 @@ None of that is a promise. It is what one version of Tailwind emits, it is per p
 
   One thing to know before reaching for it, because it catches people twice: **`!important` reverses the layer order.** Ordinary declarations outside a layer beat every layered one, which is the rule the theming advice above rests on. Important ones go the other way — the earliest layer wins and unlayered comes last. So an `!` in a plain stylesheet does _not_ beat a page's own `[&_h3]:my-7.5!`, which is a Tailwind utility and therefore inside `@layer utilities`: to win, yours has to carry `!` **and** sit in a layer declared before `utilities`. Two unlayered `!` declarations are back to ordinary specificity and source order.
 
-The library ships no class merger of its own, deliberately. `tailwind-merge` is the tool for this and it is a good one, but it would be a runtime dependency on every component — against 3.0 kB for a button on its own — and its class groups would have to be taught every `mp-` token this package adds, in step. Merging at the call site is one line and costs the projects that do not need it nothing.
+The library ships no class merger of its own, deliberately. `tailwind-merge` is the tool for this and it is a good one, but it would be a runtime dependency on every component — against 3.8 kB for a button on its own — and its class groups would have to be taught every `mp-` token this package adds, in step. Merging at the call site is one line and costs the projects that do not need it nothing.
 
 ### The class hooks, and Tailwind's underscore
 
@@ -346,16 +346,16 @@ Gzipped, from a real bundler, with React and `@base-ui/react` held external — 
 | On the page           | JavaScript | Stylesheet, split |
 | --------------------- | ---------- | ----------------- |
 | `MPBox` alone         | 1.7 kB     | 6.3 kB            |
-| `MPButton` alone      | 3.0 kB     | 6.4 kB            |
-| Five components       | 9.1 kB     | 9.4 kB            |
-| Ten components        | 13.4 kB    | 12.2 kB           |
-| Every export there is | 129.7 kB   | 23.4 kB           |
+| `MPButton` alone      | 3.8 kB     | 6.3 kB            |
+| Five components       | 9.8 kB     | 9.4 kB            |
+| Ten components        | 14.1 kB    | 12.2 kB           |
+| Every export there is | 130.6 kB   | 23.4 kB           |
 
-The last row leaves out one thing on purpose: `MPCodeBlock`'s grammars are 49.6 kB more, fetched only when a block colours something and never at all on a page that has none. `npm run measure` prints it as a separate figure for that reason.
+The last row leaves out one thing on purpose: `MPCodeBlock`'s grammars are 49.7 kB more, fetched only when a block colours something and never at all on a page that has none. `npm run measure` prints it as a separate figure for that reason.
 
 Two things to read off it. The first column is marginal: a component you did not import is not in it, which is what `sideEffects`, the build's `@__PURE__` annotations and a message table per namespace are all for. The second column is not marginal — a stylesheet is a file you either imported or did not — so it assumes the list of sheets matches what the page renders.
 
-Base UI is the larger half of a real download and is in neither column. Five components come to 20.7 kB with it bundled in and ten to 94.9 kB, but it is a peer dependency: shared with anything else that uses it, and versioned by you.
+Base UI is the larger half of a real download and is in neither column. Five components come to 21.4 kB with it bundled in and ten to 95.6 kB, but it is a peer dependency: shared with anything else that uses it, and versioned by you.
 
 Both sets of figures are printed by the build rather than remembered, so they cannot quietly stop being true.
 

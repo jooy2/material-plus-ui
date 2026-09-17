@@ -35,7 +35,7 @@ import { MPDataTable } from 'material-plus-ui';
 
 ## Why it is not `MPTable` with more props
 
-Because [MPTable](table) is the presentational half and should stay that way. It draws what it is given, in the order it is given, and a page that only shows a grid has no business shipping a comparator, a CSV writer and a page clamp to do it — `MPTable` is 3.0 kB and this is not.
+Because [MPTable](table) is the presentational half and should stay that way. It draws what it is given, in the order it is given, and a page that only shows a grid has no business shipping a comparator, a CSV writer and a page clamp to do it — `MPTable` is 2.0 kB and this is 14.7.
 
 What the two do share is the geometry. `internal/table.ts` holds the cells' room, the type they are set in and the slot a row's background is read from, so a data table never sits a pixel off the plain table beside it in the same form.
 
