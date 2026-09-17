@@ -402,16 +402,19 @@ const vitePressConfig: UserConfig = {
     ['meta', { property: 'og:site_name', content: 'Material Plus' }],
     /*
      * The share card is the mark itself, so the card is the small square kind.
-     * `summary_large_image` would letterbox a 256×256 logo into a 2:1 banner
-     * with two wide bars of nothing beside it — that layout wants artwork drawn
-     * for it, not a mark stretched to fit. The dimensions are declared so a
-     * crawler can lay the card out before the image has finished downloading.
+     * `summary_large_image` would letterbox a square logo into a 2:1 banner with
+     * two wide bars of nothing beside it — that layout wants artwork drawn for
+     * it, not a mark stretched to fit. The dimensions are declared so a crawler
+     * can lay the card out before the image has finished downloading, and they
+     * are the file's own: `docs/public/logo-large.png` is 512 square, and a
+     * declared size that disagrees with the image is worse than none — the
+     * crawler reserves the wrong box and the card reflows when the file lands.
      */
     ['meta', { name: 'twitter:card', content: 'summary' }],
     ['meta', { property: 'og:image', content: `${siteUrl}/logo-large.png` }],
     ['meta', { property: 'og:image:type', content: 'image/png' }],
-    ['meta', { property: 'og:image:width', content: '256' }],
-    ['meta', { property: 'og:image:height', content: '256' }],
+    ['meta', { property: 'og:image:width', content: '512' }],
+    ['meta', { property: 'og:image:height', content: '512' }],
     ['meta', { property: 'og:image:alt', content: 'Material Plus' }],
     ['meta', { name: 'twitter:image', content: `${siteUrl}/logo-large.png` }],
     ['meta', { name: 'twitter:image:alt', content: 'Material Plus' }]

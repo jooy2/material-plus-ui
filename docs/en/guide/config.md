@@ -49,7 +49,7 @@ Everything a theme normally holds is already a **CSS custom property** here — 
 
 `color` joins it because the two are the axes a whole product is usually set on together, and because a `color` prop is a _role name_ rather than a colour: changing what `primary` **is** stays a token, and this only changes which of the four roles a control reads.
 
-`density` joins them for the first reason: it resolves to class strings exactly as `size` does. It is also the one of the three most likely to be set here and nowhere else — how dense a product is is a decision about the product, not about any one table. Only the components that hold things read it, so a page set to `-2` tightens its lists, tables and cards and leaves every control at the height a finger needs. See [`density`](../design/prop-conventions#density).
+`density` joins them for the first reason: it resolves to class strings exactly as `size` does. It is also the one of the three most likely to be set here and nowhere else: how dense a product reads is a decision about the product, not about any one table. Only the components that hold things read it, so a page set to `-2` tightens its lists, tables and cards and leaves every control at the height a finger needs. See [`density`](../design/prop-conventions#density).
 
 ```tsx
 <MPConfigProvider density={-1}>

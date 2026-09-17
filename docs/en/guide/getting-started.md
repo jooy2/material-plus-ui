@@ -349,7 +349,7 @@ Gzipped, from a real bundler, with React and `@base-ui/react` held external — 
 | `MPButton` alone      | 3.0 kB     | 6.4 kB            |
 | Five components       | 9.1 kB     | 9.4 kB            |
 | Ten components        | 13.4 kB    | 12.2 kB           |
-| Every export there is | 129.1 kB   | 23.4 kB           |
+| Every export there is | 129.6 kB   | 23.4 kB           |
 
 The last row leaves out one thing on purpose: `MPCodeBlock`'s grammars are 49.6 kB more, fetched only when a block colours something and never at all on a page that has none. `npm run measure` prints it as a separate figure for that reason.
 

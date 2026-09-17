@@ -66,7 +66,7 @@ The value is trimmed to the unit because it stands for the unit. A picker whose 
 
 Two decisions that are really one.
 
-**There is no date library under this.** The whole of the arithmetic is `Date`, and every name a picker draws comes from `Intl`. A component library that quietly added `date-fns` — or worse, picked a side in the dayjs/luxon/Temporal argument on its consumer's behalf — would have made a decision that was not its to make. This package still has one runtime dependency and it is an icon set.
+**There is no date library under this.** The whole of the arithmetic is `Date`, and every name a picker draws comes from `Intl`. A component library that quietly added `date-fns` — or worse, picked a side in the dayjs/luxon/Temporal argument on its consumer's behalf — would have made a decision that was not its to make. A picker adds nothing to what the package already installs.
 
 **And you cannot type into the trigger.** Parsing a date out of free text is locale-dependent in a way that cannot be done honestly without one: `27/7/26` is three different days depending on who is reading it. A field that understands it in one browser and not the next is worse than one that never claimed to. So the trigger is a button, exactly as a [select](./select)'s is, and the calendar is where the answer comes from.
 

@@ -54,7 +54,7 @@ Then there is where the specification stops and a screen does not. The button la
   </div>
   <div class="mp-why-card">
     <h3>Small on purpose</h3>
-    <p>One runtime dependency, one peer. No CSS-in-JS runtime — the styling is a stylesheet. Every component compiles to its own module, so what you do not import is not shipped.</p>
+    <p>Two runtime dependencies, and the grammars behind the second are loaded on demand. No CSS-in-JS runtime — the styling is a stylesheet. Every component compiles to its own module, so what you do not import is not shipped.</p>
   </div>
 </div>
 

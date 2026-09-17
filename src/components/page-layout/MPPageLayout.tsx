@@ -259,7 +259,7 @@ export const MPPageLayout = React.forwardRef<HTMLDivElement, MPPageLayoutProps>(
      * the flow, so the page *does* have to reserve its height, and it is across
      * the top as well.
      *
-     * Which of the two a bar is is read off the element rather than plumbed
+     * Which of the two a bar is gets read off the element rather than plumbed
      * through a prop: the bar already knows, `position` is what it knows it as,
      * and asking is one line.
      *

@@ -52,6 +52,8 @@
 
 ### Documentation
 
+- **The package has two runtime dependencies, and the documentation says so.** `highlight.js` joined `lucide-react` when `MPCodeBlock` arrived, and the README, both front pages and the colour and date picker pages still said there was one. The grammars behind the second sit behind an `import()`, so a page that renders no code block downloads none of them — which is the part that was worth saying and was being said as a dependency count instead.
+
 - **The front page says what the library is, and then shows six of it running.** The headline was "the Material components you keep writing yourself", which is the argument the section below it already makes at length rather than the thing a reader opens the page to find out. It is the specification claim now, and the tagline is what the library puts on top of that claim: a wider range of components, a design that goes further, and the options for running the whole thing tighter or spreading it across more width.
 
   The section under it argued the old headline, so it argues this one instead — where the specification was followed, and where it stops and a screen does not. The button ladder is the example it gives: `lg` and `xl` are 64px and 72px because the next size after the specification's 56px is 96px, and a 96px button beside a 64px field is not a row. The page's `<meta name="description">` carried the old headline's framing too, in both locales, and now carries this one.
@@ -99,6 +101,8 @@
 - **`MPTransfer` says what a press did.** The arrow keeps the focus and the only thing that changes is which of two columns of near-identical rows a row is in, so moving five rows was silent. A polite live region now reports how many crossed and which list they landed in — named by your own `sourceLabel` or `targetLabel` where that is a string, and by the locale's word for it otherwise. `transfer.moved` is a new message and is translated in all eighteen languages.
 
 - **Six links in the props tables pointed at pages that are not there.** `MPAlert` and `MPAspectRatio` linked one directory too high to the colour page, `MPChip` and `MPMenu` linked to each other as though they shared a section, `MPPortal` linked to `MPDialog` and `MPTable` to `MPListItem` in the wrong ones. Both locales, since the tables are generated from the same comments.
+
+- **The documentation site declared the wrong size for its own share image.** `og:image:width` and `og:image:height` said 256 where the file is 512 square, so a crawler laid the card out around a box the image does not fill.
 
 - **`MPImage` no longer leaves a strip under a picture whose box has no reserved size.** The `<img>` was inline, so it sat on a line box that keeps room for descenders, and a box with no `ratio` and not both dimensions ended a few pixels below the picture on a page without a reset: 204 pixels tall around a 200 pixel picture in Chromium. A `letterbox` colour showed in that strip. The picture is a block now, and the box ends where it does. The documentation site resets images on its own, which is why none of it showed there.
 

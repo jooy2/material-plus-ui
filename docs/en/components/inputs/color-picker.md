@@ -31,7 +31,7 @@ That is what keeps the hue rail still while the pointer is in the black corner: 
 
 The value is derived from the model rather than the other way round, and an incoming `value` only re-seeds the model when it says something different from what the model already means — compared as colours, not as strings, because `#FF0000` and `#ff0000` are the same colour written two ways.
 
-There is no colour library under this. The conversions are a hundred lines of arithmetic, which is the whole reason the package still has one runtime dependency.
+There is no colour library under this. The conversions are a hundred lines of arithmetic, which is the whole reason a colour picker adds nothing to what the package already installs.
 
 ## Examples
 

@@ -622,8 +622,8 @@ export interface MPStyleProps {
 export interface MPControlEventProps<Element extends HTMLElement = HTMLElement> {
   /**
    * Every keystroke that reaches the control, modifiers included — which makes
-   * this the one to reach for for a combination. It is also the only one of
-   * these where `preventDefault` still means anything.
+   * this the one to reach for when a combination matters. It is also the only
+   * one of these where `preventDefault` still means anything.
    */
   onKeyDown?: React.KeyboardEventHandler<Element>;
   /** The same keystroke released. */
