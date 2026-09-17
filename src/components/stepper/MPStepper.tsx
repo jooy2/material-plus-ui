@@ -34,6 +34,28 @@ interface StepperContextValue {
   count: number;
   /** Which steps a linear stepper is allowed to jump back to. */
   furthest: number;
+  /**
+   * The stem every id in one stepper is built on.
+   *
+   * The panel is drawn outside the list rather than inside the step it belongs
+   * to — a `<li>` holding a whole form would make the rail as tall as the form —
+   * so nothing in the markup says the two are related. These ids are what says
+   * it: the step points at the panel it opens, and the panel takes its name from
+   * the step that is open.
+   */
+  idBase: string;
+  /** Whether there is a panel to point at. A stepper of bare steps has none. */
+  hasPanel: boolean;
+}
+
+/** The step's own title, which is also the name of the panel it opens. */
+function labelId(idBase: string, index: number): string {
+  return `${idBase}-label-${index}`;
+}
+
+/** The one panel. There is never more than one open at a time. */
+function panelId(idBase: string): string {
+  return `${idBase}-panel`;
 }
 
 const StepperContext = React.createContext<StepperContextValue | null>(null);
@@ -221,6 +243,10 @@ export const MPStepper = React.forwardRef<HTMLDivElement, MPStepperProps>(functi
 
   const steps = React.Children.toArray(children).filter(React.isValidElement);
   const count = steps.length;
+  const idBase = React.useId();
+  const hasPanel = hasContent(
+    (steps[active] as React.ReactElement<MPStepProps> | undefined)?.props.children
+  );
 
   const select = React.useCallback(
     (index: number) => {
@@ -242,9 +268,24 @@ export const MPStepper = React.forwardRef<HTMLDivElement, MPStepperProps>(functi
       onSelect: onActiveChange || activeProp === undefined ? select : null,
       linear,
       count,
-      furthest
+      furthest,
+      idBase,
+      hasPanel
     }),
-    [size, color, orientation, active, onActiveChange, activeProp, select, linear, count, furthest]
+    [
+      size,
+      color,
+      orientation,
+      active,
+      onActiveChange,
+      activeProp,
+      select,
+      linear,
+      count,
+      furthest,
+      idBase,
+      hasPanel
+    ]
   );
 
   const horizontal = orientation === 'horizontal';
@@ -283,14 +324,22 @@ export const MPStepper = React.forwardRef<HTMLDivElement, MPStepperProps>(functi
          * as tall as the panel, and a horizontal rail would then be a row of
          * columns rather than a row of steps.
          */}
-        <StepPanel steps={steps} active={active} />
+        <StepPanel steps={steps} active={active} idBase={idBase} />
       </div>
     </StepperContext.Provider>
   );
 });
 
 /** The active step's `children`, and nothing else's. */
-function StepPanel({ steps, active }: { steps: React.ReactElement[]; active: number }) {
+function StepPanel({
+  steps,
+  active,
+  idBase
+}: {
+  steps: React.ReactElement[];
+  active: number;
+  idBase: string;
+}) {
   const current = steps[active] as React.ReactElement<MPStepProps> | undefined;
   const content = current?.props.children;
 
@@ -298,8 +347,23 @@ function StepPanel({ steps, active }: { steps: React.ReactElement[]; active: num
     return null;
   }
 
+  /*
+   * The group is named after the step that is open, and the name is the step's
+   * own title rather than a second string: a panel that said something other
+   * than the step above it would be two names for one thing. A step with no
+   * `label` has nothing to point at, and an `aria-labelledby` naming an element
+   * that is not there is worse than no name at all — a screen reader resolves it
+   * to the empty string and the group loses the fallback it would otherwise get.
+   */
+  const named = hasContent(current?.props.label);
+
   return (
-    <div className="mp-stepper__panel mt-4" role="group" aria-label={undefined}>
+    <div
+      id={panelId(idBase)}
+      role="group"
+      aria-labelledby={named ? labelId(idBase, active) : undefined}
+      className="mp-stepper__panel mt-4"
+    >
       {content}
     </div>
   );
@@ -415,6 +479,7 @@ export const MPStep = React.forwardRef<HTMLLIElement, MPStepProps>(function MPSt
     <span className={`flex min-w-0 flex-col gap-0.5 text-start ${horizontal ? 'mt-2' : ''}`}>
       {hasContent(label) ? (
         <span
+          id={stepper ? labelId(stepper.idBase, index) : undefined}
           className={[
             'mp-stepper__label',
             SHEET_TITLE[size],
@@ -463,6 +528,13 @@ export const MPStep = React.forwardRef<HTMLLIElement, MPStepProps>(function MPSt
       {pressable ? (
         <button
           type="button"
+          // What the press opens, so a reader is told there is a panel and can
+          // be taken to it. Left off when there is nothing to open: a stepper
+          // whose steps carry no `children` is a progress indicator, and
+          // `aria-controls` naming an element that is not on the page is a
+          // promise the markup does not keep.
+          aria-controls={stepper?.hasPanel ? panelId(stepper.idBase) : undefined}
+          aria-expanded={stepper?.hasPanel ? status === 'current' : undefined}
           // Not the `disabled` attribute on an unreachable step, for the reason
           // the calendar's cells give: a disabled button leaves the tab order,
           // and a reader walking the rail would find a hole where the step they

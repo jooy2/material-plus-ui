@@ -106,6 +106,60 @@ describe('MPStepper', () => {
 
       expect(screen.container.querySelector('.mp-stepper__panel')).toBeNull();
     });
+
+    /*
+     * The panel is drawn outside the list rather than inside the step it belongs
+     * to, so nothing in the markup says the two are related. It takes its name
+     * from the step that is open — a group announced as "group" and nothing else
+     * tells a reader what they have arrived in.
+     */
+    it('is a group named after the step that is open', async () => {
+      const screen = await render(<Three active={1} />);
+      const panel = screen.getByRole('group', { name: 'Payment' });
+
+      await expect.element(panel).toBeInTheDocument();
+      expect(panel.element().textContent).toBe('Payment panel');
+    });
+
+    it('takes the new step\u2019s name when the step changes', async () => {
+      const screen = await render(<Driven />);
+
+      await expect.element(screen.getByRole('group', { name: 'Account' })).toBeInTheDocument();
+
+      await screen.getByRole('button', { name: 'next' }).click();
+
+      await expect.element(screen.getByRole('group', { name: 'Payment' })).toBeInTheDocument();
+    });
+
+    it('is what a pressable step says it controls', async () => {
+      const screen = await render(<Three active={1} onActiveChange={() => {}} />);
+      const open = screen.getByRole('button', { name: /Payment/ }).element();
+      const panel = screen.container.querySelector('.mp-stepper__panel');
+
+      expect(panel?.id).toBeTruthy();
+      expect(open.getAttribute('aria-controls')).toBe(panel?.id);
+      // The step that is open says so; the ones that are not say that too.
+      expect(open).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByRole('button', { name: /Account/ }).element()).toHaveAttribute(
+        'aria-expanded',
+        'false'
+      );
+    });
+
+    it('promises no panel on a stepper that has none', async () => {
+      // `aria-controls` naming an element that is not on the page is a promise
+      // the markup does not keep.
+      const screen = await render(
+        <MPStepper onActiveChange={() => {}}>
+          <MPStep label="One" />
+          <MPStep label="Two" />
+        </MPStepper>
+      );
+
+      expect(screen.getByRole('button', { name: /One/ }).element()).not.toHaveAttribute(
+        'aria-controls'
+      );
+    });
   });
 
   describe('pressing', () => {
