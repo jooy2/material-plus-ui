@@ -114,6 +114,14 @@
 
 - **`MPTransfer` says what a press did.** The arrow keeps the focus and the only thing that changes is which of two columns of near-identical rows a row is in, so moving five rows was silent. A polite live region now reports how many crossed and which list they landed in — named by your own `sourceLabel` or `targetLabel` where that is a string, and by the locale's word for it otherwise. `transfer.moved` is a new message and is translated in all eighteen languages.
 
+- **Every Korean anchor lands on its heading.** VitePress slugs a heading through `NFKD` and drops the combining marks, which is how `Café` becomes `cafe`. Hangul has no combining marks, so `NFKD` split every syllable into jamo and all of them survived: `모양` became five code points that look exactly like the two anybody would type. Forty-seven hand-written anchors across the Korean pages therefore landed at the top of the page instead of at the heading, and nothing about the link or the id showed it. The slug composes its result now, which leaves every id with no Hangul in it byte for byte what it was. Four more links, in both locales, left off the `_` that a slug beginning with a digit carries.
+
+- **A page that moved leaves a stub at the address it used to answer.** Two rounds of regrouping moved `useMPConfirm` and the nine charts, and the site is GitHub Pages: there is no server to answer 301, so those twenty URLs simply stopped existing for anybody who had bookmarked or linked one. Each is now a canonical plus a zero-second refresh pointing at the page's new home.
+
+- **The note beside the sample images is no longer published as a page.** VitePress compiles every `.md` under the source directory, `public/` included, so a file telling a contributor what size a portrait is was being built into the site and listed in the sitemap for indexing — with a locale switcher pointing at a Korean translation that does not exist.
+
+- **`MPAnimateFade` carried one of its sections twice.** Twenty-six lines, verbatim but for two words, in the English page only; the Korean translation has it once.
+
 - **Six links in the props tables pointed at pages that are not there.** `MPAlert` and `MPAspectRatio` linked one directory too high to the colour page, `MPChip` and `MPMenu` linked to each other as though they shared a section, `MPPortal` linked to `MPDialog` and `MPTable` to `MPListItem` in the wrong ones. Both locales, since the tables are generated from the same comments.
 
 - **The documentation site declared the wrong size for its own share image.** `og:image:width` and `og:image:height` said 256 where the file is 512 square, so a crawler laid the card out around a box the image does not fill.
