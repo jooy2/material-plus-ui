@@ -20,6 +20,7 @@ import {
 } from '../../internal/scale';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { FADE, PORTAL_LAYER } from '../../internal/surface';
+import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
 import type { MPAlign, MPColor, MPSide, MPSize, MPSlots } from '../../types';
 
 /** One stop on the tour. */
@@ -273,6 +274,50 @@ export function MPTour({
    */
   const [measured, setMeasured] = React.useState<{ selector: string; spot: Spot } | null>(null);
 
+  /*
+   * What a screen reader is told when the step changes under it.
+   *
+   * Base UI announces the popup once, on open, out of its `Title` and
+   * `Description`. Every step after the first swaps those two in a popup that
+   * never closed, so the reader pressing *Next* heard the button they were
+   * standing on and nothing about where they had arrived — on the one component
+   * whose entire purpose is to say where you are.
+   *
+   * It holds the position and the title rather than the whole card: the body is
+   * two sentences the reader can walk into, and reading it out twice — once live
+   * and once as they arrive — is worse than not announcing it. The position goes
+   * first because *Step 3 of 7* is the thing a tour is asked for most.
+   *
+   * Empty until the step actually moves, so the opening announcement is Base
+   * UI's alone. A live region that arrives already full says its contents as
+   * soon as it is inserted, which on open would be the card read twice.
+   */
+  const [spoken, setSpoken] = React.useState('');
+  const announced = React.useRef(index);
+
+  React.useEffect(() => {
+    if (!running) {
+      announced.current = index;
+      setSpoken('');
+
+      return;
+    }
+
+    if (announced.current === index) {
+      return;
+    }
+
+    announced.current = index;
+
+    const position = fillMessage(messages.position, {
+      index: String(index + 1),
+      total: String(steps.length)
+    });
+    const title = steps[index]?.title;
+
+    setSpoken(typeof title === 'string' && title !== '' ? `${position}. ${title}` : position);
+  }, [running, index, steps, messages.position]);
+
   const setOpen = (next: boolean) => {
     if (openProp === undefined) {
       setUncontrolledOpen(next);
@@ -497,6 +542,10 @@ export function MPTour({
                 ) : null}
               </div>
             ) : null}
+
+            <span className={VISUALLY_HIDDEN} aria-live="polite">
+              {spoken}
+            </span>
 
             <div
               className={['flex items-center gap-2', classNames?.footer ?? '']

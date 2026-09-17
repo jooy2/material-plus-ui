@@ -26,6 +26,54 @@ const card = () => document.querySelector('.mp-tour') as HTMLElement | null;
 const scrim = () => document.querySelector('.mp-tour__scrim') as HTMLElement | null;
 
 describe('MPTour', () => {
+  /*
+   * Base UI announces the popup once, on open, out of its `Title` and
+   * `Description`. Every step after the first swaps those two in a popup that
+   * never closed — so without a live region the reader pressing *Next* heard the
+   * button they were standing on and nothing about where they had arrived.
+   */
+  describe('what a screen reader is told', () => {
+    const live = () =>
+      document.querySelector('.mp-tour [aria-live="polite"]') as HTMLElement | null;
+
+    it('says nothing of its own on the step it opened on', async () => {
+      // The region arrives empty on purpose. A live region inserted with
+      // contents says them at once, which on open would be the card read twice.
+      await render(<Page scrollIntoView={false} />);
+
+      await vi.waitFor(() => expect(card()).not.toBeNull());
+      expect(live()?.textContent).toBe('');
+    });
+
+    it('announces where the reader has arrived when the step changes', async () => {
+      const screen = await render(<Page scrollIntoView={false} />);
+
+      await vi.waitFor(() => expect(card()).not.toBeNull());
+      await screen.getByRole('button', { name: 'Next' }).click();
+
+      await vi.waitFor(() => expect(live()?.textContent).toBe('Step 2 of 3. The second'));
+    });
+
+    it('falls back to the position alone on a step with no title', async () => {
+      const screen = await render(
+        <>
+          <MPButton id="one">One</MPButton>
+          <MPTour
+            steps={[{ target: '#one', content: 'First' }, { content: 'Second' }]}
+            locale="en-US"
+            defaultOpen
+            scrollIntoView={false}
+          />
+        </>
+      );
+
+      await vi.waitFor(() => expect(card()).not.toBeNull());
+      await screen.getByRole('button', { name: 'Next' }).click();
+
+      await vi.waitFor(() => expect(live()?.textContent).toBe('Step 2 of 2'));
+    });
+  });
+
   it('stands over the page on the step it was given', async () => {
     const screen = await render(<Page />);
 
