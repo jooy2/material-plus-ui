@@ -121,3 +121,77 @@ describe('the CSV', () => {
     expect(toCsv([['a'], ['b']], { bom: false })).toBe('a\r\nb');
   });
 });
+
+/**
+ * The half of a CSV that RFC 4180 says nothing about.
+ *
+ * A spreadsheet does not read a CSV as data. A cell beginning `=` or `@` or `+`
+ * is a formula, and the rows in a data table are usually things other people
+ * typed — so a file written straight out is one click from running somebody
+ * else's input on the reader's machine. Nothing at render time can reach that;
+ * the file is where it has to be stopped.
+ */
+describe('a cell a spreadsheet would run', () => {
+  const field = (value: unknown) => csvField(value, ',');
+
+  it('defuses every character a spreadsheet leads a formula with', () => {
+    expect(field('=1+1')).toBe("'=1+1");
+    expect(field('@SUM(A1)')).toBe("'@SUM(A1)");
+    expect(field("+cmd|'/c calc'!A0")).toBe("'+cmd|'/c calc'!A0");
+    expect(field("-2+3+cmd|'/c calc'!A0")).toBe("'-2+3+cmd|'/c calc'!A0");
+  });
+
+  /*
+   * A leading tab or carriage return is thrown away before the scan, so a cell
+   * beginning with one still leads with whatever follows it. The second of these
+   * also has to come back quoted, because a CR in a field always did.
+   */
+  it('is not walked past by the whitespace a parser discards', () => {
+    expect(field('\t=1+1')).toBe("'\t=1+1");
+    expect(field('\r=1+1')).toBe(`"'\r=1+1"`);
+  });
+
+  it('quotes the result when the formula also holds a separator', () => {
+    expect(field('=HYPERLINK("https://e.example","x")')).toBe(
+      `"'=HYPERLINK(""https://e.example"",""x"")"`
+    );
+  });
+
+  /*
+   * The whole reason the check is two rules rather than one. A table of negative
+   * figures whose every cell had been prefixed would be a fix more annoying than
+   * the thing it fixed.
+   */
+  it('leaves a number its sign', () => {
+    expect(field(-5)).toBe('-5');
+    expect(field('-5')).toBe('-5');
+    expect(field('+3.25')).toBe('+3.25');
+    expect(field('-1e5')).toBe('-1e5');
+    expect(field('-1,234.5')).toBe('"-1,234.5"');
+  });
+
+  it('leaves alone a cell that leads with nothing special', () => {
+    expect(field('Ada Lovelace')).toBe('Ada Lovelace');
+    expect(field('a=b')).toBe('a=b');
+    expect(field('')).toBe('');
+  });
+
+  /*
+   * What the allowance for numbers must not become. Everything here begins the
+   * way a number does and goes on to be a formula, so the rule that lets `-5`
+   * through has to refuse all of them.
+   */
+  it('is not opened up by the allowance a number gets', () => {
+    expect(field('-1+1')).toBe("'-1+1");
+    expect(field('+1-cmd')).toBe("'+1-cmd");
+    expect(field('-1;=1+1')).toBe("'-1;=1+1");
+    expect(field('- =1+1')).toBe("'- =1+1");
+  });
+
+  it('is on by default and can be turned off', () => {
+    expect(toCsv([['=1+1']], { bom: false })).toBe("'=1+1");
+    expect(toCsv([['=1+1']], { bom: false, escapeFormulas: false })).toBe('=1+1');
+    // A file going to a parser rather than to a person goes out byte for byte.
+    expect(csvField('=1+1', ',', false)).toBe('=1+1');
+  });
+});

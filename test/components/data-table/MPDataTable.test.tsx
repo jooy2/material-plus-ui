@@ -445,6 +445,49 @@ describe('MPDataTable', () => {
       expect(onExport.mock.calls[0][0]).toContain('"Lee, Ada","She said ""hi""",1');
     });
 
+    /*
+     * The rows in a data table are things other people typed, and the file is
+     * going to be opened in a spreadsheet — which is the pair that turns a cell
+     * beginning `=` into somebody else's input running on the reader's machine.
+     * It is their spreadsheet that runs it, so the file is the only place to
+     * stop it.
+     */
+    it('defuses a cell a spreadsheet would run as a formula', async () => {
+      const onExport = vi.fn();
+      const screen = await render(
+        <Table
+          exportable
+          onExport={onExport}
+          items={[{ id: 'a', name: '=HYPERLINK("https://e.example")', city: 'Seoul', score: -5 }]}
+        />
+      );
+
+      await screen.getByRole('button', { name: 'Download CSV' }).click();
+
+      const csv = onExport.mock.calls[0][0] as string;
+
+      expect(csv).toContain("'=HYPERLINK");
+      // And the score keeps its sign: a negative number is not a formula.
+      expect(csv).toContain(',-5');
+    });
+
+    it('lets a file bound for a parser go out byte for byte', async () => {
+      const onExport = vi.fn();
+      const screen = await render(
+        <Table
+          exportable
+          exportEscapeFormulas={false}
+          onExport={onExport}
+          items={[{ id: 'a', name: '=1+1', city: 'Seoul', score: 1 }]}
+        />
+      );
+
+      await screen.getByRole('button', { name: 'Download CSV' }).click();
+
+      expect(onExport.mock.calls[0][0]).toContain('=1+1');
+      expect(onExport.mock.calls[0][0]).not.toContain("'=1+1");
+    });
+
     it('takes what a column says to export rather than what it draws', async () => {
       const onExport = vi.fn();
       const screen = await render(

