@@ -100,6 +100,48 @@ export interface MPCarouselProps extends Omit<
   children?: React.ReactNode;
 }
 
+/**
+ * The arrows, which sit on top of whatever the slide is.
+ *
+ * MD3 names no arrow. Its carousel is a strip the reader drags, and the spec
+ * covers the container, the item widths, the padding and the corner radius and
+ * stops there — so there is no token to match here and the treatment is this
+ * library's own.
+ *
+ * What it is: a filled button whose **container** is let down to 85%, with the
+ * glyph left alone. A slide is usually a photograph, and two solid discs of the
+ * accent sitting on one is chrome shouting over the thing it is there to move.
+ *
+ * The alpha is on the background rather than on the button, and that is the
+ * whole care taken here. `opacity` would take the glyph down with it, and the
+ * glyph against its own container is the contrast that has to survive: the
+ * container is what changes, so the container is what thins.
+ *
+ * Eighty-five is measured rather than chosen. The worst case is a white slide,
+ * where the accent blends towards the picture and the white glyph on it has the
+ * least to work with — against the default source that is 6.45:1 at full
+ * strength, 5.04 at 88%, **4.73 at 85%** and 4.26 at 80%. So this is the lowest
+ * step that clears 4.5:1, which is the *text* threshold; a glyph only owes 3:1.
+ * A source colour of your own moves those figures, and the margin is there for
+ * that.
+ *
+ * Hover, focus and a press take it back to solid, which is where the state
+ * layer expects to be drawing anyway.
+ *
+ * `disabled` is left out of it. The spec's disabled treatment is already a wash
+ * of `on-surface` at 12%, and thinning that further is a control nobody can
+ * find.
+ */
+const ARROW = [
+  'pointer-events-auto',
+  'not-disabled:bg-(--_mp-accent)/85',
+  'not-disabled:hover:bg-(--_mp-accent)',
+  'not-disabled:focus-visible:bg-(--_mp-accent)',
+  'not-disabled:active:bg-(--_mp-accent)',
+  'transition-[background-color] duration-(--mp-sys-motion-duration-short4)',
+  'ease-mp-standard motion-reduce:transition-none'
+].join(' ');
+
 /** How far the arrows sit in from the frame's edge. */
 const ARROW_INSET: Record<MPSize, string> = {
   xs: 'start-1 end-1',
@@ -451,7 +493,7 @@ export const MPCarousel = React.forwardRef<HTMLDivElement, MPCarouselProps>(func
               color={color}
               label={previousLabel ?? messages.previous}
               disabled={!loop && atStart}
-              className="pointer-events-auto"
+              className={ARROW}
               // `rtl:rotate-180`, the same treatment the calendar's steppers take:
               // "previous" is on the other side of the frame in a language that
               // runs the other way.
@@ -471,7 +513,7 @@ export const MPCarousel = React.forwardRef<HTMLDivElement, MPCarouselProps>(func
               color={color}
               label={nextLabel ?? messages.next}
               disabled={!loop && atEnd}
-              className="pointer-events-auto"
+              className={ARROW}
               icon={
                 <MPIcon
                   icon={ChevronRightIcon}

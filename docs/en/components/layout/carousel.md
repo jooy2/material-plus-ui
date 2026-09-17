@@ -54,6 +54,16 @@ A carousel that moves while it is being read is the most complained-about patter
 
 The live region goes quiet at the same time. A region that announces a new slide's name every five seconds is what makes a screen reader unusable on a page that has one — so while `autoPlay` is on it is `aria-live="off"`, and the reader is told where they are only when they moved themselves.
 
+## The arrows sit at 85%
+
+MD3 names no arrow. Its carousel is a strip the reader drags, and the spec covers the container, the item widths, the padding and the corner radius and stops — so this is the library's own decision rather than a token being followed.
+
+A slide is usually a photograph, and two solid discs of the accent sitting on one is chrome shouting over the thing it is there to move. So the **container** is let down to 85% and the glyph is left alone. The alpha is on the background rather than on the button, because `opacity` would take the glyph down with it and the glyph against its own disc is the contrast that has to survive.
+
+Eighty-five is measured. The worst case is a white slide, where the accent blends towards the picture and the white glyph has the least to work with: against the default source that is 6.45:1 at full strength, 5.04 at 88%, 4.73 at 85% and 4.26 at 80%. It is the lowest step that still clears 4.5:1, which is the threshold for _text_; a glyph only owes 3:1. A source colour of your own moves those figures, and the margin is there for that.
+
+Hover, focus and a press take the disc back to solid. A disabled arrow keeps the spec's own treatment, which is already a wash of `on-surface` at 12%.
+
 ## loop
 
 On by default. With it off the arrows go `disabled` at the ends instead of wrapping, which is the honest thing for a set that has a beginning and an end: a gallery of three photographs does, a rotating banner does not.

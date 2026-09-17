@@ -253,6 +253,42 @@ describe('MPCarousel', () => {
     });
   });
 
+  /*
+   * MD3 names no arrow — its carousel is a strip the reader drags — so the
+   * treatment is this library's own, and what it has to keep is the glyph's
+   * contrast against the disc it sits on.
+   */
+  describe('the arrows', () => {
+    const arrow = (name: RegExp) =>
+      [...document.querySelectorAll('.mp-carousel button[aria-label]')].find((button) =>
+        name.test(button.getAttribute('aria-label') ?? '')
+      ) as HTMLElement;
+
+    it('thins the disc and leaves the glyph alone', async () => {
+      await render(<MPCarousel loop>{SLIDES}</MPCarousel>);
+      const next = arrow(/next/i);
+      const style = getComputedStyle(next);
+
+      // `opacity` would take the glyph down with the disc, and the glyph
+      // against its own container is the contrast that has to survive.
+      expect(style.opacity).toBe('1');
+      // A colour carrying an alpha, whatever notation the engine reports it in.
+      expect(style.backgroundColor).toMatch(/0\.85|\/ 0\.85/);
+    });
+
+    it('leaves a disabled arrow at the spec’s own treatment', async () => {
+      // That is already a wash of `on-surface` at 12%, and thinning it further
+      // is a control nobody can find.
+      // `loop` is on by default, so the arrows never run out; turning it off is
+      // what gives the first slide a disabled *previous*.
+      await render(<MPCarousel loop={false}>{SLIDES}</MPCarousel>);
+      const previous = arrow(/previous/i);
+
+      expect(previous).toBeDisabled();
+      expect(getComputedStyle(previous).backgroundColor).not.toMatch(/0\.85|\/ 0\.85/);
+    });
+  });
+
   describe('the strip', () => {
     it('is focusable, so the arrow keys reach it', async () => {
       const screen = await render(<MPCarousel>{SLIDES}</MPCarousel>);
