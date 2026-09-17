@@ -14,13 +14,18 @@ test/
 docs/
 docs-dist/
 CHANGELOG.md
-CLAUDE.md
-TODO.md
 CODE_OF_CONDUCT.md
 SECURITY.md
 CONTRIBUTING.md
 
 # For development
+#
+# The last two are a net rather than a list. A one-off script left at the root
+# is invisible in a repository and ships to every consumer of the package, which
+# is how an 8 kB throwaway `.fix.py` went out in a release; naming the shapes
+# catches the next one without anybody having to remember to.
+*.py
+.*.py
 scripts/
 .git*
 .eslintignore
