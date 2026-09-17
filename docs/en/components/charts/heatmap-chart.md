@@ -29,7 +29,7 @@ import { MPHeatmapChart } from 'material-plus-ui';
 
 Each series is one row and its `data` are that row's cells, in the order `categories` names the columns. A week by hour, a cohort by month, a service by region — the shape is for a pattern across two dimensions, where what a reader is looking for is **where** rather than what any one cell holds.
 
-If the exact numbers matter more than the pattern, that is a table. [MPDataTable](data-table) sorts, filters and downloads; a heatmap does none of those.
+If the exact numbers matter more than the pattern, that is a table. [MPDataTable](../display/data-table) sorts, filters and downloads; a heatmap does none of those.
 
 ## Its colour is a ramp, not the palette
 

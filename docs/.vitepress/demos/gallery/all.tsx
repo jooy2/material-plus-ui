@@ -1466,223 +1466,6 @@ const GROUPS: Group[] = [
         )
       },
       {
-        name: 'MPAreaChart',
-        summary: {
-          ko: '아래까지 채운 수치, 쌓으면 합계',
-          en: 'A quantity with the room under it filled in'
-        },
-        path: '/components/display/area-chart',
-        preview: (
-          <div style={{ width: 300 }}>
-            <MPAreaChart
-              size="xs"
-              label="Storage in use"
-              categories={['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']}
-              series={[
-                { name: 'Databases', data: [18, 20, 21, 24, 27, 28] },
-                { name: 'Backups', data: [6, 7, 7, 8, 9, 10] }
-              ]}
-              stacked
-              curve="smooth"
-              locale="en-US"
-            />
-          </div>
-        )
-      },
-      {
-        name: 'MPBarChart',
-        summary: {
-          ko: '항목마다 하나씩 재어 놓은 길이',
-          en: 'A measured length per category'
-        },
-        path: '/components/display/bar-chart',
-        preview: (
-          <div style={{ width: 300 }}>
-            <MPBarChart
-              size="xs"
-              label="Revenue by quarter"
-              categories={['Q1', 'Q2', 'Q3', 'Q4']}
-              series={[
-                { name: 'New', data: [18, 21, 24, 29] },
-                { name: 'Renewal', data: [24, 27, 27, 31] }
-              ]}
-              locale="en-US"
-            />
-          </div>
-        )
-      },
-      {
-        name: 'MPGaugeChart',
-        summary: {
-          ko: '계기판 위의 값 하나, 문자판에 그린 위험 구간',
-          en: 'One reading on a dial, trouble drawn on the face'
-        },
-        path: '/components/display/gauge-chart',
-        preview: (
-          <div style={{ width: 200 }}>
-            <MPGaugeChart
-              size="xs"
-              value={72}
-              label="CPU"
-              bands
-              thresholds={[
-                { from: 70, color: 'tertiary' },
-                { from: 90, color: 'error' }
-              ]}
-              locale="en-US"
-            />
-          </div>
-        )
-      },
-      {
-        name: 'MPHeatmapChart',
-        summary: {
-          ko: '양이 색으로 칠해진 격자',
-          en: 'A grid of cells, coloured by how much'
-        },
-        path: '/components/display/heatmap-chart',
-        preview: (
-          <div style={{ width: 280 }}>
-            <MPHeatmapChart
-              size="xs"
-              label="Requests by hour"
-              categories={['Mon', 'Tue', 'Wed', 'Thu', 'Fri']}
-              series={[
-                { name: '09:00', data: [12, 14, 11, 15, 9] },
-                { name: '12:00', data: [61, 68, 64, 71, 52] },
-                { name: '15:00', data: [44, 49, 47, 51, 33] }
-              ]}
-              locale="en-US"
-            />
-          </div>
-        )
-      },
-      {
-        name: 'MPLineChart',
-        summary: {
-          ko: '순서가 있는 축 위의 수치',
-          en: 'A quantity over an ordered axis'
-        },
-        path: '/components/display/line-chart',
-        preview: (
-          <div style={{ width: 300 }}>
-            <MPLineChart
-              size="xs"
-              label="Sessions by source"
-              categories={['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']}
-              series={[
-                { name: 'Organic', data: [42, 46, 44, 51, 56, 54] },
-                { name: 'Referral', data: [31, 34, 40, 43, 41, 49] }
-              ]}
-              curve="smooth"
-              locale="en-US"
-            />
-          </div>
-        )
-      },
-      {
-        name: 'MPPieChart',
-        summary: {
-          ko: '전체에서 각 부분이 차지하는 몫',
-          en: 'Parts of a whole, at a glance'
-        },
-        path: '/components/display/pie-chart',
-        preview: (
-          <div style={{ width: 240 }}>
-            <MPPieChart
-              size="xs"
-              label="Sessions by source"
-              categories={['Search', 'Direct', 'Social', 'Referral']}
-              data={[52, 28, 14, 6]}
-              shape="donut"
-              locale="en-US"
-            />
-          </div>
-        )
-      },
-      {
-        name: 'MPScatterChart',
-        summary: {
-          ko: '두 측정값을 서로 대조하는 관측들',
-          en: 'Two measures against each other'
-        },
-        path: '/components/display/scatter-chart',
-        preview: (
-          <div style={{ width: 280 }}>
-            <MPScatterChart
-              size="xs"
-              label="Sessions against days active"
-              series={[
-                {
-                  name: 'Free',
-                  data: [
-                    { x: 4, y: 21 },
-                    { x: 9, y: 20 },
-                    { x: 14, y: 26 },
-                    { x: 21, y: 30 }
-                  ]
-                },
-                {
-                  name: 'Paid',
-                  data: [
-                    { x: 6, y: 41 },
-                    { x: 13, y: 44 },
-                    { x: 22, y: 57 }
-                  ]
-                }
-              ]}
-              locale="en-US"
-            />
-          </div>
-        )
-      },
-      {
-        name: 'MPTimelineChart',
-        summary: {
-          ko: '무엇이 언제 진행됐는지, 하나에 한 줄씩',
-          en: 'What ran when, one row per thing'
-        },
-        path: '/components/display/timeline-chart',
-        preview: (
-          <div style={{ width: 300 }}>
-            <MPTimelineChart
-              size="xs"
-              height={120}
-              label="Release plan"
-              series={[
-                {
-                  name: 'Design',
-                  data: [{ start: new Date(2026, 2, 2), end: new Date(2026, 2, 6) }]
-                },
-                {
-                  name: 'Build',
-                  data: [{ start: new Date(2026, 2, 5), end: new Date(2026, 2, 16) }]
-                },
-                {
-                  name: 'Test',
-                  data: [{ start: new Date(2026, 2, 13), end: new Date(2026, 2, 18) }]
-                }
-              ]}
-              locale="en-US"
-            />
-          </div>
-        )
-      },
-      {
-        name: 'MPSparkline',
-        summary: {
-          ko: '단어 하나만 한 자리에 놓인 시계열',
-          en: 'A series as a mark, in the space of a word'
-        },
-        path: '/components/display/sparkline',
-        preview: (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, width: 200 }}>
-            <MPSparkline data={[12, 15, 14, 19, 22, 21, 27]} shape="area" curve="smooth" />
-            <MPSparkline data={[8, 11, 9, 14, 12, 17, 21]} shape="bar" color="tertiary" />
-          </div>
-        )
-      },
-      {
         name: 'MPStatistic',
         summary: {
           ko: '숫자 하나를 한 번 말하는 타일',
@@ -2919,6 +2702,232 @@ const GROUPS: Group[] = [
           <Fit>
             <MPAnimateTyping text="one character at a time" speed={14} repeat="infinite" erase />
           </Fit>
+        )
+      }
+    ]
+  },
+  {
+    title: { ko: '차트', en: 'Charts' },
+    note: {
+      ko: '수치를 그림으로 그리는 것. 어느 것도 사양이 이름 붙인 컴포넌트가 아닙니다.',
+      en: 'It draws a quantity. Not one of them is a component the specification names.'
+    },
+    entries: [
+      {
+        name: 'MPAreaChart',
+        summary: {
+          ko: '아래까지 채운 수치, 쌓으면 합계',
+          en: 'A quantity with the room under it filled in'
+        },
+        path: '/components/charts/area-chart',
+        preview: (
+          <div style={{ width: 300 }}>
+            <MPAreaChart
+              size="xs"
+              label="Storage in use"
+              categories={['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']}
+              series={[
+                { name: 'Databases', data: [18, 20, 21, 24, 27, 28] },
+                { name: 'Backups', data: [6, 7, 7, 8, 9, 10] }
+              ]}
+              stacked
+              curve="smooth"
+              locale="en-US"
+            />
+          </div>
+        )
+      },
+      {
+        name: 'MPBarChart',
+        summary: {
+          ko: '항목마다 하나씩 재어 놓은 길이',
+          en: 'A measured length per category'
+        },
+        path: '/components/charts/bar-chart',
+        preview: (
+          <div style={{ width: 300 }}>
+            <MPBarChart
+              size="xs"
+              label="Revenue by quarter"
+              categories={['Q1', 'Q2', 'Q3', 'Q4']}
+              series={[
+                { name: 'New', data: [18, 21, 24, 29] },
+                { name: 'Renewal', data: [24, 27, 27, 31] }
+              ]}
+              locale="en-US"
+            />
+          </div>
+        )
+      },
+      {
+        name: 'MPGaugeChart',
+        summary: {
+          ko: '계기판 위의 값 하나, 문자판에 그린 위험 구간',
+          en: 'One reading on a dial, trouble drawn on the face'
+        },
+        path: '/components/charts/gauge-chart',
+        preview: (
+          <div style={{ width: 200 }}>
+            <MPGaugeChart
+              size="xs"
+              value={72}
+              label="CPU"
+              bands
+              thresholds={[
+                { from: 70, color: 'tertiary' },
+                { from: 90, color: 'error' }
+              ]}
+              locale="en-US"
+            />
+          </div>
+        )
+      },
+      {
+        name: 'MPHeatmapChart',
+        summary: {
+          ko: '양이 색으로 칠해진 격자',
+          en: 'A grid of cells, coloured by how much'
+        },
+        path: '/components/charts/heatmap-chart',
+        preview: (
+          <div style={{ width: 280 }}>
+            <MPHeatmapChart
+              size="xs"
+              label="Requests by hour"
+              categories={['Mon', 'Tue', 'Wed', 'Thu', 'Fri']}
+              series={[
+                { name: '09:00', data: [12, 14, 11, 15, 9] },
+                { name: '12:00', data: [61, 68, 64, 71, 52] },
+                { name: '15:00', data: [44, 49, 47, 51, 33] }
+              ]}
+              locale="en-US"
+            />
+          </div>
+        )
+      },
+      {
+        name: 'MPLineChart',
+        summary: {
+          ko: '순서가 있는 축 위의 수치',
+          en: 'A quantity over an ordered axis'
+        },
+        path: '/components/charts/line-chart',
+        preview: (
+          <div style={{ width: 300 }}>
+            <MPLineChart
+              size="xs"
+              label="Sessions by source"
+              categories={['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']}
+              series={[
+                { name: 'Organic', data: [42, 46, 44, 51, 56, 54] },
+                { name: 'Referral', data: [31, 34, 40, 43, 41, 49] }
+              ]}
+              curve="smooth"
+              locale="en-US"
+            />
+          </div>
+        )
+      },
+      {
+        name: 'MPPieChart',
+        summary: {
+          ko: '전체에서 각 부분이 차지하는 몫',
+          en: 'Parts of a whole, at a glance'
+        },
+        path: '/components/charts/pie-chart',
+        preview: (
+          <div style={{ width: 240 }}>
+            <MPPieChart
+              size="xs"
+              label="Sessions by source"
+              categories={['Search', 'Direct', 'Social', 'Referral']}
+              data={[52, 28, 14, 6]}
+              shape="donut"
+              locale="en-US"
+            />
+          </div>
+        )
+      },
+      {
+        name: 'MPScatterChart',
+        summary: {
+          ko: '두 측정값을 서로 대조하는 관측들',
+          en: 'Two measures against each other'
+        },
+        path: '/components/charts/scatter-chart',
+        preview: (
+          <div style={{ width: 280 }}>
+            <MPScatterChart
+              size="xs"
+              label="Sessions against days active"
+              series={[
+                {
+                  name: 'Free',
+                  data: [
+                    { x: 4, y: 21 },
+                    { x: 9, y: 20 },
+                    { x: 14, y: 26 },
+                    { x: 21, y: 30 }
+                  ]
+                },
+                {
+                  name: 'Paid',
+                  data: [
+                    { x: 6, y: 41 },
+                    { x: 13, y: 44 },
+                    { x: 22, y: 57 }
+                  ]
+                }
+              ]}
+              locale="en-US"
+            />
+          </div>
+        )
+      },
+      {
+        name: 'MPTimelineChart',
+        summary: {
+          ko: '무엇이 언제 진행됐는지, 하나에 한 줄씩',
+          en: 'What ran when, one row per thing'
+        },
+        path: '/components/charts/timeline-chart',
+        preview: (
+          <div style={{ width: 300 }}>
+            <MPTimelineChart
+              size="xs"
+              height={120}
+              label="Release plan"
+              series={[
+                {
+                  name: 'Design',
+                  data: [{ start: new Date(2026, 2, 2), end: new Date(2026, 2, 6) }]
+                },
+                {
+                  name: 'Build',
+                  data: [{ start: new Date(2026, 2, 5), end: new Date(2026, 2, 16) }]
+                },
+                {
+                  name: 'Test',
+                  data: [{ start: new Date(2026, 2, 13), end: new Date(2026, 2, 18) }]
+                }
+              ]}
+              locale="en-US"
+            />
+          </div>
+        )
+      },
+      {
+        name: 'MPSparkline',
+        summary: {
+          ko: '단어 하나만 한 자리에 놓인 시계열',
+          en: 'A series as a mark, in the space of a word'
+        },
+        path: '/components/charts/sparkline',
+        preview: (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, width: 200 }}>
+            <MPSparkline data={[12, 15, 14, 19, 22, 21, 27]} shape="area" curve="smooth" />
+            <MPSparkline data={[8, 11, 9, 14, 12, 17, 21]} shape="bar" color="tertiary" />
+          </div>
         )
       }
     ]

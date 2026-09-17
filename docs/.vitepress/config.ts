@@ -634,6 +634,29 @@ function byText(a: GeneratedSidebarItem, b: GeneratedSidebarItem): number {
 }
 
 /**
+ * The component groups that come after the alphabetical run, in this order.
+ *
+ * `charts/` is one folder of nine components the specification does not name —
+ * a family rather than a category, and one a reader either wants all of or none
+ * of. Alphabetically it would open the list, which puts the thing furthest from
+ * Material Design 3 in front of the button and the text field. It goes last
+ * instead, under Motion, which is where the library's own additions already
+ * sit.
+ *
+ * Named by folder rather than by label, because the label is translated and the
+ * folder is not.
+ */
+const GROUP_TAIL = ['charts'];
+
+/** `0` for the alphabetical run, then one rank per pinned group. */
+function groupRank(item: GeneratedSidebarItem): number {
+  const folder = firstLink(item)?.match(/(?:^|\/)components\/([^/]+)\//)?.[1] ?? '';
+  const pinned = GROUP_TAIL.indexOf(folder);
+
+  return pinned === -1 ? 0 : pinned + 1;
+}
+
+/**
  * Guide, Components, Discover more — with the component groups kept as headings
  * inside Components.
  *
@@ -684,7 +707,7 @@ function arrangeSidebar<T extends GeneratedSidebarItem>(items: T[], lang: string
     for (const group of groups) {
       group.items = flattenItems(group.items ?? []).sort(byText);
     }
-    groups.sort(byText);
+    groups.sort((a, b) => groupRank(a) - groupRank(b) || byText(a, b));
 
     const overview = components.link
       ? ({ text: labels.overview, link: components.link } as unknown as T)

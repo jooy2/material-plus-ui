@@ -54,6 +54,8 @@
 
 ### Documentation
 
+- **The nine charts have a Charts group, under Motion.** They were filed under Display beside the icon and the avatar, which is the category for "it shows something and nothing more" and does not describe a line chart. They are a family rather than a category — a reader wants all of them or none — and the specification names not one of them, so the group sits at the end of the list with Motion rather than opening it alphabetically. Their pages move to `/components/charts/`, and the gallery on the all-components page groups them the same way.
+
 - **`useMPConfirm` has a Hooks group of its own, and is spelled the way it is imported.** It was filed under Feedback beside the components, and the sidebar generator capitalises the first letter of every row it names — which turned a hook into `UseMPConfirm`, a name that is in no file and that nobody would type. The page moves to `/components/hooks/confirm` and the generator's one wrong shape is put back.
 
 - **The package has two runtime dependencies, and the documentation says so.** `highlight.js` joined `lucide-react` when `MPCodeBlock` arrived, and the README, both front pages and the colour and date picker pages still said there was one. The grammars behind the second sit behind an `import()`, so a page that renders no code block downloads none of them — which is the part that was worth saying and was being said as a dependency count instead.

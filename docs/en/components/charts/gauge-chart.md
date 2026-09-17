@@ -21,7 +21,7 @@ import { MPGaugeChart } from 'material-plus-ui';
 
 ## Consider not using one
 
-A gauge spends a whole panel on a single number, and the arc adds nothing a reader could not get from the figure itself: an angle is judged less accurately than a length, and a dial's two ends are the places the eye is worst at. [MPStatistic](statistic) with an [MPMeter](../feedback/meter) under it says the same thing in a third of the room and reads better.
+A gauge spends a whole panel on a single number, and the arc adds nothing a reader could not get from the figure itself: an angle is judged less accurately than a length, and a dial's two ends are the places the eye is worst at. [MPStatistic](../display/statistic) with an [MPMeter](../feedback/meter) under it says the same thing in a third of the room and reads better.
 
 What a gauge is genuinely good for is a **thresholded reading somebody watches** — a dial with the amber band painted on the face, so "how close is this to trouble" is answered by where the reading stops rather than by arithmetic. That is what `bands` is for, and it is the one case worth reaching for this shape.
 
