@@ -140,7 +140,8 @@ export const fr: MPLocale = {
       toTarget: 'Déplacer vers les sélectionnés',
       toSource: 'Renvoyer vers les disponibles',
       search: 'Rechercher',
-      empty: 'Rien ici'
+      empty: 'Rien ici',
+      moved: 'Déplacés vers {list} : {count}'
     },
     command: {
       label: 'Palette de commandes',

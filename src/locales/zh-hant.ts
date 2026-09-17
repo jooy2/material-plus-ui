@@ -137,7 +137,8 @@ export const zhHant: MPLocale = {
       toTarget: '移到已選',
       toSource: '移回可選',
       search: '搜尋',
-      empty: '這裡沒有內容'
+      empty: '這裡沒有內容',
+      moved: '已將 {count} 項移到{list}'
     },
     command: {
       label: '命令面板',

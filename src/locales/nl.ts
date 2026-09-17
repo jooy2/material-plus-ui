@@ -133,7 +133,8 @@ export const nl: MPLocale = {
       toTarget: 'Naar geselecteerd verplaatsen',
       toSource: 'Terug naar beschikbaar',
       search: 'Zoeken',
-      empty: 'Niets aanwezig'
+      empty: 'Niets aanwezig',
+      moved: 'Verplaatst naar {list}: {count}'
     },
     command: {
       label: 'Opdrachtenpalet',

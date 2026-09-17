@@ -133,7 +133,8 @@ export const ar: MPLocale = {
       toTarget: 'النقل إلى المحدد',
       toSource: 'الإرجاع إلى المتاح',
       search: 'بحث',
-      empty: 'لا شيء هنا'
+      empty: 'لا شيء هنا',
+      moved: 'تم النقل إلى {list}: {count}'
     },
     command: {
       label: 'لوحة الأوامر',

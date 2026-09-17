@@ -137,7 +137,8 @@ export const ja: MPLocale = {
       toTarget: '選択済みに移動',
       toSource: '未選択に戻す',
       search: '検索',
-      empty: '項目がありません'
+      empty: '項目がありません',
+      moved: '{count} 件を{list}に移動'
     },
     command: {
       label: 'コマンドパレット',

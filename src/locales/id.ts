@@ -133,7 +133,8 @@ export const id: MPLocale = {
       toTarget: 'Pindahkan ke terpilih',
       toSource: 'Kembalikan ke tersedia',
       search: 'Cari',
-      empty: 'Tidak ada apa pun'
+      empty: 'Tidak ada apa pun',
+      moved: 'Dipindahkan ke {list}: {count}'
     },
     command: {
       label: 'Palet perintah',

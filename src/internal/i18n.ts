@@ -568,6 +568,16 @@ export interface MPMessages {
     search: string;
     /** What a list with nothing in it says. */
     empty: string;
+    /**
+     * What is announced after an arrow is pressed: how many rows crossed, and
+     * which list they landed in.
+     *
+     * `{list}` is the heading of the list they arrived at — the caller's own
+     * when it is a string, and `source` or `target` otherwise. Nothing on the
+     * screen changes except two columns of near-identical rows, so this is the
+     * only thing that tells a reader the press did anything.
+     */
+    moved: string;
   };
   /**
    * MPCommandPalette.

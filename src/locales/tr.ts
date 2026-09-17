@@ -133,7 +133,8 @@ export const tr: MPLocale = {
       toTarget: 'Seçilenlere taşı',
       toSource: 'Kullanılabilire geri al',
       search: 'Ara',
-      empty: 'Burada bir şey yok'
+      empty: 'Burada bir şey yok',
+      moved: '{list} listesine taşındı: {count}'
     },
     command: {
       label: 'Komut paleti',

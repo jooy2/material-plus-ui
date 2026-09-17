@@ -137,7 +137,8 @@ export const ru: MPLocale = {
       toTarget: 'Переместить в выбранные',
       toSource: 'Вернуть в доступные',
       search: 'Поиск',
-      empty: 'Здесь пусто'
+      empty: 'Здесь пусто',
+      moved: 'Перемещено в {list}: {count}'
     },
     command: {
       label: 'Палитра команд',

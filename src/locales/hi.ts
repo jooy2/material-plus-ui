@@ -137,7 +137,8 @@ export const hi: MPLocale = {
       toTarget: 'चयनित में ले जाएँ',
       toSource: 'उपलब्ध में वापस भेजें',
       search: 'खोजें',
-      empty: 'यहाँ कुछ नहीं है'
+      empty: 'यहाँ कुछ नहीं है',
+      moved: '{list} में ले जाए गए: {count}'
     },
     command: {
       label: 'कमांड पैलेट',

@@ -8,6 +8,8 @@ import { ArrowRightIcon } from '../../constants/icons';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { cssLength } from '../../internal/length';
 import { TRANSFER } from '../../internal/messages/transfer';
+import { fillMessage } from '../../internal/i18n';
+import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
 import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPMessages } from '../../internal/i18n';
 import { hasContent, META_TEXT, SHEET_PAD_X } from '../../internal/scale';
@@ -146,6 +148,7 @@ function Panel({
   const all = movable.length > 0 && tickedHere.length === movable.length;
   const some = tickedHere.length > 0 && !all;
   const insetX = SHEET_PAD_X[size];
+  const titleId = React.useId();
 
   return (
     <MPBox
@@ -174,7 +177,11 @@ function Panel({
             checked={all}
             indeterminate={some}
             disabled={disabled || movable.length === 0}
-            label={<span className="block truncate font-medium">{title}</span>}
+            label={
+              <span id={titleId} className="block truncate font-medium">
+                {title}
+              </span>
+            }
             onCheckedChange={(next) => onTickAll(next)}
           />
         </div>
@@ -202,7 +209,18 @@ function Panel({
         </div>
       ) : null}
 
+      {/*
+        The list is a named group, and the name is the heading already above it.
+        Without this the two panels are one undifferentiated run of checkboxes:
+        a reader moving by form control hears "Reports, checkbox" twice over and
+        has nothing saying which side of the transfer either one is on. The
+        heading is reused rather than a second string invented, because a panel
+        whose group said something other than its own title would be two names
+        for one thing.
+      */}
       <div
+        role="group"
+        aria-labelledby={titleId}
         className={`mp-transfer__list flex flex-col overflow-y-auto overscroll-contain ${insetX} ${STRIP_PAD_Y[size]}`}
         style={{ height }}
       >
@@ -242,17 +260,34 @@ function Panel({
   );
 }
 
-/** Case-insensitive, and only against a label that is a string to match. */
-function matches(item: MPTransferItem, query: string): boolean {
+/** A heading the announcement can say, which is a heading that is a string. */
+function listName(label: React.ReactNode, fallback: string): string {
+  return typeof label === 'string' && label !== '' ? label : fallback;
+}
+
+/**
+ * The rows a filter leaves standing.
+ *
+ * The query is lower-cased once here rather than once per row. That is the same
+ * correction `MPCommandPalette` already carries and it is the same reason: the
+ * work does not depend on the item, so doing it inside the loop is a throwaway
+ * string per row on every keystroke.
+ *
+ * A label that is not a string is kept rather than dropped. There is no honest
+ * way to search markup — an element's text lives in its children and half of it
+ * may not be text at all — and a filter that silently hid every rich row would
+ * be worse than one that admits it cannot read them.
+ */
+function filterRows(rows: readonly MPTransferItem[], query: string): readonly MPTransferItem[] {
   if (query === '') {
-    return true;
+    return rows;
   }
 
-  if (typeof item.label !== 'string') {
-    return true;
-  }
+  const needle = query.toLowerCase();
 
-  return item.label.toLowerCase().includes(query.toLowerCase());
+  return rows.filter(
+    (item) => typeof item.label !== 'string' || item.label.toLowerCase().includes(needle)
+  );
 }
 
 /**
@@ -343,6 +378,22 @@ export const MPTransfer = React.forwardRef<HTMLDivElement, MPTransferProps>(func
   const [sourceSearch, setSourceSearch] = React.useState('');
   const [targetSearch, setTargetSearch] = React.useState('');
 
+  /*
+   * What the last press did, for a reader who cannot see it happen.
+   *
+   * Nothing on the screen moves except rows in two columns of near-identical
+   * rows, and the focus stays on the arrow that was pressed — so without this
+   * the press was silent, on the one component whose whole subject is which side
+   * a row is on.
+   *
+   * The `tick` is not decoration. A live region announces what is **added** to
+   * it, and moving three rows twice in a row produces the same sentence both
+   * times; React would see identical text, leave the DOM alone, and the second
+   * press would say nothing. The tick keys the inner element, so each press
+   * replaces it and the region has something new to report.
+   */
+  const [announced, setAnnounced] = React.useState<{ tick: number; text: string } | null>(null);
+
   const chosen = React.useMemo(() => new Set(selected), [selected]);
   const source = items.filter((item) => !chosen.has(item.value));
   const target = items.filter((item) => chosen.has(item.value));
@@ -431,11 +482,25 @@ export const MPTransfer = React.forwardRef<HTMLDivElement, MPTransferProps>(func
 
     setTicked((current) => new Set([...current].filter((item) => !ids.has(item))));
     setArrived({ values: ids, toTarget });
+    setAnnounced((current) => ({
+      tick: (current?.tick ?? 0) + 1,
+      text: fillMessage(messages.moved, {
+        count: String(moved.length),
+        // The caller's own heading where it is a string, and the locale's word
+        // otherwise: there is no honest way to read a heading out of markup, and
+        // a sentence with a hole where the list's name goes is worse than one
+        // naming the list by what the library calls it.
+        list: listName(
+          toTarget ? targetLabel : sourceLabel,
+          toTarget ? messages.target : messages.source
+        )
+      })
+    }));
     commit(next);
   };
 
-  const sourceRows = source.filter((item) => matches(item, sourceSearch));
-  const targetRows = target.filter((item) => matches(item, targetSearch));
+  const sourceRows = filterRows(source, sourceSearch);
+  const targetRows = filterRows(target, targetSearch);
   const canSend = sourceRows.some((item) => !item.disabled && ticked.has(item.value));
   const canReturn = targetRows.some((item) => !item.disabled && ticked.has(item.value));
   const listHeight = cssLength(height);
@@ -521,6 +586,16 @@ export const MPTransfer = React.forwardRef<HTMLDivElement, MPTransferProps>(func
           icon={<MPIcon icon={ArrowRightIcon} className="-rotate-90 mp-medium:rotate-180" />}
         />
       </div>
+
+      {/*
+        One region that stays on the page, with a keyed line inside it. The
+        region has to be there before it has anything to say — a live region
+        inserted already full is one a screen reader may read at once or not at
+        all, and neither is the press being answered.
+      */}
+      <span className={VISUALLY_HIDDEN} aria-live="polite" aria-atomic="true">
+        {announced ? <span key={announced.tick}>{announced.text}</span> : null}
+      </span>
 
       <Panel
         {...panel}

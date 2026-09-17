@@ -137,7 +137,8 @@ export const es: MPLocale = {
       toTarget: 'Mover a seleccionados',
       toSource: 'Devolver a disponibles',
       search: 'Buscar',
-      empty: 'No hay nada'
+      empty: 'No hay nada',
+      moved: 'Movidos a {list}: {count}'
     },
     command: {
       label: 'Paleta de comandos',

@@ -287,4 +287,131 @@ describe('MPTransfer', () => {
       expect(screen.getByRole('checkbox', { name: 'Ada' }).element()).toBeChecked();
     });
   });
+
+  /*
+   * The arrow keeps the focus and the only thing that changes is which of two
+   * columns of near-identical rows a row is in — so without an announcement the
+   * press was silent, on the component whose whole subject is which side a row
+   * is on.
+   */
+  describe('saying what the press did', () => {
+    const live = () =>
+      document.querySelector('.mp-transfer [aria-live="polite"]') as HTMLElement | null;
+
+    const PEOPLE = [
+      { value: 'a', label: 'Ada' },
+      { value: 'b', label: 'Bea' },
+      { value: 'c', label: 'Cy' }
+    ];
+
+    it('says nothing before anything has moved', async () => {
+      await render(<MPTransfer items={PEOPLE} locale="en-US" />);
+
+      expect(live()).not.toBeNull();
+      expect(live()?.textContent).toBe('');
+    });
+
+    it('says how many crossed and which list they landed in', async () => {
+      const screen = await render(<MPTransfer items={PEOPLE} locale="en-US" />);
+
+      await screen.getByRole('checkbox', { name: 'Ada' }).click();
+      await screen.getByRole('checkbox', { name: 'Cy' }).click();
+      await screen.getByRole('button', { name: 'Move to selected' }).click();
+
+      await vi.waitFor(() => expect(live()?.textContent).toBe('Moved to Selected: 2'));
+    });
+
+    it("takes the caller's own heading when it is one it can read", async () => {
+      const screen = await render(
+        <MPTransfer items={PEOPLE} locale="en-US" targetLabel="On the channel" />
+      );
+
+      await screen.getByRole('checkbox', { name: 'Ada' }).click();
+      await screen.getByRole('button', { name: 'Move to selected' }).click();
+
+      await vi.waitFor(() => expect(live()?.textContent).toBe('Moved to On the channel: 1'));
+    });
+
+    it('falls back to the locale when the heading is markup', async () => {
+      // There is no honest way to read a heading out of an element, and a
+      // sentence with a hole where the list's name goes is worse than one naming
+      // the list by what the library calls it.
+      const screen = await render(
+        <MPTransfer items={PEOPLE} locale="en-US" targetLabel={<em>On the channel</em>} />
+      );
+
+      await screen.getByRole('checkbox', { name: 'Ada' }).click();
+      await screen.getByRole('button', { name: 'Move to selected' }).click();
+
+      await vi.waitFor(() => expect(live()?.textContent).toBe('Moved to Selected: 1'));
+    });
+
+    /*
+     * A live region reports what is added to it, and the same press twice over
+     * produces the same sentence. Without the tick React would leave the DOM
+     * alone and the second press would say nothing at all.
+     */
+    it('is heard again when the same press is repeated', async () => {
+      const screen = await render(<MPTransfer items={PEOPLE} locale="en-US" />);
+
+      await screen.getByRole('checkbox', { name: 'Ada' }).click();
+      await screen.getByRole('button', { name: 'Move to selected' }).click();
+
+      await vi.waitFor(() => expect(live()?.textContent).toBe('Moved to Selected: 1'));
+
+      const first = live()?.firstElementChild;
+
+      await screen.getByRole('checkbox', { name: 'Bea' }).click();
+      await screen.getByRole('button', { name: 'Move to selected' }).click();
+
+      await vi.waitFor(() => expect(live()?.firstElementChild).not.toBe(first));
+      expect(live()?.textContent).toBe('Moved to Selected: 1');
+    });
+
+    it('says nothing on a press that moved nothing', async () => {
+      const screen = await render(<MPTransfer items={PEOPLE} locale="en-US" />);
+
+      // Nothing is ticked, so the arrow is disabled and there is nothing to say.
+      expect(screen.getByRole('button', { name: 'Move to selected' }).element()).toBeDisabled();
+      expect(live()?.textContent).toBe('');
+    });
+  });
+
+  /*
+   * Without this the two panels are one undifferentiated run of checkboxes. A
+   * reader moving by form control hears the row's label and nothing saying which
+   * side of the transfer it is on, which on a component whose whole subject is
+   * *which side a row is on* is the one thing they needed.
+   */
+  describe('telling the two lists apart', () => {
+    it('makes each list a group named after its own heading', async () => {
+      const screen = await render(
+        <MPTransfer
+          items={[
+            { value: 'a', label: 'Ada' },
+            { value: 'b', label: 'Bea' }
+          ]}
+          value={['b']}
+          sourceLabel="Everyone"
+          targetLabel="On the channel"
+        />
+      );
+
+      const source = screen.getByRole('group', { name: 'Everyone' }).element();
+      const target = screen.getByRole('group', { name: 'On the channel' }).element();
+
+      expect(source.textContent).toContain('Ada');
+      expect(source.textContent).not.toContain('Bea');
+      expect(target.textContent).toContain('Bea');
+    });
+
+    it('names the groups off the locale when the caller named nothing', async () => {
+      const screen = await render(
+        <MPTransfer items={[{ value: 'a', label: 'Ada' }]} locale="en-US" />
+      );
+
+      await expect.element(screen.getByRole('group', { name: 'Available' })).toBeInTheDocument();
+      await expect.element(screen.getByRole('group', { name: 'Selected' })).toBeInTheDocument();
+    });
+  });
 });

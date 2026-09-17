@@ -138,7 +138,8 @@ export const zhHans: MPLocale = {
       toTarget: '移到已选',
       toSource: '移回可选',
       search: '搜索',
-      empty: '这里没有内容'
+      empty: '这里没有内容',
+      moved: '已将 {count} 项移到{list}'
     },
     command: {
       label: '命令面板',

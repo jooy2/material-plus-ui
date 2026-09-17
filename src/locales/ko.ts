@@ -133,7 +133,8 @@ export const ko: MPLocale = {
       toTarget: '선택함으로 이동',
       toSource: '선택 가능으로 되돌리기',
       search: '검색',
-      empty: '항목이 없습니다'
+      empty: '항목이 없습니다',
+      moved: '{count}개를 {list}(으)로 옮겼습니다'
     },
     command: {
       label: '명령 팔레트',

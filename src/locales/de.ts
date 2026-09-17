@@ -133,7 +133,8 @@ export const de: MPLocale = {
       toTarget: 'Zu Ausgewählt verschieben',
       toSource: 'Zurück zu Verfügbar',
       search: 'Suchen',
-      empty: 'Nichts vorhanden'
+      empty: 'Nichts vorhanden',
+      moved: 'Verschoben nach {list}: {count}'
     },
     command: {
       label: 'Befehlspalette',

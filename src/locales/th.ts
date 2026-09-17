@@ -133,7 +133,8 @@ export const th: MPLocale = {
       toTarget: 'ย้ายไปที่เลือก',
       toSource: 'ย้ายกลับไปที่มีอยู่',
       search: 'ค้นหา',
-      empty: 'ไม่มีรายการ'
+      empty: 'ไม่มีรายการ',
+      moved: 'ย้ายไปที่ {list}: {count}'
     },
     command: {
       label: 'แผงคำสั่ง',

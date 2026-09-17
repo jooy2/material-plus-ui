@@ -75,6 +75,12 @@ The count beside it is what is ticked against what is on that side. It is set in
 
 Select-all skips the rows that cannot move. A disabled row is in the list and out of the transaction.
 
+## What a reader who cannot see it is told
+
+Each list is a group named after the heading above it. Without that the two panels are one undifferentiated run of checkboxes, and a reader moving by form control hears the row's label and nothing saying which side of the transfer it is on — on the component whose whole subject is which side a row is on.
+
+A press is announced: how many rows crossed, and which list they landed in. The arrow keeps the focus and the only thing that changes is which of two columns of near-identical rows a row is in, so nothing about the press reaches a reader on its own. The list is named by your own `sourceLabel` or `targetLabel` where that is a string, and by the locale's word for it otherwise — there is no honest way to read a heading out of markup.
+
 ## Examples
 
 ### Uncontrolled

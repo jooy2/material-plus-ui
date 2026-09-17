@@ -133,7 +133,8 @@ export const it: MPLocale = {
       toTarget: 'Sposta tra i selezionati',
       toSource: 'Riporta tra i disponibili',
       search: 'Cerca',
-      empty: 'Nessun elemento'
+      empty: 'Nessun elemento',
+      moved: 'Spostati in {list}: {count}'
     },
     command: {
       label: 'Tavolozza comandi',

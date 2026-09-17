@@ -133,7 +133,8 @@ export const pl: MPLocale = {
       toTarget: 'Przenieś do wybranych',
       toSource: 'Przenieś do dostępnych',
       search: 'Szukaj',
-      empty: 'Nic tu nie ma'
+      empty: 'Nic tu nie ma',
+      moved: 'Przeniesiono do {list}: {count}'
     },
     command: {
       label: 'Paleta poleceń',

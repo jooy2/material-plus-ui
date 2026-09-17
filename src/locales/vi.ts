@@ -133,7 +133,8 @@ export const vi: MPLocale = {
       toTarget: 'Chuyển sang đã chọn',
       toSource: 'Trả về có sẵn',
       search: 'Tìm kiếm',
-      empty: 'Không có gì ở đây'
+      empty: 'Không có gì ở đây',
+      moved: 'Đã chuyển sang {list}: {count}'
     },
     command: {
       label: 'Bảng lệnh',
