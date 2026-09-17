@@ -368,6 +368,16 @@ const vitePressConfig: UserConfig = {
   cleanUrls: true,
   metaChunk: true,
   /**
+   * `public/` holds files, not pages.
+   *
+   * VitePress copies that folder to the site root verbatim — and also compiles
+   * every `.md` it finds anywhere under `srcDir`, `public/` included. So the
+   * note next to the sample images, which tells a contributor what size a
+   * portrait is, was being built as a page, listed in the sitemap, and given a
+   * locale switcher pointing at a Korean copy that does not exist.
+   */
+  srcExclude: ['public/**'],
+  /**
    * The default locale is served from `/`, not from `/{lang}/`.
    *
    * This has to agree with two other things or every sidebar link 404s:
