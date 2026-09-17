@@ -576,6 +576,21 @@ interface GeneratedSidebarItem {
 }
 
 /**
+ * A hook is written the way it is imported, which is not how a sentence starts.
+ *
+ * `capitalizeFirst` is what names the folder groups — the tree has `display/`
+ * and `feedback/` in it and the sidebar wants *Display* and *Feedback* — and it
+ * cannot tell a folder from a page, so `useMPConfirm` came out as
+ * `UseMPConfirm`. That is not the name of anything: it is not what the
+ * frontmatter says, not what the page's own heading says, and not what a reader
+ * would type. Turning the option off would cost every group its name, so the
+ * one shape it gets wrong is put back here.
+ */
+function restoreHookCase(text: string | undefined): string | undefined {
+  return text?.replace(/^Use(?=MP[A-Z])/, 'use');
+}
+
+/**
  * `useFolderLinkFromIndexFile` points a folder at `components/index.md`, which
  * VitePress resolves to `/components/index` — a URL that only works because the
  * SPA router is forgiving about it. The canonical one, and the only one a
@@ -589,6 +604,7 @@ function cleanUpItems<T extends GeneratedSidebarItem>(items: T[]): T[] {
   return items.map((item) => {
     const cleaned = {
       ...item,
+      ...(item.text ? { text: restoreHookCase(item.text) } : {}),
       ...(item.link ? { link: item.link.replace(/(^|\/)index\.md$/, '$1') } : {}),
       ...(item.items ? { items: cleanUpItems(item.items) } : {})
     };

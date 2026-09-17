@@ -270,6 +270,64 @@ describe('useMPConfirm', () => {
     });
   });
 
+  /*
+   * Answering empties `pending`, and the dialog then takes a fifth of a second
+   * to fade and scale away. Everything on the sheet used to be read straight off
+   * `pending`, so all of it went in the frame the button was pressed — the sheet
+   * collapsed to the height of an empty one and *then* faded.
+   */
+  describe('while it is closing', () => {
+    it('keeps the question on the sheet until the sheet is gone', async () => {
+      const screen = await render(
+        <MPConfirmProvider>
+          <Asker
+            options={{
+              title: 'Delete this project?',
+              description: 'Everything in it goes too, and it cannot be undone.'
+            }}
+          />
+        </MPConfirmProvider>
+      );
+
+      await screen.getByRole('button', { name: 'ask' }).click();
+
+      const sheet = document.querySelector('.mp-dialog') as HTMLElement;
+      // `offsetHeight` rather than a measured rect: the sheet scales as it
+      // arrives and again as it leaves, and a rect carries that transform. What
+      // is under test is the box the content lays out to, which does not.
+      const open = sheet.offsetHeight;
+
+      await screen.getByRole('button', { name: 'Cancel' }).click();
+
+      // The frame after the press: still the question, still its height. The
+      // dialog is on its way out and the text goes with it rather than first.
+      expect(sheet.textContent).toContain('Delete this project?');
+      expect(sheet.offsetHeight).toBe(open);
+    });
+
+    it('draws the next question rather than the last one', async () => {
+      // The copy is only ever a stand-in for what is closing. A second `confirm`
+      // has to overwrite it before the sheet is drawn again.
+      const screen = await render(
+        <MPConfirmProvider>
+          <Asker options={{ title: 'The first question' }} />
+        </MPConfirmProvider>
+      );
+
+      await screen.getByRole('button', { name: 'ask' }).click();
+      await screen.getByRole('button', { name: 'Cancel' }).click();
+      await screen.rerender(
+        <MPConfirmProvider>
+          <Asker options={{ title: 'The second question' }} />
+        </MPConfirmProvider>
+      );
+      await screen.getByRole('button', { name: 'ask' }).click();
+
+      await expect.element(screen.getByText('The second question')).toBeInTheDocument();
+      expect(document.querySelector('.mp-dialog')?.textContent).not.toContain('The first question');
+    });
+  });
+
   describe('without a provider', () => {
     it('throws rather than handing back a promise that never settles', async () => {
       // The hardest possible way to be told about a missing provider would be a

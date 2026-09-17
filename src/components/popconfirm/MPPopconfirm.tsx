@@ -23,7 +23,7 @@ export interface MPPopconfirmProps {
    * Called when the reader says yes.
    *
    * A callback rather than a promise, and that is the whole difference from
-   * [`useMPConfirm`](../feedback/confirm): this one is written where the button
+   * [`useMPConfirm`](../hooks/confirm): this one is written where the button
    * is, so there is already a handler there to put it in.
    */
   onConfirm?: () => void;
@@ -70,7 +70,7 @@ export interface MPPopconfirmProps {
  * They ask the same question and the difference is **where the reader's eye
  * is**, which is a real difference and not a stylistic one:
  *
- * | | `MPPopconfirm` | [`useMPConfirm`](../feedback/confirm) |
+ * | | `MPPopconfirm` | [`useMPConfirm`](../hooks/confirm) |
  * | --- | --- | --- |
  * | Appears | at the control | in the middle of the screen |
  * | The page behind | stays put | goes under a scrim |

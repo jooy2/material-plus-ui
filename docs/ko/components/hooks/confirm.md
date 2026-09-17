@@ -1,6 +1,6 @@
 ---
 title: useMPConfirm
-order: 12
+order: 1
 ---
 
 # useMPConfirm
@@ -48,9 +48,9 @@ async function remove() {
 
 ## 왜 직접 만든 다이얼로그가 아닌가
 
-다이얼로그가 어려운 부분이 아니기 때문입니다. "정말 하시겠어요"에는 열림 상태 하나, _무엇을_ 확인하는지에 대한 상태 하나, 핸들러 둘, 그리고 있어야 할 자리가 아닌 곳에 마운트해 둔 [`MPDialog`](./dialog.md)가 필요합니다 — **호출 지점마다**. 그 순간 호출자가 실제로 가진 것은 클릭 핸들러이고, 돌려받고 싶은 것은 boolean입니다.
+다이얼로그가 어려운 부분이 아니기 때문입니다. "정말 하시겠어요"에는 열림 상태 하나, _무엇을_ 확인하는지에 대한 상태 하나, 핸들러 둘, 그리고 있어야 할 자리가 아닌 곳에 마운트해 둔 [`MPDialog`](../feedback/dialog.md)가 필요합니다 — **호출 지점마다**. 그 순간 호출자가 실제로 가진 것은 클릭 핸들러이고, 돌려받고 싶은 것은 boolean입니다.
 
-[`useMPSnackbar`](./snackbar.md)가 하는 거래를 반대 방향으로 돌린 것입니다. 스낵바는 할 말이고, 이건 물을 것입니다.
+[`useMPSnackbar`](../feedback/snackbar.md)가 하는 거래를 반대 방향으로 돌린 것입니다. 스낵바는 할 말이고, 이건 물을 것입니다.
 
 ## 나머지 전부가 `false`입니다
 
@@ -98,5 +98,5 @@ await alert({ title: 'Saved', description: 'Your changes are on the server.' });
 
 ## 다음
 
-- [MPDialog](./dialog.md) — 이 모양이 맞지 않는 질문을 위한, 아래에 깔린 컴포넌트.
-- [MPSnackbar](./snackbar.md) — 묻는 대신 말하는 쪽의 같은 발상.
+- [MPDialog](../feedback/dialog.md) — 이 모양이 맞지 않는 질문을 위한, 아래에 깔린 컴포넌트.
+- [MPSnackbar](../feedback/snackbar.md) — 묻는 대신 말하는 쪽의 같은 발상.

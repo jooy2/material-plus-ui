@@ -52,6 +52,8 @@
 
 ### Documentation
 
+- **`useMPConfirm` has a Hooks group of its own, and is spelled the way it is imported.** It was filed under Feedback beside the components, and the sidebar generator capitalises the first letter of every row it names — which turned a hook into `UseMPConfirm`, a name that is in no file and that nobody would type. The page moves to `/components/hooks/confirm` and the generator's one wrong shape is put back.
+
 - **The package has two runtime dependencies, and the documentation says so.** `highlight.js` joined `lucide-react` when `MPCodeBlock` arrived, and the README, both front pages and the colour and date picker pages still said there was one. The grammars behind the second sit behind an `import()`, so a page that renders no code block downloads none of them — which is the part that was worth saying and was being said as a dependency count instead.
 
 - **The front page says what the library is, and then shows six of it running.** The headline was "the Material components you keep writing yourself", which is the argument the section below it already makes at length rather than the thing a reader opens the page to find out. It is the specification claim now, and the tagline is what the library puts on top of that claim: a wider range of components, a design that goes further, and the options for running the whole thing tighter or spreading it across more width.

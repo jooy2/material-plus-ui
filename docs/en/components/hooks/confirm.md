@@ -1,6 +1,6 @@
 ---
 title: useMPConfirm
-order: 12
+order: 1
 ---
 
 # useMPConfirm
@@ -48,9 +48,9 @@ async function remove() {
 
 ## Why this rather than a dialog of your own
 
-Because the dialog is not the hard part. "Are you sure" needs a piece of open state, a second piece of state for _what_ is being confirmed, two handlers, and an [`MPDialog`](./dialog.md) kept mounted somewhere it does not belong — **per call site**. What the caller actually has at that moment is a click handler, and what they want back is a boolean.
+Because the dialog is not the hard part. "Are you sure" needs a piece of open state, a second piece of state for _what_ is being confirmed, two handlers, and an [`MPDialog`](../feedback/dialog.md) kept mounted somewhere it does not belong — **per call site**. What the caller actually has at that moment is a click handler, and what they want back is a boolean.
 
-It is the same trade [`useMPSnackbar`](./snackbar.md) makes, run the other way: a snackbar is something to say, this is something to ask.
+It is the same trade [`useMPSnackbar`](../feedback/snackbar.md) makes, run the other way: a snackbar is something to say, this is something to ask.
 
 ## `false` is every other answer
 
@@ -98,5 +98,5 @@ The same goes for the labels. _Confirm_ and _Cancel_ are what is drawn when nobo
 
 ## Next
 
-- [MPDialog](./dialog.md) — the component underneath, for the questions this shape does not fit.
-- [MPSnackbar](./snackbar.md) — the same idea for something to say rather than ask.
+- [MPDialog](../feedback/dialog.md) — the component underneath, for the questions this shape does not fit.
+- [MPSnackbar](../feedback/snackbar.md) — the same idea for something to say rather than ask.

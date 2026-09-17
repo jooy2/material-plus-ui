@@ -141,7 +141,29 @@ export function MPConfirmProvider({ defaults, children }: MPConfirmProviderProps
     setPending(null);
   };
 
-  const acknowledging = pending?.acknowledge ?? false;
+  /*
+   * What the sheet draws, which is not the same as what is being asked.
+   *
+   * Answering sets `pending` to `null`, and the dialog then takes a fifth of a
+   * second to fade and scale away. Everything on the sheet was read straight off
+   * `pending`, so all of it emptied in the frame the button was pressed: a 180px
+   * dialog became a 99px one and *then* faded, which is a shape collapsing under
+   * a reader who is watching it leave.
+   *
+   * So the last question asked is kept, and the sheet is drawn from that.
+   * `open` stays on `pending`, because what is open is a different question from
+   * what is written on it. The copy stops mattering the moment the dialog
+   * finishes closing — it unmounts its own contents then — and a second
+   * `confirm()` overwrites it before the sheet is drawn again.
+   */
+  const asked = React.useRef<Pending | null>(null);
+
+  if (pending) {
+    asked.current = pending;
+  }
+
+  const shown = pending ?? asked.current;
+  const acknowledging = shown?.acknowledge ?? false;
 
   return (
     <MPConfirmContext.Provider value={value}>
@@ -157,30 +179,26 @@ export function MPConfirmProvider({ defaults, children }: MPConfirmProviderProps
             answer(acknowledging);
           }
         }}
-        icon={pending?.icon}
-        title={pending?.title}
-        description={pending?.description}
-        size={pending?.size ?? 'md'}
-        color={pending?.color ?? 'primary'}
-        dismissible={pending?.dismissible ?? true}
+        icon={shown?.icon}
+        title={shown?.title}
+        description={shown?.description}
+        size={shown?.size ?? 'md'}
+        color={shown?.color ?? 'primary'}
+        dismissible={shown?.dismissible ?? true}
         actions={
           <>
             {acknowledging ? null : (
               <MPButton variant="text" onClick={() => answer(false)}>
-                {pending?.cancelLabel ?? labels.cancel}
+                {shown?.cancelLabel ?? labels.cancel}
               </MPButton>
             )}
-            <MPButton
-              variant="text"
-              color={pending?.color ?? 'primary'}
-              onClick={() => answer(true)}
-            >
-              {pending?.confirmLabel ?? (acknowledging ? labels.ok : labels.confirm)}
+            <MPButton variant="text" color={shown?.color ?? 'primary'} onClick={() => answer(true)}>
+              {shown?.confirmLabel ?? (acknowledging ? labels.ok : labels.confirm)}
             </MPButton>
           </>
         }
       >
-        {pending?.children}
+        {shown?.children}
       </MPDialog>
     </MPConfirmContext.Provider>
   );
