@@ -56,7 +56,7 @@ This is **finished CSS**: the design tokens and the real rules behind every util
 
 ### If you only render a few components
 
-The sheet above is every rule the library has, and for most projects that is the right trade: one line, and never a thought about which components are on the page. It is also 171.6 kB — 23.4 kB compressed — whether the page renders one component or all of them, because Tailwind generates from a file scan and not from your imports.
+The sheet above is every rule the library has, and for most projects that is the right trade: one line, and never a thought about which components are on the page. It is also 172.2 kB — 23.4 kB compressed — whether the page renders one component or all of them, because Tailwind generates from a file scan and not from your imports.
 
 So the package also ships the same rules cut along the same seams the components are: the tokens once, and a sheet per component.
 
@@ -355,7 +355,7 @@ The last row leaves out one thing on purpose: `MPCodeBlock`'s grammars are 49.6 
 
 Two things to read off it. The first column is marginal: a component you did not import is not in it, which is what `sideEffects`, the build's `@__PURE__` annotations and a message table per namespace are all for. The second column is not marginal — a stylesheet is a file you either imported or did not — so it assumes the list of sheets matches what the page renders.
 
-Base UI is the larger half of a real download and is in neither column. Five components come to 20.6 kB with it bundled in and ten to 94.9 kB, but it is a peer dependency: shared with anything else that uses it, and versioned by you.
+Base UI is the larger half of a real download and is in neither column. Five components come to 20.7 kB with it bundled in and ten to 94.9 kB, but it is a peer dependency: shared with anything else that uses it, and versioned by you.
 
 Both sets of figures are printed by the build rather than remembered, so they cannot quietly stop being true.
 
