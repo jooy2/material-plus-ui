@@ -2,6 +2,10 @@
 
 ## vNext (2026--)
 
+## 1.8.0 (2026-09-17)
+
+`MPImage` grew the eight props a picture actually needs — a turn, a mirror, a crop anchor, a letterbox, a real placeholder — and the rest of the release is what a pass over every other component turned up: a CSV that a spreadsheet will not run, five accessibility gaps in components that had none, an `Intl` cache the whole library reads through, and a documentation site whose Korean links now land where they point.
+
 ### Breaking changes
 
 - **A lone `width` or `height` on `MPImage` sizes the box.** The two together are still the file's size and still reserve its proportion. One of them alone used to reach the `<img>` and change nothing, because the picture always filled its box. Now `height` alone makes the box that tall and as wide as its container, or as wide as `ratio` makes it, and `width` alone makes the box that wide, no wider than its container. Code that passed one dimension as a hint about the file now draws at that size: pass both dimensions, or remove the one.
