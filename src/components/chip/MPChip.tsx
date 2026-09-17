@@ -273,7 +273,7 @@ const SHELL_BUTTON = [
  * ## Why the shell is the button, and not always a span
  *
  * Because of what wraps a chip. Base UI's `render` — which is how a chip becomes
- * an [MPMenu](./menu)'s trigger, a popover's, a tooltip's — merges its handlers
+ * an [MPMenu](../inputs/menu)'s trigger, a popover's, a tooltip's — merges its handlers
  * and its ARIA onto the element this component *returns*. With a `<span>` there
  * that meant `aria-haspopup`, `aria-expanded`, `id` and `tabindex` landing on
  * something that was not focusable, a second tab stop on the label button

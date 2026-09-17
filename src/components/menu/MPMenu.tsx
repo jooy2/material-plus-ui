@@ -48,7 +48,7 @@ export interface MPMenuProps extends MPMenuSurfaceProps {
    * Whether that trigger renders a real `<button>`.
    *
    * It nearly always does — an [MPButton](./button), an
-   * [MPIconButton](./icon-button), an [MPChip](./chip) with an `onClick` — and
+   * [MPIconButton](./icon-button), an [MPChip](../display/chip) with an `onClick` — and
    * this can be left alone. Set it `false` for a trigger that is deliberately
    * something else: an avatar, a card, a row of text. Base UI then supplies the
    * `role`, the tab stop and the Enter/Space handling a `<button>` would have

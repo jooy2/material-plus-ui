@@ -17,7 +17,7 @@ export type MPAspectFit = 'cover' | 'contain' | 'fill' | 'none' | 'scale-down';
  *
  * `md` lands on `medium`, which is MD3's own card corner — a photograph inside a
  * card should have the card's corner, not one of its own. `lg` shares it because
- * [there is no `large` rung](../design/color): the token sheet stops at
+ * [there is no `large` rung](../../design/color): the token sheet stops at
  * `medium` and jumps to `extra-large`, and inventing a step here would be this
  * component holding a number the rest of the library cannot see.
  */

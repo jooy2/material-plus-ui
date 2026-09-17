@@ -65,7 +65,7 @@ export interface MPPortalProps {
  *
  * A portal moves an element in the DOM and nothing else. Focus, Escape, an inert
  * background, a scrim and a z-index are the *dialog's* concerns —
- * [MPDialog](./dialog) and [MPDrawer](./drawer) are those, and a hand-built
+ * [MPDialog](../feedback/dialog) and [MPDrawer](./drawer) are those, and a hand-built
  * overlay in a portal has none of it. Reach for them before this.
  *
  * ## Events still bubble through React

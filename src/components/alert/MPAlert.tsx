@@ -132,7 +132,7 @@ export interface MPAlertProps extends Omit<
    *
    * Four roles, not a severity ladder — there is no `info`, `success` or
    * `warning` here, because [the specification's colour
-   * system](../design/color) has no way to derive them and a library that
+   * system](../../design/color) has no way to derive them and a library that
    * invented three more families would be promising tokens the sheet cannot
    * produce. `error` is the one severity Material does name, and the rest is an
    * emphasis decision: `primary` for a notice, `secondary` or `tertiary` for one

@@ -112,7 +112,7 @@ export interface MPTableProps<Row> extends Omit<
    * A row that answers a press has to answer a keyboard too, so each one joins
    * the tab order and takes Enter and Space. That is the honest minimum for a
    * `<tr>` — a row cannot be wrapped in a `<button>` the way an
-   * [MPListItem](../layout/list) is, because a `<button>` is not something a
+   * [MPListItem](./list) is, because a `<button>` is not something a
    * `<tbody>` may contain.
    *
    * It is also worth knowing what it costs: a table of two hundred rows becomes
