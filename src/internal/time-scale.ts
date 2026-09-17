@@ -1,4 +1,5 @@
 import type { ValueScale } from './chart';
+import { dateTimeFormatter } from './intl';
 
 /**
  * A scale for an axis of instants.
@@ -285,5 +286,5 @@ export function formatTimeTick(value: number, unit: TimeUnit, locale: string | u
             ? { year: 'numeric', month: 'short' }
             : { year: 'numeric' };
 
-  return new Intl.DateTimeFormat(locale, parts).format(value);
+  return dateTimeFormatter(locale, parts).format(value);
 }

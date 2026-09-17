@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { numberFormatter } from '../../internal/intl';
 import { useAnimateElement } from '../../internal/animate';
 import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
 import type { MPAnimateProps, MPAnimateTimelineProps } from '../../types';
@@ -117,15 +118,15 @@ export const MPAnimateCounter = React.forwardRef<HTMLSpanElement, MPAnimateCount
       range
     });
 
-    const formatter = React.useMemo(() => {
-      if (format) {
-        return format;
-      }
-
-      const intl = new Intl.NumberFormat(locale, options);
-
-      return (next: number) => intl.format(next);
-    }, [format, locale, options]);
+    /*
+     * Not memoised on `options`, deliberately. `options` is a prop, so a caller
+     * writing it inline hands a new object on every render — and this component
+     * re-renders on every *frame* of the count, which turned a memo into sixty
+     * `Intl.NumberFormat`s a second. The cache in `internal/intl.ts` is keyed on
+     * what the options say rather than on which object said it, so the identity
+     * stops mattering and there is nothing left for a memo to protect.
+     */
+    const formatter = format ?? ((next: number) => numberFormatter(locale, options).format(next));
 
     const node = React.useRef<HTMLSpanElement | null>(null);
     const [shown, setShown] = React.useState(from);

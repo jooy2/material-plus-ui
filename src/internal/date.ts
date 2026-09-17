@@ -23,6 +23,7 @@
  * itself, in the sense `internal/` always means.
  */
 
+import { dateTimeFormatter, remember } from './intl';
 import type { MPWeekday } from '../types';
 
 /** Which unit the calendar is currently letting you pick. */
@@ -347,62 +348,18 @@ export function yearPageStart(year: number): number {
  * ------------------------------------------------------------------------- */
 
 /**
- * How many entries a cache here holds before it starts forgetting.
+ * A memoised `Intl.DateTimeFormat`. `undefined` locale means the runtime's own.
  *
- * The caches are keyed on a locale and a `format`, and `format` is a caller's
- * prop — so how many distinct keys there are is not something this file gets to
- * decide. A table formatting a date per row against a per-row format would add
- * an `Intl.DateTimeFormat` to a `Map` that never dropped one, for as long as the
- * page was open. Nothing has ever reported that, and a cache with no ceiling is
- * still a leak with a slow fuse.
- *
- * Sixty-four is far above what a page uses. A calendar asks for four shapes, a
- * range picker for the same four, and every picker on a page shares them; the
- * limit is for the case nobody planned rather than the case everybody has.
+ * The cache itself lives in `internal/intl.ts`, along with the bound it keeps
+ * and the two other `Intl` constructors the library asks for. This name stays
+ * because it is what the pickers call and because it says which formatter is
+ * meant, but it is now the shared cache underneath rather than a second one.
  */
-const CACHE_LIMIT = 64;
-
-/**
- * Puts an entry in, and drops the oldest if that took the map over the line.
- *
- * A `Map` iterates in insertion order, so its first key is its oldest — which
- * makes the eviction one delete rather than a data structure.
- *
- * Not a true LRU: reading an entry does not renew it, so a formatter used on
- * every render could in principle be evicted by sixty-four newer ones. It would
- * be rebuilt on the next call, which costs exactly what the miss it already was
- * cost — and tracking use would mean writing to the map on every *read*, which
- * is the hot path this whole thing exists to keep cheap.
- */
-function remember<Value>(cache: Map<string, Value>, key: string, value: Value): Value {
-  cache.set(key, value);
-
-  if (cache.size > CACHE_LIMIT) {
-    const oldest = cache.keys().next();
-
-    if (!oldest.done) {
-      cache.delete(oldest.value);
-    }
-  }
-
-  return value;
-}
-
-const formatterCache = new Map<string, Intl.DateTimeFormat>();
-
-/** A memoised `Intl.DateTimeFormat`. `undefined` locale means the runtime's own. */
 export function dateFormatter(
   locale: string | undefined,
   options: Intl.DateTimeFormatOptions
 ): Intl.DateTimeFormat {
-  const key = `${locale ?? ''}\u0000${JSON.stringify(options)}`;
-  const formatter = formatterCache.get(key);
-
-  if (formatter) {
-    return formatter;
-  }
-
-  return remember(formatterCache, key, new Intl.DateTimeFormat(locale, options));
+  return dateTimeFormatter(locale, options);
 }
 
 /** Formats a date, tolerating the `null` a cleared picker holds. */
@@ -594,15 +551,31 @@ export function isMonthBeforeYear(locale: string | undefined): boolean {
   );
 }
 
-/** Does this locale put a clock on a 12-hour dial? */
-export function isHour12(locale: string | undefined): boolean {
-  const resolved = dateFormatter(locale, { hour: 'numeric' }).resolvedOptions();
+/**
+ * Does this locale put a clock on a 12-hour dial?
+ *
+ * Cached on the locale, because the four pickers ask this in their render body
+ * rather than inside a `useMemo` — it is one boolean and memoising it at four
+ * call sites would be four dependency arrays to keep right. `resolvedOptions`
+ * allocates a fresh object on every call, so the answer is worth keeping even
+ * though the formatter behind it already is.
+ */
+const hourCycleCache = new Map<string, boolean>();
 
-  if (resolved.hourCycle) {
-    return resolved.hourCycle === 'h11' || resolved.hourCycle === 'h12';
+export function isHour12(locale: string | undefined): boolean {
+  const key = locale ?? '';
+  const known = hourCycleCache.get(key);
+
+  if (known !== undefined) {
+    return known;
   }
 
-  return resolved.hour12 === true;
+  const resolved = dateFormatter(locale, { hour: 'numeric' }).resolvedOptions();
+  const twelve = resolved.hourCycle
+    ? resolved.hourCycle === 'h11' || resolved.hourCycle === 'h12'
+    : resolved.hour12 === true;
+
+  return remember(hourCycleCache, key, twelve);
 }
 
 /** What this locale calls AM and PM. */
@@ -642,8 +615,27 @@ interface LocaleWeekInfo {
  * others, and absent in the rest. All three are handled, and the fallback is
  * Sunday rather than a throw — a calendar that renders starting on the wrong day
  * is a small annoyance, and a calendar that renders nothing is not.
+ *
+ * Cached on the locale for the reason `isHour12` is: the four pickers call this
+ * in their render body, and `new Intl.Locale` plus the `resolvedOptions()` an
+ * absent locale needs is not a per-render price worth paying for a number that
+ * cannot change while the page is open.
  */
+const weekStartCache = new Map<string, MPWeekday>();
+
 export function localeWeekStart(locale: string | undefined): MPWeekday {
+  const key = locale ?? '';
+  const known = weekStartCache.get(key);
+
+  if (known !== undefined) {
+    return known;
+  }
+
+  return remember(weekStartCache, key, readWeekStart(locale));
+}
+
+/** The part that actually asks `Intl`, kept apart so the cache above reads as one. */
+function readWeekStart(locale: string | undefined): MPWeekday {
   try {
     const resolved = locale ?? new Intl.DateTimeFormat().resolvedOptions().locale;
     const info = new Intl.Locale(resolved) as LocaleWeekInfo;

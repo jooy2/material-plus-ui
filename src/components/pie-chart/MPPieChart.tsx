@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useMPElementSize } from '../../hooks/useMPElementSize';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { useMPSize } from '../../internal/config';
+import { numberFormatter } from '../../internal/intl';
 import { CHART } from '../../internal/messages/chart';
 import { TABLE } from '../../internal/messages/table';
 import {
@@ -26,6 +27,16 @@ import {
   type ChartValue
 } from '../../internal/chart';
 import type { MPChartCategory, MPChartDatum, MPChartLegend, MPChartTooltip } from '../../types';
+
+/**
+ * A slice's share of the whole, written as a percentage.
+ *
+ * A module constant rather than a literal beside the call: `percent` is asked
+ * once per slice, and the cache in `internal/intl.ts` should be answering the
+ * same question each time rather than serialising a new object to find out it
+ * already has.
+ */
+const PERCENT: Intl.NumberFormatOptions = { style: 'percent', maximumFractionDigits: 1 };
 
 /** How the ring is drawn. */
 export type MPPieChartShape = 'pie' | 'donut' | 'semi';
@@ -266,11 +277,7 @@ export function MPPieChart({
   };
 
   const percent = (share: number) =>
-    total > 0
-      ? new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 1 }).format(
-          share / total
-        )
-      : '';
+    total > 0 ? numberFormatter(locale, PERCENT).format(share / total) : '';
 
   const active = activeIndex === null ? null : arcs[activeIndex];
   /*

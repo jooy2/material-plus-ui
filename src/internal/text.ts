@@ -33,14 +33,19 @@
  */
 
 import * as React from 'react';
+import { segmenter as segmenterFor } from './intl';
 
 /**
- * Whether the runtime can answer the question properly.
+ * The two shapes of segmenter this module asks for, as module constants.
  *
- * Read once. `Intl.Segmenter` is not cheap to construct and this is asked per
- * render of every text effect on the page.
+ * The cache in `internal/intl.ts` is keyed on what the options say, so a literal
+ * here would still hit — but `MPAnimateSplit` calls `graphemesOf` once per
+ * **word**, and a constant is one fewer object allocated per call on the way to
+ * finding that out.
  */
-const SEGMENTER = typeof Intl !== 'undefined' && 'Segmenter' in Intl;
+const GRAPHEME: Intl.SegmenterOptions = { granularity: 'grapheme' };
+
+const WORD: Intl.SegmenterOptions = { granularity: 'word' };
 
 /**
  * The text a node carries, and nothing about its markup.
@@ -64,11 +69,11 @@ export function textOf(node: React.ReactNode): string {
 
 /** The text split the way a reader would split it: by grapheme cluster. */
 export function graphemesOf(text: string, locale?: string): string[] {
-  if (!SEGMENTER) {
+  const segmenter = segmenterFor(locale, GRAPHEME);
+
+  if (!segmenter) {
     return [...text];
   }
-
-  const segmenter = new Intl.Segmenter(locale, { granularity: 'grapheme' });
 
   return [...segmenter.segment(text)].map((segment) => segment.segment);
 }
@@ -85,13 +90,14 @@ export function graphemesOf(text: string, locale?: string): string[] {
  * between two of them, and the run of non-words after a word is folded onto it.
  */
 export function wordsOf(text: string, locale?: string): string[] {
-  if (!SEGMENTER) {
+  const segmenter = segmenterFor(locale, WORD);
+
+  if (!segmenter) {
     // Split *after* each run of whitespace, so the space stays on the word
     // before it and the pieces still join back to the original string.
     return text.match(/\S+\s*|\s+/g) ?? [];
   }
 
-  const segmenter = new Intl.Segmenter(locale, { granularity: 'word' });
   const words: string[] = [];
 
   for (const segment of segmenter.segment(text)) {

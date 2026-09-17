@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { numberFormatter } from '../../internal/intl';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { useMPSize } from '../../internal/config';
 import { fillMessage } from '../../internal/i18n';
@@ -207,7 +208,7 @@ export const MPSparkline = React.forwardRef<HTMLDivElement, MPSparklineProps>(fu
       return table.empty;
     }
 
-    const number = new Intl.NumberFormat(locale);
+    const number = numberFormatter(locale);
 
     return fillMessage(messages.summary, {
       count: number.format(real.length),

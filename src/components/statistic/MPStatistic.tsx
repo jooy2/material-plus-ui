@@ -4,6 +4,7 @@ import { ArrowDownIcon, ArrowUpIcon, RemoveIcon } from '../../constants/icons';
 import { useMPLocale } from '../../internal/locale';
 import { useMPSize } from '../../internal/config';
 import { COMPACT_FROM, deltaOf, formatStatistic } from '../../internal/chart';
+import { numberFormatter } from '../../internal/intl';
 import { META_TEXT, hasContent } from '../../internal/scale';
 import type { MPAlign, MPSize, MPSlots } from '../../types';
 
@@ -108,6 +109,20 @@ const LABEL_TEXT: Record<MPSize, string> = {
   xl: 'text-mp-title-medium'
 };
 
+/**
+ * The share, written as a share.
+ *
+ * A module constant so the cache in `internal/intl.ts` is asked the same
+ * question every render rather than handed a fresh literal to serialise.
+ * `exceptZero` is the whole reason a delta is formatted rather than written: a
+ * figure that has not moved says `0%`, and one that has says which way.
+ */
+const SIGNED_PERCENT: Intl.NumberFormatOptions = {
+  style: 'percent',
+  maximumFractionDigits: 1,
+  signDisplay: 'exceptZero'
+};
+
 const ALIGN: Record<MPAlign, string> = {
   start: 'items-start text-start',
   center: 'items-center text-center',
@@ -179,16 +194,12 @@ export function MPStatistic({
   const percent =
     move?.percent === null || move === null
       ? null
-      : new Intl.NumberFormat(locale, {
-          style: 'percent',
-          maximumFractionDigits: 1,
-          signDisplay: 'exceptZero'
-        }).format(move.percent / 100);
+      : numberFormatter(locale, SIGNED_PERCENT).format(move.percent / 100);
 
   const absolute =
     move === null
       ? null
-      : new Intl.NumberFormat(locale, {
+      : numberFormatter(locale, {
           ...(format ?? {}),
           signDisplay: 'exceptZero',
           ...(format

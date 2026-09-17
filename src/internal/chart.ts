@@ -1,4 +1,5 @@
 import type * as React from 'react';
+import { dateTimeFormatter, numberFormatter } from './intl';
 import type {
   MPChartCategory,
   MPChartCurve,
@@ -64,6 +65,17 @@ export function seriesColor(index: number, explicit?: string): string {
 /** Where a figure stops being read and starts being counted. */
 export const COMPACT_FROM = 10_000;
 
+/*
+ * The two option objects below are module constants rather than literals at the
+ * call site, and that is what makes the cache in `internal/intl.ts` worth having
+ * here: the key is built from `JSON.stringify`, so a fresh literal would still
+ * hit, but a constant means the string is the same object's spelling every time
+ * and the axis is not allocating a record per tick on the way to finding out.
+ */
+const COMPACT: Intl.NumberFormatOptions = { notation: 'compact', maximumFractionDigits: 1 };
+
+const SHORT_DAY: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
+
 /**
  * A number as the reader should see it, compacted once it stops being readable
  * in full.
@@ -90,17 +102,14 @@ export function formatStatistic(
   }
 
   if (format) {
-    return new Intl.NumberFormat(locale, format).format(value);
+    return numberFormatter(locale, format).format(value);
   }
 
   if (compact && Math.abs(value) >= COMPACT_FROM) {
-    return new Intl.NumberFormat(locale, {
-      notation: 'compact',
-      maximumFractionDigits: 1
-    }).format(value);
+    return numberFormatter(locale, COMPACT).format(value);
   }
 
-  return new Intl.NumberFormat(locale).format(value);
+  return numberFormatter(locale).format(value);
 }
 
 /** Which way a figure has moved, and whether that is the good direction. */
@@ -887,10 +896,10 @@ export function categoryAt(
  */
 export function formatCategory(value: MPChartCategory, locale: string | undefined): string {
   if (value instanceof Date) {
-    return new Intl.DateTimeFormat(locale, { month: 'short', day: 'numeric' }).format(value);
+    return dateTimeFormatter(locale, SHORT_DAY).format(value);
   }
 
-  return typeof value === 'number' ? new Intl.NumberFormat(locale).format(value) : value;
+  return typeof value === 'number' ? numberFormatter(locale).format(value) : value;
 }
 
 /* --------------------------------------------------------------------- size */
