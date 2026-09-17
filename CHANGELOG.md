@@ -10,6 +10,8 @@
 
 ### Added
 
+- **`MPAppLogo` takes `target` and `rel`.** Both already reached the `<a>` an `href` makes, as part of the element's own prop set, and neither was documented or wired to anything. They are named props now and `target="_blank"` gets a `rel` on its own, which is the fix below.
+
 - **`fit="scale-down"` on `MPImage` and `MPAspectRatio`.** It draws like `contain`, but never enlarges a file smaller than its box. `MPImageFit` and `MPAspectFit` both take it, and a box with a fixed height, from the change above, is where the choice of fit shows.
 
 - **`MPImage` turns a picture with `rotate`, a quarter turn at a time.** It takes `0`, `90`, `180` or `270` degrees clockwise, and any other number is rounded to the nearest quarter. A quarter turn swaps the box's proportion: it is reserved from `width` and `height` when both are given, read from the file when it loads otherwise, and left alone when `ratio` is set. The turn is drawn with the `rotate` property, so a `transform` of your own still applies, and `preview` opens the picture turned.
@@ -81,6 +83,8 @@
 - **A page description no longer puts a space before the punctuation after inline markup.** The site builds each page's `<meta name="description">` and its `llms.txt` line from the lede, and replaced every tag with a space, so `<strong>window size classes</strong>, not` came out as `classes , not`. Inline tags now go without a trace; a tag that ends a line of text still becomes a space.
 
 ### Fixed
+
+- **A new tab opened from `MPAppLogo` no longer gets a handle on the page it left.** `target="_blank"` hands the opened page a `window.opener` back into this one unless it is told not to, and the referrer travels with it. Five components work this out through one internal helper; `MPAppLogo` took an `<a>`'s whole prop set and did not, so a lockup linking off-site was the one link in the library with neither `noopener` nor `noreferrer`. It now gets `noopener noreferrer`, and a `rel` of your own replaces that rather than extending it — the same bargain the other five document.
 
 - **`MPImage` no longer leaves a strip under a picture whose box has no reserved size.** The `<img>` was inline, so it sat on a line box that keeps room for descenders, and a box with no `ratio` and not both dimensions ended a few pixels below the picture on a page without a reset: 204 pixels tall around a 200 pixel picture in Chromium. A `letterbox` colour showed in that strip. The picture is a block now, and the box ends where it does. The documentation site resets images on its own, which is why none of it showed there.
 

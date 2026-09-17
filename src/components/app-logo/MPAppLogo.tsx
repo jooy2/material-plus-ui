@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { accentSlots } from '../../internal/accent';
+import { linkRel } from '../../internal/link';
 import { initialsOf } from '../../internal/initials';
 import { cssLength } from '../../internal/length';
 import { CONTROL_GAP, CONTROL_HEIGHT, CONTROL_SQUARE, hasContent } from '../../internal/scale';
@@ -29,7 +30,7 @@ export type MPAppLogoShape = 'bare' | 'app' | 'circle';
 
 export interface MPAppLogoProps extends Omit<
   React.ComponentPropsWithoutRef<'a'>,
-  'color' | 'href'
+  'color' | 'href' | 'target' | 'rel'
 > {
   /**
    * The artwork, as an image. Beaten by `children`, so a project that inlines
@@ -109,6 +110,21 @@ export interface MPAppLogoProps extends Omit<
    * the same thing with one more element in it.
    */
   href?: string;
+  /**
+   * Where that link opens. `rel` follows on its own for `_blank` — see `rel`.
+   *
+   * A logo in a header is usually the way back to the front page and opens in
+   * place, so this is rarely set. The one case it is set for is the lockup that
+   * links to somebody else's site, which is also the case where the `rel`
+   * matters most.
+   */
+  target?: string;
+  /**
+   * Overrides the `rel` a `_blank` lockup would otherwise get, which is
+   * `noopener noreferrer`. Writing one **replaces** it rather than adding to it,
+   * so a logo that also needs `nofollow` spells all three out.
+   */
+  rel?: string;
   /** Anything else the `<img>` needs — `loading`, `decoding`, `crossOrigin`. */
   imageProps?: Omit<React.ComponentPropsWithoutRef<'img'>, 'src' | 'srcSet' | 'alt'>;
   /**
@@ -249,6 +265,8 @@ export const MPAppLogo = React.forwardRef<HTMLElement, MPAppLogoProps>(function 
     padded = true,
     height,
     href,
+    target,
+    rel,
     imageProps,
     render,
     className,
@@ -353,6 +371,17 @@ export const MPAppLogo = React.forwardRef<HTMLElement, MPAppLogoProps>(function 
     ref,
     props: {
       href,
+      target,
+      /*
+       * The `rel` a new tab needs, unless the caller named one.
+       *
+       * `target="_blank"` hands the opened page a `window.opener` back into this
+       * one, and the referrer travels with it. Five other components already
+       * worked this out through `linkRel`; this one took an `<a>`'s whole prop
+       * set and did not, which is exactly the fourth-forgets case that function
+       * was written for.
+       */
+      rel: linkRel(target, rel),
       'data-mp-size': size,
       'data-mp-variant': variant,
       className: [

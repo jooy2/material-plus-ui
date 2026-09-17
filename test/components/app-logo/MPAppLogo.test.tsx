@@ -212,6 +212,39 @@ describe('MPAppLogo', () => {
     expect(root().tagName).toBe('SPAN');
   });
 
+  /*
+   * `target="_blank"` hands the opened page a `window.opener` back into this one
+   * and lets the referrer travel with it. Five other components work this out
+   * through `internal/link.ts`; this one took an `<a>`'s whole prop set and for
+   * a while did not, which is exactly the case that function exists for.
+   */
+  it('gives a new tab the `rel` it needs', async () => {
+    await render(<MPAppLogo name="Acme" href="https://example.com" target="_blank" />);
+
+    expect(root()).toHaveAttribute('rel', 'noopener noreferrer');
+  });
+
+  it('writes no `rel` on a link that opens in place', async () => {
+    await render(<MPAppLogo name="Acme" href="/" />);
+
+    expect(root()).not.toHaveAttribute('rel');
+  });
+
+  it("lets a caller's own `rel` replace it rather than extend it", async () => {
+    // Replacing is the bargain the other five already documented: a lockup that
+    // also needs `nofollow` spells all three out and means it.
+    await render(
+      <MPAppLogo
+        name="Acme"
+        href="https://example.com"
+        target="_blank"
+        rel="noopener noreferrer nofollow"
+      />
+    );
+
+    expect(root()).toHaveAttribute('rel', 'noopener noreferrer nofollow');
+  });
+
   it('renders as whatever it was told to', async () => {
     // `render={<h1 />}` for the one page where the product's name is the page's
     // own heading.
