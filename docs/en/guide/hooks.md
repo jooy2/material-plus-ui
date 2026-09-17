@@ -20,7 +20,7 @@ That is the whole of why they are exported. A page that wants one more decision 
 | [`useMPMediaQuery`](#usempmediaquery) | Whether a media query matches |
 | [`useMPElementSize`](#usempelementsize) | How big an element is |
 | [`useMPOnScreen`](#usemponscreen) | Whether an element is on screen |
-| [`useMPLocale`](../design/localization.md#3-nothing-at-all) | The language in force at this point in the tree |
+| [`useMPLocale`](../design/localization.md#_3-nothing-at-all) | The language in force at this point in the tree |
 | [`useMPSnackbar`](../components/feedback/snackbar.md) | Raises snackbars from anywhere under the provider |
 
 The last two live with the provider they read, the way a hook that reads a context should. The rest have no component of their own.

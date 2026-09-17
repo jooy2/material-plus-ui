@@ -135,7 +135,7 @@ _그_ 기본 variant라는 것이 없기 때문입니다.
 </MPConfigProvider>
 ```
 
-[`MPLocaleProvider`](../design/localization.md#2-mplocaleprovider)는 그대로 있고 그대로 동작합니다 — 언어만 바꾸는 서브트리를 위한 좁은 쪽입니다. `locale`을 주지 않은 `MPConfigProvider`는 플랫폼 기본값으로 되돌리지 않고 위에 있는 것을 물려받습니다.
+[`MPLocaleProvider`](../design/localization.md#_2-mplocaleprovider)는 그대로 있고 그대로 동작합니다 — 언어만 바꾸는 서브트리를 위한 좁은 쪽입니다. `locale`을 주지 않은 `MPConfigProvider`는 플랫폼 기본값으로 되돌리지 않고 위에 있는 것을 물려받습니다.
 
 ## 되읽기
 

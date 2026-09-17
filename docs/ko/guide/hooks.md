@@ -20,7 +20,7 @@ order: 2
 | [`useMPMediaQuery`](#usempmediaquery) | 미디어 쿼리가 일치하는지 |
 | [`useMPElementSize`](#usempelementsize) | 엘리먼트가 얼마나 큰지 |
 | [`useMPOnScreen`](#usemponscreen) | 엘리먼트가 화면에 있는지 |
-| [`useMPLocale`](../design/localization.md#3-nothing-at-all) | 트리의 이 지점에서 유효한 언어 |
+| [`useMPLocale`](../design/localization.md#_3-아무것도-지정하지-않음) | 트리의 이 지점에서 유효한 언어 |
 | [`useMPSnackbar`](../components/feedback/snackbar.md) | 프로바이더 아래 어디서든 스낵바 띄우기 |
 
 뒤의 둘은 자기가 읽는 프로바이더 옆에 있습니다 — 컨텍스트를 읽는 훅이 있어야 할 자리입니다. 나머지는 자기 컴포넌트가 없습니다.
@@ -103,7 +103,7 @@ import { mpColorSchemeScript } from 'material-plus-ui';
 
 - **저장소는 실패할 수 있고, 그건 처리돼 있습니다.** 일부 브라우저의 사생활 보호 창과 일부 쿠키 정책 아래에서는 `localStorage` 읽기·쓰기가 throw합니다. 둘 다 잡습니다 — 토글은 이번 방문 동안 동작하고 선택만 기억되지 않습니다.
 - **이미 페이지에 있는 속성이 저장소를 이깁니다.** 스크립트를 돌렸거나 서버에서 쿠키로 `data-mp-scheme`을 렌더한 페이지는 이미 어떤 스킴을 칠하고 있습니다. 그게 참인 쪽이고, 대신 저장소를 보고하면 화면과 어긋납니다.
-- **문서 전체의 스킴을 정합니다.** _구역_ 하나 — 밝은 페이지 속 어두운 편집기 패널 — 는 그 엘리먼트에 직접 `data-mp-scheme`을 다세요. 양방향 모두 동작합니다. [색](../design/color.md#dark-mode)을 보세요.
+- **문서 전체의 스킴을 정합니다.** _구역_ 하나 — 밝은 페이지 속 어두운 편집기 패널 — 는 그 엘리먼트에 직접 `data-mp-scheme`을 다세요. 양방향 모두 동작합니다. [색](../design/color.md#다크-모드)을 보세요.
 
 ## `useMPWindowClass`
 

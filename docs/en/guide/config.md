@@ -135,7 +135,7 @@ Providers nest and **merge**, nearest wins per field. A section that only change
 </MPConfigProvider>
 ```
 
-[`MPLocaleProvider`](../design/localization.md#2-mplocaleprovider) still exists and still works — it is the narrow one, for a subtree that only changes language. A `MPConfigProvider` with no `locale` inherits whatever is above it rather than resetting to the platform default.
+[`MPLocaleProvider`](../design/localization.md#_2-mplocaleprovider) still exists and still works — it is the narrow one, for a subtree that only changes language. A `MPConfigProvider` with no `locale` inherits whatever is above it rather than resetting to the platform default.
 
 ## Reading it back
 

@@ -51,7 +51,7 @@ const [agreed, setAgreed] = useState(false);
 
 ### readOnly
 
-상태를 보여 주되 바꾸지 못하게 하고, `disabled`와 달리 탭 순서에 남습니다. 읽는 사람이 여전히 찾을 수 있어야 하는 값에 필요한 것이 그것입니다. [Prop 규약](../../design/prop-conventions#state-props)을 참고하세요.
+상태를 보여 주되 바꾸지 못하게 하고, `disabled`와 달리 탭 순서에 남습니다. 읽는 사람이 여전히 찾을 수 있어야 하는 값에 필요한 것이 그것입니다. [Prop 규약](../../design/prop-conventions#상태-prop)을 참고하세요.
 
 ### size와 color
 

@@ -77,7 +77,7 @@ div로 조립한 페이지는 스크린 리더가 구분되지 않은 영역 하
 
 사이드바가 열이기를 그만두고 서랍이 되는 윈도우 크기 클래스입니다.
 
-**MD3 자신의 사다리이고, MD3 자신의 답입니다.** 명세는 standard navigation drawer를 모든 폭에 제공하지 않습니다. 레이아웃의 일부인 서랍은 _expanded_ 창이 받는 것이고, compact 창은 같은 목적지를 모달 서랍 뒤에서 받습니다. 그래서 기본값이 `expanded`이고, 값은 픽셀 폭이 아니라 [윈도우 크기 클래스](../../design/prop-conventions#the-shared-types)입니다.
+**MD3 자신의 사다리이고, MD3 자신의 답입니다.** 명세는 standard navigation drawer를 모든 폭에 제공하지 않습니다. 레이아웃의 일부인 서랍은 _expanded_ 창이 받는 것이고, compact 창은 같은 목적지를 모달 서랍 뒤에서 받습니다. 그래서 기본값이 `expanded`이고, 값은 픽셀 폭이 아니라 [윈도우 크기 클래스](../../design/prop-conventions#공유-타입)입니다.
 
 이 값을 읽는 것은 [MPSidebar](./sidebar) 하나뿐입니다 — 두 모습 모두가 될 줄 아는 것이 그 컴포넌트니까요 — 그리고 [MPSidebarTrigger](./sidebar#mpsidebartrigger)는 열이 없는 동안 정확히 그동안만 그려집니다.
 

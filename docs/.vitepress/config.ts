@@ -368,6 +368,40 @@ const vitePressConfig: UserConfig = {
   cleanUrls: true,
   metaChunk: true,
   /**
+   * Heading ids that a Korean anchor can actually be written against.
+   *
+   * VitePress slugs a heading by running it through `NFKD` and dropping the
+   * combining marks, which is how `Café` becomes `cafe`. Hangul has no combining
+   * marks: `NFKD` splits every syllable into its jamo and they all survive, so
+   * `모양` comes out as five code points that *look* like `모양` and are not the
+   * two anybody types. Every Korean anchor written by hand in the Markdown was
+   * therefore landing at the top of the page instead of at its heading — 47 of
+   * them, and no way to tell by reading either the link or the id.
+   *
+   * Composing the result puts them back. `NFC` only undoes the canonical half of
+   * `NFKD`, so the compatibility folding that slug relies on is untouched and
+   * every id that has no Hangul in it is byte for byte what it was: `Café` is
+   * still `cafe`, because the accent was deleted before this runs.
+   *
+   * The rest of the function is VitePress's own, repeated here because it is not
+   * exported — `@mdit-vue/shared`'s `slugify`, as of VitePress 1.6.
+   */
+  markdown: {
+    anchor: {
+      slugify: (str: string) =>
+        str
+          .normalize('NFKD')
+          .replace(/[\u0300-\u036F]/g, '')
+          .replace(/[\u0000-\u001f]/g, '')
+          .replace(/[\s~`!@#$%^&*()\-_+=[\]{}|\\;:"'\u201c\u201d\u2018\u2019<>,.?/]+/g, '-')
+          .replace(/-{2,}/g, '-')
+          .replace(/^-+|-+$/g, '')
+          .replace(/^(\d)/, '_$1')
+          .toLowerCase()
+          .normalize('NFC')
+    }
+  },
+  /**
    * `public/` holds files, not pages.
    *
    * VitePress copies that folder to the site root verbatim — and also compiles

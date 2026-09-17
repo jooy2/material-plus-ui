@@ -54,7 +54,7 @@ clip-path: inset(50%);
 
 바로 이 일을 위한 Tailwind 자신의 유틸리티이고, 위 규칙은 그것을 풀어 쓴 것입니다.
 
-풀어 쓴 이유는 `sr-only`가 **생성되는** 것이기 때문입니다. 자체 Tailwind 빌드에 `prefix`를 설정해 둔 프로젝트는 그것을 다른 이름으로 생성하고, `sr-only`를 박아 둔 컴포넌트는 그 페이지에서 그대로 보이게 됩니다. 임의 속성은 어떤 prefix에도 살아남습니다 — [스타일시트가 Preflight를 싣지 않는](../../guide/getting-started.md#it-contains-no-reset) 것과 같은 이유입니다.
+풀어 쓴 이유는 `sr-only`가 **생성되는** 것이기 때문입니다. 자체 Tailwind 빌드에 `prefix`를 설정해 둔 프로젝트는 그것을 다른 이름으로 생성하고, `sr-only`를 박아 둔 컴포넌트는 그 페이지에서 그대로 보이게 됩니다. 임의 속성은 어떤 prefix에도 살아남습니다 — [스타일시트가 Preflight를 싣지 않는](../../guide/getting-started.md#reset이-들어-있지-않습니다) 것과 같은 이유입니다.
 
 ## 레이아웃에는 남아 있습니다
 
@@ -83,7 +83,7 @@ clip-path: inset(50%);
 
 - **안에 있는 포커스 가능한 것은 그대로 포커스됩니다.** Tab으로 들어간 독자는 자기가 볼 수 없는 곳에 도착합니다. 포커스를 받을 수 있는 것에는 컨트롤 자체에 `aria-label`을 다세요 — [`MPIconButton`](../inputs/icon-button.md)이 그렇게 하고, 그래서 그쪽 `label`이 필수입니다.
 - **live region이 아닙니다.** 안의 텍스트를 바꿔도 엘리먼트가 `aria-live`를 함께 지니지 않는 한 안내되지 않습니다. `aria-live`는 그대로 통과하며, 위의 컴포넌트들이 그렇게 쓰고 있습니다.
-- **`position`이나 `clip-path`를 지정하는 `className`은 이걸 무효로 만듭니다.** 여기의 클래스 이름은 병합이 아니라 연결이라서 스타일시트에서 나중에 오는 유틸리티가 이기고, 내용이 도로 보이게 됩니다. [클래스 이름과 스타일](../../guide/getting-started.md#class-names-and-styles)을 보세요.
+- **`position`이나 `clip-path`를 지정하는 `className`은 이걸 무효로 만듭니다.** 여기의 클래스 이름은 병합이 아니라 연결이라서 스타일시트에서 나중에 오는 유틸리티가 이기고, 내용이 도로 보이게 됩니다. [클래스 이름과 스타일](../../guide/getting-started.md#클래스와-스타일)을 보세요.
 
 ## 다음
 
