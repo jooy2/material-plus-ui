@@ -132,8 +132,8 @@
     "@types/react-dom": "^19.3.0",
     "@typescript-eslint/parser": "^8.70.0",
     "@vitejs/plugin-react": "^6.1.1",
-    "@vitest/browser": "^4.1.11",
-    "@vitest/browser-playwright": "^4.1.11",
+    "@vitest/browser": "^5.0.1",
+    "@vitest/browser-playwright": "^5.0.1",
     "esbuild": "^0.28.2",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
@@ -155,7 +155,7 @@
     "vitepress": "^1.6.4",
     "vitepress-i18n": "^1.4.0",
     "vitepress-sidebar": "^1.40.0",
-    "vitest": "^4.1.11",
+    "vitest": "^5.0.1",
     "vitest-browser-react": "^2.3.0"
   },
   "dependencies": {

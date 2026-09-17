@@ -25,7 +25,11 @@ describe('MPBlockquote', () => {
 
     it('puts the author outside the quote', async () => {
       const screen = await render(<MPBlockquote author="Ada">Said a thing</MPBlockquote>);
-      const caption = screen.getByText('Ada').element().closest('figcaption');
+      // `exact: false` because the component draws an em dash in front of the
+      // name. Matching `— Ada` instead would write that decoration into a test
+      // about *where the author sits*, which would then fail the day the dash
+      // changed and the placement did not.
+      const caption = screen.getByText('Ada', { exact: false }).element().closest('figcaption');
 
       expect(caption).not.toBeNull();
       expect(caption!.closest('blockquote')).toBeNull();
