@@ -17,6 +17,8 @@ scripts/    # the build steps: import specifiers, minification, style sheets, bu
 
 A component is one directory under `src/components`: the `.tsx` file and an `index.ts` that re-exports it. It is styled with utility classes on its own elements, off the design tokens in `src/styles.css`. Anything shared between components lives in `src/internal`, and the translated strings live in `src/locales`.
 
+`src/a2ui` is the one part of `src/` that is not the library itself: it is the [A2UI](https://a2ui.org) catalog, published as `material-plus-ui/a2ui`, and it draws agent-described interfaces with the components above. It has two rules of its own, both explained in `src/a2ui/index.ts`. The protocol SDK it needs is an optional peer dependency, so nothing outside that directory may import `@a2ui/*`; and nothing in it may write a utility class, because a class used only there would land in the whole stylesheet and in none of the split per-component sheets.
+
 Nothing is set on the page or on an element the component does not own — no reset, no provider, no global rule — because the library has to coexist with whatever Material setup a project already has. A change that reaches outside that boundary needs a reason in the pull request.
 
 ## Development

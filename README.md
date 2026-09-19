@@ -34,6 +34,7 @@ Everything is documented at **[material-plus.cdget.com](https://material-plus.cd
 | --- | --- |
 | [**Getting started**](https://material-plus.cdget.com/guide/getting-started) | Install and setup, end to end. |
 | [**All components**](https://material-plus.cdget.com/components/) | Every component, one page each: live previews and the full props table. |
+| [**A2UI catalog**](https://material-plus.cdget.com/guide/a2ui) | Rendering an agent's interface: A2UI's basic catalog, drawn as Material Design 3. |
 | [**Browser support**](https://material-plus.cdget.com/browser-support) | Which browsers and versions it runs in, and what is reduced in the older ones. |
 | [**Changelog**](https://material-plus.cdget.com/changelog) | What changed in each release. |
 
@@ -51,12 +52,15 @@ pnpm add material-plus-ui
 
 ### Peer dependencies
 
-| Package              | Versions |
-| -------------------- | -------- |
-| `@base-ui/react`     | 1        |
-| `react`, `react-dom` | 18 or 19 |
+| Package                         | Versions | Required                         |
+| ------------------------------- | -------- | -------------------------------- |
+| `@base-ui/react`                | 1        | Yes                              |
+| `react`, `react-dom`            | 18 or 19 | Yes                              |
+| `@a2ui/react`, `@a2ui/web_core` | 0.11     | Only for `material-plus-ui/a2ui` |
 
 `@base-ui/react` is a peer rather than a dependency because it carries React context: a `Form` of yours has to be able to see a field of ours, and that only works with one copy in the tree.
+
+The two `@a2ui` packages are optional and only needed to render an agent's interface — see [the A2UI catalog](https://material-plus.cdget.com/guide/a2ui). Install nothing extra and the rest of the library is unaffected.
 
 ### Setup
 
