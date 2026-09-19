@@ -123,6 +123,10 @@ export default defineConfig({
   plugins: [ReactPlugin(), pendingImage()],
   resolve: {
     alias: {
+      // The A2UI catalog is its own entry point and has to come first: an alias
+      // key is a prefix, so the line below would otherwise resolve
+      // `material-plus-ui/a2ui` to `src/index.ts/a2ui`.
+      'material-plus-ui/a2ui': resolve(rootDir, 'src/a2ui/index.ts'),
       // Tests import from 'material-plus-ui' exactly as a consumer would.
       'material-plus-ui': resolve(rootDir, 'src/index.ts')
     },

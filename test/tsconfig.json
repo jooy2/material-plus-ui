@@ -14,7 +14,8 @@
     "resolveJsonModule": true,
     "types": ["@vitest/browser-playwright/context"],
     "paths": {
-      "material-plus-ui": ["../src/index.ts"]
+      "material-plus-ui": ["../src/index.ts"],
+      "material-plus-ui/a2ui": ["../src/a2ui/index.ts"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx"]
