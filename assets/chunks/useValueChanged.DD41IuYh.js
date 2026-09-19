@@ -1,0 +1,1 @@
+import{r as a}from"./index.BC-ZOPMe.js";import{u as s}from"./useIsoLayoutEffect.B9-mVwRe.js";import{u}from"./useStableCallback.Chux8mpL.js";function m(r,o){const t=a.useRef(r),e=u(o);s(()=>{t.current!==r&&e(t.current),t.current=r},[r,e])}export{m as u};
