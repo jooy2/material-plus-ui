@@ -59,6 +59,11 @@
       "module": "./dist/hooks/index.js",
       "default": "./dist/hooks/index.js"
     },
+    "./a2ui": {
+      "types": "./dist/a2ui/index.d.ts",
+      "module": "./dist/a2ui/index.js",
+      "default": "./dist/a2ui/index.js"
+    },
     "./components/*": {
       "types": "./dist/components/*/index.d.ts",
       "module": "./dist/components/*/index.js",
@@ -124,6 +129,8 @@
     "composition"
   ],
   "devDependencies": {
+    "@a2ui/react": "^0.11.1",
+    "@a2ui/web_core": "^0.11.0",
     "@base-ui/react": "^1.8.0",
     "@eslint/js": "^9.39.1",
     "@tailwindcss/postcss": "^4.3.3",
@@ -156,20 +163,34 @@
     "vitepress-i18n": "^1.4.0",
     "vitepress-sidebar": "^1.40.0",
     "vitest": "^5.0.1",
-    "vitest-browser-react": "^2.3.0"
+    "vitest-browser-react": "^2.3.0",
+    "zod": "^3.25.76",
+    "zod-to-json-schema": "^3.25.2"
   },
   "dependencies": {
     "highlight.js": "^11.12.0",
     "lucide-react": "^1.47.0"
   },
   "peerDependencies": {
+    "@a2ui/react": "^0.11.0",
+    "@a2ui/web_core": "^0.11.0",
     "@base-ui/react": "^1.7.0",
     "@types/react": "^18.0.0 || ^19.0.0",
     "react": "^18.0.0 || ^19.0.0",
-    "react-dom": "^18.0.0 || ^19.0.0"
+    "react-dom": "^18.0.0 || ^19.0.0",
+    "zod": "^3.25.76"
   },
   "peerDependenciesMeta": {
+    "@a2ui/react": {
+      "optional": true
+    },
+    "@a2ui/web_core": {
+      "optional": true
+    },
     "@types/react": {
+      "optional": true
+    },
+    "zod": {
       "optional": true
     }
   }
