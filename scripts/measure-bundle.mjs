@@ -230,3 +230,54 @@ if (onlyInBarrel.length > 0 || onlyInSubpath.length > 0) {
 }
 
 console.log(`        subpath imports still cost what the barrel does (${barrel.modules} modules)`);
+
+/*
+ * And the A2UI catalog, which is a different trade from everything above.
+ *
+ * `material-plus-ui/a2ui` is not in the barrel and not in the scenarios, because
+ * nothing in the table above can reach it: it is its own entry point, and a
+ * project that renders no agent interfaces pays none of this. What it costs is
+ * therefore worth stating on its own, in the two halves a reader has to decide
+ * between — the catalog, and the protocol SDK it needs installed.
+ *
+ * The SDK is external in the first column and bundled in the second, which is the
+ * same shape as Base UI above and asks the same question: how much of this is
+ * ours. The answer is that almost none of it is, and that is the honest thing to
+ * print beside a subpath whose whole cost is somebody else's runtime.
+ */
+const A2UI = [
+  '@a2ui/react',
+  '@a2ui/react/*',
+  '@a2ui/web_core',
+  '@a2ui/web_core/*',
+  '@a2ui/markdown-it',
+  'zod'
+];
+
+const CATALOGS = [
+  ['basic catalog', 'mpA2uiCatalog'],
+  ['+ data display', 'mpA2uiExtendedCatalog']
+];
+
+const catalogRows = [];
+
+for (const [name, exported] of CATALOGS) {
+  const source = `import { ${exported} } from './dist/a2ui/index.js';\nexport { ${exported} };\n`;
+  const ours = await bundle(source, { external: [...REACT, ...BASE_UI, ...GRAMMARS, ...A2UI] });
+  const withSdk = await bundle(source, { external: [...REACT, ...BASE_UI, ...GRAMMARS] });
+
+  catalogRows.push({ name, ours: ours.gzip, withSdk: withSdk.gzip, modules: ours.modules });
+}
+
+const catalogWidth = Math.max(...catalogRows.map((row) => row.name.length));
+
+console.log(
+  'a2ui:   gzip, React and Base UI external, the catalog alone and with the protocol SDK'
+);
+
+for (const row of catalogRows) {
+  console.log(
+    `        ${row.name.padEnd(catalogWidth)}  ${kb(row.ours).padStart(8)}` +
+      `  (+ SDK ${kb(row.withSdk).padStart(8)})  ${String(row.modules).padStart(3)} modules`
+  );
+}

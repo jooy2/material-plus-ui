@@ -76,30 +76,144 @@ const CALLS = String.raw`(?:forwardRef|createContext|memo|lazy)`;
 const IN_SOURCE = new RegExp(String.raw`=\s*React\.${CALLS}\b`, 'g');
 const IN_BUILD = new RegExp(String.raw`=\s*([A-Za-z_$][\w$]*)\.(${CALLS})\(`, 'g');
 
+/**
+ * And the two factories `src/a2ui` is built out of, which are the same shape
+ * without the namespace in front of them.
+ *
+ * `createComponentImplementation(api, view)` returns an object holding a
+ * component, and `createMPA2uiCatalog(...)` returns a `Catalog` holding a map of
+ * them. Neither registers anything anywhere — a catalog is handed to a
+ * `MessageProcessor` by the application, not collected by a global — so both are
+ * values that cost nothing to not build, and a bundler is entitled to drop one
+ * nobody imported.
+ *
+ * Without the annotation they are ordinary calls, and one module holds both
+ * catalogs: an application taking the basic eighteen carried the data table and
+ * the three charts along with them, which is most of that bundle. Named rather
+ * than matched by shape, because "a call assigned to a const" is most of the
+ * library and almost none of it is safe to mark harmless.
+ */
+const FACTORIES = String.raw`(?:createComponentImplementation|createMPA2uiCatalog)`;
+const FACTORY_IN_SOURCE = new RegExp(String.raw`=\s*${FACTORIES}\(`, 'g');
+const FACTORY_IN_BUILD = new RegExp(String.raw`=\s*(${FACTORIES})\(`, 'g');
+
 function walk(dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
     entry.isDirectory() ? walk(join(dir, entry.name)) : [join(dir, entry.name)]
   );
 }
 
+/**
+ * The text with every comment blanked out, character for character.
+ *
+ * Because this file writes `/*@__PURE__*&#47;` *into* the text it matched, and a
+ * match inside a comment is a comment that now ends in the middle of itself —
+ * `dist/a2ui/catalog.js` held the example `const catalog = createMPA2uiCatalog({`
+ * in a doc comment, and annotating it closed the comment early and left the rest
+ * of the file as syntax. `tsc` keeps comments, so anything this repository writes
+ * as an example of one of the calls below arrives here looking exactly like a
+ * call.
+ *
+ * Blanked rather than removed: the mask is the same length as the text, so a
+ * match found in it is at the same offset in the real thing, and the replacement
+ * is made against the original.
+ */
+function masked(text) {
+  let out = '';
+  let index = 0;
+
+  while (index < text.length) {
+    const character = text[index];
+
+    /* A string is code, and a string holding `//` is not a comment. */
+    if (character === '"' || character === "'" || character === '`') {
+      const start = index;
+      index += 1;
+
+      while (index < text.length) {
+        if (text[index] === '\\') {
+          index += 2;
+          continue;
+        }
+
+        if (text[index] === character) {
+          index += 1;
+          break;
+        }
+
+        index += 1;
+      }
+
+      out += text.slice(start, index);
+      continue;
+    }
+
+    if (character === '/' && text[index + 1] === '/') {
+      while (index < text.length && text[index] !== '\n') {
+        out += ' ';
+        index += 1;
+      }
+
+      continue;
+    }
+
+    if (character === '/' && text[index + 1] === '*') {
+      while (index < text.length && !(text[index] === '*' && text[index + 1] === '/')) {
+        out += text[index] === '\n' ? '\n' : ' ';
+        index += 1;
+      }
+
+      out += '  ';
+      index += 2;
+      continue;
+    }
+
+    out += character;
+    index += 1;
+  }
+
+  return out;
+}
+
 const count = (files, pattern) =>
   files.reduce(
-    (total, file) => total + (readFileSync(file, 'utf8').match(pattern)?.length ?? 0),
+    (total, file) => total + (masked(readFileSync(file, 'utf8')).match(pattern)?.length ?? 0),
     0
   );
 
+/** `text.replace`, with the pattern matched against the code and not the prose. */
+const rewrite = (text, pattern, replacement) => {
+  const mask = masked(text);
+  let out = '';
+  let at = 0;
+
+  for (const match of mask.matchAll(pattern)) {
+    out += text.slice(at, match.index) + replacement(...match);
+    at = match.index + match[0].length;
+  }
+
+  return out + text.slice(at);
+};
+
 const sources = walk(resolve(root, 'src')).filter((file) => /\.tsx?$/.test(file));
 const expected = count(sources, IN_SOURCE);
+const expectedFactories = count(sources, FACTORY_IN_SOURCE);
 
 const built = walk(resolve(root, 'dist')).filter((file) => file.endsWith('.js'));
 let annotated = 0;
+let annotatedFactories = 0;
 
 for (const file of built) {
   const before = readFileSync(file, 'utf8');
-  const after = before.replace(IN_BUILD, (match, alias, call) => {
+  const withReact = rewrite(before, IN_BUILD, (match, alias, call) => {
     annotated += 1;
 
     return `= /*@__PURE__*/ ${alias}.${call}(`;
+  });
+  const after = rewrite(withReact, FACTORY_IN_BUILD, (match, call) => {
+    annotatedFactories += 1;
+
+    return `= /*@__PURE__*/ ${call}(`;
   });
 
   if (after !== before) {
@@ -107,10 +221,11 @@ for (const file of built) {
   }
 }
 
-if (annotated !== expected) {
+if (annotated !== expected || annotatedFactories !== expectedFactories) {
   throw new Error(
-    `annotated ${annotated} calls in dist/ but the source makes ${expected} — ` +
-      'the emitted shape has changed and the pattern in this file no longer matches it'
+    `annotated ${annotated} React calls and ${annotatedFactories} factory calls in dist/ but ` +
+      `the source makes ${expected} and ${expectedFactories} — the emitted shape has changed ` +
+      'and the patterns in this file no longer match it'
   );
 }
 
@@ -234,5 +349,6 @@ for (const file of built) {
 }
 
 console.log(
-  `pure: ${annotated} calls and ${joined} class lists annotated across ${built.length} modules`
+  `pure: ${annotated} React calls, ${annotatedFactories} catalog calls and ${joined} class ` +
+    `lists annotated across ${built.length} modules`
 );
