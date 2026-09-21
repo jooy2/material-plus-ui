@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -477,6 +477,16 @@ const vitePressConfig: UserConfig = {
    * section at the foot of this file has it.
    */
   async buildEnd({ outDir }) {
+    const interpolations = interpolationsInProse();
+
+    if (interpolations.length > 0) {
+      throw new Error(
+        `Vue reads these as interpolations rather than as text, so the page ships without them. ` +
+          `Write the prop out in words instead — a \`min\` on \`yAxis\`, not \`yAxis={{ min }}\`:\n` +
+          interpolations.map((one) => `  ${one}`).join('\n')
+      );
+    }
+
     await writeFile(
       resolve(outDir, 'robots.txt'),
       `User-agent: *\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\n`
@@ -1071,6 +1081,65 @@ const MOVED_PAGES: Record<string, string> = {
   '/components/motion/animate-typing': '/components/transitions/animate-typing',
   '/components/motion/animate-zoom': '/components/transitions/animate-zoom'
 };
+
+/* ------------------------------------------------- prose Vue would evaluate */
+
+/**
+ * Prose that Vue reads as an interpolation instead of as text.
+ *
+ * A page here is a Vue template, and `{{ … }}` is a mustache wherever it
+ * appears in one — inside an inline code span included. So a sentence writing
+ * out a prop, `` `yAxis={{ min }}` ``, does not say what it looks like it says:
+ * Vue compiles the braces, finds no `min` to evaluate, and renders the line as
+ * `yAxis=` with nothing after it. The build succeeds and the sentence is gone.
+ *
+ * The loud half of this needs no guard. An expression Vue cannot parse — an
+ * object with a nested array, say — fails the build with a message naming the
+ * file, which is how the two that survived here for a release were finally
+ * found. It is the half that *does* parse that ships: every one of those is a
+ * page quietly missing a phrase.
+ *
+ * So the braces are looked for in the source instead. Fenced code is skipped
+ * because VitePress marks it `v-pre`, and the generated changelog is skipped
+ * because `copy-changelog.mjs` puts `v-pre` on the whole page — a changelog for
+ * a React library writes JSX, and JSX writes `{{`.
+ *
+ * The fix is never to escape them. Write the prop the way the rest of the
+ * documentation writes one: a `min` on `yAxis`, `sort: 'value'` on `tooltip`.
+ */
+function interpolationsInProse(): string[] {
+  const found: string[] = [];
+
+  const walk = (directory: string) => {
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      const path = resolve(directory, entry.name);
+
+      if (entry.isDirectory()) {
+        walk(path);
+      } else if (entry.name.endsWith('.md') && entry.name !== 'changelog.md') {
+        let fence: string | null = null;
+
+        readFileSync(path, 'utf8')
+          .split('\n')
+          .forEach((line, index) => {
+            const marker = /^\s{0,3}(`{3,}|~{3,})/.exec(line)?.[1]?.[0];
+
+            if (marker) {
+              // A fence closes only on its own character, so a `~~~` inside a
+              // ``` block is content rather than the end of it.
+              fence = fence === null ? marker : fence === marker ? null : fence;
+            } else if (fence === null && line.includes('{{')) {
+              found.push(`${path.slice(rootDir.length + 1)}:${index + 1}  ${line.trim()}`);
+            }
+          });
+      }
+    }
+  };
+
+  walk(srcDir);
+
+  return found;
+}
 
 /** The stub itself. `to` is site-absolute; the canonical needs the whole URL. */
 function movedPage(to: string): string {

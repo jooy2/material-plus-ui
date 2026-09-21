@@ -66,6 +66,10 @@
 
 - **The documentation's component groups are ordered Charts, Transitions, Hooks after the alphabetical run, and the Motion group is now Transitions.** Pages under `/components/motion/` answer at `/components/transitions/`, and the old addresses redirect.
 
+### Fixed
+
+- **Two documentation sentences were being evaluated as Vue instead of read as text.** A page on the site is a Vue template, and `{{ … }}` is a mustache wherever it appears in one — inside an inline code span included. So the line writing out the bar chart's escape hatch rendered as `yAxis=` with nothing after it, in both languages, and had done since the page was written. Both are rephrased, and the documentation build now fails on prose Vue would evaluate rather than shipping a page with a phrase missing from it.
+
 ## 1.8.0 (2026-09-17)
 
 `MPImage` grew the eight props a picture actually needs — a turn, a mirror, a crop anchor, a letterbox, a real placeholder — and the rest of the release is what a pass over every other component turned up: a CSV that a spreadsheet will not run, five accessibility gaps in components that had none, an `Intl` cache the whole library reads through, and a documentation site whose Korean links now land where they point.
