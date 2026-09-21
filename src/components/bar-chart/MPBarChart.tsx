@@ -83,9 +83,15 @@ export interface MPBarChartProps extends CartesianChartProps {
  * ## Turn it sideways for long names
  *
  * `horizontal` gives every category a row of its own, which is what a set of
- * names like "Onboarding flow" needs. The alternative is labels cut to a slot
- * the width of one bar, or an axis of words rotated forty-five degrees, which
- * is unreadable at a glance and takes a band of the plot to be unreadable in.
+ * names like "Onboarding flow" wants: a name in a row reads left to right at
+ * full size, and the bars beside it are still lengths being compared.
+ *
+ * Upright, the axis turns the names instead — 45° while that fits and upright
+ * past it — rather than cutting them to a slot the width of one bar. It is the
+ * better of the two answers a vertical chart has, and it is still the worse of
+ * the two on this page: a turned name is read slower than a level one. Reach
+ * for `horizontal` when every name is long, and let `xAxis.tickLabels` handle
+ * the chart where one of them is.
  */
 export function MPBarChart({
   stacked = false,
@@ -154,6 +160,7 @@ export function MPBarChart({
         values,
         visible,
         colors,
+        labelInk,
         band,
         valuePx,
         categoryPx,
@@ -334,7 +341,7 @@ export function MPBarChart({
                               horizontal ? (value.value >= 0 ? 'start' : 'end') : 'middle'
                             }
                             dominantBaseline={horizontal ? 'central' : 'auto'}
-                            fill="var(--_mp-color-on-surface)"
+                            fill={labelInk(series)}
                             fontSize={CHART_FONT_SIZE[size] - 1}
                           >
                             {value.label ?? format(value.value)}

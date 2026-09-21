@@ -8,10 +8,17 @@ const TWO = [
   { name: 'Sessions', data: [40, 30, 20, 10] },
   { name: 'Signups', data: [20, 15, 10, 5] }
 ];
+const LONG = ['Organic search', 'Paid social', 'Email campaign', 'Referral'];
 
 const plot = () => document.querySelector('.mp-chart__plot') as HTMLElement;
 const svg = () => document.querySelector('.mp-chart svg');
 const bars = () => Array.from(document.querySelectorAll('.mp-bar-chart__marks path'));
+
+/** Names rather than numbers: the ticks up the left are the other axis. */
+const categoryLabels = () =>
+  Array.from(document.querySelectorAll('.mp-chart__axes text')).filter((node) =>
+    /[A-Za-z]/.test(node.textContent ?? '')
+  );
 const drawn = () => expect.poll(() => svg() !== null).toBe(true);
 
 /**
@@ -258,5 +265,63 @@ describe('MPBarChart', () => {
     await drawn();
 
     await expect.poll(() => bars().length).toBe(3);
+  });
+
+  it('turns a long category name rather than dropping every other one', async () => {
+    // A name cut to "Onbo…" has lost the thing it was there to say, and an axis
+    // that dropped half of them to make the rest fit is worse again.
+    await render(
+      <div style={{ width: 420 }}>
+        <MPBarChart categories={LONG} series={[{ data: [10, 20, 30, 40] }]} locale="en-US" />
+      </div>
+    );
+    await drawn();
+
+    await expect.poll(() => categoryLabels().length).toBe(4);
+    expect(
+      categoryLabels().every((node) => node.getAttribute('transform')?.includes('rotate'))
+    ).toBe(true);
+    // The ones with room behind them print in full; only the first is anywhere
+    // near the chart's own left edge.
+    expect(
+      categoryLabels()
+        .slice(1)
+        .map((node) => node.textContent)
+    ).toEqual(LONG.slice(1));
+  });
+
+  it('leaves a short name flat however many of them there are', async () => {
+    // An axis of "Q1", "Q2" is crowded by how many of them there are rather
+    // than by how long any one is, and every nth is the answer to that.
+    await render(
+      <MPBarChart
+        categories={Array.from({ length: 24 }, (_, at) => `W${at + 1}`)}
+        series={[{ data: Array.from({ length: 24 }, (_, at) => at + 1) }]}
+        locale="en-US"
+      />
+    );
+    await drawn();
+
+    await expect.poll(() => bars().length).toBe(24);
+    expect(categoryLabels().some((node) => node.getAttribute('transform'))).toBe(false);
+  });
+
+  it('cuts instead of turning when it is told to', async () => {
+    await render(
+      <div style={{ width: 420 }}>
+        <MPBarChart
+          categories={LONG}
+          series={[{ data: [10, 20, 30, 40] }]}
+          xAxis={{ tickLabels: 'truncate' }}
+          locale="en-US"
+        />
+      </div>
+    );
+    await drawn();
+
+    await expect.poll(() => categoryLabels().length).toBeGreaterThan(0);
+    expect(categoryLabels().some((node) => node.getAttribute('transform'))).toBe(false);
+    // Cut, or dropped by the stride — either way, less than the turn showed.
+    expect(categoryLabels().map((node) => node.textContent)).not.toEqual(LONG);
   });
 });

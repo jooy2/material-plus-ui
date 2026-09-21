@@ -4,6 +4,7 @@ import { cssLength } from './length';
 import { PLOT_HEIGHT, formatCategory, type ChartValue } from './chart';
 import type {
   MPChartCategory,
+  MPChartLabelColor,
   MPChartLegend,
   MPChartTooltip,
   MPChartTooltipItem,
@@ -68,6 +69,22 @@ export interface ChartBaseProps extends Omit<
   tooltip?: boolean | MPChartTooltip;
   /** What to draw when there is nothing to draw. */
   empty?: React.ReactNode;
+  /**
+   * What ink the text naming a series is written in — the legend's entries, and
+   * the values written onto the marks.
+   *
+   * `'series'` matches each name to the mark it names, which is the fastest way
+   * to pair a long legend with a crowded plot. It is not the default because it
+   * is a trade: the eight chart slots are fitted to 3:1 against the surface,
+   * which is the bar for a *mark*, and small text wants 4.5:1. Reach for it on
+   * a chart whose legend is doing real work, and leave it alone where the
+   * swatch beside the name is already enough.
+   *
+   * Labels drawn **on** a fill — a pie's shares, a heatmap's cells — ignore it
+   * and keep the ink that reads against what they sit on.
+   * @default 'ink'
+   */
+  labelColor?: MPChartLabelColor;
   /** @default 'md' */
   size?: MPSize;
 }
@@ -152,20 +169,31 @@ interface LegendProps {
   size: MPSize;
   values?: readonly (string | undefined)[];
   swatch?: (index: number, color: string) => React.ReactNode;
+  /** Writes each name in its own series' colour rather than in ordinary ink. */
+  colorNames?: boolean;
 }
 
 /**
  * The identity channel that does not depend on being able to see a colour.
  *
- * A swatch and a word, and the swatch is the only thing on the row wearing the
- * series' colour — the name beside it stays in ordinary ink. That is the rule
- * for every piece of text in a chart: a label written in the mark's colour is a
- * label the reader has to decode before they can read it, and it fails outright
- * in forced colours.
+ * A swatch and a word. The swatch carries the series' colour and the name
+ * beside it stays in ordinary ink, because a label written in the mark's colour
+ * is one more thing between the reader and the word — `colorNames` is the
+ * caller saying they want that trade anyway, and it is off unless they do.
  *
  * Interactive by default, and each entry is a real `<button>` with
  * `aria-pressed`. A legend that filters is a control, and a control that is a
  * `<div>` with an `onClick` is one a keyboard cannot reach.
+ *
+ * ## Off and quiet are two states, and they look different
+ *
+ * A series the reader has switched off is drawn at Material's disabled
+ * opacity — swatch and name together, the same treatment a disabled control
+ * gets, because that is what it is. A series merely standing back while another
+ * is hovered is quieter than usual and no more, so the two cannot be mistaken
+ * for each other at a glance. Opacity survives greyscale and forced colours,
+ * which a change of hue would not, and `aria-pressed` carries the same fact to
+ * a reader who is not looking at all.
  */
 export function ChartLegend({
   names,
@@ -174,7 +202,8 @@ export function ChartLegend({
   visibility,
   size,
   values,
-  swatch
+  swatch,
+  colorNames = false
 }: LegendProps) {
   const interactive = options.interactive !== false;
   const text = size === 'xs' || size === 'sm' ? 'text-mp-label-small' : 'text-mp-label-medium';
@@ -190,7 +219,7 @@ export function ChartLegend({
     >
       {names.map((given, index) => {
         const shown = visibility.visible[index];
-        const dimmed = !shown || (visibility.hovered !== null && visibility.hovered !== index);
+        const quiet = shown && visibility.hovered !== null && visibility.hovered !== index;
         const name = given ?? `${index + 1}`;
 
         const body = (
@@ -205,12 +234,22 @@ export function ChartLegend({
                 />
               )}
             </span>
-            <span className="text-mp-on-surface-variant truncate">{name}</span>
+            <span
+              className={colorNames ? 'truncate' : 'text-mp-on-surface-variant truncate'}
+              style={colorNames ? { color: colors[index] } : undefined}
+            >
+              {name}
+            </span>
             {values?.[index] ? (
               <span className="text-mp-on-surface tabular-nums">{values[index]}</span>
             ) : null}
           </>
         );
+
+        /* Switched off is the disabled treatment; standing back is one step
+           quieter than usual. Two levels rather than one, so a reader can tell
+           which of the two they are looking at without moving the pointer. */
+        const fade = !shown ? 'opacity-38' : quiet ? 'opacity-60' : '';
 
         return (
           <li key={index} className="min-w-0">
@@ -221,7 +260,16 @@ export function ChartLegend({
                 onClick={() => visibility.toggle(index)}
                 onPointerEnter={() => visibility.setHovered(index)}
                 onPointerLeave={() => visibility.setHovered(null)}
-                onFocus={() => visibility.setHovered(index)}
+                // Keyboard focus dims the rest, the way a hover does, and a
+                // mouse click does not — a pointer that has just pressed an
+                // entry is about to leave, and a plot left faded behind it
+                // reads as the chart having gone quiet rather than as one
+                // series being pointed at.
+                onFocus={(event) => {
+                  if (event.currentTarget.matches(':focus-visible')) {
+                    visibility.setHovered(index);
+                  }
+                }}
                 onBlur={() => visibility.setHovered(null)}
                 className={[
                   'flex min-w-0 cursor-pointer items-center gap-1.5 rounded-mp-xs',
@@ -229,11 +277,7 @@ export function ChartLegend({
                   // none of which the list it sits in would otherwise reach.
                   'appearance-none border-0 bg-transparent p-0 text-inherit [font:inherit]',
                   'focus-visible:outline-mp-primary focus-visible:outline-2 focus-visible:outline-offset-2',
-                  // Struck through as well as faded, because "off" has to survive
-                  // being looked at in grayscale — and a row at 40% opacity is a
-                  // row that reads as merely quiet.
-                  dimmed ? 'opacity-40' : '',
-                  shown ? '' : 'line-through'
+                  fade
                 ]
                   .filter(Boolean)
                   .join(' ')}
@@ -241,9 +285,7 @@ export function ChartLegend({
                 {body}
               </button>
             ) : (
-              <span className={`flex min-w-0 items-center gap-1.5 ${dimmed ? 'opacity-40' : ''}`}>
-                {body}
-              </span>
+              <span className={`flex min-w-0 items-center gap-1.5 ${fade}`}>{body}</span>
             )}
           </li>
         );

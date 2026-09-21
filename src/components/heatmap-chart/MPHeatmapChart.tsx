@@ -21,13 +21,21 @@ import {
   rampInk,
   rampStep,
   textWidth,
+  tickTurn,
   toValues,
   truncate,
+  turnedBand,
+  turnedRoom,
   type ChartValue
 } from '../../internal/chart';
 import type { MPChartAxis, MPChartCategory, MPChartSeries, MPChartTooltip } from '../../types';
 
-export interface MPHeatmapChartProps extends ChartBaseProps {
+/**
+ * No `labelColor`: every piece of text this chart writes sits **on** a ramp
+ * step, where the question is what reads against the fill underneath. There are
+ * no series here for an ink to name, either.
+ */
+export interface MPHeatmapChartProps extends Omit<ChartBaseProps, 'labelColor'> {
   /**
    * The rows. Each series is one row and its `data` are that row's cells, in
    * the order `categories` names the columns.
@@ -35,9 +43,13 @@ export interface MPHeatmapChartProps extends ChartBaseProps {
   series: readonly MPChartSeries[];
   /** The column headings. */
   categories?: readonly MPChartCategory[];
-  /** The column axis. Only `label`, `hidden` and `tickFormat` mean anything here. */
+  /**
+   * The column axis. Only `label`, `hidden`, `thickness`, `tickFormat` and
+   * `tickLabels` mean anything here — there is no scale to pin and no grid to
+   * cast when both axes are categorical.
+   */
   xAxis?: MPChartAxis;
-  /** The row axis, same three. */
+  /** The row axis, minus `tickLabels`: a row already has a line of its own. */
   yAxis?: MPChartAxis;
   /**
    * Where the colour scale starts and ends. Taken from the data otherwise.
@@ -163,16 +175,56 @@ export function MPHeatmapChart({
      wide as their widest label rather than as their widest number. */
   const widestRow = rowNames.reduce((most, name) => Math.max(most, textWidth(name, font)), 0);
   const left = yAxis?.hidden ? 0 : (yAxis?.thickness ?? Math.min(140, widestRow + 10));
-  const bottom = xAxis?.hidden ? 0 : (xAxis?.thickness ?? font + 12);
+
+  /* The columns are settled before the band under them is, because how deep
+     that band has to be depends on whether the names in it are turned — and
+     that depends on how wide a column is, which the band never touches. */
+  const plotWidth = Math.max(0, boxWidth - left);
+  const cellWidth = columns > 0 ? plotWidth / columns : 0;
+
+  const turn = xAxis?.hidden
+    ? 0
+    : tickTurn(xAxis?.tickLabels ?? 'auto', columnNames, font, cellWidth);
+
+  /* Half the box, and never more than 120px: a turned axis is what stops a name
+     being cut, and a name is worth a band — but not the whole picture. Past the
+     cap the names are cut again, and a cut turned name still carries three
+     times what a cut flat one does. */
+  const turnCap = Math.min(120, boxHeight * 0.5);
+
+  /* A turned name runs back and down from its own column, across whatever is to
+     its left — the row names' band and the columns before it, all of which is
+     empty below the plot and is exactly the room it should be using. What is
+     past the edge of the chart is not, and the first column is the only one
+     anywhere near it. */
+  const columnTexts = columnNames.map((name, column) =>
+    truncate(
+      name,
+      turn > 0
+        ? Math.min(
+            turnedRoom(turn, turnCap, font),
+            turn >= 90
+              ? Infinity
+              : (left + cellWidth * (column + 0.5)) / Math.cos((turn * Math.PI) / 180)
+          )
+        : cellWidth - 2,
+      font
+    )
+  );
+
+  const widestColumn = columnTexts.reduce((most, name) => Math.max(most, textWidth(name, font)), 0);
+
+  const bottom = xAxis?.hidden
+    ? 0
+    : (xAxis?.thickness ?? (turn > 0 ? 8 + turnedBand(turn, widestColumn, font) + 4 : font + 12));
 
   const plot = {
     left,
     top: 0,
-    width: Math.max(0, boxWidth - left),
+    width: plotWidth,
     height: Math.max(0, boxHeight - bottom)
   };
 
-  const cellWidth = columns > 0 ? plot.width / columns : 0;
   const cellHeight = rows.length > 0 ? plot.height / rows.length : 0;
 
   const cellAt = (clientX: number, clientY: number) => {
@@ -431,18 +483,28 @@ export function MPHeatmapChart({
 
           {xAxis?.hidden
             ? null
-            : columnNames.map((name, column) => (
-                <text
-                  key={`c${column}`}
-                  x={plot.left + (column + 0.5) * cellWidth}
-                  y={plot.top + plot.height + font + 4}
-                  textAnchor="middle"
-                  fill="var(--_mp-color-on-surface-variant)"
-                  fontSize={font}
-                >
-                  {truncate(name, cellWidth - 2, font)}
-                </text>
-              ))}
+            : columnTexts.map((name, column) => {
+                const at = plot.left + (column + 0.5) * cellWidth;
+                const under = plot.top + plot.height;
+
+                /* Turned, a name is anchored at its **end** and rotated about
+                   that point, so it runs up towards the column it belongs to
+                   and a reader follows it in the direction they already read. */
+                return (
+                  <text
+                    key={`c${column}`}
+                    x={at}
+                    y={turn > 0 ? under + 8 : under + font + 4}
+                    textAnchor={turn > 0 ? 'end' : 'middle'}
+                    dominantBaseline={turn > 0 ? 'central' : undefined}
+                    transform={turn > 0 ? `rotate(${-turn} ${at} ${under + 8})` : undefined}
+                    fill="var(--_mp-color-on-surface-variant)"
+                    fontSize={font}
+                  >
+                    {name}
+                  </text>
+                );
+              })}
         </svg>
       ) : null}
     </ChartShell>

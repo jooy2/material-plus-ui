@@ -7,7 +7,7 @@ order: 32
 
 <p class="mp-lede">A quantity over an ordered axis — how it has moved, and where it is going. Two axes, a grid, a legend and a hover layer, all of it drawn by hand and none of it a dependency.</p>
 
-<Demo src="line-chart/hero" :minHeight="620" />
+<Demo src="line-chart/hero" :minHeight="900" />
 
 ```tsx
 import { MPLineChart } from 'material-plus-ui';
@@ -35,6 +35,10 @@ Pass a `yAxis` with `min: 0` where zero genuinely is the baseline — and reach 
 A `null` is a point nothing was measured at, and the line breaks there. It is not joined across, because a straight run through values nobody has is the one kind of invented data a reader never questions: it looks exactly like the rest of the line.
 
 `smooth` is a monotone fit, so a rising run never turns back on its way up and the lowest number in the data is the lowest point on screen. An ordinary spline through the same points overshoots both, and a chart that draws a dip has reported one.
+
+`gaps` is there for the two cases where breaking is the wrong reading. `gaps="connect"` joins the two sides and draws the joining run **dashed** — the line carries on, and the picture still says which part of it was measured. `gaps="zero"` draws the missing reading at zero and widens the value axis to hold it, which is right where a gap means "none of it happened" and wrong where it means "nobody was counting".
+
+Only the drawing changes. The hover panel and the table behind the chart report a gap as a gap in all three, because they are the copy of the data a reader gets when they need the number itself.
 
 ## The hover layer is on by default
 
@@ -66,6 +70,8 @@ From two series up it is drawn automatically, and each entry is a real button: c
 
 A chart with one series draws no legend — a legend with one swatch in it restates the title.
 
+A series that is switched off is drawn at Material's disabled opacity, swatch and name together, because that is what it is and the treatment is one a reader already knows. A series merely standing back while another is hovered is quieter than usual and no more, so the two cannot be mistaken for each other at a glance. Neither depends on hue, which is what keeps them legible in greyscale and in forced colours, and `aria-pressed` carries the same fact to a reader who is not looking at all.
+
 ## Markers, and when they stop helping
 
 `markers="auto"` draws a dot on every join while the dots still have room to be separate marks, and drops them once the line is denser than that. A dot every three pixels is not a row of dots, it is a thicker line.
@@ -76,7 +82,7 @@ The active column keeps its dot whatever the setting says. It is where the cross
 
 `valueLabels="last"` writes the final number of each series; `"extremes"` writes the highest and the lowest. `"all"` exists for the five-point chart where it genuinely is the answer, and it is not the default because a number beside every point is the most reliable way to make a chart unreadable.
 
-Written values wear ordinary ink and never the series' colour. A number in the mark's colour is a number the reader decodes before they read it, and it fails outright in forced colours.
+Written values wear ordinary ink, and the swatch beside a name in the legend is the only thing on the chart carrying a series' colour. `labelColor="series"` moves the colour onto the words as well, which pairs a long legend with a crowded plot faster than a swatch alone can. It is not the default, and the reason is measurable: the eight palette slots are fitted to 3:1 against the surface, which is the bar a **mark** has to clear, and small text is held to 4.5:1.
 
 ## It brings no surface of its own
 

@@ -42,6 +42,23 @@ export default function LineChartHero() {
           />
         </MPBox>
       </MPFlex>
+
+      <MPFlex direction="column" gap={8}>
+        <MPTypography level="caption">
+          The same month joined instead, with the joining run drawn as the guess it is.
+        </MPTypography>
+
+        <MPBox variant="outlined" padded>
+          <MPLineChart
+            label="Response time at the 95th percentile, with the gap joined"
+            categories={MONTHS}
+            series={LATENCY}
+            gaps="connect"
+            size="sm"
+            format={{ style: 'unit', unit: 'millisecond' }}
+          />
+        </MPBox>
+      </MPFlex>
     </MPFlex>
   );
 }

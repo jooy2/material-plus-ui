@@ -330,6 +330,50 @@ export interface MPTimelineSeries {
 export type MPChartCurve = 'linear' | 'smooth' | 'step';
 
 /**
+ * What a line or an area does where a series has no value.
+ *
+ * - `break` — the line stops and starts again on the far side. The default,
+ *   because a straight run through values nobody has is the one kind of
+ *   invented data a reader never questions: it looks exactly like the rest of
+ *   the line.
+ * - `connect` — the two sides are joined, and the joining run is drawn
+ *   **dashed** so the picture still says which part of it was measured. An
+ *   area's fill closes across the gap as well.
+ * - `zero` — the missing reading is drawn at zero, and the value axis is
+ *   widened to hold it. Right where a gap really does mean "none of it
+ *   happened", and wrong where it means "nobody was counting".
+ *
+ * Only the drawing changes. The hover panel and the table behind the chart
+ * still report a gap as a gap, whichever of the three is chosen, because they
+ * are the copy of the data a reader gets when they need the number itself.
+ */
+export type MPChartGaps = 'break' | 'connect' | 'zero';
+
+/**
+ * What an axis does with a tick label too wide for the room it has.
+ *
+ * - `auto` — leaves the labels flat while they fit and turns them when they do
+ *   not. The default, because flat labels are what a reader takes in fastest
+ *   and a name cut to "Onbo…" has lost the thing it was there to say.
+ * - `truncate` — cuts a long label with an ellipsis and never turns anything.
+ * - `rotate` — turns every label 45°.
+ * - `vertical` — stands every label on end.
+ *
+ * The last two turn **all** of the labels rather than only the long ones: a row
+ * at two different angles is a row a reader has to scan twice.
+ *
+ * Only the axis along the **bottom** reads it. Labels stacked up the side
+ * already have a row each, which is the room a turn would be buying them.
+ *
+ * And `auto` turns names rather than ticks. A value axis is a ruler, so showing
+ * every nth of its labels loses nothing a reader cannot interpolate; where the
+ * bottom of a chart is one — a bar chart on its side, a scatter — `auto` leaves
+ * it striding. `rotate` and `vertical` still apply there when they are asked
+ * for by name.
+ */
+export type MPChartTickLabels = 'auto' | 'truncate' | 'rotate' | 'vertical';
+
+/**
  * Which values are written onto the marks themselves.
  *
  * `none` by default everywhere, which is not timidity: a number beside every
@@ -338,6 +382,21 @@ export type MPChartCurve = 'linear' | 'smooth' | 'step';
  * `all` is there for the eight-bar chart where it genuinely is the answer.
  */
 export type MPChartValueLabels = 'none' | 'last' | 'extremes' | 'all';
+
+/**
+ * What ink a chart writes the text naming a series in.
+ *
+ * `'ink'` is `on-surface-variant` — one colour for every name, whichever mark
+ * it belongs to. `'series'` matches the name to its mark, which pairs a long
+ * legend with a crowded plot faster than a swatch alone can.
+ *
+ * The trade is contrast. The eight palette slots are fitted to 3:1 against the
+ * surface, which is the bar a **mark** has to clear; small text is held to
+ * 4.5:1, and a series colour does not reach it. So the swatch carries the
+ * colour by default and the word stays legible, and this is the caller saying
+ * their chart is better off the other way round.
+ */
+export type MPChartLabelColor = 'ink' | 'series';
 
 /**
  * What the pointer uncovers.
@@ -425,6 +484,15 @@ export interface MPChartAxis {
   tickCount?: number;
   /** How a tick is written, overriding the chart's own `format`. */
   tickFormat?: (value: MPChartCategory, index: number) => React.ReactNode;
+  /**
+   * What to do with a label too wide for the room it has: cut it, or turn it.
+   *
+   * Read by the axis along the **bottom** only — the category axis on an
+   * upright chart, and the value axis on one turned on its side. Labels down
+   * the left already have a row each.
+   * @default 'auto'
+   */
+  tickLabels?: MPChartTickLabels;
   /**
    * How much room it keeps for its ticks and its label, in pixels. Measured off
    * the ticks themselves otherwise. Set it when a long category name needs

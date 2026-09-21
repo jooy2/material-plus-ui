@@ -17,8 +17,12 @@ import {
 } from '../../internal/chart';
 import type { MPChartAxis, MPTimelineSeries } from '../../types';
 
-/** No `legend`: the rows are the axis, so there is nothing for one to identify. */
-export interface MPTimelineChartProps extends Omit<ChartBaseProps, 'legend'> {
+/**
+ * No `legend`: the rows are the axis, so there is nothing for one to identify.
+ * No `labelColor` either — with no legend to ink, the only text left is a span's
+ * own label, and that is written **on** the bar rather than beside it.
+ */
+export interface MPTimelineChartProps extends Omit<ChartBaseProps, 'legend' | 'labelColor'> {
   /** The rows, top to bottom. Each carries its own spans. */
   series: readonly MPTimelineSeries[];
   /** The row axis. */

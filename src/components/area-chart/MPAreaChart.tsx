@@ -1,14 +1,17 @@
 import * as React from 'react';
 import { CartesianFrame, type CartesianChartProps } from '../../internal/ChartFrame';
 import {
+  BRIDGE_DASH,
   LINE_WIDTH,
   MARKER_RADIUS,
   MARK_GAP,
   bandPath,
+  bridgePath,
   linePath,
+  withoutGaps,
   type PlotPoint
 } from '../../internal/chart';
-import type { MPChartCurve, MPChartValueLabels } from '../../types';
+import type { MPChartCurve, MPChartGaps, MPChartValueLabels } from '../../types';
 
 export interface MPAreaChartProps extends CartesianChartProps {
   /**
@@ -34,6 +37,17 @@ export interface MPAreaChartProps extends CartesianChartProps {
    * @default 'auto'
    */
   markers?: boolean | 'auto';
+  /**
+   * What the band does where a series has no value.
+   *
+   * `break` leaves a hole in the fill as well as in the edge, `connect` closes
+   * the fill across it and draws the joining edge dashed, and `zero` draws the
+   * missing reading at zero — which on a band standing on the axis pinches it
+   * shut. The hover panel and the table still report a gap as a gap in all
+   * three.
+   * @default 'break'
+   */
+  gaps?: MPChartGaps;
   /**
    * Which values are written onto the top edge.
    * @default 'none'
@@ -104,6 +118,7 @@ export function MPAreaChart({
   curve = 'linear',
   stacked = false,
   markers = 'auto',
+  gaps = 'break',
   valueLabels = 'none',
   ...frame
 }: MPAreaChartProps) {
@@ -117,7 +132,19 @@ export function MPAreaChart({
       includeZero
       headroom={valueLabels === 'none' ? 0 : 14}
     >
-      {({ plot, values, visible, colors, point, zeroPx, size, hovered, activeIndex, format }) => {
+      {({
+        plot,
+        values,
+        visible,
+        colors,
+        labelInk,
+        point,
+        zeroPx,
+        size,
+        hovered,
+        activeIndex,
+        format
+      }) => {
         const stroke = LINE_WIDTH[size];
         const radius = MARKER_RADIUS[size];
         const count = values.reduce((most, one) => Math.max(most, one.length), 0);
@@ -144,7 +171,11 @@ export function MPAreaChart({
           let down = 0;
 
           values.forEach((one, series) => {
-            const value = one[at]?.value ?? null;
+            const measured = one[at]?.value ?? null;
+            // `zero` reads a missing month as a month of none, which is a claim
+            // about the data rather than about the drawing — and the reason it
+            // is a prop rather than the default.
+            const value = measured === null && gaps === 'zero' ? 0 : measured;
 
             if (!visible[series] || value === null) {
               edges[series].top.push(null);
@@ -200,7 +231,11 @@ export function MPAreaChart({
               return (
                 <g key={index} opacity={dimmed ? 0.25 : 1}>
                   <path
-                    d={bandPath(top, base, curve)}
+                    d={
+                      gaps === 'connect'
+                        ? bandPath(withoutGaps(top), withoutGaps(base), curve)
+                        : bandPath(top, base, curve)
+                    }
                     fill={paint}
                     fillOpacity={stacked ? STACKED_FILL : OVERLAPPING_FILL}
                     stroke="none"
@@ -217,6 +252,20 @@ export function MPAreaChart({
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   />
+
+                  {/* The edge across a closed gap, dashed. The fill either side
+                      of it is one shape; this is the part of its outline the
+                      chart is guessing at. */}
+                  {gaps === 'connect' ? (
+                    <path
+                      d={bridgePath(top)}
+                      fill="none"
+                      stroke={paint}
+                      strokeWidth={stroke}
+                      strokeDasharray={`${stroke * BRIDGE_DASH} ${stroke * BRIDGE_DASH}`}
+                      strokeLinecap="round"
+                    />
+                  ) : null}
 
                   {top.map((at, i) => {
                     if (!at) {
@@ -277,7 +326,7 @@ export function MPAreaChart({
                             x={at.x}
                             y={at.y - radius - 5}
                             textAnchor={anchor}
-                            fill="var(--_mp-color-on-surface)"
+                            fill={labelInk(index)}
                             fontSize={size === 'xs' || size === 'sm' ? 10 : 11}
                           >
                             {value.label ?? format(value.value)}

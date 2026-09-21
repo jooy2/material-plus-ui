@@ -48,6 +48,10 @@ Turning a series off with the legend re-stacks the survivors rather than leaving
 
 A `null` breaks the band. An area closed over a missing month fills in a value that was never measured: the same lie a bridged line tells, painted across a larger part of the picture.
 
+`gaps="connect"` closes it anyway and draws the joining top edge **dashed**, so the fill is one shape and the outline still says which part of it was measured. `gaps="zero"` reads the missing month as a month of none, which on a band standing on the axis pinches it shut — right where a gap means "none of it happened", wrong where it means "nobody was counting".
+
+Only the drawing changes. The hover panel and the table behind the chart report a gap as a gap in all three.
+
 ## Faint when they overlap, solid when they stack
 
 Unstacked bands all stand on the baseline and lie on top of each other, so the fill stays faint enough for the ones behind to show through and the top edge is drawn in full colour — that edge is the only part of a faint band a reader can follow. A stacked band has nothing behind it, so it is filled nearly solid and the edge becomes the boundary between two shares.

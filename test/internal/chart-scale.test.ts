@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   bandScale,
+  bridgePath,
   categoryAt,
   fitsLast,
   formatCategory,
@@ -8,10 +9,15 @@ import {
   showsTick,
   textWidth,
   tickStride,
+  tickTurn,
   toValue,
   toValues,
   truncate,
-  valueScale
+  turnedBand,
+  turnedRoom,
+  turnedStep,
+  valueScale,
+  withoutGaps
 } from '../../src/internal/chart';
 
 describe('valueScale', () => {
@@ -233,5 +239,101 @@ describe('formatCategory', () => {
 
   it('leaves a string alone', () => {
     expect(formatCategory('Onboarding', 'en-US')).toBe('Onboarding');
+  });
+});
+
+describe('tickTurn', () => {
+  const LONG = ['Organic search', 'Paid social', 'Email campaign'];
+  const SHORT = ['Jan', 'Feb', 'Mar'];
+
+  it('leaves labels flat while the widest of them fits its slot', () => {
+    // Flat is what a reader takes in fastest. Turning an axis that did not
+    // need it spends a band of the plot on nothing.
+    expect(tickTurn('auto', LONG, 12, 400)).toBe(0);
+  });
+
+  it('turns them once the widest no longer fits', () => {
+    expect(tickTurn('auto', LONG, 12, 90)).toBe(45);
+  });
+
+  it('measures with the same air the stride leaves', () => {
+    // Without it an axis decides its labels fit and the stride then throws
+    // every other one away, which is the outcome turning them exists to avoid.
+    const widest = textWidth('Organic search', 12);
+
+    expect(tickTurn('auto', LONG, 12, widest + 4)).toBe(45);
+    expect(tickTurn('auto', LONG, 12, widest + 20)).toBe(0);
+  });
+
+  it('stands them on end where even a turned line box would not fit', () => {
+    expect(tickTurn('auto', LONG, 12, 20)).toBe(90);
+  });
+
+  it('leaves a short label alone however crowded the axis is', () => {
+    // An axis of "Jan", "Feb", "Mar" is crowded by how many of them there are
+    // rather than by how long any one is, and every nth is the answer to that.
+    expect(tickTurn('auto', SHORT, 12, 8)).toBe(0);
+  });
+
+  it('does what it is told when it is told', () => {
+    expect(tickTurn('truncate', LONG, 12, 20)).toBe(0);
+    expect(tickTurn('rotate', SHORT, 12, 400)).toBe(45);
+    expect(tickTurn('vertical', SHORT, 12, 400)).toBe(90);
+  });
+});
+
+describe('turnedStep', () => {
+  it('is the line box rather than the label, so length stops mattering', () => {
+    // The whole reason turning an axis buys it anything: a twenty-character
+    // name and a four-character one need the same distance between ticks.
+    expect(turnedStep(90, 12)).toBeCloseTo(12 * 1.35, 5);
+    expect(turnedStep(45, 12)).toBeGreaterThan(turnedStep(90, 12));
+  });
+});
+
+describe('turnedBand and turnedRoom', () => {
+  it('are inverses, so a band holds exactly what it reserved room for', () => {
+    for (const angle of [45, 90]) {
+      const room = turnedRoom(angle, 100, 12);
+
+      expect(turnedBand(angle, room, 12)).toBeCloseTo(100, 5);
+    }
+  });
+
+  it('takes a whole label width upright and about two thirds of it at 45°', () => {
+    expect(turnedBand(90, 120, 12)).toBeCloseTo(120, 5);
+    expect(turnedBand(45, 120, 12)).toBeLessThan(100);
+  });
+});
+
+describe('bridgePath', () => {
+  const at = (x: number, y: number) => ({ x, y });
+
+  it('joins the two real points either side of a gap, and nothing else', () => {
+    const d = bridgePath([at(0, 0), null, at(20, 10), at(30, 10)]);
+
+    expect(d).toBe('M0 0L20 10');
+  });
+
+  it('is empty where the series has no gaps', () => {
+    expect(bridgePath([at(0, 0), at(10, 5), at(20, 10)])).toBe('');
+  });
+
+  it('draws nothing across a gap it has no far side for', () => {
+    // A trailing `null` has nothing to be joined to, and a leading one has
+    // nothing to be joined from.
+    expect(bridgePath([null, at(10, 5), null])).toBe('');
+  });
+
+  it('crosses a run of several missing points as one straight line', () => {
+    expect(bridgePath([at(0, 0), null, null, null, at(40, 20)])).toBe('M0 0L40 20');
+  });
+});
+
+describe('withoutGaps', () => {
+  it('drops the holes rather than leaving them', () => {
+    const at = (x: number, y: number) => ({ x, y });
+
+    expect(withoutGaps([at(0, 0), null, at(20, 10)])).toEqual([at(0, 0), at(20, 10)]);
   });
 });

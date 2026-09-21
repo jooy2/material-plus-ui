@@ -32,8 +32,12 @@ import {
   showsTick,
   textWidth,
   tickStride,
+  tickTurn,
   toValues,
   truncate,
+  turnedBand,
+  turnedRoom,
+  turnedStep,
   valueScale
 } from './chart';
 import type {
@@ -94,6 +98,65 @@ interface AxesProps {
   categoryAxis?: MPChartAxis;
   fontSize: number;
   zeroPx: number;
+  /**
+   * How far the labels along the **bottom** are turned, in degrees. `0` leaves
+   * them flat, which is every axis that has room to be.
+   */
+  turn: number;
+  /** How deep the band those labels take is, so the axis' name clears them. */
+  tickBand: number;
+}
+
+/**
+ * One label along the bottom of the plot.
+ *
+ * Flat, it is centred on its tick and sits a line below the axis. Turned, it is
+ * anchored at its **end** and rotated anticlockwise about that point, so it
+ * runs up towards the tick it belongs to and a reader follows it in the
+ * direction they already read. The alternative — turning it the other way —
+ * leaves the label starting at the tick and descending away from it, which
+ * reads as the label of the tick to its left.
+ */
+function BottomTick({
+  text,
+  along,
+  top,
+  turn,
+  fontSize
+}: {
+  text: string;
+  along: number;
+  top: number;
+  turn: number;
+  fontSize: number;
+}) {
+  if (turn <= 0) {
+    return (
+      <text
+        x={along}
+        y={top + fontSize + 6}
+        textAnchor="middle"
+        fill={LABEL_INK}
+        fontSize={fontSize}
+      >
+        {text}
+      </text>
+    );
+  }
+
+  return (
+    <text
+      x={along}
+      y={top + 8}
+      textAnchor="end"
+      dominantBaseline="central"
+      transform={`rotate(${-turn} ${along} ${top + 8})`}
+      fill={LABEL_INK}
+      fontSize={fontSize}
+    >
+      {text}
+    </text>
+  );
 }
 
 /** The ink the chrome is drawn in. One step off the surface, and no darker. */
@@ -122,7 +185,9 @@ function ChartAxes({
   valueAxis,
   categoryAxis,
   fontSize,
-  zeroPx
+  zeroPx,
+  turn,
+  tickBand
 }: AxesProps) {
   const grid = valueAxis?.grid !== false && !valueAxis?.hidden;
   /* A grid in both directions is graph paper, and on a chart of columns the
@@ -143,25 +208,30 @@ function ChartAxes({
       : (horizontal ? plot.top : plot.left) + categoryPx(index);
 
   /*
-   * How many labels each axis has room for. The two are measured differently
-   * and have to be: labels along the bottom collide side to side, so what
-   * matters is the widest of them; labels stacked up the left collide top to
-   * bottom, where the only measurement that counts is the line height.
+   * How much room one label of each axis needs along the axis it sits on.
+   *
+   * The three cases are genuinely different measurements. Labels stacked up the
+   * left collide top to bottom, so only the line height counts. Flat labels
+   * along the bottom collide across their own width, so the widest one decides.
+   * **Turned** labels along the bottom collide across their line box instead,
+   * opened out by the angle — which does not grow with the label, and is the
+   * whole reason turning one buys an axis anything.
    */
+  const bottomRoom = (texts: readonly string[], air: number) =>
+    turn > 0
+      ? turnedStep(turn, fontSize)
+      : Math.max(...texts.map((text) => textWidth(text, fontSize)), 1) + air;
+
   const categoryStride = tickStride(
     categoryTexts.length,
     horizontal ? plot.height : plot.width,
-    horizontal
-      ? fontSize * 1.8
-      : Math.max(...categoryTexts.map((text) => textWidth(text, fontSize)), 1) + 12
+    horizontal ? fontSize * 1.8 : bottomRoom(categoryTexts, 12)
   );
 
   const valueStride = tickStride(
     scale.ticks.length,
     horizontal ? plot.width : plot.height,
-    horizontal
-      ? Math.max(...tickTexts.map((text) => textWidth(text, fontSize)), 1) + 16
-      : fontSize * 2
+    horizontal ? bottomRoom(tickTexts, 16) : fontSize * 2
   );
 
   /* Whether each axis' last label still has room to be written down, measured
@@ -177,13 +247,21 @@ function ChartAxes({
     categoryTexts.length,
     categoryStride,
     categoryStep,
-    horizontal ? fontSize * 1.8 : textWidth(categoryTexts[categoryTexts.length - 1] ?? '', fontSize)
+    horizontal
+      ? fontSize * 1.8
+      : turn > 0
+        ? turnedStep(turn, fontSize)
+        : textWidth(categoryTexts[categoryTexts.length - 1] ?? '', fontSize)
   );
   const lastValue = fitsLast(
     scale.ticks.length,
     valueStride,
     valueStep,
-    horizontal ? textWidth(tickTexts[tickTexts.length - 1] ?? '', fontSize) : fontSize * 1.6
+    horizontal
+      ? turn > 0
+        ? turnedStep(turn, fontSize)
+        : textWidth(tickTexts[tickTexts.length - 1] ?? '', fontSize)
+      : fontSize * 1.6
   );
 
   return (
@@ -222,16 +300,26 @@ function ChartAxes({
             ) : null}
 
             {written ? (
-              <text
-                x={horizontal ? along : plot.left - 8}
-                y={horizontal ? plot.top + plot.height + fontSize + 6 : along}
-                textAnchor={horizontal ? 'middle' : 'end'}
-                dominantBaseline={horizontal ? 'auto' : 'central'}
-                fill={LABEL_INK}
-                fontSize={fontSize}
-              >
-                {tickTexts[index]}
-              </text>
+              horizontal ? (
+                <BottomTick
+                  text={tickTexts[index]}
+                  along={along}
+                  top={plot.top + plot.height}
+                  turn={turn}
+                  fontSize={fontSize}
+                />
+              ) : (
+                <text
+                  x={plot.left - 8}
+                  y={along}
+                  textAnchor="end"
+                  dominantBaseline="central"
+                  fill={LABEL_INK}
+                  fontSize={fontSize}
+                >
+                  {tickTexts[index]}
+                </text>
+              )
             ) : null}
           </g>
         );
@@ -268,16 +356,26 @@ function ChartAxes({
             ) : null}
 
             {written ? (
-              <text
-                x={horizontal ? plot.left - 8 : along}
-                y={horizontal ? along : plot.top + plot.height + fontSize + 6}
-                textAnchor={horizontal ? 'end' : 'middle'}
-                dominantBaseline={horizontal ? 'central' : 'auto'}
-                fill={LABEL_INK}
-                fontSize={fontSize}
-              >
-                {text}
-              </text>
+              horizontal ? (
+                <text
+                  x={plot.left - 8}
+                  y={along}
+                  textAnchor="end"
+                  dominantBaseline="central"
+                  fill={LABEL_INK}
+                  fontSize={fontSize}
+                >
+                  {text}
+                </text>
+              ) : (
+                <BottomTick
+                  text={text}
+                  along={along}
+                  top={plot.top + plot.height}
+                  turn={turn}
+                  fontSize={fontSize}
+                />
+              )
             ) : null}
           </g>
         );
@@ -312,7 +410,7 @@ function ChartAxes({
       {valueAxis?.label && !valueAxis.hidden ? (
         <text
           x={horizontal ? plot.left + plot.width / 2 : fontSize}
-          y={horizontal ? plot.top + plot.height + fontSize * 2 + 12 : plot.top + plot.height / 2}
+          y={horizontal ? plot.top + plot.height + tickBand + fontSize : plot.top + plot.height / 2}
           textAnchor="middle"
           dominantBaseline={horizontal ? 'auto' : 'central'}
           fill={LABEL_INK}
@@ -328,7 +426,7 @@ function ChartAxes({
       {categoryAxis?.label && !categoryAxis.hidden ? (
         <text
           x={horizontal ? fontSize : plot.left + plot.width / 2}
-          y={horizontal ? plot.top + plot.height / 2 : plot.top + plot.height + fontSize * 2 + 12}
+          y={horizontal ? plot.top + plot.height / 2 : plot.top + plot.height + tickBand + fontSize}
           textAnchor="middle"
           dominantBaseline={horizontal ? 'central' : 'auto'}
           fill={LABEL_INK}
@@ -394,6 +492,15 @@ export interface CartesianLayout {
   visible: readonly boolean[];
   /** And what colour each one is, by its original index. */
   colors: readonly string[];
+  /**
+   * What ink a value written onto one of series `index`' marks wears.
+   *
+   * Ordinary ink unless the caller asked for `labelColor="series"`. A chart
+   * whose labels sit **on** a fill rather than beside a mark ignores it: there
+   * the question is what reads against the colour underneath, which is not a
+   * question about identity at all.
+   */
+  labelInk: (series: number) => string;
   scale: ValueScale;
   band: BandScale;
   /** Bars run along the category axis rather than across it. */
@@ -539,6 +646,7 @@ export function CartesianFrame({
   legend,
   tooltip,
   empty,
+  labelColor = 'ink',
   size: sizeProp,
   className,
   style,
@@ -645,26 +753,155 @@ export function CartesianFrame({
 
   const valueBand = valueAxis?.hidden ? 0 : widestTick + 10 + (valueAxis?.label ? axisNameBand : 0);
 
+  /*
+   * How tall the box is. A number is pixels and `undefined` is the ladder;
+   * a *string* is a CSS length the element resolves for itself, which is the
+   * one case the number has to be read back off the DOM — a `viewBox` of
+   * `0 0 w 0` draws a chart with no height at all.
+   *
+   * Settled before the axes are, because a turned label's band is capped
+   * against it: how much of a chart may be spent on its own labels is a
+   * question about the box.
+   */
+  const boxHeight =
+    typeof height === 'number'
+      ? height
+      : height === undefined
+        ? PLOT_HEIGHT[size]
+        : measured.height;
+
   /* How much room one category label has, worked out before the plot is laid
      out. A horizontal chart gives each label a row of its own down the left, so
      the limit is a column width; a vertical one gives it a slot along the
      bottom, so the limit is that slot. */
   const slot = (width - (horizontal ? 0 : valueBand) - 16) / Math.max(1, count);
 
-  /* Cut a long name to its slot rather than dropping labels until the rest fit.
-     Below about four characters cutting stops helping and the stride takes over
-     instead. A tick is never cut: it was already rounded to be short, and half
-     of `12.4K` is not a smaller number, it is a wrong one. */
-  const categoryTexts = categoryScale
-    ? rawCategoryTexts
-    : horizontal || slot - 6 >= fontSize * 2.4
-      ? rawCategoryTexts.map((text) => truncate(text, horizontal ? 150 : slot - 6, fontSize))
-      : rawCategoryTexts;
+  /*
+   * The axis along the bottom, which is the only one a turn is any use to.
+   *
+   * Upright that is the categories, and turned on its side it is the values:
+   * the option belongs to the edge rather than to the data, because what it
+   * fixes is labels colliding side to side and that is a property of the edge.
+   */
+  const bottomAxis = horizontal ? valueAxis : categoryAxis;
+  const bottomTexts = horizontal ? tickTexts : rawCategoryTexts;
+
+  /* What the band down the left will take, settled before the turn is. A turn
+     never moves it — it only ever reaches the labels along the bottom — so the
+     two can be worked out in this order and not the other one. */
+  const leftEstimate = horizontal
+    ? categoryAxis?.hidden
+      ? 0
+      : rawCategoryTexts.reduce(
+          (most, text) => Math.max(most, Math.min(150, textWidth(text, fontSize))),
+          0
+        ) +
+        10 +
+        (categoryAxis?.label ? axisNameBand : 0)
+    : valueBand;
+
+  /* And what the far end will take. A flat label is centred on its tick, so
+     half of the last one hangs past the plot and has to be reserved for; a
+     turned one leans the other way and needs nothing there. Measured flat,
+     because that is the arrangement being tested against. */
+  const widestBottom = bottomTexts.reduce(
+    (most, text) => Math.max(most, textWidth(text, fontSize)),
+    0
+  );
+  const rightEstimate = horizontal ? 12 + headroom : Math.max(8, widestBottom / 2);
+
+  const bottomSlot =
+    (width - leftEstimate - rightEstimate - markInset * 2) / Math.max(1, bottomTexts.length);
+
+  /*
+   * `auto` turns **names** and leaves ticks alone.
+   *
+   * A value axis is a ruler: its labels are samples of a continuum, and a
+   * reader who is shown every second one interpolates the rest without noticing
+   * — which is why showing every nth has always been the right answer there. A
+   * category axis' labels are names, and every nth loses half of them outright.
+   * So the axis that turns is the one holding names, and the two cases where
+   * the bottom is a ruler instead — a chart on its side, and a plot with two
+   * value axes — keep the stride unless the caller asks for a turn by name.
+   */
+  const ruler = horizontal || categoryScale !== null;
+  const turn = bottomAxis?.hidden
+    ? 0
+    : tickTurn(
+        bottomAxis?.tickLabels ?? (ruler ? 'truncate' : 'auto'),
+        bottomTexts,
+        fontSize,
+        bottomSlot
+      );
+
+  /*
+   * How deep a band of turned labels may get.
+   *
+   * Half the box, and never more than 120px. A turned axis is what stops a name
+   * being cut, and a name is worth a band — but an axis that took the whole
+   * picture to spell "Onboarding flow" out in full would have solved the wrong
+   * problem. Past the cap the labels are cut again, and a cut turned label
+   * still carries three times what a cut flat one does; a chart whose names
+   * genuinely need more room wants a taller `height`, or a `thickness` of its
+   * own on the axis.
+   */
+  const turnCap = Math.min(120, boxHeight * 0.5);
+
+  /*
+   * And how wide the label at `index` may print.
+   *
+   * The depth is one limit and it is the same for all of them. The other is the
+   * chart's own left edge: a label anchored at its end runs down and to the
+   * left of its tick, so it reaches back across whatever is to its left — the
+   * value axis' band, and the ticks before it — all of which is empty below the
+   * plot and is exactly the room it should be using. What is past the edge of
+   * the chart is not.
+   *
+   * Per label rather than one figure for the row, because the limit is a
+   * distance from the left edge and the first tick is the only one anywhere
+   * near it. Cutting every name to what the first one can afford throws away
+   * room the other nine had.
+   */
+  const turnRoom = (index: number) =>
+    Math.min(
+      turnedRoom(turn, turnCap, fontSize),
+      turn >= 90
+        ? Infinity
+        : (leftEstimate + bottomSlot * (index + (inset ? 0 : 0.5))) /
+            Math.cos((turn * Math.PI) / 180)
+    );
+
+  /* Cut a long name to the room it has rather than dropping labels until the
+     rest fit. Below about four characters cutting stops helping and the stride
+     takes over instead. A tick is never cut while it is flat: it was already
+     rounded to be short, and half of `12.4K` is not a smaller number, it is a
+     wrong one. */
+  const categoryTexts =
+    turn > 0 && !horizontal
+      ? rawCategoryTexts.map((text, index) => truncate(text, turnRoom(index), fontSize))
+      : categoryScale
+        ? rawCategoryTexts
+        : horizontal || slot - 6 >= fontSize * 2.4
+          ? rawCategoryTexts.map((text) => truncate(text, horizontal ? 150 : slot - 6, fontSize))
+          : rawCategoryTexts;
 
   const widestCategory = categoryTexts.reduce(
     (most, text) => Math.max(most, textWidth(text, fontSize)),
     0
   );
+
+  /* How deep the labels along the bottom sit, before the axis' name is added
+     under them. Flat, that is one line; turned, it is the widest label's own
+     width projected onto the turn, and never past the cap — a name was already
+     cut to fit that, but a tick is never cut and a caller's `tickFormat` can
+     make one as long as it likes. */
+  const bottomTickBand = bottomAxis?.hidden
+    ? 0
+    : turn > 0
+      ? 8 +
+        Math.min(turnCap, turnedBand(turn, horizontal ? widestTick : widestCategory, fontSize)) +
+        4
+      : fontSize + 12;
 
   /* The two bands the axes take out of the box. `hidden` gives the room back to
      the plot, which is why a chart with both axes off is the same component
@@ -675,39 +912,23 @@ export function CartesianFrame({
       : widestCategory + 10 + (categoryAxis?.label ? axisNameBand : 0)
     : valueBand;
 
-  const bottomBand = horizontal
-    ? valueAxis?.hidden
-      ? 0
-      : fontSize + 12 + (valueAxis?.label ? axisNameBand : 0)
-    : categoryAxis?.hidden
-      ? 0
-      : fontSize + 12 + (categoryAxis?.label ? axisNameBand : 0);
+  const bottomBand = bottomTickBand + (bottomAxis?.hidden || !bottomAxis?.label ? 0 : axisNameBand);
 
   // `thickness` belongs to whichever axis is actually on that edge, and which
   // one that is swaps with `horizontal`. Read off the wrong one, a bar chart
   // turned on its side takes its left margin from the axis along the bottom.
   const left = (horizontal ? categoryAxis : valueAxis)?.thickness ?? leftBand;
-  const bottom = (horizontal ? valueAxis : categoryAxis)?.thickness ?? bottomBand;
+  const bottom = bottomAxis?.thickness ?? bottomBand;
 
   // The last category's label is centred on the last tick, so half of it hangs
   // past the plot. Reserving that half is what stops a chart clipping the one
   // label a reader looks for first — and the value axis needs none of it,
-  // because it anchors its labels inward instead.
-  const rightPad = (horizontal ? 12 + headroom : Math.max(8, widestCategory / 2)) + markInset;
+  // because it anchors its labels inward instead. A turned label hangs the
+  // other way, to the left, so there is nothing on the right to reserve for.
+  const rightPad =
+    (horizontal || turn > 0 ? 12 + (horizontal ? headroom : 0) : Math.max(8, widestCategory / 2)) +
+    markInset;
   const topPad = MARKER_RADIUS[size] + 4 + (horizontal ? 0 : headroom) + markInset;
-
-  /*
-   * How tall the box is. A number is pixels and `undefined` is the ladder;
-   * a *string* is a CSS length the element resolves for itself, which is the
-   * one case the number has to be read back off the DOM — a `viewBox` of
-   * `0 0 w 0` draws a chart with no height at all.
-   */
-  const boxHeight =
-    typeof height === 'number'
-      ? height
-      : height === undefined
-        ? PLOT_HEIGHT[size]
-        : measured.height;
 
   const plot: PlotBox = {
     left: left + markInset,
@@ -763,6 +984,8 @@ export function CartesianFrame({
     values,
     visible: visibility.visible,
     colors,
+    labelInk: (series) =>
+      labelColor === 'series' ? (colors[series] ?? LABEL_INK) : 'var(--_mp-color-on-surface)',
     scale,
     band,
     horizontal,
@@ -1113,6 +1336,7 @@ export function CartesianFrame({
             visibility={visibility}
             size={size}
             swatch={swatch}
+            colorNames={labelColor === 'series'}
             values={
               legendOptions.showValue && activeIndex !== null
                 ? series.map((_, index) => {
@@ -1170,6 +1394,8 @@ export function CartesianFrame({
             categoryAxis={categoryAxis}
             fontSize={fontSize}
             zeroPx={zeroPx}
+            turn={turn}
+            tickBand={bottomTickBand}
           />
 
           {/* No crosshair on a chart with marks, whatever mode was asked for: a

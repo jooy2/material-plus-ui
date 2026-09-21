@@ -47,6 +47,12 @@ A smooth fill looks better and reads worse. Given a gradient a reader can say "d
 
 By default each heatmap scales to its own range, so two side by side say nothing to each other: the darkest cell of a quiet week looks exactly like the darkest cell of a bad one. Give both the same `min` and `max` when the comparison is the point.
 
+## A long column name is turned, not cut
+
+Both axes here are names rather than numbers, and the ones along the bottom are the ones that collide. `xAxis.tickLabels` decides what happens then, and its default is `auto`: the names stay level while the widest of them fits its column, and are turned once it does not — 45° first, upright where even that will not fit.
+
+Names down the side are left alone. A row already has a line of its own, which is the room a turn would have been buying it; they are cut to the band instead, and the band is as wide as the widest of them up to 140px.
+
 ## A missing cell is a hole
 
 A `null` is drawn as an empty outline, not as the lowest step. The bottom of a ramp is a reading, and painting "no data" as "the least" is the same mistake a bridged line makes — with the difference that here it looks exactly like a real quiet hour.

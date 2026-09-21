@@ -134,6 +134,45 @@ describe('MPLineChart', () => {
     expect(lines()[0]?.getAttribute('stroke')).toBe('var(--_mp-chart-2)');
   });
 
+  it('fades a switched-off entry the way a disabled control is faded', async () => {
+    // Off is a state a reader has to be able to see, and the disabled
+    // treatment is the one they already know. It survives greyscale and forced
+    // colours, which a change of hue would not.
+    const screen = await render(
+      <MPLineChart categories={CATEGORIES} series={TWO} locale="en-US" />
+    );
+    const entry = screen.getByRole('button', { name: 'Trials', exact: true });
+
+    await expect.element(entry).not.toHaveClass('opacity-38');
+    await entry.click();
+
+    await expect.element(entry).toHaveClass('opacity-38');
+    // And faded rather than struck through: the swatch has to go with it.
+    await expect.element(entry).not.toHaveClass('line-through');
+  });
+
+  it('leaves the plot alone once a pointer has finished with the legend', async () => {
+    // A pointer that has just pressed an entry is about to leave, and a plot
+    // left faded behind it reads as the chart having gone quiet rather than as
+    // one series being pointed at.
+    const screen = await render(
+      <MPLineChart categories={CATEGORIES} series={TWO} locale="en-US" />
+    );
+    await drawn();
+
+    const entry = screen.getByRole('button', { name: 'Trials', exact: true });
+
+    await entry.click();
+    await expect.poll(() => lines().length).toBe(1);
+
+    // The button still holds focus — a click gives it one — and the pointer has
+    // moved on. Neither should leave the survivor faded.
+    await userEvent.hover(plot());
+
+    await expect.poll(() => lines()[0]?.parentElement?.getAttribute('opacity')).toBe('1');
+    expect(document.activeElement?.textContent).toContain('Trials');
+  });
+
   it('marks the legend as a control rather than a picture of one', async () => {
     const screen = await render(
       <MPLineChart categories={CATEGORIES} series={TWO} locale="en-US" />
@@ -365,6 +404,88 @@ describe('MPLineChart', () => {
     await drawn();
 
     expect(document.querySelectorAll('.mp-chart__axes text').length).toBe(0);
+  });
+
+  it('joins the two sides of a gap with a dashed run when asked to', async () => {
+    // A caller who asked for the gaps to be joined has said a missing reading
+    // should not break the line. They have not said the chart may report a
+    // value nobody measured, so the joining run says which part it is.
+    await render(
+      <MPLineChart
+        categories={CATEGORIES}
+        series={[{ name: 'Signups', data: [120, 138, null, 164, 190] }]}
+        gaps="connect"
+        locale="en-US"
+      />
+    );
+    await drawn();
+
+    await expect.poll(() => lines().length).toBe(2);
+    const bridge = lines().find((path) => path.getAttribute('stroke-dasharray'));
+
+    expect(bridge?.getAttribute('d')?.match(/M/g)?.length).toBe(1);
+  });
+
+  it('draws no bridge where the series has no gaps', async () => {
+    await render(
+      <MPLineChart categories={CATEGORIES} series={ONE} gaps="connect" locale="en-US" />
+    );
+    await drawn();
+
+    await expect.poll(() => lines().length).toBe(2);
+    expect(
+      lines()
+        .find((path) => path.getAttribute('stroke-dasharray'))
+        ?.getAttribute('d')
+    ).toBe('');
+  });
+
+  it('widens the scale to hold zero when a gap is drawn as one', async () => {
+    // Otherwise the reading the caller asked to see is drawn off the plot: the
+    // axis this chart builds does not reach zero unless it is told to.
+    await render(
+      <MPLineChart
+        categories={CATEGORIES}
+        series={[{ name: 'p95', data: [318, 324, null, 296, 288] }]}
+        gaps="zero"
+        locale="en-US"
+      />
+    );
+    await drawn();
+
+    await expect
+      .poll(() =>
+        Array.from(document.querySelectorAll('.mp-chart__axes text')).map(
+          (node) => node.textContent
+        )
+      )
+      .toContain('0');
+  });
+
+  it('writes a value in ordinary ink, and in the series colour when asked', async () => {
+    // The palette is fitted to 3:1 against the surface, which is the bar a mark
+    // has to clear and not the one small text does. So the swatch carries the
+    // colour by default and the word stays legible.
+    const label = () => Array.from(document.querySelectorAll('.mp-line-chart__marks text')).at(-1);
+
+    const screen = await render(
+      <MPLineChart categories={CATEGORIES} series={ONE} valueLabels="last" locale="en-US" />
+    );
+    await drawn();
+
+    await expect.poll(() => label()?.getAttribute('fill')).toBe('var(--_mp-color-on-surface)');
+
+    await screen.rerender(
+      <MPLineChart
+        categories={CATEGORIES}
+        series={ONE}
+        valueLabels="last"
+        labelColor="series"
+        locale="en-US"
+      />
+    );
+
+    await expect.poll(() => label()?.getAttribute('fill')).toBe('var(--_mp-chart-1)');
   });
 
   it('writes its words in the locale it was given', async () => {

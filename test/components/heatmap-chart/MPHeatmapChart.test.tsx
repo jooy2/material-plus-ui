@@ -176,6 +176,42 @@ describe('MPHeatmapChart', () => {
       .toBe(12);
   });
 
+  it('turns a long column name rather than cutting it', async () => {
+    const names = ['Organic search', 'Paid social', 'Email campaign', 'Referral'];
+
+    await render(
+      <div style={{ width: 420 }}>
+        <MPHeatmapChart categories={names} series={HOURS} locale="en-US" />
+      </div>
+    );
+    await drawn();
+
+    const columns = () =>
+      Array.from(document.querySelectorAll('.mp-heatmap-chart svg > text')).filter((node) =>
+        node.getAttribute('transform')
+      );
+
+    await expect.poll(() => columns().length).toBe(4);
+    expect(
+      columns()
+        .slice(1)
+        .map((node) => node.textContent)
+    ).toEqual(names.slice(1));
+  });
+
+  it('leaves a short column name flat', async () => {
+    await render(<MPHeatmapChart categories={DAYS} series={HOURS} locale="en-US" />);
+    await drawn();
+
+    await expect
+      .poll(() =>
+        Array.from(document.querySelectorAll('.mp-heatmap-chart svg > text')).some((node) =>
+          node.getAttribute('transform')
+        )
+      )
+      .toBe(false);
+  });
+
   it('draws the empty state when there is nothing in the grid', async () => {
     await render(<MPHeatmapChart series={[]} locale="en-US" />);
 

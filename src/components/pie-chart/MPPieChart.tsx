@@ -67,6 +67,28 @@ export interface MPPieChartProps extends ChartBaseProps {
    */
   startAngle?: number;
   /**
+   * How much of the radius the hole takes, from `0` to `0.9`.
+   *
+   * Read by `donut` and `semi` only: `pie` is the word for a shape with no hole
+   * in it, and a filled disc with a `hole` would be a donut under another name.
+   *
+   * Thinner than about `0.4` and the ring stops reading as a ring; past `0.8`
+   * the slices are a hairline and their angles stop being comparable at all.
+   * The default leaves a hole wide enough for a figure and a word.
+   * @default 0.62
+   */
+  hole?: number;
+  /**
+   * How much page shows between two slices, in pixels. `0` lets them touch.
+   *
+   * It is drawn as a stroke in the surface's colour rather than by narrowing
+   * each sweep, so every slice keeps the angle its share earned however wide
+   * the gap is set. Past about a tenth of the radius the strokes start eating
+   * the small slices, which is the point at which a pie is the wrong chart.
+   * @default 2
+   */
+  gap?: number;
+  /**
    * What goes in the hole. A ring with nothing in the middle is a pie with a
    * bite taken out of it — the total, or the one figure the chart is about, is
    * what the ring was drawn around.
@@ -84,8 +106,11 @@ export interface MPPieChartProps extends ChartBaseProps {
   valueLabels?: 'none' | 'all';
 }
 
-/** How much of the radius a donut's hole takes. */
+/** How much of the radius a donut's hole takes, before the caller says. */
 const HOLE = 0.62;
+
+/** And the widest hole a ring can have and still be one. */
+const MAX_HOLE = 0.9;
 
 /** How far off the outer edge the pointer still counts as on a slice. */
 const REACH = 8;
@@ -124,6 +149,8 @@ export function MPPieChart({
   categories,
   shape = 'pie',
   startAngle = 0,
+  hole = HOLE,
+  gap = MARK_GAP,
   center,
   valueLabels = 'none',
   height,
@@ -133,6 +160,7 @@ export function MPPieChart({
   legend,
   tooltip,
   empty,
+  labelColor = 'ink',
   size: sizeProp,
   className,
   style,
@@ -196,7 +224,7 @@ export function MPPieChart({
     0,
     semi ? Math.min(boxWidth / 2, boxHeight - font - 8) - 2 : Math.min(boxWidth, boxHeight) / 2 - 2
   );
-  const inner = shape === 'pie' ? 0 : outer * HOLE;
+  const inner = shape === 'pie' ? 0 : outer * Math.min(MAX_HOLE, Math.max(0, hole));
 
   const turn = semi ? Math.PI : Math.PI * 2;
   const first = semi ? -Math.PI / 2 : (startAngle * Math.PI) / 180;
@@ -359,6 +387,7 @@ export function MPPieChart({
             options={legendOptions}
             visibility={visibility}
             size={size}
+            colorNames={labelColor === 'series'}
           />
         ) : null
       }
@@ -408,7 +437,7 @@ export function MPPieChart({
                   d={arcPath(cx, cy, on ? outer + 3 : outer, inner, arc.from, arc.to)}
                   fill={colors[index]}
                   stroke="var(--_mp-color-surface)"
-                  strokeWidth={MARK_GAP}
+                  strokeWidth={Math.max(0, gap)}
                   strokeLinejoin="round"
                   opacity={visibility.hovered === null || visibility.hovered === index ? 1 : 0.35}
                 />

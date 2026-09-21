@@ -808,6 +808,19 @@ const styleRow: PropRow = {
  * prevent, and the frame that implements them is one file too.
  * ------------------------------------------------------------------------- */
 
+/**
+ * What a line or a band does where a series has no value.
+ *
+ * Written once for the two charts that draw a line: a `gaps` that meant
+ * something slightly different on an area chart than on a line chart is the
+ * drift this file exists to prevent.
+ */
+const GAPS_KO =
+  '값이 없는 자리를 어떻게 그릴지. `break`는 끊고, `connect`는 양쪽을 잇되 이은 구간을 **점선**으로 그려 어디까지가 측정한 값인지 남기며, `zero`는 없는 값을 0으로 그리고 값 축을 0까지 넓힙니다. 그림만 바뀝니다 — 호버 패널과 뒤에 놓인 표는 셋 다에서 빈 값을 빈 값으로 말합니다';
+
+const GAPS_EN =
+  'What to draw where a series has no value. `break` stops and restarts, `connect` joins the two sides with a **dashed** run so the picture still says which part was measured, and `zero` draws the missing reading at zero and widens the value axis to hold it. Only the drawing changes: the hover panel and the table behind the chart report a gap as a gap in all three';
+
 const chartPlot: PropRow[] = [
   {
     name: 'series',
@@ -830,16 +843,16 @@ const chartPlot: PropRow[] = [
     name: 'xAxis',
     type: 'MPChartAxis',
     description: {
-      ko: '항목 축. 가로 막대로 눕혀도 이 prop은 여전히 항목 축입니다 — 방향을 바꾸는 것은 그림이지 데이터의 의미가 아닙니다',
-      en: 'The category axis. It stays the category axis when a chart is turned on its side: the orientation changes the drawing, not what the data means'
+      ko: '항목 축. 가로 막대로 눕혀도 이 prop은 여전히 항목 축입니다 — 방향을 바꾸는 것은 그림이지 데이터의 의미가 아닙니다. 아래쪽에 놓인 축은 `tickLabels`로 긴 이름을 자를지 기울일지 정하고, 기본값 `auto`는 이름은 기울이되 눈금은 그대로 둡니다',
+      en: 'The category axis. It stays the category axis when a chart is turned on its side: the orientation changes the drawing, not what the data means. Whichever axis runs along the bottom reads `tickLabels`, which decides whether a long label is cut or turned — and its default `auto` turns names rather than ticks'
     }
   },
   {
     name: 'yAxis',
     type: 'MPChartAxis',
     description: {
-      ko: '값 축. `min`, `max`, `tickCount`, `label`, `grid`, `hidden`, `thickness`, `tickFormat`을 받습니다',
-      en: 'The value axis. Takes `min`, `max`, `tickCount`, `label`, `grid`, `hidden`, `thickness` and `tickFormat`'
+      ko: '값 축. `min`, `max`, `tickCount`, `label`, `grid`, `hidden`, `thickness`, `tickFormat`, `tickLabels`를 받습니다',
+      en: 'The value axis. Takes `min`, `max`, `tickCount`, `label`, `grid`, `hidden`, `thickness`, `tickFormat` and `tickLabels`'
     }
   }
 ];
@@ -850,6 +863,16 @@ const chartPlot: PropRow[] = [
  * `internal/ChartFrame.tsx`.
  */
 /** Lifted out so a chart with no legend can drop it by identity, not by name. */
+const chartLabelColorRow: PropRow = {
+  name: 'labelColor',
+  type: "'ink' | 'series'",
+  default: "'ink'",
+  description: {
+    ko: '계열을 가리키는 글자 — 범례 항목과 표식 위에 쓴 값 — 의 잉크. `series`는 이름을 그 표식과 같은 색으로 맞춥니다. 기본이 아닌 이유는 팔레트 여덟 칸이 표면 대비 3:1에 맞춰져 있고 그것은 *표식*의 기준이지 작은 글자의 기준이 아니기 때문입니다. 채움 **위에** 놓이는 레이블은 아래 색을 견뎌야 하므로 이 값을 읽지 않습니다',
+    en: 'What ink the text naming a series wears — the legend’s entries and the values written onto the marks. `series` matches each name to its own mark. Not the default, because the eight palette slots are fitted to 3:1 against the surface, which is the bar a *mark* clears and not the one small text does. Labels drawn **on** a fill keep the ink that reads against what they sit on'
+  }
+};
+
 const chartLegendRow: PropRow = {
   name: 'legend',
   type: 'boolean | MPChartLegend',
@@ -905,6 +928,7 @@ const chartChrome: PropRow[] = [
       en: 'What to draw when there is nothing to draw'
     }
   },
+  chartLabelColorRow,
   {
     name: 'locale',
     type: 'string',
@@ -3205,6 +3229,15 @@ const componentTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'gaps',
+      type: "'break' | 'connect' | 'zero'",
+      default: "'break'",
+      description: {
+        ko: GAPS_KO + '. 밴드의 채움도 `connect`에서는 빈 자리를 가로질러 닫힙니다',
+        en: GAPS_EN + '. An area’s fill closes across the gap as well under `connect`'
+      }
+    },
+    {
       name: 'valueLabels',
       type: "'none' | 'last' | 'extremes' | 'all'",
       default: "'none'",
@@ -3280,6 +3313,24 @@ const componentTables: Record<string, PropRow[]> = {
       description: {
         ko: '첫 조각이 시작하는 자리. 12시 방향에서 시계 방향으로 잰 각도입니다. `semi`는 열리는 자리로 정의되므로 무시합니다',
         en: 'Where the first slice starts, in degrees clockwise from twelve o’clock. Ignored by `semi`, which is defined by where it opens'
+      }
+    },
+    {
+      name: 'hole',
+      type: 'number',
+      default: '0.62',
+      description: {
+        ko: '구멍이 반지름의 얼마를 차지하는지, `0`부터 `0.9`까지. `donut`과 `semi`만 읽습니다 — `pie`는 구멍이 없는 모양을 가리키는 말이고, 구멍 뚫린 파이는 이름만 다른 도넛입니다. `0.4`보다 얇으면 링으로 읽히지 않고 `0.8`을 넘으면 조각이 실선이 되어 각을 견줄 수 없습니다',
+        en: 'How much of the radius the hole takes, from `0` to `0.9`. Read by `donut` and `semi` only: `pie` is the word for a shape with no hole in it, and a filled disc with a hole is a donut under another name. Thinner than about `0.4` and the ring stops reading as one; past `0.8` the slices are a hairline and their angles stop being comparable'
+      }
+    },
+    {
+      name: 'gap',
+      type: 'number',
+      default: '2',
+      description: {
+        ko: '조각 사이로 보이는 지면의 폭(px). `0`이면 맞닿습니다. 스윕을 좁히는 대신 지면 색의 선으로 그리므로, 간격을 아무리 벌려도 모든 조각이 제 몫이 만든 각을 그대로 지킵니다',
+        en: 'How much page shows between two slices, in pixels; `0` lets them touch. Drawn as a stroke in the surface’s colour rather than by narrowing each sweep, so every slice keeps the angle its share earned however wide the gap is set'
       }
     },
     {
@@ -3416,14 +3467,17 @@ const componentTables: Record<string, PropRow[]> = {
       name: 'xAxis',
       type: 'MPChartAxis',
       description: {
-        ko: '열 축. 여기서는 `label`, `hidden`, `tickFormat`, `thickness`만 의미가 있습니다 — 두 축 모두 범주형이라 눈금도 격자도 없습니다',
-        en: 'The column axis. Only `label`, `hidden`, `tickFormat` and `thickness` mean anything here: both axes are categorical, so there are no ticks and no grid'
+        ko: '열 축. 여기서는 `label`, `hidden`, `tickFormat`, `thickness`, `tickLabels`만 의미가 있습니다 — 두 축 모두 범주형이라 눈금도 격자도 없습니다',
+        en: 'The column axis. Only `label`, `hidden`, `tickFormat`, `thickness` and `tickLabels` mean anything here: both axes are categorical, so there are no ticks and no grid'
       }
     },
     {
       name: 'yAxis',
       type: 'MPChartAxis',
-      description: { ko: '행 축, 같은 네 가지', en: 'The row axis, same four' }
+      description: {
+        ko: '행 축. `tickLabels`만 빼고 같습니다 — 행에는 이미 제 줄이 하나씩 있습니다',
+        en: 'The row axis, minus `tickLabels`: a row already has a line of its own'
+      }
     },
     {
       name: 'min',
@@ -3449,7 +3503,9 @@ const componentTables: Record<string, PropRow[]> = {
         en: 'Writes each cell’s value in it, where the cell is big enough to hold the text. One that does not fit is dropped rather than clipped'
       }
     },
-    ...chartChrome
+    // No `labelColor`: every piece of text here sits on a ramp step, where what
+    // matters is reading against the fill underneath.
+    ...chartChrome.filter((row) => row !== chartLabelColorRow)
   ],
 
   MPTimelineChart: [
@@ -3484,7 +3540,7 @@ const componentTables: Record<string, PropRow[]> = {
         en: 'Writes each span’s label inside its bar, clipped to the bar rather than spilling past it'
       }
     },
-    ...chartChrome.filter((row) => row !== chartLegendRow)
+    ...chartChrome.filter((row) => row !== chartLegendRow && row !== chartLabelColorRow)
   ],
 
   MPLineChart: [
@@ -3506,6 +3562,12 @@ const componentTables: Record<string, PropRow[]> = {
         ko: '이음매의 점. `auto`는 점들이 별개의 표식일 여유가 있는 동안만 그립니다 — 3픽셀마다 찍힌 점은 점의 행렬이 아니라 두꺼운 선입니다. 활성 열의 점은 설정과 무관하게 남습니다',
         en: 'The dots on the joins. `auto` draws them while they still have room to be separate marks — a dot every three pixels is a thicker line, not a row of dots. The active column keeps its dot whatever this says'
       }
+    },
+    {
+      name: 'gaps',
+      type: "'break' | 'connect' | 'zero'",
+      default: "'break'",
+      description: { ko: GAPS_KO, en: GAPS_EN }
     },
     {
       name: 'valueLabels',

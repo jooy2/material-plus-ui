@@ -7,7 +7,7 @@ order: 34
 
 <p class="mp-lede">A measured length per category — how much, next to how much else. Grouped or stacked, upright or on its side, and always from zero.</p>
 
-<Demo src="bar-chart/hero" :minHeight="900" />
+<Demo src="bar-chart/hero" :minHeight="1180" />
 
 ```tsx
 import { MPBarChart } from 'material-plus-ui';
@@ -44,9 +44,23 @@ Which end that is comes from the sign and the orientation together: a negative b
 
 ## Turn it sideways for long names
 
-`horizontal` gives every category a row of its own, which is what a set of names like "Onboarding flow" needs. The alternative is labels cut to a slot the width of one bar, or an axis of words rotated forty-five degrees, which is unreadable at a glance and takes a band of the plot to be unreadable in.
+`horizontal` gives every category a row of its own, which is what a set of names like "Onboarding flow" wants: a name in a row reads left to right at full size, and the bars beside it are still lengths being compared.
+
+Upright, the axis turns the names instead of cutting them to a slot the width of one bar — 45° while that fits, upright past it. That is the better of the two answers a vertical chart has, and still the worse of the two on this page, because a turned name is read more slowly than a level one. Reach for `horizontal` when every name is long, and leave `xAxis.tickLabels` to the chart where one of them is.
 
 `xAxis` is still the category axis and `yAxis` is still the value axis when it is turned. The orientation changes the drawing, not what your data means — so a tick format written for values does not suddenly land on the axis holding the names.
+
+## A long label is turned, not thrown away
+
+Whichever axis runs along the bottom reads `tickLabels`, and its default is `auto`: labels stay level while the widest of them fits its slot, and are turned once it does not. 45° first, because it is the shallower turn and the easier read; upright only where even a turned label's line box would not fit between two ticks.
+
+Turning is what the axis reaches for instead of the two things it used to do. Cutting a name to "Onbo…" loses the thing the name was there to say, and showing every second one loses half of them outright — a turned label collides across its **line box** rather than across its own width, and a line box does not grow with the name.
+
+Short labels are left alone however crowded the axis is. An axis of "Jan", "Feb", "Mar" is crowded by how many of them there are and not by how long any one is, and every nth is still the right answer to that.
+
+So are **ticks**, as opposed to names. A value axis is a ruler: its labels are samples of a continuum, and a reader shown every second one interpolates the rest without noticing. `auto` therefore turns nothing on the axis along the bottom of a chart that has been turned on its side, where that axis is the values — ask for `rotate` or `vertical` by name if you want it anyway.
+
+The band a turned axis takes is capped at half the chart, and 120px whichever is smaller. Past the cap the names are cut again — a chart whose labels genuinely need more room wants a taller `height`, or a `thickness` of its own on the axis. `tickLabels="truncate"` goes back to cutting; `"rotate"` and `"vertical"` turn every label whether or not it needed it.
 
 ## Bars have a maximum thickness
 

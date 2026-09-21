@@ -178,6 +178,56 @@ describe('MPAreaChart', () => {
       .toBe(8);
   });
 
+  it('closes the fill across a gap when asked, and marks the joining edge', async () => {
+    // The fill either side of a closed gap is one shape; the dashed edge is the
+    // part of its outline the chart is guessing at.
+    await render(
+      <MPAreaChart
+        categories={CATEGORIES}
+        series={[{ name: 'Storage', data: [10, null, 10, 12] }]}
+        gaps="connect"
+        locale="en-US"
+      />
+    );
+    await drawn();
+
+    await expect.poll(() => bands().length).toBe(1);
+    // One `M` is one unbroken ribbon. Broken, this is two.
+    expect(bands()[0]?.getAttribute('d')?.match(/M/g)?.length).toBe(1);
+    expect(edges().some((edge) => edge.getAttribute('stroke-dasharray'))).toBe(true);
+  });
+
+  it('leaves the fill broken by default', async () => {
+    await render(
+      <MPAreaChart
+        categories={CATEGORIES}
+        series={[{ name: 'Storage', data: [10, null, 10, 12] }]}
+        locale="en-US"
+      />
+    );
+    await drawn();
+
+    await expect.poll(() => bands()[0]?.getAttribute('d')?.match(/M/g)?.length).toBe(2);
+  });
+
+  it('draws a gap at the baseline when it is told the gap is a zero', async () => {
+    await render(
+      <MPAreaChart
+        categories={CATEGORIES}
+        series={[{ name: 'Storage', data: [10, null, 10, 12] }]}
+        gaps="zero"
+        locale="en-US"
+      />
+    );
+    await drawn();
+
+    // One unbroken band again, and the top edge itself now touches the
+    // baseline the surrounding months stand well clear of.
+    await expect.poll(() => bands()[0]?.getAttribute('d')?.match(/M/g)?.length).toBe(1);
+
+    expect(Math.max(...ys(edges()[0]))).toBeCloseTo(Math.max(...ys(bands()[0])), 0);
+  });
+
   it('carries the frame’s hover layer, keyboard and table', async () => {
     await render(
       <MPAreaChart categories={CATEGORIES} series={TWO} label="Disk use" locale="en-US" />

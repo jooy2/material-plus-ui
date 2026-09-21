@@ -5,6 +5,7 @@ import type {
   MPChartCurve,
   MPChartDatum,
   MPChartSeries,
+  MPChartTickLabels,
   MPColor,
   MPSize
 } from '../types';
@@ -267,6 +268,50 @@ export function linePath(points: readonly PlotPoint[], curve: MPChartCurve): str
   return runsOf(points)
     .map((run) => runPath(run, curve))
     .join('');
+}
+
+/**
+ * The straight runs that cross a series' gaps, and nothing else.
+ *
+ * Drawn **beside** `linePath` rather than instead of it, and drawn dashed. A
+ * caller who has asked for the gaps to be joined has said a missing reading
+ * should not break the line; they have not said the chart may report a value
+ * nobody measured. A dashed straight run between the two real points says both
+ * things at once — here is the shape you asked for, and this part of it is a
+ * guess.
+ *
+ * Straight whatever the curve is, for the same reason: a smoothed bridge claims
+ * to know how the value moved while it was not being watched.
+ */
+export function bridgePath(points: readonly PlotPoint[]): string {
+  const out: string[] = [];
+  let last: { x: number; y: number } | null = null;
+  let gapped = false;
+
+  for (const point of points) {
+    if (point === null) {
+      gapped = last !== null;
+
+      continue;
+    }
+
+    if (last !== null && gapped) {
+      out.push(`M${last.x} ${last.y}L${point.x} ${point.y}`);
+    }
+
+    last = point;
+    gapped = false;
+  }
+
+  return out.join('');
+}
+
+/** The dash the bridges are drawn in, as a multiple of the stroke's width. */
+export const BRIDGE_DASH = 3;
+
+/** Every point a series has, with the gaps dropped rather than kept as holes. */
+export function withoutGaps(points: readonly PlotPoint[]): PlotPoint[] {
+  return points.filter((point) => point !== null);
 }
 
 /**
@@ -728,8 +773,10 @@ export function truncate(text: string, maxWidth: number, fontSize: number): stri
 /**
  * How many labels an axis can show before they collide — every nth.
  *
- * Every nth rather than rotating them. A rotated axis is unreadable at a
- * glance, and it takes a band of the plot to be unreadable in.
+ * Dropping labels is the last resort rather than the first. An axis that has
+ * turned its labels fits far more of them, so `turnedStep` below is what this
+ * is handed once a turn has been decided on, and the stride only starts
+ * throwing names away when even the turned ones would overlap.
  */
 export function tickStride(count: number, available: number, labelWidth: number): number {
   if (count <= 1 || available <= 0) {
@@ -774,6 +821,113 @@ export function fitsLast(count: number, stride: number, step: number, labelWidth
   const over = (count - 1) % stride;
 
   return over > 0 && over * step >= labelWidth + 8;
+}
+
+/* ------------------------------------------------------------- turned ticks */
+
+/** The two angles a label is drawn at, in degrees anticlockwise. */
+const ROTATED = 45;
+const VERTICAL = 90;
+
+/** How much clear page two flat labels want between them. */
+export const LABEL_AIR = 12;
+
+/**
+ * How long a label has to be before `auto` will turn it, as a multiple of the
+ * font size.
+ *
+ * Three ems is about five characters. Below that a label is an abbreviation —
+ * "Q1", "Jan", "Mon", "2026" — and an axis crowded with those is crowded
+ * because it has a great many of them, not because any one is too long. The
+ * answer there is the one an axis has always given: show every nth. Turning
+ * ninety days on end to fit ninety three-letter labels answers a question
+ * nobody asked.
+ */
+const TURN_FROM = 3;
+
+/** A label's line box, as a multiple of its font size. */
+const LINE_HEIGHT = 1.35;
+
+/**
+ * How far a label lies off the horizontal, in degrees.
+ *
+ * `auto` measures rather than guesses. Flat labels are what a reader takes in
+ * fastest, so they are kept while the widest one still fits its slot; past that
+ * the choice is between turning them and cutting them, and a name cut to
+ * "Onbo…" has lost the thing it was there to say. 45° is tried first because it
+ * is the shallower turn and the easier read, and the upright one is taken only
+ * where even a turned label's line box would not fit between two ticks.
+ *
+ * Short labels are left alone whatever the crowding, because an axis of "Jan",
+ * "Feb", "Mar" is crowded by how many of them there are rather than by how long
+ * any one is — see `TURN_FROM`.
+ */
+export function tickTurn(
+  mode: MPChartTickLabels | undefined,
+  texts: readonly string[],
+  fontSize: number,
+  slot: number
+): number {
+  if (mode === 'rotate') {
+    return ROTATED;
+  }
+
+  if (mode === 'vertical') {
+    return VERTICAL;
+  }
+
+  if (mode === 'truncate' || mode === undefined) {
+    return 0;
+  }
+
+  const widest = texts.reduce((most, text) => Math.max(most, textWidth(text, fontSize)), 0);
+
+  // The same air `tickStride` leaves between two flat labels. Measured with any
+  // less, an axis decides its labels fit and the stride then throws every other
+  // one away — which is the outcome turning them exists to avoid.
+  if (widest + LABEL_AIR <= slot || widest < fontSize * TURN_FROM) {
+    return 0;
+  }
+
+  return slot >= turnedStep(ROTATED, fontSize) ? ROTATED : VERTICAL;
+}
+
+/**
+ * How much room one turned label needs **along** its axis.
+ *
+ * A flat label collides with its neighbour across its own width; a turned one
+ * collides across its line box instead, opened out by the angle. That is the
+ * whole reason turning helps at all — the line box does not grow with the
+ * label, so a twenty-character name and a four-character one need the same
+ * distance between ticks.
+ */
+export function turnedStep(angle: number, fontSize: number): number {
+  const radians = (angle * Math.PI) / 180;
+
+  return (fontSize * LINE_HEIGHT) / Math.max(0.2, Math.sin(radians));
+}
+
+/**
+ * How deep a band of turned labels is, for the widest of them.
+ *
+ * The depth is the label's own width projected onto the axis' normal, plus the
+ * half line box that hangs to the side of the anchor. Capped by the caller
+ * rather than here: how much of a plot may be given to its labels is a question
+ * about the box, and this function has never seen one.
+ */
+export function turnedBand(angle: number, widest: number, fontSize: number): number {
+  const radians = (angle * Math.PI) / 180;
+
+  return widest * Math.sin(radians) + (fontSize * LINE_HEIGHT * Math.cos(radians)) / 2;
+}
+
+/** The widest a label may print at before a band of `depth` would overflow. */
+export function turnedRoom(angle: number, depth: number, fontSize: number): number {
+  const radians = (angle * Math.PI) / 180;
+
+  return (
+    (depth - (fontSize * LINE_HEIGHT * Math.cos(radians)) / 2) / Math.max(0.2, Math.sin(radians))
+  );
 }
 
 /* --------------------------------------------------------------------- data */

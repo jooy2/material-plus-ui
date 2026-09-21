@@ -10,6 +10,14 @@ const svg = () => document.querySelector('.mp-pie-chart svg');
 const slices = () => Array.from(document.querySelectorAll('.mp-pie-chart__slices path'));
 const drawn = () => expect.poll(() => svg() !== null).toBe(true);
 
+/** The arc radii a slice is drawn with, smallest first: its hole, then its edge. */
+const radii = (node: Element | undefined) =>
+  [
+    ...new Set(
+      [...(node?.getAttribute('d') ?? '').matchAll(/A([\d.]+) /g)].map((m) => Number(m[1]))
+    )
+  ].sort((a, b) => a - b);
+
 /** How far round the circle a slice sweeps, from its own path. */
 const sweep = (node: Element | undefined) => {
   const b = (node as SVGGraphicsElement).getBBox();
@@ -221,6 +229,44 @@ describe('MPPieChart', () => {
     await drawn();
 
     expect(document.querySelector('[data-testid="total"]')).not.toBeNull();
+  });
+
+  it('takes the caller’s hole, and only where there is a hole to take', async () => {
+    // Read off the arcs rather than the bounding box: the outer edge does not
+    // move when the hole does, so a ring and a thicker ring measure the same.
+    const screen = await render(
+      <MPPieChart categories={NAMES} data={DATA} shape="donut" locale="en-US" />
+    );
+    await drawn();
+
+    await expect.poll(() => radii(slices()[0]).length).toBe(2);
+    const wide = radii(slices()[0]);
+
+    await screen.rerender(
+      <MPPieChart categories={NAMES} data={DATA} shape="donut" hole={0.2} locale="en-US" />
+    );
+
+    await expect.poll(() => radii(slices()[0])[0]).toBeLessThan(wide[0]);
+    // The outer edge stays exactly where it was.
+    expect(radii(slices()[0])[1]).toBeCloseTo(wide[1], 5);
+
+    // And a `pie` has no hole for the number to describe: one radius, not two.
+    await screen.rerender(<MPPieChart categories={NAMES} data={DATA} hole={0.2} locale="en-US" />);
+
+    await expect.poll(() => radii(slices()[0]).length).toBe(1);
+  });
+
+  it('draws the gap between slices as a stroke of the caller’s width', async () => {
+    // A stroke rather than a narrowed sweep: a slice narrowed to make room is a
+    // slice reporting a smaller number than it has.
+    const screen = await render(<MPPieChart categories={NAMES} data={DATA} locale="en-US" />);
+    await drawn();
+
+    await expect.poll(() => slices()[0]?.getAttribute('stroke-width')).toBe('2');
+
+    await screen.rerender(<MPPieChart categories={NAMES} data={DATA} gap={0} locale="en-US" />);
+
+    await expect.poll(() => slices()[0]?.getAttribute('stroke-width')).toBe('0');
   });
 
   it('ignores the middle when the shape is a filled disc', async () => {
