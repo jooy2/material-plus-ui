@@ -449,14 +449,44 @@ export interface MPChartTooltipItem {
 export interface MPChartTooltipContext {
   index: number;
   category: MPChartCategory;
-  /** Only the series that are visible and have a value here. */
+  /** Only the series that are visible and have a value here, in `sort`'s order. */
   items: readonly MPChartTooltipItem[];
+  /** What they add up to, where the chart is a picture of that sum. */
+  total?: string;
 }
+
+/**
+ * What order the rows of a hover panel come in.
+ *
+ * - `series` — the order they were passed, which is the order the legend lists
+ *   them in and the order the colours were handed out in. A reader who has
+ *   learned the legend can find a row without reading it.
+ * - `value` — largest first. What a chart of eight series wants: the row a
+ *   reader is looking for is usually the big one, and hunting for it down a
+ *   list in a fixed order is the work the panel exists to save.
+ *
+ * Neither is right for every chart, which is why there is a prop. Ties keep
+ * their series order, so a panel never reorders itself over nothing.
+ */
+export type MPChartTooltipSort = 'series' | 'value';
 
 /** The hover layer, where `true` and `false` are not enough. */
 export interface MPChartTooltip {
   /** @default 'index', or 'item' where the marks are not arranged in columns */
   mode?: MPChartTooltipMode;
+  /** @default 'series' */
+  sort?: MPChartTooltipSort;
+  /**
+   * Adds a row for what the column adds up to.
+   *
+   * On by default where the chart **is** that total — a stack, whose whole
+   * point is the height of the column — and off everywhere else. A percent
+   * stack is left out of that: its total is 100% at every category, and a row
+   * that says the same thing four times is a row nobody reads. An unstacked
+   * chart is off because its series are not parts of anything, and adding them
+   * up would be the panel inventing a quantity.
+   */
+  total?: boolean;
   /**
    * The line dropped through the plot at the active category. On in `index`
    * mode and never drawn in `item` mode: a crosshair says "these numbers all

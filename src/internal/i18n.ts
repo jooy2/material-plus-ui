@@ -303,6 +303,8 @@ export interface MPMessages {
     table: string;
     /** The heading over that table's first column. */
     category: string;
+    /** The row a hover panel adds for what a stacked column adds up to. */
+    total: string;
   };
   sparkline: {
     summary: string;

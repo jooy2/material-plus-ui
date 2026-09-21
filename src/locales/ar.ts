@@ -75,7 +75,7 @@ export const ar: MPLocale = {
       skip: 'تخطي',
       position: 'الخطوة {index} من {total}'
     },
-    chart: { label: 'مخطط', table: 'بيانات المخطط', category: 'الفئة' },
+    chart: { label: 'مخطط', table: 'بيانات المخطط', category: 'الفئة', total: 'الإجمالي' },
     sparkline: { summary: 'نقاط: {count}، من {first} إلى {last}' },
     table: { empty: 'لا توجد بيانات' },
     dataTable: {

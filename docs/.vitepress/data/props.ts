@@ -915,8 +915,8 @@ const chartChrome: PropRow[] = [
     type: 'boolean | MPChartTooltip',
     default: 'true',
     description: {
-      ko: '포인터가 드러내는 것. 브라우저에 그려진 차트는 캐묻는 대상이라 기본값이 켬입니다. 끄려면 숫자를 읽을 다른 경로가 있어야 하고, 뒤에 놓인 표가 언제나 그중 하나입니다',
-      en: 'What the pointer uncovers, on by default because a chart drawn in a browser is a thing a reader interrogates. Turning it off needs another route to the numbers, and the table behind the chart is always one'
+      ko: '포인터가 드러내는 것. 브라우저에 그려진 차트는 캐묻는 대상이라 기본값이 켬입니다. 끄려면 숫자를 읽을 다른 경로가 있어야 하고, 뒤에 놓인 표가 언제나 그중 하나입니다. `sort`로 행 순서를, `total`로 합계 행을 정합니다 — 합계는 쌓기에서만 기본으로 붙습니다',
+      en: 'What the pointer uncovers, on by default because a chart drawn in a browser is a thing a reader interrogates. Turning it off needs another route to the numbers, and the table behind the chart is always one. `sort` decides the order of the rows and `total` the row under them, which is on for a stack and off everywhere else'
     }
   },
   {

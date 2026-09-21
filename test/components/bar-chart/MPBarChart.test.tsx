@@ -267,6 +267,111 @@ describe('MPBarChart', () => {
     await expect.poll(() => bars().length).toBe(3);
   });
 
+  describe('the hover panel', () => {
+    const rows = () =>
+      Array.from(document.querySelectorAll('.mp-chart__tooltip li')).map(
+        (node) => node.textContent
+      );
+
+    const open = async () => {
+      plot().focus();
+      plot().dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }));
+      await expect.poll(() => rows().length).toBeGreaterThan(0);
+    };
+
+    it('lists the series in the order they were passed', async () => {
+      // The order the legend lists them in and the order the colours were
+      // handed out in, so a reader who has learned one has learned the other.
+      await render(
+        <MPBarChart
+          categories={CATEGORIES}
+          series={[
+            { name: 'Small', data: [10, 10, 10, 10] },
+            { name: 'Large', data: [90, 90, 90, 90] }
+          ]}
+          locale="en-US"
+        />
+      );
+      await drawn();
+      await open();
+
+      expect(rows()[0]).toContain('Small');
+    });
+
+    it('puts the largest first when it is asked to', async () => {
+      await render(
+        <MPBarChart
+          categories={CATEGORIES}
+          series={[
+            { name: 'Small', data: [10, 10, 10, 10] },
+            { name: 'Large', data: [90, 90, 90, 90] }
+          ]}
+          tooltip={{ sort: 'value' }}
+          locale="en-US"
+        />
+      );
+      await drawn();
+      await open();
+
+      expect(rows()[0]).toContain('Large');
+    });
+
+    it('adds up the column on a stack, because that is what a stack draws', async () => {
+      await render(
+        <MPBarChart
+          categories={CATEGORIES}
+          series={[
+            { name: 'New', data: [10, 10, 10, 10] },
+            { name: 'Renewal', data: [30, 30, 30, 30] }
+          ]}
+          stacked
+          locale="en-US"
+        />
+      );
+      await drawn();
+      await open();
+
+      expect(rows().length).toBe(3);
+      expect(rows()[2]).toContain('40');
+    });
+
+    it('leaves the total off a chart whose series are not parts of anything', async () => {
+      await render(<MPBarChart categories={CATEGORIES} series={TWO} locale="en-US" />);
+      await drawn();
+      await open();
+
+      expect(rows().length).toBe(2);
+    });
+
+    it('leaves it off a percent stack, whose answer is always the same', async () => {
+      await render(
+        <MPBarChart categories={CATEGORIES} series={TWO} stacked="percent" locale="en-US" />
+      );
+      await drawn();
+      await open();
+
+      expect(rows().length).toBe(2);
+    });
+
+    it('writes the total in the chart’s own language', async () => {
+      await render(
+        <MPBarChart
+          categories={CATEGORIES}
+          series={[
+            { name: 'New', data: [10, 10, 10, 10] },
+            { name: 'Renewal', data: [30, 30, 30, 30] }
+          ]}
+          stacked
+          locale="ko"
+        />
+      );
+      await drawn();
+      await open();
+
+      expect(rows()[2]).toContain('합계');
+    });
+  });
+
   describe('stacked="percent"', () => {
     it('fills every column, whatever the totals were', async () => {
       // What a percent stack compares is the composition. Two columns of wildly

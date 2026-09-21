@@ -62,6 +62,10 @@ The **whole column** is the hit target, not the line. A two-pixel stroke is not 
 
 Set `tooltip={false}` only if the numbers are readable another way. The table below is always one of those ways.
 
+`tooltip={{ sort: 'value' }}` puts the largest row first, which is what a chart of eight series wants: the row a reader is looking for is usually the big one, and hunting for it down a list in a fixed order is the work the panel exists to save. The default is the order the series were passed, so a reader who has learned the legend can find a row without reading it. Ties keep their series order either way.
+
+A **stack** also gets a row for what the column adds up to, ruled off from the parts and carrying no swatch, because the height of that column is the whole point of the shape and a panel that listed the parts without it would leave the reader adding them up. An unstacked chart does not: its series are not parts of anything, and adding them would be the panel inventing a quantity. Neither does a percent stack, whose answer is 100% at every category. `tooltip={{ total: false }}` and `{ total: true }` override both.
+
 ## Everything a pointer does, a keyboard does
 
 The plot is one tab stop. Left and right walk the columns, `Home` and `End` jump to the ends, `Escape` clears the reading. Each column is announced by a clipped live region that is a **sibling** of the picture rather than a child — `role="img"` is a leaf role, so everything inside it is cut out of the accessibility tree and a live region in there would announce to nobody.

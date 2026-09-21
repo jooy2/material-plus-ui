@@ -75,7 +75,7 @@ export const tr: MPLocale = {
       skip: 'Atla',
       position: 'Adım {index} / {total}'
     },
-    chart: { label: 'Grafik', table: 'Grafik verileri', category: 'Kategori' },
+    chart: { label: 'Grafik', table: 'Grafik verileri', category: 'Kategori', total: 'Toplam' },
     sparkline: { summary: '{count} nokta, {first} değerinden {last} değerine' },
     table: { empty: 'Veri yok' },
     dataTable: {

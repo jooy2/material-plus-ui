@@ -1408,6 +1408,35 @@ export function CartesianFrame({
       : column;
 
   /*
+   * The rows as the panel shows them, and the anchor still measured from the
+   * order they were built in.
+   *
+   * Sorting must not move the panel. A column's rows are the same numbers
+   * whichever order they are read in, and a card that jumped to a different
+   * corner because one series overtook another would be a card the reader has
+   * to find again every time the pointer moves.
+   */
+  const shownItems =
+    options.sort === 'value'
+      ? [...items].sort((a, b) => (b.value ?? -Infinity) - (a.value ?? -Infinity))
+      : items;
+
+  /*
+   * What the column adds up to, where the chart is a picture of that sum.
+   *
+   * A stack and nothing else: its whole point is the height of the column, and
+   * a panel that listed the parts without it would leave the reader adding them
+   * up. A percent stack is left out because its answer is 100% every time, and
+   * an unstacked chart because its series are not parts of anything — adding
+   * them would be the panel inventing a quantity.
+   */
+  const showTotal = options.total ?? stacked === true;
+  const total =
+    !showTotal || supplied || items.length < 2
+      ? undefined
+      : formatValue(items.reduce((sum, item) => sum + (item.value ?? 0), 0));
+
+  /*
    * What the panel is titled.
    *
    * A column is titled with the category every series in it shares. A **mark**
@@ -1527,13 +1556,16 @@ export function CartesianFrame({
               {options.render({
                 index: activeIndex,
                 category: labels[activeIndex] ?? activeIndex,
-                items
+                items: shownItems,
+                total
               })}
             </div>
           ) : (
             <ChartTooltipPanel
               heading={heading}
-              items={items}
+              items={shownItems}
+              total={total}
+              totalLabel={words.total}
               x={anchorX}
               y={anchorY}
               flip={anchorFlip}
@@ -1564,7 +1596,7 @@ export function CartesianFrame({
           />
         ) : null
       }
-      status={{ heading, items }}
+      status={{ heading, items: shownItems, total, totalLabel: words.total }}
       table={
         nothing ? null : (
           <>

@@ -299,6 +299,10 @@ export function ChartLegend({
 interface PanelProps {
   heading?: React.ReactNode;
   items: readonly MPChartTooltipItem[];
+  /** What the rows add up to, where the chart is a picture of that sum. */
+  total?: string;
+  /** And what that row is called, in the chart's own language. */
+  totalLabel?: string;
   x: number;
   y: number;
   flip: boolean;
@@ -312,7 +316,16 @@ interface PanelProps {
  * would sit under the pointer, take the hover from the plot, and close itself —
  * then reopen, then close, for as long as the reader held still.
  */
-export function ChartTooltipPanel({ heading, items, x, y, flip, size }: PanelProps) {
+export function ChartTooltipPanel({
+  heading,
+  items,
+  total,
+  totalLabel,
+  x,
+  y,
+  flip,
+  size
+}: PanelProps) {
   const text = size === 'xs' || size === 'sm' ? 'text-mp-label-small' : 'text-mp-label-medium';
 
   return (
@@ -350,6 +363,16 @@ export function ChartTooltipPanel({ heading, items, x, y, flip, size }: PanelPro
             </span>
           </li>
         ))}
+
+        {/* Ruled off rather than listed with the parts, and with no swatch:
+            a total is not one more series, and a row that looked like one
+            would be counted twice by a reader skimming the panel. */}
+        {total === undefined ? null : (
+          <li className="border-mp-outline-variant mt-1 flex items-center gap-1.5 border-0 border-t border-solid pt-1">
+            <span className="text-mp-on-surface-variant min-w-0 truncate">{totalLabel}</span>
+            <span className="text-mp-on-surface ms-auto ps-2 tabular-nums">{total}</span>
+          </li>
+        )}
       </ul>
     </div>
   );
@@ -370,10 +393,14 @@ export function ChartTooltipPanel({ heading, items, x, y, flip, size }: PanelPro
  */
 export function ChartStatus({
   heading,
-  items
+  items,
+  total,
+  totalLabel
 }: {
   heading?: React.ReactNode;
   items: readonly MPChartTooltipItem[];
+  total?: string;
+  totalLabel?: string;
 }) {
   return (
     <span role="status" aria-live="polite" className={VISUALLY_HIDDEN}>
@@ -387,6 +414,7 @@ export function ChartStatus({
               {item.label ?? item.formatted}
             </React.Fragment>
           ))}
+          {total === undefined ? null : `, ${totalLabel}: ${total}`}
         </>
       )}
     </span>
@@ -499,7 +527,12 @@ export interface ChartShellProps extends Omit<
   tooltip?: React.ReactNode;
   legend?: React.ReactNode;
   legendSide?: MPSide;
-  status: { heading?: React.ReactNode; items: readonly MPChartTooltipItem[] };
+  status: {
+    heading?: React.ReactNode;
+    items: readonly MPChartTooltipItem[];
+    total?: string;
+    totalLabel?: string;
+  };
   table?: React.ReactNode;
 }
 
@@ -558,7 +591,12 @@ export function ChartShell({
         {legend}
       </div>
 
-      <ChartStatus heading={status.heading} items={status.items} />
+      <ChartStatus
+        heading={status.heading}
+        items={status.items}
+        total={status.total}
+        totalLabel={status.totalLabel}
+      />
 
       {table}
     </div>
