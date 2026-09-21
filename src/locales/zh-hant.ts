@@ -79,7 +79,13 @@ export const zhHant: MPLocale = {
       skip: '略過',
       position: '第 {index} 步，共 {total} 步'
     },
-    chart: { label: '圖表', table: '圖表資料', category: '類別', total: '合計' },
+    chart: {
+      label: '圖表',
+      table: '圖表資料',
+      category: '類別',
+      total: '合計',
+      showAll: '顯示全部'
+    },
     sparkline: { summary: '{count} 個點，從 {first} 到 {last}' },
     table: { empty: '沒有資料' },
     dataTable: {

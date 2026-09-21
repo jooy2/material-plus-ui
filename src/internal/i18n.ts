@@ -305,6 +305,8 @@ export interface MPMessages {
     category: string;
     /** The row a hover panel adds for what a stacked column adds up to. */
     total: string;
+    /** The control that undoes a range the reader dragged out of the axis. */
+    showAll: string;
   };
   sparkline: {
     summary: string;

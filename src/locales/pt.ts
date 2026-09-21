@@ -75,7 +75,13 @@ export const pt: MPLocale = {
       skip: 'Pular',
       position: 'Etapa {index} de {total}'
     },
-    chart: { label: 'Gráfico', table: 'Dados do gráfico', category: 'Categoria', total: 'Total' },
+    chart: {
+      label: 'Gráfico',
+      table: 'Dados do gráfico',
+      category: 'Categoria',
+      total: 'Total',
+      showAll: 'Mostrar tudo'
+    },
     sparkline: { summary: '{count} pontos, de {first} a {last}' },
     table: { empty: 'Sem dados' },
     dataTable: {

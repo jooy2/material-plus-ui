@@ -621,6 +621,162 @@ describe('MPLineChart', () => {
     });
   });
 
+  describe('zoom', () => {
+    const DAYS = Array.from({ length: 20 }, (_, at) => `D${at + 1}`);
+    const LONG = [{ name: 'Signups', data: Array.from({ length: 20 }, (_, at) => 10 + at) }];
+
+    const categoryTicks = () =>
+      Array.from(document.querySelectorAll('.mp-chart__axes text'))
+        .map((node) => node.textContent ?? '')
+        .filter((text) => text.startsWith('D'));
+
+    const selection = () =>
+      document
+        .querySelector('.mp-line-chart__marks')
+        ?.parentElement?.querySelector('rect[fill="var(--_mp-color-primary)"]');
+
+    /** A drag has to cross a frame: the handler reads state React has not set yet. */
+    const drag = async (from: number, to: number) => {
+      const box = plot().getBoundingClientRect();
+      const send = (type: string, fraction: number) =>
+        plot().dispatchEvent(
+          new PointerEvent(type, {
+            bubbles: true,
+            pointerId: 1,
+            clientX: box.left + box.width * fraction,
+            clientY: box.top + box.height / 2
+          })
+        );
+
+      send('pointerdown', from);
+      await expect.poll(() => selection() !== null).toBe(true);
+
+      const narrow = Number(selection()?.getAttribute('width') ?? 0);
+
+      send('pointermove', to);
+      await expect
+        .poll(() => Number(selection()?.getAttribute('width') ?? 0))
+        .toBeGreaterThan(narrow * 2);
+      send('pointerup', to);
+      await expect.poll(selection).toBeNull();
+    };
+
+    it('redraws to the range the reader dragged', async () => {
+      await render(<MPLineChart categories={DAYS} series={LONG} zoom locale="en-US" />);
+      await drawn();
+
+      const before = categoryTicks().length;
+
+      await drag(0.3, 0.7);
+
+      // Fewer days on the axis than there were, and neither end is an end of
+      // the series any more.
+      await expect.poll(() => categoryTicks()[0]).not.toBe('D1');
+      expect(categoryTicks().length).toBeLessThanOrEqual(before);
+      expect(categoryTicks().at(-1)).not.toBe('D20');
+    });
+
+    it('takes the table and the scale with it', async () => {
+      // The table is what a reader who cannot see the plot is given instead of
+      // it, so one still listing the whole series would describe a chart that
+      // is not on the page.
+      await render(<MPLineChart categories={DAYS} series={LONG} zoom locale="en-US" />);
+      await drawn();
+      await drag(0.3, 0.7);
+
+      await expect
+        .poll(() => {
+          const table = document.getElementById(
+            plot().getAttribute('aria-describedby')?.split(' ')[0] ?? ''
+          );
+
+          return table?.querySelectorAll('tbody tr').length ?? 0;
+        })
+        .toBeLessThan(20);
+    });
+
+    it('offers a way back, as a control a keyboard can reach', async () => {
+      // `role="img"` is a leaf role, so a button inside the plot is one no
+      // keyboard can reach. This one is a sibling of it.
+      const screen = await render(
+        <MPLineChart categories={DAYS} series={LONG} zoom label="Signups" locale="en-US" />
+      );
+      await drawn();
+      await drag(0.3, 0.7);
+
+      const reset = screen.getByRole('button', { name: 'Show all' });
+
+      await expect.element(reset).toBeInTheDocument();
+      await reset.click();
+
+      await expect.poll(() => categoryTicks()[0]).toBe('D1');
+      expect(document.querySelector('.mp-chart__reset')).toBeNull();
+    });
+
+    it('ignores a drag too narrow to be a chart of anything', async () => {
+      await render(<MPLineChart categories={DAYS} series={LONG} zoom locale="en-US" />);
+      await drawn();
+
+      const box = plot().getBoundingClientRect();
+      const send = (type: string) =>
+        plot().dispatchEvent(
+          new PointerEvent(type, {
+            bubbles: true,
+            pointerId: 1,
+            clientX: box.left + box.width * 0.5,
+            clientY: box.top + box.height / 2
+          })
+        );
+
+      send('pointerdown');
+      send('pointerup');
+
+      await expect.poll(() => categoryTicks()[0]).toBe('D1');
+      expect(document.querySelector('.mp-chart__reset')).toBeNull();
+    });
+
+    it('draws nothing to drag when it was not asked for', async () => {
+      await render(<MPLineChart categories={DAYS} series={LONG} locale="en-US" />);
+      await drawn();
+      await expect.poll(() => categoryTicks().length).toBeGreaterThan(0);
+
+      const box = plot().getBoundingClientRect();
+
+      plot().dispatchEvent(
+        new PointerEvent('pointerdown', {
+          bubbles: true,
+          pointerId: 1,
+          clientX: box.left + box.width * 0.3,
+          clientY: box.top + box.height / 2
+        })
+      );
+
+      expect(selection()).toBeNull();
+    });
+
+    it('starts where the caller says, and reports what the reader picked', async () => {
+      const seen: (readonly [number, number] | null)[] = [];
+
+      await render(
+        <MPLineChart
+          categories={DAYS}
+          series={LONG}
+          zoom={{ defaultRange: [5, 14], onRangeChange: (range) => seen.push(range) }}
+          locale="en-US"
+        />
+      );
+      await drawn();
+
+      await expect.poll(() => categoryTicks()[0]).toBe('D6');
+
+      await drag(0.3, 0.7);
+
+      expect(seen.length).toBe(1);
+      expect(seen[0]?.[0]).toBeGreaterThanOrEqual(5);
+      expect(seen[0]?.[1]).toBeLessThanOrEqual(14);
+    });
+  });
+
   it('writes its words in the locale it was given', async () => {
     await render(<MPLineChart series={[]} locale="ko" />);
 

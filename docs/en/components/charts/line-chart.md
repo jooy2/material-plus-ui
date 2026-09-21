@@ -7,7 +7,7 @@ order: 32
 
 <p class="mp-lede">A quantity over an ordered axis — how it has moved, and where it is going. Two axes, a grid, a legend and a hover layer, all of it drawn by hand and none of it a dependency.</p>
 
-<Demo src="line-chart/hero" :minHeight="1120" />
+<Demo src="line-chart/hero" :minHeight="1420" />
 
 ```tsx
 import { MPLineChart } from 'material-plus-ui';
@@ -42,7 +42,7 @@ Only the drawing changes. The hover panel and the table behind the chart report 
 
 ## A target is a reference, not a series
 
-`yAxis={{ references: [{ value: 300, label: 'SLO', color: 'error' }] }}` draws a dashed line across the plot at 300 and writes its name at the end of it. Give a reference a `to` as well and it is a **band** instead — the range a reading should stay inside, the window something was down for — with both edges drawn and the room between them filled.
+A reference on `yAxis` — `{ value: 300, label: 'SLO', color: 'error' }` — draws a dashed line across the plot at 300 and writes its name at the end of it. Give a reference a `to` as well and it is a **band** instead — the range a reading should stay inside, the window something was down for — with both edges drawn and the room between them filled.
 
 It is deliberately not data. A reference is a fact the reader brought with them, so it wears the chrome's ink rather than a palette slot, it is dashed so it cannot be mistaken for a gridline, and the chart never invents one. `color` takes a role for the case worth having: a threshold somebody is watching is exactly what `error` is for.
 
@@ -62,9 +62,25 @@ The **whole column** is the hit target, not the line. A two-pixel stroke is not 
 
 Set `tooltip={false}` only if the numbers are readable another way. The table below is always one of those ways.
 
-`tooltip={{ sort: 'value' }}` puts the largest row first, which is what a chart of eight series wants: the row a reader is looking for is usually the big one, and hunting for it down a list in a fixed order is the work the panel exists to save. The default is the order the series were passed, so a reader who has learned the legend can find a row without reading it. Ties keep their series order either way.
+`sort: 'value'` on `tooltip` puts the largest row first, which is what a chart of eight series wants: the row a reader is looking for is usually the big one, and hunting for it down a list in a fixed order is the work the panel exists to save. The default is the order the series were passed, so a reader who has learned the legend can find a row without reading it. Ties keep their series order either way.
 
-A **stack** also gets a row for what the column adds up to, ruled off from the parts and carrying no swatch, because the height of that column is the whole point of the shape and a panel that listed the parts without it would leave the reader adding them up. An unstacked chart does not: its series are not parts of anything, and adding them would be the panel inventing a quantity. Neither does a percent stack, whose answer is 100% at every category. `tooltip={{ total: false }}` and `{ total: true }` override both.
+A **stack** also gets a row for what the column adds up to, ruled off from the parts and carrying no swatch, because the height of that column is the whole point of the shape and a panel that listed the parts without it would leave the reader adding them up. An unstacked chart does not: its series are not parts of anything, and adding them would be the panel inventing a quantity. Neither does a percent stack, whose answer is 100% at every category. A `total` of `false` or `true` on `tooltip` overrides both.
+
+## Dragging a range out of a long axis
+
+`zoom` is for the chart with ninety points on it, where the shape of one week is inside a picture of a quarter. A reader drags across the plot, the chart redraws to what they picked, and the scale re-fits — so the window is a **chart of that range** rather than a magnified picture of the whole one.
+
+Everything follows the window: the value scale, the hover panel, the spoken readout and the table behind the picture. The table matters most. It is what a reader who cannot see the plot is given **instead** of it, so one still listing ninety points would be describing a chart that is not on the page.
+
+A drag narrower than two categories is ignored, because a window of one category has no distance left in it for a line to have travelled — a click on the plot is exactly that, and is left alone. `Escape` clears the reading first and the window second, which is the order the reader made them in.
+
+The way back is a **Show all** control over the corner of the plot, and it is a sibling of the picture rather than a child: `role="img"` is a leaf role, so a button inside it is one no keyboard can reach and no screen reader can find. It is named in every language the library ships.
+
+Pass an object to control the window yourself — `range` and `onRangeChange` for a controlled one, `defaultRange` to open on a window, `min` to require more than two categories. A range is clamped to the data rather than trusted: one that outlives the series it was picked from would otherwise be an empty chart with no way back to the full one.
+
+Only a chart whose categories are a row of slots takes it. [MPScatterChart](scatter-chart) has two value axes and no row to cut, so it crops with `xAxis` and `yAxis` instead, and a pie has no axis at all.
+
+The drag is a pointer gesture and there is no keyboard equivalent. That is a gap this component does not pretend to close: what a keyboard reader has instead is the arrow keys walking every column and the table behind the picture, neither of which a window would improve. A caller who needs the window under a keyboard's control owns `range` and can put it behind a control of their own.
 
 ## Everything a pointer does, a keyboard does
 

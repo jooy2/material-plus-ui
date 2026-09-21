@@ -26,7 +26,7 @@ import { MPBarChart } from 'material-plus-ui';
 
 A bar's length is proportional to its value only from a zero baseline. Crop the axis and a bar twice the height of its neighbour stands for a value five percent larger — which is not a smaller lie for being a common one, and it is told in the shape a reader trusts most.
 
-`yAxis={{ min }}` still moves the scale, because a caller who has said so has said so. It is the wrong tool for a set of values that sit close together: the right one is [MPLineChart](line-chart), whose marks encode position and claim nothing about proportion.
+A `min` on `yAxis` still moves the scale, because a caller who has said so has said so. It is the wrong tool for a set of values that sit close together: the right one is [MPLineChart](line-chart), whose marks encode position and claim nothing about proportion.
 
 ## Grouped or stacked, never both
 

@@ -9,7 +9,11 @@ import {
   type MPChartMarkShape
 } from '../../internal/chart';
 
-export interface MPScatterChartProps extends CartesianChartProps {
+/**
+ * No `zoom`: what a drag would cut is a row of category slots, and a scatter
+ * has two value axes and no row. Crop it with `xAxis` and `yAxis` instead.
+ */
+export interface MPScatterChartProps extends Omit<CartesianChartProps, 'zoom'> {
   /**
    * Sizes each mark by its point's `z`, so a third number rides along.
    *

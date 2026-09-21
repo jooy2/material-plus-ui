@@ -54,6 +54,7 @@ import type {
   MPChartTooltip,
   MPChartTooltipItem,
   MPChartTooltipMode,
+  MPChartZoom,
   MPSize
 } from '../types';
 
@@ -82,6 +83,15 @@ export interface CartesianChartProps extends ChartBaseProps {
   xAxis?: MPChartAxis;
   /** The value axis. */
   yAxis?: MPChartAxis;
+  /**
+   * Lets a reader drag a range out of the category axis and redraws to it.
+   *
+   * For the chart with ninety points on it, where the shape of one week is
+   * inside a picture of a quarter. Everything follows the window — the scale,
+   * the panel, the readout and the table — so what is drawn is a chart of that
+   * range rather than a magnified picture of the whole one.
+   */
+  zoom?: boolean | MPChartZoom;
 }
 
 /** One array rather than a fresh `[]` per render, for the charts with no marks. */
@@ -448,6 +458,26 @@ function ChartAxes({
   );
 }
 
+/**
+ * Takes or gives back the pointer, and survives a browser that refuses.
+ *
+ * Both calls throw on a pointer id the browser has no record of — a synthetic
+ * event, a pointer already gone — and neither is load-bearing: the drag is
+ * driven by the events themselves, and capture only keeps them coming while
+ * the pointer is off the plot.
+ */
+function capture(event: React.PointerEvent, take: boolean): void {
+  try {
+    if (take) {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } else {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+  } catch {
+    // The drag is no worse off for it.
+  }
+}
+
 /* -------------------------------------------------------------- references */
 
 /** One reference, already in pixels and already pointed the right way. */
@@ -772,6 +802,7 @@ export function CartesianFrame({
   xAxis,
   yAxis,
   horizontal = false,
+  zoom,
   stacked = false,
   includeZero = true,
   bandRatio = 1,
@@ -815,24 +846,82 @@ export function CartesianFrame({
   const [markIndex, setMarkIndex] = React.useState<number | null>(null);
   /** Where the pointer sits along the value axis. `null` when it arrived by key. */
   const [pointer, setPointer] = React.useState<number | null>(null);
+  /**
+   * The range being dragged out of the axis, in window indices.
+   *
+   * Held twice on purpose. The state is what draws the selection, and the ref
+   * is what the release reads: both handlers come from the same render, so a
+   * pointer that is lifted before React has painted the move would otherwise
+   * commit the range as it stood one event ago.
+   */
+  const [dragging, setDragging] = React.useState<{ start: number; to: number } | null>(null);
+  const dragRef = React.useRef<{ start: number; to: number } | null>(null);
+
+  const drag = (next: { start: number; to: number } | null) => {
+    dragRef.current = next;
+    setDragging(next);
+  };
 
   const formatValue = React.useCallback(
     (value: number) => formatStatistic(value, locale, format, true),
     [format, locale]
   );
 
-  const values = React.useMemo(() => toValues(series), [series]);
+  const allValues = React.useMemo(() => toValues(series), [series]);
   const colors = React.useMemo(
     () => series.map((one, index) => seriesColor(index, one.color)),
     [series]
   );
   const seriesNames = React.useMemo(() => series.map((one) => one.name), [series]);
 
-  const count = categoryCount(series);
-  const labels = React.useMemo(
-    () => Array.from({ length: count }, (_, index) => categoryAt(index, categories, values)),
-    [count, categories, values]
+  const categoryTotal = categoryCount(series);
+  const allLabels = React.useMemo(
+    () =>
+      Array.from({ length: categoryTotal }, (_, index) => categoryAt(index, categories, allValues)),
+    [categoryTotal, categories, allValues]
   );
+
+  /*
+   * The window, and everything downstream reading it rather than the data.
+   *
+   * Slicing here rather than at the drawing is what makes the window a *chart
+   * of that range*: the scale re-fits, the panel narrows, the readout follows
+   * and so does the table — which is the copy of the data a reader who cannot
+   * see the plot is given instead of it, so a table still listing the whole
+   * series would be describing a chart that is not on the page.
+   */
+  const zoomOptions: MPChartZoom = zoom === true || zoom === false || !zoom ? {} : zoom;
+  /* Only a row of slots can be cut. A scatter has two value axes and no row,
+     which is why this is read off `xScale` rather than off the chart. */
+  const zoomable = zoom !== undefined && zoom !== false && xScale === 'band';
+  const [ownRange, setOwnRange] = React.useState<readonly [number, number] | null>(
+    () => zoomOptions.defaultRange ?? null
+  );
+  const asked = (zoomOptions.range !== undefined ? zoomOptions.range : ownRange) ?? null;
+
+  /* Clamped rather than trusted: a range outlives the data it was picked from,
+     and a window past the end of a shorter series is an empty chart with no way
+     back to the full one. */
+  const windowed =
+    !zoomable || asked === null || categoryTotal === 0
+      ? null
+      : ([
+          Math.max(0, Math.min(categoryTotal - 1, Math.min(asked[0], asked[1]))),
+          Math.max(0, Math.min(categoryTotal - 1, Math.max(asked[0], asked[1])))
+        ] as const);
+
+  const from = windowed ? windowed[0] : 0;
+  const count = windowed ? windowed[1] - windowed[0] + 1 : categoryTotal;
+  const values = windowed ? allValues.map((one) => one.slice(from, from + count)) : allValues;
+  const labels = windowed ? allLabels.slice(from, from + count) : allLabels;
+
+  const setRange = (next: readonly [number, number] | null) => {
+    if (zoomOptions.range === undefined) {
+      setOwnRange(next);
+    }
+
+    zoomOptions.onRangeChange?.(next);
+  };
 
   const shown = values.filter((_, index) => visibility.visible[index]);
   /*
@@ -1297,6 +1386,50 @@ export function CartesianFrame({
     setPointer(null);
   };
 
+  /*
+   * The drag, in **window** indices: what the reader picked is measured in the
+   * chart they are looking at, and turned into the caller's own numbering only
+   * when it is committed. Zooming twice is what needs that — the second drag
+   * happens inside the first, and adding `from` is the whole of the arithmetic.
+   */
+  const startDrag = (event: React.PointerEvent) => {
+    const at = indexAt(event.clientX, event.clientY);
+
+    if (at === null) {
+      return;
+    }
+
+    // Captured, so a drag that runs off the plot keeps reporting rather than
+    // stopping wherever the pointer crossed the edge. Capture is a nicety and
+    // not the feature: a pointer id the browser has no record of throws, and a
+    // drag that works without capture is better than one that never starts.
+    capture(event, true);
+    clearActive();
+    drag({ start: at, to: at });
+  };
+
+  const endDrag = (event: React.PointerEvent) => {
+    const picked = dragRef.current;
+
+    if (picked === null) {
+      return;
+    }
+
+    capture(event, false);
+
+    const low = Math.min(picked.start, picked.to);
+    const high = Math.max(picked.start, picked.to);
+
+    drag(null);
+
+    // A click is a drag of no width, and a window of one category is not a
+    // chart of anything: there is no distance left in it for a line to have
+    // travelled. Both are left alone rather than acted on.
+    if (high - low + 1 >= Math.max(2, zoomOptions.min ?? 2)) {
+      setRange([from + low, from + high]);
+    }
+  };
+
   const goTo = (at: number | null) => {
     const bounded = at === null ? null : Math.min(walkLength - 1, Math.max(0, at));
 
@@ -1328,7 +1461,14 @@ export function CartesianFrame({
     } else if (event.key === 'End') {
       goTo(walkLength - 1);
     } else if (event.key === 'Escape') {
-      clearActive();
+      // The reading first and the window second: `Escape` undoes the last
+      // thing the reader did, and a pointer resting on a column is more recent
+      // than the drag that opened it.
+      if (activeIndex === null && windowed !== null) {
+        setRange(null);
+      } else {
+        clearActive();
+      }
     } else {
       return;
     }
@@ -1516,33 +1656,77 @@ export function CartesianFrame({
       height={height}
       legendSide={legendSide}
       plotProps={{
-        onPointerMove:
-          nothing || mode === 'none'
-            ? undefined
-            : (event) => {
-                if (marks) {
-                  setMarkIndex(nearestMark(event.clientX, event.clientY));
-                } else {
-                  setColumnIndex(indexAt(event.clientX, event.clientY));
-                }
+        onPointerDown: zoomable && !nothing ? startDrag : undefined,
+        onPointerMove: nothing
+          ? undefined
+          : (event) => {
+              if (dragRef.current !== null) {
+                drag({
+                  ...dragRef.current,
+                  to: indexAt(event.clientX, event.clientY) ?? dragRef.current.to
+                });
 
-                // Only `item` mode reads this, and only it may pay for it. The
-                // index above settles to the same value everywhere inside one
-                // column, so React bails out of the re-render — but a pointer
-                // offset is a fresh pixel on every event, and storing one
-                // nothing consults would re-lay the chart out per pixel moved.
-                if (mode === 'item') {
-                  setPointer(valueAt(event.clientX, event.clientY));
-                }
-              },
-        onPointerLeave: clearActive,
+                return;
+              }
+
+              if (mode === 'none') {
+                return;
+              }
+
+              if (marks) {
+                setMarkIndex(nearestMark(event.clientX, event.clientY));
+              } else {
+                setColumnIndex(indexAt(event.clientX, event.clientY));
+              }
+
+              // Only `item` mode reads this, and only it may pay for it. The
+              // index above settles to the same value everywhere inside one
+              // column, so React bails out of the re-render — but a pointer
+              // offset is a fresh pixel on every event, and storing one
+              // nothing consults would re-lay the chart out per pixel moved.
+              if (mode === 'item') {
+                setPointer(valueAt(event.clientX, event.clientY));
+              }
+            },
+        onPointerUp: zoomable && !nothing ? endDrag : undefined,
+        onPointerCancel: zoomable && !nothing ? () => drag(null) : undefined,
+        onPointerLeave: (event) => {
+          // A drag that ends off the plot is committed rather than dropped.
+          // Capture normally keeps `pointerleave` from arriving at all until
+          // the pointer is up — this is for the browser that refused it, where
+          // the alternative is a selection left drawn over the chart with no
+          // way to let go of it.
+          if (zoomable && !nothing) {
+            endDrag(event);
+          }
+
+          clearActive();
+        },
         // A key press moves the crosshair with no pointer to measure against,
         // so `item` mode falls back to the whole column.
-        onKeyDown: nothing || mode === 'none' ? undefined : onKeyDown,
+        onKeyDown: nothing || (mode === 'none' && !zoomable) ? undefined : onKeyDown,
         onBlur: clearActive
       }}
+      overlay={
+        windowed === null || nothing ? null : (
+          <button
+            type="button"
+            onClick={() => setRange(null)}
+            className={[
+              'mp-chart__reset absolute end-0 top-0 z-10 cursor-pointer',
+              'text-mp-primary text-mp-label-medium rounded-mp-xs px-2 py-1',
+              'appearance-none border-0 bg-transparent [font:inherit]',
+              'focus-visible:outline-mp-primary focus-visible:outline-2 focus-visible:outline-offset-2'
+            ].join(' ')}
+          >
+            {words.showAll}
+          </button>
+        )
+      }
       tooltip={
-        activeIndex !== null && items.length > 0 && mode !== 'none' ? (
+        // Never while a range is being picked: a card following the pointer
+        // across the very thing it is covering is a card in the way.
+        activeIndex !== null && items.length > 0 && mode !== 'none' && dragging === null ? (
           options.render ? (
             <div
               aria-hidden="true"
@@ -1695,6 +1879,32 @@ export function CartesianFrame({
 
           {/* Over the marks, and the bands under them. See `ChartReferences`. */}
           <ChartReferences marks={references} plot={plot} pass="line" fontSize={fontSize} />
+
+          {/* What the reader is picking, over everything, so the edges of the
+              selection are readable against whatever it happens to cover. */}
+          {dragging === null
+            ? null
+            : (() => {
+                const edges = [dragging.start, dragging.to]
+                  .map((at) => (horizontal ? plot.top : plot.left) + categoryPx(at))
+                  .sort((a, b) => a - b);
+                const thickness = Math.max(band.step, 1);
+                const low = edges[0] - thickness / 2;
+                const size_ = edges[1] - edges[0] + thickness;
+
+                return (
+                  <rect
+                    x={horizontal ? plot.left : low}
+                    y={horizontal ? low : plot.top}
+                    width={horizontal ? plot.width : size_}
+                    height={horizontal ? size_ : plot.height}
+                    fill="var(--_mp-color-primary)"
+                    fillOpacity={0.12}
+                    stroke="var(--_mp-color-primary)"
+                    strokeWidth={1}
+                  />
+                );
+              })()}
         </svg>
       ) : null}
     </ChartShell>

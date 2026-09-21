@@ -75,7 +75,13 @@ export const pl: MPLocale = {
       skip: 'Pomiń',
       position: 'Krok {index} z {total}'
     },
-    chart: { label: 'Wykres', table: 'Dane wykresu', category: 'Kategoria', total: 'Razem' },
+    chart: {
+      label: 'Wykres',
+      table: 'Dane wykresu',
+      category: 'Kategoria',
+      total: 'Razem',
+      showAll: 'Pokaż wszystko'
+    },
     sparkline: { summary: 'Punkty: {count}, od {first} do {last}' },
     table: { empty: 'Brak danych' },
     dataTable: {

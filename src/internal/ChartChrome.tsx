@@ -525,6 +525,15 @@ export interface ChartShellProps extends Omit<
   children: React.ReactNode;
   /** Floated over the drawing. */
   tooltip?: React.ReactNode;
+  /**
+   * A control over the corner of the plot — the one thing a chart has that is
+   * neither the picture nor a legend entry.
+   *
+   * A **sibling** of the plot rather than a child, for the reason the readout
+   * is one: `role="img"` is a leaf role, and a button inside it is a button no
+   * keyboard can reach and no screen reader can find.
+   */
+  overlay?: React.ReactNode;
   legend?: React.ReactNode;
   legendSide?: MPSide;
   status: {
@@ -541,9 +550,15 @@ export interface ChartShellProps extends Omit<
  * it and the table underneath.
  *
  * The readout is a **sibling** of the plot rather than a child, and that is a
- * constraint rather than a layout preference — see `ChartStatus`. Putting the
- * arrangement here is what keeps the two frames from disagreeing about it: the
- * one place this is easy to get wrong is the one place it must not be.
+ * constraint rather than a layout preference — see `ChartStatus`. So is
+ * anything in `overlay`, for the same reason. Putting the arrangement here is
+ * what keeps the two frames from disagreeing about it: the one place this is
+ * easy to get wrong is the one place it must not be.
+ *
+ * The plot sits in a positioning box of its own rather than directly in the
+ * row. The box is always there, zoomed or not — a wrapper that came and went
+ * would unmount the plot with it, and a plot that unmounts takes the reader's
+ * focus with it.
  */
 export function ChartShell({
   size,
@@ -555,6 +570,7 @@ export function ChartShell({
   plotProps,
   children,
   tooltip,
+  overlay,
   legend,
   legendSide = 'bottom',
   status,
@@ -571,21 +587,25 @@ export function ChartShell({
       {...rest}
     >
       <div className={`flex min-w-0 gap-3 ${LEGEND_SIDE[legendSide]}`}>
-        <div
-          ref={plotRef}
-          role="img"
-          tabIndex={interactive ? 0 : undefined}
-          aria-label={name}
-          aria-describedby={describedBy}
-          {...plotProps}
-          className={[
-            'mp-chart__plot rounded-mp-xs relative min-w-0 flex-1',
-            'focus-visible:outline-mp-primary focus-visible:outline-2 focus-visible:outline-offset-2'
-          ].join(' ')}
-          style={{ height: cssLength(height) ?? PLOT_HEIGHT[size] }}
-        >
-          {children}
-          {tooltip}
+        <div className="relative flex min-w-0 flex-1">
+          <div
+            ref={plotRef}
+            role="img"
+            tabIndex={interactive ? 0 : undefined}
+            aria-label={name}
+            aria-describedby={describedBy}
+            {...plotProps}
+            className={[
+              'mp-chart__plot rounded-mp-xs relative min-w-0 flex-1',
+              'focus-visible:outline-mp-primary focus-visible:outline-2 focus-visible:outline-offset-2'
+            ].join(' ')}
+            style={{ height: cssLength(height) ?? PLOT_HEIGHT[size] }}
+          >
+            {children}
+            {tooltip}
+          </div>
+
+          {overlay}
         </div>
 
         {legend}

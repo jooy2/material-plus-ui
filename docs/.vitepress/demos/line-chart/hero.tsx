@@ -81,6 +81,27 @@ export default function LineChartHero() {
           />
         </MPBox>
       </MPFlex>
+      <MPFlex direction="column" gap={8}>
+        <MPTypography level="caption">
+          Ninety days, with a week of them one drag away. Drag across the plot.
+        </MPTypography>
+        <MPBox variant="outlined" padded>
+          <MPLineChart
+            label="Signups a day, over a quarter"
+            categories={Array.from({ length: 90 }, (_, at) => `D${at + 1}`)}
+            series={[
+              {
+                name: 'Signups',
+                data: Array.from(
+                  { length: 90 },
+                  (_, at) => 100 + Math.round(40 * Math.sin(at / 5) + at / 2)
+                )
+              }
+            ]}
+            zoom
+          />
+        </MPBox>
+      </MPFlex>
     </MPFlex>
   );
 }

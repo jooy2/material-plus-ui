@@ -610,6 +610,43 @@ export interface MPChartReference {
   dashed?: boolean;
 }
 
+/**
+ * Dragging a range out of a long category axis.
+ *
+ * What it is for is the chart with ninety points on it, where the shape of one
+ * week is inside a picture of a quarter. A reader drags across the plot, the
+ * chart redraws to what they picked, and the scale re-fits to it — so the
+ * window is a *chart of that range* rather than a magnified picture of the
+ * whole one.
+ *
+ * Everything follows the window: the value scale, the hover panel, the spoken
+ * readout and the table behind the picture. The table is what a reader who
+ * cannot see the plot is given **instead** of it, so a table still listing
+ * ninety points would be describing a chart that is not on the page.
+ *
+ * Only a chart whose categories are a row of slots takes it. A scatter has two
+ * value axes and no row to cut, and a pie has no axis at all.
+ */
+export interface MPChartZoom {
+  /**
+   * The range drawn, as a first and last **category index**, or `null` for all
+   * of them. Use with `onRangeChange` for a controlled window.
+   */
+  range?: readonly [number, number] | null;
+  /** Where the window starts out. Ignored once `range` is given. */
+  defaultRange?: readonly [number, number] | null;
+  /** Called with what the reader dragged, and with `null` when they reset it. */
+  onRangeChange?: (range: readonly [number, number] | null) => void;
+  /**
+   * The fewest categories a drag may leave.
+   *
+   * Two, because a window of one category is not a chart of anything — there is
+   * no distance left in it for a line to have travelled.
+   * @default 2
+   */
+  min?: number;
+}
+
 /** Where the legend sits, and what it does when it is used. */
 export interface MPChartLegend {
   /** Which edge of the plot. @default 'bottom' */

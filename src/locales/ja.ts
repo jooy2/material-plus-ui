@@ -79,7 +79,13 @@ export const ja: MPLocale = {
       skip: 'スキップ',
       position: '{total} 件中 {index} 件目'
     },
-    chart: { label: 'グラフ', table: 'グラフのデータ', category: '項目', total: '合計' },
+    chart: {
+      label: 'グラフ',
+      table: 'グラフのデータ',
+      category: '項目',
+      total: '合計',
+      showAll: 'すべて表示'
+    },
     sparkline: { summary: '{count} 点、{first} から {last} まで' },
     table: { empty: 'データがありません' },
     dataTable: {

@@ -86,7 +86,8 @@ export const fr: MPLocale = {
       label: 'Graphique',
       table: 'Données du graphique',
       category: 'Catégorie',
-      total: 'Total'
+      total: 'Total',
+      showAll: 'Tout afficher'
     },
     sparkline: { summary: '{count} points, de {first} à {last}' },
     table: { empty: 'Aucune donnée' },

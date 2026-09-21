@@ -79,7 +79,13 @@ export const ru: MPLocale = {
       skip: 'Пропустить',
       position: 'Шаг {index} из {total}'
     },
-    chart: { label: 'Диаграмма', table: 'Данные диаграммы', category: 'Категория', total: 'Итого' },
+    chart: {
+      label: 'Диаграмма',
+      table: 'Данные диаграммы',
+      category: 'Категория',
+      total: 'Итого',
+      showAll: 'Показать все'
+    },
     sparkline: { summary: 'Точек: {count}, от {first} до {last}' },
     table: { empty: 'Нет данных' },
     dataTable: {

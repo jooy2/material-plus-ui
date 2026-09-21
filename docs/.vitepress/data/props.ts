@@ -821,6 +821,17 @@ const GAPS_KO =
 const GAPS_EN =
   'What to draw where a series has no value. `break` stops and restarts, `connect` joins the two sides with a **dashed** run so the picture still says which part was measured, and `zero` draws the missing reading at zero and widens the value axis to hold it. Only the drawing changes: the hover panel and the table behind the chart report a gap as a gap in all three';
 
+/** Lifted out so the charts with no row to cut can drop it by identity. */
+const chartZoomRow: PropRow = {
+  name: 'zoom',
+  type: 'boolean | MPChartZoom',
+  default: 'false',
+  description: {
+    ko: '독자가 항목 축에서 구간을 끌어내면 거기에 맞춰 다시 그립니다. 값 눈금, 호버 패널, 읽어 주는 문장, 그림 뒤의 표까지 전부 그 창을 따라가므로 전체를 확대한 그림이 아니라 그 구간의 차트가 됩니다. 플롯 모서리의 **전체 보기** 컨트롤이 되돌립니다. 객체를 주면 `range`, `defaultRange`, `onRangeChange`, `min`으로 창을 직접 쥡니다',
+    en: 'Lets a reader drag a range out of the category axis and redraws to it. The value scale, the hover panel, the spoken readout and the table behind the picture all follow the window, so what is drawn is a chart of that range rather than a magnified picture of the whole one. A **Show all** control over the corner of the plot is the way back. Pass an object for `range`, `defaultRange`, `onRangeChange` and `min`'
+  }
+};
+
 const chartPlot: PropRow[] = [
   {
     name: 'series',
@@ -839,6 +850,7 @@ const chartPlot: PropRow[] = [
       en: "The category axis' labels. Without them a point's own `x` is used, and without that, its index"
     }
   },
+  chartZoomRow,
   {
     name: 'xAxis',
     type: 'MPChartAxis',
@@ -2943,7 +2955,9 @@ const componentTables: Record<string, PropRow[]> = {
   ],
 
   MPScatterChart: [
-    ...chartBase,
+    // No `zoom`: what a drag would cut is a row of category slots, and a
+    // scatter has two value axes and no row.
+    ...chartBase.filter((one) => one !== chartZoomRow),
     {
       name: 'bubble',
       type: 'boolean',
