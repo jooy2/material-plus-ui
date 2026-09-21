@@ -7,14 +7,17 @@ import { SPARKLINE } from '../../internal/messages/sparkline';
 import { TABLE } from '../../internal/messages/table';
 import { cssLength } from '../../internal/length';
 import {
+  BRIDGE_DASH,
   areaPath,
   barPath,
+  bridgePath,
   extentOf,
   linePath,
   seriesColor,
+  withoutGaps,
   type PlotPoint
 } from '../../internal/chart';
-import type { MPChartCurve, MPColor, MPSize } from '../../types';
+import type { MPChartCurve, MPChartGaps, MPColor, MPSize } from '../../types';
 
 /** What the series is drawn as. */
 export type MPSparklineShape = 'line' | 'area' | 'bar';
@@ -32,6 +35,19 @@ export interface MPSparklineProps extends Omit<
   shape?: MPSparklineShape;
   /** How the line between two points is drawn. @default 'linear' */
   curve?: MPChartCurve;
+  /**
+   * What the shape does where the series has no value.
+   *
+   * `break` stops and starts again, `connect` joins the two sides with a dashed
+   * run, and `zero` reads the missing point as a zero and opens the scale to
+   * hold it. The sentence this mark is read out as counts the readings it
+   * actually has, whichever is chosen.
+   *
+   * `bar` has no line to join, so it takes `zero` and reads `connect` as
+   * `break`.
+   * @default 'break'
+   */
+  gaps?: MPChartGaps;
   /**
    * Marks the newest point.
    *
@@ -136,6 +152,7 @@ export const MPSparkline = React.forwardRef<HTMLDivElement, MPSparklineProps>(fu
     data,
     shape = 'line',
     curve = 'linear',
+    gaps = 'break',
     endDot = true,
     baseline,
     min,
@@ -171,17 +188,27 @@ export const MPSparkline = React.forwardRef<HTMLDivElement, MPSparklineProps>(fu
   const boxHeight = height;
   const inset = shape === 'bar' ? 0 : stroke / 2;
 
-  const extent = extentOf(data, min, max);
+  /* A missing reading read as a zero is a reading, so the scale has to reach
+     it — a mark drawn below the box is a mark the caller asked for and cannot
+     see. Everywhere else the gaps are simply not on the scale. */
+  const scaled =
+    gaps === 'zero'
+      ? data.map((value) => (value === null || !Number.isFinite(value) ? 0 : value))
+      : data;
+  const extent = extentOf(scaled, min, max);
   const span = extent.max - extent.min;
   const yOf = (value: number) =>
     boxHeight - inset - ((value - extent.min) / span) * (boxHeight - inset * 2);
 
   const step = data.length > 1 ? boxWidth / (data.length - 1) : 0;
-  const points: PlotPoint[] = data.map((value, index) =>
+  const points: PlotPoint[] = scaled.map((value, index) =>
     value === null || !Number.isFinite(value)
       ? null
       : { x: data.length > 1 ? index * step : boxWidth / 2, y: yOf(value) }
   );
+
+  /* A bar has no line to join, so `connect` has nothing to do there. */
+  const joined = gaps === 'connect' && shape !== 'bar';
 
   const floor = baseline ?? extent.min;
   const last = [...points].reverse().find((point) => point !== null) ?? null;
@@ -235,7 +262,7 @@ export const MPSparkline = React.forwardRef<HTMLDivElement, MPSparklineProps>(fu
         style={{ display: 'block', overflow: 'visible' }}
       >
         {shape === 'bar' ? (
-          data.map((value, index) => {
+          scaled.map((value, index) => {
             if (value === null || !Number.isFinite(value)) {
               return null;
             }
@@ -268,7 +295,11 @@ export const MPSparkline = React.forwardRef<HTMLDivElement, MPSparklineProps>(fu
         ) : (
           <>
             {shape === 'area' ? (
-              <path d={areaPath(points, yOf(floor), curve)} fill={paint} opacity={0.16} />
+              <path
+                d={areaPath(joined ? withoutGaps(points) : points, yOf(floor), curve)}
+                fill={paint}
+                opacity={0.16}
+              />
             ) : null}
 
             <path
@@ -285,6 +316,23 @@ export const MPSparkline = React.forwardRef<HTMLDivElement, MPSparklineProps>(fu
               vectorEffect="non-scaling-stroke"
               opacity={0.55}
             />
+
+            {/* The runs across the gaps, dashed and straight. A reader asked
+                for the shape to carry on and gets it, with the part of it that
+                was measured still telling itself apart from the part that was
+                inferred. */}
+            {joined ? (
+              <path
+                d={bridgePath(points)}
+                fill="none"
+                stroke={paint}
+                strokeWidth={stroke}
+                strokeDasharray={`${stroke * BRIDGE_DASH} ${stroke * BRIDGE_DASH}`}
+                strokeLinecap="round"
+                vectorEffect="non-scaling-stroke"
+                opacity={0.55}
+              />
+            ) : null}
           </>
         )}
 

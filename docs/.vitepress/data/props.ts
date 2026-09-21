@@ -2999,6 +2999,15 @@ const componentTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'gaps',
+      type: "'break' | 'connect' | 'zero'",
+      default: "'break'",
+      description: {
+        ko: GAPS_KO + '. `bar`에는 이을 선이 없어 `connect`를 `break`로 읽습니다',
+        en: GAPS_EN + '. A `bar` has no line to join, so it reads `connect` as `break`'
+      }
+    },
+    {
       name: 'endDot',
       type: 'boolean',
       default: 'true',

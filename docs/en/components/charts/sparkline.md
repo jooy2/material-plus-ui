@@ -33,6 +33,10 @@ A `null` is a point nothing was measured at, and the line breaks there. It is no
 
 An area breaks at the same place, for the same reason and over more of the picture. A lone point between two gaps is drawn as a dot, because it has no line to be part of.
 
+`gaps` is the same option [MPLineChart](line-chart) takes, for the two cases where breaking is the wrong reading. `gaps="connect"` joins the two sides with a dashed run, so the shape carries on and still says which part of it was measured; an area closes across the gap as well. `gaps="zero"` reads the missing point as a zero and opens the scale to hold it — which matters more here than on a full chart, since a sparkline has no axis to show that the floor has moved.
+
+A `bar` has no line to join, so it takes `zero` and reads `connect` as `break`. The sentence the mark is read out as counts the readings it actually has whichever is chosen.
+
 ## The line is quiet and the end is not
 
 The stroke is drawn faded and the end dot is not. The history is context and the last value is the point, so `endDot` is on by default: without it the reader has to work out which end is now, which is the one thing the mark is for.

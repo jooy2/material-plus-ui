@@ -142,6 +142,72 @@ describe('MPSparkline', () => {
     });
   });
 
+  describe('gaps', () => {
+    const GAPPY = [1, 2, null, 4, 5];
+    const bridge = () => paths().find((path) => path.getAttribute('stroke-dasharray'));
+
+    it('joins the two sides with a dashed run when asked to', async () => {
+      await render(<MPSparkline data={GAPPY} gaps="connect" locale="en-US" />);
+
+      // The measured runs still break, and the dashed one crosses between them.
+      expect((line()?.getAttribute('d')?.match(/M/g) ?? []).length).toBe(2);
+      expect(bridge()?.getAttribute('d')?.match(/M/g)?.length).toBe(1);
+    });
+
+    it('draws no dashed run where the series has no gaps', async () => {
+      await render(<MPSparkline data={DATA} gaps="connect" locale="en-US" />);
+
+      expect(bridge()?.getAttribute('d')).toBe('');
+    });
+
+    it('closes an area across a joined gap', async () => {
+      await render(<MPSparkline data={GAPPY} shape="area" gaps="connect" locale="en-US" />);
+
+      const fill = paths().find((path) => path.getAttribute('fill') !== 'none');
+
+      expect(fill?.getAttribute('d')?.match(/M/g)?.length).toBe(1);
+    });
+
+    it('has no line to join on a bar, so it leaves the gap empty', async () => {
+      await render(<MPSparkline data={GAPPY} shape="bar" gaps="connect" locale="en-US" />);
+
+      // Four bars for four readings, and nothing dashed anywhere.
+      expect(paths().filter((path) => path.getAttribute('fill')).length).toBe(4);
+      expect(bridge()).toBeUndefined();
+    });
+
+    it('opens the scale to zero when a gap is drawn as one', async () => {
+      // Otherwise the reading the caller asked to see is drawn under the box:
+      // the scale runs between the values it was given, and 0 is not one.
+      const screen = await render(<MPSparkline data={[10, null, 12]} locale="en-US" />);
+
+      const ys = (node: Element | undefined) =>
+        [...(node?.getAttribute('d') ?? '').matchAll(/[ML](-?[\d.]+) (-?[\d.]+)/g)].map((m) =>
+          Number(m[2])
+        );
+
+      // The mark fills its box either way, so 10 is the floor of the scale and
+      // sits on the bottom edge.
+      const before = ys(line())[0];
+
+      expect(before).toBe(Math.max(...ys(line())));
+
+      await screen.rerender(<MPSparkline data={[10, null, 12]} gaps="zero" locale="en-US" />);
+
+      // One unbroken run now, and zero is the floor — so 10 has climbed most of
+      // the way up the box and the missing month is what sits on the bottom.
+      expect((line()?.getAttribute('d')?.match(/M/g) ?? []).length).toBe(1);
+      expect(ys(line())[0]).toBeLessThan(before);
+      expect(ys(line())[1]).toBe(Math.max(...ys(line())));
+    });
+
+    it('still counts only the readings it has in the sentence', async () => {
+      await render(<MPSparkline data={GAPPY} gaps="zero" locale="en-US" />);
+
+      expect(svg().getAttribute('aria-label')).toContain('4');
+    });
+  });
+
   it('reads the first slot of the chart palette unless told otherwise', async () => {
     const screen = await render(<MPSparkline data={DATA} locale="en-US" />);
 
