@@ -41,7 +41,7 @@ export interface MPAnimateZoomProps
 /**
  * Content arriving from the middle of where it will end up.
  *
- * The same arithmetic as [MPAnimateGrow](../motion/animate-grow) at more than
+ * The same arithmetic as [MPAnimateGrow](../transitions/animate-grow) at more than
  * twice the distance, and always about the centre — which is the whole
  * difference. A grow unfolds *from* somewhere; a zoom comes at the reader.
  *
@@ -49,7 +49,7 @@ export interface MPAnimateZoomProps
  * confirmation, a result, a number that has just landed. Use it once. An
  * interruption that happens three times on one screen is a layout, and the
  * effect that belongs to a set of things rather than to one is
- * [MPAnimateAppear](../motion/animate-appear).
+ * [MPAnimateAppear](../transitions/animate-appear).
  *
  * There is no `origin`, on purpose. A zoom anchored to a corner is a grow, and
  * the library does not offer two spellings of one idea.

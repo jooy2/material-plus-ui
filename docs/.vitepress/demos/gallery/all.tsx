@@ -2380,7 +2380,7 @@ const GROUPS: Group[] = [
           ko: '불투명도만으로 나타나거나 사라지는 내용',
           en: 'Content arriving or leaving on opacity alone'
         },
-        path: '/components/motion/animate-fade',
+        path: '/components/transitions/animate-fade',
         preview: (
           <Fit>
             <MPAnimateFade repeat="infinite" alternate from={0.15} duration={1600}>
@@ -2397,7 +2397,7 @@ const GROUPS: Group[] = [
           ko: '한 점에서 펼쳐져 나오는 내용',
           en: 'Content unfolding from a point'
         },
-        path: '/components/motion/animate-grow',
+        path: '/components/transitions/animate-grow',
         preview: (
           <Fit>
             <MPAnimateGrow
@@ -2421,7 +2421,7 @@ const GROUPS: Group[] = [
           ko: '자리잡을 곳의 한가운데에서 도착하는 내용',
           en: 'Content arriving from the middle of where it will end up'
         },
-        path: '/components/motion/animate-zoom',
+        path: '/components/transitions/animate-zoom',
         preview: (
           <Fit>
             <MPAnimateZoom from={0.5} repeat="infinite" alternate duration={1600}>
@@ -2438,7 +2438,7 @@ const GROUPS: Group[] = [
           ko: '한쪽 가장자리에서 이동해 들어오는 내용',
           en: 'Content travelling in from one edge'
         },
-        path: '/components/motion/animate-slide',
+        path: '/components/transitions/animate-slide',
         preview: (
           <Fit>
             <MPAnimateSlide
@@ -2461,7 +2461,7 @@ const GROUPS: Group[] = [
           ko: '이미 있는 자리에서 걷혀 드러나는 내용',
           en: 'Content uncovered where it already is'
         },
-        path: '/components/motion/animate-reveal',
+        path: '/components/transitions/animate-reveal',
         preview: (
           <Fit>
             <MPAnimateReveal repeat="infinite" alternate duration={1600}>
@@ -2478,7 +2478,7 @@ const GROUPS: Group[] = [
           ko: '한 점을 중심으로 도는 내용',
           en: 'Content turning about a point'
         },
-        path: '/components/motion/animate-rotate',
+        path: '/components/transitions/animate-rotate',
         preview: (
           <Fit>
             <MPAnimateRotate
@@ -2500,7 +2500,7 @@ const GROUPS: Group[] = [
           ko: '페이지에 고정되어 있지 않은 것',
           en: 'Something not fixed to the page'
         },
-        path: '/components/motion/animate-float',
+        path: '/components/transitions/animate-float',
         preview: (
           <Fit>
             <MPAnimateFloat duration={3200} tilt={3}>
@@ -2517,7 +2517,7 @@ const GROUPS: Group[] = [
           ko: '되지 않은 일에 대한 응답',
           en: 'The answer to something that did not work'
         },
-        path: '/components/motion/animate-shake',
+        path: '/components/transitions/animate-shake',
         preview: (
           <Fit>
             <MPAnimateShake trigger="hover">
@@ -2534,7 +2534,7 @@ const GROUPS: Group[] = [
           ko: '가득과 바닥값 사이를 오가며 맥동하는 내용',
           en: 'Content pulsing between full opacity and a floor'
         },
-        path: '/components/motion/animate-blink',
+        path: '/components/transitions/animate-blink',
         preview: (
           <Fit>
             <MPAnimateBlink min={0.35} duration={1600}>
@@ -2551,7 +2551,7 @@ const GROUPS: Group[] = [
           ko: '여러 개가 차례로 자리를 잡는 목록',
           en: 'A list of things settling into place one after another'
         },
-        path: '/components/motion/animate-appear',
+        path: '/components/transitions/animate-appear',
         preview: (
           <Fit>
             <MPAnimateAppear
@@ -2579,7 +2579,7 @@ const GROUPS: Group[] = [
           ko: '무언가의 바깥을 도는 빛',
           en: 'A light travelling around the outside of something'
         },
-        path: '/components/motion/animate-lighting',
+        path: '/components/transitions/animate-lighting',
         preview: (
           <Fit>
             <MPAnimateLighting size="sm" spread={4} arc={70}>
@@ -2596,7 +2596,7 @@ const GROUPS: Group[] = [
           ko: '끝없이 흘러가는 내용',
           en: 'Content scrolling steadily past, forever'
         },
-        path: '/components/motion/animate-marquee',
+        path: '/components/transitions/animate-marquee',
         preview: (
           <Fit>
             <MPAnimateMarquee speed={40} gap="0.75rem">
@@ -2613,7 +2613,7 @@ const GROUPS: Group[] = [
           ko: '자기 값까지 세어 올라가는 숫자',
           en: 'A number counting up to its value'
         },
-        path: '/components/motion/animate-counter',
+        path: '/components/transitions/animate-counter',
         preview: (
           <Fit>
             <MPBox size="sm">
@@ -2634,7 +2634,7 @@ const GROUPS: Group[] = [
           ko: '한 줄이 위의 줄을 대신하며 도는 릴',
           en: 'One line replacing the one above it, on a timer'
         },
-        path: '/components/motion/animate-headline',
+        path: '/components/transitions/animate-headline',
         preview: (
           <Fit>
             <MPAnimateHeadline interval={2000}>
@@ -2657,7 +2657,7 @@ const GROUPS: Group[] = [
           ko: '노이즈에서 가라앉는 텍스트',
           en: 'Text settling out of noise'
         },
-        path: '/components/motion/animate-scramble',
+        path: '/components/transitions/animate-scramble',
         preview: (
           <Fit>
             <MPAnimateScramble
@@ -2676,7 +2676,7 @@ const GROUPS: Group[] = [
           ko: '단어나 글자 단위로 도착하는 한 줄',
           en: 'A line arriving a word or a character at a time'
         },
-        path: '/components/motion/animate-split',
+        path: '/components/transitions/animate-split',
         preview: (
           <Fit>
             <MPAnimateSplit
@@ -2697,7 +2697,7 @@ const GROUPS: Group[] = [
           ko: '한 글자씩 나타나는 텍스트',
           en: 'Text appearing one character at a time'
         },
-        path: '/components/motion/animate-typing',
+        path: '/components/transitions/animate-typing',
         preview: (
           <Fit>
             <MPAnimateTyping text="one character at a time" speed={14} repeat="infinite" erase />

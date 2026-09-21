@@ -59,7 +59,7 @@ export interface MPBoxProps extends React.ComponentPropsWithoutRef<'div'> {
    * `transition="fade"` is the whole of what most callers want; the object form
    * takes a duration, an edge to come from, or a scale to start at. Anything
    * that has to run again — on scroll, on hover, under your own control — is an
-   * [MPAnimateFade](../motion/animate-fade) and its siblings, and wrapping is
+   * [MPAnimateFade](../transitions/animate-fade) and its siblings, and wrapping is
    * the right answer there.
    */
   transition?: MPTransition;

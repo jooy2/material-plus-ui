@@ -51,7 +51,7 @@ export interface MPAnimateGrowProps
  * library can offer it: something opens out of the place it belongs to. A panel
  * out of a toolbar, a card out of the row it sits in, a sheet out of the button
  * that summoned it — `origin` is what anchors it to that place, and it is the
- * whole difference between this and [MPAnimateZoom](../motion/animate-zoom).
+ * whole difference between this and [MPAnimateZoom](../transitions/animate-zoom).
  *
  * A Grow starts close to its final size, so the travel is short and the content
  * inside is legible for most of the animation. A Zoom starts at less than half

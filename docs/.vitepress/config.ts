@@ -681,27 +681,28 @@ function byText(a: GeneratedSidebarItem, b: GeneratedSidebarItem): number {
 /**
  * The component groups that come after the alphabetical run, in this order.
  *
- * The run itself is the five categories a component falls into — Display,
- * Feedback, Inputs, Layout, Motion — and sorting those by name is right because
- * a reader looking for one has a word in mind. These two are not that, and both
- * would land in the middle of the run alphabetically:
+ * The run itself is the four categories a component falls into — Display,
+ * Feedback, Inputs, Layout — and sorting those by name is right because a
+ * reader looking for one has a word in mind. These three are not that, and each
+ * would land somewhere unhelpful in the middle of the run:
  *
- * - `hooks/` holds no components at all. It is the library without the markup,
- *   and a reader scanning for a control should reach the end of the controls
- *   before it appears.
  * - `charts/` is nine components the specification does not name — a family
  *   rather than a category, and one a reader wants all of or none of.
  *   Alphabetically it would *open* the list, putting the thing furthest from
  *   Material Design 3 in front of the button and the text field.
+ * - `transitions/` is seventeen ways of moving one element. They are the
+ *   library's own additions too, and a reader scanning for a control has no
+ *   reason to walk past them on the way.
+ * - `hooks/` holds no components at all. It is the library without the markup,
+ *   so it comes last of everything.
  *
- * So both go under Motion, where the library's own additions already sit, with
- * the hooks first: they are the smaller of the two and the one a reader is more
- * likely to be looking for by name.
+ * Charts before transitions: a chart is a component somebody goes looking for,
+ * and a transition is one they reach for once the page already works.
  *
  * Named by folder rather than by label, because the label is translated and the
  * folder is not.
  */
-const GROUP_TAIL = ['hooks', 'charts'];
+const GROUP_TAIL = ['charts', 'transitions', 'hooks'];
 
 /** `0` for the alphabetical run, then one rank per pinned group. */
 function groupRank(item: GeneratedSidebarItem): number {
@@ -1050,7 +1051,25 @@ const MOVED_PAGES: Record<string, string> = {
   '/components/display/pie-chart': '/components/charts/pie-chart',
   '/components/display/scatter-chart': '/components/charts/scatter-chart',
   '/components/display/sparkline': '/components/charts/sparkline',
-  '/components/display/timeline-chart': '/components/charts/timeline-chart'
+  '/components/display/timeline-chart': '/components/charts/timeline-chart',
+  // And Motion became Transitions, which is what these seventeen actually are.
+  '/components/motion/animate-appear': '/components/transitions/animate-appear',
+  '/components/motion/animate-blink': '/components/transitions/animate-blink',
+  '/components/motion/animate-counter': '/components/transitions/animate-counter',
+  '/components/motion/animate-fade': '/components/transitions/animate-fade',
+  '/components/motion/animate-float': '/components/transitions/animate-float',
+  '/components/motion/animate-grow': '/components/transitions/animate-grow',
+  '/components/motion/animate-headline': '/components/transitions/animate-headline',
+  '/components/motion/animate-lighting': '/components/transitions/animate-lighting',
+  '/components/motion/animate-marquee': '/components/transitions/animate-marquee',
+  '/components/motion/animate-reveal': '/components/transitions/animate-reveal',
+  '/components/motion/animate-rotate': '/components/transitions/animate-rotate',
+  '/components/motion/animate-scramble': '/components/transitions/animate-scramble',
+  '/components/motion/animate-shake': '/components/transitions/animate-shake',
+  '/components/motion/animate-slide': '/components/transitions/animate-slide',
+  '/components/motion/animate-split': '/components/transitions/animate-split',
+  '/components/motion/animate-typing': '/components/transitions/animate-typing',
+  '/components/motion/animate-zoom': '/components/transitions/animate-zoom'
 };
 
 /** The stub itself. `to` is site-absolute; the canonical needs the whole URL. */

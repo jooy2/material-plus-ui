@@ -22,6 +22,10 @@
 
 - **`npm run build` measures what the A2UI subpath costs**, in the two halves a reader has to decide between: 38.9 kB gzipped for the basic catalog and 60.6 kB with the data display, against 77.3 kB and 98.9 kB with the protocol SDK bundled in. The figures are in the guide. Making them separable meant annotating two more calls as pure — `createComponentImplementation` and `createMPA2uiCatalog` — without which one module held both catalogs and an application taking the basic eighteen carried the data table and the three charts along with them. `annotate-pure.mjs` now also skips matches inside comments, because the first thing it annotated was an example in a doc comment, which closed the comment and left the rest of the file as syntax.
 
+### Changed
+
+- **The documentation's component groups are ordered Charts, Transitions, Hooks after the alphabetical run, and the Motion group is now Transitions.** Pages under `/components/motion/` answer at `/components/transitions/`, and the old addresses redirect.
+
 ## 1.8.0 (2026-09-17)
 
 `MPImage` grew the eight props a picture actually needs — a turn, a mirror, a crop anchor, a letterbox, a real placeholder — and the rest of the release is what a pass over every other component turned up: a CSV that a spreadsheet will not run, five accessibility gaps in components that had none, an `Intl` cache the whole library reads through, and a documentation site whose Korean links now land where they point.

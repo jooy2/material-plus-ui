@@ -62,7 +62,7 @@ export interface MPAnimateSlideProps
  * A slide moves the element and not the layout: this is a `translate`, so
  * nothing on the page reflows while it runs. For a much shorter travel over a
  * list of things, one after another, use
- * [MPAnimateAppear](../motion/animate-appear).
+ * [MPAnimateAppear](../transitions/animate-appear).
  */
 export const MPAnimateSlide = React.forwardRef<HTMLDivElement, MPAnimateSlideProps>(
   function MPAnimateSlide(

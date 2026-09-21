@@ -137,4 +137,4 @@ import { MPStack } from 'material-plus-ui';
 
 - [MPAvatar](../display/avatar) — 가장 자주 쌓이는 것.
 - [MPConfigProvider](../../guide/config) — 그룹이 설정하던 `size`와 `color`를 위해.
-- [MPAnimateAppear](../motion/animate-appear) — 겹치지 않는 집합이 도착할 때.
+- [MPAnimateAppear](../transitions/animate-appear) — 겹치지 않는 집합이 도착할 때.

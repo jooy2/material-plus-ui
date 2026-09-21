@@ -137,4 +137,4 @@ It is also why `MPStack` is 2.1 kB rather than the 0.9 kB the layout alone would
 
 - [MPAvatar](../display/avatar) — the thing this is most often a pile of.
 - [MPConfigProvider](../../guide/config) — for the `size` and `color` the group used to set.
-- [MPAnimateAppear](../motion/animate-appear) — for a set arriving that is not overlapping.
+- [MPAnimateAppear](../transitions/animate-appear) — for a set arriving that is not overlapping.
