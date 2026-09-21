@@ -843,16 +843,16 @@ const chartPlot: PropRow[] = [
     name: 'xAxis',
     type: 'MPChartAxis',
     description: {
-      ko: '항목 축. 가로 막대로 눕혀도 이 prop은 여전히 항목 축입니다 — 방향을 바꾸는 것은 그림이지 데이터의 의미가 아닙니다. 아래쪽에 놓인 축은 `tickLabels`로 긴 이름을 자를지 기울일지 정하고, 기본값 `auto`는 이름은 기울이되 눈금은 그대로 둡니다',
-      en: 'The category axis. It stays the category axis when a chart is turned on its side: the orientation changes the drawing, not what the data means. Whichever axis runs along the bottom reads `tickLabels`, which decides whether a long label is cut or turned — and its default `auto` turns names rather than ticks'
+      ko: '항목 축. 가로 막대로 눕혀도 이 prop은 여전히 항목 축입니다 — 방향을 바꾸는 것은 그림이지 데이터의 의미가 아닙니다. 아래쪽에 놓인 축은 `tickLabels`로 긴 이름을 자를지 기울일지 정하고, 기본값 `auto`는 이름은 기울이되 눈금은 그대로 둡니다. `references`는 눈금을 가진 축만 읽습니다',
+      en: 'The category axis. It stays the category axis when a chart is turned on its side: the orientation changes the drawing, not what the data means. Whichever axis runs along the bottom reads `tickLabels`, which decides whether a long label is cut or turned — and its default `auto` turns names rather than ticks. `references` is read only by an axis that has a scale'
     }
   },
   {
     name: 'yAxis',
     type: 'MPChartAxis',
     description: {
-      ko: '값 축. `min`, `max`, `tickCount`, `label`, `grid`, `hidden`, `thickness`, `tickFormat`, `tickLabels`를 받습니다',
-      en: 'The value axis. Takes `min`, `max`, `tickCount`, `label`, `grid`, `hidden`, `thickness`, `tickFormat` and `tickLabels`'
+      ko: '값 축. `min`, `max`, `tickCount`, `label`, `grid`, `hidden`, `thickness`, `tickFormat`, `tickLabels`, `references`를 받습니다',
+      en: 'The value axis. Takes `min`, `max`, `tickCount`, `label`, `grid`, `hidden`, `thickness`, `tickFormat`, `tickLabels` and `references`'
     }
   }
 ];

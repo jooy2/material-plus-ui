@@ -12,6 +12,7 @@ import {
   useVisibility,
   type ChartBaseProps
 } from './ChartChrome';
+import { VISUALLY_HIDDEN } from './visually-hidden';
 import {
   BandScale,
   CHART_FONT_SIZE,
@@ -33,17 +34,20 @@ import {
   textWidth,
   tickStride,
   tickTurn,
+  toNumber,
   toValues,
   truncate,
   turnedBand,
   turnedRoom,
   turnedStep,
-  valueScale
+  valueScale,
+  withReferences
 } from './chart';
 import type {
   MPChartAxis,
   MPChartCategory,
   MPChartLegend,
+  MPChartReference,
   MPChartSeries,
   MPChartTooltip,
   MPChartTooltipItem,
@@ -442,6 +446,144 @@ function ChartAxes({
   );
 }
 
+/* -------------------------------------------------------------- references */
+
+/** One reference, already in pixels and already pointed the right way. */
+interface ReferenceMark {
+  /** Where the line crosses, in pixels from the chart's edge. */
+  at: number;
+  /** And the far edge of a band. `null` for a line. */
+  to: number | null;
+  /** Whether the line itself runs top to bottom. */
+  upright: boolean;
+  label?: React.ReactNode;
+  color: string;
+  dashed: boolean;
+}
+
+/**
+ * Every reference on one axis, as pixels.
+ *
+ * `px` is that axis' own projection, so the caller's number is read on the
+ * scale it was given to and nowhere else — the value axis' 80 and the category
+ * axis' 80 are two different places and must never be confused for one.
+ */
+function referenceMarks(
+  references: readonly MPChartReference[] | undefined,
+  px: (value: number) => number,
+  upright: boolean
+): ReferenceMark[] {
+  return (references ?? [])
+    .map((one) => ({
+      ...one,
+      at: toNumber(one.value),
+      end: one.to === undefined ? null : toNumber(one.to)
+    }))
+    .filter((one) => one.at !== null)
+    .map((one) => ({
+      at: px(one.at as number),
+      to: one.end === null ? null : px(one.end),
+      upright,
+      label: one.label,
+      // Never a palette slot, which is what `seriesColor` falls back to with
+      // nothing named: a reference is not a series and must not look like one.
+      color: one.color ? seriesColor(0, one.color) : 'var(--_mp-color-outline)',
+      dashed: one.dashed !== false
+    }));
+}
+
+/**
+ * The lines and bands a reader brought with them, drawn across the plot.
+ *
+ * In two passes, and the split is the whole of the design. A **band** is a
+ * region the marks stand in, so it goes under them — a fill over a bar is a
+ * bar the reader has to look through. A **line** is a level the marks are
+ * measured against, so it goes over them, because the one thing a target must
+ * not be is hidden behind the series that crossed it.
+ */
+function ChartReferences({
+  marks,
+  plot,
+  pass,
+  fontSize
+}: {
+  marks: readonly ReferenceMark[];
+  plot: PlotBox;
+  pass: 'band' | 'line';
+  fontSize: number;
+}) {
+  if (marks.length === 0) {
+    return null;
+  }
+
+  return (
+    <g className={`mp-chart__references mp-chart__references--${pass}`} aria-hidden="true">
+      {marks.map((mark, index) => {
+        const box = (from: number, to: number) =>
+          mark.upright
+            ? {
+                x: Math.min(from, to),
+                y: plot.top,
+                width: Math.abs(to - from),
+                height: plot.height
+              }
+            : {
+                x: plot.left,
+                y: Math.min(from, to),
+                width: plot.width,
+                height: Math.abs(to - from)
+              };
+
+        if (pass === 'band') {
+          if (mark.to === null) {
+            return null;
+          }
+
+          return <rect key={index} {...box(mark.at, mark.to)} fill={mark.color} opacity={0.12} />;
+        }
+
+        /* A band is bounded by both of its edges, and a reader who can only see
+           one of them has been shown a line. */
+        const edges = mark.to === null ? [mark.at] : [mark.at, mark.to];
+
+        return (
+          <g key={index}>
+            {edges.map((edge) => (
+              <line
+                key={edge}
+                x1={mark.upright ? edge : plot.left}
+                x2={mark.upright ? edge : plot.left + plot.width}
+                y1={mark.upright ? plot.top : edge}
+                y2={mark.upright ? plot.top + plot.height : edge}
+                stroke={mark.color}
+                strokeWidth={1}
+                // Dashed unless the caller says otherwise, so a reference is
+                // never mistaken for a gridline or for the baseline.
+                strokeDasharray={mark.dashed ? '4 3' : undefined}
+              />
+            ))}
+
+            {/* The name, at the end of the line rather than at its middle:
+                the middle is where the data is. An upright line hangs it from
+                the top, and a level one writes it above the right-hand end. */}
+            {mark.label === undefined || mark.label === null || mark.label === '' ? null : (
+              <text
+                x={mark.upright ? mark.at + 4 : plot.left + plot.width}
+                y={mark.upright ? plot.top + fontSize : mark.at - 4}
+                textAnchor={mark.upright ? 'start' : 'end'}
+                fill={mark.color}
+                fontSize={fontSize}
+              >
+                {mark.label}
+              </text>
+            )}
+          </g>
+        );
+      })}
+    </g>
+  );
+}
+
 /* ------------------------------------------------------------------- marks */
 
 /**
@@ -661,6 +803,7 @@ export function CartesianFrame({
   const measured = useMPElementSize(hostRef);
   const width = measured.width;
   const tableId = React.useId();
+  const notesId = React.useId();
 
   const visibility = useVisibility(series);
   const [columnIndex, setColumnIndex] = React.useState<number | null>(null);
@@ -706,7 +849,7 @@ export function CartesianFrame({
      not knowable until the ticks exist. */
   const scale =
     givenScale ??
-    valueScale(extent, {
+    valueScale(withReferences(extent, valueAxis?.references), {
       min: valueAxis?.min,
       max: valueAxis?.max,
       tickCount: valueAxis?.tickCount,
@@ -722,7 +865,7 @@ export function CartesianFrame({
   const spread = xScale === 'value' ? categoryExtent(shown, categories) : null;
   const categoryScale =
     xScale === 'value'
-      ? valueScale(spread, {
+      ? valueScale(withReferences(spread, categoryAxis?.references), {
           min: categoryAxis?.min,
           max: categoryAxis?.max,
           tickCount: categoryAxis?.tickCount,
@@ -978,6 +1121,33 @@ export function CartesianFrame({
   );
 
   const zeroPx = valuePx(Math.min(Math.max(0, scale.min), scale.max));
+
+  /*
+   * The references, in pixels.
+   *
+   * A reference is drawn perpendicular to the axis it was given to, so which
+   * way round it runs is the orientation's business and not the caller's: the
+   * value axis' own line is upright exactly when the chart is turned on its
+   * side. The category axis is only asked when it has a scale — a row of names
+   * has no place between two of them for a line to be at.
+   */
+  const references = [
+    ...referenceMarks(valueAxis?.references, valuePx, horizontal),
+    ...(categoryScale ? referenceMarks(categoryAxis?.references, categoryValuePx, !horizontal) : [])
+  ];
+
+  /* A reference as the readout says it. A `Date` is written as a date rather
+     than as the epoch milliseconds it is on the scale, which is the number and
+     not the fact. */
+  const spokenReference = (value: number | Date) =>
+    value instanceof Date ? formatCategory(value, locale) : formatValue(value);
+
+  /* The same references as words. Only the named ones: a line with no label is
+     one there is nothing to say about, and "80" on its own is not a fact. */
+  const spokenReferences = [
+    ...(valueAxis?.references ?? []),
+    ...(categoryScale ? (categoryAxis?.references ?? []) : [])
+  ].filter((one) => one.label !== undefined && one.label !== null && one.label !== '');
 
   const layout: CartesianLayout = {
     plot,
@@ -1267,7 +1437,12 @@ export function CartesianFrame({
       // Never the bare prop: `label` is optional, and a focusable `role="img"`
       // with nothing to be called by is a tab stop that announces silence.
       name={label ?? words.label}
-      describedBy={nothing ? undefined : tableId}
+      // Two ids where there is a second thing to read. A reference is a fact
+      // the reader brought with them and the table has no column for it, so a
+      // reader who cannot see the line has to be told about it some other way.
+      describedBy={
+        nothing ? undefined : spokenReferences.length > 0 ? `${tableId} ${notesId}` : tableId
+      }
       interactive={!nothing}
       height={height}
       legendSide={legendSide}
@@ -1351,9 +1526,9 @@ export function CartesianFrame({
       }
       status={{ heading, items }}
       table={
-        nothing
-          ? null
-          : (givenTable?.(tableId) ?? (
+        nothing ? null : (
+          <>
+            {givenTable?.(tableId) ?? (
               <ChartTable
                 id={tableId}
                 caption={label ?? words.table}
@@ -1365,7 +1540,22 @@ export function CartesianFrame({
                 locale={locale}
                 empty={table.empty}
               />
-            ))
+            )}
+
+            {spokenReferences.length === 0 ? null : (
+              <ul id={notesId} className={VISUALLY_HIDDEN}>
+                {spokenReferences.map((one, index) => (
+                  <li key={index}>
+                    {one.label}:{' '}
+                    {one.to === undefined
+                      ? spokenReference(one.value)
+                      : `${spokenReference(one.value)}–${spokenReference(one.to)}`}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </>
+        )
       }
     >
       {nothing ? (
@@ -1398,6 +1588,8 @@ export function CartesianFrame({
             tickBand={bottomTickBand}
           />
 
+          <ChartReferences marks={references} plot={plot} pass="band" fontSize={fontSize} />
+
           {/* No crosshair on a chart with marks, whatever mode was asked for: a
               crosshair says "these numbers all belong to this column", and where
               there is no column it is a line through one dot. */}
@@ -1428,6 +1620,9 @@ export function CartesianFrame({
             : null}
 
           {children(context)}
+
+          {/* Over the marks, and the bands under them. See `ChartReferences`. */}
+          <ChartReferences marks={references} plot={plot} pass="line" fontSize={fontSize} />
         </svg>
       ) : null}
     </ChartShell>

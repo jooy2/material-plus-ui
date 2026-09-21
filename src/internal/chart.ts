@@ -474,6 +474,34 @@ export function extentOf(
 }
 
 /**
+ * An extent opened out to hold the places a caller has marked.
+ *
+ * A target line above everything measured is the case this exists for: cropped
+ * out of the scale it is a line the reader cannot see, which is the one thing a
+ * target must never be. A band counts both of its ends.
+ *
+ * `null` in and nothing marked is still `null` — a chart with no data and one
+ * reference is a chart of a line, and there is no picture to draw.
+ */
+export function withReferences(
+  extent: { min: number; max: number } | null,
+  references: readonly { value: number | Date; to?: number | Date }[] | undefined
+): { min: number; max: number } | null {
+  const marks = (references ?? [])
+    .flatMap((one) => [toNumber(one.value), one.to === undefined ? null : toNumber(one.to)])
+    .filter((value): value is number => value !== null);
+
+  if (marks.length === 0 || extent === null) {
+    return extent;
+  }
+
+  return {
+    min: Math.min(extent.min, ...marks),
+    max: Math.max(extent.max, ...marks)
+  };
+}
+
+/**
  * The lowest and highest a set of series reaches.
  *
  * Stacked is a different question rather than a variation on the same one: what

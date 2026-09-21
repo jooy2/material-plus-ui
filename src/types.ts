@@ -499,6 +499,64 @@ export interface MPChartAxis {
    * more, or when two charts stacked on a dashboard have to line their plots up.
    */
   thickness?: number;
+  /**
+   * Lines and bands drawn across the plot at places on **this** axis' scale — a
+   * target, a threshold, the range a reading should stay inside.
+   *
+   * The scale is widened to hold them, because a target the plot is cropped
+   * above is a target nobody can see. Pin `min` or `max` to stop that.
+   *
+   * Read by an axis that has a scale: the value axis always, and the category
+   * axis where it runs on numbers rather than on names. A row of categories has
+   * no place between two of them for a line to be at.
+   */
+  references?: readonly MPChartReference[];
+}
+
+/**
+ * A line drawn across the plot at a place on one of its scales, or a band where
+ * it has two ends.
+ *
+ * A target, a service level, the day a release went out, the range a reading is
+ * meant to stay inside. It is **not** data: it is a fact the reader brought
+ * with them, so it is drawn in the chrome's ink rather than out of the series
+ * palette, and a chart is never asked to invent one.
+ *
+ * The axis it is given to is the scale its `value` is on, which is also the
+ * axis it is drawn perpendicular to — a reference on the value axis of an
+ * upright chart is a horizontal line, and the same reference on a chart turned
+ * on its side is a vertical one.
+ */
+export interface MPChartReference {
+  /**
+   * Where it sits, on that axis' own scale. A `Date` on an axis of dates, which
+   * is the one place a reference is most often asked for — today, a release, a
+   * deadline.
+   */
+  value: number | Date;
+  /**
+   * And where it ends, which makes it a **band** rather than a line: the range
+   * a reading should stay inside, the window something was down for.
+   */
+  to?: number | Date;
+  /**
+   * What it is called, written at its own end of the line and read out with the
+   * chart. A line nobody can name is a line nobody can use.
+   */
+  label?: React.ReactNode;
+  /**
+   * Which family it wears. An `MPColor`, or any CSS colour.
+   *
+   * The outline role by default, which is what keeps a reference reading as
+   * chrome rather than as another series. `error` is the one worth reaching
+   * for: a threshold somebody is watching is exactly what that role is for.
+   */
+  color?: MPColor | (string & {});
+  /**
+   * Draws it dashed, so it cannot be mistaken for a gridline or a baseline.
+   * @default true
+   */
+  dashed?: boolean;
 }
 
 /** Where the legend sits, and what it does when it is used. */

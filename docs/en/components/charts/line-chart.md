@@ -7,7 +7,7 @@ order: 32
 
 <p class="mp-lede">A quantity over an ordered axis — how it has moved, and where it is going. Two axes, a grid, a legend and a hover layer, all of it drawn by hand and none of it a dependency.</p>
 
-<Demo src="line-chart/hero" :minHeight="900" />
+<Demo src="line-chart/hero" :minHeight="1120" />
 
 ```tsx
 import { MPLineChart } from 'material-plus-ui';
@@ -39,6 +39,20 @@ A `null` is a point nothing was measured at, and the line breaks there. It is no
 `gaps` is there for the two cases where breaking is the wrong reading. `gaps="connect"` joins the two sides and draws the joining run **dashed** — the line carries on, and the picture still says which part of it was measured. `gaps="zero"` draws the missing reading at zero and widens the value axis to hold it, which is right where a gap means "none of it happened" and wrong where it means "nobody was counting".
 
 Only the drawing changes. The hover panel and the table behind the chart report a gap as a gap in all three, because they are the copy of the data a reader gets when they need the number itself.
+
+## A target is a reference, not a series
+
+`yAxis={{ references: [{ value: 300, label: 'SLO', color: 'error' }] }}` draws a dashed line across the plot at 300 and writes its name at the end of it. Give a reference a `to` as well and it is a **band** instead — the range a reading should stay inside, the window something was down for — with both edges drawn and the room between them filled.
+
+It is deliberately not data. A reference is a fact the reader brought with them, so it wears the chrome's ink rather than a palette slot, it is dashed so it cannot be mistaken for a gridline, and the chart never invents one. `color` takes a role for the case worth having: a threshold somebody is watching is exactly what `error` is for.
+
+**The scale opens to hold it.** A target above everything measured would otherwise be cropped out of the picture, which is the one thing a target must never be. Pin `min` or `max` to stop that.
+
+A band is drawn **under** the marks and a line **over** them. A fill over a bar is a bar the reader has to look through; a target hidden behind the series that crossed it is a target nobody can read.
+
+References belong to the axis whose scale their `value` is on, and they are drawn perpendicular to it — so the same reference is a horizontal line upright and a vertical one on a chart turned on its side. An axis of names has no place between two categories for a line to be at, so only an axis with a scale reads them: the value axis always, and the category axis where it runs on numbers, as [MPScatterChart](scatter-chart)'s does. A `value` may be a `Date` on an axis of dates.
+
+A named reference is read out with the chart, beside the table, because the table has no column for it.
 
 ## The hover layer is on by default
 

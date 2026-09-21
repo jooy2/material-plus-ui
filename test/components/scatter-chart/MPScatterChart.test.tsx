@@ -211,6 +211,29 @@ describe('MPScatterChart', () => {
     expect(plot().textContent).toBe('No data');
   });
 
+  it('takes a reference on the category axis, because that axis has a scale', async () => {
+    // A row of names has no place between two of them for a line to be at.
+    // Two value axes is the one plot where both of them do.
+    await render(
+      <MPScatterChart
+        series={RUNS}
+        xAxis={{ references: [{ value: 18, label: 'Release' }] }}
+        yAxis={{ references: [{ value: 5, label: 'Budget' }] }}
+        locale="en-US"
+      />
+    );
+    await drawn();
+
+    const lines = () => Array.from(document.querySelectorAll('.mp-chart__references--line line'));
+
+    await expect.poll(() => lines().length).toBe(2);
+    // One runs top to bottom and the other left to right, whichever order they
+    // were built in.
+    const upright = lines().filter((line) => line.getAttribute('x1') === line.getAttribute('x2'));
+
+    expect(upright.length).toBe(1);
+  });
+
   it('describes the picture with the numbers behind it', async () => {
     await render(<MPScatterChart series={RUNS} label="Duration against load" locale="en-US" />);
     await drawn();

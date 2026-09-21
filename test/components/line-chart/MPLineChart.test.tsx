@@ -488,6 +488,139 @@ describe('MPLineChart', () => {
     await expect.poll(() => label()?.getAttribute('fill')).toBe('var(--_mp-chart-1)');
   });
 
+  describe('references', () => {
+    const lines = () => Array.from(document.querySelectorAll('.mp-chart__references--line line'));
+    const bands = () => Array.from(document.querySelectorAll('.mp-chart__references--band rect'));
+
+    it('draws a dashed line across the plot, in the chrome ink', async () => {
+      // A reference is not a series and must not look like one, so it never
+      // takes a palette slot and it is dashed rather than solid.
+      await render(
+        <MPLineChart
+          categories={CATEGORIES}
+          series={ONE}
+          yAxis={{ references: [{ value: 150, label: 'Target' }] }}
+          locale="en-US"
+        />
+      );
+      await drawn();
+
+      await expect.poll(() => lines().length).toBe(1);
+      expect(lines()[0]?.getAttribute('stroke')).toBe('var(--_mp-color-outline)');
+      expect(lines()[0]?.getAttribute('stroke-dasharray')).toBeTruthy();
+    });
+
+    it('opens the scale to hold a target above everything measured', async () => {
+      // A target the plot is cropped above is a target nobody can see, which is
+      // the one thing a target must never be.
+      await render(
+        <MPLineChart
+          categories={CATEGORIES}
+          series={ONE}
+          yAxis={{ references: [{ value: 400 }] }}
+          locale="en-US"
+        />
+      );
+      await drawn();
+
+      await expect
+        .poll(() =>
+          Array.from(document.querySelectorAll('.mp-chart__axes text')).map(
+            (node) => node.textContent
+          )
+        )
+        .toContain('400');
+    });
+
+    it('is a band when it has two ends, with both of them drawn', async () => {
+      await render(
+        <MPLineChart
+          categories={CATEGORIES}
+          series={ONE}
+          yAxis={{ references: [{ value: 130, to: 170 }] }}
+          locale="en-US"
+        />
+      );
+      await drawn();
+
+      await expect.poll(() => bands().length).toBe(1);
+      // A reader who can only see one edge of a band has been shown a line.
+      expect(lines().length).toBe(2);
+    });
+
+    it('puts the band under the marks and the line over them', async () => {
+      // A fill over a bar is a bar the reader has to look through; a target
+      // behind the series that crossed it is a target nobody can read.
+      await render(
+        <MPLineChart
+          categories={CATEGORIES}
+          series={ONE}
+          yAxis={{ references: [{ value: 130, to: 170 }] }}
+          locale="en-US"
+        />
+      );
+      await drawn();
+
+      const svgChildren = Array.from(svg()?.children ?? []).map((node) =>
+        node.getAttribute('class')
+      );
+      const band = svgChildren.findIndex((name) => name?.includes('--band'));
+      const marks = svgChildren.findIndex((name) => name?.includes('mp-line-chart__marks'));
+      const line = svgChildren.findIndex((name) => name?.includes('--line'));
+
+      expect(band).toBeLessThan(marks);
+      expect(line).toBeGreaterThan(marks);
+    });
+
+    it('tells a reader who cannot see the line what it was', async () => {
+      await render(
+        <MPLineChart
+          categories={CATEGORIES}
+          series={ONE}
+          label="Signups"
+          yAxis={{ references: [{ value: 150, label: 'Target' }] }}
+          locale="en-US"
+        />
+      );
+      await drawn();
+
+      const ids = plot().getAttribute('aria-describedby')?.split(' ') ?? [];
+
+      expect(ids.length).toBe(2);
+      expect(document.getElementById(ids[1])?.textContent).toContain('Target');
+      expect(document.getElementById(ids[1])?.textContent).toContain('150');
+    });
+
+    it('says nothing about a line nobody named', async () => {
+      await render(
+        <MPLineChart
+          categories={CATEGORIES}
+          series={ONE}
+          yAxis={{ references: [{ value: 150 }] }}
+          locale="en-US"
+        />
+      );
+      await drawn();
+
+      expect(plot().getAttribute('aria-describedby')?.split(' ').length).toBe(1);
+    });
+
+    it('takes a colour role, for the threshold somebody is watching', async () => {
+      await render(
+        <MPLineChart
+          categories={CATEGORIES}
+          series={ONE}
+          yAxis={{ references: [{ value: 150, color: 'error', dashed: false }] }}
+          locale="en-US"
+        />
+      );
+      await drawn();
+
+      await expect.poll(() => lines()[0]?.getAttribute('stroke')).toBe('var(--_mp-color-error)');
+      expect(lines()[0]?.getAttribute('stroke-dasharray')).toBeNull();
+    });
+  });
+
   it('writes its words in the locale it was given', async () => {
     await render(<MPLineChart series={[]} locale="ko" />);
 

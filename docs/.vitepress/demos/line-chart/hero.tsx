@@ -59,6 +59,28 @@ export default function LineChartHero() {
           />
         </MPBox>
       </MPFlex>
+
+      <MPFlex direction="column" gap={8}>
+        <MPTypography level="caption">
+          A service level to keep under and a band to stay inside, neither of them data.
+        </MPTypography>
+
+        <MPBox variant="outlined" padded>
+          <MPLineChart
+            label="Response time against its service level"
+            categories={MONTHS}
+            series={LATENCY}
+            size="sm"
+            format={{ style: 'unit', unit: 'millisecond' }}
+            yAxis={{
+              references: [
+                { value: 350, label: 'SLO', color: 'error' },
+                { value: 280, to: 320, label: 'Target' }
+              ]
+            }}
+          />
+        </MPBox>
+      </MPFlex>
     </MPFlex>
   );
 }
