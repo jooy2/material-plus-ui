@@ -11,7 +11,7 @@ import {
   withoutGaps,
   type PlotPoint
 } from '../../internal/chart';
-import type { MPChartCurve, MPChartGaps, MPChartValueLabels } from '../../types';
+import type { MPChartCurve, MPChartGaps, MPChartStack, MPChartValueLabels } from '../../types';
 
 export interface MPAreaChartProps extends CartesianChartProps {
   /**
@@ -27,9 +27,13 @@ export interface MPAreaChartProps extends CartesianChartProps {
    * changes with it: unstacked areas are read against the axis one at a time,
    * and a stack is read as a composition. Only the bottom band and the total
    * are easy to read in a stack, which is the trade it makes.
+   *
+   * `'percent'` fills the plot, so the top edge is flat and what is left is the
+   * composition alone — the shape a share-of-traffic chart wants. A negative
+   * has no share of a whole and is left out of one.
    * @default false
    */
-  stacked?: boolean;
+  stacked?: MPChartStack;
   /**
    * The dots on the joins. `auto` draws them on an unstacked chart with room
    * for them and never on a stack, where a vertex belongs to a boundary rather
@@ -143,7 +147,8 @@ export function MPAreaChart({
         size,
         hovered,
         activeIndex,
-        format
+        format,
+        share
       }) => {
         const stroke = LINE_WIDTH[size];
         const radius = MARKER_RADIUS[size];
@@ -166,6 +171,25 @@ export function MPAreaChart({
          */
         const edges = values.map(() => ({ top: [] as PlotPoint[], base: [] as PlotPoint[] }));
 
+        /*
+         * What one band is worth, which on a percent stack is its share of its
+         * own column rather than its value. The whole is the visible positives
+         * at that category, and a negative has no share of one.
+         */
+        const totals =
+          stacked === 'percent'
+            ? Array.from({ length: count }, (_, at) =>
+                values.reduce((sum, one, series) => {
+                  const value = visible[series] ? (one[at]?.value ?? 0) : 0;
+
+                  return sum + (value > 0 ? value : 0);
+                }, 0)
+              )
+            : null;
+
+        const shareOf = (value: number, at: number): number | null =>
+          totals === null ? value : value >= 0 && totals[at] > 0 ? value / totals[at] : null;
+
         for (let at = 0; at < count; at += 1) {
           let up = 0;
           let down = 0;
@@ -175,7 +199,8 @@ export function MPAreaChart({
             // `zero` reads a missing month as a month of none, which is a claim
             // about the data rather than about the drawing — and the reason it
             // is a prop rather than the default.
-            const value = measured === null && gaps === 'zero' ? 0 : measured;
+            const raw = measured === null && gaps === 'zero' ? 0 : measured;
+            const value = raw === null ? null : shareOf(raw, at);
 
             if (!visible[series] || value === null) {
               edges[series].top.push(null);
@@ -329,7 +354,13 @@ export function MPAreaChart({
                             fill={labelInk(index)}
                             fontSize={size === 'xs' || size === 'sm' ? 10 : 11}
                           >
-                            {value.label ?? format(value.value)}
+                            {/* On a percent stack the picture is the share, so
+                                that is what is written on it. The value is in
+                                the panel and in the table. */}
+                            {value.label ??
+                              (totals === null
+                                ? format(value.value)
+                                : share(shareOf(value.value, i) ?? 0))}
                           </text>
                         );
                       })}

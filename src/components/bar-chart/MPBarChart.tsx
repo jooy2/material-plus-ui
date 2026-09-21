@@ -14,7 +14,7 @@ import {
   toValues,
   type BarEnd
 } from '../../internal/chart';
-import type { MPChartValueLabels } from '../../types';
+import type { MPChartStack, MPChartValueLabels } from '../../types';
 
 export interface MPBarChartProps extends CartesianChartProps {
   /**
@@ -25,9 +25,13 @@ export interface MPBarChartProps extends CartesianChartProps {
    * shows what makes them up. Both cannot be true at once, and picking the
    * wrong one is the most common way a bar chart answers a question nobody
    * asked.
+   *
+   * `'percent'` fills every bar, so what is compared is the composition and the
+   * totals leave the picture entirely. A negative has no share of a whole and
+   * is left out of one, the way `MPPieChart` leaves it out.
    * @default false
    */
-  stacked?: boolean;
+  stacked?: MPChartStack;
   /**
    * Turns the chart on its side, so the bars run left to right.
    *
@@ -173,6 +177,36 @@ export function MPBarChart({
         const drawn = values.map((_, index) => index).filter((index) => visible[index]);
 
         /*
+         * What one bar is worth, which on a percent stack is its share of its
+         * own column rather than its value.
+         *
+         * The whole is the visible positives at that category, which is the
+         * same whole the panel divides by. A negative has no share of one, so
+         * it is left out rather than drawn as an absolute — the rule
+         * `MPPieChart` already follows, for the same reason.
+         */
+        const totals =
+          stacked === 'percent'
+            ? Array.from({ length: count }, (_, at) =>
+                drawn.reduce((sum, series) => {
+                  const value = values[series][at]?.value ?? 0;
+
+                  return sum + (value > 0 ? value : 0);
+                }, 0)
+              )
+            : null;
+
+        const reading = (series: number, at: number): number | null => {
+          const value = values[series][at]?.value ?? null;
+
+          if (value === null || totals === null) {
+            return value;
+          }
+
+          return value >= 0 && totals[at] > 0 ? value / totals[at] : null;
+        };
+
+        /*
          * How thick one bar is, and where in its slot it sits.
          *
          * Grouped, the band is divided between the visible series and each
@@ -200,7 +234,7 @@ export function MPBarChart({
               return (
                 <g key={series} opacity={dimmed ? 0.25 : 1}>
                   {Array.from({ length: count }, (_, at) => {
-                    const value = one[at]?.value ?? null;
+                    const value = reading(series, at);
 
                     if (value === null) {
                       return null;
@@ -220,7 +254,7 @@ export function MPBarChart({
                       let down = 0;
 
                       for (const other of drawn) {
-                        const amount = values[other][at]?.value ?? null;
+                        const amount = reading(other, at);
 
                         if (amount === null) {
                           continue;

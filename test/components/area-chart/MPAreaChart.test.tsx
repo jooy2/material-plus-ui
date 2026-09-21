@@ -178,6 +178,57 @@ describe('MPAreaChart', () => {
       .toBe(8);
   });
 
+  it('fills the plot when the stack is a percent one', async () => {
+    // What a percent stack compares is the composition, so the top edge is flat
+    // and the totals leave the picture entirely.
+    await render(
+      <MPAreaChart
+        categories={CATEGORIES}
+        series={[
+          { name: 'Storage', data: [10, 100, 1, 50] },
+          { name: 'Backups', data: [30, 300, 3, 50] }
+        ]}
+        stacked="percent"
+        locale="en-US"
+      />
+    );
+    await drawn();
+
+    await expect.poll(() => bands().length).toBe(2);
+    // The three columns whose two parts are in the same proportion put the
+    // boundary between them at the same height.
+    const boundary = ys(edges()[0]);
+
+    expect(new Set(boundary.slice(0, 3).map(Math.round)).size).toBe(1);
+  });
+
+  it('writes the share rather than the value on a percent stack', async () => {
+    await render(
+      <MPAreaChart
+        categories={['a', 'b']}
+        series={[
+          { name: 'Storage', data: [25, 25] },
+          { name: 'Backups', data: [75, 75] }
+        ]}
+        stacked="percent"
+        valueLabels="all"
+        locale="en-US"
+      />
+    );
+    await drawn();
+
+    const written = () =>
+      Array.from(document.querySelectorAll('.mp-area-chart__marks text')).map(
+        (node) => node.textContent
+      );
+
+    // Each band writes its **own** share rather than the running total: a label
+    // on the top band saying 100% would be the stack's number and not its own.
+    await expect.poll(written).toContain('25%');
+    expect(written()).toContain('75%');
+    expect(written()).not.toContain('100%');
+  });
+
   it('closes the fill across a gap when asked, and marks the joining edge', async () => {
     // The fill either side of a closed gap is one shape; the dashed edge is the
     // part of its outline the chart is guessing at.

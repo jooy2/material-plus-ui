@@ -34,6 +34,10 @@ A line encodes **position** and claims nothing about proportion, which is why [M
 
 If the comparison between parts is what matters, that is a grouped bar chart or small multiples, not a stack.
 
+`stacked="percent"` normalises it: the top edge is flat, the plot is full, and the only thing left in the picture is the composition. It is the shape a share-of-traffic chart wants, and it trades away the totals to get it — two months with wildly different volume are drawn the same. A negative has no share of a whole and is left out of one; the table still has the number.
+
+Value labels on a percent stack write each band's **own** share rather than the running total, since the running total is the stack's number and not the band's.
+
 ## The gap between bands comes from above
 
 Two touching fills read as one shape, so a stack leaves two pixels of the page between neighbours. That gap is taken entirely from the band **above** the boundary: every band's top edge stays exactly where its cumulative total puts it, because that edge is the data and moving it to make room would be reporting a number the series does not have.

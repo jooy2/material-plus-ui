@@ -326,6 +326,27 @@ export interface MPTimelineSeries {
   color?: MPColor | (string & {});
 }
 
+/**
+ * How the series of a stacking chart are piled up.
+ *
+ * - `false` — side by side, or overlapping. The parts are compared with each
+ *   other.
+ * - `true` — on each other, so the far edge is the total. The totals are
+ *   compared and the parts make them up.
+ * - `'percent'` — on each other and normalised, so every column is full. The
+ *   **composition** is compared and the totals are gone from the picture.
+ *
+ * A percent stack answers "what is this made of" and refuses to answer "how
+ * much of it is there", which is the trade it makes and the reason it is a
+ * third setting rather than a flag on the second. Two columns of wildly
+ * different size are drawn identically, so the total belongs somewhere else on
+ * the page — a figure beside the chart, or a second chart.
+ *
+ * A negative has no share of a whole, so a percent stack leaves it out the way
+ * `MPPieChart` does. The table behind the chart still has the number.
+ */
+export type MPChartStack = boolean | 'percent';
+
 /** How a line gets from one point to the next. */
 export type MPChartCurve = 'linear' | 'smooth' | 'step';
 

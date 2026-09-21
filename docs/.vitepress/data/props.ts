@@ -3212,11 +3212,11 @@ const componentTables: Record<string, PropRow[]> = {
     ...chartBase,
     {
       name: 'stacked',
-      type: 'boolean',
+      type: "boolean | 'percent'",
       default: 'false',
       description: {
-        ko: '계열을 서로 위에 쌓아 맨 위 가장자리가 합계가 되게 합니다. 구성을 보여주는 모양이고, 대가는 곧은 기준선을 두고 읽을 수 있는 것이 맨 아래 밴드와 합계뿐이라는 점입니다',
-        en: 'Stacks the series on each other, so the top edge is the total and each band is one part of it. The shape for a composition, and its cost is that only the bottom band and the total have a straight edge to be read against'
+        ko: '계열을 서로 위에 쌓아 맨 위 가장자리가 합계가 되게 합니다. 구성을 보여주는 모양이고, 대가는 곧은 기준선을 두고 읽을 수 있는 것이 맨 아래 밴드와 합계뿐이라는 점입니다. `percent`는 플롯을 가득 채워 윗변을 평평하게 만들고 구성만 남깁니다 — 몫에 전체의 몫이 없는 음수는 빠집니다',
+        en: 'Stacks the series on each other, so the top edge is the total and each band is one part of it. The shape for a composition, and its cost is that only the bottom band and the total have a straight edge to be read against. `percent` fills the plot instead, flattening the top edge and leaving the composition alone — a negative has no share of a whole and is left out of one'
       }
     },
     {
@@ -3261,11 +3261,11 @@ const componentTables: Record<string, PropRow[]> = {
     ...chartBase,
     {
       name: 'stacked',
-      type: 'boolean',
+      type: "boolean | 'percent'",
       default: 'false',
       description: {
-        ko: '계열을 항목마다 막대 하나로 쌓습니다. 나란히 세우면 부분끼리 비교하고, 쌓으면 합계를 비교합니다. 둘 다일 수는 없습니다',
-        en: 'Stacks the series into one bar per category instead of standing them side by side. Grouped compares the parts with each other; stacked compares the totals. Both cannot be true at once'
+        ko: '계열을 항목마다 막대 하나로 쌓습니다. 나란히 세우면 부분끼리 비교하고, 쌓으면 합계를 비교합니다. 둘 다일 수는 없습니다. `percent`는 모든 막대를 가득 채워 합계를 그림에서 완전히 빼고 구성만 견주게 합니다 — 전체의 몫이 없는 음수는 빠집니다',
+        en: 'Stacks the series into one bar per category instead of standing them side by side. Grouped compares the parts with each other; stacked compares the totals. Both cannot be true at once. `percent` fills every bar, taking the totals out of the picture entirely so that what is compared is the composition — a negative has no share of a whole and is left out of one'
       }
     },
     {

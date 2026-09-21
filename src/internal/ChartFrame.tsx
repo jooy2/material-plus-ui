@@ -27,6 +27,7 @@ import {
   categoryExtent,
   fitsLast,
   formatCategory,
+  formatShare,
   formatStatistic,
   seriesColor,
   seriesExtent,
@@ -49,6 +50,7 @@ import type {
   MPChartLegend,
   MPChartReference,
   MPChartSeries,
+  MPChartStack,
   MPChartTooltip,
   MPChartTooltipItem,
   MPChartTooltipMode,
@@ -668,6 +670,8 @@ export interface CartesianLayout {
   zeroPx: number;
   categories: readonly MPChartCategory[];
   format: (value: number) => string;
+  /** A fraction as the chart writes a share — whole percentages. */
+  share: (fraction: number) => string;
   size: MPSize;
 }
 
@@ -730,8 +734,8 @@ interface CartesianFrameProps extends CartesianChartProps {
   } | null;
   /** Bars, and only bars, run the other way. */
   horizontal?: boolean;
-  /** The value axis measures totals rather than parts. */
-  stacked?: boolean;
+  /** The value axis measures totals rather than parts, or shares of one. */
+  stacked?: MPChartStack;
   /** A line chart may leave zero out; a bar chart may not. */
   includeZero?: boolean;
   /** How much of a band the marks take. Bars need room reserved; lines do not. */
@@ -831,7 +835,15 @@ export function CartesianFrame({
   );
 
   const shown = values.filter((_, index) => visibility.visible[index]);
-  const extent = seriesExtent(shown, stacked);
+  /*
+   * A percent stack has no extent to find: every column is full, so the axis
+   * runs 0 to 1 whatever the numbers are. That is the whole of what the setting
+   * does to the frame — the arithmetic that turns a value into its share
+   * belongs to the chart drawing the marks, which is the only thing that knows
+   * what a column of them is.
+   */
+  const percent = stacked === 'percent';
+  const extent = percent ? { min: 0, max: 1 } : seriesExtent(shown, Boolean(stacked));
   const fontSize = CHART_FONT_SIZE[size];
 
   /*
@@ -849,10 +861,10 @@ export function CartesianFrame({
      not knowable until the ticks exist. */
   const scale =
     givenScale ??
-    valueScale(withReferences(extent, valueAxis?.references), {
-      min: valueAxis?.min,
-      max: valueAxis?.max,
-      tickCount: valueAxis?.tickCount,
+    valueScale(percent ? extent : withReferences(extent, valueAxis?.references), {
+      min: percent ? 0 : valueAxis?.min,
+      max: percent ? 1 : valueAxis?.max,
+      tickCount: valueAxis?.tickCount ?? (percent ? 4 : undefined),
       includeZero
     });
 
@@ -874,7 +886,11 @@ export function CartesianFrame({
       : null;
 
   const tickTexts = scale.ticks.map((tick, index) =>
-    valueAxis?.tickFormat ? String(valueAxis.tickFormat(tick, index)) : formatValue(tick)
+    valueAxis?.tickFormat
+      ? String(valueAxis.tickFormat(tick, index))
+      : percent
+        ? formatShare(tick, locale)
+        : formatValue(tick)
   );
 
   /* `format` belongs to the value axis and is deliberately not borrowed for the
@@ -1167,6 +1183,7 @@ export function CartesianFrame({
     zeroPx,
     categories: labels,
     format: formatValue,
+    share: (fraction) => formatShare(fraction, locale),
     size
   };
 
@@ -1319,6 +1336,23 @@ export function CartesianFrame({
     event.preventDefault();
   };
 
+  /*
+   * What the column under the pointer adds up to, for a chart whose marks are
+   * shares of it.
+   *
+   * Only the positives, and only the visible ones — the same whole the marks
+   * were drawn against. A panel that divided by a different total would print a
+   * percentage the picture does not show.
+   */
+  const columnTotal =
+    activeIndex === null || !percent
+      ? 0
+      : values.reduce((sum, one, index) => {
+          const value = visibility.visible[index] ? one[activeIndex]?.value : null;
+
+          return sum + (value !== null && value !== undefined && value > 0 ? value : 0);
+        }, 0);
+
   const column: MPChartTooltipItem[] =
     activeIndex === null
       ? []
@@ -1342,7 +1376,13 @@ export function CartesianFrame({
               name: one.name,
               color: value.color ?? colors[index],
               value: value.value,
-              formatted: formatValue(value.value),
+              // On a percent stack, both: the share is what the picture shows
+              // and the value is what the reader came for, and neither answers
+              // for the other.
+              formatted:
+                percent && columnTotal > 0 && value.value > 0
+                  ? `${formatValue(value.value)} · ${formatShare(value.value / columnTotal, locale)}`
+                  : formatValue(value.value),
               label: value.label
             }
           ];

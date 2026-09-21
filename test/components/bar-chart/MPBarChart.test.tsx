@@ -267,6 +267,93 @@ describe('MPBarChart', () => {
     await expect.poll(() => bars().length).toBe(3);
   });
 
+  describe('stacked="percent"', () => {
+    it('fills every column, whatever the totals were', async () => {
+      // What a percent stack compares is the composition. Two columns of wildly
+      // different size are drawn identically, which is the trade it makes.
+      await render(
+        <MPBarChart
+          categories={CATEGORIES}
+          series={[
+            { name: 'New', data: [10, 100, 1, 50] },
+            { name: 'Renewal', data: [30, 300, 3, 50] }
+          ]}
+          stacked="percent"
+          locale="en-US"
+        />
+      );
+      await drawn();
+
+      await expect.poll(() => bars().length).toBe(8);
+      // Every column reaches the same height, and the first series takes the
+      // same quarter of three of them.
+      const tops = bars().map((bar) => Math.round(box(bar).y));
+
+      expect(new Set(tops.slice(4)).size).toBe(1);
+      expect(Math.round(box(bars()[0]).height)).toBe(Math.round(box(bars()[1]).height));
+    });
+
+    it('runs the axis from nought to a hundred per cent', async () => {
+      await render(
+        <MPBarChart categories={CATEGORIES} series={TWO} stacked="percent" locale="en-US" />
+      );
+      await drawn();
+
+      const ticks = () =>
+        Array.from(document.querySelectorAll('.mp-chart__axes text')).map(
+          (node) => node.textContent
+        );
+
+      await expect.poll(ticks).toContain('100%');
+      expect(ticks()).toContain('0%');
+    });
+
+    it('leaves a negative out, because it has no share of a whole', async () => {
+      // The rule `MPPieChart` follows, for the same reason. The table behind
+      // the chart still has the number.
+      await render(
+        <MPBarChart
+          categories={CATEGORIES}
+          series={[
+            { name: 'New', data: [10, -10, 10, 10] },
+            { name: 'Renewal', data: [30, 30, 30, 30] }
+          ]}
+          stacked="percent"
+          locale="en-US"
+        />
+      );
+      await drawn();
+
+      // Seven bars for eight readings: the negative is not one of them.
+      await expect.poll(() => bars().length).toBe(7);
+    });
+
+    it('says both the value and its share in the panel', async () => {
+      // The share is what the picture shows and the value is what the reader
+      // came for, and neither answers for the other.
+      await render(
+        <MPBarChart
+          categories={CATEGORIES}
+          series={[
+            { name: 'New', data: [25, 25, 25, 25] },
+            { name: 'Renewal', data: [75, 75, 75, 75] }
+          ]}
+          stacked="percent"
+          locale="en-US"
+        />
+      );
+      await drawn();
+
+      plot().focus();
+      plot().dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }));
+
+      await expect
+        .poll(() => document.querySelector('.mp-chart__tooltip')?.textContent)
+        .toContain('25%');
+      expect(document.querySelector('.mp-chart__tooltip')?.textContent).toContain('75%');
+    });
+  });
+
   it('turns a long category name rather than dropping every other one', async () => {
     // A name cut to "Onbo…" has lost the thing it was there to say, and an axis
     // that dropped half of them to make the rest fit is worse again.

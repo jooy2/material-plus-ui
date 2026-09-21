@@ -66,6 +66,9 @@ const COMPACT: Intl.NumberFormatOptions = { notation: 'compact', maximumFraction
 
 const SHORT_DAY: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
 
+/** A share, as a whole percentage. See `formatShare`. */
+const SHARE: Intl.NumberFormatOptions = { style: 'percent', maximumFractionDigits: 0 };
+
 /**
  * A number as the reader should see it, compacted once it stops being readable
  * in full.
@@ -100,6 +103,27 @@ export function formatStatistic(
   }
 
   return numberFormatter(locale).format(value);
+}
+
+/**
+ * A share of a whole, as a percentage.
+ *
+ * Whole percentages, because a percent stack is read as a composition rather
+ * than measured: "about a third" is the answer it is being asked for, and
+ * `33.4%` on an axis is three characters spent on a digit nobody uses. A share
+ * under a percent is written as the `<1%` it rounds to rather than as the `0%`
+ * it is not — a slice that is there has to read as there.
+ */
+export function formatShare(share: number, locale: string | undefined): string {
+  if (!Number.isFinite(share)) {
+    return '';
+  }
+
+  if (share > 0 && share < 0.005) {
+    return `<${numberFormatter(locale, SHARE).format(0.01)}`;
+  }
+
+  return numberFormatter(locale, SHARE).format(share);
 }
 
 /** Which way a figure has moved, and whether that is the good direction. */

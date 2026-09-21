@@ -43,6 +43,22 @@ export default function BarChartHero() {
 
       <MPFlex direction="column" gap={8}>
         <MPTypography level="caption">
+          And normalised, where the mix is the point and the totals are not.
+        </MPTypography>
+
+        <MPBox variant="outlined" padded>
+          <MPBarChart
+            label="Revenue by quarter, as a mix"
+            categories={QUARTERS}
+            series={REVENUE}
+            stacked="percent"
+            size="sm"
+          />
+        </MPBox>
+      </MPFlex>
+
+      <MPFlex direction="column" gap={8}>
+        <MPTypography level="caption">
           The same five names upright, turned rather than cut to the width of one bar.
         </MPTypography>
 

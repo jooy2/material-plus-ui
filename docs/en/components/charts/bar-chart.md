@@ -7,7 +7,7 @@ order: 34
 
 <p class="mp-lede">A measured length per category — how much, next to how much else. Grouped or stacked, upright or on its side, and always from zero.</p>
 
-<Demo src="bar-chart/hero" :minHeight="1180" />
+<Demo src="bar-chart/hero" :minHeight="1420" />
 
 ```tsx
 import { MPBarChart } from 'material-plus-ui';
@@ -33,6 +33,10 @@ A bar's length is proportional to its value only from a zero baseline. Crop the 
 Side by side compares the parts with each other. Stacked compares the totals and shows what makes them up.
 
 A stack's inner segments sit on a wobbly floor and cannot be compared by eye — only the bottom segment and the total have a straight edge to be read against. Reach for it when the total is the point, and for grouping when it is not.
+
+`stacked="percent"` fills every bar instead, so the totals leave the picture entirely and what is left is the **composition**. It answers "what is this made of" and refuses to answer "how much of it is there": a quarter of 1,200 and a quarter of 12 are drawn identically. Put the total somewhere else on the page when a reader needs it — a figure beside the chart, or a second chart.
+
+A negative has no share of a whole, so a percent stack leaves it out, the way [MPPieChart](pie-chart) does. The table behind the chart still has the number, and the hover panel says both the value and its share.
 
 Hiding a series with the legend **widens** the survivors rather than leaving a hole in every category, because the band is divided between the series that are drawn.
 
