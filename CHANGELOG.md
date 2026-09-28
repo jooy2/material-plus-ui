@@ -2,6 +2,10 @@
 
 ## vNext (2026--)
 
+## 1.9.0 (2026-09-28)
+
+`material-plus-ui/a2ui` is new: A2UI's basic catalog drawn as Material Design 3, and five components of this library's own for the tables and charts an agent reporting numbers has to draw — all behind optional peer dependencies, so a project that renders no agent interfaces pays nothing for them. The rest of the release is the charts: an axis that turns a long label instead of cutting it, a line that can bridge a gap or read it as zero, a range a reader can drag out of a long axis, percent stacks, target lines and bands, and a hover panel that sorts its rows and adds up a stack.
+
 ### Added
 
 - **A chart axis turns a long label instead of cutting it.** Whichever axis runs along the bottom now reads `tickLabels`, and its default `auto` keeps the labels level while the widest of them fits its slot and turns them once it does not — 45° first, upright where even a turned label's line box will not fit between two ticks. `truncate` is the old behaviour, and `rotate` and `vertical` turn every label whether or not it needed it. `MPHeatmapChart`'s column names read the same option.
