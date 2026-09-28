@@ -1,0 +1,1 @@
+function r(e,t){return t!==void 0?t:e==="_blank"?"noopener noreferrer":void 0}const n=/[\u0000-\u0020\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]/g,u=/^([a-z][a-z0-9+.-]*):/i,o=new Set(["http:","https:","mailto:","tel:"]);function a(e){if(!e)return;const t=u.exec(e.replace(n,""));return t?o.has(`${t[1].toLowerCase()}:`)?e:void 0:e}export{r as l,a as s};

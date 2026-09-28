@@ -1,0 +1,1 @@
+const i={clipPath:"inset(50%)",overflow:"hidden",whiteSpace:"nowrap",border:0,padding:0,width:1,height:1,margin:-1},e={...i,position:"fixed",top:0,left:0},t={...i,position:"absolute"};export{t as a,e as v};
