@@ -25,15 +25,16 @@ Nothing is set on the page or on an element the component does not own — no re
 
 Node.js 22 or later is required.
 
-| Task                  | Command                                  |
-| --------------------- | ---------------------------------------- |
-| Install (also builds) | `npm install`                            |
-| Build                 | `npm run build`                          |
-| Test                  | `npm run test`                           |
-| Type-check            | `npm run typecheck`                      |
-| Lint and format       | `npm run lint:fix`, `npm run format:fix` |
-| Documentation site    | `npm run docs:dev`                       |
-| Bundle size           | `npm run measure`                        |
+| Task                  | Command                                         |
+| --------------------- | ----------------------------------------------- |
+| Install (also builds) | `npm install`                                   |
+| Build                 | `npm run build`                                 |
+| Test                  | `npm run test`                                  |
+| Type-check            | `npm run typecheck`                             |
+| Lint and format       | `npm run lint:fix`, `npm run format:fix`        |
+| Documentation site    | `npm run docs:dev`                              |
+| Bundle size           | `npm run measure`                               |
+| Release notes preview | `node .github/scripts/release-notes.mjs v1.9.0` |
 
 Tests run in a real browser through Playwright rather than in a DOM emulator, so a browser has to be installed: `npx playwright install chromium`. A plain `npm run test` uses Chromium alone. `VITEST_BROWSER` picks another engine, or several as a comma-separated list, out of `chromium`, `firefox` and `webkit`; CI sets it per job and runs all three on Linux, Windows and macOS.
 
@@ -105,3 +106,14 @@ When creating a pull request, keep the following in mind:
 - Please use English in all content.
 
 Typically, a project maintainer will review and test your code before merging it into the project. This process can take some time, and they may ask you for further edits or clarifications in the comments.
+
+## Releasing
+
+A release is cut on `main`, tagged by the maintainer, and published to npm by hand. The GitHub release in between is written by `.github/workflows/release.yml`, which holds no registry token and never publishes.
+
+1. **Cut the version** in one commit on `main`. Set `version` in `package.json` and the same number twice at the top of `package-lock.json`: the file's own `version` and `packages[""].version`. `pnpm-lock.yaml` does not record it. In `CHANGELOG.md`, rename `## vNext (YYYY--)` to `## X.Y.Z (YYYY-MM-DD)`, open the section with a paragraph saying what the release is, and put a new, empty `## vNext (YYYY--)` above it. Push, and let CI pass on that commit.
+1. **Tag that commit** as `vX.Y.Z` and push the tag by name: `git tag v1.9.0`, then `git push origin v1.9.0`. `git push --tags` would push every local tag, so it is not used.
+1. **The workflow** checks that the tag names the version in `package.json`, writes the release notes, packs the package with `npm pack` (which runs the build, bundle check included), and creates the release with the tarball attached. Re-running it updates that release instead of failing.
+1. **Publish to npm** by hand.
+
+The body of the release is the version's whole changelog section, followed by links to the changelog on the docs site and in the repository. GitHub cuts a body off at 125,000 characters, so a section longer than that is replaced by its opening paragraph and the links. Preview the body with `node .github/scripts/release-notes.mjs v1.9.0`; it fails on a version that is missing, undated or empty.
