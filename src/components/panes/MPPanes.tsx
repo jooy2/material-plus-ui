@@ -20,6 +20,8 @@ export type MPPaneSize = number | string;
 interface PaneContextValue {
   /** The `flex-basis` this pane has been given, or `null` before measurement. */
   basis: string | null;
+  /** Its `flex` until then, worked out from its `defaultSize` alone. */
+  seed: string | null;
   /**
    * The id the handle beside it points `aria-controls` at, or `null` for a pane
    * rendered outside a split.
@@ -31,7 +33,11 @@ interface PaneContextValue {
   id: string | null;
 }
 
-const MPPaneContext = React.createContext<PaneContextValue>({ basis: null, id: null });
+const MPPaneContext = React.createContext<PaneContextValue>({
+  basis: null,
+  seed: null,
+  id: null
+});
 
 /**
  * The width of a handle, and the width of the target the pointer has to hit.
@@ -85,6 +91,55 @@ function toPixels(value: MPPaneSize | undefined, extent: number, root: Element |
   }
 
   return pixelsIn(value, extent, root);
+}
+
+/** A `defaultSize` as CSS can read it: a share of the split, or a length. */
+const SHARE = /^\s*(-?[\d.]+)\s*%\s*$/;
+const CSS_LENGTH = /^\s*-?[\d.]+\s*(px|rem|em)\s*$/;
+
+/**
+ * Each pane's `flex` before the split has measured itself.
+ *
+ * The measurement only turns the `defaultSize`s into fractions, and CSS can say
+ * nearly all of that on its own — so the first paint, the server's markup
+ * included, is the split the measurement arrives at rather than an even one
+ * that jumps once the page has hydrated. A share becomes a basis of the space
+ * left after the handles, a length is a basis as written, and a pane with
+ * neither takes an even part of what remains. Shrinking from a basis is
+ * proportional to it, which is how `initialFractions` scales a set of sizes
+ * that asks for more than there is.
+ *
+ * Shares that name every pane are scaled to fill the split, as the
+ * measurement does. A set of lengths that leaves room over is the one case
+ * left to the measurement, because how much room is only known once measured.
+ */
+function seedFlex(constraints: MPPaneProps[], gutter: number): (string | null)[] {
+  const shares = constraints.map(({ defaultSize: size }) => {
+    if (typeof size === 'number') {
+      return size;
+    }
+
+    const match = typeof size === 'string' ? SHARE.exec(size) : null;
+
+    return match ? Number(match[1]) : null;
+  });
+  const space = `(100% - ${gutter}px)`;
+
+  if (shares.every((share) => share !== null && share > 0)) {
+    const total = shares.reduce<number>((sum, share) => sum + (share ?? 0), 0);
+
+    return shares.map((share) => `0 0 calc(${space} * ${((share ?? 0) / total).toFixed(6)})`);
+  }
+
+  return constraints.map(({ defaultSize: size }, index) => {
+    const share = shares[index];
+
+    if (share !== null) {
+      return `0 1 calc(${space} * ${(Math.max(0, share) / 100).toFixed(6)})`;
+    }
+
+    return typeof size === 'string' && CSS_LENGTH.test(size) ? `0 1 ${size.trim()}` : null;
+  });
 }
 
 /** Every pane's share of the space, summing to 1. */
@@ -280,6 +335,7 @@ export const MPPanes = React.forwardRef<HTMLDivElement, MPPanesProps>(function M
 
   const horizontal = orientation === 'horizontal';
   const gutter = TRACK_PX[size] * Math.max(0, count - 1);
+  const seeds = fractions ? [] : seedFlex(constraints, gutter);
 
   /*
    * One measurement, for one purpose: turning a `defaultSize` written as a
@@ -630,6 +686,7 @@ export const MPPanes = React.forwardRef<HTMLDivElement, MPPanesProps>(function M
               basis: fractions
                 ? `calc((100% - ${gutter}px) * ${fractions[index].toFixed(6)})`
                 : null,
+              seed: seeds[index] ?? null,
               id: `${paneIds}-${index}`
             }}
           >
@@ -655,7 +712,7 @@ export const MPPane = React.forwardRef<HTMLDivElement, MPPaneProps>(function MPP
   { defaultSize, minSize, maxSize, className, style, children, ...props },
   ref
 ) {
-  const { basis, id } = React.useContext(MPPaneContext);
+  const { basis, seed, id } = React.useContext(MPPaneContext);
 
   return (
     <div
@@ -664,9 +721,10 @@ export const MPPane = React.forwardRef<HTMLDivElement, MPPaneProps>(function MPP
       className={['mp-pane relative min-h-0 min-w-0 overflow-auto', className ?? '']
         .filter(Boolean)
         .join(' ')}
-      // `1 1 0%` before the split has measured itself, so a pane renders at an
-      // even share on the first paint instead of at nothing and then jumping.
-      style={{ flex: basis ? `0 0 ${basis}` : '1 1 0%', ...style }}
+      // Before the split has measured itself, its `defaultSize` as CSS, or an
+      // even share of what is left — so a pane renders on the first paint at
+      // the size it is about to be given, instead of at nothing and jumping.
+      style={{ flex: basis ? `0 0 ${basis}` : (seed ?? '1 1 0%'), ...style }}
       {...props}
     >
       {children}

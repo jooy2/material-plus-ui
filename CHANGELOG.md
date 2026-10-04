@@ -16,6 +16,8 @@
 
 - **A chart under a moving pointer renders only when what is under the pointer changes.** A scatter and a timeline stored the pointer's position on every move although neither ever reads it, a heatmap stored a fresh cell for every pixel inside one cell, and a zoom drag stored the selection again for every pixel inside one category — and each of those is a render of the whole chart. Nineteen moves over one point cost eighteen renders and now cost at most one. The table behind the picture and the legend no longer render at all on a hover, which was half of what one cost on a line chart, and `valueLabels="extremes"` finds a series' extremes once rather than once per point.
 
+- **`MPPanes` paints at its `defaultSize` from the first frame.** Until the split had measured itself every pane took an even share, so a server-rendered page drew a 50/50 split and then moved every boundary to `25%` or `240px` once it hydrated — a layout shift across the whole of an app shell, measured at 0.038 for a two-pane split. A `defaultSize` is now written into the pane's CSS until the measurement arrives, and the measurement lands where the CSS already was.
+
 ### Fixed
 
 - **`MPAnimateCounter` writes its number in the provider's language.** It formatted in the runtime's locale unless given a `locale` of its own, so it ignored `MPLocaleProvider` — and on a server-rendered page, wrote the server's language into the markup and the reader's into the first client render.

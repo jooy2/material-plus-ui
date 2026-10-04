@@ -1,6 +1,8 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { renderToString } from 'react-dom/server';
 import { MPPane, MPPanes } from 'material-plus-ui';
+import { cleanupHydrated, hydrateFromServer } from '../../support/hydrate';
 
 /**
  * A split at a known size, so a fraction can be checked as a number of pixels.
@@ -237,6 +239,53 @@ describe('MPPanes', () => {
       screen.unmount();
 
       expect(document.body.style.userSelect).toBe(before);
+    });
+  });
+
+  describe('on a page a server rendered', () => {
+    afterEach(cleanupHydrated);
+
+    /** Each pane's width in markup that has not hydrated, then after it has. */
+    async function widths(node: React.ReactElement) {
+      const sketch = document.createElement('div');
+
+      sketch.innerHTML = renderToString(node);
+      document.body.append(sketch);
+
+      const before = [...sketch.querySelectorAll('.mp-pane')].map(
+        (pane) => pane.getBoundingClientRect().width
+      );
+
+      sketch.remove();
+
+      const { container } = await hydrateFromServer(node);
+      const after = [...container.querySelectorAll('.mp-pane')].map(
+        (pane) => pane.getBoundingClientRect().width
+      );
+
+      return { before, after };
+    }
+
+    // The split used to paint even and then jump to `defaultSize` once it had
+    // measured itself, which is a layout shift across the whole of an app shell.
+    it.each([
+      ['a share and a pane with none', ['25%', undefined]],
+      ['a number, which is a share too', [30, undefined, undefined]],
+      ['a length', ['120px', undefined]],
+      ['shares that name every pane', [1, 3]]
+    ])('paints %s at the size it then keeps', async (_, sizes) => {
+      const { before, after } = await widths(
+        <Split width={600}>
+          {sizes.map((size, index) => (
+            <MPPane key={index} defaultSize={size}>
+              {index}
+            </MPPane>
+          ))}
+        </Split>
+      );
+
+      expect(before).toHaveLength(after.length);
+      before.forEach((width, index) => expect(Math.abs(width - after[index])).toBeLessThan(1));
     });
   });
 
