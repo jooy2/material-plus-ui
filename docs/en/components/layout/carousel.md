@@ -50,6 +50,7 @@ A carousel that moves while it is being read is the most complained-about patter
 | The pointer is over it          | Somebody is looking at this one                             |
 | Anything inside it has focus    | A keyboard reader has tabbed into a slide and is reading it |
 | The tab is in the background    | Nothing is being read at all                                |
+| It is scrolled out of view      | A slide turned where nobody can see it is a slide missed    |
 | `prefers-reduced-motion` is set | The reader asked for exactly this not to happen             |
 
 The live region goes quiet at the same time. A region that announces a new slide's name every five seconds is what makes a screen reader unusable on a page that has one — so while `autoPlay` is on it is `aria-live="off"`, and the reader is told where they are only when they moved themselves.

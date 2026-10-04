@@ -139,6 +139,47 @@ describe('MPCarousel', () => {
       expect(onValueChange).toHaveBeenCalledWith(2);
     });
 
+    it('opens on `defaultValue`, not on the first slide', async () => {
+      const screen = await render(
+        <div style={{ width: 300 }}>
+          <MPCarousel defaultValue={2}>{SLIDES}</MPCarousel>
+        </div>
+      );
+      const track = screen.container.querySelector('[role="group"][tabindex="0"]') as HTMLElement;
+
+      await vi.waitFor(() => expect(track.scrollLeft).toBe(2 * track.clientWidth));
+    });
+
+    it('scrolls the strip and never the page', async () => {
+      // A slide turning used to scroll every container it was inside, so an
+      // autoplaying carousel the reader had scrolled away from pulled the page
+      // back to itself on every turn.
+      const spacer = document.createElement('div');
+
+      spacer.style.height = '3000px';
+      document.body.prepend(spacer);
+      window.scrollTo({ top: 0, behavior: 'instant' });
+
+      try {
+        const screen = await render(
+          <div style={{ width: 300 }}>
+            <MPCarousel>{SLIDES}</MPCarousel>
+          </div>
+        );
+        const track = screen.container.querySelector('[role="group"][tabindex="0"]') as HTMLElement;
+
+        // A DOM click rather than a pointer one, which would scroll the page to
+        // the button on its own and say nothing about the carousel.
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        (screen.getByRole('button', { name: 'Slide 3 of 3' }).element() as HTMLElement).click();
+
+        await vi.waitFor(() => expect(track.scrollLeft).toBe(2 * track.clientWidth));
+        expect(window.scrollY).toBe(0);
+      } finally {
+        spacer.remove();
+      }
+    });
+
     it('marks the current slide, and only that one', async () => {
       const screen = await render(<MPCarousel value={1}>{SLIDES}</MPCarousel>);
       const marks = [...screen.container.querySelectorAll('[aria-current]')];
@@ -183,6 +224,25 @@ describe('MPCarousel', () => {
      * bug. `hover` on the spacer first because the pointer is left over the
      * carousel by the tests above, and a hovered carousel is a paused one.
      */
+    it('holds while it is scrolled out of view', async () => {
+      const moved = vi.fn();
+      const screen = await render(
+        <>
+          <div data-testid="spacer" style={{ height: 20 }} />
+          <div style={{ marginTop: 4000 }}>
+            <MPCarousel autoPlay interval={30} onValueChange={moved}>
+              {SLIDES}
+            </MPCarousel>
+          </div>
+        </>
+      );
+
+      await screen.getByTestId('spacer').hover();
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
+      expect(moved).not.toHaveBeenCalled();
+    });
+
     it('keeps advancing across a parent’s re-renders', async () => {
       const moved = vi.fn();
       const strip = (

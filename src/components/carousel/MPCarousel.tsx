@@ -319,15 +319,40 @@ export const MPCarousel = React.forwardRef<HTMLDivElement, MPCarouselProps>(func
       return;
     }
 
-    // The first pass would otherwise scroll the page down to a carousel nobody
-    // has looked at yet, just to put slide 0 where the browser already had it.
+    const track = trackRef.current;
+
+    if (!track) {
+      return;
+    }
+
+    /*
+     * The strip is scrolled, and nothing else is.
+     *
+     * `scrollIntoView` scrolls every scroll container the slide is inside, the
+     * page included — so each slide an autoplaying carousel turned to pulled
+     * the page back to the carousel, five seconds after the reader had scrolled
+     * away from it. Every slide is exactly the width of the strip, so where a
+     * slide starts is its index times that width, counted backwards under RTL
+     * the way `scrollLeft` is.
+     */
+    const rtl = getComputedStyle(track).direction === 'rtl';
+    const left = (rtl ? -1 : 1) * index * track.clientWidth;
+
+    // The first pass puts the opening slide in place without travelling to it:
+    // a carousel that opens on its third slide shows the third slide, rather
+    // than the first one while the dots and the reader's screen reader said
+    // otherwise.
     if (!mounted.current) {
       mounted.current = true;
+
+      if (index !== 0) {
+        track.scrollTo({ left, behavior: 'instant' });
+      }
 
       return;
     }
 
-    slideRefs.current[index]?.scrollIntoView({ block: 'nearest', inline: 'start' });
+    track.scrollTo({ left });
 
     settling.current = true;
     const timer = window.setTimeout(() => {
@@ -336,6 +361,32 @@ export const MPCarousel = React.forwardRef<HTMLDivElement, MPCarouselProps>(func
 
     return () => window.clearTimeout(timer);
   }, [index]);
+
+  /*
+   * Whether any of the strip is on screen. Read by the timer rather than held
+   * in state: it is consulted once a tick, and a render per scroll past the
+   * carousel would be paying for an answer nothing draws.
+   */
+  const onScreen = React.useRef(true);
+
+  React.useEffect(() => {
+    const track = trackRef.current;
+
+    if (!autoPlay || !track || typeof IntersectionObserver === 'undefined') {
+      return;
+    }
+
+    const observer = new IntersectionObserver(([entry]) => {
+      onScreen.current = entry.isIntersecting;
+    });
+
+    observer.observe(track);
+
+    return () => {
+      observer.disconnect();
+      onScreen.current = true;
+    };
+  }, [autoPlay]);
 
   React.useEffect(() => {
     if (!autoPlay || paused || count < 2) {
@@ -348,7 +399,9 @@ export const MPCarousel = React.forwardRef<HTMLDivElement, MPCarouselProps>(func
     }
 
     const timer = window.setInterval(() => {
-      if (document.hidden) {
+      // Not in a tab nobody is looking at, and not off screen: a slide turned
+      // where nobody can see it is a slide the reader missed.
+      if (document.hidden || !onScreen.current) {
         return;
       }
 
