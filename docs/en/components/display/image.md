@@ -158,6 +158,8 @@ Like the shimmer, the stand-in fills the box, so the box needs a reserved size: 
 
 `priority` is for the picture a page is judged by, which is usually its Largest Contentful Paint. It sets `loading="eager"` and a high fetch priority, and an attribute you write out yourself still wins. Give it to one picture per page, because a high priority on every picture raises none of them above the others.
 
+A `priority` picture is also **drawn the moment it arrives** instead of faded in. The fade waits for the picture's `load` event, and on a server-rendered page that event is only heard once the page's JavaScript has hydrated — so the one picture the page is judged by sat transparent over bytes the browser already had, and a transparent picture does not count as painted. The placeholder is drawn under the picture instead, so it shows through until the picture covers it.
+
 ```tsx
 <MPImage src={cover} alt="The east face at dawn" ratio="16 / 9" priority />
 <MPImage src={thumb} alt="The hut below the ridge" ratio="4 / 3" loading="lazy" decoding="async" />

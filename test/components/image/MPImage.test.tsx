@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { renderToString } from 'react-dom/server';
 import { MPImage } from 'material-plus-ui';
 
 /**
@@ -1131,6 +1132,28 @@ describe('MPImage', () => {
       // Spelled the way this React knows it, so it says nothing about it.
       expect(error.mock.calls.flat().join(' ')).not.toMatch(/fetchpriority/i);
       error.mockRestore();
+    });
+
+    it('draws a `priority` picture as it arrives, over its placeholder', async () => {
+      // The fade waits for `load`, which a server-rendered page only hears
+      // after hydration, so the picture a page is judged by is never faded.
+      const screen = await render(<MPImage src={PENDING} alt="Something" priority />);
+      const img = screen.container.querySelector('img') as HTMLImageElement;
+      const placeholder = screen.container.querySelector('[class*="animate-pulse"]') as HTMLElement;
+
+      expect(getComputedStyle(img).opacity).toBe('1');
+      expect(
+        placeholder.compareDocumentPosition(img) & Node.DOCUMENT_POSITION_FOLLOWING
+      ).toBeTruthy();
+      expect(getComputedStyle(img).position).toBe('relative');
+    });
+
+    it('sends a `priority` picture from the server already visible', () => {
+      const html = renderToString(<MPImage src={PENDING} alt="Something" priority />);
+      const img = /<img[^>]*>/.exec(html)![0];
+
+      expect(img).not.toContain('opacity-0');
+      expect(renderToString(<MPImage src={PENDING} alt="Something" />)).toContain('opacity-0');
     });
 
     it('lets an attribute the caller writes out win over `priority`', async () => {

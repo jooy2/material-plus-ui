@@ -158,6 +158,8 @@ import { MPImage } from 'material-plus-ui';
 
 `priority`는 페이지를 평가받는 그림, 보통 최대 콘텐츠풀 페인트(LCP) 그림에 씁니다. `loading="eager"`와 높은 가져오기 우선순위를 설정하고, 직접 쓴 속성이 있으면 그 값을 따릅니다. 페이지마다 그림 하나에만 주세요. 모든 그림의 우선순위를 올리면 어느 그림도 다른 그림보다 먼저 오지 않습니다.
 
+`priority` 그림은 페이드인하지 않고 **도착하는 즉시 그립니다**. 페이드는 그림의 `load` 이벤트를 기다리는데, 서버에서 렌더링한 페이지에서는 자바스크립트가 하이드레이션을 마친 뒤에야 그 이벤트를 듣습니다. 그래서 페이지를 평가받는 바로 그 그림이 브라우저가 이미 받은 바이트 위에서 투명한 채로 기다렸고, 투명한 그림은 그려진 것으로 치지 않습니다. 대신 자리 표시자를 그림 아래에 그려서, 그림이 덮을 때까지 비쳐 보이게 합니다.
+
 ```tsx
 <MPImage src={cover} alt="The east face at dawn" ratio="16 / 9" priority />
 <MPImage src={thumb} alt="The hut below the ridge" ratio="4 / 3" loading="lazy" decoding="async" />

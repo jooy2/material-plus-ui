@@ -204,6 +204,11 @@ export interface MPImageProps extends Omit<React.ComponentPropsWithoutRef<'img'>
    * Sets `loading="eager"` and a high fetch priority. A `loading` or
    * `fetchPriority` of your own still wins. Give it to one picture per page: a
    * high priority on every picture raises none of them above the others.
+   *
+   * The picture is also drawn as soon as it arrives rather than faded in once
+   * the page's JavaScript has heard it load, with the placeholder under it
+   * instead of over it — on a server-rendered page, a faded picture cannot
+   * appear before hydration.
    * @default false
    */
   priority?: boolean;
@@ -695,13 +700,26 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
     />
   );
 
-  const fade = [
-    // Held rather than hidden: the element has to stay in the layout for the
-    // browser to fetch it, and `display: none` on an `<img>` is a fetch some
-    // browsers will skip.
-    showing ? 'opacity-100' : 'opacity-0',
-    'transition-opacity duration-(--mp-sys-motion-duration-short4)'
-  ].join(' ');
+  /*
+   * A `priority` picture is not faded in, and its placeholder is drawn under it
+   * rather than over it, so it shows the moment the browser has it.
+   *
+   * The fade waits for `load`, and on a server-rendered page `load` is only
+   * heard once the page's JavaScript has hydrated it — the picture that page is
+   * judged by sat transparent over bytes it already had until then, and the
+   * browser does not count a transparent picture as painted. Measured with the
+   * script held back 1.5 seconds, a priority picture painted at 1.9 seconds
+   * where a bare `<img>` painted at 0.3.
+   */
+  const fade = priority
+    ? ''
+    : [
+        // Held rather than hidden: the element has to stay in the layout for the
+        // browser to fetch it, and `display: none` on an `<img>` is a fetch some
+        // browsers will skip.
+        showing ? 'opacity-100' : 'opacity-0',
+        'transition-opacity duration-(--mp-sys-motion-duration-short4)'
+      ].join(' ');
 
   // When the picture is fetched and how urgently, which the letterbox copy
   // shares so that it waits for, and hurries, the same request.
@@ -722,8 +740,17 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
         ? Math.max(0, standIn.blur)
         : 0;
 
+  const waiting =
+    state === 'loading' && placeholder !== false && !standIn ? (
+      <span aria-hidden="true" className="absolute inset-0">
+        {(placeholder as React.ReactNode) ?? defaultPlaceholder}
+      </span>
+    ) : null;
+
   const picture = (
     <>
+      {priority ? waiting : null}
+
       {blurred ? (
         /*
          * The same picture, covering the box behind itself.
@@ -807,7 +834,7 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
           ...placed,
           // An absolutely positioned layer before it would otherwise paint over
           // it, whatever the order in the document.
-          ...(blurred || standing ? { position: 'relative' } : null),
+          ...(blurred || standing || priority ? { position: 'relative' } : null),
           ...(sideways ? SIDEWAYS : null)
         }}
         onLoad={(event) => {
@@ -817,11 +844,7 @@ export const MPImage = React.forwardRef<HTMLImageElement, MPImageProps>(function
         onError={() => report('error')}
       />
 
-      {state === 'loading' && placeholder !== false && !standIn ? (
-        <span aria-hidden="true" className="absolute inset-0">
-          {(placeholder as React.ReactNode) ?? defaultPlaceholder}
-        </span>
-      ) : null}
+      {priority ? null : waiting}
 
       {state === 'error' ? (
         <span className="absolute inset-0">{fallback ?? defaultFallback}</span>
