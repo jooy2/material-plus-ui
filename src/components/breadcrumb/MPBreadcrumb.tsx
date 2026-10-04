@@ -33,12 +33,15 @@ interface MPBreadcrumbContextValue {
    * `structuredData`.
    */
   position: number | null;
+  /** Folded behind the `…`: in the markup, and hidden. */
+  folded: boolean;
 }
 
 const MPBreadcrumbContext = React.createContext<MPBreadcrumbContextValue>({
   size: 'md',
   last: false,
-  position: null
+  position: null,
+  folded: false
 });
 
 export interface MPBreadcrumbProps extends Omit<React.ComponentPropsWithoutRef<'nav'>, 'color'> {
@@ -262,13 +265,20 @@ export const MPBreadcrumb = React.forwardRef<HTMLElement, MPBreadcrumbProps>(fun
     // longer than the step it replaced.
     total - itemsBeforeCollapse - itemsAfterCollapse > 1;
 
+  /*
+   * The steps behind the `…` are folded, not removed. They stay in the markup,
+   * hidden, after the `…` and in their own order — so the trail a server sends
+   * still links every step back to the top of the site, which is what a crawler
+   * reads a breadcrumb for, and pressing the `…` shows steps that were already
+   * there rather than drawing new ones.
+   */
+  const before = Math.max(0, itemsBeforeCollapse);
+  const after = total - Math.max(0, itemsAfterCollapse);
   const shown = folding
-    ? [
-        ...steps.slice(0, Math.max(0, itemsBeforeCollapse)),
-        null,
-        ...steps.slice(total - Math.max(0, itemsAfterCollapse))
-      ]
+    ? [...steps.slice(0, before), null, ...steps.slice(before, after), ...steps.slice(after)]
     : steps;
+  const foldedFrom = folding ? before + 1 : -1;
+  const foldedTo = folding ? after + 1 : -1;
 
   const mark = isSeparatorName(separator) ? separatorMark(separator) : separator;
 
@@ -282,15 +292,20 @@ export const MPBreadcrumb = React.forwardRef<HTMLElement, MPBreadcrumbProps>(fun
    */
   const positions = React.useMemo<MPBreadcrumbContextValue[]>(
     () =>
-      Array.from({ length: shown.length }, (_, index) => ({
-        size,
-        last: !claimed && index === shown.length - 1,
-        // 1-based, because `BreadcrumbList` counts from one. `null` while the
-        // trail is not publishing itself, which is what keeps the attributes off
-        // a trail that did not ask for them.
-        position: structuredData ? index + 1 : null
-      })),
-    [size, claimed, shown.length, structuredData]
+      Array.from({ length: shown.length }, (_, index) => {
+        const folded = index >= foldedFrom && index < foldedTo;
+
+        return {
+          size,
+          last: !claimed && !folded && index === shown.length - 1,
+          // 1-based, because `BreadcrumbList` counts from one. `null` while the
+          // trail is not publishing itself, which is what keeps the attributes
+          // off a trail that did not ask for them.
+          position: structuredData ? index + 1 : null,
+          folded
+        };
+      }),
+    [size, claimed, shown.length, structuredData, foldedFrom, foldedTo]
   );
 
   const foldClassNames = [
@@ -336,7 +351,8 @@ export const MPBreadcrumb = React.forwardRef<HTMLElement, MPBreadcrumbProps>(fun
             {index > 0 ? (
               <li
                 aria-hidden="true"
-                className="text-mp-on-surface-variant flex shrink-0 items-center select-none"
+                hidden={positions[index].folded || undefined}
+                className="text-mp-on-surface-variant flex shrink-0 items-center select-none [&[hidden]]:hidden"
               >
                 {mark}
               </li>
@@ -384,7 +400,7 @@ export const MPBreadcrumbItem = React.forwardRef<HTMLLIElement, MPBreadcrumbItem
     { href, onClick, startIcon, endIcon, current, disabled = false, className, children, ...props },
     ref
   ) {
-    const { size, last, position } = React.useContext(MPBreadcrumbContext);
+    const { size, last, position, folded } = React.useContext(MPBreadcrumbContext);
     const isCurrent = current ?? last;
     const interactive = Boolean(href || onClick) && !isCurrent && !disabled;
     const published = position !== null;
@@ -439,7 +455,11 @@ export const MPBreadcrumbItem = React.forwardRef<HTMLLIElement, MPBreadcrumbItem
         itemProp={published ? 'itemListElement' : undefined}
         itemScope={published || undefined}
         itemType={published ? 'https://schema.org/ListItem' : undefined}
-        className={['flex min-w-0 items-center', className ?? ''].filter(Boolean).join(' ')}
+        // Hidden by attribute, which loses to `flex` unless the step names it.
+        hidden={folded || undefined}
+        className={['flex min-w-0 items-center [&[hidden]]:hidden', className ?? '']
+          .filter(Boolean)
+          .join(' ')}
         {...props}
       >
         {/*

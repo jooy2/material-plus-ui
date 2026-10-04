@@ -48,6 +48,8 @@
 
 - **`useMPColorScheme` draws a remembered choice without the `<head>` script.** It read the choice from storage and reported it, but only `setScheme` ever wrote the attribute that draws it — so a page without the script stayed light for the whole visit while the hook said `dark`. It is drawn once the page has hydrated now; the script is still what draws it before the first paint.
 
+- **`MPBreadcrumb` keeps the steps it folds behind `…` in the markup.** `maxItems` took the middle steps out of the page, so the trail a server sent no longer linked each level back to the top of the site, which is what a crawler reads a breadcrumb for. They stay in the markup now, hidden, after the `…`, and pressing it shows them. What is drawn and what a screen reader hears are unchanged.
+
 - **`MPForm` submits to its `action`.** It always gave Base UI a handler for the form's values, and a handler is what makes Base UI cancel the native submit — so an `action` was cancelled too: a URL never navigated, a React server action never ran, and the form did nothing before the page had hydrated. With no `onSubmit`, a valid submit now goes to the `action`. With `onSubmit`, the values still come to it and nothing navigates, as documented.
 
 - **`MPFilePicker` submits the files it shows.** Its list is its own, and the native input under it only ever held the last batch the file dialog chose — not a dropped file, not the files chosen before, not a removal, and nothing after a dialog that was dismissed. A `<form>`, a `FormData` or a server action reading the input sent the wrong files. The input now holds exactly what the list does.

@@ -118,8 +118,27 @@ describe('MPBreadcrumb', () => {
 
       expect(screen.getByText('A').query()).not.toBeNull();
       expect(screen.getByText('E').query()).not.toBeNull();
-      expect(screen.getByText('C').query()).toBeNull();
+      expect(screen.getByRole('link', { name: 'C' }).query()).toBeNull();
       expect(screen.getByRole('button', { name: 'Show hidden steps' }).query()).not.toBeNull();
+    });
+
+    it('keeps the folded steps in the markup, hidden', async () => {
+      // Folded rather than removed: the trail a server sends still links every
+      // step back to the top of the site, which is what a crawler reads it for.
+      const screen = await render(
+        <MPBreadcrumb maxItems={3}>
+          <MPBreadcrumbItem href="/">A</MPBreadcrumbItem>
+          <MPBreadcrumbItem href="/b">B</MPBreadcrumbItem>
+          <MPBreadcrumbItem href="/c">C</MPBreadcrumbItem>
+          <MPBreadcrumbItem href="/d">D</MPBreadcrumbItem>
+          <MPBreadcrumbItem>E</MPBreadcrumbItem>
+        </MPBreadcrumb>
+      );
+      const link = screen.container.querySelector('a[href="/c"]') as HTMLElement;
+
+      expect(link).not.toBeNull();
+      expect(link.checkVisibility()).toBe(false);
+      expect(screen.container.querySelector('[aria-current="page"]')!.textContent).toBe('E');
     });
 
     it('puts the trail back when the fold is pressed', async () => {
