@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useRender } from '@base-ui/react/use-render';
 import { isInfinite, useAnimationRun, usePrefersReducedMotion } from '../../internal/animate';
 import { graphemesOf, textOf } from '../../internal/text';
 import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
@@ -44,6 +45,13 @@ export interface MPAnimateTypingProps
   caretChar?: React.ReactNode;
   /** The text to type. Only text is typed — see below. */
   children?: React.ReactNode;
+  /**
+   * Renders something other than a `<div>` — a `<span>` to sit inside a
+   * paragraph, where a `<div>` would end the paragraph in the server's markup
+   * and leave the browser's tree disagreeing with React's. Base UI's own escape
+   * hatch, as on `MPAnimateFade`.
+   */
+  render?: useRender.RenderProp;
 }
 
 /**
@@ -82,6 +90,7 @@ export const MPAnimateTyping = React.forwardRef<HTMLDivElement, MPAnimateTypingP
       play,
       once = true,
       threshold = 0.2,
+      render,
       className,
       style,
       children,
@@ -229,30 +238,26 @@ export const MPAnimateTyping = React.forwardRef<HTMLDivElement, MPAnimateTypingP
       };
     }, [run.started, paused, reduced, total, typeDelay, deleteDelay, delay, hold, erase, repeat]);
 
-    return (
-      <div
-        ref={(node) => {
-          run.ref(node);
-
-          if (typeof ref === 'function') {
-            ref(node);
-          } else if (ref) {
-            ref.current = node;
-          }
-        }}
-        className={className}
-        style={style}
-        data-mp-animation="typing"
-        data-mp-state={run.state}
-        {...run.handlers}
-        {...props}
-      >
-        <span className={VISUALLY_HIDDEN}>{source}</span>
-        <span aria-hidden="true" className="whitespace-pre-wrap">
-          {graphemes.slice(0, shown).join('')}
-          {caret ? <span className="mp-typing-caret">{caretChar}</span> : null}
-        </span>
-      </div>
-    );
+    return useRender({
+      render,
+      ref: [ref, run.ref],
+      props: {
+        className: className,
+        style: style,
+        'data-mp-animation': 'typing',
+        'data-mp-state': run.state,
+        ...run.handlers,
+        ...props,
+        children: (
+          <>
+            <span className={VISUALLY_HIDDEN}>{source}</span>
+            <span aria-hidden="true" className="whitespace-pre-wrap">
+              {graphemes.slice(0, shown).join('')}
+              {caret ? <span className="mp-typing-caret">{caretChar}</span> : null}
+            </span>
+          </>
+        )
+      }
+    });
   }
 );

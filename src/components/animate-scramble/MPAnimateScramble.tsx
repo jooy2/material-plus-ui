@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useRender } from '@base-ui/react/use-render';
 import { isInfinite, useAnimationRun, usePrefersReducedMotion } from '../../internal/animate';
 import { graphemesOf, textOf } from '../../internal/text';
 import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
@@ -44,6 +45,13 @@ export interface MPAnimateScrambleProps
   locale?: string;
   /** The text to settle. Only text is settled — see below. */
   children?: React.ReactNode;
+  /**
+   * Renders something other than a `<div>` — a `<span>` to sit inside a
+   * paragraph, where a `<div>` would end the paragraph in the server's markup
+   * and leave the browser's tree disagreeing with React's. Base UI's own escape
+   * hatch, as on `MPAnimateFade`.
+   */
+  render?: useRender.RenderProp;
 }
 
 /**
@@ -96,6 +104,7 @@ export const MPAnimateScramble = React.forwardRef<HTMLDivElement, MPAnimateScram
       play,
       once = true,
       threshold = 0.2,
+      render,
       className,
       style,
       children,
@@ -192,34 +201,30 @@ export const MPAnimateScramble = React.forwardRef<HTMLDivElement, MPAnimateScram
       ? source
       : graphemes.map((grapheme, index) => (settled(index) ? grapheme : noiseAt(index))).join('');
 
-    return (
-      <div
-        ref={(node) => {
-          run.ref(node);
-
-          if (typeof ref === 'function') {
-            ref(node);
-          } else if (ref) {
-            ref.current = node;
-          }
-        }}
-        className={className}
-        style={style}
-        data-mp-animation="scramble"
-        data-mp-state={run.state}
-        {...run.handlers}
-        {...props}
-      >
-        <span className={VISUALLY_HIDDEN}>{source}</span>
-        {/*
-         * `tabular-nums` for the same reason the counter takes it: the noise
-         * alphabet has digits in it, and a proportional `1` is narrower than the
-         * letter it is standing in for.
-         */}
-        <span aria-hidden="true" className="tabular-nums whitespace-pre-wrap">
-          {shown}
-        </span>
-      </div>
-    );
+    return useRender({
+      render,
+      ref: [ref, run.ref],
+      props: {
+        className: className,
+        style: style,
+        'data-mp-animation': 'scramble',
+        'data-mp-state': run.state,
+        ...run.handlers,
+        ...props,
+        children: (
+          <>
+            <span className={VISUALLY_HIDDEN}>{source}</span>
+            {/*
+             * `tabular-nums` for the same reason the counter takes it: the noise
+             * alphabet has digits in it, and a proportional `1` is narrower than the
+             * letter it is standing in for.
+             */}
+            <span aria-hidden="true" className="tabular-nums whitespace-pre-wrap">
+              {shown}
+            </span>
+          </>
+        )
+      }
+    });
   }
 );

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useRender } from '@base-ui/react/use-render';
 import {
   easingValue,
   isInfinite,
@@ -43,6 +44,13 @@ export interface MPAnimateHeadlineProps
   rise?: number | string;
   /** The lines, in the order they should be read. */
   children?: React.ReactNode;
+  /**
+   * Renders something other than a `<div>` — a `<span>` to sit inside a
+   * paragraph, where a `<div>` would end the paragraph in the server's markup
+   * and leave the browser's tree disagreeing with React's. Base UI's own escape
+   * hatch, as on `MPAnimateFade`.
+   */
+  render?: useRender.RenderProp;
 }
 
 /**
@@ -88,6 +96,7 @@ export const MPAnimateHeadline = React.forwardRef<HTMLDivElement, MPAnimateHeadl
       onIndexChange,
       loop = true,
       rise = '100%',
+      render,
       className,
       style,
       children,
@@ -190,57 +199,51 @@ export const MPAnimateHeadline = React.forwardRef<HTMLDivElement, MPAnimateHeadl
       return () => clearTimeout(timer);
     }, [index, count, run.state, interval, delay, advance, loop, active]);
 
-    return (
-      <div
-        ref={(node) => {
-          run.ref(node);
+    return useRender({
+      render,
+      ref: [ref, run.ref],
+      props: {
+        className: ['mp-headline', className ?? ''].filter(Boolean).join(' '),
+        style: {
+          ...(duration === undefined ? {} : { '--_mp-anim-duration': `${duration}ms` }),
+          '--_mp-anim-rise': lengthValue(rise),
+          ...(easing ? { '--_mp-anim-ease': easingValue(easing) } : {}),
+          '--_mp-anim-state': run.state,
+          ...style
+        } as React.CSSProperties,
+        'data-mp-animation': 'headline',
+        'data-mp-state': run.state,
+        ...run.handlers,
+        ...props,
+        children: (
+          <>
+            {items.map((child, position) => {
+              const state =
+                position === active
+                  ? 'active'
+                  : position === leaving && !reduced
+                    ? 'leaving'
+                    : undefined;
 
-          if (typeof ref === 'function') {
-            ref(node);
-          } else if (ref) {
-            ref.current = node;
-          }
-        }}
-        className={['mp-headline', className ?? ''].filter(Boolean).join(' ')}
-        style={
-          {
-            ...(duration === undefined ? {} : { '--_mp-anim-duration': `${duration}ms` }),
-            '--_mp-anim-rise': lengthValue(rise),
-            ...(easing ? { '--_mp-anim-ease': easingValue(easing) } : {}),
-            '--_mp-anim-state': run.state,
-            ...style
-          } as React.CSSProperties
-        }
-        data-mp-animation="headline"
-        data-mp-state={run.state}
-        {...run.handlers}
-        {...props}
-      >
-        {items.map((child, position) => {
-          const state =
-            position === active
-              ? 'active'
-              : position === leaving && !reduced
-                ? 'leaving'
-                : undefined;
+              if (!React.isValidElement(child)) {
+                return (
+                  <span key={position} className="mp-headline-item" data-mp-state={state}>
+                    {child}
+                  </span>
+                );
+              }
 
-          if (!React.isValidElement(child)) {
-            return (
-              <span key={position} className="mp-headline-item" data-mp-state={state}>
-                {child}
-              </span>
-            );
-          }
+              const childProps = child.props as { className?: string };
 
-          const childProps = child.props as { className?: string };
-
-          return React.cloneElement(child as React.ReactElement<Record<string, unknown>>, {
-            key: position,
-            className: ['mp-headline-item', childProps.className].filter(Boolean).join(' '),
-            'data-mp-state': state
-          });
-        })}
-      </div>
-    );
+              return React.cloneElement(child as React.ReactElement<Record<string, unknown>>, {
+                key: position,
+                className: ['mp-headline-item', childProps.className].filter(Boolean).join(' '),
+                'data-mp-state': state
+              });
+            })}
+          </>
+        )
+      }
+    });
   }
 );

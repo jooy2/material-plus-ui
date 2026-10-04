@@ -28,6 +28,10 @@ import { MPAnimateHeadline } from 'material-plus-ui';
 
 보이지 않는 줄들이 `display`가 아니라 `visibility`로 자리를 지키는 이유이기도 합니다. 레이아웃에서 빼면 상자 크기에 대한 그들의 기여도 함께 사라집니다.
 
+## 문장 안에서
+
+루트는 `<div>`입니다. 제목 옆에서는 맞지만 문단 안에서는 틀립니다. HTML 파서는 `<p>` 뒤에 `<div>`를 만나면 문단을 닫으므로, 서버가 보낸 페이지와 React가 렌더링한 페이지가 달라지고 그 차이 때문에 하이드레이션이 실패합니다. 텍스트 한 줄 안에 들어가는 릴이라면 `render={<span />}`을 넘기고, 각 줄도 인라인 요소로 쓰세요. `MPAnimateTyping`, `MPAnimateScramble`, `MPAnimateSplit`도 같은 prop을 받습니다.
+
 ## 티커가 아닙니다
 
 한 줄이 올라오고, **멈추고**, 읽을 만큼 머무릅니다.

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useRender } from '@base-ui/react/use-render';
 import {
   ANIMATION_CLASS,
   ANIM_BASE,
@@ -68,6 +69,13 @@ export interface MPAnimateSplitProps
   locale?: string;
   /** The text to split. Only text is split — see below. */
   children?: React.ReactNode;
+  /**
+   * Renders something other than a `<div>` — a `<span>` to sit inside a
+   * paragraph, where a `<div>` would end the paragraph in the server's markup
+   * and leave the browser's tree disagreeing with React's. Base UI's own escape
+   * hatch, as on `MPAnimateFade`.
+   */
+  render?: useRender.RenderProp;
 }
 
 export const MPAnimateSplit = React.forwardRef<HTMLDivElement, MPAnimateSplitProps>(
@@ -129,6 +137,7 @@ export const MPAnimateSplit = React.forwardRef<HTMLDivElement, MPAnimateSplitPro
       distance = '0.5rem',
       fade = true,
       locale,
+      render,
       className,
       style,
       children,
@@ -193,63 +202,59 @@ export const MPAnimateSplit = React.forwardRef<HTMLDivElement, MPAnimateSplitPro
       opacity: fade ? 0 : 1
     } as const;
 
-    return (
-      <div
-        ref={(node) => {
-          run.ref(node);
+    return useRender({
+      render,
+      ref: [ref, run.ref],
+      props: {
+        className: className,
+        style: { '--_mp-anim-state': state, ...style } as React.CSSProperties,
+        'data-mp-animation': 'split',
+        'data-mp-state': state,
+        ...run.handlers,
+        ...props,
+        children: (
+          <>
+            <span className={VISUALLY_HIDDEN}>{source}</span>
 
-          if (typeof ref === 'function') {
-            ref(node);
-          } else if (ref) {
-            ref.current = node;
-          }
-        }}
-        className={className}
-        style={{ '--_mp-anim-state': state, ...style } as React.CSSProperties}
-        data-mp-animation="split"
-        data-mp-state={state}
-        {...run.handlers}
-        {...props}
-      >
-        <span className={VISUALLY_HIDDEN}>{source}</span>
+            <span aria-hidden="true" style={animationSlots(slots)}>
+              {pieces.map((word, wordIndex) => (
+                // `whitespace-pre` because `wordsOf` keeps the space that followed
+                // each word *on* it, which is what lets the pieces still join back
+                // to the original string.
+                <span key={wordIndex} className="inline-block whitespace-pre">
+                  {word.map((piece, pieceIndex) => {
+                    index += 1;
 
-        <span aria-hidden="true" style={animationSlots(slots)}>
-          {pieces.map((word, wordIndex) => (
-            // `whitespace-pre` because `wordsOf` keeps the space that followed
-            // each word *on* it, which is what lets the pieces still join back
-            // to the original string.
-            <span key={wordIndex} className="inline-block whitespace-pre">
-              {word.map((piece, pieceIndex) => {
-                index += 1;
+                    const step = reverse ? total - 1 - index : index;
 
-                const step = reverse ? total - 1 - index : index;
-
-                return (
-                  <span
-                    key={pieceIndex}
-                    className={itemClassName}
-                    style={
-                      {
-                        '--_mp-anim-delay': `${delay + step * stagger}ms`,
-                        ...(durationStep === 0
-                          ? null
-                          : {
-                              '--_mp-anim-duration': animationSlots({
-                                ...slots,
-                                durationOffset: step * durationStep
-                              })['--_mp-anim-duration' as keyof React.CSSProperties]
-                            })
-                      } as React.CSSProperties
-                    }
-                  >
-                    {piece}
-                  </span>
-                );
-              })}
+                    return (
+                      <span
+                        key={pieceIndex}
+                        className={itemClassName}
+                        style={
+                          {
+                            '--_mp-anim-delay': `${delay + step * stagger}ms`,
+                            ...(durationStep === 0
+                              ? null
+                              : {
+                                  '--_mp-anim-duration': animationSlots({
+                                    ...slots,
+                                    durationOffset: step * durationStep
+                                  })['--_mp-anim-duration' as keyof React.CSSProperties]
+                                })
+                          } as React.CSSProperties
+                        }
+                      >
+                        {piece}
+                      </span>
+                    );
+                  })}
+                </span>
+              ))}
             </span>
-          ))}
-        </span>
-      </div>
-    );
+          </>
+        )
+      }
+    });
   }
 );

@@ -28,6 +28,10 @@ Every line sits in the **same grid cell**, so the reel is as tall and as wide as
 
 It is also why the lines that are not showing keep their space with `visibility` rather than `display`. Taking them out of the layout would take their contribution to the box's size with them.
 
+## Inside a sentence
+
+The root is a `<div>`, which is right beside a heading and wrong inside a paragraph: an HTML parser reading `<p>` and then `<div>` closes the paragraph, so the page a server sent is not the page React rendered, and hydration fails over the difference. Pass `render={<span />}` for a reel that sits inside a line of text, with lines that are inline elements too. `MPAnimateTyping`, `MPAnimateScramble` and `MPAnimateSplit` take the same prop.
+
 ## It is not a ticker
 
 A line comes up, it **stops**, and it is held long enough to read.
