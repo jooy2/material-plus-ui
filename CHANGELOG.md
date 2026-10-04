@@ -79,6 +79,8 @@
 
 - **`MPScrollZone`'s page says which buttons setting a server-rendered page wants.** With `buttons="auto"` the strip cannot know it overflows until the page has hydrated, so two inline buttons appear afterwards and move the strip; `always` or `buttonPlacement="overlay"` move nothing.
 
+- **`MPAnimateTyping` and `MPAnimateSplit` say what happens to an element among their children.** Their pages said it gave its text and dropped its markup. It is dropped whole, so its words are missing from the server-rendered markup as well, and the pages now say to pass them as a string.
+
 ### Fixed
 
 - **A locale tag that is not quite a tag no longer takes the render down.** The words in this library's table matched `ko_KR` and `ko-KR,ko;q=0.9` — a request's `Accept-Language` passed straight through — on their language, and then `Intl` threw a `RangeError` at the first date or number. A tag is now tidied before `Intl` sees it: the first of a list, without its weight, with hyphens; and one that still does not parse formats in the runtime's own locale. The cache of resolved words is also capped, as the `Intl` caches already were, so a server handed every request's language does not keep them all.

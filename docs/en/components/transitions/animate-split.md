@@ -62,7 +62,7 @@ What a single piece does, and they are [MPAnimateAppear](./animate-appear)'s. Th
 ## Accessibility
 
 - Under `prefers-reduced-motion` the animation is dropped and the line is simply there, whole.
-- Only **text** is split. An element among the children contributes its text and nothing about its markup, because there is no honest way to hand half of a link its own delay.
+- Only **text** is split. An element among the children is left out, words and all, because there is no honest way to hand half of a link its own delay. Its words are missing from the markup too, so pass them as a string.
 
 ## See also
 
