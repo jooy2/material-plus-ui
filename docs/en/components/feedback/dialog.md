@@ -43,6 +43,22 @@ From 95% rather than the specification's 80%. Growing is the one transition in t
 
 `fullScreen` only fades: a dialog that is already the window has no middle to grow out of. So does any dialog for a reader who has asked for less motion.
 
+## The scrim
+
+MD3's scrim at 32%, with a 2px blur that takes the edge off text directly under the sheet. The blur is the one part of it with a cost: a backdrop filter re-blurs the whole window behind it on every frame the scrim fades and every frame anything under it changes, which a low-end phone feels. `--mp-scrim-blur` turns it down or off for every dialog, drawer and command palette on the page, keeping the tint:
+
+```css
+:root {
+  --mp-scrim-blur: 0px;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --mp-scrim-blur: 0px;
+  }
+}
+```
+
 ## `MPDialogClose`
 
 An uncontrolled dialog has no `setOpen` for its Cancel button to call, and the alternative — making every dialog controlled — is a piece of state per dialog that exists only to answer a button.

@@ -43,6 +43,22 @@ import { MPButton, MPDialog, MPDialogClose } from 'material-plus-ui';
 
 `fullScreen`은 페이드만 합니다. 이미 창 자체인 대화상자에는 자라날 중심이 없습니다. 움직임을 덜 원한다고 밝힌 독자에게도 마찬가지입니다.
 
+## 스크림
+
+MD3의 스크림을 32%로 깔고, 시트 바로 아래 글자의 날을 죽이는 2px 블러를 더합니다. 비용이 드는 것은 이 블러뿐입니다. 배경 필터는 스크림이 서서히 나타나는 매 프레임과 아래의 무언가가 바뀌는 매 프레임마다 그 뒤의 창 전체를 다시 흐리게 하고, 저사양 휴대폰은 그것을 느낍니다. `--mp-scrim-blur`로 페이지의 모든 대화상자, 드로어, 커맨드 팔레트의 블러를 줄이거나 끌 수 있고, 색조는 남습니다.
+
+```css
+:root {
+  --mp-scrim-blur: 0px;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --mp-scrim-blur: 0px;
+  }
+}
+```
+
 ## `MPDialogClose`
 
 uncontrolled 대화상자에는 취소 버튼이 부를 `setOpen`이 없고, 대안 — 모든 대화상자를 controlled로 만들기 — 은 버튼 하나에 답하려고 대화상자마다 상태를 하나씩 두는 일입니다.

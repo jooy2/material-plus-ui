@@ -38,8 +38,14 @@ export const PORTAL_LAYER = 'mp-portal z-50 outline-none';
  * The 2px blur is not a frost. It is enough to take the edge off text directly
  * under the sheet without turning the page into a smear, which is the difference
  * between "you cannot use this right now" and "this is gone".
+ *
+ * It is also the one part of a scrim with a cost. A backdrop filter re-blurs the
+ * whole window behind it on every frame the scrim fades and on every frame
+ * anything under it changes, and on a low-end phone that is a frame budget.
+ * `--mp-scrim-blur` is the knob: `0px` on the page, or under
+ * `prefers-reduced-transparency`, keeps the tint and drops the filter.
  */
-export const SCRIM = 'bg-mp-scrim/32 [backdrop-filter:blur(2px)]';
+export const SCRIM = 'bg-mp-scrim/32 [backdrop-filter:blur(var(--mp-scrim-blur,2px))]';
 
 /**
  * Opacity, and only opacity — what a **popup** arrives on.

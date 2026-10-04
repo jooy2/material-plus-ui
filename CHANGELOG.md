@@ -4,6 +4,8 @@
 
 ### Added
 
+- **`--mp-scrim-blur` sets how much the scrim under a dialog, a drawer or the command palette blurs the page.** The 2px blur re-blurs the whole window on every frame the scrim fades and every frame anything under it changes, which is a cost a low-end phone feels. `0px` keeps the tint and drops the filter; the default is still `2px`.
+
 - **`MPConfigProvider` takes `reserveSupportingText`.** A field opens a line under itself when it has a description or an error, and everything below moves down. An error that arrives well after the reader typed — a server's answer, a debounced check, `MPForm`'s `errors` — is a layout shift with nothing the reader did to explain it. With `reserveSupportingText` every field in the subtree keeps that line from the start, and a message fills it in place.
 
 - **`MPAvatar` takes `keepMounted`, for a long list of them.** By default a picture is fetched by a script after the page has hydrated, so it is in no server's markup, the preload scanner never sees it and `loading="lazy"` is ignored — fifty avatars download together the moment the page hydrates, competing with its largest picture. With `keepMounted` each is an `<img>` from the start, loaded by the browser on its own terms, with the initials under it until it has arrived. It needs `@base-ui/react` 1.8 or later.

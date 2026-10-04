@@ -293,4 +293,32 @@ describe('MPDialog', () => {
       expect(onClick).toHaveBeenCalled();
     });
   });
+
+  describe('the scrim', () => {
+    it('blurs what is behind it by default, and by `--mp-scrim-blur` when the page says', async () => {
+      const screen = await render(
+        <MPDialog open title="Delete">
+          Gone for good.
+        </MPDialog>
+      );
+      const backdrop = await vi.waitFor(() => {
+        const found = document.querySelector('[class*="backdrop-filter"]');
+
+        expect(found).not.toBeNull();
+
+        return found as HTMLElement;
+      });
+
+      expect(getComputedStyle(backdrop).backdropFilter).toBe('blur(2px)');
+
+      document.documentElement.style.setProperty('--mp-scrim-blur', '0px');
+
+      try {
+        expect(getComputedStyle(backdrop).backdropFilter).toBe('blur(0px)');
+      } finally {
+        document.documentElement.style.removeProperty('--mp-scrim-blur');
+        screen.unmount();
+      }
+    });
+  });
 });
