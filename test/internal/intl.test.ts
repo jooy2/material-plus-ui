@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   CACHE_LIMIT,
   dateTimeFormatter,
@@ -24,6 +24,26 @@ import {
 const JULY = new Date(2026, 6, 15);
 
 describe('the number formatter cache', () => {
+  it('answers an options object it has seen without writing out its key', () => {
+    // The key is a `JSON.stringify` of the options, and a chart asks once per
+    // cell of its table on every render a hover makes. The same object is
+    // answered by the object.
+    const options = { maximumFractionDigits: 1 };
+    const first = numberFormatter('en-US', options);
+    const write = vi.spyOn(JSON, 'stringify');
+
+    expect(numberFormatter('en-US', options)).toBe(first);
+    expect(write).not.toHaveBeenCalled();
+    write.mockRestore();
+  });
+
+  it('keeps the same object apart by locale', () => {
+    const options = { minimumFractionDigits: 2 };
+
+    expect(numberFormatter('de-DE', options).format(1.5)).toBe('1,50');
+    expect(numberFormatter('en-US', options).format(1.5)).toBe('1.50');
+  });
+
   it('hands the same formatter back for the same question', () => {
     expect(numberFormatter('en-GB')).toBe(numberFormatter('en-GB'));
   });

@@ -15,6 +15,7 @@ import {
   MARK_GAP,
   PLOT_HEIGHT,
   RAMP_STEPS,
+  bounds,
   formatCategory,
   formatStatistic,
   rampFill,
@@ -158,8 +159,9 @@ export function MPHeatmapChart({
 
   /* The extent of the values, which is what the ramp is stretched across. */
   const numbers = rows.flat().filter((cell) => cell.value !== null);
-  const low = min ?? (numbers.length > 0 ? Math.min(...numbers.map((c) => c.value as number)) : 0);
-  const high = max ?? (numbers.length > 0 ? Math.max(...numbers.map((c) => c.value as number)) : 0);
+  const found = bounds(numbers.map((cell) => cell.value as number));
+  const low = min ?? found?.min ?? 0;
+  const high = max ?? found?.max ?? 0;
   const span = high - low || 1;
 
   const font = CHART_FONT_SIZE[size];

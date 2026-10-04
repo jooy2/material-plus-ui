@@ -238,7 +238,7 @@ function ChartAxes({
   const bottomRoom = (texts: readonly string[], air: number) =>
     turn > 0
       ? turnedStep(turn, fontSize)
-      : Math.max(...texts.map((text) => textWidth(text, fontSize)), 1) + air;
+      : texts.reduce((widest, text) => Math.max(widest, textWidth(text, fontSize)), 1) + air;
 
   const categoryStride = tickStride(
     categoryTexts.length,
@@ -348,6 +348,13 @@ function ChartAxes({
         const written =
           !categoryAxis?.hidden &&
           showsTick(index, categoryTexts.length, categoryStride, lastCategory);
+
+        // Nothing at all for a category with neither a rule nor a label, which
+        // on a long axis is most of them: an empty group per category was
+        // three hundred and sixty-five elements on a year of days.
+        if (!categoryGrid && !written) {
+          return null;
+        }
 
         return (
           <g key={`c${index}`}>

@@ -56,4 +56,23 @@ describe('a chart measuring its box', () => {
 
     expect(Number(svg.getAttribute('width'))).toBe(plot.offsetWidth);
   });
+
+  it('draws no empty group for a category it neither rules nor labels', () => {
+    // A year of days labelled every few weeks used to carry a `<g>` per day.
+    const days = Array.from({ length: 365 }, (_, index) => `d${index}`);
+    const container = mount(
+      <div style={{ width: 600 }}>
+        <MPLineChart
+          label="Year"
+          categories={days}
+          series={[{ name: 'A', data: days.map((_, index) => index) }]}
+        />
+      </div>
+    );
+    const empty = [...container.querySelectorAll('svg g')].filter(
+      (group) => group.childElementCount === 0
+    );
+
+    expect(empty).toHaveLength(0);
+  });
 });

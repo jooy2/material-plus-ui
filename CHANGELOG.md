@@ -44,7 +44,11 @@
 
 - **A chart draws its picture in the frame it mounts in.** It measured its box in an effect, which runs after the browser has painted, so a chart mounted in the browser showed an empty box for a frame first — and a server-rendered one stayed empty until the frame after it hydrated. It measures before the paint now.
 
+- **A chart writes less and works out less.** A long category axis drew an empty group for every category it neither ruled nor labelled — three hundred and sixty-five on a year of days — and every number in the table behind the picture wrote its formatting options out as a cache key, once per cell per hover. Neither happens now; what is drawn and announced is the same.
+
 ### Fixed
+
+- **A chart draws a series of any length.** The extents were found with `Math.min(...values)`, which runs out of argument room somewhere past a hundred thousand values and threw instead of drawing. The width estimate for CJK labels was also a character range written out literally, starting at a compatibility ideograph that Unicode normalisation rewrites — so a source decoded or normalised on the way to the page threw "Range out of order" and took every chart with it. It is written as escapes now.
 
 - **A chart inside a surface that is still scaling in is drawn to the room it has.** Charts measured the size their box was drawn at, transforms included, so one mounted in an `MPDialog` — which enters from `scale(0.95)` — laid itself out five per cent narrower, and stayed that way: a transform finishing is not a resize, so nothing told it otherwise. They measure their box's layout size now.
 

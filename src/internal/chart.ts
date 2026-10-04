@@ -488,9 +488,11 @@ export function extentOf(
   min?: number,
   max?: number
 ): { min: number; max: number } {
-  const real = values.filter((value): value is number => value !== null && Number.isFinite(value));
-  const low = min ?? (real.length > 0 ? Math.min(...real) : 0);
-  const high = max ?? (real.length > 0 ? Math.max(...real) : 0);
+  const real = bounds(
+    values.filter((value): value is number => value !== null && Number.isFinite(value))
+  );
+  const low = min ?? real?.min ?? 0;
+  const high = max ?? real?.max ?? 0;
 
   // A flat series has no extent, and dividing by nothing would put every point
   // on the same pixel or on none. One unit of room draws it as the flat line it
@@ -778,11 +780,45 @@ export function bandScale(count: number, length: number, ratio: number): BandSca
  * one: a Korean axis reserving 60% of the room it needs is an axis that
  * overlaps itself.
  */
+/*
+ * Hangul jamo, CJK radicals through Yi, Hangul syllables, CJK compatibility
+ * ideographs and the vertical forms. Written as escapes rather than as the
+ * characters themselves: U+F900 is a compatibility ideograph that Unicode
+ * normalisation rewrites to U+8C48, and a page or a tool that decoded or
+ * normalised this source turned the range around and threw "Range out of order"
+ * at module evaluation, taking every chart with it.
+ */
+const WIDE = /[\u1100-\u11FF\u2E80-\uA4CF\uAC00-\uD7FF\uF900-\uFAFF\uFE30-\uFE4F]/;
+
+/**
+ * The lowest and highest of a list, in one pass and without spreading it.
+ *
+ * `Math.min(...values)` passes every value as an argument, and an engine runs
+ * out of argument room somewhere past a hundred thousand — the chart then throws
+ * a `RangeError` instead of drawing. `null` for an empty list.
+ */
+export function bounds(values: Iterable<number>): { min: number; max: number } | null {
+  let min = Infinity;
+  let max = -Infinity;
+
+  for (const value of values) {
+    if (value < min) {
+      min = value;
+    }
+
+    if (value > max) {
+      max = value;
+    }
+  }
+
+  return min <= max ? { min, max } : null;
+}
+
 export function textWidth(text: string, fontSize: number): number {
   let width = 0;
 
   for (const character of text) {
-    width += /[ᄀ-ᇿ⺀-꓏가-퟿豈-﫿︰-﹏]/.test(character) ? 1 : 0.6;
+    width += WIDE.test(character) ? 1 : 0.6;
   }
 
   return width * fontSize;

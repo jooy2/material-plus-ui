@@ -10,6 +10,7 @@ import {
   CHART_FONT_SIZE,
   MARK_GAP,
   barPath,
+  bounds,
   seriesColor,
   textWidth,
   toNumber,
@@ -139,13 +140,9 @@ export function MPTimelineChart({
   );
 
   const flat = rows.flat();
-  const extent =
-    flat.length > 0
-      ? {
-          min: Math.min(...flat.map((one) => one.from)),
-          max: Math.max(...flat.map((one) => one.to))
-        }
-      : null;
+  const starts = bounds(flat.map((one) => one.from));
+  const ends = bounds(flat.map((one) => one.to));
+  const extent = starts && ends ? { min: starts.min, max: ends.max } : null;
 
   const scale = timeScale(extent, {
     min: xAxis?.min,

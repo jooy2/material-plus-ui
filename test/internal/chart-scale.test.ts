@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   bandScale,
+  bounds,
+  extentOf,
   bridgePath,
   categoryAt,
   fitsLast,
@@ -335,5 +337,31 @@ describe('withoutGaps', () => {
     const at = (x: number, y: number) => ({ x, y });
 
     expect(withoutGaps([at(0, 0), null, at(20, 10)])).toEqual([at(0, 0), at(20, 10)]);
+  });
+});
+
+describe('a series far longer than an axis is wide', () => {
+  // `Math.min(...values)` runs out of argument room past about a hundred
+  // thousand values and throws, which took the whole chart down.
+  const many = Array.from({ length: 300_000 }, (_, index) => Math.sin(index) * 10);
+
+  it('still has an extent', () => {
+    const lowest = many.reduce((low, value) => Math.min(low, value));
+    const highest = many.reduce((high, value) => Math.max(high, value));
+
+    expect(bounds(many)).toEqual({ min: lowest, max: highest });
+    expect(extentOf(many).min).toBeLessThanOrEqual(lowest);
+  });
+
+  it('has none when it is empty', () => {
+    expect(bounds([])).toBeNull();
+  });
+});
+
+describe('textWidth', () => {
+  it('counts a CJK character as a full em and a Latin one as most of one', () => {
+    expect(textWidth('가', 10)).toBe(10);
+    expect(textWidth('\uF900', 10)).toBe(10);
+    expect(textWidth('a', 10)).toBe(6);
   });
 });
