@@ -90,6 +90,34 @@ describe('watching whether something is on screen', () => {
     await vi.waitFor(() => expect(screen.container.textContent).toBe('seenunseen'));
   });
 
+  // Observing an element that is already observed queues nothing, so the second
+  // question about the same element used to wait for the answer to change.
+  it('answers a second question about the same element once it has been answered', async () => {
+    function Pair({ late }: { late: boolean }) {
+      const ref = useRef<HTMLDivElement>(null);
+      const first = useMPOnScreen(ref, { once: false });
+
+      return (
+        <div ref={ref}>
+          {first ? 'seen' : 'unseen'}
+          {late ? <Late target={ref} /> : null}
+        </div>
+      );
+    }
+
+    function Late({ target }: { target: React.RefObject<HTMLDivElement | null> }) {
+      const second = useMPOnScreen(target, { once: false });
+
+      return <span>{second ? ' and seen' : ' and unseen'}</span>;
+    }
+
+    const screen = await render(<Pair late={false} />);
+
+    await vi.waitFor(() => expect(screen.container.textContent).toBe('seen'));
+    await screen.rerender(<Pair late />);
+    await vi.waitFor(() => expect(screen.container.textContent).toBe('seen and seen'));
+  });
+
   describe('an endless animation off screen', () => {
     it('is held, and runs again on screen', async () => {
       const screen = await render(

@@ -11,6 +11,11 @@
  * have: observing an element always queues a first entry for that element,
  * shared observer or not.
  *
+ * The one case sharing changes is a second question about an element that is
+ * already observed. Observing it again queues nothing, so the latest entry for
+ * each element is kept and handed to a listener that joins after the first one
+ * was delivered.
+ *
  * Keyed on what changes the answer, the threshold and the root margin, so two
  * callers that asked different questions still get different observers.
  */
@@ -21,6 +26,8 @@ type Listener = (entry: IntersectionObserverEntry) => void;
 interface Shared {
   observer: IntersectionObserver;
   listeners: Map<Element, Set<Listener>>;
+  /** The last entry delivered for each element, for a listener that joins later. */
+  latest: Map<Element, IntersectionObserverEntry>;
 }
 
 const shared = new Map<string, Shared>();
@@ -47,9 +54,12 @@ export function watchIntersection(
 
   if (!entry) {
     const listeners = new Map<Element, Set<Listener>>();
+    const latest = new Map<Element, IntersectionObserverEntry>();
     const observer = new IntersectionObserver(
       (records) => {
         for (const record of records) {
+          latest.set(record.target, record);
+
           for (const call of listeners.get(record.target) ?? []) {
             call(record);
           }
@@ -58,22 +68,33 @@ export function watchIntersection(
       { threshold, rootMargin }
     );
 
-    entry = { observer, listeners };
+    entry = { observer, listeners, latest };
     shared.set(key, entry);
   }
 
-  const { observer, listeners } = entry;
+  const { observer, listeners, latest } = entry;
   let calls = listeners.get(element);
+  let stopped = false;
 
   if (!calls) {
     calls = new Set();
     listeners.set(element, calls);
     observer.observe(element);
+  } else {
+    const known = latest.get(element);
+
+    // Asynchronously, as the observer would have answered. With no entry yet,
+    // the first one is still queued and reaches this listener too.
+    if (known) {
+      queueMicrotask(() => {
+        if (!stopped) {
+          listener(known);
+        }
+      });
+    }
   }
 
   calls.add(listener);
-
-  let stopped = false;
 
   return () => {
     if (stopped) {
@@ -88,6 +109,7 @@ export function watchIntersection(
     }
 
     listeners.delete(element);
+    latest.delete(element);
     observer.unobserve(element);
 
     if (listeners.size === 0) {
