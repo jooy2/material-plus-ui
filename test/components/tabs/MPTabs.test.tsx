@@ -360,6 +360,32 @@ describe('MPTabs', () => {
       await vi.waitFor(() => expect(list).toHaveAttribute('data-mp-overflow', 'left'));
     });
 
+    it('notices a bar that fills up, without measuring on every render', async () => {
+      // A tab added to a bar changes what is in the box and not the box, so it
+      // is watched for rather than found by measuring after every render.
+      function Growing({ count }: { count: number }) {
+        return (
+          <div style={{ width: 200 }}>
+            <MPTabs aria-label="Growing" defaultValue={0}>
+              {Array.from({ length: count }, (_, index) => (
+                <MPTab key={index} value={index}>
+                  Section {index}
+                </MPTab>
+              ))}
+            </MPTabs>
+          </div>
+        );
+      }
+
+      const screen = await render(<Growing count={1} />);
+      const list = screen.container.querySelector('.mp-tabs__list') as HTMLElement;
+
+      expect(list.hasAttribute('data-mp-overflow')).toBe(false);
+
+      await screen.rerender(<Growing count={8} />);
+      await vi.waitFor(() => expect(list).toHaveAttribute('data-mp-overflow', 'right'));
+    });
+
     it('answers in the terms the mask is written in, whichever way the page runs', async () => {
       const screen = await render(<Narrow dir="rtl" />);
       const list = screen.container.querySelector('.mp-tabs__list') as HTMLElement;

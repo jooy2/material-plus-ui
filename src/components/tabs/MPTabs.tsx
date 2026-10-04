@@ -399,31 +399,74 @@ export const MPTabs = React.forwardRef<HTMLDivElement, MPTabsProps>(function MPT
   }, []);
 
   /*
-   * After every render, and not on a dependency list.
+   * Measured when something that decides the answer changes, and not on every
+   * render.
    *
-   * What changes `scrollWidth` is the set of tabs, and a `ResizeObserver` on the
-   * list cannot see that: adding a tab to a bar that is already full changes
-   * what is inside the box and not the box. Measuring is four layout reads on a
-   * row of buttons, and `setOverflow` with the answer it already holds is a
-   * bail-out rather than a second render — so this costs a reflow and nothing
-   * else.
+   * Two things change `scrollWidth`: the box, and what is in it — a tab added
+   * to a full bar, or a label that grew. A `ResizeObserver` on the list sees
+   * the first, the same observer on each tab sees a label growing, and a
+   * `MutationObserver` on the list sees a tab arriving or leaving and starts
+   * watching it. Measuring after every render answered all three as well, with
+   * a forced layout on every tab change, hover and parent render the bar ever
+   * had.
    */
-  React.useEffect(measure);
-
   React.useEffect(() => {
     const list = listRef.current;
 
-    if (!list || typeof ResizeObserver === 'undefined') {
+    measure();
+
+    if (!list) {
       return;
     }
 
-    // And the other half: the box changing under a set of tabs that did not.
-    const observer = new ResizeObserver(measure);
+    const resize = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measure);
 
-    observer.observe(list);
+    const watch = () => {
+      if (!resize) {
+        return;
+      }
 
-    return () => observer.disconnect();
+      resize.disconnect();
+      resize.observe(list);
+
+      for (const tab of list.children) {
+        resize.observe(tab);
+      }
+    };
+
+    watch();
+
+    const mutation =
+      typeof MutationObserver === 'undefined'
+        ? null
+        : new MutationObserver(() => {
+            watch();
+            measure();
+          });
+
+    mutation?.observe(list, { childList: true });
+
+    return () => {
+      resize?.disconnect();
+      mutation?.disconnect();
+    };
   }, [measure]);
+
+  // Once a frame at most while the bar scrolls, for the reason the observers
+  // above exist: each measure is a layout read, and `scroll` fires faster than
+  // the screen draws.
+  const scrollFrame = React.useRef(0);
+
+  React.useEffect(() => () => cancelAnimationFrame(scrollFrame.current), []);
+
+  const measureOnScroll = () => {
+    if (scrollFrame.current === 0) {
+      scrollFrame.current = requestAnimationFrame(() => {
+        scrollFrame.current = 0;
+        measure();
+      });
+    }
+  };
 
   /*
    * Everything between the tags is either a tab or a panel, and the two go in
@@ -469,7 +512,7 @@ export const MPTabs = React.forwardRef<HTMLDivElement, MPTabsProps>(function MPT
           // on. Absent when everything fits, so a bar that does not overflow
           // carries no mask at all.
           data-mp-overflow={overflow ?? undefined}
-          onScroll={measure}
+          onScroll={measureOnScroll}
           className={[
             'mp-tabs__list relative flex shrink-0',
             // MD3's divider under the bar. It is on the list rather than on the

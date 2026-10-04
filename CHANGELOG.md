@@ -66,6 +66,8 @@
 
 - **An open `MPTour` moves its spotlight without re-rendering itself.** It follows its target by measuring it every frame, and every frame the target moved — a smooth scroll to it is one per frame — was a render of the whole tour, card included, to shift one rectangle. Moves after the first are written straight onto the spotlight, which halves the work of following a moving target.
 
+- **`MPTabs` measures its bar when the bar changes, not on every render.** It read the bar's scroll width after every render to know whether to fade an end, which forced a layout on each tab change and each render of anything above it, and it read the bar's direction on every scroll event. Observers now say when the box, a tab's size or the set of tabs changes, and scrolling measures once a frame.
+
 ### Documentation
 
 - **The getting-started guide registers languages in a client module under App Router.** It said `registerMPMessages` could be called from a server file, but a server component and the client components it renders are separate module instances of the library there — a table registered from a server file reached no component that speaks, and every one of them went on speaking English. The guide now registers it in a `'use client'` module the root layout renders.
