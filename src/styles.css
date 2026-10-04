@@ -95,6 +95,27 @@
  * Only the *derived* colours need it. Everything else here is a literal value
  * with no `var()` to freeze, so plain inheritance from `:root` is enough.
  *
+ * ## Why `*` and `::backdrop`, but not `::before` and `::after`
+ *
+ * The rule reaches every element of the page it is loaded into, not only the
+ * ones this library rendered, so what it costs per element is a cost to the
+ * whole page. A `::before` or `::after` in the selector multiplies it: a
+ * browser has to resolve both pseudo-elements of every element on the page to
+ * find out whether either one draws anything, and resolving each one means
+ * substituting all of the roles below again.
+ *
+ * Neither needs its own copy. A `::before` and an `::after` inherit from the
+ * element they belong to, which already holds the roles as resolved where it
+ * sits, and nothing sets a source colour, a tone stop or a role on a
+ * pseudo-element — so the copy they would compute is the copy they inherit.
+ * `::placeholder` and `::marker` have always been read this way. `::backdrop`
+ * stays, because before 2024 it inherited from nothing at all.
+ *
+ * Measured on a plain page of 1,430 elements with nothing of this library on
+ * it, the first style pass took 164ms in WebKit with the pseudo-elements in the
+ * selector and 21ms without them, against 9ms with no stylesheet at all;
+ * Firefox went from 68ms to 26ms. iOS runs every browser on WebKit.
+ *
  * The computed results are `--_mp-*`: private, read by the components, and not
  * a name to set. Material Web marks its own internal tokens the same way. The
  * indirection is load-bearing — it is what keeps a consumer's
@@ -530,8 +551,6 @@
    * passes the edge by less than 4% of one channel.
    */
   *,
-  ::before,
-  ::after,
   ::backdrop {
     /*
      * The grey each accent tone sits on, in linear light: an OKLCh lightness
@@ -2045,8 +2064,6 @@
     }
 
     *,
-    ::before,
-    ::after,
     ::backdrop {
       --_mp-color-primary: var(
         --mp-sys-color-primary,

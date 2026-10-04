@@ -132,3 +132,53 @@ describe('the colour scheme switches', () => {
     ).toBe('#aa3311');
   });
 });
+
+describe('a pseudo-element', () => {
+  // The roles are declared on `*` and not on `::before` and `::after`, which
+  // would make a browser resolve both for every element on the page. These
+  // hold the reason that is safe: a pseudo-element inherits the roles its own
+  // element resolved, so it draws in whatever scheme and source colour that
+  // element is in.
+  const PROBE = `
+    .mp-test-probe, .mp-test-probe::before {
+      background-color: var(--color-mp-primary);
+      color: var(--color-mp-on-surface);
+    }
+    .mp-test-probe::before { content: ''; }
+  `;
+
+  function paint(element: Element, pseudo?: string): string {
+    const style = getComputedStyle(element, pseudo);
+
+    return `${style.backgroundColor} ${style.color}`;
+  }
+
+  it('draws in the colours of the element it belongs to', async () => {
+    const screen = await render(
+      <>
+        <style>{PROBE}</style>
+        <span className="mp-test-probe" data-testid="page" />
+        <div style={{ ['--mp-source-color' as string]: '#aa3311' }}>
+          <span className="mp-test-probe" data-testid="source" />
+        </div>
+        <div data-mp-scheme="dark">
+          <span className="mp-test-probe" data-testid="dark" />
+        </div>
+        <div style={{ ['--mp-sys-color-primary' as string]: 'rgb(1, 2, 3)' }}>
+          <span className="mp-test-probe" data-testid="role" />
+        </div>
+      </>
+    );
+    const page = screen.getByTestId('page').element();
+
+    for (const id of ['page', 'source', 'dark', 'role']) {
+      const element = screen.getByTestId(id).element();
+
+      expect(paint(element, '::before'), id).toBe(paint(element));
+
+      if (id !== 'page') {
+        expect(paint(element, '::before'), id).not.toBe(paint(page, '::before'));
+      }
+    }
+  });
+});

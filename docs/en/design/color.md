@@ -154,7 +154,7 @@ Note the asymmetry: you **write** `--mp-sys-color-*` and **read** `--color-mp-*`
 
 That first half is worth saying plainly, because the empty read is what sends people the wrong way: **`--mp-sys-color-*` is the public API.** `getComputedStyle(document.documentElement).getPropertyValue('--mp-sys-color-outline')` returns an empty string on an untouched page — the slot exists to be overridden and nothing has overridden it — and a token that reads as empty looks like a token that is not there.
 
-The wrong turn it invites is setting `--color-mp-outline` instead, and that one does not work no matter where you put it. Tailwind declares the derived roles on `*, ::before, ::after` so that a scoped override can reach them, which means every element redeclares its own copy: a `:root { --color-mp-outline: … }` is overwritten on every element under it before anything reads it. Write the `--mp-sys-color-*` slot and the derivation carries it down.
+The wrong turn it invites is setting `--color-mp-outline` instead, and that one does not work no matter where you put it. The derived roles are declared on every element so that a scoped override can reach them, which means every element redeclares its own copy: a `:root { --color-mp-outline: … }` is overwritten on every element under it before anything reads it. Write the `--mp-sys-color-*` slot and the derivation carries it down.
 
 ## Coexisting with an existing Material setup
 

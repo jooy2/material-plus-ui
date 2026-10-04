@@ -2,6 +2,10 @@
 
 ## vNext (2026--)
 
+### Changed
+
+- **The stylesheet costs the page around it far less to style.** The colour roles are declared on every element so that a scoped `--mp-source-color` or `.dark` can reach them, and that rule also named `::before` and `::after` — which made a browser resolve both pseudo-elements of every element on the page, this library's or not, to find out whether either drew anything. Measured on a plain page of 1,430 elements, the first style pass took 164ms in WebKit and now takes 21ms, and 68ms in Firefox and now 26ms. A pseudo-element inherits the roles its element resolved, so every colour is drawn exactly as before, scoped themes included.
+
 ## 1.9.0 (2026-09-28)
 
 `material-plus-ui/a2ui` is new: A2UI's basic catalog drawn as Material Design 3, and five components of this library's own for the tables and charts an agent reporting numbers has to draw — all behind optional peer dependencies, so a project that renders no agent interfaces pays nothing for them. The rest of the release is the charts: an axis that turns a long label instead of cutting it, a line that can bridge a gap or read it as zero, a range a reader can drag out of a long axis, percent stacks, target lines and bands, and a hover panel that sorts its rows and adds up a stack.
