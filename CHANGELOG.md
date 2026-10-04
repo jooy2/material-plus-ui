@@ -83,6 +83,8 @@
 
 - **`MPCombobox`'s page says what to do with a long list.** Every row it shows is a real element, so a few thousand make the popup pause as it opens. The `limit` section shows the cap, which applies after the filter, and points a list too long to send at all to `filter={null}`.
 
+- **`MPAppLogo`'s page says how to keep a `bare` mark from moving the header.** The mark takes its width from the file and is drawn zero pixels wide until the file arrives. Passing the file's `width` and `height` in `imageProps` reserves the width from their ratio.
+
 ### Fixed
 
 - **A locale tag that is not quite a tag no longer takes the render down.** The words in this library's table matched `ko_KR` and `ko-KR,ko;q=0.9` — a request's `Accept-Language` passed straight through — on their language, and then `Intl` threw a `RangeError` at the first date or number. A tag is now tidied before `Intl` sees it: the first of a list, without its weight, with hyphens; and one that still does not parse formats in the runtime's own locale. The cache of resolved words is also capped, as the `Intl` caches already were, so a server handed every request's language does not keep them all.

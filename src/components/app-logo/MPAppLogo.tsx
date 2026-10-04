@@ -125,7 +125,12 @@ export interface MPAppLogoProps extends Omit<
    * so a logo that also needs `nofollow` spells all three out.
    */
   rel?: string;
-  /** Anything else the `<img>` needs — `loading`, `decoding`, `crossOrigin`. */
+  /**
+   * Anything else the `<img>` needs — `loading`, `decoding`, `crossOrigin`.
+   * On `bare`, the file's own `width` and `height` too: they reserve the mark's
+   * width from their ratio, so the name beside it does not move when the file
+   * arrives.
+   */
   imageProps?: Omit<React.ComponentPropsWithoutRef<'img'>, 'src' | 'srcSet' | 'alt'>;
   /**
    * Renders something other than a `<span>`, or than the `<a>` an `href` makes

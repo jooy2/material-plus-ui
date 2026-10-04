@@ -47,6 +47,16 @@ So `shape` is a decision made once at the call site:
 
 `bare` is the default because a logo file very often has the product's name set into it, and squeezing a wordmark into a square is worse than any tile is good. There is no `square`: a tile with the corners left on is the one shape MD3 does not draw, and at `xs` an `app` icon is already close enough to one that a fourth value would be invisible.
 
+### The width of a `bare` mark before its file arrives
+
+A `bare` mark takes its width from the file, and until the file has arrived it has none. The mark is drawn zero pixels wide, and the name beside it, and anything after the logo in the header, moves along when the picture lands. Give the `<img>` the file's own size and the browser reserves the width from the ratio of the two:
+
+```tsx
+<MPAppLogo src="/logo.svg" name="Voltage" showName imageProps={{ width: 160, height: 40 }} />
+```
+
+The numbers only set the proportions. The height is still the one `size` or `height` asks for, so a 160 by 40 file drawn at `md` is reserved 224 pixels wide. A tile does not need them: `app` and `circle` are square whatever the file is.
+
 ## The inset is a share of the artwork, not padding on the tile
 
 Which matters as soon as the name is drawn beside the mark. A percentage padding resolves against the containing block's width — the whole lockup — so the same icon would be inset by 4px on its own and by 11px with "Voltage" next to it, and the inset would grow with the length of the name.
