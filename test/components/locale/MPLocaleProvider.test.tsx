@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { renderToString } from 'react-dom/server';
 import {
   MPAlert,
   MPBreadcrumb,
@@ -21,6 +22,7 @@ import {
   registerMPMessages,
   useMPLocale
 } from 'material-plus-ui';
+import { cleanupHydrated, hydrateFromServer } from '../../support/hydrate';
 
 const JULY = new Date(2026, 6, 1);
 
@@ -60,6 +62,45 @@ describe('MPLocaleProvider', () => {
       );
 
       expect(screen.getByTestId('locale').element().textContent).toBe('ja');
+    });
+
+    describe('`serverLocale`', () => {
+      afterEach(cleanupHydrated);
+
+      it('is what the server renders with when no locale is set', () => {
+        const html = renderToString(
+          <MPLocaleProvider serverLocale="de-DE">
+            <Reader />
+          </MPLocaleProvider>
+        );
+
+        expect(html).toContain('>de-DE<');
+      });
+
+      it('hydrates in it, then hands over to the platform default', async () => {
+        const { container, errors } = await hydrateFromServer(
+          <MPLocaleProvider serverLocale="de-DE">
+            <Reader />
+          </MPLocaleProvider>
+        );
+
+        expect(errors).toEqual([]);
+        expect(container.querySelector('output')!.textContent).toBe('none');
+      });
+
+      it('gives way to `locale` on both sides', async () => {
+        const node = (
+          <MPLocaleProvider locale="ja" serverLocale="de-DE">
+            <Reader />
+          </MPLocaleProvider>
+        );
+
+        expect(renderToString(node)).toContain('>ja<');
+
+        const { container } = await hydrateFromServer(node);
+
+        expect(container.querySelector('output')!.textContent).toBe('ja');
+      });
     });
 
     it('lets a prop beat the provider, so one control can differ from the page', async () => {

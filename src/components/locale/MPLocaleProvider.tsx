@@ -20,6 +20,20 @@ export interface MPLocaleProviderProps {
    * over it does.
    */
   locale?: string;
+  /**
+   * The tag dates and numbers are written in on the server, and while the page
+   * hydrates, when `locale` is left `undefined`. Once the page has hydrated, the
+   * reader's own default takes over.
+   *
+   * For a server-rendered page that wants to follow the reader's browser but
+   * cannot tell their language on the server. Without it the server writes in
+   * its own machine's locale, the browser's first render writes in the reader's,
+   * and React discards the server's markup over the difference. With it the two
+   * agree, and the formatted values are rewritten once after hydration instead.
+   *
+   * Ignored when `locale` is set, which already agrees on both sides.
+   */
+  serverLocale?: string;
   children?: React.ReactNode;
 }
 
@@ -52,8 +66,22 @@ export interface MPLocaleProviderProps {
  * showing a Japanese listing's dates is two providers, and the inner one does
  * not have to restate anything: there is only the one value.
  */
-export function MPLocaleProvider({ locale, children }: MPLocaleProviderProps) {
-  return <MPLocaleContext.Provider value={locale}>{children}</MPLocaleContext.Provider>;
+/** Nothing ever changes, so there is nothing to listen to. */
+const subscribe = () => () => {};
+/** In a browser past hydration: the platform's own locale. */
+const platform = () => undefined;
+
+export function MPLocaleProvider({ locale, serverLocale, children }: MPLocaleProviderProps) {
+  /*
+   * `useSyncExternalStore` because it is the one API with a server snapshot,
+   * and React reads that snapshot on the server and again in the browser while
+   * it hydrates — so both renders format in `serverLocale`, and the render after
+   * hydration formats in the reader's. A component mounted later, on the client
+   * alone, reads the reader's from the start.
+   */
+  const unset = React.useSyncExternalStore(subscribe, platform, () => serverLocale);
+
+  return <MPLocaleContext.Provider value={locale ?? unset}>{children}</MPLocaleContext.Provider>;
 }
 
 /**

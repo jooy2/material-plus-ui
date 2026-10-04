@@ -23,7 +23,7 @@
  * itself, in the sense `internal/` always means.
  */
 
-import { dateTimeFormatter, remember } from './intl';
+import { checkServerLocale, dateTimeFormatter, remember } from './intl';
 import type { MPWeekday } from '../types';
 
 /** Which unit the calendar is currently letting you pick. */
@@ -655,6 +655,8 @@ export function localeWeekStart(locale: string | undefined): MPWeekday {
 
 /** The part that actually asks `Intl`, kept apart so the cache above reads as one. */
 function readWeekStart(locale: string | undefined): MPWeekday {
+  checkServerLocale(locale);
+
   try {
     const resolved = locale ?? new Intl.DateTimeFormat().resolvedOptions().locale;
     const info = new Intl.Locale(resolved) as LocaleWeekInfo;

@@ -2,6 +2,10 @@
 
 ## vNext (2026--)
 
+### Added
+
+- **`MPLocaleProvider` takes `serverLocale`, for a server-rendered page that cannot tell its reader's language on the server.** A date or a number formatted with no locale is written in the runtime's own, and a server and a browser are two runtimes: the markup said `1,234.5`, the first client render said `1.234,5`, and React discarded the server's markup and rendered the page again. `serverLocale` is the language the server pass and the hydrating pass are both written in; the dates and numbers are rewritten in the reader's language once the page has hydrated. A server that formats with neither a `locale` nor a `serverLocale` now says so in its log, once. See [On a server](https://material-plus.cdget.com/design/localization#on-a-server).
+
 ### Changed
 
 - **The stylesheet costs the page around it far less to style.** The colour roles are declared on every element so that a scoped `--mp-source-color` or `.dark` can reach them, and that rule also named `::before` and `::after` — which made a browser resolve both pseudo-elements of every element on the page, this library's or not, to find out whether either drew anything. Measured on a plain page of 1,430 elements, the first style pass took 164ms in WebKit and now takes 21ms, and 68ms in Firefox and now 26ms. A pseudo-element inherits the roles its element resolved, so every colour is drawn exactly as before, scoped themes included.

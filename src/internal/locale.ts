@@ -15,8 +15,16 @@
  * `resolveNamespace` in `internal/i18n.ts`. The runtime's own locale differs
  * between the server that renders the markup and the browser that hydrates it,
  * so reading it would put a hydration mismatch in the one part of the page a
- * reader is looking at. `undefined` therefore means "the platform's default",
- * which `Intl` resolves consistently in both places.
+ * reader is looking at.
+ *
+ * `undefined` means "the platform's default", and that is safe for the words
+ * and not for the numbers. The words fall back to English on both sides. `Intl`
+ * does not: handed `undefined` it answers in the *runtime's* locale, which is the
+ * machine's `LANG` on a server and the reader's language in a browser — so a
+ * server-rendered page that names no locale writes `1,234.5` into its markup and
+ * `1.234,5` into its first client render. `checkServerLocale` in
+ * `internal/intl.ts` says so when it happens; `MPLocaleProvider`'s `serverLocale`
+ * is the way out for a page that cannot know its reader's language on the server.
  */
 import * as React from 'react';
 import { resolveNamespace, type MPMessages, type MPNamespace } from './i18n';

@@ -123,6 +123,30 @@ const price = new Intl.NumberFormat(locale, { style: 'currency', currency: 'KRW'
 
 What it deliberately does **not** do is read `navigator.language`. That value differs between the server rendering the markup and the browser hydrating it, and text that changes between those two is a hydration mismatch in the one part of the page a reader is looking at. A component that should follow the reader is _told_ which language to follow.
 
+### On a server
+
+The platform's own locale is two locales on a page a server renders. `Intl` on the server answers in the machine's `LANG`, and in the browser in the reader's language, so the same number is `1,234.5` in the markup and `1.234,5` in the first client render — and React, finding the two different, discards the server's markup and renders the page again. The words are safe, because they fall back to English on both sides; the dates and the numbers are not.
+
+So a server-rendered page names its locale. The best answer is the reader's, read from the request on the server — its `Accept-Language` header, or the language in its URL — and passed to the provider, which then agrees on both sides:
+
+```tsx
+<MPLocaleProvider locale={localeFromRequest}>
+  <App />
+</MPLocaleProvider>
+```
+
+Where the server cannot know it, `serverLocale` names the language the server pass is written in. The page hydrates in that language and then rewrites its dates and numbers in the reader's own, once, instead of being rendered twice:
+
+```tsx
+<MPLocaleProvider serverLocale="en-US">
+  <App />
+</MPLocaleProvider>
+```
+
+A server that formats with neither writes one warning to its log, the first time it happens.
+
+Time zones are the same problem, and no provider solves it. A `Date` is written in the runtime's time zone, so a chart category at midnight UTC is one day on a server in UTC and the day before in a browser in Los Angeles. Where the server's zone may not be the reader's, pass chart categories as the strings you want shown rather than as `Date` objects.
+
 ## Why this is the only provider in the library
 
 Everything else a theme provider might carry here is already a CSS custom property: the colour roles, the type scale, the corners, the motion durations. Those reach a component through the cascade, which means a section of a page can differ from the rest of it without a second provider and without a re-render.
