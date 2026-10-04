@@ -143,6 +143,39 @@ const CELL_BASE = [
  */
 const VIEW_RANK: Record<MPCalendarView, number> = { day: 0, month: 1, year: 2 };
 
+/*
+ * Today, as the grids mark it.
+ *
+ * The browser's clock rather than the server's, and that is the reason for the
+ * hook. A grid rendered on a server marks the server's today, which is a
+ * different day from the reader's for some hours around every midnight — and
+ * React does not repair an attribute that disagrees while it hydrates, so the
+ * ring and `aria-current` stayed on the wrong day until something re-rendered
+ * the grid. The server snapshot is "unknown": nothing is marked in the markup,
+ * and the reader's own today is marked straight after hydration.
+ *
+ * The snapshot is the same object until the day changes, because
+ * `useSyncExternalStore` compares it by identity.
+ */
+let knownToday: Date | null = null;
+
+function readToday(): Date {
+  const now = today();
+
+  if (knownToday === null || knownToday.getTime() !== now.getTime()) {
+    knownToday = now;
+  }
+
+  return knownToday;
+}
+
+const neverChanges = () => () => {};
+const unknownToday = () => null;
+
+function useToday(): Date | null {
+  return React.useSyncExternalStore(neverChanges, readToday, unknownToday);
+}
+
 /* ---------------------------------------------------------------------------
  * The cell
  * ------------------------------------------------------------------------- */
@@ -759,7 +792,7 @@ function DayGrid({
   const narrow = weekdayLabels(locale, weekStartsOn, 'narrow');
   const long = weekdayLabels(locale, weekStartsOn, 'long');
   const band = orderedRange(rangeStart, rangeEnd);
-  const now = today();
+  const now = useToday();
 
   /*
    * The grid and the name of every cell in it, kept until the month changes.
@@ -921,7 +954,7 @@ function DayGrid({
                             ? 'end'
                             : 'middle'
                   }
-                  current={isSameDay(date, now) && !isChosen}
+                  current={now !== null && isSameDay(date, now) && !isChosen}
                   muted={outside}
                   disabled={isDisabled(date)}
                   focused={isSameDay(date, focusedDate)}
@@ -971,7 +1004,7 @@ function MonthGrid({
 }: MonthGridProps) {
   const short = monthLabels(locale, 'short');
   const year = month.getFullYear();
-  const now = new Date();
+  const now = useToday();
 
   /*
    * The name of each cell: the whole month, written the way the locale writes
@@ -1033,7 +1066,7 @@ function MonthGrid({
                 selected={chosen.some(
                   (entry) => entry.getFullYear() === year && entry.getMonth() === index
                 )}
-                current={now.getFullYear() === year && now.getMonth() === index}
+                current={now !== null && now.getFullYear() === year && now.getMonth() === index}
                 // A month is out of bounds only when every day in it is: the
                 // month a `minDate` falls in is still reachable, it just starts
                 // late. `isUnitOutside` is that rule, stated once.
@@ -1066,7 +1099,7 @@ interface YearGridProps {
 /** Twelve years, four across, and the same trick with the cursor. */
 function YearGrid({ size, month, chosen, minDate, maxDate, onMoveCursor, onPick }: YearGridProps) {
   const pageStart = yearPageStart(month.getFullYear());
-  const now = new Date().getFullYear();
+  const now = useToday()?.getFullYear();
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
     const across = horizontalStep(event.currentTarget);

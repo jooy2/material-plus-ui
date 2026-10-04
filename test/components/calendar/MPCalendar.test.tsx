@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { renderToString } from 'react-dom/server';
 import { MPCalendar, MPLocaleProvider } from 'material-plus-ui';
+import { cleanupHydrated, hydrateFromServer } from '../../support/hydrate';
 
 /**
  * Every test names a locale and a month, for the reason `MPDatePicker`'s do: the
@@ -354,6 +356,30 @@ describe('MPCalendar', () => {
       const screen = await render(<Controlled />);
 
       expect(screen.container.querySelector('input[type="hidden"]')).toBeNull();
+    });
+  });
+
+  describe('today', () => {
+    afterEach(cleanupHydrated);
+
+    it("marks the browser's today", async () => {
+      const screen = await render(<MPCalendar locale="en-US" />);
+      const marked = screen.container.querySelectorAll('[aria-current="date"]');
+
+      expect(marked).toHaveLength(1);
+      expect(marked[0].textContent).toBe(String(new Date().getDate()));
+    });
+
+    it('is left out of server-rendered markup, and marked once the page hydrates', async () => {
+      // The server's clock is not the reader's, so it has no today to mark.
+      const node = <MPCalendar locale="en-US" />;
+
+      expect(renderToString(node)).not.toContain('aria-current');
+
+      const { container, errors } = await hydrateFromServer(node);
+
+      expect(errors).toEqual([]);
+      expect(container.querySelectorAll('[aria-current="date"]')).toHaveLength(1);
     });
   });
 });

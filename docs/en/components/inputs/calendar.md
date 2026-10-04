@@ -105,6 +105,7 @@ Local rather than UTC, for the reason the whole library treats a calendar day as
 - **It is not a range calendar.** Two ends is [MPDateRangePicker](./date-range-picker.md)'s question: the band drawn between them needs a preview of the half-chosen range that a single value has no room for.
 - **It is not an event calendar.** There is no per-cell rendering hook, because a cell that could hold arbitrary content stops being a 40dp target and starts being a layout.
 - **The grid has one tab stop.** `Tab` leaves the calendar rather than walking forty-two cells; the arrow keys are how you move inside it.
+- **On a server-rendered page, today is marked after hydration.** The server's clock is not the reader's, and for some hours around every midnight the two are on different days, so the markup marks no day and the reader's own today is marked once the page has hydrated. The month it opens on still comes from the clock where it renders; near the end of a month, pass `defaultMonth` from the request so the server and the browser open on the same one.
 
 ## Next
 

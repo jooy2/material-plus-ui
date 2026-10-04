@@ -1,3 +1,4 @@
+import { act } from 'react';
 import type { ReactNode } from 'react';
 import { renderToString } from 'react-dom/server';
 import { hydrateRoot } from 'react-dom/client';
@@ -34,10 +35,25 @@ export interface Hydrated {
 
 const mounted: { root: Root; container: HTMLElement }[] = [];
 
+/** `act`, with React told it is in a test only for as long as it runs. */
+async function withAct(callback: () => Promise<void> | void): Promise<void> {
+  const scope = globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean };
+  const previous = scope.IS_REACT_ACT_ENVIRONMENT;
+
+  scope.IS_REACT_ACT_ENVIRONMENT = true;
+
+  try {
+    await act(callback);
+  } finally {
+    scope.IS_REACT_ACT_ENVIRONMENT = previous;
+  }
+}
+
 /**
  * Renders `node` to a string, puts it in a container on the page, and hydrates
- * it with the same element. Resolves once React has committed and run the
- * effects that follow, so an assertion sees what a reader would after load.
+ * it with the same element. Resolves once React has committed, run the effects
+ * that follow and rendered what they asked for, so an assertion sees what a
+ * reader would after load.
  *
  * Pass `html` to hydrate markup that a different server would have produced.
  */
@@ -49,26 +65,29 @@ export async function hydrateFromServer(node: ReactNode, html?: string): Promise
   container.innerHTML = markup;
   document.body.append(container);
 
-  const root = hydrateRoot(container, node, {
-    onRecoverableError: (error) => {
-      errors.push(error instanceof Error ? error.message : String(error));
-    }
+  let root!: Root;
+
+  // Inside `act`, as every other render in this suite is: it holds the test
+  // until hydration has committed, its effects have run, and whatever they
+  // scheduled — a store that answered differently after hydration — has
+  // rendered too.
+  await withAct(async () => {
+    root = hydrateRoot(container, node, {
+      onRecoverableError: (error) => {
+        errors.push(error instanceof Error ? error.message : String(error));
+      }
+    });
   });
 
   mounted.push({ root, container });
-
-  // A macrotask, then a frame: hydration commits in the first, and the passive
-  // effects a component corrects itself in run before the second.
-  await new Promise((resolve) => setTimeout(resolve, 0));
-  await new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
 
   return { container, html: markup, errors, root };
 }
 
 /** Unmounts and removes everything `hydrateFromServer` put on the page. */
-export function cleanupHydrated(): void {
+export async function cleanupHydrated(): Promise<void> {
   for (const { root, container } of mounted.splice(0)) {
-    root.unmount();
+    await withAct(() => root.unmount());
     container.remove();
   }
 }
