@@ -445,4 +445,22 @@ describe('MPAnimateFade', () => {
 
     expect(screen.getByTestId('fade').element().tagName).toBe('SECTION');
   });
+
+  it('drops the entrance on a page read without JavaScript', () => {
+    // Waiting for a trigger means waiting on its first frame at `opacity: 0`,
+    // and without script nothing ever starts it. The stylesheet lets the
+    // content show instead; a browser test cannot turn its own script off, so
+    // the rule is read rather than run.
+    const rules = [...document.styleSheets].flatMap((sheet) => [...sheet.cssRules]);
+    const media = rules.find(
+      (rule): rule is CSSMediaRule =>
+        rule instanceof CSSMediaRule && rule.conditionText.includes('scripting: none')
+    );
+    const inside = [...(media?.cssRules ?? [])].find(
+      (rule): rule is CSSStyleRule =>
+        rule instanceof CSSStyleRule && rule.selectorText === '.mp-anim'
+    );
+
+    expect(inside?.style.animationName).toBe('none');
+  });
 });

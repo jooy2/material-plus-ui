@@ -34,6 +34,8 @@
 
 - **A progress bar, a meter, a slider and a number field write their numbers in the provider's language.** All four hand the value to Base UI to format, and Base UI formats in the runtime's locale unless it is told one, so under `<MPLocaleProvider locale="de">` they went on writing `1,234.5` while everything around them wrote `1.234,5` — and on a server-rendered page, wrote it in the server's language. `MPGaugeChart` was told nothing either, despite a `locale` prop of its own. `MPProgressLinear`, `MPProgressCircular`, `MPProgressBox`, `MPMeter` and `MPSlider` also take `locale` now, like every other component that writes a number.
 
+- **An `MPAnimate*` entrance waiting for its trigger shows its content on a page read without JavaScript.** With `trigger="visible"`, `manual` or `hover` the content sits on the entrance's first frame, at `opacity: 0` or clipped, until script starts it — and with scripting off nothing ever does, so the content was in the markup and visible to nobody. The entrance is now dropped under `@media (scripting: none)`, as it already was under `prefers-reduced-motion`.
+
 - **`MPCarousel` scrolls its own strip and never the page.** It turned a slide with `scrollIntoView`, which scrolls every container the slide is inside — so each slide an autoplaying carousel turned pulled the page back to the carousel, while the reader was reading something else. Autoplay also holds while the carousel is scrolled out of view now, as it already did in a background tab.
 
 - **`MPCarousel` opens on `defaultValue` or `value`.** A carousel asked to open on its third slide showed the first, while its marks and its live region said the third.

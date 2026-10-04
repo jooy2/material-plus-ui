@@ -3867,6 +3867,21 @@
 }
 
 /*
+ * And the same for a page read without JavaScript.
+ *
+ * An entrance waiting for `trigger="visible"`, `manual` or `hover` sits paused
+ * on its first frame until script starts it, and with no script that is
+ * forever: the content was in the markup and drawn at `opacity: 0`, invisible
+ * to the reader and present for nobody but a crawler. With scripting off the
+ * entrance is dropped and the content shown, which is what it was carrying.
+ */
+@media (scripting: none) {
+  .mp-anim {
+    animation: none;
+  }
+}
+
+/*
  * Lighting: a light travelling around the outside of something.
  *
  * The arc is a conic gradient and what moves is its `from` angle, which is only
