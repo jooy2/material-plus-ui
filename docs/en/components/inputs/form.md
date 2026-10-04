@@ -32,6 +32,8 @@ What this owns is the part that has to live **above** the fields:
 - `errors` puts a server's answer back on the field it belongs to.
 - The children are stacked with a gap, because a form is a stack and a stack with no gap is a column of fields touching.
 
+Give it `onSubmit` and the values come to you, with the native submit cancelled. Give it an `action` instead — a URL, or a React server action — and a valid submit goes there, which is also the form a page has before its JavaScript has loaded.
+
 That is the whole of it. No surface, no padding, no measure — those belong to an [MPCard](../layout/card) or an [MPContainer](../layout/container) around it, for the reason a container gives: the thing that decides the shape of a page should not also be the thing that submits it.
 
 ## It is not a form library

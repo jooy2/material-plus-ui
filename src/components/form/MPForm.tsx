@@ -39,6 +39,9 @@ export interface MPFormProps extends Omit<React.ComponentPropsWithoutRef<'form'>
   /**
    * Called on a valid submit, with the form's values. The native submit event is
    * prevented, so nothing navigates.
+   *
+   * Leave it out and give the form an `action` — a URL, or a React server
+   * action — and a valid submit goes to the action instead.
    */
   onSubmit?: (values: Record<string, unknown>) => void;
   /**
@@ -88,7 +91,17 @@ export const MPForm = React.forwardRef<HTMLFormElement, MPFormProps>(function MP
       ref={ref}
       validationMode={validationMode}
       errors={errors}
-      onFormSubmit={(values) => onSubmit?.(values)}
+      /*
+       * Handed to Base UI only when there is something to hand the values to.
+       * A handler here is what makes Base UI cancel the native submit, so
+       * passing one unconditionally cancelled every `action` — a URL that never
+       * navigated, a server action that never ran, and a form that did not work
+       * at all before the page had hydrated. The invalid case is still held
+       * back: Base UI cancels a submit with a failing field whatever is passed.
+       */
+      onFormSubmit={
+        onSubmit || props.action === undefined ? (values) => onSubmit?.(values) : undefined
+      }
       data-mp-size={size}
       className={['mp-form flex flex-col', SHEET_GAP[size], className ?? '']
         .filter(Boolean)

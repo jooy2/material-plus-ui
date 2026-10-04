@@ -50,6 +50,23 @@ describe('MPForm', () => {
     expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ email: 'ada@example.com' }));
   });
 
+  it('hands a valid submit to its `action` when there is no `onSubmit`', async () => {
+    // A handler for the values is what cancels the native submit, and one was
+    // passed whether or not anybody asked — so an `action` never ran.
+    const received = vi.fn();
+    const screen = await render(
+      <MPForm action={async (data: FormData) => received(data.get('email'))}>
+        <Field name="email" label="Email" />
+        <MPButton type="submit">Save</MPButton>
+      </MPForm>
+    );
+
+    await screen.getByRole('textbox', { name: 'Email' }).fill('ada@example.com');
+    await screen.getByRole('button', { name: 'Save' }).click();
+
+    await vi.waitFor(() => expect(received).toHaveBeenCalledWith('ada@example.com'));
+  });
+
   it('does not submit while a field is invalid', async () => {
     const onSubmit = vi.fn();
     const screen = await render(
