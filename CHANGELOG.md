@@ -48,6 +48,8 @@
 
 - **A chart writes less and works out less.** A long category axis drew an empty group for every category it neither ruled nor labelled — three hundred and sixty-five on a year of days — and every number in the table behind the picture wrote its formatting options out as a cache key, once per cell per hover. Neither happens now; what is drawn and announced is the same.
 
+- **`MPCodeBlock` colours a block when it comes near the screen, one block per task.** Every block in a language waited on the same grammar and resumed together when it arrived, so a page of twenty blocks was coloured in a single long task — the nineteen nobody had scrolled to included — with the reader's input queued behind it. Each block is now coloured as it nears the viewport, in a task of its own, and drawing the coloured lines yields to a key press that arrives in the middle. A block is plain until then, as it always was on its first frame.
+
 ### Fixed
 
 - **A chart draws a series of any length.** The extents were found with `Math.min(...values)`, which runs out of argument room somewhere past a hundred thousand values and threw instead of drawing. The width estimate for CJK labels was also a character range written out literally, starting at a compatibility ideograph that Unicode normalisation rewrites — so a source decoded or normalised on the way to the page threw "Range out of order" and took every chart with it. It is written as escapes now.

@@ -90,6 +90,29 @@ describe('MPCodeBlock', () => {
     );
   });
 
+  it('waits to colour a block until it is near the screen', async () => {
+    // Twenty blocks used to be coloured in one breath, the nineteen nobody had
+    // scrolled to included.
+    const screen = await render(
+      <>
+        <MPCodeBlock code={TS} language="ts" data-testid="near" />
+        <div style={{ height: 6000 }} />
+        <MPCodeBlock code={TS} language="ts" data-testid="far" />
+      </>
+    );
+    const near = screen.getByTestId('near').element();
+    const far = screen.getByTestId('far').element();
+
+    await vi.waitFor(() =>
+      expect(near.querySelectorAll('.hljs-keyword').length).toBeGreaterThan(0)
+    );
+    expect(far.querySelectorAll('.hljs-keyword')).toHaveLength(0);
+
+    far.scrollIntoView();
+
+    await vi.waitFor(() => expect(far.querySelectorAll('.hljs-keyword').length).toBeGreaterThan(0));
+  });
+
   it('reads a language written as an extension or an alias', async () => {
     await render(<MPCodeBlock code={TS} language="tsx" />);
 

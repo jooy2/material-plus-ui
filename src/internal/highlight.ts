@@ -270,7 +270,20 @@ export async function highlightCode(code: string, language: string): Promise<MPC
 
   const hljs = await core;
 
+  // A task of its own for each block. Every block in a language is waiting on
+  // the same grammar, and without this they all resumed in the one microtask
+  // drain the grammar's arrival set off — every block on the page coloured in
+  // a single long task, with the reader's input queued behind it.
+  await yieldToMain();
+
   return tokenize(hljs.highlight(code, { language: name, ignoreIllegals: true }).value);
+}
+
+/** Gives the main thread back once, through `scheduler.yield` where there is one. */
+function yieldToMain(): Promise<void> {
+  const scheduler = (globalThis as { scheduler?: { yield?: () => Promise<void> } }).scheduler;
+
+  return scheduler?.yield ? scheduler.yield() : new Promise((resolve) => setTimeout(resolve, 0));
 }
 
 /** The five entities highlight.js writes, and nothing else — it escapes no others. */

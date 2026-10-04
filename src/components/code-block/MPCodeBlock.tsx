@@ -2,6 +2,7 @@ import * as React from 'react';
 import { MPIcon } from '../icon/MPIcon';
 import { CheckIcon, CodeIcon, CopyIcon } from '../../constants/icons';
 import { canonicalLanguage, highlightCode, plainLines } from '../../internal/highlight';
+import { watchIntersection } from '../../internal/intersection';
 import type { MPCodeLine } from '../../internal/highlight';
 import { cssLength } from '../../internal/length';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
@@ -378,6 +379,8 @@ export const MPCodeBlock = React.forwardRef<HTMLDivElement, MPCodeBlockProps>(fu
   const [raw, setRaw] = React.useState(false);
   const [copied, setCopied] = React.useState<boolean | null>(null);
   const [coloured, setColoured] = React.useState<MPCodeLine[] | null>(null);
+  // Whether the block has come near the viewport, which is when it is coloured.
+  const [near, setNear] = React.useState(false);
 
   const wanted = highlight && !raw && name !== null;
 
@@ -396,12 +399,20 @@ export const MPCodeBlock = React.forwardRef<HTMLDivElement, MPCodeBlockProps>(fu
       return;
     }
 
+    // Plain until it is nearly on screen: a page of twenty blocks coloured the
+    // nineteen nobody had scrolled to in the same breath as the one being read.
+    if (!near) {
+      return;
+    }
+
     let cancelled = false;
 
     highlightCode(source, name).then(
       (lines) => {
         if (!cancelled) {
-          setColoured(lines);
+          // A transition, so drawing a few hundred coloured lines yields to a
+          // key press or a click that arrives in the middle of it.
+          React.startTransition(() => setColoured(lines));
         }
       },
       () => {
@@ -414,7 +425,7 @@ export const MPCodeBlock = React.forwardRef<HTMLDivElement, MPCodeBlockProps>(fu
     return () => {
       cancelled = true;
     };
-  }, [source, name, wanted]);
+  }, [source, name, wanted, near]);
 
   const lines = React.useMemo(
     () => (wanted && coloured ? coloured : plainLines(source)),
@@ -453,6 +464,32 @@ export const MPCodeBlock = React.forwardRef<HTMLDivElement, MPCodeBlockProps>(fu
    * there is nothing there to select.
    */
   const codeRef = React.useRef<HTMLPreElement | null>(null);
+
+  // A screen's height of warning, so a block is usually coloured before it is
+  // scrolled to. Once near, a block stays coloured; there is nothing to undo.
+  React.useEffect(() => {
+    const node = codeRef.current;
+
+    if (near) {
+      return;
+    }
+
+    if (!node || typeof IntersectionObserver === 'undefined') {
+      setNear(true);
+
+      return;
+    }
+
+    return watchIntersection(
+      node,
+      (entry) => {
+        if (entry.isIntersecting) {
+          setNear(true);
+        }
+      },
+      { rootMargin: '100% 0px' }
+    );
+  }, [near]);
 
   const selectEverything = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key !== 'a' && event.key !== 'A') {
