@@ -71,6 +71,11 @@ export interface MPProgressProps {
    * range nobody described.
    */
   format?: Intl.NumberFormatOptions;
+  /**
+   * The locale `format` writes the value in. Defaults to the nearest
+   * `MPLocaleProvider`, then to the runtime's own.
+   */
+  locale?: string;
   className?: string;
   style?: React.CSSProperties;
 }

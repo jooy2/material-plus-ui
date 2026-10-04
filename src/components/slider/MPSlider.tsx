@@ -4,6 +4,8 @@ import { accentSlots } from '../../internal/accent';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { META_TEXT, hasContent } from '../../internal/scale';
 import { useMPColor, useMPSize } from '../../internal/config';
+import { useMPLocale } from '../../internal/locale';
+import { checkServerLocale } from '../../internal/intl';
 import type { MPColor, MPOrientation, MPSize } from '../../types';
 
 /**
@@ -157,6 +159,11 @@ export interface MPSliderProps {
   /** How the readout is written. Passed to `Intl.NumberFormat`. */
   format?: Intl.NumberFormatOptions;
   /**
+   * The locale the readout and the announced value are written in. Defaults to
+   * the nearest `MPLocaleProvider`, then to the runtime's own.
+   */
+  locale?: string;
+  /**
    * Which way the slider runs. A vertical slider has no length of its own, so
    * give it a height — the default is a starting point, not a rule.
    * @default 'horizontal'
@@ -219,6 +226,7 @@ export const MPSlider = React.forwardRef<HTMLDivElement, MPSliderProps>(function
     description,
     showValue = false,
     format,
+    locale: localeProp,
     orientation = 'horizontal',
     size: sizeProp,
     color: colorProp,
@@ -232,7 +240,11 @@ export const MPSlider = React.forwardRef<HTMLDivElement, MPSliderProps>(function
 ) {
   const size = useMPSize(sizeProp);
   const color = useMPColor(colorProp);
+  const locale = useMPLocale(localeProp);
   const vertical = orientation === 'vertical';
+
+  checkServerLocale(locale);
+
   const rail = RAIL[size];
   const describedById = React.useId();
 
@@ -319,6 +331,7 @@ export const MPSlider = React.forwardRef<HTMLDivElement, MPSliderProps>(function
       disabled={disabled}
       orientation={orientation}
       format={format}
+      locale={locale}
       name={name}
       data-mp-size={size}
       className={[

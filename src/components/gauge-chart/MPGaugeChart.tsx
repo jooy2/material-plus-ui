@@ -196,6 +196,7 @@ export function MPGaugeChart({
       min={min}
       max={max}
       format={format}
+      locale={locale}
       data-mp-size={size}
       className={['mp-gauge-chart flex min-w-0 flex-col items-center', className ?? '']
         .filter(Boolean)

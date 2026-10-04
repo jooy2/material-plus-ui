@@ -13,6 +13,8 @@ import {
   type MPProgressProps
 } from '../../internal/progress';
 import { useMPColor, useMPSize } from '../../internal/config';
+import { useMPLocale } from '../../internal/locale';
+import { checkServerLocale } from '../../internal/intl';
 import type { MPColor, MPSize } from '../../types';
 
 export interface MPProgressBoxProps extends MPProgressProps {
@@ -65,6 +67,7 @@ export const MPProgressBox = React.forwardRef<HTMLDivElement, MPProgressBoxProps
       hideLabel = false,
       showValue = false,
       format,
+      locale: localeProp,
       className,
       style
     },
@@ -75,6 +78,11 @@ export const MPProgressBox = React.forwardRef<HTMLDivElement, MPProgressBoxProps
     const fraction = progressFraction(value, min, max);
     const indeterminate = fraction === null;
     const hasFormat = format !== undefined;
+    const locale = useMPLocale(localeProp);
+
+    if (hasFormat) {
+      checkServerLocale(locale);
+    }
     // Drawn or not, the name is the same name. `hideLabel` decides which of the
     // two `Progress.Label`s below renders it — never whether one does.
     const drawnLabel = hideLabel ? null : label;
@@ -99,6 +107,7 @@ export const MPProgressBox = React.forwardRef<HTMLDivElement, MPProgressBoxProps
         min={min}
         max={max}
         format={format}
+        locale={locale}
         getAriaValueText={progressAriaText(fraction, hasFormat)}
         data-mp-size={size}
         className={['mp-progress-box inline-flex flex-col', STACK_GAP[size], className ?? '']

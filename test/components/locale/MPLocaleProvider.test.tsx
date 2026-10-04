@@ -14,8 +14,11 @@ import {
   MPEmpty,
   MPFilePicker,
   MPLocaleProvider,
+  MPMeter,
   MPNumberField,
   MPOverlay,
+  MPProgressLinear,
+  MPSlider,
   MPTable,
   MPTextField,
   MPTextLink,
@@ -144,6 +147,31 @@ describe('MPLocaleProvider', () => {
      * surfaces, the spinner, the two adornments on a combobox — come from one
      * namespace, so a translation cannot disagree with itself about them.
      */
+    it('reaches the numbers Base UI writes for a bar, a meter, a slider and a field', async () => {
+      // Each of these hands its value to Base UI to format, and Base UI uses
+      // the runtime's locale unless it is told one — so the provider has to be
+      // passed down, or a German page writes these four in English.
+      const format = { maximumFractionDigits: 1 };
+      const screen = await render(
+        <MPLocaleProvider locale="de-DE">
+          <MPProgressLinear label="Bar" value={1234.5} max={2000} showValue format={format} />
+          <MPMeter label="Meter" value={1234.5} max={2000} showValue format={format} />
+          <MPSlider
+            label="Slider"
+            defaultValue={1234.5}
+            max={2000}
+            step={0.5}
+            showValue
+            format={format}
+          />
+          <MPNumberField label="Field" defaultValue={1234.5} />
+        </MPLocaleProvider>
+      );
+
+      expect(screen.container.textContent!.match(/1\.234,5/g)?.length).toBe(3);
+      expect((screen.getByRole('textbox').element() as HTMLInputElement).value).toBe('1.234,5');
+    });
+
     it('reaches the × on a surface that has one', async () => {
       const screen = await render(
         <MPLocaleProvider locale="ko">

@@ -4,6 +4,8 @@ import { accentSlots } from '../../internal/accent';
 import { META_TEXT, STACK_GAP } from '../../internal/scale';
 import { BAR_THICKNESS, progressFraction } from '../../internal/progress';
 import { useMPColor, useMPSize } from '../../internal/config';
+import { useMPLocale } from '../../internal/locale';
+import { checkServerLocale } from '../../internal/intl';
 import { thresholdColor } from '../../internal/threshold';
 import type { MPColor, MPSize, MPThreshold } from '../../types';
 
@@ -40,6 +42,11 @@ export interface MPMeterProps extends Omit<
    * what a range nobody described reads as, not what the reader came for.
    */
   format?: Intl.NumberFormatOptions;
+  /**
+   * The locale `format` writes the value in. Defaults to the nearest
+   * `MPLocaleProvider`, then to the runtime's own.
+   */
+  locale?: string;
   /**
    * Where the bar changes colour, smallest `from` first. The family of the last
    * threshold the value has reached wins; below all of them `color` stands.
@@ -103,6 +110,7 @@ export const MPMeter = React.forwardRef<HTMLDivElement, MPMeterProps>(function M
     label,
     showValue = false,
     format,
+    locale: localeProp,
     thresholds,
     size: sizeProp,
     color: colorProp,
@@ -117,6 +125,11 @@ export const MPMeter = React.forwardRef<HTMLDivElement, MPMeterProps>(function M
   const fraction = progressFraction(value, min, max);
   const family = thresholdColor(value, color, thresholds);
   const hasFormat = format !== undefined;
+  const locale = useMPLocale(localeProp);
+
+  if (hasFormat) {
+    checkServerLocale(locale);
+  }
 
   return (
     <Meter.Root
@@ -125,6 +138,7 @@ export const MPMeter = React.forwardRef<HTMLDivElement, MPMeterProps>(function M
       min={min}
       max={max}
       format={format}
+      locale={locale}
       data-mp-size={size}
       className={['mp-meter flex w-full flex-col', STACK_GAP[size], className ?? '']
         .filter(Boolean)

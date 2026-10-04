@@ -5,6 +5,7 @@ import { MPIcon } from '../icon/MPIcon';
 import { AddIcon, RemoveIcon } from '../../constants/icons';
 import { MPFieldLabel, MPFieldOutline, useFloatingLabel } from '../../internal/FieldOutline';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
+import { checkServerLocale } from '../../internal/intl';
 import { NUMBER_FIELD } from '../../internal/messages/number-field';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { MPSupportingText } from '../../internal/SupportingText';
@@ -72,7 +73,8 @@ export interface MPNumberFieldProps extends MPStyleProps, MPControlEventProps<HT
    */
   format?: Intl.NumberFormatOptions;
   /**
-   * Which locale the number is written and parsed in. Defaults to the runtime's.
+   * Which locale the number is written and parsed in. Defaults to the nearest
+   * `MPLocaleProvider`, then to the runtime's own.
    *
    * A plain BCP 47 string also names the language the two steppers are announced
    * in; anything wider falls back to the nearest `MPLocaleProvider`, then to
@@ -201,10 +203,15 @@ export function MPNumberField({
    * plain string is handed to the table; anything else falls through to the
    * provider, which is what a component with no `locale` at all does.
    */
-  const messages = useMPMessages(
-    NUMBER_FIELD,
-    useMPLocale(typeof locale === 'string' ? locale : undefined)
-  );
+  const named = useMPLocale(typeof locale === 'string' ? locale : undefined);
+  const messages = useMPMessages(NUMBER_FIELD, named);
+
+  // The number is written in the provider's language too, when the field names
+  // none of its own — the same answer the steppers' names were already given.
+  if (locale === undefined) {
+    checkServerLocale(named);
+  }
+
   const invalid = hasContent(errorMessage);
   const scale = SHELL[size];
   const generatedId = React.useId();
@@ -293,7 +300,7 @@ export function MPNumberField({
         smallStep={smallStep}
         allowWheelScrub={allowWheelScrub}
         format={format}
-        locale={locale}
+        locale={locale ?? named}
         disabled={disabled}
         readOnly={readOnly}
         required={required}

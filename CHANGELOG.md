@@ -14,6 +14,8 @@
 
 ### Fixed
 
+- **A progress bar, a meter, a slider and a number field write their numbers in the provider's language.** All four hand the value to Base UI to format, and Base UI formats in the runtime's locale unless it is told one, so under `<MPLocaleProvider locale="de">` they went on writing `1,234.5` while everything around them wrote `1.234,5` — and on a server-rendered page, wrote it in the server's language. `MPGaugeChart` was told nothing either, despite a `locale` prop of its own. `MPProgressLinear`, `MPProgressCircular`, `MPProgressBox`, `MPMeter` and `MPSlider` also take `locale` now, like every other component that writes a number.
+
 - **`useMPWindowClass` hydrates a server-rendered page without a mismatch.** It handed React its window measurement as the server snapshot, and React reads the server snapshot again in the browser while it hydrates — so on every window outside the class `onServer` named, which with the default `expanded` is every phone and every desktop of 1200px or wider, the first client render disagreed with the server's markup and React threw the page away and rendered it again. The hook now answers `onServer` during hydration and the real class right after, which is what its documentation always said it did.
 
 ## 1.9.0 (2026-09-28)

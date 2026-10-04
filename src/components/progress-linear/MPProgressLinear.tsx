@@ -11,6 +11,8 @@ import {
   type MPProgressProps
 } from '../../internal/progress';
 import { useMPColor, useMPSize } from '../../internal/config';
+import { useMPLocale } from '../../internal/locale';
+import { checkServerLocale } from '../../internal/intl';
 import type { MPColor, MPSize } from '../../types';
 
 export interface MPProgressLinearProps extends MPProgressProps {
@@ -54,6 +56,7 @@ export const MPProgressLinear = React.forwardRef<HTMLDivElement, MPProgressLinea
       hideLabel = false,
       showValue = false,
       format,
+      locale: localeProp,
       className,
       style
     },
@@ -67,6 +70,11 @@ export const MPProgressLinear = React.forwardRef<HTMLDivElement, MPProgressLinea
     // two `Progress.Label`s below renders it — never whether one does.
     const drawnLabel = hideLabel ? null : label;
     const hasFormat = format !== undefined;
+    const locale = useMPLocale(localeProp);
+
+    if (hasFormat) {
+      checkServerLocale(locale);
+    }
 
     const bar = 'absolute inset-y-0 rounded-mp-full bg-(--_mp-accent)';
 
@@ -87,6 +95,7 @@ export const MPProgressLinear = React.forwardRef<HTMLDivElement, MPProgressLinea
         min={min}
         max={max}
         format={format}
+        locale={locale}
         getAriaValueText={progressAriaText(fraction, hasFormat)}
         data-mp-size={size}
         className={['mp-progress-linear flex w-full flex-col', STACK_GAP[size], className ?? '']

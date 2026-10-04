@@ -12,6 +12,8 @@ import {
   type MPProgressProps
 } from '../../internal/progress';
 import { useMPColor, useMPSize } from '../../internal/config';
+import { useMPLocale } from '../../internal/locale';
+import { checkServerLocale } from '../../internal/intl';
 import type { MPColor, MPSize } from '../../types';
 
 export interface MPProgressCircularProps extends MPProgressProps {
@@ -55,6 +57,7 @@ export const MPProgressCircular = React.forwardRef<HTMLDivElement, MPProgressCir
       hideLabel = false,
       showValue = false,
       format,
+      locale: localeProp,
       className,
       style
     },
@@ -65,6 +68,11 @@ export const MPProgressCircular = React.forwardRef<HTMLDivElement, MPProgressCir
     const fraction = progressFraction(value, min, max);
     const indeterminate = fraction === null;
     const hasFormat = format !== undefined;
+    const locale = useMPLocale(localeProp);
+
+    if (hasFormat) {
+      checkServerLocale(locale);
+    }
 
     const diameter = RING_DIAMETER[size];
     const stroke = RING_STROKE[size];
@@ -90,6 +98,7 @@ export const MPProgressCircular = React.forwardRef<HTMLDivElement, MPProgressCir
         min={min}
         max={max}
         format={format}
+        locale={locale}
         getAriaValueText={progressAriaText(fraction, hasFormat)}
         data-mp-size={size}
         className={[
