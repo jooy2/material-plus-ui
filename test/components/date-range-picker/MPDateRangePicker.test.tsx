@@ -243,8 +243,10 @@ describe('MPDateRangePicker', () => {
     await screen.getByRole('gridcell', { name: 'Friday, July 10, 2026' }).click();
 
     // `format` is a getter that hands back a bound function, so it is the
-    // getter that is counted: one read per date written.
-    const formats = vi.spyOn(Intl.DateTimeFormat.prototype, 'format', 'get');
+    // getter that is counted: one read per date written. The DOM typings
+    // declare it as a method, which is why the prototype is retyped.
+    const prototype = Intl.DateTimeFormat.prototype as unknown as { readonly format: unknown };
+    const formats = vi.spyOn(prototype, 'format', 'get');
 
     await screen.getByRole('gridcell', { name: 'Wednesday, July 15, 2026' }).hover();
     await screen.getByRole('gridcell', { name: 'Thursday, July 16, 2026' }).hover();
