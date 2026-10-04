@@ -28,6 +28,8 @@
 
 - **An endless animation holds while it is off screen.** `MPAnimateLighting`'s glow repainted its gradient every frame and an indeterminate `MPProgressLinear` moved its bars by layout every frame, for as long as the page was open and wherever on it they were. Both, and an indeterminate `MPProgressCircular`, now pause while scrolled out of view and carry on from where they stopped when they come back.
 
+- **`MPAnimateSplit` writes a fraction of the markup it did.** Every piece carried all seven of the entrance's slots inline, so a headline of eighty characters split `by="character"` was 27 kB of HTML. The slots the pieces share are written once on the set and reach each piece by inheritance; a piece keeps only its delay, and its duration when `durationStep` stretches it. The pieces animate exactly as before.
+
 ### Fixed
 
 - **`MPAnimateCounter` writes its number in the provider's language.** It formatted in the runtime's locale unless given a `locale` of its own, so it ignored `MPLocaleProvider` — and on a server-rendered page, wrote the server's language into the markup and the reader's into the first client render.

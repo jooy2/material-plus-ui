@@ -129,6 +129,26 @@ describe('MPAnimateSplit', () => {
     );
     const [first] = pieces(screen.getByTestId('split').element());
 
-    expect(first!.style.getPropertyValue('--_mp-anim-timeline')).toBe('view()');
+    // Read as computed rather than off the piece's own style: the shared slots
+    // are written once on the set and reach each piece by inheritance.
+    expect(getComputedStyle(first!).getPropertyValue('--_mp-anim-timeline').trim()).toBe('view()');
+  });
+
+  it('writes the slots every piece shares once, not once per piece', async () => {
+    const screen = await render(
+      <MPAnimateSplit by="character" data-testid="split">
+        Character by character
+      </MPAnimateSplit>
+    );
+    const all = pieces(screen.getByTestId('split').element());
+
+    for (const piece of all) {
+      expect(piece.style.length).toBe(1);
+      expect(getComputedStyle(piece).getPropertyValue('--_mp-anim-opacity').trim()).toBe('0');
+    }
+
+    expect(all.map((piece) => piece.style.getPropertyValue('--_mp-anim-delay'))).toEqual(
+      all.map((_, index) => `${index * 40}ms`)
+    );
   });
 });

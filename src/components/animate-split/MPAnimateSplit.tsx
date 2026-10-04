@@ -170,6 +170,29 @@ export const MPAnimateSplit = React.forwardRef<HTMLDivElement, MPAnimateSplitPro
     const total = pieces.reduce((sum, word) => sum + word.length, 0);
     let index = -1;
 
+    /*
+     * The slots every piece shares, written once on the set rather than once
+     * per piece. They are plain custom properties and inherit, so a piece reads
+     * them exactly as if they were its own — and a line of eighty characters
+     * stops carrying eighty copies of the same seven declarations into the
+     * markup, which made a headline split by character 27 kB of HTML. A piece
+     * keeps only what differs between pieces: its delay, and its duration when
+     * `durationStep` stretches it.
+     */
+    const slots = {
+      effect: 'slide',
+      duration,
+      delay,
+      easing,
+      repeat,
+      alternate,
+      timeline,
+      range,
+      x,
+      y,
+      opacity: fade ? 0 : 1
+    } as const;
+
     return (
       <div
         ref={(node) => {
@@ -190,7 +213,7 @@ export const MPAnimateSplit = React.forwardRef<HTMLDivElement, MPAnimateSplitPro
       >
         <span className={VISUALLY_HIDDEN}>{source}</span>
 
-        <span aria-hidden="true">
+        <span aria-hidden="true" style={animationSlots(slots)}>
           {pieces.map((word, wordIndex) => (
             // `whitespace-pre` because `wordsOf` keeps the space that followed
             // each word *on* it, which is what lets the pieces still join back
@@ -205,20 +228,19 @@ export const MPAnimateSplit = React.forwardRef<HTMLDivElement, MPAnimateSplitPro
                   <span
                     key={pieceIndex}
                     className={itemClassName}
-                    style={animationSlots({
-                      effect: 'slide',
-                      duration,
-                      delay: delay + step * stagger,
-                      easing,
-                      repeat,
-                      alternate,
-                      durationOffset: step * durationStep,
-                      timeline,
-                      range,
-                      x,
-                      y,
-                      opacity: fade ? 0 : 1
-                    })}
+                    style={
+                      {
+                        '--_mp-anim-delay': `${delay + step * stagger}ms`,
+                        ...(durationStep === 0
+                          ? null
+                          : {
+                              '--_mp-anim-duration': animationSlots({
+                                ...slots,
+                                durationOffset: step * durationStep
+                              })['--_mp-anim-duration' as keyof React.CSSProperties]
+                            })
+                      } as React.CSSProperties
+                    }
                   >
                     {piece}
                   </span>
