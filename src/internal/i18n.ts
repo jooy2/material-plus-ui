@@ -51,7 +51,7 @@
  * per-component `labels` props; `resolveNamespace` and `fillMessage` stay
  * internal.
  */
-import { remember } from './intl';
+import { remember } from './remember';
 
 /**
  * One namespace per component, rather than one flat list of keys.
