@@ -452,22 +452,23 @@ const POSITIONS: readonly MPSnackbarPosition[] = [
 ];
 
 /**
- * One stack. Rendered by the provider, never by a caller.
+ * Every stack, in one viewport. Rendered by the provider, never by a caller.
  *
- * All six exist from the first render whatever `position` says, because each one
- * is its own `aria-live` region and a region that arrives with its first message
- * is a region a screen reader has nothing to compare and does not read out. An
- * empty stack is a `pointer-events-none` flex column with no children, so the
- * five nobody is using cost a `<div>` each and nothing else — including no hover,
- * which reaches Base UI's timers through a plate rather than through the strip.
+ * One Base UI viewport rather than one per position, and it exists from the
+ * first render: the viewport is the `aria-live` region, and a region that
+ * arrives with its first message is one a screen reader has nothing to compare
+ * and does not read out. It used to be six — one per corner — and that was six
+ * live regions named "Notifications", six subscriptions re-rendering on every
+ * message, six sets of window listeners while a message was up, a high-priority
+ * message read out six times, and hover-pausing that followed whichever of the
+ * six registered last. Now the viewport covers the window, lets every pointer
+ * through, and holds a stack for each corner that has something in it.
  */
 function SnackbarViewport({
-  position,
   fallback,
   width,
   ...rest
 }: {
-  position: MPSnackbarPosition;
   /** Where a snackbar that named no position of its own belongs. */
   fallback: MPSnackbarPosition;
   width: number | string;
@@ -477,35 +478,53 @@ function SnackbarViewport({
   closeLabel: string;
 }) {
   const { toasts: all } = Toast.useToastManager<MPSnackbarData>();
-  const toasts = all.filter((toast) => (toast.data?.position ?? fallback) === position);
-  // The one fact both of these are derived from: which edge the stack is
-  // pinned to. It decides the way a plate is flicked away and the way it
-  // arrives, and the two must agree — a snackbar that came down from the top
-  // and could only be flicked upwards would be asking to be undone.
-  const edge = position.startsWith('top') ? 'top' : 'bottom';
-  const swipeDirection: ('up' | 'down' | 'left' | 'right')[] = [
-    edge === 'top' ? 'up' : 'down',
-    'left',
-    'right'
-  ];
 
   return (
     <Toast.Portal>
-      <Toast.Viewport
-        className={[
-          PORTAL_LAYER,
-          // Full width and `pointer-events-none`, so the strip across the top or
-          // the bottom of the page is not a wall the rest of the application is
-          // behind. The snackbars themselves take their events back.
-          'pointer-events-none fixed inset-x-0 flex flex-col gap-2 p-4',
-          VIEWPORT[position]
-        ].join(' ')}
-      >
-        {toasts.map((toast) => (
-          <div key={toast.id} className="w-full" style={{ maxWidth: cssLength(width) }}>
-            <SnackbarItem toast={toast} swipeDirection={swipeDirection} edge={edge} {...rest} />
-          </div>
-        ))}
+      <Toast.Viewport className={`${PORTAL_LAYER} pointer-events-none fixed inset-0`}>
+        {POSITIONS.map((position) => {
+          const toasts = all.filter((toast) => (toast.data?.position ?? fallback) === position);
+
+          if (toasts.length === 0) {
+            return null;
+          }
+
+          // The one fact both of these are derived from: which edge the stack is
+          // pinned to. It decides the way a plate is flicked away and the way it
+          // arrives, and the two must agree — a snackbar that came down from the
+          // top and could only be flicked upwards would be asking to be undone.
+          const edge = position.startsWith('top') ? 'top' : 'bottom';
+          const swipeDirection: ('up' | 'down' | 'left' | 'right')[] = [
+            edge === 'top' ? 'up' : 'down',
+            'left',
+            'right'
+          ];
+
+          return (
+            <div
+              key={position}
+              data-mp-position={position}
+              className={[
+                // Full width and `pointer-events-none`, so the strip across the
+                // top or the bottom of the page is not a wall the rest of the
+                // application is behind. The snackbars take their events back.
+                'mp-snackbar__stack pointer-events-none absolute inset-x-0 flex flex-col gap-2 p-4',
+                VIEWPORT[position]
+              ].join(' ')}
+            >
+              {toasts.map((toast) => (
+                <div key={toast.id} className="w-full" style={{ maxWidth: cssLength(width) }}>
+                  <SnackbarItem
+                    toast={toast}
+                    swipeDirection={swipeDirection}
+                    edge={edge}
+                    {...rest}
+                  />
+                </div>
+              ))}
+            </div>
+          );
+        })}
       </Toast.Viewport>
     </Toast.Portal>
   );
@@ -549,18 +568,14 @@ export function MPSnackbarProvider({
   return (
     <Toast.Provider timeout={timeout} limit={limit}>
       {children}
-      {POSITIONS.map((slot) => (
-        <SnackbarViewport
-          key={slot}
-          position={slot}
-          fallback={position}
-          width={width}
-          color={color}
-          size={size}
-          showClose={showClose}
-          closeLabel={closeLabel ?? messages.close}
-        />
-      ))}
+      <SnackbarViewport
+        fallback={position}
+        width={width}
+        color={color}
+        size={size}
+        showClose={showClose}
+        closeLabel={closeLabel ?? messages.close}
+      />
     </Toast.Provider>
   );
 }

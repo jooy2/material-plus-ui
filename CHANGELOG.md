@@ -58,6 +58,8 @@
 
 - **`MPTreeSelect` keeps up with typing in a large tree.** Every keystroke folded every node's label again before comparing it, and a one-letter query, which opens most branches of a big tree, held the keystroke until the whole tree had been drawn. Each node is folded once now, and the tree catches up with the query in the time left over after the letter is drawn in the field.
 
+- **`MPSnackbarProvider` puts one live region on the page instead of six.** It mounted a Base UI viewport for each of the six positions, so a page carried six regions named "Notifications", re-rendered all six on every message, held six sets of window listeners while one was showing, read a high-priority message out six times, and paused on hover for whichever stack had registered last. One viewport now covers the window, lets every pointer through, and holds a stack for each corner that has a message in it; the region is still there from the first render.
+
 ### Fixed
 
 - **A chart draws a series of any length.** The extents were found with `Math.min(...values)`, which runs out of argument room somewhere past a hundred thousand values and threw instead of drawing. The width estimate for CJK labels was also a character range written out literally, starting at a compatibility ideograph that Unicode normalisation rewrites — so a source decoded or normalised on the way to the page threw "Range out of order" and took every chart with it. It is written as escapes now.

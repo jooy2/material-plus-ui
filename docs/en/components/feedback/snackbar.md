@@ -93,7 +93,7 @@ snackbar.add({ message: 'Could not save', position: 'top-center' });
 
 For the message that has to be somewhere else _because of what it is_ — an error at the top of a page whose bottom corner is a toolbar. Not for a preference: an application whose snackbars all appear in the same wrong place should move the provider.
 
-All six stacks are on the page from the first render whether or not anything is in them, and that is not an implementation detail worth hiding. Each stack is its own `aria-live` region, and a region that arrives in the document at the same instant as the message inside it is a region a screen reader has nothing to compare against and does not read out. An empty stack is a `pointer-events-none` flex column with no children, so the five nobody is using cost a `<div>` each.
+The six stacks share one `aria-live` region, and it is on the page from the first render whether or not anything is in it — that is not an implementation detail worth hiding. A region that arrives in the document at the same instant as the message inside it is a region a screen reader has nothing to compare against and does not read out. The region covers the window and lets every pointer through, and a corner's stack is drawn inside it once that corner has a message. One region rather than six also means a high-priority message is read out once.
 
 ### color
 

@@ -189,34 +189,33 @@ describe('MPSnackbar', () => {
       await screen.getByRole('button', { name: 'Raise' }).click();
       await expect.element(screen.getByText('Saved')).toBeInTheDocument();
 
-      // The stack the snackbar actually landed in, not the first one on the
-      // page: all six are mounted from the start so that each is a live region
-      // the reader's software has already seen.
-      const viewport = screen.getByText('Saved').element().closest('.mp-portal.fixed')!;
+      // The stack the snackbar actually landed in: one viewport holds a stack
+      // for each corner that has something in it.
+      const stack = screen.getByText('Saved').element().closest('.mp-snackbar__stack')!;
 
-      expect(viewport.className).toContain('top-0');
-      expect(viewport.className).toContain('items-center');
+      expect(stack.className).toContain('top-0');
+      expect(stack.className).toContain('items-center');
     });
 
-    it('mounts every stack up front, and puts a snackbar in only one', async () => {
+    it('has one live region from the start, and puts a snackbar in only one stack', async () => {
       const screen = await render(
         <Harness position="bottom-start">
           <Raise message="Saved" />
         </Harness>
       );
 
-      const stacks = document.querySelectorAll('.mp-portal.fixed');
-
-      // Six, because a stack is its own `aria-live` region and one that arrives
-      // with its first message is one a screen reader does not read.
-      expect(stacks).toHaveLength(6);
+      // Up front, because a region that arrives with its first message is one
+      // a screen reader does not read — and one, because six were six regions
+      // named "Notifications" and a high-priority message read out six times.
+      expect(document.querySelectorAll('[role="region"][aria-live]')).toHaveLength(1);
 
       await screen.getByRole('button', { name: 'Raise' }).click();
       await expect.element(screen.getByText('Saved')).toBeInTheDocument();
 
+      expect(document.querySelectorAll('[role="region"][aria-live]')).toHaveLength(1);
       expect(
         Array.from(document.querySelectorAll('.mp-snackbar')).map((plate) =>
-          plate.closest('.mp-portal.fixed')!.className.includes('bottom-0')
+          plate.closest('.mp-snackbar__stack')!.className.includes('bottom-0')
         )
       ).toEqual([true]);
     });
@@ -231,10 +230,10 @@ describe('MPSnackbar', () => {
       await screen.getByRole('button', { name: 'Raise' }).click();
       await expect.element(screen.getByText('Saved')).toBeInTheDocument();
 
-      const viewport = screen.getByText('Saved').element().closest('.mp-portal.fixed')!;
+      const stack = screen.getByText('Saved').element().closest('.mp-snackbar__stack')!;
 
-      expect(viewport.className).toContain('top-0');
-      expect(viewport.className).toContain('items-end');
+      expect(stack.className).toContain('top-0');
+      expect(stack.className).toContain('items-end');
     });
 
     it('puts a class on the plate rather than on the stack', async () => {
