@@ -99,6 +99,8 @@ Pass it the **same** `storageKey` you pass the hook. Two different keys is a pag
 
 It returns the source rather than the tag, so a page under a Content Security Policy without `unsafe-inline` can give the tag a nonce of its own. It cannot be a `<script src>`: a fetch is exactly the delay being avoided.
 
+It imports nothing that renders, so a server component — a Next.js root layout — can call it. The script writes `data-mp-scheme` onto `<html>` before React has seen the page, so give `<html>` `suppressHydrationWarning` or React reports the attribute it did not render. Without the script the hook still draws a remembered choice, once the page has hydrated.
+
 ### Sharp edges
 
 - **Storage can fail and that is handled.** Reading and writing `localStorage` throws in a private window in some browsers and behind some cookie policies. Both are caught — the toggle works for the visit and the choice is simply not remembered.

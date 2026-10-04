@@ -25,13 +25,10 @@
  * had the switch and nothing to drive it with, so every application wrote the
  * same state, the same storage round trip and the same `<head>` script.
  */
-export { useMPColorScheme, mpColorSchemeScript } from './useMPColorScheme';
-export type {
-  MPColorScheme,
-  MPResolvedColorScheme,
-  MPColorSchemeOptions,
-  MPColorSchemeResult
-} from './useMPColorScheme';
+export { useMPColorScheme } from './useMPColorScheme';
+export { mpColorSchemeScript } from './mpColorSchemeScript';
+export type { MPColorScheme, MPResolvedColorScheme, MPColorSchemeResult } from './useMPColorScheme';
+export type { MPColorSchemeOptions } from './mpColorSchemeScript';
 export { useMPWindowClass } from './useMPWindowClass';
 export { useMPReducedMotion } from './useMPReducedMotion';
 export { useMPShortcut, useMPPlatform } from './useMPShortcut';

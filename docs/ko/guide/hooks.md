@@ -99,6 +99,8 @@ import { mpColorSchemeScript } from 'material-plus-ui';
 
 태그가 아니라 소스를 돌려주므로, `unsafe-inline` 없는 Content Security Policy 아래의 페이지는 태그에 자기 nonce를 달 수 있습니다. `<script src>`가 될 수는 없습니다 — fetch가 바로 피하려는 그 지연이기 때문입니다.
 
+렌더링하는 것을 아무것도 import하지 않으므로 서버 컴포넌트(Next.js 루트 레이아웃)에서 호출할 수 있습니다. 이 스크립트는 React가 페이지를 보기 전에 `<html>`에 `data-mp-scheme`을 쓰므로, `<html>`에 `suppressHydrationWarning`을 주지 않으면 React가 자신이 렌더링하지 않은 속성을 보고합니다. 스크립트가 없어도 훅은 저장된 선택을 페이지가 하이드레이션된 뒤에 그립니다.
+
 ### 날카로운 모서리
 
 - **저장소는 실패할 수 있고, 그건 처리돼 있습니다.** 일부 브라우저의 사생활 보호 창과 일부 쿠키 정책 아래에서는 `localStorage` 읽기·쓰기가 throw합니다. 둘 다 잡습니다 — 토글은 이번 방문 동안 동작하고 선택만 기억되지 않습니다.

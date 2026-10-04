@@ -2,27 +2,16 @@ import * as React from 'react';
 import {
   DEFAULT_STORAGE_KEY,
   SCHEME_ATTRIBUTE,
+  applyScheme,
   setScheme,
   useChosenScheme,
   useSystemScheme,
   type MPColorScheme,
   type MPResolvedColorScheme
 } from '../internal/color-scheme';
+import type { MPColorSchemeOptions } from './mpColorSchemeScript';
 
-export type { MPColorScheme, MPResolvedColorScheme };
-
-export interface MPColorSchemeOptions {
-  /**
-   * Where the choice is remembered, in `localStorage`.
-   *
-   * Change it to keep two applications on one origin from sharing a theme, or
-   * to namespace it under a product. It has to match the key given to
-   * `mpColorSchemeScript`, or the page paints one scheme and then corrects
-   * itself to the other.
-   * @default 'mp-color-scheme'
-   */
-  storageKey?: string;
-}
+export type { MPColorScheme, MPColorSchemeOptions, MPResolvedColorScheme };
 
 export interface MPColorSchemeResult {
   /**
@@ -118,6 +107,22 @@ export function useMPColorScheme(options: MPColorSchemeOptions = {}): MPColorSch
   const system = useSystemScheme();
   const resolved = scheme === 'system' ? system : scheme;
 
+  /*
+   * A remembered choice is drawn once the page has hydrated, when nothing drew
+   * it earlier.
+   *
+   * The choice is read from storage, but the attribute that draws it was only
+   * ever written by `setScheme` — so on a page without `mpColorSchemeScript`
+   * in its `<head>` the hook reported the remembered `dark` while the page
+   * stayed light for the whole visit. With the script the attribute is already
+   * there and this does nothing.
+   */
+  React.useEffect(() => {
+    if (scheme !== 'system' && document.documentElement.getAttribute(SCHEME_ATTRIBUTE) === null) {
+      applyScheme(scheme);
+    }
+  }, [scheme]);
+
   const choose = React.useCallback(
     (next: MPColorScheme) => setScheme(storageKey, next),
     [storageKey]
@@ -139,50 +144,5 @@ export function useMPColorScheme(options: MPColorSchemeOptions = {}): MPColorSch
       toggle
     }),
     [scheme, resolved, choose, toggle]
-  );
-}
-
-/**
- * The two lines that stop the first paint flashing, as a string to inline.
- *
- * A hook runs after the browser has already painted, so a reader who chose dark
- * gets a white page for a frame and then the right one. The only thing that can
- * run earlier is a **synchronous script in the `<head>`**, before the body is
- * parsed, and this is that script.
- *
- * ```tsx
- * // app/layout.tsx
- * <head>
- *   <script dangerouslySetInnerHTML={{ __html: mpColorSchemeScript() }} />
- * </head>
- * ```
- *
- * It reads the same key the hook does, writes the same attribute, and does
- * nothing at all when the stored value is absent or `system` — leaving the media
- * query to answer, which it does before the first paint anyway.
- *
- * Pass the same `storageKey` you pass the hook. Two different keys is a page
- * that paints one scheme and then corrects itself to the other, which is the
- * flash this exists to remove.
- *
- * The output is a JavaScript source string and contains no interpolated markup:
- * the key is JSON-encoded, so a key with a quote in it cannot end the script
- * early.
- *
- * ## It has to be inline
- *
- * A `<script src>` is fetched, and a fetch is exactly the delay being avoided.
- * If the page has a Content Security Policy without `unsafe-inline`, give the
- * tag a nonce — this returns the source, not the tag, so the tag is yours.
- */
-export function mpColorSchemeScript(options: MPColorSchemeOptions = {}): string {
-  const { storageKey = DEFAULT_STORAGE_KEY } = options;
-
-  // Written on one line and wrapped in try/catch for the reason the hook's reads
-  // are: storage throws in a private window, and a `<head>` script that throws
-  // takes the rest of itself with it.
-  return (
-    `try{var s=localStorage.getItem(${JSON.stringify(storageKey)});` +
-    `if(s==="dark"||s==="light")document.documentElement.setAttribute(${JSON.stringify(SCHEME_ATTRIBUTE)},s)}catch(e){}`
   );
 }

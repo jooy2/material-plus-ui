@@ -14,6 +14,7 @@
  * class it did not put there.
  */
 import * as React from 'react';
+import { DEFAULT_STORAGE_KEY, SCHEME_ATTRIBUTE } from './color-scheme-keys';
 
 /** What a page can be set to. `'system'` is the absence of a choice. */
 export type MPColorScheme = 'light' | 'dark' | 'system';
@@ -21,8 +22,7 @@ export type MPColorScheme = 'light' | 'dark' | 'system';
 /** What is actually painted, once `'system'` has been resolved. */
 export type MPResolvedColorScheme = 'light' | 'dark';
 
-export const SCHEME_ATTRIBUTE = 'data-mp-scheme';
-export const DEFAULT_STORAGE_KEY = 'mp-color-scheme';
+export { DEFAULT_STORAGE_KEY, SCHEME_ATTRIBUTE };
 
 const DARK_QUERY = '(prefers-color-scheme: dark)';
 
@@ -90,7 +90,7 @@ function write(storageKey: string, scheme: MPColorScheme) {
  * either by `prefers-color-scheme` on a root that is not forced light, or by the
  * attribute. An attribute spelling out `system` would match neither.
  */
-function applyScheme(scheme: MPColorScheme) {
+export function applyScheme(scheme: MPColorScheme) {
   if (typeof document === 'undefined') {
     return;
   }

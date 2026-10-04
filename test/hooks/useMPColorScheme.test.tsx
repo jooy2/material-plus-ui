@@ -184,6 +184,26 @@ describe('useMPColorScheme', () => {
     });
   });
 
+  it('draws a remembered choice on a page without the `<head>` script', async () => {
+    // The hook reported `dark` from storage while nothing ever wrote the
+    // attribute that draws it, so the page stayed light for the whole visit.
+    localStorage.setItem(KEY, 'dark');
+
+    const screen = await render(<Probe />);
+
+    expect(screen.getByTestId('resolved').element().textContent).toBe('dark');
+    expect(attribute()).toBe('dark');
+  });
+
+  it('leaves the attribute the `<head>` script wrote alone', async () => {
+    localStorage.setItem(KEY, 'dark');
+    document.documentElement.setAttribute('data-mp-scheme', 'light');
+
+    await render(<Probe />);
+
+    expect(attribute()).toBe('light');
+  });
+
   describe('mpColorSchemeScript', () => {
     it('applies a remembered scheme before anything renders', async () => {
       localStorage.setItem(KEY, 'dark');
