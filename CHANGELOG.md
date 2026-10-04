@@ -24,6 +24,10 @@
 
 - **An `MPMockup` given a `width` or a `height` in pixels is in the first paint.** The device is hidden until it has a scale, and the scale was always measured — so on a server-rendered page a hero mockup, screenshot and all, stayed hidden until the page had hydrated. A size in pixels settles the scale by arithmetic, so the device is drawn from the server's markup on. A mockup that fills a fluid width is still measured, now before its first paint when it mounts in the browser.
 
+- **Everything that watches whether it is on screen shares one observer.** Every `MPAnimate*` with `trigger="visible"`, every `useMPOnScreen` and every autoplaying `MPCarousel` created an `IntersectionObserver` of its own, and the browser checks each one on every frame the page scrolls — a page of forty fading cards was forty observers asking one question. Elements that ask the same question, at the same threshold and margin, are now watched by one, and each is told about itself exactly as before.
+
+- **An endless animation holds while it is off screen.** `MPAnimateLighting`'s glow repainted its gradient every frame and an indeterminate `MPProgressLinear` moved its bars by layout every frame, for as long as the page was open and wherever on it they were. Both, and an indeterminate `MPProgressCircular`, now pause while scrolled out of view and carry on from where they stopped when they come back.
+
 ### Fixed
 
 - **`MPAnimateCounter` writes its number in the provider's language.** It formatted in the runtime's locale unless given a `locale` of its own, so it ignored `MPLocaleProvider` — and on a server-rendered page, wrote the server's language into the markup and the reader's into the first client render.

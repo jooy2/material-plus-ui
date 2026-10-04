@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { watchIntersection } from '../../internal/intersection';
 import { numberFormatter } from '../../internal/intl';
 import { useMPLocale } from '../../internal/locale';
 import { useAnimateElement } from '../../internal/animate';
@@ -217,9 +218,9 @@ export const MPAnimateCounter = React.forwardRef<HTMLSpanElement, MPAnimateCount
 
       frame = requestAnimationFrame(read);
 
-      const observer =
+      const unwatch =
         scrollDriven && typeof IntersectionObserver !== 'undefined'
-          ? new IntersectionObserver(([entry]) => {
+          ? watchIntersection(element, (entry) => {
               inView = entry.isIntersecting;
 
               // One more read either way: the last value on the way out, and
@@ -230,12 +231,10 @@ export const MPAnimateCounter = React.forwardRef<HTMLSpanElement, MPAnimateCount
             })
           : null;
 
-      observer?.observe(element);
-
       return () => {
         live = false;
         cancelAnimationFrame(frame);
-        observer?.disconnect();
+        unwatch?.();
       };
     }, [slots, state, replay, timeline, value]);
 

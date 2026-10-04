@@ -3,6 +3,7 @@ import { useRender } from '@base-ui/react/use-render';
 import { accentSlots } from '../../internal/accent';
 import { isInfinite, repeatValue, useAnimationRun } from '../../internal/animate';
 import { useMPColor, useMPSize } from '../../internal/config';
+import { useOffscreenPause } from '../../internal/intersection';
 import type { MPAnimateProps, MPColor, MPSize } from '../../types';
 
 export interface MPAnimateLightingProps
@@ -127,10 +128,12 @@ export const MPAnimateLighting = React.forwardRef<HTMLDivElement, MPAnimateLight
       paused,
       infinite: isInfinite(repeat)
     });
+    // An endless glow is a style pass every frame; held while nobody can see it.
+    const pause = useOffscreenPause(isInfinite(repeat));
 
     return useRender({
       render,
-      ref: [ref, run.ref],
+      ref: [ref, run.ref, pause],
       props: {
         ...props,
         'data-mp-size': size,

@@ -81,6 +81,7 @@ export {
 export type { AnimationEffect, AnimationSlotOptions };
 
 import * as React from 'react';
+import { watchIntersection } from './intersection';
 import type { MPAnimateTimeline, MPAnimateTrigger, MPAnimation } from '../types';
 
 /** What differs between one child and the next. */
@@ -299,13 +300,14 @@ export function useAnimationRun({
       return;
     }
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
+    const stop = watchIntersection(
+      element,
+      (entry) => {
         if (entry.isIntersecting) {
           start();
 
           if (once) {
-            observer.disconnect();
+            stop();
           }
         } else if (!once) {
           setStarted(false);
@@ -314,9 +316,7 @@ export function useAnimationRun({
       { threshold }
     );
 
-    observer.observe(element);
-
-    return () => observer.disconnect();
+    return stop;
   }, [trigger, once, threshold, start]);
 
   React.useEffect(() => {

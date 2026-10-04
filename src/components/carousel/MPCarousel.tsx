@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { watchIntersection } from '../../internal/intersection';
 import { MPIconButton } from '../icon-button/MPIconButton';
 import { MPIcon } from '../icon/MPIcon';
 import { ChevronLeftIcon, ChevronRightIcon } from '../../constants/icons';
@@ -376,14 +377,12 @@ export const MPCarousel = React.forwardRef<HTMLDivElement, MPCarouselProps>(func
       return;
     }
 
-    const observer = new IntersectionObserver(([entry]) => {
+    const stop = watchIntersection(track, (entry) => {
       onScreen.current = entry.isIntersecting;
     });
 
-    observer.observe(track);
-
     return () => {
-      observer.disconnect();
+      stop();
       onScreen.current = true;
     };
   }, [autoPlay]);

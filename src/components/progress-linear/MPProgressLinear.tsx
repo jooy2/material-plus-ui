@@ -12,6 +12,8 @@ import {
 } from '../../internal/progress';
 import { useMPColor, useMPSize } from '../../internal/config';
 import { useMPLocale } from '../../internal/locale';
+import { useOffscreenPause } from '../../internal/intersection';
+import { useJoinedRef } from '../../internal/ref';
 import { checkServerLocale } from '../../internal/intl';
 import type { MPColor, MPSize } from '../../types';
 
@@ -71,6 +73,10 @@ export const MPProgressLinear = React.forwardRef<HTMLDivElement, MPProgressLinea
     const drawnLabel = hideLabel ? null : label;
     const hasFormat = format !== undefined;
     const locale = useMPLocale(localeProp);
+    // The indeterminate loop runs for as long as the page is open; it is held
+    // while the indicator is scrolled out of sight.
+    const pause = useOffscreenPause(indeterminate);
+    const rootRef = useJoinedRef(ref, pause as React.Ref<HTMLDivElement>);
 
     if (hasFormat) {
       checkServerLocale(locale);
@@ -80,7 +86,7 @@ export const MPProgressLinear = React.forwardRef<HTMLDivElement, MPProgressLinea
 
     return (
       <Progress.Root
-        ref={ref}
+        ref={rootRef}
         /*
          * The fraction rather than the raw value, which is the same number
          * except in the one case they disagree — and there the raw value is

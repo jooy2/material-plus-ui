@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { watchIntersection } from '../internal/intersection';
 
 /** What to watch for. */
 export interface MPOnScreenOptions {
@@ -78,13 +79,14 @@ export function useMPOnScreen(
       return;
     }
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
+    const stop = watchIntersection(
+      element,
+      (entry) => {
         if (entry.isIntersecting) {
           setOnScreen(true);
 
           if (once) {
-            observer.disconnect();
+            stop();
           }
         } else if (!once) {
           setOnScreen(false);
@@ -93,9 +95,7 @@ export function useMPOnScreen(
       { threshold, rootMargin }
     );
 
-    observer.observe(element);
-
-    return () => observer.disconnect();
+    return stop;
   }, [ref, threshold, once, rootMargin]);
 
   return onScreen;

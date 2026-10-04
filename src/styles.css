@@ -3935,6 +3935,23 @@
 }
 
 /*
+ * The endless loops, held while they are off screen.
+ *
+ * `data-mp-offscreen` is written by the component while its element is out of
+ * the viewport. A loop nobody can see is still one the browser runs — a style
+ * pass a frame for the glow's angle, and a layout pass a frame for the linear
+ * indicator, whose bars move by `inset`. Paused, each carries on from where it
+ * stopped when it comes back, which for a loop is no difference at all.
+ */
+.mp-anim-lighting[data-mp-offscreen]::before,
+.mp-progress-linear[data-mp-offscreen] .mp-progress-linear-lead,
+.mp-progress-linear[data-mp-offscreen] .mp-progress-linear-trail,
+.mp-progress-circular[data-mp-offscreen] .mp-progress-circular-turn,
+.mp-progress-circular[data-mp-offscreen] .mp-progress-circular-arc {
+  animation-play-state: paused;
+}
+
+/*
  * Marquee: two identical copies, both moving by exactly one copy plus the gap.
  *
  * Which is the whole trick — when the first copy has travelled its own width,
