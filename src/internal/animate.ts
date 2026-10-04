@@ -82,6 +82,7 @@ export type { AnimationEffect, AnimationSlotOptions };
 
 import * as React from 'react';
 import { watchIntersection } from './intersection';
+import { mediaList } from './media';
 import type { MPAnimateTimeline, MPAnimateTrigger, MPAnimation } from '../types';
 
 /** What differs between one child and the next. */
@@ -178,17 +179,15 @@ function subscribeToMotion(onChange: () => void): () => void {
     return () => {};
   }
 
-  const query = window.matchMedia(REDUCED_MOTION);
+  const query = mediaList(REDUCED_MOTION);
 
-  query.addEventListener('change', onChange);
+  query?.addEventListener('change', onChange);
 
-  return () => query.removeEventListener('change', onChange);
+  return () => query?.removeEventListener('change', onChange);
 }
 
 function readMotion(): boolean {
-  return typeof window !== 'undefined' && window.matchMedia
-    ? window.matchMedia(REDUCED_MOTION).matches
-    : false;
+  return mediaList(REDUCED_MOTION)?.matches ?? false;
 }
 
 /** A server has no reader, and so no preference. */

@@ -15,6 +15,7 @@
  */
 import * as React from 'react';
 import { DEFAULT_STORAGE_KEY, SCHEME_ATTRIBUTE } from './color-scheme-keys';
+import { mediaList } from './media';
 
 /** What a page can be set to. `'system'` is the absence of a choice. */
 export type MPColorScheme = 'light' | 'dark' | 'system';
@@ -149,17 +150,15 @@ function subscribeToSystem(onChange: () => void): () => void {
     return () => {};
   }
 
-  const query = window.matchMedia(DARK_QUERY);
+  const query = mediaList(DARK_QUERY);
 
-  query.addEventListener('change', onChange);
+  query?.addEventListener('change', onChange);
 
-  return () => query.removeEventListener('change', onChange);
+  return () => query?.removeEventListener('change', onChange);
 }
 
 function systemSnapshot(): MPResolvedColorScheme {
-  return typeof window !== 'undefined' && window.matchMedia?.(DARK_QUERY).matches
-    ? 'dark'
-    : 'light';
+  return mediaList(DARK_QUERY)?.matches ? 'dark' : 'light';
 }
 
 /**

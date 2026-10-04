@@ -15,6 +15,7 @@
  * stops being a column, whether a drawer is open, and how tall the bars are.
  */
 import * as React from 'react';
+import { mediaList } from './media';
 import { HIDDEN_BELOW, HIDDEN_FROM } from './visibility';
 import { below, useWindowMins } from './window-class';
 import { ELEVATION_SURFACE } from './elevation';
@@ -195,10 +196,11 @@ export function useMPCollapsed(collapseBelow: MPPageCollapse): boolean {
         return () => {};
       }
 
-      const list = window.matchMedia(query);
-      list.addEventListener('change', onChange);
+      const list = mediaList(query);
 
-      return () => list.removeEventListener('change', onChange);
+      list?.addEventListener('change', onChange);
+
+      return () => list?.removeEventListener('change', onChange);
     },
     [query]
   );
@@ -208,7 +210,7 @@ export function useMPCollapsed(collapseBelow: MPPageCollapse): boolean {
       return false;
     }
 
-    return window.matchMedia(query).matches;
+    return mediaList(query)?.matches ?? false;
   }, [query]);
 
   return React.useSyncExternalStore(subscribe, snapshot, () => false);

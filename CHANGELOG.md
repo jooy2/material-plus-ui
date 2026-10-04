@@ -68,6 +68,8 @@
 
 - **`MPTabs` measures its bar when the bar changes, not on every render.** It read the bar's scroll width after every render to know whether to fade an end, which forced a layout on each tab change and each render of anything above it, and it read the bar's direction on every scroll event. Observers now say when the box, a tab's size or the set of tabs changes, and scrolling measures once a frame.
 
+- **A media query is asked once per page, not once per render.** The reduced-motion, colour-scheme and collapse stores built a fresh `MediaQueryList` every time React read them — on every render of every component subscribed, and again to check nothing had changed — so twelve animated lines built seventy-two lists on mount. Each query now has one list, shared. `MPShortcut` likewise reads the platform once rather than rebuilding the user agent string on every render.
+
 ### Documentation
 
 - **The getting-started guide registers languages in a client module under App Router.** It said `registerMPMessages` could be called from a server file, but a server component and the client components it renders are separate module instances of the library there — a table registered from a server file reached no component that speaks, and every one of them went on speaking English. The guide now registers it in a `'use client'` module the root layout renders.

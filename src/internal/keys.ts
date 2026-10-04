@@ -31,11 +31,22 @@ export type MPResolvedOS = 'mac' | 'windows' | 'linux';
  * which of three key caps to print — and getting it slightly wrong is a label,
  * not a bug.
  */
+let detected: MPResolvedOS | undefined;
+
 export function detectOS(): MPResolvedOS {
   if (typeof navigator === 'undefined') {
     return 'windows';
   }
 
+  // Once per page. The platform does not change under a running page, and
+  // this is a store's snapshot — read on every render of every shortcut, where
+  // it rebuilt the user agent string and ran two patterns over it each time.
+  detected ??= readOS();
+
+  return detected;
+}
+
+function readOS(): MPResolvedOS {
   const data = (navigator as Navigator & { userAgentData?: { platform?: string } }).userAgentData;
   const haystack = `${data?.platform ?? ''} ${navigator.platform ?? ''} ${navigator.userAgent ?? ''}`;
 

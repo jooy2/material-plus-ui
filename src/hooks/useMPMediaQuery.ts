@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { mediaList } from '../internal/media';
 
 /**
  * Whether a media query matches, and it re-renders when that changes.
@@ -74,24 +75,5 @@ export function useMPMediaQuery(query: string, onServer = false): boolean {
   return React.useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }
 
-const lists = new Map<string, MediaQueryList>();
-
-/**
- * `null` where there is nothing to ask — a server, or a browser old enough to
- * have no `matchMedia`. Nothing is cached in that case: an entry written then
- * would outlive the environment that could not answer.
- */
-function listFor(query: string): MediaQueryList | null {
-  if (typeof window === 'undefined' || !window.matchMedia) {
-    return null;
-  }
-
-  let found = lists.get(query);
-
-  if (!found) {
-    found = window.matchMedia(query);
-    lists.set(query, found);
-  }
-
-  return found;
-}
+/** The shared list for a query; see `internal/media.ts`. */
+const listFor = mediaList;
