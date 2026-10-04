@@ -265,7 +265,6 @@ export const MPCheckbox = React.forwardRef<HTMLElement, MPCheckboxProps>(functio
           <span className="flex min-w-0 flex-col gap-0.5">
             {hasContent(label) ? (
               <Field.Label
-                htmlFor={fieldId}
                 className={[
                   'leading-[1.4]',
                   disabled

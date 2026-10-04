@@ -380,7 +380,6 @@ export function MPNumberField({
               size={size}
               label={label}
               required={required}
-              htmlFor={fieldId}
               shrunk={shrunk}
             />
           ) : null}

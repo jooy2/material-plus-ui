@@ -595,7 +595,6 @@ export const MPTextField = React.forwardRef<
             size={size}
             label={label}
             required={required}
-            htmlFor={fieldId}
             shrunk={shrunk}
             multiline={multiline}
           />

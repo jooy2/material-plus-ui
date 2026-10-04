@@ -212,7 +212,15 @@ export interface MPFieldLabelProps extends MPFieldOutlineProps {
    * for the type scale it rests at.
    */
   size: MPSize;
-  /** The control the label names. */
+  /**
+   * The control the label names, for a control that is not Base UI's own.
+   *
+   * Left out for a `Field.Control`, whose label follows the id the control is
+   * actually drawn with: a generated one in a server's markup, and the caller's
+   * `id` once the page has hydrated. Naming the caller's `id` here pointed the
+   * server's `<label for>` at an element that did not exist, so the label named
+   * nothing until hydration, and every field rendered once more to repair it.
+   */
   htmlFor?: string;
   /**
    * Whether the label is up in the notch. `false` rests it on the control's own
@@ -261,7 +269,9 @@ export function MPFieldLabel({
 }: MPFieldLabelProps) {
   return (
     <Field.Label
-      htmlFor={htmlFor}
+      // Only when there is one: an explicit `htmlFor={undefined}` still
+      // overrides the `for` Base UI works out from the field's own control.
+      {...(htmlFor === undefined ? null : { htmlFor })}
       data-mp-shrunk={shrunk ? '' : undefined}
       className={[
         'text-mp-on-surface-variant',

@@ -324,7 +324,6 @@ export const MPSwitch = React.forwardRef<HTMLElement, MPSwitchProps>(function MP
       >
         {hasContent(label) ? (
           <Field.Label
-            htmlFor={fieldId}
             className={[
               'leading-[1.4]',
               disabled

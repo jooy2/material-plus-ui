@@ -185,7 +185,6 @@ export const MPRadio = React.forwardRef<HTMLElement, MPRadioProps>(function MPRa
           <span className="flex min-w-0 flex-col gap-0.5">
             {hasContent(label) ? (
               <Field.Label
-                htmlFor={fieldId}
                 className={[
                   'leading-[1.4]',
                   disabled
