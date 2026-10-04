@@ -377,13 +377,30 @@ export default function Page() {
 }
 ```
 
-배럴 자체에는 붙어 있지 않고, 그것이 이 방식이 싸게 먹히는 이유입니다. 서버 컴포넌트에서 `MPBox`를 import하면 경계를 넘는 것은 `MPBox`뿐입니다. 데이터도 마찬가지여서 — `registerMPMessages`와 로케일 테이블, 공용 타입은 부르는 곳에서 그냥 실행됩니다. 애플리케이션이 시작할 때 쓰는 그 한 줄을 서버 파일에 둬도 됩니다.
+배럴 자체에는 붙어 있지 않고, 그것이 이 방식이 싸게 먹히는 이유입니다. 서버 컴포넌트에서 `MPBox`를 import하면 경계를 넘는 것은 `MPBox`뿐입니다. 데이터도 마찬가지여서 — `registerMPMessages`와 로케일 테이블, 공용 타입은 부르는 곳에서 그냥 실행됩니다.
 
-```ts
+바로 그래서 애플리케이션이 시작할 때 쓰는 그 한 줄은 **클라이언트** 모듈에 있어야 합니다. App Router에서 서버 컴포넌트와 클라이언트 컴포넌트는 이 라이브러리의 서로 다른 모듈 인스턴스를 씁니다. 서버 파일에서 등록한 표는 서버 컴포넌트에만 등록되고, 말을 하는 컴포넌트는 모두 클라이언트 컴포넌트이므로 서버에서도 브라우저에서도 계속 영어로 말합니다. 루트 레이아웃이 렌더링하는 `'use client'` 모듈에서 등록하세요.
+
+```tsx
+// app/messages.tsx
+'use client';
+
 import { registerMPMessages } from 'material-plus-ui';
 import { ko } from 'material-plus-ui/locales/ko';
 
 registerMPMessages(ko);
+
+export function Messages() {
+  return null;
+}
+```
+
+```tsx
+// app/layout.tsx — 말하는 모든 것보다 위에서 한 번 렌더링합니다
+<body>
+  <Messages />
+  {children}
+</body>
 ```
 
 아이콘은 서버 컴포넌트에서 양쪽 다 동작합니다. 이름 붙은 export도, 조회 테이블도요.

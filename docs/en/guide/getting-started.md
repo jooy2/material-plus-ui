@@ -377,13 +377,30 @@ export default function Page() {
 }
 ```
 
-The barrel itself is not marked, which is what keeps that cheap: importing `MPBox` from a server component pulls `MPBox` across the boundary and nothing else. Neither is the data — `registerMPMessages`, the locale tables and the shared types run wherever you call them, so the one line an application writes at startup can live in a server file:
+The barrel itself is not marked, which is what keeps that cheap: importing `MPBox` from a server component pulls `MPBox` across the boundary and nothing else. Neither is the data — `registerMPMessages`, the locale tables and the shared types run wherever you call them.
 
-```ts
+Which is exactly why the one line an application writes at startup belongs in a **client** module. Under App Router a server component and a client component are separate module instances of this library: a table registered from a server file is registered for server components, and every component that speaks — all of them are client components — goes on speaking English, on the server and in the browser alike. Register it in a `'use client'` module that the root layout renders:
+
+```tsx
+// app/messages.tsx
+'use client';
+
 import { registerMPMessages } from 'material-plus-ui';
 import { ko } from 'material-plus-ui/locales/ko';
 
 registerMPMessages(ko);
+
+export function Messages() {
+  return null;
+}
+```
+
+```tsx
+// app/layout.tsx — render it once, above everything that speaks
+<body>
+  <Messages />
+  {children}
+</body>
 ```
 
 The icons work from a server component both ways round — the named export and the lookup table:

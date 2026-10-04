@@ -60,7 +60,7 @@ Or take one language on its own path, which is the smallest thing you can import
 import { ko } from 'material-plus-ui/locales/ko';
 ```
 
-Call it once, before anything renders — it is module-level state, and a table that arrives after a component has resolved its strings only takes effect at the next render.
+Call it once, before anything renders — it is module-level state, and a table that arrives after a component has resolved its strings only takes effect at the next render. Under App Router it has to be called where the components run, which is a client module; see [Getting started](../guide/getting-started#next-js-and-react-server-components) for the shape that works.
 
 ### A language this library does not ship
 

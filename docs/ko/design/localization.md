@@ -60,7 +60,7 @@ registerMPMessages(...LOCALES);
 import { ko } from 'material-plus-ui/locales/ko';
 ```
 
-무엇이든 렌더링되기 전에 한 번만 호출하세요. 모듈 수준 상태라서, 컴포넌트가 이미 문자열을 해석한 뒤에 도착한 표는 다음 렌더링부터 반영됩니다.
+무엇이든 렌더링되기 전에 한 번만 호출하세요. 모듈 수준 상태라서, 컴포넌트가 이미 문자열을 해석한 뒤에 도착한 표는 다음 렌더링부터 반영됩니다. App Router에서는 컴포넌트가 실행되는 곳, 즉 클라이언트 모듈에서 호출해야 합니다. 동작하는 형태는 [시작하기](../guide/getting-started#next-js와-react-server-components)에 있습니다.
 
 ### 이 라이브러리에 없는 언어
 

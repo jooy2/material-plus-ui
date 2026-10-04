@@ -64,6 +64,8 @@
 
 ### Documentation
 
+- **The getting-started guide registers languages in a client module under App Router.** It said `registerMPMessages` could be called from a server file, but a server component and the client components it renders are separate module instances of the library there — a table registered from a server file reached no component that speaks, and every one of them went on speaking English. The guide now registers it in a `'use client'` module the root layout renders.
+
 - **`MPScrollZone`'s page says which buttons setting a server-rendered page wants.** With `buttons="auto"` the strip cannot know it overflows until the page has hydrated, so two inline buttons appear afterwards and move the strip; `always` or `buttonPlacement="overlay"` move nothing.
 
 ### Fixed
