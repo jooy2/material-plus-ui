@@ -274,9 +274,16 @@ describe('MPTreeSelect', () => {
     await search(screen, 'ko');
     await vi.waitFor(() => expect(rows()).toContain('korea'));
 
-    // The query, folded, and nothing for the nodes it is compared against.
-    expect(folds.mock.calls.length).toBeLessThanOrEqual(2);
+    // The query is folded once per render, and how many renders a keystroke
+    // takes is the browser's business. What must not happen is a node's label
+    // being folded again, so that is what is asked.
+    const labels = ['europe', 'france', 'spain', 'asia', 'korea', 'seoul', 'japan'];
+    const folded = folds.mock.contexts.map((text) => String(text).toLowerCase());
+
     folds.mockRestore();
+
+    expect(folded.length).toBeGreaterThan(0);
+    expect(folded.filter((text) => labels.some((label) => text.includes(label)))).toEqual([]);
   });
 
   it('opens every branch a search kept', async () => {

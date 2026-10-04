@@ -157,9 +157,18 @@ describe('MPAnimateCounter', () => {
     await userEvent.hover(element);
     await vi.waitFor(() => expect(visible.textContent).toBe('42'));
 
+    // Every number written from here on, rather than whichever one a poll
+    // happens to catch: a 150ms count can be over before a slow machine has
+    // finished moving the pointer.
+    const written: number[] = [];
+    const watcher = new MutationObserver(() => written.push(Number(visible.textContent)));
+
+    watcher.observe(visible, { childList: true, characterData: true, subtree: true });
+
     await userEvent.hover(screen.getByTestId('away').element());
     await userEvent.hover(element);
-    await vi.waitFor(() => expect(Number(visible.textContent)).toBeLessThan(42));
+    await vi.waitFor(() => expect(written.some((value) => value < 42)).toBe(true));
     await vi.waitFor(() => expect(visible.textContent).toBe('42'));
+    watcher.disconnect();
   });
 });

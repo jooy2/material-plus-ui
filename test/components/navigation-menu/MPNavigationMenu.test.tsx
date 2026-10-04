@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { userEvent } from 'vitest/browser';
 import { renderToString } from 'react-dom/server';
 import { MPNavigationMenu, MPNavigationMenuItem, MPNavigationMenuLink } from 'material-plus-ui';
 import { cleanupHydrated, hydrateFromServer } from '../../support/hydrate';
@@ -290,7 +291,11 @@ describe('MPNavigationMenu', () => {
 
       trigger.click();
       await vi.waitFor(() => expect(trigger.getAttribute('aria-expanded')).toBe('true'));
-      trigger.click();
+      // Escape rather than a second click. Base UI ignores a click for 500ms
+      // after a hover opened the panel, and a pointer left over the trigger by
+      // an earlier test is a hover this test did not make.
+      trigger.focus();
+      await userEvent.keyboard('{Escape}');
       await vi.waitFor(() => expect(trigger.getAttribute('aria-expanded')).toBe('false'));
       await new Promise((resolve) => setTimeout(resolve, 300));
 
