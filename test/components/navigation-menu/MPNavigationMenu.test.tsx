@@ -261,6 +261,21 @@ describe('MPNavigationMenu', () => {
 
       expect(html).toContain('href="/overview"');
       expect(html).toContain('href="/pricing"');
+
+      // Hidden as drawn, too: the attribute loses to the panel's own `grid`
+      // unless the panel names it.
+      const sketch = document.createElement('div');
+
+      sketch.innerHTML = html;
+      document.body.append(sketch);
+
+      try {
+        const link = sketch.querySelector('a[href="/pricing"]') as HTMLElement;
+
+        expect(link.checkVisibility()).toBe(false);
+      } finally {
+        sketch.remove();
+      }
     });
 
     it('keeps them in the page after it hydrates, and after a panel has closed', async () => {
@@ -280,6 +295,7 @@ describe('MPNavigationMenu', () => {
       await new Promise((resolve) => setTimeout(resolve, 300));
 
       expect(links().length).toBeGreaterThan(0);
+      expect([...links()].some((link) => (link as HTMLElement).checkVisibility())).toBe(false);
     });
   });
 });

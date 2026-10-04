@@ -325,7 +325,9 @@ export function MPNavigationMenuItem({
 
           <NavigationMenu.Content
             keepMounted={keepMounted}
-            className={`mp-navigation-menu__panel grid gap-1 ${PANEL_PAD[size]}`}
+            // A kept panel is hidden with the attribute, which loses to `grid`
+            // unless it is named: the library ships no reset to enforce it.
+            className={`mp-navigation-menu__panel grid gap-1 [&[hidden]]:hidden ${PANEL_PAD[size]}`}
             style={
               // Rounded and floored, for the reason `MPGrid` rounds and floors
               // its own column count: the number is written into a `repeat()`,
