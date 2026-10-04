@@ -47,6 +47,10 @@ In CSS for the first paint, and in JavaScript from then on.
 
 The markup a server sends is the **column**, because a collapsed sidebar is a modal drawer, a modal drawer is a portal into `document.body`, and there is no body to portal into while the markup is being rendered. So a narrow screen would draw a full-width sidebar and throw it away a moment later. The class that hides the column below the breakpoint is what stops that, and `matchMedia` is what decides — once there is a window to ask — that the drawer should exist at all.
 
+### A crawler at a phone's width
+
+Collapsed, the sidebar is a closed modal drawer, and a closed drawer is not on the page — so below `collapseBelow` its links leave the document a crawler renders at a phone's width, and a search engine indexing the mobile page does not see them. `keepMounted` keeps them in the document, hidden, while the drawer is closed. Give it to a sidebar that is the site's navigation.
+
 ## The surface
 
 The **container** ladder, because a sidebar holds somebody else's content and dyeing it would dye theirs.

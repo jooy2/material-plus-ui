@@ -4,6 +4,8 @@
 
 ### Added
 
+- **`MPDrawer` and `MPSidebar` take `keepMounted`.** A closed modal drawer is not in the page, so below `collapseBelow` a sidebar's links left the document a crawler renders at a phone's width. With `keepMounted` a closed drawer's contents stay in the document, hidden.
+
 - **`MPNavigationMenu` takes `keepMounted`, for the links a crawler should find.** A closed panel is not in the page at all, so links that exist only inside one were in neither the HTML a server sent nor the document a crawler rendered. With `keepMounted` every panel's links are in the server's markup, hidden, and stay in the document after a panel has opened and closed.
 
 - **`MPAnimateHeadline`, `MPAnimateTyping`, `MPAnimateScramble` and `MPAnimateSplit` take `render`, as `MPAnimateFade` already did.** Their root is a `<div>`, and the natural place for a rotating word or a typed phrase is inside a paragraph — where an HTML parser closes the `<p>` at the `<div>`, so the server's markup and React's tree disagree and hydration fails. `render={<span />}` makes the root inline.

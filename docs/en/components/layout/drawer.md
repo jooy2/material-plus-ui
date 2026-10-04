@@ -55,6 +55,10 @@ They are one component rather than two because a sidebar that becomes a hamburge
 
 A `standard` drawer that is closed renders **nothing at all**, because "closed" for a panel in the flow is "not in the layout". There is nothing to animate on the way out: what moves is the page around it, and moving the page is not this component's to do.
 
+### Kept in the page while closed
+
+A closed `modal` drawer is taken out of the page, contents and all. `keepMounted` leaves its contents in the document, hidden, which is what a drawer of site links on a narrow screen wants: a crawler rendering the page finds them. The drawer is a portal, which no server renders, so the contents arrive with hydration — links a site needs indexed should also be in the server's markup somewhere.
+
 ## The four edges
 
 <Demo src="drawer/sides" :minHeight="120">

@@ -331,4 +331,34 @@ describe('MPDrawer', () => {
       expect(screen.container.querySelectorAll('.mp-drawer .border-t')).toHaveLength(2);
     });
   });
+
+  describe('`keepMounted`', () => {
+    it("takes a closed drawer's contents out of the page by default", async () => {
+      await render(
+        <MPDrawer trigger={<MPButton>Menu</MPButton>} title="Navigation">
+          <a href="/docs">Docs</a>
+        </MPDrawer>
+      );
+
+      expect(document.querySelector('a[href="/docs"]')).toBeNull();
+    });
+
+    it('keeps them in the page, out of sight, while it is closed', async () => {
+      await render(
+        <MPDrawer trigger={<MPButton>Menu</MPButton>} title="Navigation" keepMounted>
+          <a href="/docs">Docs</a>
+        </MPDrawer>
+      );
+
+      const link = await vi.waitFor(() => {
+        const found = document.querySelector('a[href="/docs"]');
+
+        expect(found).not.toBeNull();
+
+        return found as HTMLElement;
+      });
+
+      expect(link.checkVisibility()).toBe(false);
+    });
+  });
 });

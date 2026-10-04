@@ -73,6 +73,17 @@ export interface MPSidebarProps extends Omit<React.ComponentPropsWithoutRef<'asi
    */
   collapseBelow?: MPPageCollapse;
   /**
+   * Keeps the sidebar's contents in the document while it is a closed drawer,
+   * hidden, rather than taking them out.
+   *
+   * Collapsed, a sidebar is a modal drawer, and a closed one is not on the page
+   * at all — so below `collapseBelow` its links vanished from the page a
+   * crawler renders at a phone's width. Turn it on for a sidebar that is the
+   * site's navigation. See `MPDrawer`'s own `keepMounted`.
+   * @default false
+   */
+  keepMounted?: boolean;
+  /**
    * Whether the drawer is open. Only meaningful once the sidebar has collapsed;
    * a column is not opened, it is there.
    *
@@ -250,6 +261,7 @@ export const MPSidebar = React.forwardRef<HTMLElement, MPSidebarProps>(function 
     onResize,
     onResizeEnd,
     collapseBelow: collapseBelowProp,
+    keepMounted = false,
     open: openProp,
     defaultOpen = false,
     onOpenChange,
@@ -470,6 +482,7 @@ export const MPSidebar = React.forwardRef<HTMLElement, MPSidebarProps>(function 
         // covered the page — so it always has one, even when the column it was
         // did not need to say what it is.
         title={title ?? label ?? messages.sidebar}
+        keepMounted={keepMounted}
         size={size}
         locale={locale}
         // An explicit width is the caller's decision and survives the change of

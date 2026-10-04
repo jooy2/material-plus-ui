@@ -133,6 +133,18 @@ export interface MPDrawerProps {
    */
   dismissible?: boolean;
   /**
+   * Keeps a closed `modal` drawer's contents in the document, hidden, instead
+   * of taking them out of it.
+   *
+   * For a drawer that is a site's navigation on a narrow screen: closed, its
+   * links are otherwise not on the page at all, which is the page a crawler
+   * renders at a phone's width. A modal drawer is drawn into a portal, which no
+   * server renders, so the links arrive with hydration either way — a server
+   * should still send them somewhere in the page itself.
+   * @default false
+   */
+  keepMounted?: boolean;
+  /**
    * How far the panel reaches in by default, and the type scale inside it.
    * `md` is MD3's own 360dp navigation drawer.
    * @default 'md'
@@ -335,6 +347,7 @@ export function MPDrawer({
   extent,
   rounded = true,
   dismissible = true,
+  keepMounted = false,
   size: sizeProp,
   classNames,
   className,
@@ -387,6 +400,10 @@ export function MPDrawer({
 
   const panel = [
     'mp-drawer relative flex flex-col overflow-hidden box-border',
+    // `hidden` is how a closed drawer kept in the page is taken out of it, and
+    // the browser's own `[hidden]` rule loses to `flex` — there is no reset
+    // here to restore it — so the attribute has to win by name.
+    '[&[hidden]]:hidden',
     'border-mp-outline-variant outline-none',
     modal ? 'bg-mp-surface-container-low shadow-mp-1' : 'bg-mp-surface',
     'text-mp-on-surface',
@@ -532,14 +549,16 @@ export function MPDrawer({
     >
       {trigger ? <Dialog.Trigger render={trigger} /> : null}
 
-      <Dialog.Portal>
+      <Dialog.Portal keepMounted={keepMounted}>
         <Dialog.Backdrop
           className={[`${PORTAL_LAYER} fixed inset-0`, FADE, SCRIM, classNames?.backdrop ?? '']
             .filter(Boolean)
             .join(' ')}
         />
 
-        <Dialog.Viewport className={`${PORTAL_LAYER} fixed inset-0 flex ${VIEWPORT[side]}`}>
+        <Dialog.Viewport
+          className={`${PORTAL_LAYER} fixed inset-0 flex [&[hidden]]:hidden ${VIEWPORT[side]}`}
+        >
           <Dialog.Popup
             data-mp-size={size}
             data-mp-side={side}
