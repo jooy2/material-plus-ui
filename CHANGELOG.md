@@ -64,6 +64,8 @@
 
 - **`MPSnackbarProvider` puts one live region on the page instead of six.** It mounted a Base UI viewport for each of the six positions, so a page carried six regions named "Notifications", re-rendered all six on every message, held six sets of window listeners while one was showing, read a high-priority message out six times, and paused on hover for whichever stack had registered last. One viewport now covers the window, lets every pointer through, and holds a stack for each corner that has a message in it; the region is still there from the first render.
 
+- **An open `MPTour` moves its spotlight without re-rendering itself.** It follows its target by measuring it every frame, and every frame the target moved — a smooth scroll to it is one per frame — was a render of the whole tour, card included, to shift one rectangle. Moves after the first are written straight onto the spotlight, which halves the work of following a moving target.
+
 ### Documentation
 
 - **The getting-started guide registers languages in a client module under App Router.** It said `registerMPMessages` could be called from a server file, but a server component and the client components it renders are separate module instances of the library there — a table registered from a server file reached no component that speaks, and every one of them went on speaking English. The guide now registers it in a `'use client'` module the root layout renders.

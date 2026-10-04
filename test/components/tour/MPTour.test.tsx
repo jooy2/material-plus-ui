@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Profiler, useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
@@ -296,6 +296,37 @@ describe('MPTour', () => {
 
     await expect.element(screen.getByRole('button', { name: 'Show me' })).toBeInTheDocument();
     await expect.element(screen.getByRole('button', { name: 'Skip' })).toBeInTheDocument();
+  });
+
+  it('follows a target that moves every frame without rendering the tour each time', async () => {
+    // A smooth scroll to the target moves it every frame, and each move was a
+    // render of the whole tour — card included — to shift one rectangle, on
+    // top of the card's own positioning. The hole now moves without a render,
+    // which leaves the positioning: at most one commit per move.
+    let commits = 0;
+    const screen = await render(
+      <Profiler id="tour" onRender={() => (commits += 1)}>
+        <div data-testid="spacer" style={{ height: 0 }} />
+        <MPButton id="one">One</MPButton>
+        <MPTour steps={[STEPS[0]]} locale="en-US" defaultOpen scrollIntoView={false} />
+      </Profiler>
+    );
+
+    await vi.waitFor(() => expect(scrim()).not.toBeNull());
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    const spacer = screen.getByTestId('spacer').element() as HTMLElement;
+    const before = commits;
+
+    for (let step = 1; step <= 10; step += 1) {
+      spacer.style.height = `${step * 10}px`;
+      await new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 0)));
+    }
+
+    await vi.waitFor(() =>
+      expect((scrim() as HTMLElement).getBoundingClientRect().top).toBeGreaterThan(90)
+    );
+    expect(commits - before).toBeLessThanOrEqual(10);
   });
 
   it('follows a target that has moved', async () => {

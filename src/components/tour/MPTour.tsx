@@ -158,7 +158,16 @@ const BUTTON_SIZE: Record<MPSize, MPSize> = {
  * It also does not blur. `SCRIM` carries a 2px blur because a dialog is saying
  * "you cannot use this right now", and a tour is saying the opposite.
  */
-function Scrim({ spot, className }: { spot: Spot | null; className?: string }) {
+function Scrim({
+  spot,
+  className,
+  holeRef
+}: {
+  spot: Spot | null;
+  className?: string;
+  /** The hole, for the moves the tour writes onto it without a render. */
+  holeRef?: React.Ref<HTMLDivElement>;
+}) {
   if (spot === null) {
     return (
       <div
@@ -175,6 +184,7 @@ function Scrim({ spot, className }: { spot: Spot | null; className?: string }) {
 
   return (
     <div
+      ref={holeRef}
       aria-hidden="true"
       className={[
         'mp-tour__scrim rounded-mp-xs pointer-events-none fixed z-40',
@@ -273,6 +283,7 @@ export function MPTour({
    * supposed to be too calm for.
    */
   const [measured, setMeasured] = React.useState<{ selector: string; spot: Spot } | null>(null);
+  const holeRef = React.useRef<HTMLDivElement | null>(null);
 
   /*
    * What a screen reader is told when the step changes under it.
@@ -372,6 +383,7 @@ export function MPTour({
 
     let frame = 0;
     let last = '';
+    let placed = false;
 
     const tick = () => {
       const rect = target.getBoundingClientRect();
@@ -380,15 +392,31 @@ export function MPTour({
       if (key !== last) {
         last = key;
 
-        setMeasured({
-          selector,
-          spot: {
-            top: rect.top - padding,
-            left: rect.left - padding,
-            width: rect.width + padding * 2,
-            height: rect.height + padding * 2
-          }
-        });
+        const spot = {
+          top: rect.top - padding,
+          left: rect.left - padding,
+          width: rect.width + padding * 2,
+          height: rect.height + padding * 2
+        };
+        const hole = holeRef.current;
+
+        /*
+         * The first place goes through state, which is what draws the hole at
+         * all. Every move after it — a smooth scroll to the target is one per
+         * frame — is written straight onto the hole: the hole is the only
+         * thing that reads it, and a render per frame re-rendered the whole
+         * tour, card and all, to move one rectangle. React leaves a style it
+         * did not change alone, so the two never disagree.
+         */
+        if (placed && hole) {
+          hole.style.top = `${spot.top}px`;
+          hole.style.left = `${spot.left}px`;
+          hole.style.width = `${spot.width}px`;
+          hole.style.height = `${spot.height}px`;
+        } else {
+          placed = true;
+          setMeasured({ selector, spot });
+        }
       }
 
       frame = requestAnimationFrame(tick);
@@ -444,7 +472,9 @@ export function MPTour({
         setOpen(false);
       }}
     >
-      {running && scrim ? <Scrim spot={spot} className={classNames?.scrim} /> : null}
+      {running && scrim ? (
+        <Scrim spot={spot} className={classNames?.scrim} holeRef={holeRef} />
+      ) : null}
 
       <Popover.Portal>
         <Popover.Positioner
