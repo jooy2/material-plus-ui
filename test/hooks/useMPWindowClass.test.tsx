@@ -1,7 +1,9 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { renderToString } from 'react-dom/server';
 import { useMPWindowClass } from 'material-plus-ui';
 import type { MPWindowClass } from 'material-plus-ui';
+import { cleanupHydrated, hydrateFromServer } from '../support/hydrate';
 
 /**
  * The window cannot be resized from inside the page, so the boundaries are
@@ -91,6 +93,38 @@ describe('useMPWindowClass', () => {
       const screen = await render(<Probe onServer="compact" />);
 
       expect(window.matchMedia(`(min-width: ${MIN[reported(screen)]}px)`).matches).toBe(true);
+    });
+  });
+
+  describe('on a page a server rendered', () => {
+    afterEach(cleanupHydrated);
+
+    // The guess has to be one this window is not in, or a hook that measured
+    // the window during hydration would look exactly like one that did not.
+    function wrongGuess(): MPWindowClass {
+      const real = LADDER.filter(
+        (name) => window.matchMedia(`(min-width: ${MIN[name]}px)`).matches
+      );
+
+      return real.at(-1) === 'compact' ? 'extra-large' : 'compact';
+    }
+
+    it('sends the guess from the server', () => {
+      const guess = wrongGuess();
+
+      expect(renderToString(<Probe onServer={guess} />)).toContain(`>${guess}<`);
+    });
+
+    it('hydrates without a mismatch, then reports the real class', async () => {
+      const guess = wrongGuess();
+      const { container, errors } = await hydrateFromServer(<Probe onServer={guess} />);
+      const output = container.querySelector('output')!;
+
+      expect(errors).toEqual([]);
+      expect(output.textContent).not.toBe(guess);
+      expect(
+        window.matchMedia(`(min-width: ${MIN[output.textContent as MPWindowClass]}px)`).matches
+      ).toBe(true);
     });
   });
 });

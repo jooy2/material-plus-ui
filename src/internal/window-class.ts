@@ -202,12 +202,21 @@ function snapshot(key: string, fallback: MPWindowClass): MPWindowClass {
  * is given has to be stable between renders or it resubscribes on each one, and
  * a `breakpoints` prop written inline — which is how anybody would write it — is
  * a new object every time its provider renders.
+ *
+ * The server snapshot is `onServer` and nothing else, and it must not be `read`.
+ * React asks for the server snapshot twice: on the server, and again in the
+ * browser while it hydrates, to reproduce the markup the server sent. `read`
+ * measures the window wherever there is one, so in the browser it answered with
+ * the real class — and on every window outside the one class `onServer` named,
+ * the first client render disagreed with the server's, and React threw the
+ * server's markup away and rendered the page again.
  */
 export function useWindowClass(onServer: MPWindowClass): MPWindowClass {
   const key = keyOf(useWindowMins());
 
   const listen = React.useCallback((onChange: () => void) => subscribe(key, onChange), [key]);
   const read = React.useCallback(() => snapshot(key, onServer), [key, onServer]);
+  const guess = React.useCallback(() => onServer, [onServer]);
 
-  return React.useSyncExternalStore(listen, read, read);
+  return React.useSyncExternalStore(listen, read, guess);
 }
