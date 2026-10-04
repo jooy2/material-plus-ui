@@ -296,6 +296,7 @@ export const MPHeader = React.forwardRef<HTMLElement, MPHeaderProps>(function MP
       'aria-label': label,
       'data-mp-size': size,
       'data-mp-variant': variant,
+      'data-mp-position': position,
       className: [
         'mp-header text-mp-on-surface box-border w-full min-w-0',
         barSurface(variant, elevation),

@@ -1,6 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { MPPageLayout } from 'material-plus-ui';
+import { renderToString } from 'react-dom/server';
+import { MPHeader, MPPageLayout } from 'material-plus-ui';
+import { cleanupHydrated, hydrateFromServer } from '../../support/hydrate';
 
 describe('MPPageLayout', () => {
   describe('the landmarks', () => {
@@ -205,5 +207,36 @@ describe('MPPageLayout', () => {
 
       expect(root.style.getPropertyValue('--_mp-layout-header-inset')).toBe('0px');
     });
+  });
+
+  describe('a fixed header on a page a server rendered', () => {
+    afterEach(cleanupHydrated);
+
+    // The page is padded by the bar's measured height, and the measurement is
+    // an effect — so the content used to start under the bar and then move down
+    // by its height once the page hydrated.
+    it.each(['md', 'xs', 'xl'] as const)(
+      'starts the content below a `%s` bar before it has been measured',
+      async (size) => {
+        const node = (
+          <MPPageLayout header={<MPHeader position="fixed" size={size} brand="Acme" />}>
+            <p className="probe">The article.</p>
+          </MPPageLayout>
+        );
+        const sketch = document.createElement('div');
+
+        sketch.innerHTML = renderToString(node);
+        document.body.append(sketch);
+
+        const before = sketch.querySelector('.probe')!.getBoundingClientRect().top;
+
+        sketch.remove();
+
+        const { container } = await hydrateFromServer(node);
+        const after = container.querySelector('.probe')!.getBoundingClientRect().top;
+
+        expect(Math.abs(before - after)).toBeLessThan(1);
+      }
+    );
   });
 });

@@ -368,7 +368,9 @@ export const MPPageLayout = React.forwardRef<HTMLDivElement, MPPageLayoutProps>(
             // scrolling to whichever region below asks for it.
             fills ? 'overflow-hidden' : '',
             extentClasses,
-            headerSpan === 'full' ? '[padding-top:var(--_mp-layout-header-inset,0px)]' : '',
+            headerSpan === 'full'
+              ? '[padding-top:var(--_mp-layout-header-inset,var(--_mp-layout-header-seed,0px))]'
+              : '',
             footerSpan === 'full' ? '[padding-bottom:var(--_mp-layout-footer-inset,0px)]' : '',
             className ?? ''
           ]
@@ -412,7 +414,9 @@ export const MPPageLayout = React.forwardRef<HTMLDivElement, MPPageLayoutProps>(
               className={[
                 'flex min-w-0 flex-1 flex-col',
                 fills ? 'min-h-0' : '',
-                headerSpan === 'content' ? '[padding-top:var(--_mp-layout-header-inset,0px)]' : '',
+                headerSpan === 'content'
+                  ? '[padding-top:var(--_mp-layout-header-inset,var(--_mp-layout-header-seed,0px))]'
+                  : '',
                 footerSpan === 'content'
                   ? '[padding-bottom:var(--_mp-layout-footer-inset,0px)]'
                   : ''

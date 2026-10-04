@@ -20,6 +20,8 @@
 
 - **`MPGaugeChart`'s reading and the content in an `MPPieChart` ring start where they stay.** Both are placed from the size of the chart's box, which a server does not know, so a server-rendered page drew the gauge's value against the top edge and a ring's `center` in a zero-wide box at the left, and moved both into place once the page had hydrated. Until the box is measured each is now placed as if the dial or the ring fills the box's height, which is exactly where it lands in any box at least as wide as it is tall.
 
+- **A fixed `MPHeader` in an `MPPageLayout` has its room from the first paint.** The layout pads the page by the bar's measured height, and measuring is an effect — so a server-rendered page drew its content under the bar and pushed it down by the bar's height once it had hydrated. The stylesheet now pads by the bar's size from the start, and the measurement corrects only a bar its content made taller. It needs `:has()`; an older browser behaves as before. `MPHeader` carries `data-mp-position` for it.
+
 ### Fixed
 
 - **`MPAnimateCounter` writes its number in the provider's language.** It formatted in the runtime's locale unless given a `locale` of its own, so it ignored `MPLocaleProvider` — and on a server-rendered page, wrote the server's language into the markup and the reader's into the first client render.

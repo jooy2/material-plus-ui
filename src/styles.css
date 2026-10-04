@@ -4486,3 +4486,66 @@
   inline-size: calc(var(--_mp-tree-indent) / 2 - 2px);
   border-block-start: 1px solid var(--_mp-color-outline-variant);
 }
+
+/* ---------------------------------------------------------------------------
+ * A fixed header's room, before the layout has measured it
+ *
+ * `MPPageLayout` keeps a fixed `MPHeader` from covering the top of the page by
+ * measuring the bar and padding the page by its height. The measurement is an
+ * effect, so on a server-rendered page the content was drawn under the bar and
+ * then pushed down by its height once the page had hydrated — a layout shift
+ * of a whole header's worth, on every page with one.
+ *
+ * These give the padding a first answer that needs no script: a fixed bar's
+ * height is its size's rung on the ladder, plus a pixel for the rule an
+ * `outlined` one draws under itself. The measurement still wins the moment it
+ * arrives, and it then moves nothing unless the bar's content made it taller
+ * than its rung. Only a bar that is the layout's own header is counted — the
+ * slot it sits in when the header spans the page, or the content column's when
+ * it does not — so a layout nested inside another does not answer for it.
+ *
+ * In a browser without `:has()` there is no first answer, which is how every
+ * browser behaved before.
+ * ------------------------------------------------------------------------- */
+
+.mp-page-layout:is(
+  :has(> .mp-header[data-mp-position='fixed'][data-mp-variant='outlined']),
+  :has(> div > div > .mp-header[data-mp-position='fixed'][data-mp-variant='outlined'])
+) {
+  --_mp-layout-header-rule: 1px;
+}
+
+.mp-page-layout:is(
+  :has(> .mp-header[data-mp-position='fixed'][data-mp-size='xs']),
+  :has(> div > div > .mp-header[data-mp-position='fixed'][data-mp-size='xs'])
+) {
+  --_mp-layout-header-seed: calc(3rem + var(--_mp-layout-header-rule, 0px));
+}
+
+.mp-page-layout:is(
+  :has(> .mp-header[data-mp-position='fixed'][data-mp-size='sm']),
+  :has(> div > div > .mp-header[data-mp-position='fixed'][data-mp-size='sm'])
+) {
+  --_mp-layout-header-seed: calc(3.5rem + var(--_mp-layout-header-rule, 0px));
+}
+
+.mp-page-layout:is(
+  :has(> .mp-header[data-mp-position='fixed'][data-mp-size='md']),
+  :has(> div > div > .mp-header[data-mp-position='fixed'][data-mp-size='md'])
+) {
+  --_mp-layout-header-seed: calc(4rem + var(--_mp-layout-header-rule, 0px));
+}
+
+.mp-page-layout:is(
+  :has(> .mp-header[data-mp-position='fixed'][data-mp-size='lg']),
+  :has(> div > div > .mp-header[data-mp-position='fixed'][data-mp-size='lg'])
+) {
+  --_mp-layout-header-seed: calc(5rem + var(--_mp-layout-header-rule, 0px));
+}
+
+.mp-page-layout:is(
+  :has(> .mp-header[data-mp-position='fixed'][data-mp-size='xl']),
+  :has(> div > div > .mp-header[data-mp-position='fixed'][data-mp-size='xl'])
+) {
+  --_mp-layout-header-seed: calc(6rem + var(--_mp-layout-header-rule, 0px));
+}
