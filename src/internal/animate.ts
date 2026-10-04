@@ -253,6 +253,10 @@ export function useAnimationRun({
   const node = React.useRef<HTMLElement | null>(null);
   const [started, setStarted] = React.useState(trigger === 'mount');
   const [run, setRun] = React.useState(0);
+  // Whether there has been a run to rewind from. Until the first start the
+  // animation is sitting paused on its own first frame, which is exactly where
+  // a rewind would put it.
+  const ranBefore = React.useRef(trigger === 'mount');
 
   const start = React.useCallback(() => {
     setStarted(true);
@@ -260,10 +264,19 @@ export function useAnimationRun({
   }, []);
 
   // Nothing to rewind on the first pass — the element has only just been drawn.
+  // Nor on the first start of an animation that has never run: rewinding means
+  // a forced layout, and when a page scrolls a row of cards into view at once
+  // that was one forced layout per card in a single frame, for nothing.
   React.useLayoutEffect(() => {
     const element = node.current;
 
     if (!element || run === 0) {
+      return;
+    }
+
+    if (!ranBefore.current) {
+      ranBefore.current = true;
+
       return;
     }
 

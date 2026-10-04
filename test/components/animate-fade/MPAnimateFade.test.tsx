@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { MPAnimateFade } from 'material-plus-ui';
 
@@ -162,6 +162,54 @@ describe('MPAnimateFade', () => {
 
       await expect.element(screen.getByTestId('fade')).toHaveAttribute('data-mp-state', 'running');
       expect(getComputedStyle(element).animationPlayState).toBe('running');
+    });
+
+    it('starts the first time without a rewind, and rewinds every time after', async () => {
+      // A rewind is a forced layout. The first start has nothing to rewind —
+      // the animation is already on its first frame — and a row of cards
+      // scrolled into view together used to pay one forced layout each.
+      const rewinds = vi.fn();
+      const original = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetWidth')!;
+
+      Object.defineProperty(HTMLElement.prototype, 'offsetWidth', {
+        configurable: true,
+        get() {
+          if ((this as HTMLElement).dataset.testid === 'fade') {
+            rewinds();
+          }
+
+          return original.get!.call(this);
+        }
+      });
+
+      try {
+        const screen = await render(
+          <MPAnimateFade trigger="manual" data-testid="fade">
+            Again
+          </MPAnimateFade>
+        );
+
+        await screen.rerender(
+          <MPAnimateFade trigger="manual" play data-testid="fade">
+            Again
+          </MPAnimateFade>
+        );
+        expect(rewinds).not.toHaveBeenCalled();
+
+        await screen.rerender(
+          <MPAnimateFade trigger="manual" play={false} data-testid="fade">
+            Again
+          </MPAnimateFade>
+        );
+        await screen.rerender(
+          <MPAnimateFade trigger="manual" play data-testid="fade">
+            Again
+          </MPAnimateFade>
+        );
+        expect(rewinds).toHaveBeenCalledTimes(1);
+      } finally {
+        Object.defineProperty(HTMLElement.prototype, 'offsetWidth', original);
+      }
     });
   });
 

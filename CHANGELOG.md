@@ -30,6 +30,8 @@
 
 - **`MPAnimateSplit` writes a fraction of the markup it did.** Every piece carried all seven of the entrance's slots inline, so a headline of eighty characters split `by="character"` was 27 kB of HTML. The slots the pieces share are written once on the set and reach each piece by inheritance; a piece keeps only its delay, and its duration when `durationStep` stretches it. The pieces animate exactly as before.
 
+- **An `MPAnimate*` entrance starts without a forced layout the first time.** Starting an animation rewound it first, and a rewind is a forced layout — which the first start never needed, since an animation that has not run is already on its first frame. A row of cards scrolled into view together paid one forced layout each, in the frame they appeared in. Only a replay rewinds now. `MPAnimateMarquee` also stopped measuring itself again on every render of its parent.
+
 ### Fixed
 
 - **`MPAnimateCounter` writes its number in the provider's language.** It formatted in the runtime's locale unless given a `locale` of its own, so it ignored `MPLocaleProvider` — and on a server-rendered page, wrote the server's language into the markup and the reader's into the first client render.

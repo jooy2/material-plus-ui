@@ -120,6 +120,12 @@ export const MPAnimateMarquee = React.forwardRef<HTMLDivElement, MPAnimateMarque
      * it. The gap is read back off the computed style rather than parsed out of
      * the prop, because `'2rem'` is only a number once a font size has been
      * resolved — and the one on the page is the one that matters.
+     *
+     * Not keyed on `children`, which is a new object on every render of the
+     * parent and turned each one into a rebuilt observer and a forced layout.
+     * New content that changes the track's length is a resize the observer
+     * already reports; the gap is the one input that moves the answer without
+     * resizing anything it watches.
      */
     React.useEffect(() => {
       const box = boxRef.current;
@@ -149,7 +155,7 @@ export const MPAnimateMarquee = React.forwardRef<HTMLDivElement, MPAnimateMarque
       observer.observe(box);
 
       return () => observer.disconnect();
-    }, [vertical, children]);
+    }, [vertical, gap]);
 
     // An explicit duration wins; otherwise the measurement decides, and until
     // the first measurement lands there is a sane number rather than `0ms`,
