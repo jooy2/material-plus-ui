@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { numberFormatter } from '../../internal/intl';
+import { useMPLocale } from '../../internal/locale';
 import { useAnimateElement } from '../../internal/animate';
 import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
 import type { MPAnimateProps, MPAnimateTimelineProps } from '../../types';
@@ -81,8 +82,7 @@ export const MPAnimateCounter = React.forwardRef<HTMLSpanElement, MPAnimateCount
       options,
       locale,
       format,
-      // `long2` at 800ms: long enough for the digits to be read as counting and
-      // short enough that a tile of four of them is not a wait.
+      // The effect's own Material token when unset, which is `medium2`.
       duration,
       delay = 0,
       easing,
@@ -126,7 +126,8 @@ export const MPAnimateCounter = React.forwardRef<HTMLSpanElement, MPAnimateCount
      * what the options say rather than on which object said it, so the identity
      * stops mattering and there is nothing left for a memo to protect.
      */
-    const formatter = format ?? ((next: number) => numberFormatter(locale, options).format(next));
+    const language = useMPLocale(locale);
+    const formatter = format ?? ((next: number) => numberFormatter(language, options).format(next));
 
     const node = React.useRef<HTMLSpanElement | null>(null);
     const [shown, setShown] = React.useState(from);
@@ -137,6 +138,17 @@ export const MPAnimateCounter = React.forwardRef<HTMLSpanElement, MPAnimateCount
      * counts back down and a `paused` counter holds — neither of which this
      * loop knows anything about.
      */
+    /*
+     * What the effect below restarts on: new slots, a new play state, and a
+     * replay, which rewinds the animation without changing either. The slots as
+     * a string rather than the style object, because the object is a new one on every render — and this
+     * component renders on every frame of the count, so depending on its
+     * identity tore the loop down and built it again sixty times a second.
+     */
+    const slots = JSON.stringify(animate.style);
+    const state = animate.props['data-mp-state'];
+    const replay = animate.run;
+
     React.useEffect(() => {
       const element = node.current;
 
@@ -149,8 +161,12 @@ export const MPAnimateCounter = React.forwardRef<HTMLSpanElement, MPAnimateCount
       // A browser without scroll-driven animations runs a `view` counter on the
       // clock, so it finishes like any other.
       const scrollDriven = timeline === 'view' && CSS.supports('animation-timeline', 'view()');
+      // A scroll-driven count only moves while the reader can see it scroll.
+      let inView = true;
 
       const read = () => {
+        frame = 0;
+
         if (!live) {
           return;
         }
@@ -159,6 +175,7 @@ export const MPAnimateCounter = React.forwardRef<HTMLSpanElement, MPAnimateCount
           .getAnimations()
           .filter((animation) => (animation as CSSAnimation).animationName === 'mp-anim-count');
         const finished = own.every((animation) => animation.playState === 'finished');
+        const held = own.length > 0 && own.every((animation) => animation.playState === 'paused');
 
         /*
          * Two cases where the property has nothing to say, and both show the
@@ -182,11 +199,16 @@ export const MPAnimateCounter = React.forwardRef<HTMLSpanElement, MPAnimateCount
 
         /*
          * Stop when the animation has, so a page of finished counters is not a
-         * page of frame loops. A scroll-driven one never finishes — its
-         * progress is the reader's position and can go back — so that one keeps
-         * reading.
+         * page of frame loops — and while it is held, too: a counter waiting
+         * for its trigger, or `paused`, would otherwise read the same number
+         * every frame for as long as the page is open. Starting it again
+         * changes `data-mp-state`, which restarts this effect.
+         *
+         * A scroll-driven one never finishes — its progress is the reader's
+         * position and can go back — so that one keeps reading, but only while
+         * it is on screen.
          */
-        const running = own.length > 0 && (scrollDriven || !finished);
+        const running = own.length > 0 && !held && (scrollDriven ? inView : !finished);
 
         if (running) {
           frame = requestAnimationFrame(read);
@@ -195,13 +217,27 @@ export const MPAnimateCounter = React.forwardRef<HTMLSpanElement, MPAnimateCount
 
       frame = requestAnimationFrame(read);
 
+      const observer =
+        scrollDriven && typeof IntersectionObserver !== 'undefined'
+          ? new IntersectionObserver(([entry]) => {
+              inView = entry.isIntersecting;
+
+              // One more read either way: the last value on the way out, and
+              // the loop again on the way in.
+              if (frame === 0) {
+                frame = requestAnimationFrame(read);
+              }
+            })
+          : null;
+
+      observer?.observe(element);
+
       return () => {
         live = false;
         cancelAnimationFrame(frame);
+        observer?.disconnect();
       };
-      // `animate.style` rather than its parts: a new run writes new slots, and a
-      // finished loop has to be restarted when it does.
-    }, [animate.style, animate.props['data-mp-state'], timeline, value]);
+    }, [slots, state, replay, timeline, value]);
 
     return (
       <span

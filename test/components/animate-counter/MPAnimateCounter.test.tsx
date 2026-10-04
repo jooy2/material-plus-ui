@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { MPAnimateCounter } from 'material-plus-ui';
+import { userEvent } from 'vitest/browser';
+import { MPAnimateCounter, MPLocaleProvider } from 'material-plus-ui';
 
 describe('MPAnimateCounter', () => {
   it('animates a registered custom property rather than driving its own clock', async () => {
@@ -117,5 +118,48 @@ describe('MPAnimateCounter', () => {
       .querySelector('[aria-hidden="true"]') as HTMLElement;
 
     expect(getComputedStyle(visible).fontVariantNumeric).toContain('tabular-nums');
+  });
+
+  it("writes the number in the provider's language", async () => {
+    const screen = await render(
+      <MPLocaleProvider locale="de-DE">
+        <MPAnimateCounter value={1234567} data-testid="count" />
+      </MPLocaleProvider>
+    );
+    const hidden = screen.getByTestId('count').element().firstElementChild as HTMLElement;
+
+    expect(hidden.textContent).toBe('1.234.567');
+  });
+
+  it('stops reading frames while it is held', async () => {
+    // A counter waiting for its trigger shows `from` and nothing moves, so a
+    // frame loop reading the same number back would be work for nothing — for
+    // as long as the page stays open.
+    const frames = vi.spyOn(window, 'requestAnimationFrame');
+
+    await render(<MPAnimateCounter value={1234} trigger="manual" play={false} />);
+    await new Promise((resolve) => setTimeout(resolve, 250));
+
+    expect(frames.mock.calls.length).toBeLessThanOrEqual(2);
+    frames.mockRestore();
+  });
+
+  it('counts again on a replay', async () => {
+    const screen = await render(
+      <div>
+        <MPAnimateCounter value={42} duration={150} trigger="hover" data-testid="count" />
+        <span data-testid="away">away</span>
+      </div>
+    );
+    const element = screen.getByTestId('count').element() as HTMLElement;
+    const visible = element.querySelector('[aria-hidden="true"]') as HTMLElement;
+
+    await userEvent.hover(element);
+    await vi.waitFor(() => expect(visible.textContent).toBe('42'));
+
+    await userEvent.hover(screen.getByTestId('away').element());
+    await userEvent.hover(element);
+    await vi.waitFor(() => expect(Number(visible.textContent)).toBeLessThan(42));
+    await vi.waitFor(() => expect(visible.textContent).toBe('42'));
   });
 });

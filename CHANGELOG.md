@@ -12,7 +12,11 @@
 
 - **An `MPImage` given `priority` is drawn the moment it arrives, rather than faded in.** The fade waits for the picture's `load` event, and on a server-rendered page that event is only heard once the page's JavaScript has hydrated — so the one picture a page is judged by sat transparent over bytes the browser already had, and a transparent picture does not count as its Largest Contentful Paint. With the script held back 1.5 seconds it painted at 1.9 seconds, where a bare `<img>` painted at 0.3. Its placeholder is now drawn under it instead of over it. A picture without `priority` fades in as before.
 
+- **`MPAnimateCounter` stops reading frames once there is nothing to read.** It follows its animation by reading the counted value back every frame, and stopped only when the animation finished — so a counter waiting for `trigger="visible"`, `manual` or `hover`, or held by `paused`, read the same number sixty times a second for as long as the page was open, and a `timeline="view"` counter kept reading while scrolled out of sight. It now rests while it is held and while a scroll-driven one is off screen.
+
 ### Fixed
+
+- **`MPAnimateCounter` writes its number in the provider's language.** It formatted in the runtime's locale unless given a `locale` of its own, so it ignored `MPLocaleProvider` — and on a server-rendered page, wrote the server's language into the markup and the reader's into the first client render.
 
 - **A progress bar, a meter, a slider and a number field write their numbers in the provider's language.** All four hand the value to Base UI to format, and Base UI formats in the runtime's locale unless it is told one, so under `<MPLocaleProvider locale="de">` they went on writing `1,234.5` while everything around them wrote `1.234,5` — and on a server-rendered page, wrote it in the server's language. `MPGaugeChart` was told nothing either, despite a `locale` prop of its own. `MPProgressLinear`, `MPProgressCircular`, `MPProgressBox`, `MPMeter` and `MPSlider` also take `locale` now, like every other component that writes a number.
 

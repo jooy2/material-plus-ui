@@ -216,6 +216,8 @@ export interface AnimationRun {
   state: 'running' | 'paused';
   /** Whether the animation has been let go at all. */
   started: boolean;
+  /** How many times it has been started, so a replay is something to depend on. */
+  run: number;
   /** Spread onto the element when `trigger` is `hover`; empty otherwise. */
   handlers: React.HTMLAttributes<HTMLElement>;
 }
@@ -355,6 +357,7 @@ export function useAnimationRun({
     }, []),
     state: started && !paused ? 'running' : 'paused',
     started,
+    run,
     handlers
   };
 }
@@ -424,6 +427,8 @@ export interface AnimateElement {
   props: React.HTMLAttributes<HTMLElement> & Record<string, unknown>;
   /** The children, wrapped when there is a `stagger` and untouched otherwise. */
   children: React.ReactNode;
+  /** How many times the animation has been started; changes on every replay. */
+  run: number;
 }
 
 /**
@@ -482,7 +487,8 @@ export function useAnimateElement(params: AnimateElementParams): AnimateElement 
         'data-mp-animation': slots.effect,
         'data-mp-state': state
       },
-      children: staggerChildren(children, effectClass, slots, { stagger, durationStep, reverse })
+      children: staggerChildren(children, effectClass, slots, { stagger, durationStep, reverse }),
+      run: run.run
     };
   }
 
@@ -495,6 +501,7 @@ export function useAnimateElement(params: AnimateElementParams): AnimateElement 
       'data-mp-animation': slots.effect,
       'data-mp-state': state
     },
-    children
+    children,
+    run: run.run
   };
 }
