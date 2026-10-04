@@ -147,7 +147,7 @@ describe('MPAnimateCounter', () => {
   it('counts again on a replay', async () => {
     const screen = await render(
       <div>
-        <MPAnimateCounter value={42} duration={150} trigger="hover" data-testid="count" />
+        <MPAnimateCounter value={42} duration={1000} trigger="hover" data-testid="count" />
         <span data-testid="away">away</span>
       </div>
     );
@@ -155,11 +155,13 @@ describe('MPAnimateCounter', () => {
     const visible = element.querySelector('[aria-hidden="true"]') as HTMLElement;
 
     await userEvent.hover(element);
-    await vi.waitFor(() => expect(visible.textContent).toBe('42'));
+    await vi.waitFor(() => expect(visible.textContent).toBe('42'), { timeout: 3000 });
 
     // Every number written from here on, rather than whichever one a poll
-    // happens to catch: a 150ms count can be over before a slow machine has
-    // finished moving the pointer.
+    // happens to catch. The counter reads the animation rather than driving
+    // it, so a count shorter than the gap between two frames on a busy machine
+    // is already over at the first read and writes only its end. A second of
+    // counting leaves room for frames in between.
     const written: number[] = [];
     const watcher = new MutationObserver(() => written.push(Number(visible.textContent)));
 
@@ -167,8 +169,10 @@ describe('MPAnimateCounter', () => {
 
     await userEvent.hover(screen.getByTestId('away').element());
     await userEvent.hover(element);
-    await vi.waitFor(() => expect(written.some((value) => value < 42)).toBe(true));
-    await vi.waitFor(() => expect(visible.textContent).toBe('42'));
+    await vi.waitFor(() => expect(written.some((value) => value < 42)).toBe(true), {
+      timeout: 3000
+    });
+    await vi.waitFor(() => expect(visible.textContent).toBe('42'), { timeout: 3000 });
     watcher.disconnect();
   });
 });
