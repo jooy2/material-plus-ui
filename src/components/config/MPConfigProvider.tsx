@@ -90,6 +90,22 @@ export interface MPConfigProviderProps {
    * gets the CSS half and not the other one.
    */
   dir?: 'ltr' | 'rtl';
+  /**
+   * Keeps a line under every field for its description or its error, whether
+   * or not there is one yet.
+   *
+   * By default the line is opened when there is something to put in it, and
+   * that moves everything below the field down by a line. Right after the
+   * reader typed, that is fine — a page that moves in answer to the reader is
+   * not a page that jumped. An error that arrives later is not: a server's
+   * answer to a submit, a check that waited for the reader to stop typing, or
+   * `MPForm`'s `errors` filled in from a response all push the page down with
+   * nothing the reader did to explain it, which is the shift Cumulative Layout
+   * Shift counts. With this the line is there from the start, and a message
+   * fills it in place.
+   * @default false
+   */
+  reserveSupportingText?: boolean;
   children?: React.ReactNode;
 }
 
@@ -161,6 +177,7 @@ export function MPConfigProvider({
   breakpoints,
   locale,
   dir,
+  reserveSupportingText,
   children
 }: MPConfigProviderProps) {
   const outer = useMPConfig();
@@ -192,11 +209,22 @@ export function MPConfigProvider({
       // it. `undefined` rather than an empty object when nobody has set one, so
       // `useWindowMins` can return the shared ladder untouched.
       breakpoints:
-        breakpoints || outer.breakpoints ? { ...outer.breakpoints, ...breakpoints } : undefined
+        breakpoints || outer.breakpoints ? { ...outer.breakpoints, ...breakpoints } : undefined,
+      reserveSupportingText: reserveSupportingText ?? outer.reserveSupportingText
     }),
     // `ladder` stands in for the two breakpoint maps, by value rather than by
     // identity — which is the whole of why it exists. See above.
-    [size, color, density, outer.size, outer.color, outer.density, ladder]
+    [
+      size,
+      color,
+      density,
+      reserveSupportingText,
+      outer.size,
+      outer.color,
+      outer.density,
+      outer.reserveSupportingText,
+      ladder
+    ]
   );
 
   const resolvedLocale = locale ?? outerLocale;

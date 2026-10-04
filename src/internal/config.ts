@@ -42,6 +42,8 @@ export interface MPConfigValue {
    * and cannot be.
    */
   breakpoints?: Partial<Record<MPWindowClass, number>>;
+  /** Whether a field keeps a line under itself for a message it has not got yet. */
+  reserveSupportingText?: boolean;
 }
 
 /**

@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { Field } from '@base-ui/react/field';
 import { MPSupportingText } from '../../src/internal/SupportingText';
+import { MPConfigProvider, MPTextField } from 'material-plus-ui';
 
 /**
  * The line under a control, on its own.
@@ -113,6 +114,50 @@ describe('MPSupportingText', () => {
 
       expect(getComputedStyle(reveal()!).display).toBe('grid');
       expect(getComputedStyle(reveal()!).overflow).toBe('hidden');
+    });
+  });
+
+  describe('reserveSupportingText', () => {
+    function Field2({ message }: { message?: string }) {
+      return (
+        <div>
+          <MPTextField label="Email" value="" onChange={() => {}} errorMessage={message} />
+          <p data-testid="below">Below</p>
+        </div>
+      );
+    }
+
+    it('leaves the line closed until there is something to put in it, by default', async () => {
+      const screen = await render(<Field2 />);
+      const top = screen.getByTestId('below').element().getBoundingClientRect().top;
+
+      await screen.rerender(<Field2 message="Taken" />);
+      await new Promise((resolve) => setTimeout(resolve, 400));
+
+      expect(screen.getByTestId('below').element().getBoundingClientRect().top).toBeGreaterThan(
+        top
+      );
+    });
+
+    it('keeps the line, so an error that arrives later moves nothing', async () => {
+      // A server's answer to a submit arrives with nothing the reader did to
+      // explain the page moving, which is the shift a layout-shift score counts.
+      const screen = await render(
+        <MPConfigProvider reserveSupportingText>
+          <Field2 />
+        </MPConfigProvider>
+      );
+      const top = screen.getByTestId('below').element().getBoundingClientRect().top;
+
+      await screen.rerender(
+        <MPConfigProvider reserveSupportingText>
+          <Field2 message="Taken" />
+        </MPConfigProvider>
+      );
+      await new Promise((resolve) => setTimeout(resolve, 400));
+
+      expect(screen.getByTestId('below').element().getBoundingClientRect().top).toBe(top);
+      expect(screen.getByText('Taken').element()).toBeTruthy();
     });
   });
 });

@@ -192,6 +192,18 @@ Left out, nothing is rendered and nothing is claimed: a page that sets `dir` on 
 - **Mixed-direction pages need the provider where the direction changes**, not only at the root — the Base UI context follows the tree, and the CSS follows the DOM, so put them together.
 - **`display: contents` renders an element.** It participates in no layout, but it is in the DOM: a `> *` selector of your own counts it.
 
+## A line under every field
+
+`reserveSupportingText` keeps a line under every field for its description or its error, whether there is one yet or not. By default the line opens when there is something to put in it, and everything below the field moves down by a line. That is fine right after the reader typed. An error that arrives later is a different matter: a server's answer to a submit, a check that waited for the reader to stop typing, or `MPForm`'s `errors` filled in from a response all move the page with nothing the reader did to explain it, and that is the shift a layout-shift score counts.
+
+```tsx
+<MPConfigProvider reserveSupportingText>
+  <SignUpForm />
+</MPConfigProvider>
+```
+
+The cost is a line of space under fields that never have anything to say. A message longer than a line still grows the field.
+
 ## Next
 
 - [Prop conventions](../design/prop-conventions.md) — what `size` and `color` mean.

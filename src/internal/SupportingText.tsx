@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Field } from '@base-ui/react/field';
 import { META_TEXT, hasContent } from './scale';
+import { useMPConfig } from './config';
 
 /** Which of the two the line is currently saying, or neither. */
 type Slot = 'error' | 'description' | 'none';
@@ -82,6 +83,8 @@ export function MPSupportingText({
    * browser paints. Set afterwards, the first painted frame is the finished
    * line and the animation starts from a state the reader has already seen.
    */
+  const reserve = useMPConfig().reserveSupportingText === true;
+
   React.useLayoutEffect(() => {
     const element = reveal.current;
     const before = previous.current;
@@ -98,12 +101,13 @@ export function MPSupportingText({
     }
 
     // From nothing the space has to open; between two messages it is already
-    // open, and opening it again would collapse the line and re-open it.
-    element.dataset.mpReveal = before === 'none' ? 'open' : 'swap';
+    // open, and opening it again would collapse the line and re-open it. A
+    // reserved line is open from the start, so it only ever swaps.
+    element.dataset.mpReveal = before === 'none' && !reserve ? 'open' : 'swap';
     element.style.animationName = 'none';
     void element.offsetWidth;
     element.style.animationName = '';
-  }, [slot]);
+  }, [slot, reserve]);
 
   const classNames = [
     // `min-h-0` is what lets the row travel to nothing: the text is the grid
@@ -121,6 +125,42 @@ export function MPSupportingText({
   ]
     .filter(Boolean)
     .join(' ');
+
+  /*
+   * With `reserveSupportingText` the line is there before there is anything to
+   * say: one element a line high, carrying the field's own spacing, with the
+   * message drawn inside it. A message arriving later fills the line rather
+   * than opening it, so nothing below the field moves.
+   */
+  if (reserve) {
+    const tone = 'block min-h-0 data-disabled:text-mp-on-surface/38';
+
+    return (
+      <div
+        className={['mp-supporting-text__line block min-h-[1lh]', META_TEXT, className ?? '']
+          .filter(Boolean)
+          .join(' ')}
+      >
+        {hasContent(errorMessage) ? (
+          <div ref={reveal} className="mp-supporting-text__reveal">
+            <Field.Error match={true} className={`mp-supporting-text ${tone} text-mp-error`}>
+              {errorMessage}
+            </Field.Error>
+          </div>
+        ) : hasContent(description) ? (
+          <div ref={reveal} className="mp-supporting-text__reveal">
+            <Field.Description
+              className={`mp-supporting-text ${tone} text-mp-on-surface-variant m-0`}
+            >
+              {description}
+            </Field.Description>
+          </div>
+        ) : (
+          <Field.Error className={`mp-supporting-text ${tone} text-mp-error`} />
+        )}
+      </div>
+    );
+  }
 
   if (hasContent(errorMessage)) {
     return (

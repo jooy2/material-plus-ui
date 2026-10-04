@@ -4,6 +4,8 @@
 
 ### Added
 
+- **`MPConfigProvider` takes `reserveSupportingText`.** A field opens a line under itself when it has a description or an error, and everything below moves down. An error that arrives well after the reader typed — a server's answer, a debounced check, `MPForm`'s `errors` — is a layout shift with nothing the reader did to explain it. With `reserveSupportingText` every field in the subtree keeps that line from the start, and a message fills it in place.
+
 - **`MPAvatar` takes `keepMounted`, for a long list of them.** By default a picture is fetched by a script after the page has hydrated, so it is in no server's markup, the preload scanner never sees it and `loading="lazy"` is ignored — fifty avatars download together the moment the page hydrates, competing with its largest picture. With `keepMounted` each is an `<img>` from the start, loaded by the browser on its own terms, with the initials under it until it has arrived. It needs `@base-ui/react` 1.8 or later.
 
 - **A router's `Link` can draw the links in `MPBreadcrumbItem`, `MPNavigationMenuItem`, `MPNavigationMenuLink`, `MPMenuItem` and `MPTreeItem`, through `render`, and `MPPagination`'s, through `renderLink`.** Each drew a plain `<a>`, and under App Router a plain `<a>` to a page of the same site is a full page load, with no client-side navigation and no prefetch. `render={<Link />}` keeps the `href` on the component, written once, and lets the router draw the element — the arrangement `MPListItem` already had.
