@@ -266,6 +266,60 @@ export const MPFilePicker = React.forwardRef<HTMLInputElement, MPFilePickerProps
     const describedById = React.useId();
     const labelId = React.useId();
 
+    /*
+     * The native input holds what the picker holds.
+     *
+     * The picker's list is state, and the input only ever saw the last batch
+     * its own dialog chose — not a dropped file, not the files chosen before,
+     * not a removal, and nothing at all after a dialog that was cancelled, since
+     * opening the dialog clears it. So a `<form>` around the picker, a
+     * `FormData` read off it or a server action posted from it sent the wrong
+     * files. Each change is written back into `input.files` here, and again
+     * when a dialog is dismissed without a choice.
+     */
+    const synced = React.useRef<readonly File[]>([]);
+
+    const sync = React.useCallback((held: readonly File[]) => {
+      const input = inputRef.current;
+
+      if (!input || typeof DataTransfer === 'undefined') {
+        return;
+      }
+
+      const transfer = new DataTransfer();
+
+      for (const file of held) {
+        transfer.items.add(file);
+      }
+
+      input.files = transfer.files;
+      synced.current = held;
+    }, []);
+
+    React.useEffect(() => {
+      const same =
+        synced.current.length === files.length &&
+        synced.current.every((file, index) => file === files[index]);
+
+      if (!same) {
+        sync(files);
+      }
+    });
+
+    React.useEffect(() => {
+      const input = inputRef.current;
+
+      if (!input) {
+        return;
+      }
+
+      const restore = () => sync(synced.current);
+
+      input.addEventListener('cancel', restore);
+
+      return () => input.removeEventListener('cancel', restore);
+    }, [sync]);
+
     const commit = React.useCallback(
       (next: File[]) => {
         if (!value) {

@@ -42,6 +42,8 @@
 
 - **`MPForm` submits to its `action`.** It always gave Base UI a handler for the form's values, and a handler is what makes Base UI cancel the native submit — so an `action` was cancelled too: a URL never navigated, a React server action never ran, and the form did nothing before the page had hydrated. With no `onSubmit`, a valid submit now goes to the `action`. With `onSubmit`, the values still come to it and nothing navigates, as documented.
 
+- **`MPFilePicker` submits the files it shows.** Its list is its own, and the native input under it only ever held the last batch the file dialog chose — not a dropped file, not the files chosen before, not a removal, and nothing after a dialog that was dismissed. A `<form>`, a `FormData` or a server action reading the input sent the wrong files. The input now holds exactly what the list does.
+
 - **An `MPAnimate*` entrance waiting for its trigger shows its content on a page read without JavaScript.** With `trigger="visible"`, `manual` or `hover` the content sits on the entrance's first frame, at `opacity: 0` or clipped, until script starts it — and with scripting off nothing ever does, so the content was in the markup and visible to nobody. The entrance is now dropped under `@media (scripting: none)`, as it already was under `prefers-reduced-motion`.
 
 - **`MPCarousel` scrolls its own strip and never the page.** It turned a slide with `scrollIntoView`, which scrolls every container the slide is inside — so each slide an autoplaying carousel turned pulled the page back to the carousel, while the reader was reading something else. Autoplay also holds while the carousel is scrolled out of view now, as it already did in a background tab.

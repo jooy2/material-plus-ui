@@ -387,4 +387,45 @@ describe('MPFilePicker', () => {
       expect(root.style.width).toBe('20rem');
     });
   });
+
+  describe('in a form', () => {
+    function names(form: HTMLFormElement) {
+      return new FormData(form).getAll('attachments').map((file) => (file as File).name);
+    }
+
+    it('submits every file it holds, however they arrived', async () => {
+      // The native input only ever saw the last batch its own dialog chose, so
+      // a form posted the wrong files.
+      const screen = await render(
+        <form data-testid="form">
+          <MPFilePicker name="attachments" multiple />
+        </form>
+      );
+      const form = screen.getByTestId('form').element() as HTMLFormElement;
+
+      await choose([fileOf('a.txt', 'text/plain')]);
+      await drop([fileOf('b.txt', 'text/plain')]);
+      await vi.waitFor(() => expect(names(form)).toEqual(['a.txt', 'b.txt']));
+
+      await screen.getByRole('button', { name: /Remove a\.txt/ }).click();
+      await vi.waitFor(() => expect(names(form)).toEqual(['b.txt']));
+    });
+
+    it('keeps them when the dialog is dismissed without a choice', async () => {
+      const screen = await render(
+        <form data-testid="form">
+          <MPFilePicker name="attachments" multiple />
+        </form>
+      );
+      const form = screen.getByTestId('form').element() as HTMLFormElement;
+
+      await choose([fileOf('a.txt', 'text/plain')]);
+      // What opening the dialog does to the input, and then what dismissing it
+      // reports.
+      fileInput().value = '';
+      fileInput().dispatchEvent(new Event('cancel'));
+
+      expect(names(form)).toEqual(['a.txt']);
+    });
+  });
 });
