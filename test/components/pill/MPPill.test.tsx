@@ -1,6 +1,8 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { renderToString } from 'react-dom/server';
 import { render } from 'vitest-browser-react';
 import { MPPill } from 'material-plus-ui';
+import { cleanupHydrated, hydrateFromServer } from '../../support/hydrate';
 
 describe('MPPill', () => {
   describe('rendering', () => {
@@ -90,6 +92,38 @@ describe('MPPill', () => {
       expect(warn).not.toHaveBeenCalled();
 
       warn.mockRestore();
+    });
+
+    describe('rendered open on a server', () => {
+      afterEach(cleanupHydrated);
+
+      // The probe after the pill is what a reader sees move: an open panel
+      // sent at no height would grow into place after hydration and push it.
+      it('arrives at its own height, and nothing under it moves', async () => {
+        const node = (
+          <div>
+            <MPPill title="On air" details="Two people are listening right now." expanded />
+            <p className="probe">After</p>
+          </div>
+        );
+        const sketch = document.createElement('div');
+
+        sketch.innerHTML = renderToString(node);
+        document.body.append(sketch);
+
+        const panel = sketch.querySelector('.mp-pill > div:last-child') as HTMLElement;
+        const before = sketch.querySelector('.probe')!.getBoundingClientRect().top;
+
+        expect(panel.getBoundingClientRect().height).toBeGreaterThan(0);
+
+        sketch.remove();
+
+        const { container, errors } = await hydrateFromServer(node);
+        const after = container.querySelector('.probe')!.getBoundingClientRect().top;
+
+        expect(errors).toEqual([]);
+        expect(Math.abs(before - after)).toBeLessThan(1);
+      });
     });
 
     it('draws no panel at all when there is nothing to reveal', async () => {

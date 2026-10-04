@@ -251,7 +251,15 @@ export const MPPill = React.forwardRef<HTMLDivElement, MPPillProps>(function MPP
   const size = useMPSize(sizeProp);
   const detailsRef = React.useRef<HTMLDivElement>(null);
   const detailsId = React.useId();
-  const [detailsHeight, setDetailsHeight] = React.useState(0);
+  /*
+   * `null` until the panel has been measured, and an open panel that has not
+   * been measured is drawn at its own height. Starting at zero sent a pill
+   * rendered open on a server as a closed one: its details were in the markup
+   * at no height, and they grew into place after hydration, pushing down
+   * everything under the pill. The height `auto` gives is the one the
+   * measurement then reads, and a transition does not run from `auto`.
+   */
+  const [detailsHeight, setDetailsHeight] = React.useState<number | null>(null);
 
   React.useEffect(() => {
     const element = detailsRef.current;
@@ -395,7 +403,7 @@ export const MPPill = React.forwardRef<HTMLDivElement, MPPillProps>(function MPP
             'transition-[height] duration-(--mp-sys-motion-duration-short4) ease-mp-standard',
             'motion-reduce:transition-none'
           ].join(' ')}
-          style={{ height: expanded ? detailsHeight : 0 }}
+          style={{ height: expanded ? (detailsHeight ?? 'auto') : 0 }}
           // `inert` rather than `aria-hidden`: a collapsed panel is a zero-height
           // box whose content is still perfectly focusable, and `aria-hidden`
           // alone would leave a keyboard reader tabbing into something their
