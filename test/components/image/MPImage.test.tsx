@@ -189,7 +189,7 @@ describe('MPImage', () => {
     it('draws nothing at all when the placeholder is switched off', async () => {
       const screen = await render(<MPImage src={PENDING} alt="Something" placeholder={false} />);
 
-      expect(screen.container.querySelector('.animate-pulse')).toBeNull();
+      expect(screen.container.querySelector('[class*="animate-pulse"]')).toBeNull();
     });
 
     it('takes a placeholder of its own', async () => {
@@ -934,7 +934,7 @@ describe('MPImage', () => {
       );
       const standIn = standInOf(screen.container);
 
-      expect(screen.container.querySelector('.animate-pulse')).toBeNull();
+      expect(screen.container.querySelector('[class*="animate-pulse"]')).toBeNull();
       expect(standIn?.getAttribute('src')).toBe(RED_DOT);
       expect(standIn?.getAttribute('alt')).toBe('');
       expect(standIn?.getAttribute('draggable')).toBe('false');
