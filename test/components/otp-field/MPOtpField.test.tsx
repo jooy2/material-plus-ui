@@ -153,6 +153,27 @@ describe('MPOtpField', () => {
 
       expect(slots()[0].type).toBe('password');
     });
+
+    // The ring is two pixels of `primary`, and drawing the second one must not
+    // make the slot any bigger: focus moves to the next slot with every
+    // character typed, and a ring that grew its slot moved the rest of the row.
+    it('rings the focused slot without moving any of them', async () => {
+      await render(<MPOtpField label="Code" length={4} />);
+
+      const [first, second] = slots();
+      const before = [first.getBoundingClientRect(), second.getBoundingClientRect()];
+
+      first.focus();
+
+      const after = [first.getBoundingClientRect(), second.getBoundingClientRect()];
+      const style = getComputedStyle(first);
+
+      expect(after[0].width).toBe(before[0].width);
+      expect(after[0].height).toBe(before[0].height);
+      expect(after[1].left).toBe(before[1].left);
+      expect(style.borderLeftWidth).toBe('1px');
+      expect(style.boxShadow).toMatch(/inset/);
+    });
   });
 
   describe('the size ladder', () => {

@@ -87,6 +87,8 @@
 
 ### Fixed
 
+- **`MPOtpField`'s slots stay still as focus moves along them.** The focus ring was a border that grew from one pixel to two, and a slot is the input itself, so on a page with no `box-sizing` reset the focused slot grew by two pixels each way and pushed the slots after it and everything under the field. The second pixel is now an inset ring inside the border, and the ring looks the same.
+
 - **An `MPPill` rendered open on a server arrives open.** Its details were sent at no height and grew into place once the browser had measured them, pushing down everything under the pill. An open panel that has not been measured is now drawn at its own height, and the measurement takes over from there.
 
 - **A locale tag that is not quite a tag no longer takes the render down.** The words in this library's table matched `ko_KR` and `ko-KR,ko;q=0.9` — a request's `Accept-Language` passed straight through — on their language, and then `Intl` threw a `RangeError` at the first date or number. A tag is now tidied before `Intl` sees it: the first of a list, without its weight, with hyphens; and one that still does not parse formats in the runtime's own locale. The cache of resolved words is also capped, as the `Intl` caches already were, so a server handed every request's language does not keep them all.

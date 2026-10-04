@@ -189,7 +189,13 @@ export const MPOtpField = React.forwardRef<HTMLDivElement, MPOtpFieldProps>(func
     // `focus` rather than `focus-visible`: a slot is put in focus by clicking it
     // as often as by typing into it, and the ring is the only thing saying which
     // character the next keystroke lands on.
-    'focus:border-2 focus:border-mp-primary focus:outline-none',
+    //
+    // The second pixel of the ring is an inset ring inside the one-pixel border
+    // rather than a thicker border. A slot is the input itself, so a border that
+    // grew on focus grew the slot — two pixels wider and taller on a page with
+    // no `box-sizing` reset — and moved every slot after it and everything under
+    // the field each time the next character took focus.
+    'focus:border-mp-primary focus:inset-ring focus:inset-ring-mp-primary focus:outline-none',
     // An if/else rather than stacked variants. Two Tailwind classes of equal
     // specificity resolve by their order in the generated stylesheet, not by the
     // order they were written in.
