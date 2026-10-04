@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { renderToString } from 'react-dom/server';
 import { MPMockup } from 'material-plus-ui';
 
 const box = () => document.querySelector('.mp-mockup') as HTMLElement;
@@ -8,7 +9,7 @@ const body = () => document.querySelector('.mp-mockup__body') as HTMLElement;
 const screenOf = () => document.querySelector('.mp-mockup__screen') as HTMLElement;
 const content = () => document.querySelector('.mp-mockup__content') as HTMLElement;
 
-/** The scale lands in an effect, so the frame is hidden for one frame. */
+/** Waits for the frame to have its scale. */
 async function drawn(): Promise<void> {
   await vi.waitFor(() => expect(frame().style.visibility).not.toBe('hidden'));
 }
@@ -43,6 +44,15 @@ describe('MPMockup', () => {
     expect(frame().style.transform).toMatch(/scale\(0\.\d+\)/);
     // The picture fits, which is what the scale was measured for.
     expect(box().getBoundingClientRect().width).toBeCloseTo(200, 0);
+  });
+
+  it('draws a device given a width in pixels from the server, already scaled', () => {
+    // Hidden until measured would mean hidden until the page has hydrated, and a
+    // hero mockup is usually the largest thing at the top of its page.
+    const html = renderToString(<MPMockup device="mobile" width={195} systemUi={false} />);
+
+    expect(html).not.toContain('visibility:hidden');
+    expect(html).toMatch(/scale\(0\.\d+\)/);
   });
 
   it('keeps the device’s proportions whatever it is scaled to', async () => {

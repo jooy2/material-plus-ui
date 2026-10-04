@@ -210,7 +210,28 @@ export const MPMockup = React.forwardRef<HTMLDivElement, MPMockupProps>(function
   const chrome = systemUi ? mockupChrome({ os, width: screen.width, notch }) : null;
 
   const boxRef = React.useRef<HTMLDivElement | null>(null);
-  const [scale, setScale] = React.useState<number | null>(null);
+  const [measured, setScale] = React.useState<number | null>(null);
+
+  /*
+   * The scale a size given in pixels already settles, before anything has been
+   * measured.
+   *
+   * The device is hidden until it has a scale, or it would be drawn at full size
+   * for a frame and then snap — and on a server-rendered page "until measured"
+   * means until the page has hydrated, which held a hero mockup, screenshot and
+   * all, out of the first paint. A numeric `width` or `height` is the box's size
+   * already, so the scale is arithmetic and the device is drawn from the start.
+   * A fluid box still has to be measured.
+   */
+  const declared =
+    typeof width === 'number' && typeof height === 'number'
+      ? Math.min(width / frame.width, height / frame.height)
+      : typeof width === 'number' && height === undefined
+        ? width / frame.width
+        : typeof height === 'number' && width === undefined
+          ? height / frame.height
+          : null;
+  const scale = measured ?? declared;
 
   /*
    * How far the device has to shrink to fit the room it was given.
@@ -219,8 +240,11 @@ export const MPMockup = React.forwardRef<HTMLDivElement, MPMockupProps>(function
    * the layout knows — how wide the box came out — and a length only this
    * component knows. Both axes are compared and the smaller wins, so a mockup
    * given a fixed height does not overflow the width it was not scaled against.
+   *
+   * A layout effect, so a mockup mounted in the browser is measured before its
+   * first paint rather than hidden for it.
    */
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     const box = boxRef.current;
 
     if (!box || typeof ResizeObserver === 'undefined') {

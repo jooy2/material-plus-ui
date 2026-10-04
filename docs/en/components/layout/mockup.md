@@ -39,6 +39,8 @@ The rule everywhere else in this library is that a surface is not moved or scale
 
 Nothing here is pressed, and the scale never changes on an interaction — it is set once from the room available, and again only when that room changes. A device drawn at a third of its size is a picture of a device, which is the whole point, and no other mechanism lays a 390-pixel page out inside a 130-pixel box.
 
+Until the room has been measured there is no scale, and the device is hidden rather than drawn at full size for a frame. On a server-rendered page that lasts until the page has hydrated, so a mockup that is the largest thing at the top of a page should be given a `width` or a `height` in pixels: the scale is then known from the start, and the device is in the first paint.
+
 ## What `size` means here
 
 Not a height, and not a type scale. `size` picks between five **real resolutions** per device, because the number that matters is the one a media query fires at: a layout tested at 390 and at 430 has been tested at the two widths most phones actually are.

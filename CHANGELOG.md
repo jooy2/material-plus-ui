@@ -22,6 +22,8 @@
 
 - **A fixed `MPHeader` in an `MPPageLayout` has its room from the first paint.** The layout pads the page by the bar's measured height, and measuring is an effect — so a server-rendered page drew its content under the bar and pushed it down by the bar's height once it had hydrated. The stylesheet now pads by the bar's size from the start, and the measurement corrects only a bar its content made taller. It needs `:has()`; an older browser behaves as before. `MPHeader` carries `data-mp-position` for it.
 
+- **An `MPMockup` given a `width` or a `height` in pixels is in the first paint.** The device is hidden until it has a scale, and the scale was always measured — so on a server-rendered page a hero mockup, screenshot and all, stayed hidden until the page had hydrated. A size in pixels settles the scale by arithmetic, so the device is drawn from the server's markup on. A mockup that fills a fluid width is still measured, now before its first paint when it mounts in the browser.
+
 ### Fixed
 
 - **`MPAnimateCounter` writes its number in the provider's language.** It formatted in the runtime's locale unless given a `locale` of its own, so it ignored `MPLocaleProvider` — and on a server-rendered page, wrote the server's language into the markup and the reader's into the first client render.
