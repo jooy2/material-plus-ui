@@ -70,6 +70,8 @@
 
 - **A media query is asked once per page, not once per render.** The reduced-motion, colour-scheme and collapse stores built a fresh `MediaQueryList` every time React read them — on every render of every component subscribed, and again to check nothing had changed — so twelve animated lines built seventy-two lists on mount. Each query now has one list, shared. `MPShortcut` likewise reads the platform once rather than rebuilding the user agent string on every render.
 
+- **`MPDateRangePicker` stops rebuilding its second month while the pointer previews a range.** The right-hand month was a new date on every render, and its grid keys forty-two dates and their spoken names on it — so every cell the pointer crossed while a range was half chosen formatted all of them again. Two cells crossed cost ninety dates written; now they cost a handful.
+
 ### Documentation
 
 - **The getting-started guide registers languages in a client module under App Router.** It said `registerMPMessages` could be called from a server file, but a server component and the client components it renders are separate module instances of the library there — a table registered from a server file reached no component that speaks, and every one of them went on speaking English. The guide now registers it in a `'use client'` module the root layout renders.

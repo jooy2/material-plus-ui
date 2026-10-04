@@ -232,4 +232,24 @@ describe('MPDateRangePicker', () => {
       expect(hidden.map((input) => input.value)).toEqual(['2026-07-10', '2026-07-15']);
     });
   });
+
+  it('does not rebuild the second month while the pointer previews a range', async () => {
+    // The right-hand month was a new `Date` on every render, and its grid keys
+    // forty-two dates and their spoken names on it — every cell the pointer
+    // crossed rebuilt all forty-two.
+    const screen = await render(<Controlled />);
+
+    await screen.getByRole('button', { name: 'Stay' }).click();
+    await screen.getByRole('gridcell', { name: 'Friday, July 10, 2026' }).click();
+
+    // `format` is a getter that hands back a bound function, so it is the
+    // getter that is counted: one read per date written.
+    const formats = vi.spyOn(Intl.DateTimeFormat.prototype, 'format', 'get');
+
+    await screen.getByRole('gridcell', { name: 'Wednesday, July 15, 2026' }).hover();
+    await screen.getByRole('gridcell', { name: 'Thursday, July 16, 2026' }).hover();
+
+    expect(formats.mock.calls.length).toBeLessThan(42);
+    formats.mockRestore();
+  });
 });

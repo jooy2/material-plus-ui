@@ -268,7 +268,11 @@ export const MPDateRangePicker = React.forwardRef<HTMLButtonElement, MPDateRange
         <span className="text-mp-on-surface-variant">{fallback ?? ''}</span>
       );
 
-    const secondMonth = addMonths(month, 1);
+    // Kept between renders, because the right-hand grid keys its forty-two
+    // dates and their spoken names on it — and the picker re-renders for every
+    // cell the pointer crosses while a range is half chosen. A new `Date` per
+    // render rebuilt that grid on every one.
+    const secondMonth = React.useMemo(() => addMonths(month, 1), [month]);
     const twoUp = monthCount === 2;
 
     // Every date either half could show, so neither end of the trigger changes

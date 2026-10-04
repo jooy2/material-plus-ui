@@ -559,14 +559,29 @@ export function monthLabels(
  * Korean. Getting this wrong is subtle and reads as broken to exactly the people
  * it is wrong for.
  */
+const monthOrderCache = new Map<string, boolean>();
+
+/**
+ * Cached on the locale for the reason `isHour12` is: a calendar's header asks
+ * on every render, and `formatToParts` builds a fresh array of parts each time.
+ */
 export function isMonthBeforeYear(locale: string | undefined): boolean {
+  const key = locale ?? '';
+  const known = monthOrderCache.get(key);
+
+  if (known !== undefined) {
+    return known;
+  }
+
   const parts = dateFormatter(locale, { year: 'numeric', month: 'long' }).formatToParts(
     WEEKDAY_ORIGIN
   );
 
-  return (
+  return remember(
+    monthOrderCache,
+    key,
     parts.findIndex((part) => part.type === 'month') <
-    parts.findIndex((part) => part.type === 'year')
+      parts.findIndex((part) => part.type === 'year')
   );
 }
 
