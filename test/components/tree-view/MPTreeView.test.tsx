@@ -1,3 +1,4 @@
+import { Profiler } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
@@ -309,5 +310,32 @@ describe('MPTreeView', () => {
 
     expect(height()).toBeLessThan(loose);
     expect(type()).toBe(scale);
+  });
+
+  it('re-renders only the two rows the tab stop moves between', async () => {
+    // The tab stop travelled in the context, so every arrow key re-rendered
+    // every row in the tree to find out whether it was the one. Each row now
+    // subscribes to its own flags: moving the stop updates the row it left and
+    // the row it reached, and nothing else.
+    const rendered = new Set<string>();
+    const names = Array.from({ length: 30 }, (_, index) => `row-${index}`);
+
+    await render(
+      <MPTreeView label="Rows">
+        {names.map((name) => (
+          <Profiler key={name} id={name} onRender={(id) => rendered.add(id)}>
+            <MPTreeItem value={name} label={name} />
+          </Profiler>
+        ))}
+      </MPTreeView>
+    );
+
+    row('row-0')!.focus();
+    rendered.clear();
+
+    await userEvent.keyboard('{ArrowDown}');
+
+    expect(document.activeElement).toBe(row('row-1'));
+    expect([...rendered].sort()).toEqual(['row-0', 'row-1']);
   });
 });

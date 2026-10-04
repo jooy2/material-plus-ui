@@ -19,10 +19,7 @@
  */
 import * as React from 'react';
 import type { MPElementSize } from '../hooks/useMPElementSize';
-
-/** A layout effect where there is a layout, and nothing on a server. */
-const useLayoutEffectInBrowser =
-  typeof window === 'undefined' ? React.useEffect : React.useLayoutEffect;
+import { useBrowserLayoutEffect } from './layout-effect';
 
 const NOTHING: MPElementSize = { width: 0, height: 0 };
 
@@ -46,7 +43,7 @@ function layoutSize(element: Element, entry?: ResizeObserverEntry): MPElementSiz
 export function useBoxSize(ref: React.RefObject<Element | null>): MPElementSize {
   const [size, setSize] = React.useState<MPElementSize>(NOTHING);
 
-  useLayoutEffectInBrowser(() => {
+  useBrowserLayoutEffect(() => {
     const element = ref.current;
 
     if (!element) {

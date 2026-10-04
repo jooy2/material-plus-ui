@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useBrowserLayoutEffect } from '../../internal/layout-effect';
 import type { useRender } from '@base-ui/react/use-render';
 import { RenderedLink } from '../../internal/RenderedLink';
 import { MPIcon } from '../icon/MPIcon';
@@ -35,13 +36,77 @@ export type MPTreeViewValue = string | number;
  * properties of the *tree* rather than of any row in it. A row that owned its
  * own open state could not be shut by pressing ArrowLeft on the row below it.
  */
+/** Which rows are open, which are chosen, and which one holds the tab stop. */
+interface TreeState {
+  expanded: ReadonlySet<string>;
+  selected: ReadonlySet<string>;
+  active: string | null;
+}
+
+/**
+ * That state, as a store each row reads its own part of.
+ *
+ * It used to travel in the context, and a context is all or nothing: every
+ * arrow key moved the tab stop, changed the context, and re-rendered every row
+ * in the tree to find out whether it was the one. Each row now subscribes to
+ * the three flags that are about it, and only a row whose flags changed is
+ * drawn again — the one the stop left and the one it arrived on.
+ */
+interface TreeStore {
+  get: () => TreeState;
+  set: (next: TreeState) => void;
+  subscribe: (listener: () => void) => () => void;
+}
+
+function createTreeStore(initial: TreeState): TreeStore {
+  let state = initial;
+  const listeners = new Set<() => void>();
+
+  return {
+    get: () => state,
+    set: (next) => {
+      if (
+        next.expanded === state.expanded &&
+        next.selected === state.selected &&
+        next.active === state.active
+      ) {
+        return;
+      }
+
+      state = next;
+
+      for (const listener of listeners) {
+        listener();
+      }
+    },
+    subscribe: (listener) => {
+      listeners.add(listener);
+
+      return () => {
+        listeners.delete(listener);
+      };
+    }
+  };
+}
+
+const EXPANDED = 1;
+const SELECTED = 2;
+const ACTIVE = 4;
+
+/** One row's three flags as one number, which `useSyncExternalStore` compares. */
+function flagsOf(state: TreeState, key: string): number {
+  return (
+    (state.expanded.has(key) ? EXPANDED : 0) |
+    (state.selected.has(key) ? SELECTED : 0) |
+    (state.active === key ? ACTIVE : 0)
+  );
+}
+
 interface MPTreeViewContextValue {
   size: MPSize;
   density: MPDensity;
   disabled: boolean;
-  expandedKeys: ReadonlySet<string>;
-  selectedKeys: ReadonlySet<string>;
-  activeKey: string | null;
+  store: TreeStore;
   toggle: (value: MPTreeViewValue) => void;
   select: (value: MPTreeViewValue) => void;
   activate: (key: string) => void;
@@ -66,9 +131,7 @@ const MPTreeViewContext = React.createContext<MPTreeViewContextValue>({
   size: 'md',
   density: 0,
   disabled: false,
-  expandedKeys: new Set(),
-  selectedKeys: new Set(),
-  activeKey: null,
+  store: createTreeStore({ expanded: new Set(), selected: new Set(), active: null }),
   toggle: () => {},
   select: () => {},
   activate: () => {},
@@ -430,25 +493,33 @@ export const MPTreeView = React.forwardRef<HTMLUListElement, MPTreeViewProps>(fu
    * of a `string | number` can contain, so two different lists cannot spell
    * one key.
    */
-  const expandedKey = React.useMemo(() => expandedValues.map(keyOf).join(' '), [expandedValues]);
-  const selectedKey = React.useMemo(() => selectedValues.map(keyOf).join(' '), [selectedValues]);
+  const expandedKey = React.useMemo(() => expandedValues.map(keyOf).join('\0'), [expandedValues]);
+  const selectedKey = React.useMemo(() => selectedValues.map(keyOf).join('\0'), [selectedValues]);
+
+  // The two lists are read inside and are deliberately not listed here: the
+  // keys above change exactly when their contents do, which is the question.
+  const expandedSet = React.useMemo(() => new Set(expandedValues.map(keyOf)), [expandedKey]);
+  const selectedSet = React.useMemo(() => new Set(selectedValues.map(keyOf)), [selectedKey]);
+
+  const storeRef = React.useRef<TreeStore | null>(null);
+
+  storeRef.current ??= createTreeStore({
+    expanded: expandedSet,
+    selected: selectedSet,
+    active: activeKey
+  });
+
+  const store = storeRef.current;
+
+  // Before the browser paints, so a row that was opened or chosen is drawn in
+  // the frame it happened in.
+  useBrowserLayoutEffect(() => {
+    store.set({ expanded: expandedSet, selected: selectedSet, active: activeKey });
+  }, [store, expandedSet, selectedSet, activeKey]);
 
   const context = React.useMemo<MPTreeViewContextValue>(
-    () => ({
-      size,
-      density,
-      disabled,
-      expandedKeys: new Set(expandedValues.map(keyOf)),
-      selectedKeys: new Set(selectedValues.map(keyOf)),
-      activeKey,
-      toggle,
-      select,
-      activate: setActiveKey,
-      register
-    }),
-    // The two lists are read inside and are deliberately not listed here: the
-    // keys above change exactly when their contents do, which is the question.
-    [size, density, disabled, expandedKey, selectedKey, activeKey, toggle, select, register]
+    () => ({ size, density, disabled, store, toggle, select, activate: setActiveKey, register }),
+    [size, density, disabled, store, toggle, select, register]
   );
 
   /*
@@ -646,9 +717,7 @@ export const MPTreeItem = React.forwardRef<HTMLLIElement, MPTreeItemProps>(funct
   const {
     size,
     disabled: treeDisabled,
-    expandedKeys,
-    selectedKeys,
-    activeKey,
+    store,
     toggle,
     select,
     activate,
@@ -678,8 +747,10 @@ export const MPTreeItem = React.forwardRef<HTMLLIElement, MPTreeItemProps>(funct
   // behind, so a branch whose children all filtered out is a leaf.
   const branch = React.Children.toArray(children);
   const isParent = expandable ?? branch.length > 0;
-  const isExpanded = isParent && expandedKeys.has(key);
-  const isSelected = selectedKeys.has(key);
+  const read = () => flagsOf(store.get(), key);
+  const flags = React.useSyncExternalStore(store.subscribe, read, read);
+  const isExpanded = isParent && (flags & EXPANDED) !== 0;
+  const isSelected = (flags & SELECTED) !== 0;
   const disabled = disabledProp || treeDisabled;
 
   /*
@@ -874,7 +945,7 @@ export const MPTreeItem = React.forwardRef<HTMLLIElement, MPTreeItemProps>(funct
       aria-selected={isSelected ? true : undefined}
       aria-disabled={disabled || undefined}
       data-mp-value={key}
-      tabIndex={activeKey === key ? 0 : -1}
+      tabIndex={flags & ACTIVE ? 0 : -1}
       // Not `outline-none`: that utility zeroes the same variable the row's own
       // ring is drawn through.
       className={['mp-tree__item group/tree-item relative block', className ?? '']

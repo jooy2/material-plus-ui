@@ -54,6 +54,8 @@
 
 - **A filtered list keeps the rows the filter left.** `MPTransfer`, `MPCombobox` and `MPCommandPalette` keyed their rows by position and value, so a filter that hid one row changed the key of every row after it, and typing a letter into a long list unmounted and remounted all of them — losing whatever state each held. Rows are keyed by value and by which occurrence of it they are, which still tells a repeated value apart and no longer moves when the rows before it go.
 
+- **`MPTreeView` redraws the rows a change is about, and no others.** Which rows are open, which are chosen and which holds the tab stop travelled together in the tree's context, so every arrow key, every click and every branch opened re-rendered every row in the tree. Each row now reads only its own three flags, and moving through a tree of a thousand rows redraws two of them per key.
+
 ### Fixed
 
 - **A chart draws a series of any length.** The extents were found with `Math.min(...values)`, which runs out of argument room somewhere past a hundred thousand values and threw instead of drawing. The width estimate for CJK labels was also a character range written out literally, starting at a compatibility ideograph that Unicode normalisation rewrites — so a source decoded or normalised on the way to the page threw "Range out of order" and took every chart with it. It is written as escapes now.
