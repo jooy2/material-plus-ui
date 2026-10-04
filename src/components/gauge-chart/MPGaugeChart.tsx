@@ -150,7 +150,13 @@ export function MPGaugeChart({
   const half = turn / 2;
   // How far the ends of the arc drop below the centre, as a share of the radius.
   const drop = half > Math.PI / 2 ? Math.cos(Math.PI - half) : 0;
-  const room = Math.min(boxWidth / 2, boxHeight / (1 + drop));
+  // Before the box has been measured — on the server, and in the frame before
+  // the first measurement — the dial is taken to fill its height, which is the
+  // limit whenever the box is at least twice as wide as the dial is tall. The
+  // value and the label then start where they will stay instead of at the top
+  // edge, and the measurement moves nothing in the common case.
+  const room =
+    boxWidth > 0 ? Math.min(boxWidth / 2, boxHeight / (1 + drop)) : boxHeight / (1 + drop);
   const outer = Math.max(0, room - 2);
   const inner = outer * (1 - THICKNESS);
   const cx = boxWidth / 2;

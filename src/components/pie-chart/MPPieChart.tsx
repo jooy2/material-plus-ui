@@ -228,6 +228,20 @@ export function MPPieChart({
   );
   const inner = shape === 'pie' ? 0 : outer * Math.min(MAX_HOLE, Math.max(0, hole));
 
+  /*
+   * The hole the `center` content sits in, before the box has been measured as
+   * well as after. Unmeasured — on the server, and in the frame before the
+   * first measurement — the ring is taken to fill the height, which it does
+   * whenever the box is at least as wide as it is tall, and the content is
+   * centred with CSS. It starts where it is going to stay rather than in a
+   * zero-sized box at the left edge.
+   */
+  const hollow =
+    boxWidth > 0
+      ? inner
+      : Math.max(0, semi ? boxHeight - font - 10 : boxHeight / 2 - 2) *
+        Math.min(MAX_HOLE, Math.max(0, hole));
+
   const turn = semi ? Math.PI : Math.PI * 2;
   const first = semi ? -Math.PI / 2 : (startAngle * Math.PI) / 180;
 
@@ -487,10 +501,10 @@ export function MPPieChart({
         <div
           className="pointer-events-none absolute flex flex-col items-center justify-center text-center"
           style={{
-            left: cx - inner,
-            top: cy - inner,
-            width: inner * 2,
-            height: semi ? inner : inner * 2
+            left: boxWidth > 0 ? cx - hollow : `calc(50% - ${hollow}px)`,
+            top: cy - hollow,
+            width: hollow * 2,
+            height: semi ? hollow : hollow * 2
           }}
         >
           {center}

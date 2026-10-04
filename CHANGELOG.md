@@ -18,6 +18,8 @@
 
 - **`MPPanes` paints at its `defaultSize` from the first frame.** Until the split had measured itself every pane took an even share, so a server-rendered page drew a 50/50 split and then moved every boundary to `25%` or `240px` once it hydrated — a layout shift across the whole of an app shell, measured at 0.038 for a two-pane split. A `defaultSize` is now written into the pane's CSS until the measurement arrives, and the measurement lands where the CSS already was.
 
+- **`MPGaugeChart`'s reading and the content in an `MPPieChart` ring start where they stay.** Both are placed from the size of the chart's box, which a server does not know, so a server-rendered page drew the gauge's value against the top edge and a ring's `center` in a zero-wide box at the left, and moved both into place once the page had hydrated. Until the box is measured each is now placed as if the dial or the ring fills the box's height, which is exactly where it lands in any box at least as wide as it is tall.
+
 ### Fixed
 
 - **`MPAnimateCounter` writes its number in the provider's language.** It formatted in the runtime's locale unless given a `locale` of its own, so it ignored `MPLocaleProvider` — and on a server-rendered page, wrote the server's language into the markup and the reader's into the first client render.
