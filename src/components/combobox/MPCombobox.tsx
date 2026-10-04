@@ -15,6 +15,7 @@ import { CONTROL_ICON, PROSE_TEXT, hasContent } from '../../internal/scale';
 import { MARK_MOTION_KEPT } from '../../internal/mark';
 import { FADE, PORTAL_LAYER } from '../../internal/surface';
 import { useMPSize } from '../../internal/config';
+import { occurrenceKeys } from '../../internal/occurrence';
 import type {
   MPColor,
   MPControlEventProps,
@@ -521,6 +522,17 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
     [options, customValue]
   );
 
+  // Keyed over every entry rather than the filtered few, so a row keeps its key
+  // while the filter hides the ones before it. See `internal/occurrence.ts`.
+  const entryKeys = React.useMemo(
+    () =>
+      occurrenceKeys(
+        listItems,
+        (entry) => `${entry.custom ? 'custom:' : ''}${String(entry.value)}`
+      ),
+    [listItems]
+  );
+
   const baseValue = isMultiple
     ? selection.map(entryFor)
     : selection.length > 0
@@ -665,49 +677,54 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
             {isMultiple ? (
               <Combobox.Chips className="flex min-w-0 flex-1 flex-wrap items-center gap-1">
                 <Combobox.Value>
-                  {(chosen: Entry[]) => (
-                    <React.Fragment>
-                      {chosen.map((entry, index) => (
-                        <Combobox.Chip
-                          /* Position as well as value, for `MPSelect`'s reason:
-                             a duplicate key reconciles two chips wrongly the
-                             moment the list is reordered. */
-                          key={`${index}:${String(entry.value)}`}
-                          render={
-                            <MPChip
-                              variant={chipVariant ?? (invalid ? 'outlined' : 'tonal')}
-                              color={chipColor ?? (invalid ? 'error' : 'primary')}
-                              size={CHIP_SIZE[size]}
-                              disabled={disabled}
-                              endIcon={
-                                readOnly || disabled ? null : (
-                                  <Combobox.ChipRemove
-                                    aria-label={
-                                      // Named for the chip it removes rather
-                                      // than being one of five buttons all
-                                      // called "Remove" — which is a row a
-                                      // screen reader cannot tell apart.
-                                      removeLabel
-                                        ? removeLabel(entry.label)
-                                        : fillMessage(messages.removeNamed, {
-                                            label: entry.label
-                                          })
-                                    }
-                                    className="flex cursor-pointer appearance-none items-center border-0 bg-transparent p-0 text-inherit opacity-70 hover:opacity-100"
-                                  >
-                                    <MPIcon icon={CloseIcon} size={16} />
-                                  </Combobox.ChipRemove>
-                                )
-                              }
-                            />
-                          }
-                        >
-                          {entry.label}
-                        </Combobox.Chip>
-                      ))}
-                      {renderInput(chosen.length > 0)}
-                    </React.Fragment>
-                  )}
+                  {(chosen: Entry[]) => {
+                    const chipKeys = occurrenceKeys(chosen, (entry) => entry.value);
+
+                    return (
+                      <React.Fragment>
+                        {chosen.map((entry, index) => (
+                          <Combobox.Chip
+                            /* Value and occurrence, for `MPSelect`'s reason: a
+                               duplicate key reconciles two chips wrongly the
+                               moment the list is reordered. See
+                               `internal/occurrence.ts`. */
+                            key={chipKeys.get(entry) ?? index}
+                            render={
+                              <MPChip
+                                variant={chipVariant ?? (invalid ? 'outlined' : 'tonal')}
+                                color={chipColor ?? (invalid ? 'error' : 'primary')}
+                                size={CHIP_SIZE[size]}
+                                disabled={disabled}
+                                endIcon={
+                                  readOnly || disabled ? null : (
+                                    <Combobox.ChipRemove
+                                      aria-label={
+                                        // Named for the chip it removes rather
+                                        // than being one of five buttons all
+                                        // called "Remove" — which is a row a
+                                        // screen reader cannot tell apart.
+                                        removeLabel
+                                          ? removeLabel(entry.label)
+                                          : fillMessage(messages.removeNamed, {
+                                              label: entry.label
+                                            })
+                                      }
+                                      className="flex cursor-pointer appearance-none items-center border-0 bg-transparent p-0 text-inherit opacity-70 hover:opacity-100"
+                                    >
+                                      <MPIcon icon={CloseIcon} size={16} />
+                                    </Combobox.ChipRemove>
+                                  )
+                                }
+                              />
+                            }
+                          >
+                            {entry.label}
+                          </Combobox.Chip>
+                        ))}
+                        {renderInput(chosen.length > 0)}
+                      </React.Fragment>
+                    );
+                  }}
                 </Combobox.Value>
               </Combobox.Chips>
             ) : (
@@ -768,7 +785,7 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
               <Combobox.List>
                 {(entry: Entry, index: number) => (
                   <Combobox.Item
-                    key={`${index}:${entry.custom ? 'custom:' : ''}${String(entry.value)}`}
+                    key={entryKeys.get(entry) ?? index}
                     value={entry}
                     disabled={entry.disabled}
                     className={[

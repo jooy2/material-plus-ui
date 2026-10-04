@@ -11,6 +11,7 @@ import { MPStateLayer } from '../../internal/StateLayer';
 import { hasContent, META_TEXT, PROSE_TEXT } from '../../internal/scale';
 import { FADE, PORTAL_LAYER, SCRIM, SHEET_MOTION } from '../../internal/surface';
 import { useMPColor, useMPSize } from '../../internal/config';
+import { occurrenceKeys } from '../../internal/occurrence';
 import type { MPColor, MPSize, MPSlots } from '../../types';
 
 /** One thing the palette can do. */
@@ -292,6 +293,9 @@ export function MPCommandPalette({
   }, [shortcut, os, setOpen]);
 
   const folded = React.useMemo(() => items.map(haystack), [items]);
+  // Keyed over the whole list rather than the filtered one, so a command keeps
+  // its key while the filter hides the ones before it.
+  const commandKeys = React.useMemo(() => occurrenceKeys(items, (item) => item.value), [items]);
 
   const filtered = React.useMemo(() => {
     if (query === '') {
@@ -391,7 +395,7 @@ export function MPCommandPalette({
                 style={{ maxHeight: listHeight }}
               >
                 {(item: MPCommand, index: number) => (
-                  <React.Fragment key={`${index}:${item.value}`}>
+                  <React.Fragment key={commandKeys.get(item) ?? index}>
                     {item.group && item.group !== filtered[index - 1]?.group ? (
                       <div
                         role="presentation"

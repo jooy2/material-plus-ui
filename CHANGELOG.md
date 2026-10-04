@@ -52,6 +52,8 @@
 
 - **`MPDataTable` re-renders the rows a change touches, and no others.** Every tick, sort, page turn and search keystroke rendered every row of the page with its cells and its checkbox; ticking one of forty rows rendered forty. Rows are memoised now, so a tick renders the row it ticked. Dragging a column wider commits one width a frame rather than one per pointer event — `onColumnWidthsChange` hears fewer intermediate widths and the same final one — a table nobody is searching no longer folds every cell for search as it hydrates, and a sort reads each row's value once rather than twice per comparison.
 
+- **A filtered list keeps the rows the filter left.** `MPTransfer`, `MPCombobox` and `MPCommandPalette` keyed their rows by position and value, so a filter that hid one row changed the key of every row after it, and typing a letter into a long list unmounted and remounted all of them — losing whatever state each held. Rows are keyed by value and by which occurrence of it they are, which still tells a repeated value apart and no longer moves when the rows before it go.
+
 ### Fixed
 
 - **A chart draws a series of any length.** The extents were found with `Math.min(...values)`, which runs out of argument room somewhere past a hundred thousand values and threw instead of drawing. The width estimate for CJK labels was also a character range written out literally, starting at a compatibility ideograph that Unicode normalisation rewrites — so a source decoded or normalised on the way to the page threw "Range out of order" and took every chart with it. It is written as escapes now.

@@ -13,6 +13,7 @@ import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
 import { useMPColor, useMPSize } from '../../internal/config';
 import type { MPMessages } from '../../internal/i18n';
 import { hasContent, META_TEXT, SHEET_PAD_X } from '../../internal/scale';
+import { occurrenceKeys } from '../../internal/occurrence';
 import type { MPColor, MPSize, MPVariant } from '../../types';
 
 /** One thing that can be on either side. */
@@ -144,6 +145,8 @@ function Panel({
   color
 }: PanelProps) {
   const movable = rows.filter((row) => !row.disabled);
+  // Keys that survive the filter. See `internal/occurrence.ts`.
+  const rowKeys = React.useMemo(() => occurrenceKeys(rows, (row) => row.value), [rows]);
   const tickedHere = movable.filter((row) => ticked.has(row.value));
   const all = movable.length > 0 && tickedHere.length === movable.length;
   const some = tickedHere.length > 0 && !all;
@@ -229,9 +232,9 @@ function Panel({
             {messages.empty}
           </span>
         ) : (
-          rows.map((row, index) => (
+          rows.map((row) => (
             <div
-              key={`${index}:${row.value}`}
+              key={rowKeys.get(row)}
               /*
                * A row that has just crossed settles in rather than appearing.
                * The class is on the rows that moved and no others, because
