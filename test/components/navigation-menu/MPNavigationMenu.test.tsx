@@ -280,6 +280,16 @@ describe('MPNavigationMenu', () => {
     });
 
     it('keeps them in the page after it hydrates, and after a panel has closed', async () => {
+      // The pointer off the trigger first. The tests above leave it where this
+      // trigger is drawn, and WebKit replays a hover under a resting pointer
+      // whenever the layout changes, so the panel opened again as it closed.
+      const corner = document.createElement('div');
+
+      corner.style.cssText = 'position: fixed; right: 0; bottom: 0; width: 8px; height: 8px';
+      document.body.append(corner);
+      await userEvent.hover(corner);
+      corner.remove();
+
       const { container, errors } = await hydrateFromServer(<Nav keepMounted />);
       // Anywhere in the document: once hydrated, a panel lives in the portal.
       const links = () => document.querySelectorAll('a[href="/pricing"]');
@@ -291,9 +301,8 @@ describe('MPNavigationMenu', () => {
 
       trigger.click();
       await vi.waitFor(() => expect(trigger.getAttribute('aria-expanded')).toBe('true'));
-      // Escape rather than a second click. Base UI ignores a click for 500ms
-      // after a hover opened the panel, and a pointer left over the trigger by
-      // an earlier test is a hover this test did not make.
+      // Escape rather than a second click: Base UI ignores a click for 500ms
+      // after a hover opened the panel, so a stray hover would hold it open.
       trigger.focus();
       await userEvent.keyboard('{Escape}');
       await vi.waitFor(() => expect(trigger.getAttribute('aria-expanded')).toBe('false'));
