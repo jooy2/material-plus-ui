@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useMPElementSize } from '../../hooks/useMPElementSize';
+import { useBoxSize } from '../../internal/box-size';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { useMPSize } from '../../internal/config';
 import { CHART } from '../../internal/messages/chart';
@@ -136,7 +136,7 @@ export function MPHeatmapChart({
   const words = useMPMessages(CHART, locale);
   const table = useMPMessages(TABLE, locale);
   const hostRef = React.useRef<HTMLDivElement>(null);
-  const measured = useMPElementSize(hostRef);
+  const measured = useBoxSize(hostRef);
   const tableId = React.useId();
 
   const [active, setActive] = React.useState<{ row: number; column: number } | null>(null);

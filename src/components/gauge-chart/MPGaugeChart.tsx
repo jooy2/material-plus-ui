@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Meter } from '@base-ui/react/meter';
-import { useMPElementSize } from '../../hooks/useMPElementSize';
+import { useBoxSize } from '../../internal/box-size';
 import { useMPColor, useMPSize } from '../../internal/config';
 import { useMPLocale } from '../../internal/locale';
 import { accentSlots } from '../../internal/accent';
@@ -123,7 +123,7 @@ export function MPGaugeChart({
   const color = useMPColor(colorProp);
   const locale = useMPLocale(localeProp);
   const hostRef = React.useRef<HTMLDivElement>(null);
-  const measured = useMPElementSize(hostRef);
+  const measured = useBoxSize(hostRef);
 
   const fraction = progressFraction(value, min, max) ?? 0;
   const family = thresholdColor(value, color, thresholds);

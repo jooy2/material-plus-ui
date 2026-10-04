@@ -42,7 +42,11 @@
 
 - **An `MPAnimate*` entrance starts without a forced layout the first time.** Starting an animation rewound it first, and a rewind is a forced layout — which the first start never needed, since an animation that has not run is already on its first frame. A row of cards scrolled into view together paid one forced layout each, in the frame they appeared in. Only a replay rewinds now. `MPAnimateMarquee` also stopped measuring itself again on every render of its parent.
 
+- **A chart draws its picture in the frame it mounts in.** It measured its box in an effect, which runs after the browser has painted, so a chart mounted in the browser showed an empty box for a frame first — and a server-rendered one stayed empty until the frame after it hydrated. It measures before the paint now.
+
 ### Fixed
+
+- **A chart inside a surface that is still scaling in is drawn to the room it has.** Charts measured the size their box was drawn at, transforms included, so one mounted in an `MPDialog` — which enters from `scale(0.95)` — laid itself out five per cent narrower, and stayed that way: a transform finishing is not a resize, so nothing told it otherwise. They measure their box's layout size now.
 
 - **`MPAnimateCounter` writes its number in the provider's language.** It formatted in the runtime's locale unless given a `locale` of its own, so it ignored `MPLocaleProvider` — and on a server-rendered page, wrote the server's language into the markup and the reader's into the first client render.
 

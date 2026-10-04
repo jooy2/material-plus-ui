@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useMPElementSize } from '../../hooks/useMPElementSize';
+import { useBoxSize } from '../../internal/box-size';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { useMPSize } from '../../internal/config';
 import { numberFormatter } from '../../internal/intl';
@@ -173,7 +173,7 @@ export function MPPieChart({
   const words = useMPMessages(CHART, locale);
   const table = useMPMessages(TABLE, locale);
   const hostRef = React.useRef<HTMLDivElement>(null);
-  const measured = useMPElementSize(hostRef);
+  const measured = useBoxSize(hostRef);
   const tableId = React.useId();
 
   const slices = React.useMemo(() => toValues([{ data }])[0], [data]);

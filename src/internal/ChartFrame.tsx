@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useMPElementSize } from '../hooks/useMPElementSize';
+import { useBoxSize } from './box-size';
 import { useMPLocale, useMPMessages } from './locale';
 import { useMPSize } from './config';
 import { CHART } from './messages/chart';
@@ -837,7 +837,7 @@ export function CartesianFrame({
   const words = useMPMessages(CHART, locale);
   const table = useMPMessages(TABLE, locale);
   const hostRef = React.useRef<HTMLDivElement>(null);
-  const measured = useMPElementSize(hostRef);
+  const measured = useBoxSize(hostRef);
   const width = measured.width;
   const tableId = React.useId();
   const notesId = React.useId();
