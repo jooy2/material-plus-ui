@@ -105,6 +105,20 @@ describe('MPAnimateSplit', () => {
     expect(getComputedStyle(words[0]!).animationDirection).toBe('normal');
   });
 
+  it('splits an element’s text, without its markup', async () => {
+    const screen = await render(
+      <MPAnimateSplit data-testid="split">
+        {'One '}
+        <em>two three</em>
+      </MPAnimateSplit>
+    );
+    const element = screen.getByTestId('split').element() as HTMLElement;
+
+    expect(element.querySelector('em')).toBeNull();
+    expect(element.children[0]!.textContent).toBe('One two three');
+    expect(pieces(element).map((word) => word.textContent)).toEqual(['One ', 'two ', 'three']);
+  });
+
   it('takes the text as a prop as well as as children', async () => {
     const screen = await render(<MPAnimateSplit text="One two" data-testid="split" />);
 

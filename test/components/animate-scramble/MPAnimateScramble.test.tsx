@@ -72,6 +72,20 @@ describe('MPAnimateScramble', () => {
     expect(shown!).toHaveAttribute('aria-hidden', 'true');
   });
 
+  it('settles on an element’s text, without its markup', async () => {
+    const screen = await render(
+      <MPAnimateScramble duration={80} data-testid="scramble">
+        {'ALL '}
+        <strong>SET</strong>
+      </MPAnimateScramble>
+    );
+    const element = screen.getByTestId('scramble').element();
+
+    expect(element.querySelector('strong')).toBeNull();
+    expect(element.children[0]!.textContent).toBe('ALL SET');
+    await vi.waitFor(() => expect(visible(element).textContent).toBe('ALL SET'));
+  });
+
   it('counts characters rather than code points', async () => {
     const screen = await render(
       <MPAnimateScramble trigger="manual" data-testid="scramble">

@@ -27,7 +27,7 @@ So the effect costs a reader who cannot see it nothing, and costs a reader who c
 
 ## Only text is typed
 
-Pass a string, or strings. An element among the children is **left out, words and all**, because there is no honest way to reveal half of a `<strong>` or half of a link. Its words are missing from the server-rendered markup too, so a line that needs them passes them as a string.
+Pass a string, or strings. An element among the children gives its **text and drops its markup**, because there is no honest way to reveal half of a `<strong>` or half of a link. The text is typed, read out and sent in the server-rendered markup like any other.
 
 If part of the line needs to be bold, the line is not a typewriter — set it as text and animate it with [MPAnimateFade](./animate-fade).
 

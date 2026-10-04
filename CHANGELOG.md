@@ -79,8 +79,6 @@
 
 - **`MPScrollZone`'s page says which buttons setting a server-rendered page wants.** With `buttons="auto"` the strip cannot know it overflows until the page has hydrated, so two inline buttons appear afterwards and move the strip; `always` or `buttonPlacement="overlay"` move nothing.
 
-- **`MPAnimateTyping` and `MPAnimateSplit` say what happens to an element among their children.** Their pages said it gave its text and dropped its markup. It is dropped whole, so its words are missing from the server-rendered markup as well, and the pages now say to pass them as a string.
-
 - **`MPCombobox`'s page says what to do with a long list.** Every row it shows is a real element, so a few thousand make the popup pause as it opens. The `limit` section shows the cap, which applies after the filter, and points a list too long to send at all to `filter={null}`.
 
 - **`MPAppLogo`'s page says how to keep a `bare` mark from moving the header.** The mark takes its width from the file and is drawn zero pixels wide until the file arrives. Passing the file's `width` and `height` in `imageProps` reserves the width from their ratio.
@@ -88,6 +86,8 @@
 - **The size figures in the README and the guide are this build's again.** Every export is 137.5 kB gzipped and the whole stylesheet 174.3 kB, 23.7 kB compressed. The guide said 130.6 kB for every export, which had already grown to 133.7 kB before this release; the rest moved with the fixes above.
 
 ### Fixed
+
+- **`MPAnimateTyping`, `MPAnimateScramble` and `MPAnimateSplit` keep the words of an element among their children.** Their pages said an element gave its text and dropped its markup. It was dropped whole, so `Free shipping on <a>every order</a>` typed, read out and sent in the server-rendered markup only "Free shipping on". The element's text is now animated with the rest; its tag is still dropped.
 
 - **`MPOtpField`'s slots stay still as focus moves along them.** The focus ring was a border that grew from one pixel to two, and a slot is the input itself, so on a page with no `box-sizing` reset the focused slot grew by two pixels each way and pushed the slots after it and everything under the field. The second pixel is now an inset ring inside the border, and the ring looks the same.
 

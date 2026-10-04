@@ -50,10 +50,16 @@ const WORD: Intl.SegmenterOptions = { granularity: 'word' };
 /**
  * The text a node carries, and nothing about its markup.
  *
- * Elements contribute nothing on purpose. There is no honest way to type out
- * half of a link, or to scramble the third character of a `<strong>` and leave
- * the emphasis intact — the effects that read this animate *text*, so what they
- * take is text.
+ * An element gives the text of its children and drops its own tag. There is no
+ * honest way to type out half of a link, or to scramble the third character of
+ * a `<strong>` and leave the emphasis intact, so the effects that read this
+ * animate the words alone. Dropping the words as well took them out of the
+ * page entirely: the clipped copy a screen reader reads and the server's markup
+ * are both built from this string.
+ *
+ * A component's own children are read the same way, which is the text it was
+ * handed rather than whatever it renders. An element with no children, an icon
+ * say, gives nothing.
  */
 export function textOf(node: React.ReactNode): string {
   if (typeof node === 'string' || typeof node === 'number') {
@@ -62,6 +68,10 @@ export function textOf(node: React.ReactNode): string {
 
   if (Array.isArray(node)) {
     return node.map(textOf).join('');
+  }
+
+  if (React.isValidElement<{ children?: React.ReactNode }>(node)) {
+    return textOf(node.props.children);
   }
 
   return '';

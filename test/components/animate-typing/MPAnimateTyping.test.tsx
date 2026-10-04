@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { renderToString } from 'react-dom/server';
 import { render } from 'vitest-browser-react';
 import { MPAnimateTyping } from 'material-plus-ui';
 
@@ -55,11 +56,27 @@ describe('MPAnimateTyping', () => {
       </MPAnimateTyping>
     );
     const element = screen.getByTestId('typing').element() as HTMLElement;
+    const visible = element.children[1] as HTMLElement;
 
     // There is no honest way to reveal half of a `<strong>`, so the markup is
-    // dropped and only its text is typed.
+    // dropped and only its text is typed. The text itself stays: it used to go
+    // with the tag, and the screen reader's copy said only "Plain ".
     expect(element.querySelector('strong')).toBeNull();
-    expect(element.children[0].textContent).toBe('Plain ');
+    expect(element.children[0].textContent).toBe('Plain and bold');
+    await expect.poll(() => visible.textContent).toContain('Plain and bold');
+  });
+
+  // The server's markup is built from the same string, so an element's words
+  // reach a crawler and a page read before hydration as well.
+  it('sends an element’s words in the server’s markup', () => {
+    const html = renderToString(
+      <MPAnimateTyping>
+        {'Free shipping on '}
+        <a href="/orders">every order</a>
+      </MPAnimateTyping>
+    );
+
+    expect(html).toContain('every order');
   });
 
   describe('caret', () => {

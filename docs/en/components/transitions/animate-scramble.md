@@ -58,6 +58,7 @@ The alphabet the noise is drawn from. The default is Latin upper case, digits an
 - A screen reader gets the finished line, once, out of a clipped box; the settling copy is `aria-hidden`. Noise read out character by character is not text, and find-on-page still matches the real words.
 - Under `prefers-reduced-motion` the line is simply there, **finished**, from the first frame — the state rather than the animation. An effect switched off at the wrong end would leave a heading permanently unreadable.
 - Characters are counted with `Intl.Segmenter`, so `👩‍👩‍👧` is one character of noise rather than seven unrelated glyphs.
+- Only **text** is settled. An element among the children gives its text and drops its markup, because there is no honest way to scramble the third letter of a `<strong>` and keep the emphasis.
 
 ## See also
 

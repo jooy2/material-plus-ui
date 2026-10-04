@@ -69,9 +69,8 @@ export interface MPAnimateTypingProps
  * a line that is being replaced rather than rewritten.
  *
  * Only **text** is typed. Pass a string, or strings; an element among the
- * children is left out, words and all, because there is no honest way to
- * reveal half of a link. Its words are not in the markup either, so a line
- * that needs them passes them as a string.
+ * children gives its text and drops its markup, because there is no honest way
+ * to reveal half of a link.
  */
 export const MPAnimateTyping = React.forwardRef<HTMLDivElement, MPAnimateTypingProps>(
   function MPAnimateTyping(
