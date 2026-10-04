@@ -15,7 +15,7 @@ import { useMPColor, useMPSize } from '../../internal/config';
 import { useMPLocale } from '../../internal/locale';
 import { useOffscreenPause } from '../../internal/intersection';
 import { useJoinedRef } from '../../internal/ref';
-import { checkServerLocale } from '../../internal/intl';
+import { checkServerLocale, intlLocale } from '../../internal/intl';
 import type { MPColor, MPSize } from '../../types';
 
 export interface MPProgressCircularProps extends MPProgressProps {
@@ -104,7 +104,7 @@ export const MPProgressCircular = React.forwardRef<HTMLDivElement, MPProgressCir
         min={min}
         max={max}
         format={format}
-        locale={locale}
+        locale={intlLocale(locale)}
         getAriaValueText={progressAriaText(fraction, hasFormat)}
         data-mp-size={size}
         className={[

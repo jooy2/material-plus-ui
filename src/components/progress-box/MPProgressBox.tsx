@@ -14,7 +14,7 @@ import {
 } from '../../internal/progress';
 import { useMPColor, useMPSize } from '../../internal/config';
 import { useMPLocale } from '../../internal/locale';
-import { checkServerLocale } from '../../internal/intl';
+import { checkServerLocale, intlLocale } from '../../internal/intl';
 import type { MPColor, MPSize } from '../../types';
 
 export interface MPProgressBoxProps extends MPProgressProps {
@@ -107,7 +107,7 @@ export const MPProgressBox = React.forwardRef<HTMLDivElement, MPProgressBoxProps
         min={min}
         max={max}
         format={format}
-        locale={locale}
+        locale={intlLocale(locale)}
         getAriaValueText={progressAriaText(fraction, hasFormat)}
         data-mp-size={size}
         className={['mp-progress-box inline-flex flex-col', STACK_GAP[size], className ?? '']

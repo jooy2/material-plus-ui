@@ -14,7 +14,7 @@ import { useMPColor, useMPSize } from '../../internal/config';
 import { useMPLocale } from '../../internal/locale';
 import { useOffscreenPause } from '../../internal/intersection';
 import { useJoinedRef } from '../../internal/ref';
-import { checkServerLocale } from '../../internal/intl';
+import { checkServerLocale, intlLocale } from '../../internal/intl';
 import type { MPColor, MPSize } from '../../types';
 
 export interface MPProgressLinearProps extends MPProgressProps {
@@ -101,7 +101,7 @@ export const MPProgressLinear = React.forwardRef<HTMLDivElement, MPProgressLinea
         min={min}
         max={max}
         format={format}
-        locale={locale}
+        locale={intlLocale(locale)}
         getAriaValueText={progressAriaText(fraction, hasFormat)}
         data-mp-size={size}
         className={['mp-progress-linear flex w-full flex-col', STACK_GAP[size], className ?? '']

@@ -5,7 +5,7 @@ import { META_TEXT, STACK_GAP } from '../../internal/scale';
 import { BAR_THICKNESS, progressFraction } from '../../internal/progress';
 import { useMPColor, useMPSize } from '../../internal/config';
 import { useMPLocale } from '../../internal/locale';
-import { checkServerLocale } from '../../internal/intl';
+import { checkServerLocale, intlLocale } from '../../internal/intl';
 import { thresholdColor } from '../../internal/threshold';
 import type { MPColor, MPSize, MPThreshold } from '../../types';
 
@@ -138,7 +138,7 @@ export const MPMeter = React.forwardRef<HTMLDivElement, MPMeterProps>(function M
       min={min}
       max={max}
       format={format}
-      locale={locale}
+      locale={intlLocale(locale)}
       data-mp-size={size}
       className={['mp-meter flex w-full flex-col', STACK_GAP[size], className ?? '']
         .filter(Boolean)

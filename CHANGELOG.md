@@ -68,6 +68,8 @@
 
 ### Fixed
 
+- **A locale tag that is not quite a tag no longer takes the render down.** The words in this library's table matched `ko_KR` and `ko-KR,ko;q=0.9` — a request's `Accept-Language` passed straight through — on their language, and then `Intl` threw a `RangeError` at the first date or number. A tag is now tidied before `Intl` sees it: the first of a list, without its weight, with hyphens; and one that still does not parse formats in the runtime's own locale. The cache of resolved words is also capped, as the `Intl` caches already were, so a server handed every request's language does not keep them all.
+
 - **A chart draws a series of any length.** The extents were found with `Math.min(...values)`, which runs out of argument room somewhere past a hundred thousand values and threw instead of drawing. The width estimate for CJK labels was also a character range written out literally, starting at a compatibility ideograph that Unicode normalisation rewrites — so a source decoded or normalised on the way to the page threw "Range out of order" and took every chart with it. It is written as escapes now.
 
 - **A chart inside a surface that is still scaling in is drawn to the room it has.** Charts measured the size their box was drawn at, transforms included, so one mounted in an `MPDialog` — which enters from `scale(0.95)` — laid itself out five per cent narrower, and stayed that way: a transform finishing is not a resize, so nothing told it otherwise. They measure their box's layout size now.

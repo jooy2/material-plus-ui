@@ -3,6 +3,7 @@ import { Meter } from '@base-ui/react/meter';
 import { useBoxSize } from '../../internal/box-size';
 import { useMPColor, useMPSize } from '../../internal/config';
 import { useMPLocale } from '../../internal/locale';
+import { intlLocale } from '../../internal/intl';
 import { accentSlots } from '../../internal/accent';
 import { thresholdColor } from '../../internal/threshold';
 import { progressFraction } from '../../internal/progress';
@@ -202,7 +203,7 @@ export function MPGaugeChart({
       min={min}
       max={max}
       format={format}
-      locale={locale}
+      locale={intlLocale(locale)}
       data-mp-size={size}
       className={['mp-gauge-chart flex min-w-0 flex-col items-center', className ?? '']
         .filter(Boolean)

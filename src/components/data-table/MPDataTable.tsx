@@ -11,7 +11,7 @@ import { containerSurface } from '../../internal/elevation';
 import { useMPColor, useMPDensity, useMPSize } from '../../internal/config';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { fillMessage } from '../../internal/i18n';
-import { checkServerLocale } from '../../internal/intl';
+import { checkServerLocale, intlLocale } from '../../internal/intl';
 import { DATA_TABLE } from '../../internal/messages/data-table';
 import { TABLE } from '../../internal/messages/table';
 import { TRANSFER } from '../../internal/messages/transfer';
@@ -723,7 +723,7 @@ export function MPDataTable<Row>({
   const collator = React.useMemo(() => {
     checkServerLocale(locale);
 
-    return new Intl.Collator(locale, { numeric: true, sensitivity: 'base' });
+    return new Intl.Collator(intlLocale(locale), { numeric: true, sensitivity: 'base' });
   }, [locale]);
 
   const ordered = React.useMemo(

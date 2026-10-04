@@ -51,6 +51,7 @@
  * per-component `labels` props; `resolveNamespace` and `fillMessage` stay
  * internal.
  */
+import { remember } from './intl';
 
 /**
  * One namespace per component, rather than one flat list of keys.
@@ -823,9 +824,10 @@ export function resolveNamespace<Name extends keyof MPMessages>(
   const translated = match?.[namespace.name];
   const messages = translated ? { ...namespace.en, ...translated } : namespace.en;
 
-  resolved.set(key, messages);
-
-  return messages;
+  // Bounded, as the `Intl` caches are: the tag is a caller's, and a server that
+  // passes each request's language through would otherwise keep every spelling
+  // it was ever sent for as long as the process runs.
+  return remember(resolved, key, messages) as MPMessages[Name];
 }
 
 /**

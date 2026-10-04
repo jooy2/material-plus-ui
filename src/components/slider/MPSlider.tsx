@@ -5,7 +5,7 @@ import { MPStateLayer } from '../../internal/StateLayer';
 import { META_TEXT, hasContent } from '../../internal/scale';
 import { useMPColor, useMPSize } from '../../internal/config';
 import { useMPLocale } from '../../internal/locale';
-import { checkServerLocale } from '../../internal/intl';
+import { checkServerLocale, intlLocale } from '../../internal/intl';
 import type { MPColor, MPOrientation, MPSize } from '../../types';
 
 /**
@@ -331,7 +331,7 @@ export const MPSlider = React.forwardRef<HTMLDivElement, MPSliderProps>(function
       disabled={disabled}
       orientation={orientation}
       format={format}
-      locale={locale}
+      locale={intlLocale(locale)}
       name={name}
       data-mp-size={size}
       className={[

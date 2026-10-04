@@ -5,7 +5,7 @@ import { MPIcon } from '../icon/MPIcon';
 import { AddIcon, RemoveIcon } from '../../constants/icons';
 import { MPFieldLabel, MPFieldOutline, useFloatingLabel } from '../../internal/FieldOutline';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
-import { checkServerLocale } from '../../internal/intl';
+import { checkServerLocale, intlLocale } from '../../internal/intl';
 import { NUMBER_FIELD } from '../../internal/messages/number-field';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { MPSupportingText } from '../../internal/SupportingText';
@@ -300,7 +300,7 @@ export function MPNumberField({
         smallStep={smallStep}
         allowWheelScrub={allowWheelScrub}
         format={format}
-        locale={locale ?? named}
+        locale={typeof locale === 'string' ? intlLocale(locale) : (locale ?? intlLocale(named))}
         disabled={disabled}
         readOnly={readOnly}
         required={required}
@@ -376,12 +376,7 @@ export function MPNumberField({
           <MPFieldOutline label={label} required={required} notched={shrunk} />
 
           {hasContent(label) ? (
-            <MPFieldLabel
-              size={size}
-              label={label}
-              required={required}
-              shrunk={shrunk}
-            />
+            <MPFieldLabel size={size} label={label} required={required} shrunk={shrunk} />
           ) : null}
         </div>
       </NumberField.Root>

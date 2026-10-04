@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   CACHE_LIMIT,
   dateTimeFormatter,
+  intlLocale,
   numberFormatter,
   segmenter
 } from '../../src/internal/intl';
@@ -137,5 +138,28 @@ describe('the segmenter cache', () => {
 
     expect(one).not.toBeNull();
     expect([...one!.segment('👩‍👩‍👧')]).toHaveLength(1);
+  });
+});
+
+describe('a tag that is not quite a tag', () => {
+  // A request's `Accept-Language` passed straight through, or a server's
+  // `ko_KR`, used to throw a `RangeError` at the first number and take the
+  // render down with it — after the words had already been written in Korean.
+  it('reads an underscore as the hyphen it meant', () => {
+    expect(intlLocale('de_DE')).toBe('de-DE');
+    expect(numberFormatter('de_DE').format(1234.5)).toBe('1.234,5');
+  });
+
+  it('takes the first language of an `Accept-Language` header', () => {
+    expect(intlLocale('ko-KR,ko;q=0.9,en;q=0.8')).toBe('ko-KR');
+  });
+
+  it('leaves a tag that parses exactly as it was written', () => {
+    expect(intlLocale('zh-Hant-TW')).toBe('zh-Hant-TW');
+  });
+
+  it("falls back to the runtime's own for one that never parses", () => {
+    expect(intlLocale('!!')).toBeUndefined();
+    expect(() => dateTimeFormatter('!!').format(JULY)).not.toThrow();
   });
 });
