@@ -1,6 +1,8 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { renderToString } from 'react-dom/server';
 import { MPNavigationMenu, MPNavigationMenuItem, MPNavigationMenuLink } from 'material-plus-ui';
+import { cleanupHydrated, hydrateFromServer } from '../../support/hydrate';
 
 function Nav(props: React.ComponentProps<typeof MPNavigationMenu>) {
   return (
@@ -244,6 +246,40 @@ describe('MPNavigationMenu', () => {
 
       expect(trigger).toHaveClass('my-own-trigger');
       expect(trigger.style.order).toBe('2');
+    });
+  });
+
+  describe('`keepMounted`', () => {
+    afterEach(cleanupHydrated);
+
+    it('leaves a closed panel out of the page by default', () => {
+      expect(renderToString(<Nav />)).not.toContain('/pricing');
+    });
+
+    it("sends a closed panel's links from the server, hidden", () => {
+      const html = renderToString(<Nav keepMounted />);
+
+      expect(html).toContain('href="/overview"');
+      expect(html).toContain('href="/pricing"');
+    });
+
+    it('keeps them in the page after it hydrates, and after a panel has closed', async () => {
+      const { container, errors } = await hydrateFromServer(<Nav keepMounted />);
+      // Anywhere in the document: once hydrated, a panel lives in the portal.
+      const links = () => document.querySelectorAll('a[href="/pricing"]');
+
+      expect(errors).toEqual([]);
+      expect(links().length).toBeGreaterThan(0);
+
+      const trigger = container.querySelector('button') as HTMLButtonElement;
+
+      trigger.click();
+      await vi.waitFor(() => expect(trigger.getAttribute('aria-expanded')).toBe('true'));
+      trigger.click();
+      await vi.waitFor(() => expect(trigger.getAttribute('aria-expanded')).toBe('false'));
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      expect(links().length).toBeGreaterThan(0);
     });
   });
 });

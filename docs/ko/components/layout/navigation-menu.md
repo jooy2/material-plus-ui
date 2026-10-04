@@ -88,6 +88,18 @@ import { MPNavigationMenu, MPNavigationMenuItem, MPNavigationMenuLink } from 'ma
 
 헤더의 가운데 슬롯은 자기 타입 스케일을 갖지 않으므로 메뉴는 자기 것을 그대로 유지합니다 — [MPHeader](./header#세-개의-슬롯)를 보세요.
 
+## 크롤러를 위해
+
+기본값에서 닫힌 패널은 페이지에 아예 없습니다. 서버가 보내는 HTML에도, 크롤러가 렌더링하는 문서에도 없습니다. 그래서 패널 안에만 있는 링크는 검색 엔진이 한 번도 보지 못하는 링크입니다. `keepMounted`를 주면 모든 패널의 링크가 서버 마크업에 숨겨진 채로 들어가고, 그 뒤로도 문서에 남습니다.
+
+```tsx
+<MPNavigationMenu aria-label="Main" keepMounted>
+  …
+</MPNavigationMenu>
+```
+
+비용은 모든 페이지에 들어가는 패널 마크업이고, 보통 링크 수십 개입니다. 중요한 목적지를 늘 페이지에 있는 다른 곳에서도 링크하는 사이트라면 필요하지 않습니다.
+
 ## 아이템의 props
 
 <PropsTable name="MPNavigationMenuItem" />

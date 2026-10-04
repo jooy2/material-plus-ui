@@ -88,6 +88,18 @@ In an [MPHeader](./header)'s middle slot, which is exactly what that slot is for
 
 The header's middle slot carries no type scale of its own, so the menu keeps its own — see [MPHeader](./header#the-three-slots).
 
+## For a crawler
+
+A closed panel is not in the page at all by default: not in the HTML a server sends, and not in the document a crawler renders. Links that exist only in a panel are therefore links a search engine is never shown. `keepMounted` keeps every panel's links in the server's markup, hidden, and in the document from then on:
+
+```tsx
+<MPNavigationMenu aria-label="Main" keepMounted>
+  …
+</MPNavigationMenu>
+```
+
+The cost is the panels' markup on every page, which is usually a few dozen links. A site whose important destinations are also linked from somewhere always in the page does not need it.
+
 ## Item props
 
 <PropsTable name="MPNavigationMenuItem" />

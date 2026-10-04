@@ -27,9 +27,13 @@ import type { MPColor, MPOrientation, MPSize } from '../../types';
  */
 interface MPNavigationMenuContextValue {
   size: MPSize;
+  keepMounted: boolean;
 }
 
-const MPNavigationMenuContext = React.createContext<MPNavigationMenuContextValue>({ size: 'md' });
+const MPNavigationMenuContext = React.createContext<MPNavigationMenuContextValue>({
+  size: 'md',
+  keepMounted: false
+});
 
 export interface MPNavigationMenuProps extends Omit<
   React.ComponentPropsWithoutRef<'nav'>,
@@ -69,6 +73,17 @@ export interface MPNavigationMenuProps extends Omit<
    * @default 'primary'
    */
   color?: MPColor;
+  /**
+   * Keeps every panel's links in the page while the panels are closed: in the
+   * server's markup, hidden, and in the document from then on.
+   *
+   * Off by default, which leaves a closed panel out of the page entirely — so
+   * the links inside it are not in the HTML a crawler reads and not on the
+   * page a crawler renders. Turn it on when the panels hold destinations the
+   * site wants found.
+   * @default false
+   */
+  keepMounted?: boolean;
   /**
    * The name the `<nav>` is announced by, through `aria-label` in the rest
    * props.
@@ -248,7 +263,7 @@ export function MPNavigationMenuItem({
   className,
   style
 }: MPNavigationMenuItemProps) {
-  const { size } = React.useContext(MPNavigationMenuContext);
+  const { size, keepMounted } = React.useContext(MPNavigationMenuContext);
   const isLink = href !== undefined && !hasContent(children);
   const panelColumns = Number.isFinite(columns) ? Math.max(1, Math.round(columns)) : 1;
 
@@ -309,6 +324,7 @@ export function MPNavigationMenuItem({
           </NavigationMenu.Trigger>
 
           <NavigationMenu.Content
+            keepMounted={keepMounted}
             className={`mp-navigation-menu__panel grid gap-1 ${PANEL_PAD[size]}`}
             style={
               // Rounded and floored, for the reason `MPGrid` rounds and floors
@@ -370,6 +386,7 @@ export const MPNavigationMenu = React.forwardRef<HTMLElement, MPNavigationMenuPr
       sideOffset = 8,
       size: sizeProp,
       color: colorProp,
+      keepMounted = false,
       className,
       style,
       children,
@@ -379,7 +396,7 @@ export const MPNavigationMenu = React.forwardRef<HTMLElement, MPNavigationMenuPr
   ) {
     const size = useMPSize(sizeProp);
     const color = useMPColor(colorProp);
-    const context = React.useMemo(() => ({ size }), [size]);
+    const context = React.useMemo(() => ({ size, keepMounted }), [size, keepMounted]);
 
     return (
       <MPNavigationMenuContext.Provider value={context}>
@@ -408,7 +425,7 @@ export const MPNavigationMenu = React.forwardRef<HTMLElement, MPNavigationMenuPr
             {children}
           </NavigationMenu.List>
 
-          <NavigationMenu.Portal>
+          <NavigationMenu.Portal keepMounted={keepMounted}>
             <NavigationMenu.Positioner
               className={PORTAL_LAYER}
               sideOffset={sideOffset}
