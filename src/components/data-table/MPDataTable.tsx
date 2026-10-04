@@ -435,6 +435,149 @@ const RESIZE_HANDLE = [
  * `onRowClick` on its own always puts the row in the tab order, because then
  * there is nothing else to press.
  */
+/** A row's rule and its tint, which no row draws differently. */
+const RULE_STYLE: React.CSSProperties = {
+  borderTop: '1px solid var(--_mp-color-outline-variant)',
+  backgroundColor: 'var(--_mp-row)'
+};
+
+interface DataTableRowProps<Row> {
+  entry: RowEntry<Row>;
+  /** Where it sits on the page, which is what a press reports. */
+  index: number;
+  /** Where it sits in the whole ordered set, which is what a cell is told. */
+  at: number;
+  chosen: boolean;
+  headers: readonly MPDataTableColumn<Row>[];
+  striped: boolean;
+  lit: boolean;
+  pressable: boolean;
+  selectable: boolean;
+  tabStop: boolean;
+  ticks: boolean;
+  rowClassName: string | undefined;
+  cellClassName: string | undefined;
+  padX: string;
+  padY: string;
+  size: MPSize;
+  color: MPColor;
+  selectLabel: string;
+  onPress: (entry: RowEntry<Row>, index: number, additive: boolean) => void;
+}
+
+/**
+ * One row of the body, memoised.
+ *
+ * Every tick, sort, page turn and search keystroke is a render of the table,
+ * and every row used to render with it — each with its cells and its own
+ * checkbox — whether or not anything about the row had changed. A row is
+ * given only what it draws, as values that keep their identity, and the press
+ * handler through a ref; so a tick re-renders the row that was ticked, and a
+ * keystroke the rows that moved.
+ */
+function DataTableRowInner<Row>({
+  entry,
+  index,
+  at,
+  chosen,
+  headers,
+  striped,
+  lit,
+  pressable,
+  selectable,
+  tabStop,
+  ticks,
+  rowClassName,
+  cellClassName,
+  padX,
+  padY,
+  size,
+  color,
+  selectLabel,
+  onPress
+}: DataTableRowProps<Row>) {
+  const cellStyle = { padding: `${padY} ${padX}` };
+
+  return (
+    <tr
+      aria-selected={selectable ? chosen : undefined}
+      className={[
+        ROW,
+        rowClassName,
+        // The stripe and the hover are the same neutral surface one step apart
+        // rather than a tint: a table that alternates between white and pale
+        // blue has coloured half its data.
+        striped && at % 2 === 1 ? '[--_mp-row:var(--_mp-color-surface-container-low)]' : '',
+        // A chosen row is the one place the accent reaches the body, and it is
+        // the lowest container tint the accent has: a filled row would take the
+        // cells' own contrast with it.
+        chosen ? '[--_mp-row:var(--_mp-color-secondary-container)]' : '',
+        lit && !chosen ? 'hover:[--_mp-row:var(--_mp-color-surface-container)]' : '',
+        pressable && 'cursor-pointer',
+        tabStop &&
+          [
+            // Inset rather than offset, for the reason a tab's ring is: the
+            // sheet scrolls sideways and clips at its padding box, so a ring
+            // drawn outside the row would be shaved off at both ends of the
+            // table.
+            'outline-mp-secondary focus-visible:outline-2',
+            'focus-visible:-outline-offset-2 focus-visible:outline-solid outline-none'
+          ].join(' ')
+      ]
+        .filter(Boolean)
+        .join(' ')}
+      style={RULE_STYLE}
+      tabIndex={tabStop ? 0 : undefined}
+      onClick={(event) => onPress(entry, index, event.shiftKey)}
+      onKeyDown={
+        tabStop
+          ? (event) => {
+              if (event.key !== 'Enter' && event.key !== ' ') {
+                return;
+              }
+
+              // Only the row itself. A press inside a cell belongs to whatever
+              // is in that cell — a Space typed into a field in a table must not
+              // choose the row around it.
+              if (event.target !== event.currentTarget) {
+                return;
+              }
+
+              // Space scrolls the page by default, and a row that answered
+              // *and* scrolled would answer twice.
+              event.preventDefault();
+              onPress(entry, index, event.shiftKey);
+            }
+          : undefined
+      }
+    >
+      {ticks ? (
+        <td style={cellStyle}>
+          <MPCheckbox
+            size={size}
+            color={color}
+            checked={chosen}
+            onCheckedChange={() => onPress(entry, index, false)}
+            label={<span className={VISUALLY_HIDDEN}>{selectLabel}</span>}
+          />
+        </td>
+      ) : null}
+
+      {headers.map((column) => (
+        <td
+          key={column.key}
+          className={cellClassName}
+          style={{ ...cellStyle, textAlign: column.align ?? 'start' }}
+        >
+          {column.render ? column.render(entry.row, at) : drawableCell(valueOf(column, entry.row))}
+        </td>
+      ))}
+    </tr>
+  );
+}
+
+const DataTableRow = React.memo(DataTableRowInner) as typeof DataTableRowInner;
+
 export function MPDataTable<Row>({
   headers,
   items,
@@ -553,17 +696,26 @@ export function MPDataTable<Row>({
    * keystroke, which is the shape of API a `matches(row, query)` signature
    * quietly asks for.
    */
+  const needle = searchText(search.trim());
+  // Built when there is something to search for, and kept while there is: a
+  // table nobody is searching folded every cell of every row as it hydrated.
+  const searching = needle !== '';
+
   const haystacks = React.useMemo(() => {
+    if (!searching) {
+      return null;
+    }
+
     const columns = headers.filter((column) => column.searchable !== false);
 
     return entries.map((entry) => searchHaystack(columns.map((c) => valueOf(c, entry.row))));
-  }, [entries, headers]);
-
-  const needle = searchText(search.trim());
+  }, [entries, headers, searching]);
 
   const found = React.useMemo(() => {
     const matched =
-      needle === '' ? entries : entries.filter((_, index) => haystacks[index].includes(needle));
+      needle === '' || !haystacks
+        ? entries
+        : entries.filter((_, index) => haystacks[index].includes(needle));
 
     return filter ? matched.filter((entry) => filter(entry.row, entry.origin)) : matched;
   }, [entries, haystacks, needle, filter]);
@@ -593,8 +745,20 @@ export function MPDataTable<Row>({
             descending ? -compare(a.row, b.row) : compare(a.row, b.row);
         }
 
+        // Each row's value read once for the whole sort rather than twice per
+        // comparison, which on a thousand rows is twenty thousand reads of a
+        // `value` that answers the same thing every time.
+        const read = new Map<RowEntry<Row>, unknown>();
+        const valueAt = (entry: RowEntry<Row>) => {
+          if (!read.has(entry)) {
+            read.set(entry, valueOf(column, entry.row));
+          }
+
+          return read.get(entry);
+        };
+
         return (a: RowEntry<Row>, b: RowEntry<Row>) =>
-          compareValues(valueOf(column, a.row), valueOf(column, b.row), collator, descending);
+          compareValues(valueAt(a), valueAt(b), collator, descending);
       }),
     [found, sort, headers, collator]
   );
@@ -728,6 +892,18 @@ export function MPDataTable<Row>({
     );
   };
 
+  // The rows are memoised, so what they are handed has to keep its identity:
+  // the latest `pressRow` is read through a ref by one stable function.
+  const pressRef = React.useRef(pressRow);
+
+  pressRef.current = pressRow;
+
+  const press = React.useCallback(
+    (entry: RowEntry<Row>, index: number, additive: boolean) =>
+      pressRef.current(entry, index, additive),
+    []
+  );
+
   const pageKeys = shown.map((entry) => entry.key);
   const chosenHere = pageKeys.filter((key) => selectedKeys.has(key)).length;
   const allHere = pageKeys.length > 0 && chosenHere === pageKeys.length;
@@ -736,9 +912,11 @@ export function MPDataTable<Row>({
     // The page rather than the whole set, because the tick sits in the header of
     // what is on screen and a control that quietly took four hundred rows the
     // reader cannot see is a control that did something else.
+    const onPage = new Set(pageKeys);
+
     commitSelection(
       allHere
-        ? [...selectedKeys].filter((key) => !pageKeys.includes(key))
+        ? [...selectedKeys].filter((key) => !onPage.has(key))
         : [...new Set([...selectedKeys, ...pageKeys])]
     );
   };
@@ -795,14 +973,32 @@ export function MPDataTable<Row>({
     const sign = getComputedStyle(handle).direction === 'rtl' ? -1 : 1;
     const floor = Math.max(MIN_COLUMN_WIDTH, column.minWidth ?? MIN_COLUMN_WIDTH);
 
+    // One width a frame. A pointer reports far more often than the screen
+    // draws, and every width committed is a render of the whole table; the
+    // last position in a frame is the only one anybody sees.
+    let latest: number | null = null;
+    let frame = 0;
+
+    const flush = () => {
+      frame = 0;
+
+      if (latest !== null) {
+        commitWidths({ ...widths, [column.key]: latest });
+        latest = null;
+      }
+    };
+
     const move = (moveEvent: PointerEvent) => {
-      commitWidths({
-        ...widths,
-        [column.key]: Math.max(floor, Math.round(start + (moveEvent.clientX - origin) * sign))
-      });
+      latest = Math.max(floor, Math.round(start + (moveEvent.clientX - origin) * sign));
+
+      if (frame === 0) {
+        frame = requestAnimationFrame(flush);
+      }
     };
 
     const end = () => {
+      cancelAnimationFrame(frame);
+      flush();
       handle.removeEventListener('pointermove', move);
       handle.removeEventListener('pointerup', end);
       handle.removeEventListener('pointercancel', end);
@@ -865,10 +1061,7 @@ export function MPDataTable<Row>({
     // fastest way to make data look like chrome.
     backgroundColor: 'var(--_mp-color-surface-container)'
   };
-  const ruleStyle: React.CSSProperties = {
-    borderTop: '1px solid var(--_mp-color-outline-variant)',
-    backgroundColor: 'var(--_mp-row)'
-  };
+  const ruleStyle = RULE_STYLE;
 
   const sortIndex = (key: string) => sort.findIndex((entry) => entry.key === key);
   const columnCount = headers.length + (showTicks ? 1 : 0);
@@ -1104,90 +1297,30 @@ export function MPDataTable<Row>({
                 </td>
               </tr>
             ) : (
-              shown.map((entry, index) => {
-                const chosen = selectedKeys.has(entry.key);
-
-                return (
-                  <tr
-                    key={entry.key}
-                    aria-selected={selectable ? chosen : undefined}
-                    className={join(
-                      ROW,
-                      classNames?.row,
-                      // The stripe and the hover are the same neutral surface one
-                      // step apart rather than a tint: a table that alternates
-                      // between white and pale blue has coloured half its data.
-                      striped && (bounds.start + index) % 2 === 1
-                        ? '[--_mp-row:var(--_mp-color-surface-container-low)]'
-                        : '',
-                      // A chosen row is the one place the accent reaches the
-                      // body, and it is the lowest container tint the accent
-                      // has: a filled row would take the cells' own contrast
-                      // with it.
-                      chosen ? '[--_mp-row:var(--_mp-color-secondary-container)]' : '',
-                      lit && !chosen ? 'hover:[--_mp-row:var(--_mp-color-surface-container)]' : '',
-                      (selectable || onRowClick) && 'cursor-pointer',
-                      rowsAreTabStops &&
-                        [
-                          // Inset rather than offset, for the reason a tab's ring
-                          // is: the sheet scrolls sideways and clips at its
-                          // padding box, so a ring drawn outside the row would be
-                          // shaved off at both ends of the table.
-                          'outline-mp-secondary focus-visible:outline-2',
-                          'focus-visible:-outline-offset-2 focus-visible:outline-solid outline-none'
-                        ].join(' ')
-                    )}
-                    style={ruleStyle}
-                    tabIndex={rowsAreTabStops ? 0 : undefined}
-                    onClick={(event) => pressRow(entry, index, event.shiftKey)}
-                    onKeyDown={
-                      rowsAreTabStops
-                        ? (event) => {
-                            if (event.key !== 'Enter' && event.key !== ' ') {
-                              return;
-                            }
-
-                            // Only the row itself. A press inside a cell belongs
-                            // to whatever is in that cell — a Space typed into a
-                            // field in a table must not choose the row around it.
-                            if (event.target !== event.currentTarget) {
-                              return;
-                            }
-
-                            // Space scrolls the page by default, and a row that
-                            // answered *and* scrolled would answer twice.
-                            event.preventDefault();
-                            pressRow(entry, index, event.shiftKey);
-                          }
-                        : undefined
-                    }
-                  >
-                    {showTicks ? (
-                      <td style={cellStyle}>
-                        <MPCheckbox
-                          size={size}
-                          color={color}
-                          checked={chosen}
-                          onCheckedChange={() => pressRow(entry, index, false)}
-                          label={<span className={VISUALLY_HIDDEN}>{messages.selectRow}</span>}
-                        />
-                      </td>
-                    ) : null}
-
-                    {headers.map((column) => (
-                      <td
-                        key={column.key}
-                        className={classNames?.cell}
-                        style={{ ...cellStyle, textAlign: column.align ?? 'start' }}
-                      >
-                        {column.render
-                          ? column.render(entry.row, bounds.start + index)
-                          : drawableCell(valueOf(column, entry.row))}
-                      </td>
-                    ))}
-                  </tr>
-                );
-              })
+              shown.map((entry, index) => (
+                <DataTableRow
+                  key={entry.key}
+                  entry={entry}
+                  index={index}
+                  at={bounds.start + index}
+                  chosen={selectedKeys.has(entry.key)}
+                  headers={headers}
+                  striped={striped}
+                  lit={lit}
+                  pressable={selectable || Boolean(onRowClick)}
+                  selectable={selectable}
+                  tabStop={rowsAreTabStops}
+                  ticks={showTicks}
+                  rowClassName={classNames?.row}
+                  cellClassName={classNames?.cell}
+                  padX={padX}
+                  padY={padY}
+                  size={size}
+                  color={color}
+                  selectLabel={messages.selectRow}
+                  onPress={press}
+                />
+              ))
             )}
           </tbody>
         </table>

@@ -50,6 +50,8 @@
 
 - **`MPCodeBlock` colours a block when it comes near the screen, one block per task.** Every block in a language waited on the same grammar and resumed together when it arrived, so a page of twenty blocks was coloured in a single long task — the nineteen nobody had scrolled to included — with the reader's input queued behind it. Each block is now coloured as it nears the viewport, in a task of its own, and drawing the coloured lines yields to a key press that arrives in the middle. A block is plain until then, as it always was on its first frame.
 
+- **`MPDataTable` re-renders the rows a change touches, and no others.** Every tick, sort, page turn and search keystroke rendered every row of the page with its cells and its checkbox; ticking one of forty rows rendered forty. Rows are memoised now, so a tick renders the row it ticked. Dragging a column wider commits one width a frame rather than one per pointer event — `onColumnWidthsChange` hears fewer intermediate widths and the same final one — a table nobody is searching no longer folds every cell for search as it hydrates, and a sort reads each row's value once rather than twice per comparison.
+
 ### Fixed
 
 - **A chart draws a series of any length.** The extents were found with `Math.min(...values)`, which runs out of argument room somewhere past a hundred thousand values and threw instead of drawing. The width estimate for CJK labels was also a character range written out literally, starting at a compatibility ideograph that Unicode normalisation rewrites — so a source decoded or normalised on the way to the page threw "Range out of order" and took every chart with it. It is written as escapes now.

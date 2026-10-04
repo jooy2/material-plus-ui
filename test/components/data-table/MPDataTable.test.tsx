@@ -523,4 +523,56 @@ describe('MPDataTable', () => {
     await vi.waitFor(() => expect(names()).toEqual([]));
     expect(screen.container.textContent).toContain('No data');
   });
+
+  describe('the work a change costs', () => {
+    type Wide = { id: number; name: string };
+
+    const many: Wide[] = Array.from({ length: 40 }, (_, id) => ({ id, name: `row ${id}` }));
+
+    it('re-renders only the row that was ticked', async () => {
+      // Every tick was a render of every row and every checkbox in it.
+      const drawn = vi.fn((row: Wide) => row.name);
+      const screen = await render(
+        <MPDataTable
+          caption="Rows"
+          headers={[{ key: 'name', label: 'Name', render: drawn }]}
+          items={many}
+          getRowKey={(row) => row.id}
+          selectionMode="multiple"
+          checkboxes
+        />
+      );
+
+      drawn.mockClear();
+      await screen.getByRole('checkbox', { name: 'Select row' }).nth(3).click();
+
+      expect(drawn.mock.calls.map(([row]) => row.id)).toEqual([3]);
+    });
+
+    it('commits a dragged column width once a frame, and the last one on release', async () => {
+      const widths = vi.fn();
+      const screen = await render(
+        <MPDataTable
+          caption="Rows"
+          headers={[{ key: 'name', label: 'Name' }]}
+          items={many}
+          resizable
+          onColumnWidthsChange={widths}
+        />
+      );
+      const handle = screen.getByRole('button', { name: /resize/i }).element() as HTMLElement;
+      const box = handle.getBoundingClientRect();
+      const at = (x: number) => ({ clientX: x, clientY: box.top, pointerId: 1, bubbles: true });
+
+      handle.dispatchEvent(new PointerEvent('pointerdown', { ...at(box.left), button: 0 }));
+
+      for (let step = 1; step <= 10; step += 1) {
+        handle.dispatchEvent(new PointerEvent('pointermove', at(box.left + step)));
+      }
+
+      handle.dispatchEvent(new PointerEvent('pointerup', at(box.left + 10)));
+
+      expect(widths).toHaveBeenCalledTimes(1);
+    });
+  });
 });
