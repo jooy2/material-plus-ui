@@ -91,6 +91,22 @@ export interface MPAvatarProps extends Omit<React.ComponentPropsWithoutRef<'span
   /** Called as the picture moves between `idle`, `loading`, `loaded` and `error`. */
   onLoadingStatusChange?: (status: MPAvatarLoadingStatus) => void;
   /**
+   * Draws the `<img>` in the markup and lets it load in place, instead of
+   * fetching the picture in script and drawing it once it has arrived.
+   *
+   * By default the picture is fetched from a script after the page has
+   * hydrated, so it is in no server's markup, the browser's preload scanner
+   * never sees it, and `loading="lazy"` in `imageProps` is ignored — a list of
+   * fifty avatars downloads all fifty the moment the page hydrates, while the
+   * page's own largest picture is still loading. With `keepMounted` each is an
+   * `<img>` from the start, fetched by the browser on its own terms and lazily
+   * when asked to be; the initials show under it until it has loaded.
+   *
+   * Needs `@base-ui/react` 1.8 or later.
+   * @default false
+   */
+  keepMounted?: boolean;
+  /**
    * The fallback, drawn instead of the initials. An icon, a logo, a single emoji
    * — whatever stands in for this particular thing when there is no picture of
    * it.
@@ -199,6 +215,7 @@ export const MPAvatar = React.forwardRef<HTMLSpanElement, MPAvatarProps>(functio
     delay,
     imageProps,
     onLoadingStatusChange,
+    keepMounted = false,
     transition,
     className,
     style,
@@ -252,6 +269,9 @@ export const MPAvatar = React.forwardRef<HTMLSpanElement, MPAvatarProps>(functio
           // the file name out instead.
           alt={label ?? ''}
           onLoadingStatusChange={onLoadingStatusChange}
+          // Only when asked for, so a project on Base UI 1.7 — which has no such
+          // prop and would hand it to the `<img>` — sees nothing new.
+          {...(keepMounted ? { keepMounted: true } : null)}
           {...imageProps}
           // After the spread rather than before it: the crop is what makes the
           // picture fill its circle, and losing it to a caller's own class is
@@ -273,8 +293,14 @@ export const MPAvatar = React.forwardRef<HTMLSpanElement, MPAvatarProps>(functio
             'size-full object-cover',
             'transition-opacity duration-(--mp-sys-motion-duration-short4)',
             'ease-mp-standard',
-            'data-starting-style:opacity-0 data-ending-style:opacity-0'
-          ].join(' ')}
+            'data-starting-style:opacity-0 data-ending-style:opacity-0',
+            // Kept mounted, the picture is laid over the initials rather than
+            // in place of them, and stays out of sight while it loads or once
+            // it has failed — the initials are what there is to see until then.
+            keepMounted ? 'absolute inset-0 data-error:invisible data-loading:opacity-0' : ''
+          ]
+            .filter(Boolean)
+            .join(' ')}
         />
       ) : null}
 

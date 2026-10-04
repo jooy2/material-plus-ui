@@ -4,6 +4,8 @@
 
 ### Added
 
+- **`MPAvatar` takes `keepMounted`, for a long list of them.** By default a picture is fetched by a script after the page has hydrated, so it is in no server's markup, the preload scanner never sees it and `loading="lazy"` is ignored — fifty avatars download together the moment the page hydrates, competing with its largest picture. With `keepMounted` each is an `<img>` from the start, loaded by the browser on its own terms, with the initials under it until it has arrived. It needs `@base-ui/react` 1.8 or later.
+
 - **A router's `Link` can draw the links in `MPBreadcrumbItem`, `MPNavigationMenuItem`, `MPNavigationMenuLink`, `MPMenuItem` and `MPTreeItem`, through `render`, and `MPPagination`'s, through `renderLink`.** Each drew a plain `<a>`, and under App Router a plain `<a>` to a page of the same site is a full page load, with no client-side navigation and no prefetch. `render={<Link />}` keeps the `href` on the component, written once, and lets the router draw the element — the arrangement `MPListItem` already had.
 
 - **`MPAccordion` takes `headingLevel`.** Each section's title is a heading, and it was always an `<h3>` — so an accordion under an `<h3>` of its own, or directly under the page's `<h1>`, broke the outline a screen reader navigates by and a search engine reads a page's structure from. The default is still `3`.

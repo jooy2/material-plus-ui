@@ -48,6 +48,16 @@ import { MPAvatar } from 'material-plus-ui';
 
 규칙이 틀렸을 때는 `initials`로 직접 씁니다.
 
+## 긴 목록에서
+
+기본값에서 그림은 페이지가 하이드레이션된 뒤 스크립트가 가져오고, 도착하면 그립니다. 깨진 그림이 보일 일은 없지만, 아바타 쉰 개가 있는 페이지는 그 대가를 치릅니다. 쉰 개 중 어느 것도 서버 마크업에 없고, 브라우저의 프리로드 스캐너가 보지 못하며, `loading="lazy"`도 무시됩니다. 페이지가 하이드레이션되는 순간 쉰 개가 페이지에서 가장 큰 그림과 함께 한꺼번에 내려받아집니다. `keepMounted`를 주면 각 아바타가 처음부터 `<img>`이고, 브라우저가 알아서 불러오며, 도착할 때까지 그 아래에 이니셜이 보입니다.
+
+```tsx
+<MPAvatar src={person.photo} name={person.name} keepMounted imageProps={{ loading: 'lazy' }} />
+```
+
+`@base-ui/react` 1.8 이상이 필요합니다.
+
 ## 예시
 
 ### size

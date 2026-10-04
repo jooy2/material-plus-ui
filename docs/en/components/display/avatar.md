@@ -48,6 +48,16 @@ One word gives one character on purpose: Korean, Japanese and Chinese names are 
 
 When the rule gets it wrong, `initials` writes them out.
 
+## A long list of them
+
+By default the picture is fetched by a script once the page has hydrated, and drawn when it has arrived. That keeps a broken picture from ever showing, and it costs a page of fifty avatars something: none of the fifty is in the server's markup, the browser's preload scanner never sees them, and `loading="lazy"` is ignored — all fifty download the moment the page hydrates, alongside the page's own largest picture. `keepMounted` makes each one an `<img>` from the start, loaded by the browser on its own terms, with the initials under it until it arrives:
+
+```tsx
+<MPAvatar src={person.photo} name={person.name} keepMounted imageProps={{ loading: 'lazy' }} />
+```
+
+It needs `@base-ui/react` 1.8 or later.
+
 ## Examples
 
 ### size

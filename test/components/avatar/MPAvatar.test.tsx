@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { renderToString } from 'react-dom/server';
 import { MPAvatar } from 'material-plus-ui';
 
 /**
@@ -181,6 +182,32 @@ describe('MPAvatar', () => {
       );
 
       expect(node).not.toBeNull();
+    });
+  });
+
+  describe('keepMounted', () => {
+    it('sends no picture from the server by default', () => {
+      expect(renderToString(<MPAvatar src={PIXEL} name="Jane Doe" />)).not.toContain('<img');
+    });
+
+    it('sends the `<img>` from the server, with what `imageProps` asked for', () => {
+      // In the markup the preload scanner reads, and fetched by the browser on
+      // its own terms — lazily, when asked — rather than by a script after the
+      // page hydrates.
+      const html = renderToString(
+        <MPAvatar src={PIXEL} name="Jane Doe" keepMounted imageProps={{ loading: 'lazy' }} />
+      );
+
+      expect(html).toContain('<img');
+      expect(html).toContain('loading="lazy"');
+    });
+
+    it('shows the picture once it has loaded', async () => {
+      const screen = await render(<MPAvatar src={PIXEL} name="Jane Doe" keepMounted />);
+      const img = screen.container.querySelector('img') as HTMLImageElement;
+
+      await expect.poll(() => getComputedStyle(img).opacity).toBe('1');
+      expect(img.getAttribute('src')).toBe(PIXEL);
     });
   });
 });
