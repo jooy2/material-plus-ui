@@ -1,4 +1,6 @@
 import * as React from 'react';
+import type { useRender } from '@base-ui/react/use-render';
+import { RenderedLink } from '../../internal/RenderedLink';
 import { MPIcon } from '../icon/MPIcon';
 import { ArrowRightIcon, ChevronRightIcon, MoreIcon } from '../../constants/icons';
 import { accentSlots } from '../../internal/accent';
@@ -126,6 +128,13 @@ export interface MPBreadcrumbItemProps extends Omit<
 > {
   /** Renders the step as a link. */
   href?: string;
+  /**
+   * Renders the step's `<a>` as something else — a router's `Link`, so a press is a
+   * client-side navigation and the page is prefetched. `href` and the classes
+   * still go through, so `render={<NextLink />}` needs the URL written once.
+   * Ignored where there is no link to replace.
+   */
+  render?: useRender.RenderProp;
   /** Fires when the step is pressed. Renders it as a button when there is no `href`. */
   onClick?: React.MouseEventHandler<HTMLElement>;
   /** Content before the label — a home glyph, a repository avatar. */
@@ -397,7 +406,18 @@ export const MPBreadcrumb = React.forwardRef<HTMLElement, MPBreadcrumbProps>(fun
  */
 export const MPBreadcrumbItem = React.forwardRef<HTMLLIElement, MPBreadcrumbItemProps>(
   function MPBreadcrumbItem(
-    { href, onClick, startIcon, endIcon, current, disabled = false, className, children, ...props },
+    {
+      href,
+      onClick,
+      render,
+      startIcon,
+      endIcon,
+      current,
+      disabled = false,
+      className,
+      children,
+      ...props
+    },
     ref
   ) {
     const { size, last, position, folded } = React.useContext(MPBreadcrumbContext);
@@ -474,14 +494,16 @@ export const MPBreadcrumbItem = React.forwardRef<HTMLLIElement, MPBreadcrumbItem
           // `item` is the URL the step goes to. It is on the `<a>` rather than
           // on a `<link>` of its own, so the address a search engine reads and
           // the address a reader follows cannot disagree.
-          <a
-            href={href}
-            itemProp={published ? 'item' : undefined}
-            className={stepClassNames}
-            onClick={onClick}
-          >
-            {body}
-          </a>
+          <RenderedLink
+            render={render}
+            props={{
+              href,
+              itemProp: published ? 'item' : undefined,
+              className: stepClassNames,
+              onClick,
+              children: body
+            }}
+          />
         ) : interactive ? (
           <button type="button" className={stepClassNames} onClick={onClick}>
             {body}

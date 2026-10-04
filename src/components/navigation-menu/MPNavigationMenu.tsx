@@ -123,6 +123,13 @@ export interface MPNavigationMenuItemProps {
    * also needs `nofollow` should say `rel="noopener noreferrer nofollow"`.
    */
   rel?: string;
+  /**
+   * Renders the destination's `<a>` as something else — a router's `Link`, so a press is a
+   * client-side navigation and the page is prefetched. `href` and the classes
+   * still go through, so `render={<NextLink />}` needs the URL written once.
+   * Ignored where there is no link to replace.
+   */
+  render?: NavigationMenu.Link.Props['render'];
   /** A glyph before the label. */
   startIcon?: React.ReactNode;
   /**
@@ -160,6 +167,13 @@ export interface MPNavigationMenuLinkProps extends Omit<
   description?: React.ReactNode;
   /** A glyph before the title. */
   startIcon?: React.ReactNode;
+  /**
+   * Renders the row's `<a>` as something else — a router's `Link`, so a press is a
+   * client-side navigation and the page is prefetched. `href` and the classes
+   * still go through, so `render={<NextLink />}` needs the URL written once.
+   * Ignored where there is no link to replace.
+   */
+  render?: NavigationMenu.Link.Props['render'];
 }
 
 /**
@@ -255,6 +269,7 @@ export function MPNavigationMenuItem({
   href,
   target,
   rel,
+  render,
   startIcon,
   value,
   disabled = false,
@@ -294,6 +309,7 @@ export function MPNavigationMenuItem({
           href={href}
           target={target}
           rel={linkRel(target, rel)}
+          render={render}
           className={chrome}
           style={style}
         >

@@ -111,6 +111,13 @@ export interface MPMenuItemProps {
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   /** Renders the row as a real `<a>`. A menu of links has to be links. */
   href?: string;
+  /**
+   * Renders the row's `<a>` as something else — a router's `Link`, so a press is a
+   * client-side navigation and the page is prefetched. `href` and the classes
+   * still go through, so `render={<NextLink />}` needs the URL written once.
+   * Ignored where there is no link to replace.
+   */
+  render?: Menu.LinkItem.Props['render'];
   /** Where the link opens — `_blank` and the rest. Ignored without `href`. */
   target?: string;
   /**
@@ -381,6 +388,7 @@ function RowMeta({ shortcut }: { shortcut: React.ReactNode }) {
 export function MPMenuItem({
   onClick,
   href,
+  render,
   target,
   rel,
   startIcon,
@@ -433,6 +441,7 @@ export function MPMenuItem({
         href={href}
         target={target}
         rel={linkRel(target, rel)}
+        render={render}
         label={label}
         closeOnClick={closeOnClick}
         onClick={onClick}

@@ -1,4 +1,6 @@
 import * as React from 'react';
+import type { useRender } from '@base-ui/react/use-render';
+import { RenderedLink } from '../../internal/RenderedLink';
 import { MPIcon } from '../icon/MPIcon';
 import { ChevronDownIcon } from '../../constants/icons';
 import { containerSurface } from '../../internal/elevation';
@@ -162,6 +164,13 @@ export interface MPTreeItemProps extends Omit<React.ComponentPropsWithoutRef<'li
   action?: React.ReactNode;
   /** Renders the row as a link, for a tree that is navigation. */
   href?: string;
+  /**
+   * Renders the row's `<a>` as something else — a router's `Link`, so a press is a
+   * client-side navigation and the page is prefetched. `href` and the classes
+   * still go through, so `render={<NextLink />}` needs the URL written once.
+   * Ignored where there is no link to replace.
+   */
+  render?: useRender.RenderProp;
   /** Fires when the row is pressed, before it opens or is chosen. */
   onClick?: React.MouseEventHandler<HTMLElement>;
   /**
@@ -624,6 +633,7 @@ export const MPTreeItem = React.forwardRef<HTMLLIElement, MPTreeItemProps>(funct
     endIcon,
     action,
     href,
+    render,
     expandable,
     disabled: disabledProp = false,
     className,
@@ -876,16 +886,18 @@ export const MPTreeItem = React.forwardRef<HTMLLIElement, MPTreeItemProps>(funct
     >
       <div className="flex w-full items-center">
         {href && !disabled ? (
-          <a
-            href={href}
-            // Inside the tab stop, not another one: a tree is a single widget,
-            // and the arrow keys are how the rows in it are reached.
-            tabIndex={-1}
-            className={rowClassNames}
-            aria-current={isSelected ? 'page' : undefined}
-          >
-            {body}
-          </a>
+          <RenderedLink
+            render={render}
+            props={{
+              href,
+              // Inside the tab stop, not another one: a tree is a single widget,
+              // and the arrow keys are how the rows in it are reached.
+              tabIndex: -1,
+              className: rowClassNames,
+              'aria-current': isSelected ? 'page' : undefined,
+              children: body
+            }}
+          />
         ) : (
           <div className={rowClassNames}>{body}</div>
         )}

@@ -1,4 +1,6 @@
 import * as React from 'react';
+import type { useRender } from '@base-ui/react/use-render';
+import { RenderedLink } from '../../internal/RenderedLink';
 import { MPIcon } from '../icon/MPIcon';
 import {
   ChevronLeftIcon,
@@ -112,6 +114,13 @@ export interface MPPaginationProps
    * client-side router keeps the page it already has.
    */
   getPageHref?: (page: number) => string;
+  /**
+   * Renders each page's link as something else — a router's `Link`, so moving
+   * between pages is a client-side navigation and the next one is prefetched.
+   * The `href` from `getPageHref` still goes through, along with `rel` and the
+   * classes. Only read alongside `getPageHref`; without it there are no links.
+   */
+  renderLink?: useRender.RenderProp;
   /**
    * Which language the row names itself in — a BCP 47 tag such as `ko`, `pt-BR`
    * or `zh-Hant`. Unsupported tags fall back to English.
@@ -231,6 +240,7 @@ export const MPPagination = React.forwardRef<HTMLElement, MPPaginationProps>(fun
     fullWidth = false,
     disabled = false,
     getPageHref,
+    renderLink,
     locale: localeProp,
     labels,
     className,
@@ -338,16 +348,22 @@ export const MPPagination = React.forwardRef<HTMLElement, MPPaginationProps>(fun
         // No `aria-current` here: this branch is only reached for a cell that is
         // somewhere to go, and the page being read is not one — it renders as
         // the button below, which is where the mark belongs.
-        <a
-          href={getPageHref(to)}
-          rel={rel}
-          aria-label={name}
-          className={cellClassNames(false, false)}
-          onClick={(event) => press(event, to)}
-        >
-          <MPStateLayer />
-          <span className="relative">{body}</span>
-        </a>
+        <RenderedLink
+          render={renderLink}
+          props={{
+            href: getPageHref(to),
+            rel,
+            'aria-label': name,
+            className: cellClassNames(false, false),
+            onClick: (event: React.MouseEvent<HTMLElement>) => press(event, to),
+            children: (
+              <>
+                <MPStateLayer />
+                <span className="relative">{body}</span>
+              </>
+            )
+          }}
+        />
       ) : (
         <button
           type="button"
