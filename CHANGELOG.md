@@ -85,6 +85,8 @@
 
 - **`MPAppLogo`'s page says how to keep a `bare` mark from moving the header.** The mark takes its width from the file and is drawn zero pixels wide until the file arrives. Passing the file's `width` and `height` in `imageProps` reserves the width from their ratio.
 
+- **The size figures in the README and the guide are this build's again.** Every export is 137.5 kB gzipped and the whole stylesheet 174.3 kB, 23.7 kB compressed. The guide said 130.6 kB for every export, which had already grown to 133.7 kB before this release; the rest moved with the fixes above.
+
 ### Fixed
 
 - **`MPOtpField`'s slots stay still as focus moves along them.** The focus ring was a border that grew from one pixel to two, and a slot is the input itself, so on a page with no `box-sizing` reset the focused slot grew by two pixels each way and pushed the slots after it and everything under the field. The second pixel is now an inset ring inside the border, and the ring looks the same.
