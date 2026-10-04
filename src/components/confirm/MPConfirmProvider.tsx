@@ -113,6 +113,18 @@ export function MPConfirmProvider({ defaults, children }: MPConfirmProviderProps
   // others.
   const settle = React.useRef<((answer: boolean) => void) | null>(null);
 
+  /*
+   * The defaults through a ref rather than as a dependency. `defaults` is an
+   * object written inline at the provider — a new one on every render of
+   * whatever holds it — and as a dependency it rebuilt the context value each
+   * time, re-rendering every component under the provider that had asked for
+   * `useMPConfirm`. They are read when a question is raised, which is the only
+   * moment they matter.
+   */
+  const defaultsRef = React.useRef(defaults);
+
+  defaultsRef.current = defaults;
+
   const raise = React.useCallback(
     (options: MPConfirmOptions, acknowledge: boolean) =>
       new Promise<boolean>((resolve) => {
@@ -122,9 +134,9 @@ export function MPConfirmProvider({ defaults, children }: MPConfirmProviderProps
         settle.current?.(false);
         settle.current = resolve;
 
-        setPending({ ...defaults, ...options, acknowledge });
+        setPending({ ...defaultsRef.current, ...options, acknowledge });
       }),
-    [defaults]
+    []
   );
 
   const value = React.useMemo<MPConfirmResult>(

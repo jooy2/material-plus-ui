@@ -71,6 +71,7 @@
 - **A media query is asked once per page, not once per render.** The reduced-motion, colour-scheme and collapse stores built a fresh `MediaQueryList` every time React read them — on every render of every component subscribed, and again to check nothing had changed — so twelve animated lines built seventy-two lists on mount. Each query now has one list, shared. `MPShortcut` likewise reads the platform once rather than rebuilding the user agent string on every render.
 
 - **`MPDateRangePicker` stops rebuilding its second month while the pointer previews a range.** The right-hand month was a new date on every render, and its grid keys forty-two dates and their spoken names on it — so every cell the pointer crossed while a range was half chosen formatted all of them again. Two cells crossed cost ninety dates written; now they cost a handful.
+- **`MPConfirmProvider` no longer re-renders every `useMPConfirm` caller when its parent renders.** `defaults` is usually written inline, so it was a new object each time, and the context value was rebuilt with it. The defaults are now read when a question is raised, which is also when a changed `defaults` takes effect.
 
 ### Documentation
 

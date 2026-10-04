@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { MPConfirmProvider, MPLocaleProvider, useMPConfirm } from 'material-plus-ui';
@@ -252,6 +252,66 @@ describe('useMPConfirm', () => {
 
       await screen.getByRole('button', { name: 'loud' }).click();
       await expect.element(screen.getByRole('button', { name: 'Do it' })).toBeInTheDocument();
+    });
+
+    // Defaults are almost always written inline, so they are a new object on
+    // every render of the provider's parent. That must not reach the callers.
+    it('written inline, leave the callers alone when the parent re-renders', async () => {
+      let renders = 0;
+
+      const Caller = memo(function Caller() {
+        useMPConfirm();
+        renders += 1;
+
+        return null;
+      });
+
+      function Parent() {
+        const [count, setCount] = useState(0);
+
+        return (
+          <MPConfirmProvider defaults={{ confirmLabel: 'Yes please' }}>
+            <button type="button" onClick={() => setCount(count + 1)}>
+              tick {count}
+            </button>
+            <Caller />
+          </MPConfirmProvider>
+        );
+      }
+
+      const screen = await render(<Parent />);
+      const before = renders;
+
+      for (let index = 1; index <= 3; index += 1) {
+        await screen.getByRole('button', { name: /^tick/ }).click();
+        await expect
+          .element(screen.getByRole('button', { name: `tick ${index}` }))
+          .toBeInTheDocument();
+      }
+
+      expect(renders).toBe(before);
+    });
+
+    it('are read when the question is asked, so a later change is the one used', async () => {
+      function Parent() {
+        const [label, setLabel] = useState('First');
+
+        return (
+          <MPConfirmProvider defaults={{ confirmLabel: label }}>
+            <button type="button" onClick={() => setLabel('Second')}>
+              relabel
+            </button>
+            <Asker />
+          </MPConfirmProvider>
+        );
+      }
+
+      const screen = await render(<Parent />);
+
+      await screen.getByRole('button', { name: 'relabel' }).click();
+      await screen.getByRole('button', { name: 'ask' }).click();
+
+      await expect.element(screen.getByRole('button', { name: 'Second' })).toBeInTheDocument();
     });
   });
 
