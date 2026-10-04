@@ -56,6 +56,8 @@ So `buttons="auto"` does two different things, and the difference is what the ab
 
 `buttons="always"` draws both from the first paint, `disabled` rather than gone at an end. That is what a strip whose content arrives from a fetch wants, so the buttons are not appearing under the pointer half a second in.
 
+It is also what a server-rendered page wants. With `auto`, whether the strip overflows is only known once the page has hydrated and measured it, so the server's markup draws no buttons and two inline ones appear afterwards — moving the strip, and anything below it if a button is taller than a row. `always`, or `buttonPlacement="overlay"`, which draws over the strip rather than beside it, moves nothing.
+
 ## The wheel is the page's until you ask for it
 
 A wheel taken from the page is the page's: a reader who meant to scroll past the shelf is held by it instead, which is the most disliked thing a horizontal strip can do. So `wheel` is off by default.

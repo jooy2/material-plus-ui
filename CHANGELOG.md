@@ -60,6 +60,10 @@
 
 - **`MPSnackbarProvider` puts one live region on the page instead of six.** It mounted a Base UI viewport for each of the six positions, so a page carried six regions named "Notifications", re-rendered all six on every message, held six sets of window listeners while one was showing, read a high-priority message out six times, and paused on hover for whichever stack had registered last. One viewport now covers the window, lets every pointer through, and holds a stack for each corner that has a message in it; the region is still there from the first render.
 
+### Documentation
+
+- **`MPScrollZone`'s page says which buttons setting a server-rendered page wants.** With `buttons="auto"` the strip cannot know it overflows until the page has hydrated, so two inline buttons appear afterwards and move the strip; `always` or `buttonPlacement="overlay"` move nothing.
+
 ### Fixed
 
 - **A chart draws a series of any length.** The extents were found with `Math.min(...values)`, which runs out of argument room somewhere past a hundred thousand values and threw instead of drawing. The width estimate for CJK labels was also a character range written out literally, starting at a compatibility ideograph that Unicode normalisation rewrites — so a source decoded or normalised on the way to the page threw "Range out of order" and took every chart with it. It is written as escapes now.
