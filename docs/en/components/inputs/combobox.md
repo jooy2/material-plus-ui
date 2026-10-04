@@ -79,6 +79,14 @@ Off by default: a field that can be cleared in one click is a field that can be 
 
 The most rows the list will show at once. `-1`, the default, is all of them.
 
+Every row the list shows is a real element, with no windowing. A few hundred open at once; a few thousand make a visible pause when the popup opens, and that pause is a long task on the main thread. `limit` is the cap for a long list: it is applied after the filter, so every item is still searched and the reader narrows the list by typing, while the popup only ever draws the first rows that match.
+
+```tsx
+<MPCombobox items={countries} limit={50} />
+```
+
+A list too long to send to the browser at all is a search. Fetch the matches as the reader types and pass them with `filter={null}`, below.
+
 ### filter
 
 Which rows survive the query, in place of the matching this does on its own.
