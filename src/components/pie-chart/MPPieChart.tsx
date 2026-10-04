@@ -8,6 +8,8 @@ import { TABLE } from '../../internal/messages/table';
 import {
   ChartLegend,
   ChartShell,
+  LEGEND_OFF,
+  LEGEND_ON,
   ChartTable,
   ChartTooltipPanel,
   useVisibility,
@@ -336,11 +338,7 @@ export function MPPieChart({
   const options: MPChartTooltip =
     tooltip === false ? { mode: 'none' } : tooltip === true || tooltip === undefined ? {} : tooltip;
   const legendOptions: MPChartLegend =
-    legend === false
-      ? { interactive: false }
-      : legend === true || legend === undefined
-        ? {}
-        : legend;
+    legend === false ? LEGEND_OFF : legend === true || legend === undefined ? LEGEND_ON : legend;
   const showLegend = legend !== false && slices.length > 1;
 
   const nothing = total <= 0;

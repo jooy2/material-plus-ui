@@ -7,6 +7,8 @@ import { TABLE } from './messages/table';
 import {
   ChartLegend,
   ChartShell,
+  LEGEND_OFF,
+  LEGEND_ON,
   ChartTable,
   ChartTooltipPanel,
   useVisibility,
@@ -912,8 +914,18 @@ export function CartesianFrame({
 
   const from = windowed ? windowed[0] : 0;
   const count = windowed ? windowed[1] - windowed[0] + 1 : categoryTotal;
-  const values = windowed ? allValues.map((one) => one.slice(from, from + count)) : allValues;
-  const labels = windowed ? allLabels.slice(from, from + count) : allLabels;
+  const cropped = windowed !== null;
+  /* Kept between renders, because the table behind the picture is memoised on
+     them and a hover is a render: sliced afresh each time, a zoomed chart
+     rebuilt its whole table for every column the pointer crossed. */
+  const values = React.useMemo(
+    () => (cropped ? allValues.map((one) => one.slice(from, from + count)) : allValues),
+    [allValues, cropped, from, count]
+  );
+  const labels = React.useMemo(
+    () => (cropped ? allLabels.slice(from, from + count) : allLabels),
+    [allLabels, cropped, from, count]
+  );
 
   const setRange = (next: readonly [number, number] | null) => {
     if (zoomOptions.range === undefined) {
@@ -1618,11 +1630,7 @@ export function CartesianFrame({
         : categoryPx(activeIndex ?? 0) / Math.max(1, categoryLength)) > 0.6;
 
   const legendOptions: MPChartLegend =
-    legend === false
-      ? { interactive: false }
-      : legend === true || legend === undefined
-        ? {}
-        : legend;
+    legend === false ? LEGEND_OFF : legend === true || legend === undefined ? LEGEND_ON : legend;
   const showLegend = legend === true || (legend !== false && series.length > 1);
   const legendSide = legendOptions.side ?? 'bottom';
 
@@ -1661,10 +1669,13 @@ export function CartesianFrame({
           ? undefined
           : (event) => {
               if (dragRef.current !== null) {
-                drag({
-                  ...dragRef.current,
-                  to: indexAt(event.clientX, event.clientY) ?? dragRef.current.to
-                });
+                const to = indexAt(event.clientX, event.clientY) ?? dragRef.current.to;
+
+                // A new state object is a re-render whether or not it says
+                // anything new, and a drag crosses many pixels per category.
+                if (to !== dragRef.current.to) {
+                  drag({ ...dragRef.current, to });
+                }
 
                 return;
               }
@@ -1684,7 +1695,11 @@ export function CartesianFrame({
               // column, so React bails out of the re-render — but a pointer
               // offset is a fresh pixel on every event, and storing one
               // nothing consults would re-lay the chart out per pixel moved.
-              if (mode === 'item') {
+              //
+              // Nor does a chart of marks consult it, though `item` is its
+              // default: its column is already narrowed to the one mark the
+              // pointer is on, so there is never a nearest row left to pick.
+              if (mode === 'item' && !marks) {
                 setPointer(valueAt(event.clientX, event.clientY));
               }
             },

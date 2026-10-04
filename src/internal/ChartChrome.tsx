@@ -137,10 +137,25 @@ export function useVisibility(series: readonly { hidden?: boolean }[]): Visibili
     });
   }, []);
 
-  return { visible: series.map((_, index) => !hidden.has(index)), hovered, toggle, setHovered };
+  // The same objects until something changes, so the legend — memoised on
+  // them — is not drawn again for every column a hover crosses.
+  const visible = React.useMemo(
+    () => series.map((_, index) => !hidden.has(index)),
+    [series, hidden]
+  );
+
+  return React.useMemo(
+    () => ({ visible, hovered, toggle, setHovered }),
+    [visible, hovered, toggle]
+  );
 }
 
 /* ------------------------------------------------------------------ legend */
+
+/** `legend` left out or `true`, as one object for every render to share. */
+export const LEGEND_ON: MPChartLegend = {};
+/** `legend={false}`, the same way. */
+export const LEGEND_OFF: MPChartLegend = { interactive: false };
 
 const LEGEND_SIDE = {
   top: 'flex-col-reverse',
@@ -195,7 +210,7 @@ interface LegendProps {
  * which a change of hue would not, and `aria-pressed` carries the same fact to
  * a reader who is not looking at all.
  */
-export function ChartLegend({
+export const ChartLegend = React.memo(function ChartLegend({
   names,
   colors,
   options,
@@ -292,7 +307,7 @@ export function ChartLegend({
       })}
     </ul>
   );
-}
+});
 
 /* ----------------------------------------------------------------- tooltip */
 
@@ -447,8 +462,13 @@ interface TableProps {
  * Rendered rather than built on demand, because it is the description of a
  * focusable element: an `aria-describedby` pointing at an id that does not
  * exist yet is an `aria-describedby` pointing at nothing.
+ *
+ * Memoised, because it is the largest thing a chart renders and the one thing a
+ * hover never changes. Every column the pointer crosses re-renders the chart,
+ * and before this every one of them formatted every cell of the table again —
+ * half the cost of a hover on a line chart of a few hundred points.
  */
-export function ChartTable({
+export const ChartTable = React.memo(function ChartTable({
   id,
   caption,
   corner,
@@ -501,7 +521,7 @@ export function ChartTable({
       </table>
     </div>
   );
-}
+});
 
 /* ------------------------------------------------------------------- shell */
 

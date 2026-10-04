@@ -317,7 +317,15 @@ export function MPHeatmapChart({
         onPointerMove:
           nothing || options.mode === 'none'
             ? undefined
-            : (event) => setActive(cellAt(event.clientX, event.clientY)),
+            : (event) => {
+                const next = cellAt(event.clientX, event.clientY);
+
+                // The same cell is the same state: a fresh object for it would
+                // re-render the whole grid for every pixel moved inside one.
+                setActive((now) =>
+                  now && next && now.row === next.row && now.column === next.column ? now : next
+                );
+              },
         onPointerLeave: () => setActive(null),
         onKeyDown: nothing || options.mode === 'none' ? undefined : onKeyDown,
         onBlur: () => setActive(null)

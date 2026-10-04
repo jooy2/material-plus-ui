@@ -12,6 +12,7 @@ import {
   formatStatistic,
   textWidth,
   toValues,
+  valueLabelTest,
   type BarEnd
 } from '../../internal/chart';
 import type { MPChartStack, MPChartValueLabels } from '../../types';
@@ -229,6 +230,7 @@ export function MPBarChart({
 
               const paint = colors[series];
               const dimmed = hovered !== null && hovered !== series;
+              const labelled = valueLabelTest(one, valueLabels, count - 1);
               const place = drawn.indexOf(series);
 
               return (
@@ -339,17 +341,7 @@ export function MPBarChart({
                           return null;
                         }
 
-                        const numbers = one
-                          .map((v) => v.value)
-                          .filter((v): v is number => v !== null);
-                        const written =
-                          valueLabels === 'all' ||
-                          (valueLabels === 'last' && at === count - 1) ||
-                          (valueLabels === 'extremes' &&
-                            (value.value === Math.min(...numbers) ||
-                              value.value === Math.max(...numbers)));
-
-                        if (!written) {
+                        if (!labelled(at)) {
                           return null;
                         }
 

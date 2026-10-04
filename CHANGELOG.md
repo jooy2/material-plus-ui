@@ -14,6 +14,8 @@
 
 - **`MPAnimateCounter` stops reading frames once there is nothing to read.** It follows its animation by reading the counted value back every frame, and stopped only when the animation finished — so a counter waiting for `trigger="visible"`, `manual` or `hover`, or held by `paused`, read the same number sixty times a second for as long as the page was open, and a `timeline="view"` counter kept reading while scrolled out of sight. It now rests while it is held and while a scroll-driven one is off screen.
 
+- **A chart under a moving pointer renders only when what is under the pointer changes.** A scatter and a timeline stored the pointer's position on every move although neither ever reads it, a heatmap stored a fresh cell for every pixel inside one cell, and a zoom drag stored the selection again for every pixel inside one category — and each of those is a render of the whole chart. Nineteen moves over one point cost eighteen renders and now cost at most one. The table behind the picture and the legend no longer render at all on a hover, which was half of what one cost on a line chart, and `valueLabels="extremes"` finds a series' extremes once rather than once per point.
+
 ### Fixed
 
 - **`MPAnimateCounter` writes its number in the provider's language.** It formatted in the runtime's locale unless given a `locale` of its own, so it ignored `MPLocaleProvider` — and on a server-rendered page, wrote the server's language into the markup and the reader's into the first client render.

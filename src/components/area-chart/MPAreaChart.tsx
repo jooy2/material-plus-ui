@@ -8,6 +8,7 @@ import {
   bandPath,
   bridgePath,
   linePath,
+  valueLabelTest,
   withoutGaps,
   type PlotPoint
 } from '../../internal/chart';
@@ -252,6 +253,7 @@ export function MPAreaChart({
               const { top, base } = edges[index];
               const paint = colors[index];
               const dimmed = hovered !== null && hovered !== index;
+              const labelled = valueLabelTest(one, valueLabels);
 
               return (
                 <g key={index} opacity={dimmed ? 0.25 : 1}>
@@ -325,16 +327,7 @@ export function MPAreaChart({
                           return null;
                         }
 
-                        const real = one.filter((v) => v.value !== null);
-                        const numbers = real.map((v) => v.value as number);
-                        const written =
-                          valueLabels === 'all' ||
-                          (valueLabels === 'last' && value === real[real.length - 1]) ||
-                          (valueLabels === 'extremes' &&
-                            (value.value === Math.min(...numbers) ||
-                              value.value === Math.max(...numbers)));
-
-                        if (!written) {
+                        if (!labelled(i)) {
                           return null;
                         }
 

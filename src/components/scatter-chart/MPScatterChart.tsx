@@ -89,6 +89,28 @@ export function MPScatterChart({
   const shapeOf = (index: number): MPChartMarkShape =>
     shapes ? MARK_SHAPES[index % MARK_SHAPES.length] : 'circle';
 
+  // The legend's swatch is the mark's own shape, not a dot. A legend whose
+  // swatches are all circles is a legend that only carries the colour, and the
+  // shape is here precisely because the colour runs out. Kept between renders,
+  // because the legend is memoised and a hover is a render.
+  const swatch = React.useCallback(
+    (index: number, color: string) => {
+      const shape = shapes ? MARK_SHAPES[index % MARK_SHAPES.length] : 'circle';
+
+      return (
+        <svg width={10} height={10} viewBox="0 0 10 10" aria-hidden="true" className="block">
+          <path
+            d={markPath(shape, 5, 5, 4)}
+            fill={shape === 'cross' ? 'none' : color}
+            stroke={color}
+            strokeWidth={shape === 'cross' ? 1.5 : 0}
+          />
+        </svg>
+      );
+    },
+    [shapes]
+  );
+
   return (
     <CartesianFrame
       {...frame}
@@ -130,19 +152,7 @@ export function MPScatterChart({
             : []
         );
       }}
-      // The legend's swatch is the mark's own shape, not a dot. A legend whose
-      // swatches are all circles is a legend that only carries the colour, and
-      // the shape is here precisely because the colour runs out.
-      swatch={(index, color) => (
-        <svg width={10} height={10} viewBox="0 0 10 10" aria-hidden="true" className="block">
-          <path
-            d={markPath(shapeOf(index), 5, 5, 4)}
-            fill={shapeOf(index) === 'cross' ? 'none' : color}
-            stroke={color}
-            strokeWidth={shapeOf(index) === 'cross' ? 1.5 : 0}
-          />
-        </svg>
-      )}
+      swatch={swatch}
     >
       {({ marks, colors, activeMark, hovered }) => (
         <g className="mp-scatter-chart__marks">

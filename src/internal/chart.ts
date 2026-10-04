@@ -6,6 +6,7 @@ import type {
   MPChartDatum,
   MPChartSeries,
   MPChartTickLabels,
+  MPChartValueLabels,
   MPColor,
   MPSize
 } from '../types';
@@ -1079,6 +1080,58 @@ export function categoryAt(
   }
 
   return index;
+}
+
+/**
+ * Which points of one series `valueLabels` writes a number beside, as a test
+ * on a point's index.
+ *
+ * Worked out once per series. Asked of each point in turn, the extremes meant
+ * filtering and spreading the whole series again for every point — quadratic in
+ * its length, on every render a hover makes.
+ *
+ * `last` is the index `last` names. Left out, it is the last point that has a
+ * value, which is what a line means by it; a bar chart names its last slot.
+ */
+export function valueLabelTest(
+  series: readonly ChartValue[],
+  mode: MPChartValueLabels,
+  last?: number
+): (index: number) => boolean {
+  if (mode === 'all') {
+    return () => true;
+  }
+
+  if (mode === 'last') {
+    let at = last ?? -1;
+
+    if (last === undefined) {
+      for (let index = series.length - 1; index >= 0; index--) {
+        if (series[index].value !== null) {
+          at = index;
+          break;
+        }
+      }
+    }
+
+    return (index) => index === at;
+  }
+
+  if (mode !== 'extremes') {
+    return () => false;
+  }
+
+  let min = Infinity;
+  let max = -Infinity;
+
+  for (const one of series) {
+    if (one.value !== null) {
+      min = Math.min(min, one.value);
+      max = Math.max(max, one.value);
+    }
+  }
+
+  return (index) => series[index]?.value === min || series[index]?.value === max;
 }
 
 /**
