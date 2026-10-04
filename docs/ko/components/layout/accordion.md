@@ -125,6 +125,7 @@ import { MPAccordion, MPAccordionItem } from 'material-plus-ui';
 ## 접근성
 
 - 각 헤더는 제목 행 안의 진짜 `<button>`이고, `aria-expanded`와 자기 패널을 가리키는 `aria-controls`를 가집니다. 전부 Base UI가 연결합니다.
+- 그 제목 행은 `headingLevel`로 바꾸지 않으면 `<h3>`입니다. 아코디언이 놓인 제목보다 한 단계 아래로 지정해서 페이지의 개요가 단계를 건너뛰지 않게 하세요. 스크린 리더는 제목으로 페이지를 이동하고, 검색 엔진은 제목에서 페이지 구조를 읽습니다.
 - 헤더 사이 이동은 화살표 키가 아니라 Tab입니다. 아코디언 패턴에서 roving focus를 없앤 [APG 자신의 개정](https://github.com/w3c/aria-practices/pull/3434)을 따른 것으로, Base UI가 현행 지침을 구현하고 있고 이 컴포넌트는 그 위에 두 번째 규칙을 얹지 않습니다.
 - `action`은 트리거 바깥에 있으므로, 키보드 사용자는 접힘과 그 위의 컨트롤을 별개의 정지점 두 개로 만납니다.
 - 호버·포커스·프레스는 머터리얼의 state layer라서, 다섯 표면 어디에서나 헤더가 똑같이 읽힙니다.

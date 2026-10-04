@@ -276,4 +276,35 @@ describe('MPAccordion', () => {
       );
     });
   });
+
+  describe('headingLevel', () => {
+    it('writes each title as an `h3` by default', async () => {
+      const screen = await render(
+        <MPAccordion>
+          <MPAccordionItem value="a" title="Delivery">
+            Text
+          </MPAccordionItem>
+        </MPAccordion>
+      );
+
+      expect(screen.getByRole('heading', { level: 3, name: 'Delivery' }).query()).not.toBeNull();
+    });
+
+    it('writes them at the level the page asks for', async () => {
+      const screen = await render(
+        <MPAccordion headingLevel={2}>
+          <MPAccordionItem value="a" title="Delivery">
+            Text
+          </MPAccordionItem>
+          <MPAccordionItem value="b" title="Returns">
+            Text
+          </MPAccordionItem>
+        </MPAccordion>
+      );
+
+      expect(screen.container.querySelectorAll('h2')).toHaveLength(2);
+      expect(screen.container.querySelector('h3')).toBeNull();
+      expect(screen.getByRole('button', { name: /Delivery/ }).query()).not.toBeNull();
+    });
+  });
 });

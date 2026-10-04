@@ -34,13 +34,28 @@ interface MPAccordionContextValue {
   size: MPSize;
   density: MPDensity;
   dividers: boolean;
+  headingLevel: MPAccordionHeadingLevel;
 }
 
 const MPAccordionContext = React.createContext<MPAccordionContextValue>({
   size: 'md',
   density: 0,
-  dividers: true
+  dividers: true,
+  headingLevel: 3
 });
+
+/** The heading level each section's title is written at. */
+export type MPAccordionHeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
+
+/** The element for each level, as constants so a render is not a new element. */
+const HEADINGS: Record<MPAccordionHeadingLevel, React.ReactElement> = {
+  1: <h1 />,
+  2: <h2 />,
+  3: <h3 />,
+  4: <h4 />,
+  5: <h5 />,
+  6: <h6 />
+};
 
 export interface MPAccordionProps extends Omit<
   React.ComponentPropsWithoutRef<'div'>,
@@ -113,6 +128,17 @@ export interface MPAccordionProps extends Omit<
    * @default false
    */
   keepMounted?: boolean;
+  /**
+   * The heading level each section's title is written at.
+   *
+   * Each title is a heading, because a section of a page is what it names, and
+   * the level is the page's to decide: an accordion of questions under an `h2`
+   * is a run of `h3`s, and the same accordion under an `h3` is a run of `h4`s.
+   * A level that skips one breaks the outline a screen reader navigates by and a
+   * search engine reads the page's structure from.
+   * @default 3
+   */
+  headingLevel?: MPAccordionHeadingLevel;
   /** The `MPAccordionItem`s. */
   children?: React.ReactNode;
 }
@@ -269,6 +295,7 @@ export const MPAccordion = React.forwardRef<HTMLDivElement, MPAccordionProps>(fu
     density: densityProp,
     hiddenUntilFound = false,
     keepMounted = false,
+    headingLevel = 3,
     className,
     children,
     ...props
@@ -277,7 +304,10 @@ export const MPAccordion = React.forwardRef<HTMLDivElement, MPAccordionProps>(fu
 ) {
   const size = useMPSize(sizeProp);
   const density = useMPDensity(densityProp);
-  const context = React.useMemo(() => ({ size, density, dividers }), [size, density, dividers]);
+  const context = React.useMemo(
+    () => ({ size, density, dividers, headingLevel }),
+    [size, density, dividers, headingLevel]
+  );
 
   return (
     <MPAccordionContext.Provider value={context}>
@@ -328,7 +358,7 @@ export const MPAccordionItem = React.forwardRef<HTMLDivElement, MPAccordionItemP
     { value, title, subtitle, startIcon, action, disabled = false, className, children, ...props },
     ref
   ) {
-    const { size, density, dividers } = React.useContext(MPAccordionContext);
+    const { size, density, dividers, headingLevel } = React.useContext(MPAccordionContext);
 
     const padX = sheetPadX(size, density);
     const padY = sheetPadY(size, density);
@@ -370,7 +400,10 @@ export const MPAccordionItem = React.forwardRef<HTMLDivElement, MPAccordionItemP
         className={['mp-accordion__item flex flex-col', className ?? ''].filter(Boolean).join(' ')}
         {...props}
       >
-        <Accordion.Header className="m-0 flex w-full items-center font-[inherit]">
+        <Accordion.Header
+          render={HEADINGS[headingLevel] ?? HEADINGS[3]}
+          className="m-0 flex w-full items-center font-[inherit]"
+        >
           <Accordion.Trigger
             className={[
               'group relative flex min-w-0 flex-1 cursor-pointer items-center text-start',

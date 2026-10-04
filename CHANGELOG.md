@@ -4,6 +4,8 @@
 
 ### Added
 
+- **`MPAccordion` takes `headingLevel`.** Each section's title is a heading, and it was always an `<h3>` — so an accordion under an `<h3>` of its own, or directly under the page's `<h1>`, broke the outline a screen reader navigates by and a search engine reads a page's structure from. The default is still `3`.
+
 - **`MPDrawer` and `MPSidebar` take `keepMounted`.** A closed modal drawer is not in the page, so below `collapseBelow` a sidebar's links left the document a crawler renders at a phone's width. With `keepMounted` a closed drawer's contents stay in the document, hidden.
 
 - **`MPNavigationMenu` takes `keepMounted`, for the links a crawler should find.** A closed panel is not in the page at all, so links that exist only inside one were in neither the HTML a server sent nor the document a crawler rendered. With `keepMounted` every panel's links are in the server's markup, hidden, and stay in the document after a panel has opened and closed.

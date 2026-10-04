@@ -125,6 +125,7 @@ Leaves closed panels in the DOM as `hidden="until-found"`, so the browser's own 
 ## Accessibility
 
 - Each header is a real `<button>` inside a heading row, with `aria-expanded` and an `aria-controls` pointing at its panel — all wired by Base UI.
+- That heading is an `<h3>` unless `headingLevel` says otherwise. Set it to one below the heading the accordion sits under, so the page's outline does not skip a level: a screen reader moves through a page by its headings, and a search engine reads its structure from them.
 - Focus moves between headers with Tab rather than with the arrow keys. That follows [the APG's own revision](https://github.com/w3c/aria-practices/pull/3434), which removed roving focus from the accordion pattern; Base UI implements the current guidance and this component does not add a second one on top.
 - `action` is outside the trigger, so a keyboard reader reaches the fold and the control on it as two separate stops.
 - Hover, focus and press are Material's state layer, so a header reads the same on all five surfaces.

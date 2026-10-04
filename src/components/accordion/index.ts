@@ -1,2 +1,6 @@
 export { MPAccordion, MPAccordionItem } from './MPAccordion';
-export type { MPAccordionItemProps, MPAccordionProps } from './MPAccordion';
+export type {
+  MPAccordionHeadingLevel,
+  MPAccordionItemProps,
+  MPAccordionProps
+} from './MPAccordion';
