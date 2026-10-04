@@ -114,11 +114,25 @@ function flatten(
  */
 const fold = (text: string) => text.trim().toLocaleLowerCase();
 
+/**
+ * Each node's folded text, worked out once per node rather than once per node
+ * per keystroke. Keyed by the node object, which a caller's tree keeps between
+ * renders, and forgotten with it.
+ */
+const folded = new WeakMap<MPTreeSelectItem, string>();
+
 /** What a node is matched against. */
 function haystackOf(item: MPTreeSelectItem): string {
-  return fold(
-    item.searchLabel ?? (typeof item.label === 'string' ? item.label : String(item.value))
-  );
+  let text = folded.get(item);
+
+  if (text === undefined) {
+    text = fold(
+      item.searchLabel ?? (typeof item.label === 'string' ? item.label : String(item.value))
+    );
+    folded.set(item, text);
+  }
+
+  return text;
 }
 
 /**
@@ -258,7 +272,10 @@ export const MPTreeSelect = React.forwardRef<HTMLButtonElement, MPTreeSelectProp
     const [query, setQuery] = React.useState('');
 
     const byValue = React.useMemo(() => flatten(items), [items]);
-    const needle = fold(query);
+    // Deferred, so the letter typed is drawn in the field straight away and the
+    // tree — a one-letter query can open most of a large one — catches up in
+    // the time left over, rather than holding the keystroke until it has.
+    const needle = fold(React.useDeferredValue(query));
     const shown = React.useMemo(() => filterTree(items, needle), [items, needle]);
 
     // A search opens every branch it kept: a match folded inside a shut parent

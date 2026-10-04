@@ -261,6 +261,24 @@ describe('MPTreeSelect', () => {
     await vi.waitFor(() => expect(rows()).toEqual(['asia', 'korea', 'seoul']));
   });
 
+  it('folds each node once, not once per keystroke', async () => {
+    // Every keystroke folded every node's label again before comparing it.
+    const screen = await render(<MPTreeSelect label="Region" items={ITEMS} searchable />);
+
+    await open(screen);
+    await search(screen, 'k');
+    await vi.waitFor(() => expect(rows()).toContain('korea'));
+
+    const folds = vi.spyOn(String.prototype, 'toLocaleLowerCase');
+
+    await search(screen, 'ko');
+    await vi.waitFor(() => expect(rows()).toContain('korea'));
+
+    // The query, folded, and nothing for the nodes it is compared against.
+    expect(folds.mock.calls.length).toBeLessThanOrEqual(2);
+    folds.mockRestore();
+  });
+
   it('opens every branch a search kept', async () => {
     // A match folded inside a shut parent is a match the reader was not shown.
     const screen = await render(<MPTreeSelect label="Region" items={ITEMS} searchable />);
