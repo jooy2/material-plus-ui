@@ -353,7 +353,20 @@ export const MPCarousel = React.forwardRef<HTMLDivElement, MPCarouselProps>(func
       return;
     }
 
-    track.scrollTo({ left });
+    /*
+     * Instantly when none of the strip is on screen. Firefox does not run a
+     * smooth scroll in a box nobody can see, so a slide chosen while the strip
+     * was scrolled away stayed where it was and only travelled once the reader
+     * came back to it. Nobody is watching that travel anyway.
+     */
+    const box = track.getBoundingClientRect();
+    const hidden =
+      box.bottom <= 0 ||
+      box.right <= 0 ||
+      box.top >= window.innerHeight ||
+      box.left >= window.innerWidth;
+
+    track.scrollTo(hidden ? { left, behavior: 'instant' } : { left });
 
     settling.current = true;
     const timer = window.setTimeout(() => {
@@ -376,6 +389,10 @@ export const MPCarousel = React.forwardRef<HTMLDivElement, MPCarouselProps>(func
     if (!autoPlay || !track || typeof IntersectionObserver === 'undefined') {
       return;
     }
+
+    // Off until the observer has answered. Assumed on, a carousel mounted out
+    // of view could turn a slide before the first answer arrived.
+    onScreen.current = false;
 
     const stop = watchIntersection(track, (entry) => {
       onScreen.current = entry.isIntersecting;

@@ -117,7 +117,7 @@
 
 - **An `MPAnimate*` entrance waiting for its trigger shows its content on a page read without JavaScript.** With `trigger="visible"`, `manual` or `hover` the content sits on the entrance's first frame, at `opacity: 0` or clipped, until script starts it — and with scripting off nothing ever does, so the content was in the markup and visible to nobody. The entrance is now dropped under `@media (scripting: none)`, as it already was under `prefers-reduced-motion`.
 
-- **`MPCarousel` scrolls its own strip and never the page.** It turned a slide with `scrollIntoView`, which scrolls every container the slide is inside — so each slide an autoplaying carousel turned pulled the page back to the carousel, while the reader was reading something else. Autoplay also holds while the carousel is scrolled out of view now, as it already did in a background tab.
+- **`MPCarousel` scrolls its own strip and never the page.** It turned a slide with `scrollIntoView`, which scrolls every container the slide is inside — so each slide an autoplaying carousel turned pulled the page back to the carousel, while the reader was reading something else. Autoplay also holds while the carousel is scrolled out of view now, as it already did in a background tab. A slide chosen while the strip is out of view is turned at once, because Firefox does not run a smooth scroll nobody can see.
 
 - **`MPCarousel` opens on `defaultValue` or `value`.** A carousel asked to open on its third slide showed the first, while its marks and its live region said the third.
 
