@@ -17,7 +17,6 @@ export default function SegmentedButtonMultiple() {
       <MPSegmentedButton
         aria-label="Repeat on"
         multiple
-        size="sm"
         value={days}
         onValueChange={setDays}
         items={[

@@ -24,7 +24,6 @@ export default function BottomNavigationLabels() {
     <div style={{ display: 'grid', gap: 16, width: '100%', maxWidth: 420 }}>
       <MPSegmentedButton
         aria-label="Label behaviour"
-        size="sm"
         value={labels}
         onValueChange={setLabels}
         items={[

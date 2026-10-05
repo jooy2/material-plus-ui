@@ -173,7 +173,6 @@ export default function SignupConcept() {
             <div style={{ display: 'grid', gap: 14 }}>
               {/* One of a small, visible set — nothing to open. */}
               <MPSegmentedButton
-                size="sm"
                 items={[
                   { value: 'personal', label: 'Personal' },
                   { value: 'team', label: 'Team' }

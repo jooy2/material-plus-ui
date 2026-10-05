@@ -2,6 +2,10 @@
 
 ## vNext (2026--)
 
+### Breaking changes
+
+- **`MPSegmentedButton` is MD3's 40px at `md`, on a ladder of its own.** It took the control ladder a button walks, which put the specification's 40dp at `sm` and made the default a 56px pill. Its rungs are now 32, 36, 40, 48 and 56px. What `sm` drew is now `md`, and what `md` drew is `xl`: pass `size="xl"` to keep a 56px set. There is no 64px or 72px set any more.
+
 ### Changed
 
 - **`color` on `MPTable` and `MPTreeSelect` is deprecated, because it never did anything.** A table's rows are neutral on purpose, since a table that tints its rows colours its data, and a tree select's chosen row is `secondary-container`, as an `MPSelect`'s chosen option is. Both props still compile, and both are due to be removed in the next major version.

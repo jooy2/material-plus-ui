@@ -458,7 +458,6 @@ export default function LandingConcept() {
             </MPTypography>
 
             <MPSegmentedButton
-              size="sm"
               items={[
                 { value: 'monthly', label: 'Monthly' },
                 { value: 'yearly', label: 'Yearly' }

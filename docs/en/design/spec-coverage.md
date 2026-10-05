@@ -164,7 +164,7 @@ There is no `success`, `info` or `warning` family, on purpose. M3 defines no suc
 | --- | --- | --- | --- |
 | Single and multiple selection | M3 (replaced in Expressive) | ✓ | ✓ `ToggleButtonGroup` |
 | Icon, label and a check mark when selected | M3 (replaced in Expressive) | ✓ `showCheck` | Partial: no check mark |
-| 40dp height | M3 (replaced in Expressive) | ✓ `sm` (the default `md` is 56) | — |
+| 40dp height | M3 (replaced in Expressive) | ✓ `md` | — |
 | Density | M3 (replaced in Expressive) | — | Partial: `size` |
 | Five sizes | Material Plus | ✓ | Partial: three |
 

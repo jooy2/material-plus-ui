@@ -31,7 +31,6 @@ export default function DatePickerLocale() {
         value={[locale]}
         onValueChange={([next]) => setLocale(next ?? locale)}
         aria-label="Locale"
-        size="sm"
         showCheck={false}
         fullWidth
       />

@@ -2342,7 +2342,13 @@ const componentTables: Record<string, PropRow[]> = {
         en: 'Whether a chosen segment shows a tick. The slot is reserved either way, so choosing one does not push the label sideways'
       }
     },
-    size,
+    {
+      ...size,
+      description: {
+        ko: '높이와 글자 크기. MD3의 40dp를 중심에 둔 자기 사다리로 32, 36, 40, 48, 56px입니다. `xs`, `md`, `xl`은 컨트롤 사다리의 `xs`, `sm`, `md`와 같습니다',
+        en: 'The height and type scale, on a ladder of its own centred on MD3’s 40dp: 32, 36, 40, 48 and 56px. `xs`, `md` and `xl` are the control ladder’s `xs`, `sm` and `md`'
+      }
+    },
     fullWidth,
     disabled
   ],

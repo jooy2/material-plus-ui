@@ -40,7 +40,6 @@ export default function LocaleProviderDemo() {
         value={[locale]}
         onValueChange={([next]) => setLocale(next ?? locale)}
         aria-label="Locale"
-        size="sm"
         showCheck={false}
         fullWidth
       />

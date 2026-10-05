@@ -20,7 +20,6 @@ export default function ImageFit() {
     <div style={{ display: 'grid', gap: 16, width: '100%' }}>
       <MPSegmentedButton
         aria-label="Fit"
-        size="sm"
         value={choice}
         onValueChange={setChoice}
         items={FITS.map((name) => ({ value: name, label: name }))}

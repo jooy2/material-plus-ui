@@ -182,7 +182,7 @@ describe('MPSegmentedButton', () => {
   });
 
   describe('the size ladder', () => {
-    it('grows monotonically, on the same rungs a button uses', async () => {
+    it('grows monotonically', async () => {
       const screen = await render(<ControlledSet size="xs" />);
       const heightOf = () =>
         document.querySelector('.mp-segmented-button')!.getBoundingClientRect().height;
@@ -199,6 +199,20 @@ describe('MPSegmentedButton', () => {
         expect(next, `${size} should be taller than the step below it`).toBeGreaterThan(previous);
         previous = next;
       }
+    });
+
+    // It took the control ladder, which put MD3's 40dp at `sm` and made the
+    // default a 56px pill.
+    it('is MD3’s 40dp at md, and keeps the old 56px at xl', async () => {
+      const screen = await render(<ControlledSet />);
+      const heightOf = () =>
+        document.querySelector('.mp-segmented-button')!.getBoundingClientRect().height;
+
+      expect(heightOf()).toBe(40);
+
+      await screen.rerender(<ControlledSet size="xl" />);
+
+      expect(heightOf()).toBe(56);
     });
 
     it('divides the width evenly when fullWidth', async () => {

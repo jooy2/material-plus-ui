@@ -164,7 +164,7 @@ order: 5
 | --- | --- | --- | --- |
 | 단일 선택과 다중 선택 | M3 (Expressive에서 대체) | ✓ | ✓ `ToggleButtonGroup` |
 | 아이콘, 레이블, 선택 시 체크 표시 | M3 (Expressive에서 대체) | ✓ `showCheck` | 부분: 체크 표시 없음 |
-| 높이 40dp | M3 (Expressive에서 대체) | ✓ `sm`(기본값 `md`는 56) | — |
+| 높이 40dp | M3 (Expressive에서 대체) | ✓ `md` | — |
 | 밀도 | M3 (Expressive에서 대체) | — | 부분: `size` |
 | 다섯 크기 | Material Plus | ✓ | 부분: 세 크기 |
 

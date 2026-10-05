@@ -295,7 +295,6 @@ function SegmentedButtonPreview() {
   return (
     <MPSegmentedButton
       aria-label="View"
-      size="sm"
       value={view}
       onValueChange={setView}
       items={[

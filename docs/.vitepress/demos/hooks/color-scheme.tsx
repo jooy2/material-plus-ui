@@ -21,7 +21,6 @@ export default function ColorSchemeDemo() {
   return (
     <div style={{ display: 'grid', gap: 16, justifyItems: 'start' }}>
       <MPSegmentedButton
-        size="sm"
         items={[
           { value: 'light', label: 'Light' },
           { value: 'dark', label: 'Dark' },

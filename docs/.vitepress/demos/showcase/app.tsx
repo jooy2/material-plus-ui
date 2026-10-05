@@ -277,7 +277,6 @@ function Controls() {
       }}
     >
       <MPSegmentedButton
-        size="sm"
         items={[
           { value: '24h', label: '24h' },
           { value: '7d', label: '7 days' },

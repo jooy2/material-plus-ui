@@ -4,15 +4,8 @@ import { ToggleGroup } from '@base-ui/react/toggle-group';
 import { MPIcon } from '../icon/MPIcon';
 import { CheckIcon } from '../../constants/icons';
 import { MPStateLayer } from '../../internal/StateLayer';
-import {
-  CONTROL_GAP,
-  CONTROL_HEIGHT,
-  CONTROL_ICON,
-  CONTROL_PAD_X,
-  CONTROL_TEXT
-} from '../../internal/scale';
 import { useMPSize } from '../../internal/config';
-import type { MPStyleProps } from '../../types';
+import type { MPSize, MPStyleProps } from '../../types';
 
 export interface MPSegment {
   /** Identifies the segment. What `onValueChange` reports. */
@@ -75,6 +68,63 @@ export interface MPSegmentedButtonProps extends MPStyleProps {
 }
 
 /**
+ * A segmented button's height, on a ladder of its own rather than the control
+ * one.
+ *
+ * MD3 draws a segmented button at 40dp, and on `CONTROL_HEIGHT` 40 is `sm` — so
+ * the control ladder put the specification's segmented button a rung below its
+ * default and made `md` a 56px pill. `MPChip` answers the same question the
+ * same way: the ladder is centred on the specification's own number.
+ *
+ * `xs`, `md` and `xl` are the control ladder's `xs`, `sm` and `md` exactly —
+ * height, type, padding and glyph — so a set lines up with a button or a field
+ * drawn at those rungs. `sm` and `lg` sit between them.
+ */
+const HEIGHT: Record<MPSize, string> = {
+  xs: 'h-8',
+  sm: 'h-9',
+  md: 'h-10',
+  lg: 'h-12',
+  xl: 'h-14'
+};
+
+/** `label-large` up to MD3's own rung, as the specification sets it there. */
+const TEXT: Record<MPSize, string> = {
+  xs: 'text-mp-label-large',
+  sm: 'text-mp-label-large',
+  md: 'text-mp-label-large',
+  lg: 'text-mp-title-medium',
+  xl: 'text-mp-title-medium'
+};
+
+/** At least MD3's 12dp a side, growing with the pill as a button's does. */
+const PAD_X: Record<MPSize, string> = {
+  xs: 'px-3',
+  sm: 'px-3.5',
+  md: 'px-4',
+  lg: 'px-5',
+  xl: 'px-6'
+};
+
+/** MD3's 8dp between a segment's glyph and its label, at `md`. */
+const GAP: Record<MPSize, string> = {
+  xs: 'gap-1.5',
+  sm: 'gap-1.5',
+  md: 'gap-2',
+  lg: 'gap-2',
+  xl: 'gap-2'
+};
+
+/** MD3's 18dp glyph at `md`, in CSS pixels for `MPIcon`. */
+const ICON: Record<MPSize, number> = {
+  xs: 16,
+  sm: 18,
+  md: 18,
+  lg: 20,
+  xl: 20
+};
+
+/**
  * A Material Design segmented button: two to five choices in one pill.
  *
  * The container is a hairline `outline` with the segments divided by more of the
@@ -131,7 +181,7 @@ export const MPSegmentedButton = React.forwardRef<HTMLDivElement, MPSegmentedBut
           'overflow-hidden border',
           disabled ? 'border-mp-on-surface/12' : 'border-mp-outline',
           fullWidth ? 'flex w-full' : 'inline-flex w-fit',
-          CONTROL_HEIGHT[size],
+          HEIGHT[size],
           className ?? ''
         ]
           .filter(Boolean)
@@ -157,9 +207,9 @@ export const MPSegmentedButton = React.forwardRef<HTMLDivElement, MPSegmentedBut
                 // below its text and the others give up the difference.
                 'appearance-none overflow-hidden outline-none',
                 'transition-[background-color,color] duration-(--mp-sys-motion-duration-short4)',
-                CONTROL_TEXT[size],
-                CONTROL_GAP[size],
-                CONTROL_PAD_X[size],
+                TEXT[size],
+                GAP[size],
+                PAD_X[size],
                 // The divider is the segment's own leading edge, so it lands
                 // between every pair and never at either end of the run.
                 // Every side is named, rather than a `border-0` under a `border-s`:
@@ -185,7 +235,7 @@ export const MPSegmentedButton = React.forwardRef<HTMLDivElement, MPSegmentedBut
               {showCheck || item.icon ? (
                 <span
                   className="relative flex shrink-0 items-center justify-center"
-                  style={{ width: CONTROL_ICON[size], height: CONTROL_ICON[size] }}
+                  style={{ width: ICON[size], height: ICON[size] }}
                 >
                   {/*
                    * Both glyphs are in the DOM and one of them is transparent,
@@ -220,7 +270,7 @@ export const MPSegmentedButton = React.forwardRef<HTMLDivElement, MPSegmentedBut
                         'ease-mp-standard group-data-pressed:opacity-100'
                       ].join(' ')}
                     >
-                      <MPIcon icon={CheckIcon} size={CONTROL_ICON[size]} />
+                      <MPIcon icon={CheckIcon} size={ICON[size]} />
                     </span>
                   ) : null}
                   {item.icon ? (

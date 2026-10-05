@@ -50,6 +50,20 @@ That reservation is the point. A tick that appeared from nothing would push the 
 
 An `icon` on an item shares the same slot: it is what the segment shows until it is chosen, and the tick replaces it. So the width never changes either way.
 
+## size
+
+A ladder of its own, centred on MD3's 40dp the way [MPChip](../display/chip)'s is centred on its 32dp:
+
+| `size`   | Height   |
+| -------- | -------- |
+| `xs`     | 32px     |
+| `sm`     | 36px     |
+| **`md`** | **40px** |
+| `lg`     | 48px     |
+| `xl`     | 56px     |
+
+The control ladder a button walks would put the specification's segmented button at `sm` and make the default a 56px pill. `xs`, `md` and `xl` are that ladder's `xs`, `sm` and `md` exactly — height, type, padding and glyph — so a set lines up with a button or a field drawn at those rungs.
+
 ## When this is the wrong component
 
 **At more than five segments**, use [MPSelect](../inputs/select). The labels stop fitting and the set starts wrapping, and a segmented button that has wrapped to two lines has lost the one thing it was for.

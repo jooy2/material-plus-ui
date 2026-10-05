@@ -24,14 +24,12 @@ export default function ImageRotate() {
     <div style={{ display: 'grid', gap: 16, justifyItems: 'start' }}>
       <MPSegmentedButton
         aria-label="Rotate"
-        size="sm"
         value={turn}
         onValueChange={setTurn}
         items={TURNS.map((degrees) => ({ value: String(degrees), label: `${degrees}°` }))}
       />
       <MPSegmentedButton
         aria-label="Flip"
-        size="sm"
         value={mirror}
         onValueChange={setMirror}
         items={FLIPS.map((name) => ({ value: name, label: name }))}

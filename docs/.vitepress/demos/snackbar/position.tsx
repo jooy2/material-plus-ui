@@ -26,7 +26,6 @@ export default function SnackbarPosition() {
     <div style={{ display: 'grid', gap: 16, justifyItems: 'start' }}>
       <MPSegmentedButton
         aria-label="Position"
-        size="sm"
         value={position}
         onValueChange={setPosition}
         items={POSITIONS.map((name) => ({ value: name, label: name }))}

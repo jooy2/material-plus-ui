@@ -28,7 +28,6 @@ export default function ConfigHero() {
       <div style={{ display: 'grid', gap: 8, justifyItems: 'start' }}>
         <MPTypography level="overline">The provider</MPTypography>
         <MPSegmentedButton
-          size="sm"
           items={(['xs', 'sm', 'md', 'lg', 'xl'] as const).map((value) => ({
             value,
             label: value
@@ -37,7 +36,6 @@ export default function ConfigHero() {
           onValueChange={([value]) => value && setSize(value as MPSize)}
         />
         <MPSegmentedButton
-          size="sm"
           items={(['primary', 'secondary', 'tertiary', 'error'] as const).map((value) => ({
             value,
             label: value
