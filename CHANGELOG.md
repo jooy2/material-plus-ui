@@ -6,6 +6,8 @@
 
 - **`color` on `MPTable` and `MPTreeSelect` is deprecated, because it never did anything.** A table's rows are neutral on purpose, since a table that tints its rows colours its data, and a tree select's chosen row is `secondary-container`, as an `MPSelect`'s chosen option is. Both props still compile, and both are due to be removed in the next major version.
 
+- **An indeterminate `MPProgressLinear` moves on the library's own motion tokens.** Each bar's leading and trailing edge now travel separately, the head on `standard` and the tail on `standard-accelerate`, over a cycle of two `extra-long4`s, so a page that retunes its motion retunes the indicator with it. It is still a long sweep followed by a short one that catches up; the timing is new.
+
 ### Documentation
 
 - **A page on how far the library follows the specification.** Design › Spec coverage lists, component by component, what Material Design 3 and M3 Expressive define, which of it is here, what the library adds, and what Material UI offers for the same need.

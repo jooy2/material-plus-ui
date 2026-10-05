@@ -3117,40 +3117,70 @@
  *
  * MD3's indeterminate bar is a long sweep followed by a short one that catches
  * up — the second is what keeps the track from being empty for most of the
- * cycle. Both are written as `inset-inline-*` rather than as a translate so
- * that the whole thing runs the other way under RTL without a second rule.
+ * cycle. What makes a sweep read as one is that its two edges do not move
+ * together: the head leaves first and settles, the tail lingers and then
+ * hurries after it, so the bar stretches across the track and gathers itself
+ * up at the far end. So each edge is an animation of its own, on a curve of its
+ * own, and a bar wears two of them.
+ *
+ * The curves are the library's tokens rather than numbers of this rule's own —
+ * `standard` for a head, which leaves quickly and arrives slowly, and
+ * `standard-accelerate` for a tail — and the cycle is two `extra-long4`s. A
+ * page that retunes its motion retunes this with it.
+ *
+ * Every edge runs the full cycle, with its pauses written as keyframes that
+ * hold, so the four stay in step however long a cycle is. A bar is zero wide
+ * at both ends of the cycle, which is what lets each loop start over without a
+ * visible jump.
+ *
+ * Both edges are `inset-inline-*` rather than a translate, so that the whole
+ * thing runs the other way under RTL without a second rule.
  */
-@keyframes mp-progress-linear-lead {
+@keyframes mp-progress-linear-lead-head {
   0% {
-    inset-inline-start: -35%;
     inset-inline-end: 100%;
   }
 
-  60% {
-    inset-inline-start: 100%;
-    inset-inline-end: -90%;
-  }
-
+  50%,
   100% {
-    inset-inline-start: 100%;
-    inset-inline-end: -90%;
+    inset-inline-end: 0%;
   }
 }
 
-@keyframes mp-progress-linear-trail {
-  0% {
-    inset-inline-start: -200%;
+@keyframes mp-progress-linear-lead-tail {
+  0%,
+  20% {
+    inset-inline-start: 0%;
+  }
+
+  70%,
+  100% {
+    inset-inline-start: 100%;
+  }
+}
+
+/* The catch-up: it sets off as the first bar slows at the far end, and covers
+   the same track in a little over half the time. */
+@keyframes mp-progress-linear-trail-head {
+  0%,
+  50% {
     inset-inline-end: 100%;
   }
 
-  60% {
-    inset-inline-start: 107%;
-    inset-inline-end: -8%;
+  80%,
+  100% {
+    inset-inline-end: 0%;
+  }
+}
+
+@keyframes mp-progress-linear-trail-tail {
+  0%,
+  62% {
+    inset-inline-start: 0%;
   }
 
   100% {
-    inset-inline-start: 107%;
-    inset-inline-end: -8%;
+    inset-inline-start: 100%;
   }
 }
 
@@ -3213,13 +3243,20 @@
   }
 }
 
+.mp-progress-linear-lead,
+.mp-progress-linear-trail {
+  animation-duration: calc(var(--mp-sys-motion-duration-extra-long4) * 2);
+  animation-timing-function:
+    var(--mp-sys-motion-easing-standard), var(--mp-sys-motion-easing-standard-accelerate);
+  animation-iteration-count: infinite;
+}
+
 .mp-progress-linear-lead {
-  animation: mp-progress-linear-lead 2.1s cubic-bezier(0.65, 0.815, 0.735, 0.395) infinite;
+  animation-name: mp-progress-linear-lead-head, mp-progress-linear-lead-tail;
 }
 
 .mp-progress-linear-trail {
-  animation: mp-progress-linear-trail 2.1s cubic-bezier(0.165, 0.84, 0.44, 1) infinite;
-  animation-delay: 1.15s;
+  animation-name: mp-progress-linear-trail-head, mp-progress-linear-trail-tail;
 }
 
 .mp-progress-circular-turn {
