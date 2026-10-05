@@ -45,6 +45,8 @@ import { MPBottomNavigationItem, MPFloatingBottomNavigation } from 'material-plu
 
 자리가 있다면 `labels="all"`이 마지막 항목을 덮습니다. 짧은 이름 셋이면 대개 자리가 있습니다.
 
+그림자는 기본 `elevation` 3에서 오고, `variant`를 넘기지 않았을 때만 적용됩니다. `variant`를 고르면 다른 컨테이너처럼 그 표면을 평평하게 그립니다. 다시 띄우려면 `elevation`도 함께 넘기세요.
+
 ## 두 번째 하이라이트는 없습니다
 
 독자가 있는 목적지는 전폭 바에서 입는 것과 같은 active indicator를 입습니다. 글리프 뒤에서 원이 옆으로 넓어지는 MD3의 알약입니다.

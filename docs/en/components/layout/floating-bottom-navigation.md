@@ -45,6 +45,8 @@ Because the page keeps going below it, the sheet:
 
 `labels="all"` overrides the last of those when there is room — three short names usually is.
 
+The shadow is a default `elevation` of 3, and it applies only while `variant` is unset. Naming a `variant` draws that surface flat, as on any container; set `elevation` as well to lift it again.
+
 ## There is no second highlight
 
 The destination the reader is on wears the same active indicator it wears in the full-width bar: MD3's pill, widening out of a circle behind the glyph.

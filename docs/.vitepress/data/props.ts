@@ -12213,16 +12213,16 @@ const componentTables: Record<string, PropRow[]> = {
       ...containerVariant,
       default: "'filled'",
       description: {
-        ko: '로젠지가 칠하는 면의 양. 컨테이너의 사다리라서 시트는 물들지 않습니다 — 강조 색을 지니는 것은 현재인 목적지 하나입니다',
-        en: 'How much surface the lozenge paints. A container’s ladder, so the sheet is never dyed: what carries the accent is the one destination that is current'
+        ko: '로젠지가 칠하는 면의 양. 컨테이너의 사다리라서 시트는 물들지 않습니다 — 강조 색을 지니는 것은 현재인 목적지 하나입니다. 이 값을 고르면 다른 컨테이너처럼 그 면을 평평하게 그리고(`elevated`만 그림자가 있음), 비워 두어야 기본 `elevation` 3이 적용됩니다',
+        en: 'How much surface the lozenge paints. A container’s ladder, so the sheet is never dyed: what carries the accent is the one destination that is current. Naming one draws that surface flat, as any container does (only `elevated` casts a shadow); leaving it unset is what applies the default `elevation` of 3'
       }
     },
     {
       ...elevation,
-      default: '3',
+      default: '3, unless variant is set',
       description: {
-        ko: '페이지에서 얼마나 떠 있는지. 다른 모든 면과 달리 기본값이 있습니다 — 이 바는 페이지의 일부가 아니라는 것으로 정의되고, 평평한 로젠지는 실수로 읽힙니다',
-        en: 'How far off the page it is lifted. Unlike every other surface this has a default: the bar is defined by not being part of the page, and a flat lozenge reads as a mistake'
+        ko: '페이지에서 얼마나 떠 있는지. 다른 모든 면과 달리 기본값이 있습니다 — 이 바는 페이지의 일부가 아니라는 것으로 정의되고, 평평한 로젠지는 실수로 읽힙니다. 기본값은 `variant`를 비워 둔 동안에만 적용됩니다. 높이는 톤까지 정하므로, 기본 높이가 있으면 고른 `variant`가 칠할 것이 남지 않기 때문입니다',
+        en: 'How far off the page it is lifted. Unlike every other surface this has a default: the bar is defined by not being part of the page, and a flat lozenge reads as a mistake. The default applies only while `variant` is unset, since a level brings its own tone and would leave a chosen `variant` nothing to paint'
       }
     },
     {

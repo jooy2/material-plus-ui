@@ -212,6 +212,27 @@ describe('MPFloatingBottomNavigation', () => {
     expect(getComputedStyle(bar()).boxShadow).not.toMatch(/rgba\(0, 0, 0, 0\.\d/);
   });
 
+  // The default level used to apply whatever `variant` said, and a level brings
+  // its own tone — so every variant but `outlined` drew the same sheet.
+  it('draws the variant it is given, flat, instead of the default lift', async () => {
+    const screen = await render(
+      <MPFloatingBottomNavigation defaultValue="home" variant="tonal">
+        <Destinations />
+      </MPFloatingBottomNavigation>
+    );
+
+    expect(bar()).toHaveClass('bg-mp-surface-container');
+    expect(getComputedStyle(bar()).boxShadow).not.toMatch(/rgba\(0, 0, 0, 0\.\d/);
+
+    await screen.rerender(
+      <MPFloatingBottomNavigation defaultValue="home" variant="tonal" elevation={2}>
+        <Destinations />
+      </MPFloatingBottomNavigation>
+    );
+
+    expect(getComputedStyle(bar()).boxShadow).toMatch(/rgba\(0, 0, 0, 0\.\d/);
+  });
+
   it('stops every destination answering when it is disabled', async () => {
     const onValueChange = vi.fn();
     const screen = await render(

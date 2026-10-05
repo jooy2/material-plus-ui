@@ -53,6 +53,11 @@ export interface MPFloatingBottomNavigationProps extends Omit<
    *
    * A container's ladder, so the sheet is never dyed — what carries the accent
    * is the one destination that is current.
+   *
+   * Naming one draws that surface as any container draws it, flat unless it is
+   * `elevated`. Leaving it unset is what gives the bar its default `elevation`
+   * of 3, and setting `elevation` as well takes the tone from the level, as it
+   * does everywhere else.
    * @default 'filled'
    */
   variant?: MPVariant;
@@ -63,7 +68,11 @@ export interface MPFloatingBottomNavigationProps extends Omit<
    * bar is *defined* by not being part of the page: a lozenge lying flat over
    * the content it is floating above reads as a mistake rather than as a
    * decision.
-   * @default 3
+   *
+   * The default applies only while `variant` is unset. A level brings its own
+   * tone, so a default level would leave a chosen `variant` with nothing to
+   * paint.
+   * @default 3, unless `variant` is set
    */
   elevation?: MPElevation;
   /**
@@ -204,8 +213,8 @@ export const MPFloatingBottomNavigation = React.forwardRef<
     position = 'fixed',
     offset = 16,
     labels = 'selected',
-    variant = 'filled',
-    elevation = 3,
+    variant: variantProp,
+    elevation: elevationProp,
     size: sizeProp,
     safeArea = true,
     disabled = false,
@@ -219,6 +228,10 @@ export const MPFloatingBottomNavigation = React.forwardRef<
   ref
 ) {
   const size = useMPSize(sizeProp);
+  const variant = variantProp ?? 'filled';
+  // A level takes the tone with it (see `containerSurface`), so the lift the
+  // bar is known by is only a default while nobody has chosen a surface.
+  const elevation = elevationProp ?? (variantProp === undefined ? 3 : undefined);
   const [uncontrolled, setUncontrolled] = React.useState<MPBottomNavigationValue | null>(
     defaultValue
   );
