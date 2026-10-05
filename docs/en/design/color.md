@@ -21,11 +21,11 @@ Read back from what the browser actually computed, in both schemes at once. The 
 
 <Demo src="color/palette" plain />
 
-## Five roles, not fifty
+## Twenty-nine roles, not fifty
 
-Material defines around fifty colour roles. An outlined text field reads five of them, and those five are what exists here.
+Material defines around fifty colour roles. The components here read twenty-nine of them, and those twenty-nine are what exists.
 
-That is deliberate, and it is the same rule the tokens follow everywhere: **a token nobody reads is a promise to keep supporting a name.** Roles arrive when a component needs one. A `Button` will bring `on-primary` and `primary-container` with it; a `Card` will bring the `surface-container` steps. Until then their absence is honest.
+That is deliberate, and it is the same rule the tokens follow everywhere: **a token nobody reads is a promise to keep supporting a name.** Every role here is here because a component reads it. The rest, such as the fixed roles, `surface-dim`, `surface-bright` and `surface-container-lowest`, are absent because nothing draws with them yet, and that absence is honest. [Spec coverage](./spec-coverage.md) lists them against the specification one by one.
 
 It is also why this library does not try to reproduce Material completely. It has to _coexist_ with whatever Material implementation a page already runs rather than replace it, so the surface it claims stays as small as the components make necessary.
 

@@ -10,6 +10,10 @@
 
 - **A page on how far the library follows the specification.** Design › Spec coverage lists, component by component, what Material Design 3 and M3 Expressive define, which of it is here, what the library adds, and what Material UI offers for the same need.
 
+- **The colour page says twenty-nine roles, not five.** It still described the five an outlined text field reads, from before the rest of the library arrived.
+
+- **`MPButton` and `MPFloatingActionButton` no longer say MD3 dropped the ripple and the FAB menu.** MD3 still draws a ripple on press, and M3 Expressive added a FAB menu of labelled actions in 2025. Neither is drawn here, for the reasons each page gives.
+
 ### Fixed
 
 - **`MPIconButton` takes the `variant` of the `MPButtonGroup` around it.** Its own default of `text` reached the button as if the caller had chosen it, so the group's never arrived, and a group of `outlined` buttons drew its icon buttons bare. Outside a group, or in one that names no variant, an icon button is still `text`.

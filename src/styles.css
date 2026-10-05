@@ -2350,12 +2350,12 @@
     /*
      * Motion.
      *
-     * Seven of MD3's sixteen duration tokens and six of its seven easing curves
-     * — the ones something in the library actually reads, on the rule every
-     * other token here follows. `short4` is what a text field's label and
-     * outline transition on; most of the rest arrived with the `MPAnimate*`
-     * components, which take these as their defaults rather than numbers of
-     * their own.
+     * Six of MD3's sixteen duration tokens, and its six standard and emphasized
+     * easing curves with `linear` beside them — the ones something in the
+     * library actually reads, on the rule every other token here follows.
+     * `short4` is what a text field's label and outline transition on; most of
+     * the rest arrived with the `MPAnimate*` components, which take these as
+     * their defaults rather than numbers of their own.
      *
      * `short2` is the shortest of them and has one reader: an `MPSlider`'s
      * handle catching up with a value the keyboard moved. A control the reader

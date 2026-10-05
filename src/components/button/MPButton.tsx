@@ -183,9 +183,11 @@ export interface MPButtonProps
  * All three parts matter, and `render`'s own note says why. Teaching the button
  * to take an `href` instead would be teaching it to lie about what it is.
  *
- * **No ripple.** MD3 dropped it: the state layer below is what replaced it, and
- * it says the same thing without an animation that has to finish before the
- * screen it triggered is allowed to change.
+ * **No ripple.** MD3 still has one: its pressed state is a ripple, a state
+ * layer that spreads out from where the press landed. The state layer below is
+ * drawn flat and all at once instead, which says the same thing without an
+ * animation that has to finish before the screen it triggered is allowed to
+ * change.
  */
 export const MPButton = React.forwardRef<HTMLButtonElement, MPButtonProps>(function MPButton(
   {

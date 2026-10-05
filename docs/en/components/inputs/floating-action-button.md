@@ -75,9 +75,9 @@ The label is therefore in the DOM at both widths — an element that is not ther
 
 ## Why there is no speed dial
 
-A floating button that fans out into three or four smaller ones is a Material **2** pattern, and MD3 dropped it.
+A floating button that fans out into three or four smaller ones is a Material **2** pattern, and MD3 dropped it. M3 Expressive brought back a FAB menu in 2025, but that is a different thing: a column of two to six labelled actions rather than a fan of discs. This library does not draw one either.
 
-It was never good. The actions are unlabelled discs in the corner of the screen, they cover the content the reader was looking at, and a fan of buttons that claims `role="menu"` without the keyboard contract of one is worse for a keyboard reader than something that never claimed anything.
+The fan was never good. The actions are unlabelled discs in the corner of the screen, they cover the content the reader was looking at, and a fan of buttons that claims `role="menu"` without the keyboard contract of one is worse for a keyboard reader than something that never claimed anything.
 
 When there genuinely are several actions, they belong in an [MPMenu](./menu) — which _is_ a menu, with the roving focus, the typeahead and the escape behaviour that word promises — opened from this button:
 

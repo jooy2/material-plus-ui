@@ -101,7 +101,7 @@ The label's type scale and the padding around it come off the same rung, which i
 
 All three parts matter. `render` is Base UI's own escape hatch and brings the whole surface with it; `nativeButton={false}` tells Base UI the element is not a `<button>`, which it otherwise says in the console; and `role="link"` puts back the one thing `nativeButton={false}` then assumes, because Base UI takes it to mean the element is _acting_ as a button and gives it `role="button"` to say so. Without that last prop the anchor is announced as a button, which is exactly the lie this section is about.
 
-**No ripple.** MD3 dropped it. The state layer replaced it, and it says the same thing without an animation that has to finish before the screen it triggered is allowed to change.
+**No ripple.** MD3 still has one: its pressed state is a ripple, a state layer that spreads out from where the press landed. This library draws the pressed layer flat and all at once instead, which says the same thing without an animation that has to finish before the screen it triggered is allowed to change.
 
 ## Accessibility
 

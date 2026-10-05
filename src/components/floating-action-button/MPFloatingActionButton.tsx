@@ -242,7 +242,9 @@ export interface MPFloatingActionButtonProps extends Omit<
  * ## Why there is no speed dial
  *
  * A floating button that fans out into three or four smaller ones is a Material
- * **2** pattern, and MD3 dropped it. It was never good: the actions are
+ * **2** pattern, and MD3 dropped it. M3 Expressive brought back a FAB menu in
+ * 2025, but that is a column of two to six labelled actions rather than a fan
+ * of discs, and this library does not draw one either. The fan was never good: the actions are
  * unlabelled discs in the corner of the screen, they cover the content the
  * reader was looking at, and a fan of buttons that claims `role="menu"` without
  * the keyboard contract of one is worse for a keyboard reader than something
