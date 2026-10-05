@@ -277,6 +277,30 @@ describe('MPAccordion', () => {
     });
   });
 
+  describe('density', () => {
+    // The header and the sides of the body tightened, and the space under the
+    // body stayed where it was.
+    it('takes room from under the body as well as from its sides', async () => {
+      const bottom = async (density: 0 | -2) => {
+        const screen = await render(
+          <MPAccordion defaultValue={['a']} density={density}>
+            <MPAccordionItem value="a" title="Account">
+              Body
+            </MPAccordionItem>
+          </MPAccordion>
+        );
+        const body = screen.getByText('Body').element() as HTMLElement;
+        const padding = Number.parseFloat(getComputedStyle(body).paddingBottom);
+
+        await screen.unmount();
+
+        return padding;
+      };
+
+      expect(await bottom(-2)).toBeLessThan(await bottom(0));
+    });
+  });
+
   describe('headingLevel', () => {
     it('writes each title as an `h3` by default', async () => {
       const screen = await render(

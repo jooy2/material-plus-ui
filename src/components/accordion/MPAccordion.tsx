@@ -222,6 +222,19 @@ const PANEL_PAD_BOTTOM: Record<MPSize, string> = {
 };
 
 /**
+ * The same space a density step at a time, the steps `sheetPadY` takes off the
+ * header above it. Without them a dense accordion tightened its header and the
+ * sides of its body and left the space under the body where it was.
+ */
+const PANEL_PAD_BOTTOM_DENSE: Record<MPSize, readonly [string, string, string]> = {
+  xs: ['pb-2', 'pb-1.5', 'pb-1.5'],
+  sm: ['pb-2.5', 'pb-2', 'pb-1.5'],
+  md: ['pb-3.5', 'pb-3', 'pb-2.5'],
+  lg: ['pb-4.5', 'pb-4', 'pb-3.5'],
+  xl: ['pb-5.5', 'pb-5', 'pb-4.5']
+};
+
+/**
  * A stack of sections, one of which is open.
  *
  * Base UI owns the parts that are genuinely hard: the `<button>`/`region`
@@ -416,7 +429,7 @@ export const MPAccordionItem = React.forwardRef<HTMLDivElement, MPAccordionItemP
               // The header already paid for the space above, so the body owes
               // only the space below it, or every closed section would look
               // padded along its bottom edge.
-              PANEL_PAD_BOTTOM[size]
+              density === 0 ? PANEL_PAD_BOTTOM[size] : PANEL_PAD_BOTTOM_DENSE[size][-density - 1]
             ].join(' ')}
           >
             {children}
