@@ -109,7 +109,7 @@ Visually it is MD3's selected list item: the family's container tone under its o
 
 ## The sheet is never dyed
 
-`variant` reads the neutral surface roles whatever `color` is, because a list holds other people's content and that content arrives with its own colours. `color` reaches the selected row and the state layer, and stops there.
+`variant` reads the neutral surface roles whatever `color` is, because a list holds other people's content and that content arrives with its own colours. `color` reaches the selected row and stops there. The state layer under the pointer is the row's own ink, as it is everywhere in the library.
 
 `text` is the one to reach for inside a card: the card is already a sheet, and a second bordered rectangle inside it is a second rectangle.
 

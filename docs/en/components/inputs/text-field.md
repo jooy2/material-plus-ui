@@ -190,9 +190,9 @@ Focuses the field on mount — except on a small screen, where it would summon t
 
 ## Accessibility
 
-- The label is a real `<label>` wired to the control by `id`. Pass `name` and the id is derived from it; pass neither and one is generated, so two unnamed fields on a page never collide.
+- The label is a real `<label>` wired to the control by `id`. Pass `id` to choose it; leave it out and one is generated, so two fields on a page never collide.
 - `required` reaches both the label and the control.
-- The password toggle is a real button with a name that changes with its state — "display the password" / "hide the password".
+- The password toggle is a real button with a name that changes with its state — "Show the password" / "Hide the password" in English, and in the reader's language once its messages are registered.
 
 ## See also
 

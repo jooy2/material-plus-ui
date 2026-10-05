@@ -74,7 +74,7 @@ The initials are sized off the box rather than off the row — roughly 40% of th
 
 ### shape
 
-`circle` is the default, and it is what Material draws. `square` cuts the corners off instead at `corner-medium`, which is what a logo or a repository icon wants: those are drawn to the edges of a rectangle and a round crop eats them.
+`circle` is the default, and it is what Material draws. `square` cuts the corners off instead, at `corner-medium` from `md` up and at `corner-extra-small` and `corner-small` on the two smaller rungs, which is what a logo or a repository icon wants: those are drawn to the edges of a rectangle and a round crop eats them.
 
 ### variant
 

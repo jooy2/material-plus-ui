@@ -65,7 +65,7 @@ import { MPButton } from 'material-plus-ui';
 
 ### startIcon과 endIcon
 
-라벨 양쪽에 놓이는 내용이고, 버튼과 같은 단계의 크기로 그려집니다.
+라벨 양쪽에 놓이는 내용입니다. 아이콘은 받은 크기 그대로 그려지고, `size` 없는 `MPIcon`은 아이콘 세트 자신의 크기를 씁니다. 버튼 단계에 맞춰 크기가 정해지는 것은 `loading` 동안 `startIcon` 자리를 대신하는 스피너뿐입니다.
 
 ```tsx
 <MPButton startIcon={<MPIcon icon={ICONS.check} size={20} />}>저장</MPButton>

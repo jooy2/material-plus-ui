@@ -115,14 +115,15 @@ const MAX_WIDTH: Record<MPSize, string> = {
  *
  * ## Because it is uninvited, it is never the only way to anything
  *
- * A keyboard with no hover, a touchscreen with no pointer, and a screen reader
- * all arrive by the trigger's own route instead. So whatever is in here has to
- * exist on the page the trigger leads to as well. Treat it as a shortcut for
- * the reader who has a pointer, never as the place a fact lives.
+ * A touchscreen with no pointer arrives by the trigger's own route instead, and
+ * a screen reader is not taken into the card when it opens. So whatever is in
+ * here has to exist on the page the trigger leads to as well. Treat it as a
+ * shortcut, never as the place a fact lives.
  *
- * That is also why there is no keyboard equivalent bolted on. A card that
- * opened on focus would interrupt every keyboard reader tabbing through a
- * paragraph of links, which is a worse answer than not opening at all.
+ * It does open on keyboard focus, after the same `delay` a pointer waits, which
+ * is Base UI's behaviour. That delay is also why tabbing through a paragraph of
+ * links does not open a card for each of them: only the link that focus rests
+ * on shows one.
  */
 export function MPHoverCard({
   trigger,

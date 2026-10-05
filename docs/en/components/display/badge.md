@@ -29,9 +29,9 @@ This is the one component in the library that does, and it is not a stylistic ch
 
 ## The dot and the count are Material's two badges
 
-MD3 has a small badge (a 6dp dot) and a large one (16dp with a label), and that is the whole set. Omitting `content` gives you the first; passing it gives you the second.
+MD3 has a small badge (a 6dp dot) and a large one (16dp with a label), and that is the whole set. `dot` gives you the first; `content` gives you the second. A badge with neither is hidden, as a count of zero is.
 
-`dot` is the third case and it is a middle ground rather than a new shape: the marker draws as a dot and the content stays for screen readers only. A quiet corner is not a silent one.
+`dot` with `content` is a middle ground rather than a new shape: the marker draws as a dot and the content stays for screen readers only. A quiet corner is not a silent one.
 
 <Demo src="badge/counts">
 

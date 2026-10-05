@@ -79,10 +79,12 @@ export interface MPStepperProps extends Omit<
   /**
    * Called with the step that was pressed.
    *
-   * **Leaving it out is what makes the steps unpressable.** A stepper with no
-   * handler is a progress indicator — it says where the reader is and offers no
-   * way to move, which is the right shape for a sequence the application drives
-   * with its own Next and Back buttons.
+   * **Leaving it out of a controlled stepper is what makes the steps
+   * unpressable.** A stepper given `active` and no handler is a progress
+   * indicator — it says where the reader is and offers no way to move, which is
+   * the right shape for a sequence the application drives with its own Next and
+   * Back buttons. An uncontrolled stepper moves itself when a step is pressed,
+   * handler or not.
    */
   onActiveChange?: (active: number) => void;
   /**
@@ -186,9 +188,9 @@ export interface MPStepProps extends Omit<React.ComponentPropsWithoutRef<'li'>, 
  * | The content | is all on screen | is one panel |
  * | Default orientation | `vertical` | `horizontal` |
  *
- * A stepper with no `onActiveChange` is the overlap: unpressable, one panel, and
- * a progress indicator for a sequence the application's own Next and Back
- * buttons drive.
+ * A controlled stepper with no `onActiveChange` is the overlap: unpressable, one
+ * panel, and a progress indicator for a sequence the application's own Next and
+ * Back buttons drive.
  *
  * ## It ships no Next and Back
  *

@@ -46,7 +46,7 @@ They are two components because they are two jobs:
 | The content         | is all on screen              | is one panel            |
 | Default orientation | `vertical`                    | `horizontal`            |
 
-A stepper with **no** `onActiveChange` is the overlap: unpressable, still one panel, and a progress indicator for a sequence the application's own buttons drive.
+A controlled stepper with **no** `onActiveChange` is the overlap: unpressable, still one panel, and a progress indicator for a sequence the application's own buttons drive. An uncontrolled one moves itself when a step is pressed, handler or not.
 
 ## It ships no Next and Back
 

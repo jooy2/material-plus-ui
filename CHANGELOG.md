@@ -16,6 +16,19 @@
 
 - **`MPButton` and `MPFloatingActionButton` no longer say MD3 dropped the ripple and the FAB menu.** MD3 still draws a ripple on press, and M3 Expressive added a FAB menu of labelled actions in 2025. Neither is drawn here, for the reasons each page gives.
 
+- **Descriptions that disagreed with their components now say what the components do.**
+  - An `MPBadge` with no `content` is hidden, as a count of zero is; the dot is `dot`. It never drew a dot on its own.
+  - `MPSnackbarProvider`'s six stacks share one live region, there is no 344dp minimum on the plate, and the × is 20px at `md`.
+  - An uncontrolled `MPStepper` moves when a step is pressed, with or without `onActiveChange`.
+  - `MPHoverCard` opens on keyboard focus too, after the same `delay` as a pointer.
+  - `color` on `MPList` and `MPCommandPalette` does not tint the hover; the state layer is the row's own ink, as everywhere else.
+  - `MPSidebar` is on the bar ladder `MPHeader` and `MPFooter` use, not the container one.
+  - `MPProgressLinear`'s groove is `on-surface` at 12%, not the family's container tone, and `MPProgressCircular` stops on a partial arc under `prefers-reduced-motion`.
+  - `MPAvatar`'s square corners are smaller on the two smallest rungs, and an `MPButton`'s glyphs keep the size they were given.
+  - `MPTextField`'s `id` is not derived from `name`, and its password toggle is named "Show the password" and "Hide the password".
+  - `MPTable`'s 52dp row is the Material 2 data table's, since MD3 has no data table.
+  - `MPTooltip`'s props table gives its default `size` as `sm`, which is what it is and what the configuration guide already said.
+
 ### Fixed
 
 - **An unreachable `MPStepper` step stays in the tab order.** It was drawn as a `<span>`, which no keyboard reaches, carrying an `aria-disabled` that assistive technology ignores on a plain element — so a reader walking the rail found a gap with nothing to say why. It is now a button marked `aria-disabled` that refuses the press, as the documentation always said. A step whose own `disabled` is set is drawn the same way.

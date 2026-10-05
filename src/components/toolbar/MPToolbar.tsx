@@ -120,9 +120,9 @@ const DIVIDER: Record<MPToolbarSide, string> = {
  *
  * ## What it is not
  *
- * Not `MPHeader`, which is `MPPageLayout`'s own slot and knows about the
- * sidebar, the skip link and the drawer. This is a bar you can put anywhere,
- * including inside a card.
+ * Not `MPHeader`, which is `MPPageLayout`'s header slot: the layout measures it
+ * and keeps the page clear of it. This is a bar you can put anywhere, including
+ * inside a card.
  */
 export const MPToolbar = React.forwardRef<HTMLDivElement, MPToolbarProps>(function MPToolbar(
   {

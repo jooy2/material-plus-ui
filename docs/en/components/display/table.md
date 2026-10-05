@@ -42,9 +42,9 @@ A button owns its `<button>`; nobody else styles it. A `<td>` is different — V
 
 What is _not_ inline is the row's own background, because it has a hover state and an inline style has no `:hover`. It reads a custom property instead — invisible to a host stylesheet, so a one-class variant sets it without a fight.
 
-## The rows are 52dp, which is MD3's
+## The rows are 52dp, which is Material's
 
-`body-medium` is a 20px line box, and 20 plus `1rem` either side is 52 exactly. Column headings are `title-small` — 14px at weight 500, the same size one weight up — so a heading reads as a heading without changing the column's measure.
+That is the Material data table's row, a Material 2 component that MD3 has not redrawn. `body-medium` is a 20px line box, and 20 plus `1rem` either side is 52 exactly. Column headings are `title-small` — 14px at weight 500, the same size one weight up — so a heading reads as a heading without changing the column's measure.
 
 `striped` and `hoverable` are two neutral surfaces one step apart rather than a tint. A table that alternates between white and pale blue has coloured half its data.
 

@@ -46,9 +46,9 @@ const CELL_PAD_X: Record<MPSize, number> = {
 /**
  * Row height, as vertical padding.
  *
- * MD3's data table row is 52dp: `body-medium` is a 20px line box, and 20 plus
- * `1rem` either side is 52 exactly. The rungs above and below walk out from
- * there.
+ * Material's data table row is 52dp — a Material 2 component that MD3 has not
+ * redrawn — and `body-medium` is a 20px line box, so 20 plus `1rem` either side
+ * is 52 exactly. The rungs above and below walk out from there.
  */
 const CELL_PAD_Y: Record<MPSize, number> = {
   xs: 6,
@@ -82,10 +82,10 @@ export function cellPadY(size: MPSize, density: MPDensity): string {
 }
 
 /**
- * What a cell is set in. MD3's data table puts its cells in `body-medium` and
- * its column headings in `title-small` — 14px at weight 500, which is the same
- * size one weight up, so a heading reads as a heading without changing the
- * column's measure.
+ * What a cell is set in. Material's data table puts its cells in Body 2 and its
+ * column headings in Subtitle 2, which MD3's scale calls `body-medium` and
+ * `title-small` — 14px at weight 500, the same size one weight up, so a heading
+ * reads as a heading without changing the column's measure.
  */
 export const CELL_TEXT: Record<MPSize, string> = {
   xs: 'text-mp-body-small',

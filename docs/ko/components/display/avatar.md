@@ -74,7 +74,7 @@ import { MPAvatar } from 'material-plus-ui';
 
 ### shape
 
-`circle`이 기본값이고 머터리얼이 그리는 모양입니다. `square`는 대신 `corner-medium`으로 모서리를 깎습니다. 로고나 저장소 아이콘이 원하는 모양인데, 그것들은 사각형의 가장자리까지 그려져 있어서 둥근 크롭이 잘라 먹습니다.
+`circle`이 기본값이고 머터리얼이 그리는 모양입니다. `square`는 대신 모서리를 깎습니다. `md`부터는 `corner-medium`, 그보다 작은 두 단계는 `corner-extra-small`과 `corner-small`입니다. 로고나 저장소 아이콘이 원하는 모양인데, 그것들은 사각형의 가장자리까지 그려져 있어서 둥근 크롭이 잘라 먹습니다.
 
 ### variant
 

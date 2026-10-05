@@ -10,11 +10,12 @@ export interface MPBadgeProps extends Omit<
   'color' | 'content'
 > {
   /**
-   * What the badge says — usually a count, sometimes a word.
+   * What the badge says — usually a count, sometimes a word. This is MD3's
+   * large badge; `dot` is its small one, and they are the only two it has.
    *
-   * Omit it and the badge draws a dot instead, which is the honest thing when
-   * there is something to report but nothing to count. MD3 calls those two the
-   * large and the small badge, and they are the only two it has.
+   * Leave it out and the badge is hidden, as a count of zero is: a badge with
+   * nothing to say is not news. Pass `dot` for the honest middle, something to
+   * report and nothing to count.
    */
   content?: React.ReactNode;
   /**
@@ -24,8 +25,8 @@ export interface MPBadgeProps extends Omit<
    */
   max?: number;
   /**
-   * Draws the marker as a dot even when there is content, keeping the content
-   * for screen readers only. For the corner that has to stay quiet.
+   * Draws MD3's small badge, a dot. With `content` as well, the content is kept
+   * for screen readers only — for the corner that has to stay quiet.
    * @default false
    */
   dot?: boolean;

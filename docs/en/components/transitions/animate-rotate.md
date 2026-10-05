@@ -39,7 +39,7 @@ One component covers both because a second one would be the same keyframe under 
 
 **Text.** A rotated word is resampled along its whole length, and at any angle that is not a multiple of 90° every stem in it lands between pixels. Rotation is the one movement this library allows on a **glyph** without argument — a chevron is turned rather than redrawn across the whole component set, because a turned arrow is still the same arrow — and that permission does not extend to a sentence.
 
-**A loading indicator.** A spinning mark says something is moving; an indeterminate indicator has to say what is being waited on and reserve the space the result will take. That is [MPProgressCircular](../feedback/progress-circular), which is also the one thing here that keeps moving under `prefers-reduced-motion` — because a spinner that has stopped is lying about whether anything is happening, while a decorative turn that does not play has lost nothing.
+**A loading indicator.** A spinning mark says something is moving; an indeterminate indicator has to say what is being waited on and reserve the space the result will take. That is [MPProgressCircular](../feedback/progress-circular). Under `prefers-reduced-motion` it stops on a partial arc, which still says something is under way without moving, while a decorative turn that does not play has lost nothing.
 
 ## `duration` is longer here
 

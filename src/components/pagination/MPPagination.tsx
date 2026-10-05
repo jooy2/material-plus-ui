@@ -211,10 +211,10 @@ function paginationRange(
  *
  * A `<nav>` around a `<ul>`: a named landmark a screen reader can skip, holding
  * a list whose length says how far the pages go, with `aria-current="page"`
- * marking where the reader is. The ellipsis is a `<span>` rather than a disabled
- * button — it is not a control that happens to be unavailable, it is
- * punctuation — and it is `aria-hidden`, because "horizontal ellipsis" read out
- * between two numbers is noise.
+ * marking where the reader is. The ellipsis is a list item with no button in it
+ * rather than a disabled button — it is not a control that happens to be
+ * unavailable, it is punctuation — and it is `aria-hidden`, because "horizontal
+ * ellipsis" read out between two numbers is noise.
  *
  * ## Why it builds its own cells
  *

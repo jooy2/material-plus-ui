@@ -40,10 +40,11 @@ export interface MPSnackbarData {
    * page whose bottom corner is a toolbar. Not for a preference: an application
    * whose snackbars all appear in the same wrong place should move the provider.
    *
-   * All six stacks are on the page from the start whether or not anything is in
-   * them, which is not a detail: a stack is its own `aria-live` region, and a
-   * region added to the document at the same instant as the message inside it is
-   * a region a screen reader has nothing to compare against and does not read.
+   * The six stacks share one `aria-live` region, which is on the page from the
+   * first render whether or not anything is in it, and that is not a detail: a
+   * region added to the document at the same instant as the message inside it
+   * is one a screen reader has nothing to compare against and does not read. A
+   * corner's stack is drawn inside it once that corner has a message.
    */
   position?: MPSnackbarPosition;
   /**
@@ -127,8 +128,9 @@ export interface MPSnackbarProviderProps {
    */
   limit?: number;
   /**
-   * How wide a snackbar may get. Numbers are pixels. MD3's own maximum is 600dp
-   * and its minimum is 344dp, which is what the two ends of the plate are set to.
+   * How wide a snackbar may get. Numbers are pixels. The default is MD3's own
+   * maximum, 600dp. There is no minimum on the plate; the message keeps at least
+   * 280px of the line, or the whole line on a window narrower than that.
    * @default 600
    */
   width?: number | string;
@@ -235,7 +237,7 @@ const PLATE: Record<MPSize, string> = {
   xl: 'min-h-16 gap-3 py-3.5 pe-3 ps-6'
 };
 
-/** The × in the corner. MD3 draws it at 24dp on the `md` plate. */
+/** The × in the corner: 20px at `md`, a step under MD3's 24dp, in a 32px button. */
 const ICON_SIZE: Record<MPSize, number> = {
   xs: 16,
   sm: 18,

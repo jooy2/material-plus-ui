@@ -91,7 +91,9 @@ export interface MPCommandPaletteProps {
    */
   size?: MPSize;
   /**
-   * Which accent family the highlighted row and the caret read.
+   * Which accent family the caret reads. The highlighted row is lit in the
+   * row's own ink, as a menu's is, so the pointer and the keyboard light it the
+   * same way whatever this is.
    * @default 'primary'
    */
   color?: MPColor;

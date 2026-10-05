@@ -33,9 +33,10 @@ export interface MPProgressLinearProps extends MPProgressProps {
  *
  * It is the only one that can show *how much* is left at a glance, because length
  * is the one quantity a reader compares without counting. MD3 draws it as a 4dp
- * groove in `secondary-container` with the active indicator in `primary`; here
- * the two are the chosen family's own container and accent, so `color="error"` is
- * a red bar in a red groove rather than a red bar in a blue one.
+ * groove in `secondary-container` with the active indicator in `primary`. Here
+ * the indicator is the chosen family's accent and the groove is `on-surface` at
+ * 12%, so `color="error"` is a red bar in a neutral groove rather than a red bar
+ * in a blue one.
  *
  * Both ends are fully rounded, which is MD3's own shape for it: at four pixels
  * tall there is no flat run left to preserve, and a square-ended bar reads as a
@@ -138,10 +139,10 @@ export const MPProgressLinear = React.forwardRef<HTMLDivElement, MPProgressLinea
         <Progress.Track
           className={[
             'rounded-mp-full bg-mp-on-surface/12 relative w-full overflow-hidden',
-            // The track is the family's container tone where the family has one
-            // to spare. `on-surface` at 12% is MD3's own disabled-container wash
-            // and reads as a groove on every scheme, which is what a track that
-            // has to sit under four different accents needs.
+            // Not the family's container tone. `on-surface` at 12% is MD3's own
+            // disabled-container wash and reads as a groove on every scheme,
+            // which is what a track that has to sit under four different accents
+            // needs.
             BAR_THICKNESS[size]
           ].join(' ')}
         >

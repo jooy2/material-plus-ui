@@ -60,8 +60,9 @@ export interface MPListProps extends Omit<React.ComponentPropsWithoutRef<'ul'>, 
    */
   size?: MPSize;
   /**
-   * Which accent family a selected or hovered row reads. The sheet itself stays
-   * neutral whatever this is.
+   * Which accent family a selected row reads. The sheet stays neutral whatever
+   * this is, and so does the hover: the state layer is the row's own ink, as it
+   * is everywhere in the library.
    * @default 'primary'
    */
   color?: MPColor;

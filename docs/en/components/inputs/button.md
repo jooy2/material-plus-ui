@@ -65,7 +65,7 @@ It is deliberately **not** `disabled`. A button that leaves the tab order the mo
 
 ### startIcon and endIcon
 
-Content placed either side of the label, sized from the same rung the button is.
+Content placed either side of the label. A glyph keeps the size it was given — an `MPIcon` with no `size` draws at the icon set's own — and the spinner that takes `startIcon`'s place while `loading` is the one glyph sized from the button's rung.
 
 ```tsx
 <MPButton startIcon={<MPIcon icon={ICONS.check} size={20} />}>Save</MPButton>

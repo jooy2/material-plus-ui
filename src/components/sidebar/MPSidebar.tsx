@@ -118,8 +118,10 @@ export interface MPSidebarProps extends Omit<React.ComponentPropsWithoutRef<'asi
    */
   title?: React.ReactNode;
   /**
-   * How much surface the column paints, on the **container** ladder — a sidebar
-   * is never dyed, because what sits on it arrives with colours of its own.
+   * How much surface the column paints, on the ladder `MPHeader` and `MPFooter`
+   * use: the container one, except that `elevated` lifts to a level-2 shadow and
+   * `outlined` keeps the page's surface. A sidebar is never dyed, because what
+   * sits on it arrives with colours of its own.
    *
    * `outlined` is the default: the page's own surface, with a hairline down the
    * edge that faces the content. That is the column *in the layout*. Once it has

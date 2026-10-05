@@ -73,8 +73,9 @@ export interface MPDialogProps extends MPControlEventProps<HTMLElement> {
    *
    * Defaults to whatever `fullScreen` is, which is MD3's own split: a basic
    * dialog is answered by its actions and has no ×, while a full-screen dialog
-   * carries one at the start of its top bar because there is no scrim left to
-   * click. Set it explicitly to disagree with either.
+   * carries one because there is no scrim left to click. MD3 puts it at the start
+   * of a top bar; here it is at the end of the header, where a basic dialog's
+   * goes. Set it explicitly to disagree with either default.
    */
   showClose?: boolean;
   /**

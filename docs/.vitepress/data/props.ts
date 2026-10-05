@@ -4299,8 +4299,8 @@ const componentTables: Record<string, PropRow[]> = {
       name: 'content',
       type: NODE,
       description: {
-        ko: '배지가 말하는 것. 생략하면 점을 그립니다',
-        en: 'What the badge says. Omit it and the badge draws a dot instead'
+        ko: '배지가 말하는 것. MD3의 큰 배지입니다. 생략하면 숫자 0일 때처럼 배지가 숨습니다 — 점은 `dot`입니다',
+        en: "What the badge says: MD3's large badge. Leave it out and the badge is hidden, as a count of zero is — the dot is `dot`"
       }
     },
     {
@@ -4317,8 +4317,8 @@ const componentTables: Record<string, PropRow[]> = {
       type: 'boolean',
       default: 'false',
       description: {
-        ko: '내용이 있어도 점으로 그립니다. 내용은 스크린 리더용으로 남습니다',
-        en: 'Draws a dot even when there is content, keeping the content for screen readers'
+        ko: 'MD3의 작은 배지인 점을 그립니다. `content`도 있으면 내용은 스크린 리더용으로 남습니다',
+        en: "Draws MD3's small badge, a dot. With `content` as well, the content is kept for screen readers"
       }
     },
     {
@@ -4589,8 +4589,8 @@ const componentTables: Record<string, PropRow[]> = {
     {
       ...color,
       description: {
-        ko: '고르거나 가리킨 행이 읽어들일 계열. 면 자체는 물들지 않습니다',
-        en: 'Which family a selected or hovered row reads. The sheet itself stays neutral'
+        ko: '고른 행이 읽어들일 계열. 면은 물들지 않고, 가리킨 행의 state layer도 행 자신의 글자색입니다',
+        en: 'Which family a selected row reads. The sheet stays neutral, and the hover layer is the row’s own ink'
       }
     },
     {
@@ -5138,8 +5138,8 @@ const componentTables: Record<string, PropRow[]> = {
       name: 'onActiveChange',
       type: '(active: number) => void',
       description: {
-        ko: '눌린 스텝으로 호출됩니다. **이걸 빼면 스텝이 눌리지 않게 됩니다** — 핸들러 없는 스테퍼는 진행 표시기이고, 그건 애플리케이션이 자기 Next·Back으로 모는 순서에 맞는 모양입니다',
-        en: 'Called with the step that was pressed. **Leaving it out is what makes the steps unpressable** — a stepper with no handler is a progress indicator, which is the right shape for a sequence the application drives with its own Next and Back'
+        ko: '눌린 스텝으로 호출됩니다. **`active`를 받는 스테퍼에서 이걸 빼면 스텝이 눌리지 않게 됩니다** — 그런 스테퍼는 진행 표시기이고, 애플리케이션이 자기 Next·Back으로 모는 순서에 맞는 모양입니다. 비제어 스테퍼는 핸들러가 없어도 스스로 움직입니다',
+        en: 'Called with the step that was pressed. **Leaving it out of a controlled stepper is what makes the steps unpressable** — such a stepper is a progress indicator, the right shape for a sequence the application drives with its own Next and Back. An uncontrolled stepper moves itself, handler or not'
       }
     },
     {
@@ -5648,7 +5648,14 @@ const componentTables: Record<string, PropRow[]> = {
         en: 'Stops the tooltip from opening at all, without disabling the trigger'
       }
     },
-    size,
+    {
+      ...size,
+      default: "'sm'",
+      description: {
+        ko: '플레이트의 여백과 글자 크기. `sm`과 `md`는 둘 다 MD3의 plain 툴팁(높이 24dp, `body-small`)이고 화살표 크기만 다릅니다. `sm`은 이 컴포넌트 자신의 답이라 `MPConfigProvider`가 앱 전체에 정한 크기를 따르지 않습니다 — 컨트롤 높이로 그린 툴팁은 판때기입니다',
+        en: "The plate's padding and type. `sm` and `md` both draw MD3's plain tooltip, 24dp tall with a `body-small` label, and differ only in the arrow. `sm` is this component's own answer, so it does not take the size `MPConfigProvider` sets for the application: a tooltip at a control's height is a slab"
+      }
+    },
     {
       ...color,
       default: undefined,
@@ -6299,8 +6306,8 @@ const componentTables: Record<string, PropRow[]> = {
       name: 'position',
       type: "`top-${'start' | 'center' | 'end'}` | `bottom-${'start' | 'center' | 'end'}`",
       description: {
-        ko: '이 스낵바만 다른 줄에 붙입니다. provider의 `position`을 덮어씁니다 — 툴바가 있는 화면 아래쪽을 피해야 하는 오류처럼, 무엇인지 때문에 자리가 달라져야 하는 메시지를 위한 것입니다. 여섯 줄은 처음부터 모두 페이지에 있습니다: 각 줄이 자기 `aria-live` 영역이고, 안의 메시지와 같은 순간에 생긴 영역은 스크린 리더가 읽지 않습니다',
-        en: 'Puts this one in a different stack, overriding the provider’s `position` — for the message that has to be somewhere else because of *what it is*, such as an error on a page whose bottom corner is a toolbar. All six stacks are on the page from the start: each is its own `aria-live` region, and a region added at the same instant as the message inside it is one a screen reader does not read'
+        ko: '이 스낵바만 다른 줄에 붙입니다. provider의 `position`을 덮어씁니다 — 툴바가 있는 화면 아래쪽을 피해야 하는 오류처럼, 무엇인지 때문에 자리가 달라져야 하는 메시지를 위한 것입니다. 여섯 줄은 `aria-live` 영역 하나를 함께 쓰고, 그 영역은 첫 렌더부터 페이지에 있습니다. 안의 메시지와 같은 순간에 생긴 영역은 스크린 리더가 읽지 않기 때문입니다',
+        en: 'Puts this one in a different stack, overriding the provider’s `position` — for the message that has to be somewhere else because of *what it is*, such as an error on a page whose bottom corner is a toolbar. The six stacks share one `aria-live` region, on the page from the first render, because a region added at the same instant as the message inside it is one a screen reader does not read'
       }
     },
     {
@@ -12471,8 +12478,8 @@ const componentTables: Record<string, PropRow[]> = {
       ...containerVariant,
       default: "'outlined'",
       description: {
-        ko: '열이 칠하는 표면의 양, **컨테이너**의 사다리로. 사이드바는 절대 물들지 않습니다. 기본값 `outlined`는 페이지 자신의 표면에 내용을 마주 보는 가장자리의 실선 하나입니다. 접힌 뒤에는 [MPDrawer](./drawer)이고, 서랍은 MD3 자신의 navigation drawer 표면을 칠하며 여기서 아무 값도 가져가지 않습니다',
-        en: "How much surface the column paints, on the **container** ladder — a sidebar is never dyed. `outlined`, the default, is the page's own surface with a hairline down the edge that faces the content. Once collapsed it is an [MPDrawer](./drawer), which paints MD3's own navigation drawer surface and takes no weight from here"
+        ko: '열이 칠하는 표면의 양. `MPHeader`, `MPFooter`와 같은 사다리로, 컨테이너의 사다리와 같되 `elevated`는 level 2 그림자이고 `outlined`는 페이지 자신의 표면을 칠합니다. 사이드바는 절대 물들지 않습니다. 기본값 `outlined`는 페이지 자신의 표면에 내용을 마주 보는 가장자리의 실선 하나입니다. 접힌 뒤에는 [MPDrawer](./drawer)이고, 서랍은 MD3 자신의 navigation drawer 표면을 칠하며 여기서 아무 값도 가져가지 않습니다',
+        en: "How much surface the column paints, on the ladder `MPHeader` and `MPFooter` use: the container one, except that `elevated` lifts to a level-2 shadow and `outlined` keeps the page's surface. A sidebar is never dyed. `outlined`, the default, is the page's own surface with a hairline down the edge that faces the content. Once collapsed it is an [MPDrawer](./drawer), which paints MD3's own navigation drawer surface and takes no weight from here"
       }
     },
     {
@@ -13454,8 +13461,8 @@ const componentTables: Record<string, PropRow[]> = {
     {
       ...color,
       description: {
-        ko: '강조된 행과 캐럿이 읽는 강조색 계열',
-        en: 'Which accent family the highlighted row and the caret read'
+        ko: '캐럿이 읽는 강조색 계열. 강조된 행은 메뉴의 행처럼 행 자신의 글자색으로 밝혀집니다',
+        en: 'Which accent family the caret reads. The highlighted row is lit in the row’s own ink, as a menu’s is'
       }
     },
     {

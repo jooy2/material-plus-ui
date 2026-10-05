@@ -58,6 +58,12 @@ export interface MPTooltipProps {
    */
   disabled?: boolean;
   /**
+   * The plate's padding and type. `sm` and `md` both draw MD3's plain tooltip,
+   * 24dp tall with a `body-small` label, and differ only in the arrow.
+   *
+   * `sm` is this component's own answer, so it does not take the size
+   * `MPConfigProvider` sets for the rest of the application: a tooltip at a
+   * control's height is a slab. Set it here when a tooltip has to be larger.
    * @default 'sm'
    */
   size?: MPSize;
@@ -96,7 +102,7 @@ export type MPTooltipProviderProps = React.ComponentProps<typeof BaseUITooltip.P
 /**
  * A row's vertical padding, against the horizontal track below it. MD3's plain
  * tooltip is 24dp tall with a `body-small` label, which is `py-1` on a 16px line
- * box — the `md` rung here.
+ * box — the `sm` and `md` rungs here, which differ only in the arrow.
  */
 const PAD_Y: Record<MPSize, string> = {
   xs: 'py-0.5',
