@@ -8,7 +8,7 @@ import { TRANSFER } from '../../internal/messages/transfer';
 import { PICKER } from '../../internal/messages/picker';
 import { META_TEXT } from '../../internal/scale';
 import { useMPColor, useMPSize } from '../../internal/config';
-import type { MPSlots } from '../../types';
+import type { MPColor, MPSlots } from '../../types';
 
 /** One node of the tree the reader is choosing from. */
 export interface MPTreeSelectItem {
@@ -33,7 +33,17 @@ export interface MPTreeSelectItem {
 /** The parts an `MPTreeSelect` draws that a `className` cannot reach. */
 export type MPTreeSelectSlot = 'popup' | 'tree' | 'item' | 'empty';
 
-export interface MPTreeSelectProps extends MPPickerShellProps {
+export interface MPTreeSelectProps extends Omit<MPPickerShellProps, 'color'> {
+  /**
+   * Has no visible effect, and is kept only so code that passes it still
+   * compiles.
+   *
+   * The pickers share this prop for a calendar's chosen day and a range's band,
+   * and a tree has neither. A chosen row is `secondary-container`, as an
+   * `MPSelect`'s chosen option is.
+   * @deprecated No effect. It is due to be removed in the next major version.
+   */
+  color?: MPColor;
   /** The tree, as nested items. */
   items?: MPTreeSelectItem[];
   /** The chosen value, or values when `multiple`. */

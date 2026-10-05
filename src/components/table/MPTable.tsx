@@ -142,9 +142,13 @@ export interface MPTableProps<Row> extends Omit<
    */
   size?: MPSize;
   /**
-   * Which accent family a hovered or pressed row reads. The cells themselves
-   * stay neutral.
-   * @default 'primary'
+   * Has no visible effect, and is kept only so code that passes it still
+   * compiles.
+   *
+   * It promised the accent family a hovered row would read, and the rows were
+   * never tinted: a stripe and a hover are neutral surfaces one step apart, on
+   * purpose, because a table that tints its rows colours its data.
+   * @deprecated No effect. It is due to be removed in the next major version.
    */
   color?: MPColor;
   /**

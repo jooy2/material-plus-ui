@@ -2,6 +2,10 @@
 
 ## vNext (2026--)
 
+### Changed
+
+- **`color` on `MPTable` and `MPTreeSelect` is deprecated, because it never did anything.** A table's rows are neutral on purpose, since a table that tints its rows colours its data, and a tree select's chosen row is `secondary-container`, as an `MPSelect`'s chosen option is. Both props still compile, and both are due to be removed in the next major version.
+
 ### Fixed
 
 - **`MPIconButton` takes the `variant` of the `MPButtonGroup` around it.** Its own default of `text` reached the button as if the caller had chosen it, so the group's never arrived, and a group of `outlined` buttons drew its icon buttons bare. Outside a group, or in one that names no variant, an icon button is still `text`.

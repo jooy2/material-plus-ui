@@ -3764,7 +3764,14 @@ const componentTables: Record<string, PropRow[]> = {
       }
     },
     size,
-    color,
+    {
+      ...color,
+      default: undefined,
+      description: {
+        ko: '사용 중단 예정. 보이는 효과가 없고, 이 prop을 넘기는 코드가 계속 컴파일되도록 남겨 둔 것입니다. 선택기들이 달력의 고른 날과 범위의 띠를 위해 공유하는 prop인데, 트리에는 둘 다 없습니다. 고른 행은 `MPSelect`의 고른 옵션처럼 `secondary-container`입니다. 다음 메이저 버전에서 제거됩니다',
+        en: 'Deprecated. Has no visible effect, and is kept so code that passes it still compiles. The pickers share it for a calendar’s chosen day and a range’s band, and a tree has neither; a chosen row is `secondary-container`, as an `MPSelect`’s chosen option is. It is due to be removed in the next major version'
+      }
+    },
     fullWidth,
     required,
     disabled,
@@ -4763,16 +4770,17 @@ const componentTables: Record<string, PropRow[]> = {
     {
       ...density,
       description: {
-        ko: '셀에서 여백을 덜어냅니다. MD3의 52dp 행이 48, 44, 40으로 내려가고 숫자 크기는 그대로입니다',
-        en: "Takes room out of every cell. MD3's 52dp row walks 48, 44, 40, and the figures stay the size they were"
+        ko: '셀에서 여백을 덜어냅니다. 머터리얼 데이터 테이블의 52dp 행이 48, 44, 40으로 내려가고 숫자 크기는 그대로입니다',
+        en: "Takes room out of every cell. Material's 52dp data-table row walks 48, 44, 40, and the figures stay the size they were"
       }
     },
     elevation,
     {
       ...color,
+      default: undefined,
       description: {
-        ko: '행이 반응할 때 읽어들일 계열',
-        en: 'Which family a hovered or pressed row reads'
+        ko: '사용 중단 예정. 보이는 효과가 없고, 이 prop을 넘기는 코드가 계속 컴파일되도록 남겨 둔 것입니다. 행은 색을 입히지 않습니다 — 줄무늬와 호버는 한 단계 차이 나는 중립 면이고, 행을 물들이는 표는 데이터를 물들이는 표입니다. 다음 메이저 버전에서 제거됩니다',
+        en: 'Deprecated. Has no visible effect, and is kept so code that passes it still compiles. Rows are never tinted — a stripe and a hover are neutral surfaces one step apart, because a table that tints its rows colours its data. It is due to be removed in the next major version'
       }
     }
   ],
