@@ -323,8 +323,9 @@ export interface MPDataTableProps<Row> extends Omit<
   /** @default 'md' */
   size?: MPSize;
   /**
-   * Which accent family the sort arrow, the ticks and a chosen row read. The
-   * cells themselves stay neutral.
+   * Which accent family the sort arrow, the ticks, the export button and the
+   * pagination read. The cells stay neutral, and a chosen row is
+   * `secondary-container`, as a chosen option is everywhere in the library.
    * @default 'primary'
    */
   color?: MPColor;
@@ -508,9 +509,10 @@ function DataTableRowInner<Row>({
         // rather than a tint: a table that alternates between white and pale
         // blue has coloured half its data.
         striped && at % 2 === 1 ? '[--_mp-row:var(--_mp-color-surface-container-low)]' : '',
-        // A chosen row is the one place the accent reaches the body, and it is
-        // the lowest container tint the accent has: a filled row would take the
-        // cells' own contrast with it.
+        // A chosen row is `secondary-container` whatever `color` says, as a
+        // chosen option in a select and a chosen row in a tree are: the lowest
+        // container tint there is, since a filled row would take the cells' own
+        // contrast with it.
         chosen ? '[--_mp-row:var(--_mp-color-secondary-container)]' : '',
         lit && !chosen ? 'hover:[--_mp-row:var(--_mp-color-surface-container)]' : '',
         pressable && 'cursor-pointer',
@@ -1241,7 +1243,7 @@ export function MPDataTable<Row>({
                             'duration-(--mp-sys-motion-duration-short4) ease-mp-standard',
                             entry === undefined
                               ? 'opacity-0 group-hover/sort:opacity-38'
-                              : 'text-mp-primary opacity-100',
+                              : 'text-(--_mp-accent) opacity-100',
                             entry?.direction === 'desc' && 'rotate-180'
                           )}
                         />

@@ -22,6 +22,8 @@
 
 - **`MPForm`'s `onSubmit` receives the pickers' values.** It only sees the fields Base UI registers, and a popover trigger registers none, so a picker's value reached an `action` but never `onSubmit`. Each now comes under its `name` as one string: a range as an ISO 8601 interval such as `2026-07-01/2026-07-04`, and an `MPTreeSelect` with `multiple` as its values joined by commas.
 
+- **`MPDataTable`'s sort arrow is drawn in the family `color` names.** It was `primary` whatever `color` said, while the ticks and the pagination beside it followed. The documentation also said a chosen row read the family; it is `secondary-container`, as a chosen option is everywhere in the library, and the documentation now says so.
+
 - **`MPTextField` takes `aria-label`.** A hyphenated attribute is never type-checked on a component, so it was accepted and dropped without a word. `MPTransfer`'s filter fields were named only by their placeholder, which disappears once there is a query, and now carry a name of their own.
 
 ## 1.10.0 (2026-10-04)

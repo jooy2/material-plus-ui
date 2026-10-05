@@ -2826,8 +2826,8 @@ const componentTables: Record<string, PropRow[]> = {
     {
       ...color,
       description: {
-        ko: '정렬 화살표, 체크, 골라진 행이 읽는 강조 색 계열. 셀 자체는 중립으로 남습니다',
-        en: 'Which accent family the sort arrow, the ticks and a chosen row read. The cells themselves stay neutral'
+        ko: '정렬 화살표, 체크, 내보내기 버튼, 페이지 이동이 읽는 강조 색 계열. 셀은 중립으로 남고, 골라진 행은 라이브러리의 다른 골라진 옵션처럼 `secondary-container`입니다',
+        en: 'Which accent family the sort arrow, the ticks, the export button and the pagination read. The cells stay neutral, and a chosen row is `secondary-container`, as a chosen option is everywhere in the library'
       }
     },
     density,

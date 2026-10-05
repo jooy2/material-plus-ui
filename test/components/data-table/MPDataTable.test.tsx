@@ -82,6 +82,24 @@ describe('MPDataTable', () => {
       expect(header('Name')).toHaveAttribute('aria-sort', 'none');
     });
 
+    // The arrow was `primary` whatever `color` said, while the ticks and the
+    // pagination beside it followed the family.
+    it('draws the sort arrow in the family it was given', async () => {
+      const arrowColour = async (color: 'primary' | 'error') => {
+        const screen = await render(<Table sortable color={color} />);
+
+        await screen.getByRole('button', { name: 'Name' }).click();
+
+        const colour = getComputedStyle(header('Name').querySelector('svg')!).color;
+
+        await screen.unmount();
+
+        return colour;
+      };
+
+      expect(await arrowColour('primary')).not.toBe(await arrowColour('error'));
+    });
+
     it('sorts numbers as numbers', async () => {
       // Through the collator they would go 10, 20, 30 by luck and 100 before 20
       // the moment a third digit turns up.
