@@ -427,7 +427,11 @@ export const MPStep = React.forwardRef<HTMLLIElement, MPStepProps>(function MPSt
   // Back is always allowed; what `linear` refuses is jumping past the step the
   // reader has actually reached.
   const reachable = !disabled && (!linear || index <= furthest);
-  const pressable = stepper?.onSelect !== null && stepper?.onSelect !== undefined && reachable;
+  // A step is a button whenever somebody is driving the stepper, reachable or
+  // not. An unreachable one is drawn as a button that refuses the press, so it
+  // keeps its place in the tab order and can say why it will not open.
+  const driven = stepper?.onSelect !== null && stepper?.onSelect !== undefined;
+  const pressable = driven && reachable;
 
   const inside =
     bullet ??
@@ -525,7 +529,7 @@ export const MPStep = React.forwardRef<HTMLLIElement, MPStepProps>(function MPSt
         .join(' ')}
       style={{ ...(color || error ? accentSlots(family) : null), ...style }}
     >
-      {pressable ? (
+      {driven ? (
         <button
           type="button"
           // What the press opens, so a reader is told there is a panel and can
@@ -539,22 +543,19 @@ export const MPStep = React.forwardRef<HTMLLIElement, MPStepProps>(function MPSt
           // the calendar's cells give: a disabled button leaves the tab order,
           // and a reader walking the rail would find a hole where the step they
           // cannot open yet should have told them so.
+          aria-disabled={reachable ? undefined : true}
           className={[
-            'group relative flex w-full min-w-0 cursor-pointer appearance-none border-0 bg-transparent p-0 text-start',
+            'group relative flex w-full min-w-0 appearance-none border-0 bg-transparent p-0 text-start',
+            pressable ? 'cursor-pointer' : 'cursor-default',
             'outline-mp-secondary rounded-mp-xs focus-visible:outline-2 focus-visible:outline-offset-2',
             'outline-none'
           ].join(' ')}
-          onClick={() => stepper?.onSelect?.(index)}
+          onClick={pressable ? () => stepper?.onSelect?.(index) : undefined}
         >
           {contents}
         </button>
       ) : (
-        <span
-          className="relative flex w-full min-w-0"
-          aria-disabled={stepper?.onSelect && !reachable ? true : undefined}
-        >
-          {contents}
-        </span>
+        <span className="relative flex w-full min-w-0">{contents}</span>
       )}
     </li>
   );

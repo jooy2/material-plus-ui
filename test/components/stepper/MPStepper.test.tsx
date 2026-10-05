@@ -194,12 +194,16 @@ describe('MPStepper', () => {
     it('refuses a step ahead of the one the reader has reached', async () => {
       const onActiveChange = vi.fn();
       const screen = await render(<Three active={0} onActiveChange={onActiveChange} />);
+      const step = screen.getByRole('button', { name: /Done/ }).element() as HTMLButtonElement;
 
-      // Step three is not a button at all, and says why rather than vanishing.
-      expect(screen.getByRole('button', { name: /Done/ }).query()).toBeNull();
-      expect(
-        screen.container.querySelectorAll('li')[2].querySelector('[aria-disabled="true"]')
-      ).not.toBeNull();
+      // Still a button in the tab order, so a reader walking the rail is told it
+      // will not open rather than finding a gap where it should be. Clicked
+      // directly: the driver refuses anything carrying `aria-disabled`.
+      expect(step).toHaveAttribute('aria-disabled', 'true');
+      // `toBeDisabled` counts `aria-disabled` too, so the native property it is.
+      expect(step.disabled).toBe(false);
+      step.click();
+      expect(onActiveChange).not.toHaveBeenCalled();
     });
 
     it('always allows going back', async () => {
@@ -249,7 +253,11 @@ describe('MPStepper', () => {
         </MPStepper>
       );
 
-      expect(screen.getByRole('button', { name: /Three/ }).query()).toBeNull();
+      const step = screen.getByRole('button', { name: /Three/ }).element() as HTMLButtonElement;
+
+      expect(step).toHaveAttribute('aria-disabled', 'true');
+      step.click();
+      expect(onActiveChange).not.toHaveBeenCalled();
     });
   });
 

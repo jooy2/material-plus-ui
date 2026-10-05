@@ -71,7 +71,7 @@ What _next_ means is whether the current step validates — and a library that d
 
 `linear={false}` reaches anything at any time — a settings wizard, a long form split into sections a reader can wander.
 
-An unreachable step is marked `aria-disabled` rather than removed. A reader walking the rail is told _why_ it will not open, instead of finding a gap.
+An unreachable step stays a button, marked `aria-disabled` and refusing the press, rather than leaving the tab order. A reader walking the rail is told _why_ it will not open, instead of finding a gap.
 
 ## States
 
