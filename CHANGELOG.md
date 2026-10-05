@@ -2,6 +2,10 @@
 
 ## vNext (2026--)
 
+### Fixed
+
+- **`MPIconButton` takes the `variant` of the `MPButtonGroup` around it.** Its own default of `text` reached the button as if the caller had chosen it, so the group's never arrived, and a group of `outlined` buttons drew its icon buttons bare. Outside a group, or in one that names no variant, an icon button is still `text`.
+
 ## 1.10.0 (2026-10-04)
 
 This release is about what the library costs the site it runs on. A server-rendered page hydrates without the mismatches that made React throw its markup away and render it again, and its header, panes, charts, mockups and `priority` image are drawn from the first paint where they stay. Tables, trees, filtered lists and charts re-render only what a change touches, a page of 1,430 elements styles in 21ms in WebKit where it took 164ms, and a handful of opt-in props keep links, headings and pictures in the markup a crawler reads.

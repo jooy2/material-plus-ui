@@ -118,6 +118,35 @@ describe('MPButtonGroup', () => {
         'xs'
       );
     });
+
+    // An icon button has a default of its own, `text`, and it used to win over
+    // the group's: a toolbar of `outlined` buttons drew its icon buttons bare.
+    it('hands its variant to an icon button, whose own default is text', async () => {
+      const screen = await render(
+        <MPButtonGroup variant="outlined">
+          <MPButton>Save</MPButton>
+          <MPIconButton label="More" icon={<MPIcon icon={ICONS.more} />} />
+        </MPButtonGroup>
+      );
+
+      expect(screen.getByRole('button', { name: 'More' }).element()).toHaveAttribute(
+        'data-mp-variant',
+        'outlined'
+      );
+    });
+
+    it('leaves an icon button on text when the group named no variant', async () => {
+      const screen = await render(
+        <MPButtonGroup size="sm">
+          <MPIconButton label="More" icon={<MPIcon icon={ICONS.more} />} />
+        </MPButtonGroup>
+      );
+
+      expect(screen.getByRole('button', { name: 'More' }).element()).toHaveAttribute(
+        'data-mp-variant',
+        'text'
+      );
+    });
   });
 
   /*

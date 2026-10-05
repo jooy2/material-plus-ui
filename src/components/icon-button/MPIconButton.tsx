@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { MPButton, type MPButtonProps } from '../button/MPButton';
+import { MPButtonGroupContext } from '../../internal/button-group';
 
 export interface MPIconButtonProps extends Omit<
   MPButtonProps,
@@ -62,12 +63,17 @@ export interface MPIconButtonProps extends Omit<
  * `icon` and `label` are both derived from your own state for a single one.
  */
 export const MPIconButton = React.forwardRef<HTMLButtonElement, MPIconButtonProps>(
-  function MPIconButton({ icon, label, variant = 'text', ...props }, ref) {
+  function MPIconButton({ icon, label, variant, ...props }, ref) {
+    // The group comes before this component's own default, the same order
+    // `MPButton` reads them in. A default in the parameter list would be a value
+    // the button sees as set by the caller, and the group's would never arrive.
+    const group = React.useContext(MPButtonGroupContext);
+
     return (
       <MPButton
         ref={ref}
         aria-label={label}
-        variant={variant}
+        variant={variant ?? group?.variant ?? 'text'}
         // The glyph goes in `startIcon` rather than in `children`, which is what
         // puts the button on its icon-only path: a square footprint, no inline
         // padding, and the spinner taking the glyph's place while `loading`.
