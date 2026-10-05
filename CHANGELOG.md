@@ -18,6 +18,8 @@
 
 - **`MPForm`'s `onSubmit` receives the pickers' values.** It only sees the fields Base UI registers, and a popover trigger registers none, so a picker's value reached an `action` but never `onSubmit`. Each now comes under its `name` as one string: a range as an ISO 8601 interval such as `2026-07-01/2026-07-04`, and an `MPTreeSelect` with `multiple` as its values joined by commas.
 
+- **`MPTextField` takes `aria-label`.** A hyphenated attribute is never type-checked on a component, so it was accepted and dropped without a word. `MPTransfer`'s filter fields were named only by their placeholder, which disappears once there is a query, and now carry a name of their own.
+
 ## 1.10.0 (2026-10-04)
 
 This release is about what the library costs the site it runs on. A server-rendered page hydrates without the mismatches that made React throw its markup away and render it again, and its header, panes, charts, mockups and `priority` image are drawn from the first paint where they stay. Tables, trees, filtered lists and charts re-render only what a change touches, a page of 1,430 elements styles in 21ms in WebKit where it took 164ms, and a handful of opt-in props keep links, headings and pictures in the markup a crawler reads.

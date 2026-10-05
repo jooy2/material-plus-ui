@@ -750,6 +750,18 @@ describe('MPTextField', () => {
     });
   });
 
+  // A hyphenated attribute is never type-checked on a component, so this used
+  // to be accepted and dropped, leaving the field named by its placeholder.
+  describe('aria-label', () => {
+    it('names a field that has no visible label', async () => {
+      const screen = await render(
+        <MPTextField value="" aria-label="Filter columns" placeholder="Search" />
+      );
+
+      expect(screen.getByRole('textbox').element()).toHaveAttribute('aria-label', 'Filter columns');
+    });
+  });
+
   describe('type="search"', () => {
     it('renders a search input', async () => {
       const screen = await render(<MPTextField value="" label="Find" type="search" />);

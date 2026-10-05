@@ -1188,6 +1188,14 @@ const componentTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'aria-label',
+      type: 'string',
+      description: {
+        ko: '보이는 `label`이 없는 필드의 접근 가능한 이름. 둘레의 패널이 이미 용도를 보여 주는 필터 상자 같은 경우입니다',
+        en: 'The accessible name, for a field with no visible `label` — a filter box whose purpose the panel around it already shows'
+      }
+    },
+    {
       name: 'floatingLabel',
       type: 'boolean',
       default: 'true',

@@ -190,6 +190,20 @@ describe('MPTransfer', () => {
       expect(screen.container.querySelectorAll('input[type="text"]')).toHaveLength(0);
     });
 
+    // A placeholder is a hint rather than a name, and it disappears as soon as
+    // there is a query, so the filter carries a name of its own.
+    it('names its filter rather than leaving it to the placeholder', async () => {
+      const screen = await render(<MPTransfer items={ITEMS} searchable />);
+
+      const inputs = screen.container.querySelectorAll('input[type="text"]');
+
+      expect(inputs).toHaveLength(2);
+
+      for (const input of inputs) {
+        expect(input).toHaveAttribute('aria-label', 'Search');
+      }
+    });
+
     it('narrows one list without touching the other', async () => {
       const screen = await render(
         <MPTransfer items={ITEMS} searchable defaultValue={['email', 'role']} />

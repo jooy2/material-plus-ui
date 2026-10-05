@@ -92,6 +92,15 @@ export interface MPTextFieldProps
    */
   label?: string;
   /**
+   * The accessible name, for a field with no visible `label` — a filter box
+   * whose purpose the panel around it already shows.
+   *
+   * A prop of its own because the field passes nothing on that it does not
+   * name, and a hyphenated attribute is one TypeScript never checks: written on
+   * the component, it used to be accepted without a word and dropped.
+   */
+  'aria-label'?: string;
+  /**
    * Whether the label rests on the field's line while there is nothing to make
    * room for, and rises into the notch on focus or on the first character.
    *
@@ -289,6 +298,7 @@ export const MPTextField = React.forwardRef<
     placeholder,
     autoComplete,
     label,
+    'aria-label': ariaLabel,
     floatingLabel = true,
     onChange,
     onFormReset,
@@ -462,6 +472,7 @@ export const MPTextField = React.forwardRef<
           render={multiline ? <textarea rows={rows} /> : <input />}
           id={fieldId}
           name={name}
+          aria-label={ariaLabel}
           type={multiline ? undefined : showPassword ? 'text' : type}
           required={required}
           readOnly={readOnly}
