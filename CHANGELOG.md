@@ -20,6 +20,8 @@
 
 - **An unreachable `MPStepper` step stays in the tab order.** It was drawn as a `<span>`, which no keyboard reaches, carrying an `aria-disabled` that assistive technology ignores on a plain element — so a reader walking the rail found a gap with nothing to say why. It is now a button marked `aria-disabled` that refuses the press, as the documentation always said. A step whose own `disabled` is set is drawn the same way.
 
+- **An open `MPCollapsible` stops clipping its body.** The panel clips while its height moves, and it went on clipping once it had arrived, which cut the top off a text field's floating label at the top of the body. `MPAccordion` had already been fixed for the same thing, and the two now share the fix.
+
 - **`MPIconButton` takes the `variant` of the `MPButtonGroup` around it.** Its own default of `text` reached the button as if the caller had chosen it, so the group's never arrived, and a group of `outlined` buttons drew its icon buttons bare. Outside a group, or in one that names no variant, an icon button is still `text`.
 
 - **A selected `MPChip` leads with a tick.** `filled` and `tonal` already rest on the tones a selected chip takes, so a selected one looked exactly like one that was off. The tick is MD3's selected filter chip's, and on those two variants it is the only change. A chip given a `startIcon` of its own keeps it.

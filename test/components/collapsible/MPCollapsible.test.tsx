@@ -179,4 +179,42 @@ describe('MPCollapsible', () => {
       expect(screen.container.querySelector('[hidden]')).not.toBeNull();
     });
   });
+  /*
+   * The panel clips while its height moves, so the body is a window rather than
+   * a squashed copy of itself — and it used to go on clipping once it had
+   * arrived, which cut the top off a text field's floating label at the top of
+   * the body. The accordion had already been fixed for the same thing.
+   */
+  describe('the panel’s clip', () => {
+    const panel = () =>
+      document.querySelector(
+        '.mp-collapsible [data-open], .mp-collapsible [data-closed]'
+      ) as HTMLElement;
+
+    it('clips while it opens, and stops once the height has arrived', async () => {
+      const screen = await render(
+        <MPCollapsible title="Account" keepMounted>
+          <div style={{ height: 120 }}>Body</div>
+        </MPCollapsible>
+      );
+
+      await screen.getByRole('button', { name: /Account/ }).click();
+
+      expect(getComputedStyle(panel()).overflow).toBe('hidden');
+
+      await new Promise((resolve) => setTimeout(resolve, 700));
+
+      expect(getComputedStyle(panel()).overflow).toBe('visible');
+    });
+
+    it('does not clip a collapsible that started open', async () => {
+      await render(
+        <MPCollapsible title="Account" defaultOpen>
+          <div style={{ height: 120 }}>Body</div>
+        </MPCollapsible>
+      );
+
+      expect(getComputedStyle(panel()).overflow).toBe('visible');
+    });
+  });
 });

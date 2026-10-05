@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Collapsible } from '@base-ui/react/collapsible';
 import { MPIcon } from '../icon/MPIcon';
 import { ChevronDownIcon } from '../../constants/icons';
+import { PANEL_SETTLED, useSettledPanel } from '../../internal/fold';
 import { MPStateLayer } from '../../internal/StateLayer';
 import {
   CONTROL_GAP,
@@ -116,6 +117,8 @@ export interface MPCollapsibleProps extends Omit<
  *
  * The duration and the curve are the specification's `short4` and `standard`,
  * the same pair a text field's outline settles on.
+ *
+ * The clip is only true while the height is moving — see `internal/fold.ts`.
  */
 const PANEL = [
   'h-(--collapsible-panel-height) overflow-hidden',
@@ -192,6 +195,9 @@ export const MPCollapsible = React.forwardRef<HTMLDivElement, MPCollapsibleProps
     const size = useMPSize(sizeProp);
     const padX = SHEET_PAD_X[size];
     const padY = SHEET_PAD_Y[size];
+    // Whether the panel has finished opening, which is what lets it stop
+    // clipping the first thing inside it. See `internal/fold.ts`.
+    const panel = useSettledPanel();
 
     return (
       <Collapsible.Root
@@ -282,9 +288,11 @@ export const MPCollapsible = React.forwardRef<HTMLDivElement, MPCollapsibleProps
         )}
 
         <Collapsible.Panel
+          ref={panel.attach}
           hiddenUntilFound={hiddenUntilFound}
           keepMounted={keepMounted}
-          className={PANEL}
+          className={[PANEL, panel.settled ? PANEL_SETTLED : ''].filter(Boolean).join(' ')}
+          onTransitionEnd={panel.onTransitionEnd}
         >
           <div
             className={[
