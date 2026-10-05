@@ -24,7 +24,8 @@ export const hi: MPLocale = {
       open: 'खोलें',
       remove: 'निकालें',
       removeNamed: '{label} निकालें',
-      loading: 'लोड हो रहा है'
+      loading: 'लोड हो रहा है',
+      required: 'आवश्यक'
     },
     textField: { showPassword: 'पासवर्ड दिखाएँ', hidePassword: 'पासवर्ड छिपाएँ' },
     empty: { title: 'यहाँ कुछ नहीं है' },

@@ -79,6 +79,49 @@ describe('MPDatePicker', () => {
       );
     });
 
+    // The trigger is a button, which takes neither `required` nor
+    // `aria-required`, and the asterisk is hidden from a screen reader — so the
+    // label has to say it in words, or nothing does.
+    it('says it is required in words', async () => {
+      const screen = await render(<Controlled required />);
+
+      await expect
+        .element(screen.getByRole('button', { name: 'Due date Required' }))
+        .toBeInTheDocument();
+    });
+
+    it('keeps an ordinary form from submitting while it is required and empty', async () => {
+      const screen = await render(
+        <>
+          <form data-testid="empty">
+            <Controlled required />
+          </form>
+          <form data-testid="chosen">
+            <Controlled required initial={new Date(2026, 6, 15)} />
+          </form>
+        </>
+      );
+
+      expect((screen.getByTestId('empty').element() as HTMLFormElement).checkValidity()).toBe(
+        false
+      );
+      expect((screen.getByTestId('chosen').element() as HTMLFormElement).checkValidity()).toBe(
+        true
+      );
+    });
+
+    it('submits one value, not two, for one name', async () => {
+      const screen = await render(
+        <form data-testid="form">
+          <Controlled name="due" initial={new Date(2026, 6, 15)} />
+        </form>
+      );
+
+      const data = new FormData(screen.getByTestId('form').element() as HTMLFormElement);
+
+      expect(data.getAll('due')).toEqual(['2026-07-15']);
+    });
+
     it('cannot be typed into', async () => {
       // Deliberately a button rather than a text input: parsing a date out of
       // free text is locale-dependent in a way that cannot be done honestly

@@ -24,7 +24,8 @@ export const ru: MPLocale = {
       open: 'Открыть',
       remove: 'Удалить',
       removeNamed: 'Удалить {label}',
-      loading: 'Загрузка'
+      loading: 'Загрузка',
+      required: 'Обязательное поле'
     },
     textField: { showPassword: 'Показать пароль', hidePassword: 'Скрыть пароль' },
     empty: { title: 'Здесь ничего нет' },

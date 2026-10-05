@@ -250,12 +250,17 @@ export const MPDateTimePicker = React.forwardRef<HTMLButtonElement, MPDateTimePi
     // Holds the trigger open at the width of the longest moment it could show.
     const samples = withPlaceholder(useDisplaySamples(locale, displayFormat), placeholder);
 
+    // What the hidden row submits, and what `MPForm` reports for the field.
+    const written = isValidDate(value) ? toISODateTime(value, showSeconds) : '';
+
     return (
       <MPPickerShell
         {...shell}
         slug="date-time-picker"
         size={size}
         color={color}
+        name={name}
+        locale={locale}
         readOnly={readOnly}
         disabled={disabled}
         triggerRef={ref}
@@ -278,11 +283,8 @@ export const MPDateTimePicker = React.forwardRef<HTMLButtonElement, MPDateTimePi
         open={open}
         onOpenChange={setOpen}
         labels={labels}
-        hiddenValues={
-          name
-            ? [{ name, value: isValidDate(value) ? toISODateTime(value, showSeconds) : '' }]
-            : undefined
-        }
+        formValue={written}
+        hiddenValues={name ? [{ name, value: written }] : undefined}
       >
         <div className="flex flex-col gap-1.5">
           <div className="flex items-stretch gap-2">

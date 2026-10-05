@@ -309,12 +309,17 @@ export const MPDatePicker = React.forwardRef<HTMLButtonElement, MPDatePickerProp
     // choosing the 1st after the 28th does not shrink the field.
     const samples = withPlaceholder(useDisplaySamples(locale, display), placeholder);
 
+    // What the hidden row submits, and what `MPForm` reports for the field.
+    const written = isValidDate(value) ? TO_ISO[precision](value) : '';
+
     return (
       <MPPickerShell
         {...shell}
         slug="date-picker"
         size={size}
         color={color}
+        name={name}
+        locale={locale}
         readOnly={readOnly}
         disabled={disabled}
         triggerRef={ref}
@@ -333,9 +338,8 @@ export const MPDatePicker = React.forwardRef<HTMLButtonElement, MPDatePickerProp
         open={open}
         onOpenChange={setOpen}
         labels={labels}
-        hiddenValues={
-          name ? [{ name, value: isValidDate(value) ? TO_ISO[precision](value) : '' }] : undefined
-        }
+        formValue={written}
+        hiddenValues={name ? [{ name, value: written }] : undefined}
       >
         <div className={`flex flex-col ${hasFooter ? 'gap-1.5' : ''}`}>
           <Calendar

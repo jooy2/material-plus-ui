@@ -24,7 +24,8 @@ export const th: MPLocale = {
       open: 'เปิด',
       remove: 'ลบ',
       removeNamed: 'ลบ {label}',
-      loading: 'กำลังโหลด'
+      loading: 'กำลังโหลด',
+      required: 'ต้องระบุ'
     },
     textField: { showPassword: 'แสดงรหัสผ่าน', hidePassword: 'ซ่อนรหัสผ่าน' },
     empty: { title: 'ไม่มีอะไรที่นี่' },

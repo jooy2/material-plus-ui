@@ -24,7 +24,8 @@ export const pl: MPLocale = {
       open: 'Otwórz',
       remove: 'Usuń',
       removeNamed: 'Usuń {label}',
-      loading: 'Ładowanie'
+      loading: 'Ładowanie',
+      required: 'Wymagane'
     },
     textField: { showPassword: 'Pokaż hasło', hidePassword: 'Ukryj hasło' },
     empty: { title: 'Nic tu nie ma' },

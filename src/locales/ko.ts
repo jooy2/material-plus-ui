@@ -24,7 +24,8 @@ export const ko: MPLocale = {
       open: '열기',
       remove: '제거',
       removeNamed: '{label} 제거',
-      loading: '불러오는 중'
+      loading: '불러오는 중',
+      required: '필수'
     },
     textField: { showPassword: '비밀번호 표시', hidePassword: '비밀번호 숨기기' },
     empty: { title: '아무것도 없습니다' },

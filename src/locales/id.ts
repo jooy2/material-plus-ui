@@ -24,7 +24,8 @@ export const id: MPLocale = {
       open: 'Buka',
       remove: 'Hapus',
       removeNamed: 'Hapus {label}',
-      loading: 'Memuat'
+      loading: 'Memuat',
+      required: 'Wajib diisi'
     },
     textField: { showPassword: 'Tampilkan kata sandi', hidePassword: 'Sembunyikan kata sandi' },
     empty: { title: 'Tidak ada apa-apa di sini' },

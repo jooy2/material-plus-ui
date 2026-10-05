@@ -24,7 +24,8 @@ export const ja: MPLocale = {
       open: '開く',
       remove: '削除',
       removeNamed: '{label} を削除',
-      loading: '読み込み中'
+      loading: '読み込み中',
+      required: '必須'
     },
     textField: { showPassword: 'パスワードを表示', hidePassword: 'パスワードを非表示' },
     empty: { title: '何もありません' },

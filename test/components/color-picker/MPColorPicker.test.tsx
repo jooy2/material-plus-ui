@@ -290,6 +290,24 @@ describe('MPColorPicker', () => {
       expect(document.querySelector('.mp-color-picker')).toHaveAttribute('data-invalid');
     });
 
+    it('says it is required in words, since its trigger is a button', async () => {
+      const screen = await render(<Controlled required />);
+
+      await expect
+        .element(screen.getByRole('button', { name: 'Tag colour Required' }))
+        .toBeInTheDocument();
+    });
+
+    it('keeps an ordinary form from submitting while it is required and empty', async () => {
+      const screen = await render(
+        <form data-testid="form">
+          <Controlled required initial="" />
+        </form>
+      );
+
+      expect((screen.getByTestId('form').element() as HTMLFormElement).checkValidity()).toBe(false);
+    });
+
     it('disables the trigger', async () => {
       const screen = await render(<Controlled disabled />);
 

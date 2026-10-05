@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Field } from '@base-ui/react/field';
 import { PROSE_TEXT } from './scale';
+import { VISUALLY_HIDDEN } from './visually-hidden';
 import type { MPSize } from '../types';
 
 /**
@@ -234,6 +235,16 @@ export interface MPFieldLabelProps extends MPFieldOutlineProps {
    * @default false
    */
   multiline?: boolean;
+  /**
+   * The word the asterisk is read out as, for a control that cannot say it is
+   * required itself.
+   *
+   * Left out wherever `required` is on the control, which is every field drawn
+   * on a native input. A picker's trigger is a `<button>`: it takes neither
+   * `required` nor `aria-required`, so without this the asterisk was the only
+   * sign, and it is `aria-hidden`.
+   */
+  requiredLabel?: string;
 }
 
 /**
@@ -265,7 +276,8 @@ export function MPFieldLabel({
   required = false,
   htmlFor,
   shrunk = true,
-  multiline = false
+  multiline = false,
+  requiredLabel
 }: MPFieldLabelProps) {
   return (
     <Field.Label
@@ -297,6 +309,12 @@ export function MPFieldLabel({
       ].join(' ')}
     >
       {labelContent(label, required)}
+      {required && requiredLabel ? (
+        <>
+          {' '}
+          <span className={VISUALLY_HIDDEN}>{requiredLabel}</span>
+        </>
+      ) : null}
     </Field.Label>
   );
 }

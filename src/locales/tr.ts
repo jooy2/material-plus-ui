@@ -24,7 +24,8 @@ export const tr: MPLocale = {
       open: 'Aç',
       remove: 'Kaldır',
       removeNamed: '{label} kaldır',
-      loading: 'Yükleniyor'
+      loading: 'Yükleniyor',
+      required: 'Zorunlu'
     },
     textField: { showPassword: 'Parolayı göster', hidePassword: 'Parolayı gizle' },
     empty: { title: 'Burada bir şey yok' },

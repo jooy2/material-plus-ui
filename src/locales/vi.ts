@@ -24,7 +24,8 @@ export const vi: MPLocale = {
       open: 'Mở',
       remove: 'Gỡ bỏ',
       removeNamed: 'Gỡ bỏ {label}',
-      loading: 'Đang tải'
+      loading: 'Đang tải',
+      required: 'Bắt buộc'
     },
     textField: { showPassword: 'Hiện mật khẩu', hidePassword: 'Ẩn mật khẩu' },
     empty: { title: 'Không có gì ở đây' },

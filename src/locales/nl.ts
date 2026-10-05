@@ -24,7 +24,8 @@ export const nl: MPLocale = {
       open: 'Openen',
       remove: 'Verwijderen',
       removeNamed: '{label} verwijderen',
-      loading: 'Laden'
+      loading: 'Laden',
+      required: 'Verplicht'
     },
     textField: { showPassword: 'Wachtwoord tonen', hidePassword: 'Wachtwoord verbergen' },
     empty: { title: 'Hier is niets' },

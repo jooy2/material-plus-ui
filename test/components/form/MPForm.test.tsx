@@ -1,7 +1,14 @@
 import { describe, expect, it, vi } from 'vitest';
 import { useState } from 'react';
 import { render } from 'vitest-browser-react';
-import { MPButton, MPForm, MPTextField } from 'material-plus-ui';
+import {
+  MPButton,
+  MPColorPicker,
+  MPDatePicker,
+  MPDateRangePicker,
+  MPForm,
+  MPTextField
+} from 'material-plus-ui';
 
 function Field({ name, label, required }: { name: string; label: string; required?: boolean }) {
   const [value, setValue] = useState('');
@@ -89,6 +96,70 @@ describe('MPForm', () => {
     );
 
     await expect.element(screen.getByText('That address is already taken')).toBeInTheDocument();
+  });
+
+  // A picker's trigger is a popover button, which registers no name with the
+  // field, so an error keyed by the picker's `name` used to find nothing.
+  it('puts an error back on a picker too, by its name', async () => {
+    const screen = await render(
+      <MPForm errors={{ due: 'That day is fully booked', tint: 'Too pale to read' }}>
+        <MPDatePicker name="due" label="Due" />
+        <MPColorPicker name="tint" label="Tint" />
+      </MPForm>
+    );
+
+    await expect.element(screen.getByText('That day is fully booked')).toBeInTheDocument();
+    await expect.element(screen.getByText('Too pale to read')).toBeInTheDocument();
+  });
+
+  /*
+   * A picker opens from a button, and a button has no value and takes no
+   * `required` — so a required picker never held a submit back, and no picker
+   * was ever among the values `onSubmit` received.
+   */
+  describe('a field drawn on a button', () => {
+    it('holds the submit back while a required picker is empty', async () => {
+      const onSubmit = vi.fn();
+      const screen = await render(
+        <MPForm onSubmit={onSubmit}>
+          <MPDatePicker name="due" label="Due" required />
+          <MPButton type="submit">Save</MPButton>
+        </MPForm>
+      );
+
+      await screen.getByRole('button', { name: 'Save' }).click();
+
+      expect(onSubmit).not.toHaveBeenCalled();
+      await expect
+        .poll(() => document.querySelector('.mp-date-picker'))
+        .toHaveAttribute('data-invalid');
+      // Focus goes to the first field that failed, and for a picker that is the
+      // trigger rather than the input standing in for its value.
+      await expect
+        .poll(() => document.activeElement)
+        .toBe(screen.getByRole('button', { name: 'Due Required' }).element());
+    });
+
+    it('hands over a picker’s value with the rest', async () => {
+      const onSubmit = vi.fn();
+      const screen = await render(
+        <MPForm onSubmit={onSubmit}>
+          <MPDatePicker name="due" label="Due" required defaultValue={new Date(2026, 6, 15)} />
+          <MPDateRangePicker
+            name="stay"
+            label="Stay"
+            defaultValue={{ start: new Date(2026, 6, 1), end: new Date(2026, 6, 4) }}
+          />
+          <MPButton type="submit">Save</MPButton>
+        </MPForm>
+      );
+
+      await screen.getByRole('button', { name: 'Save' }).click();
+
+      expect(onSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({ due: '2026-07-15', stay: '2026-07-01/2026-07-04' })
+      );
+    });
   });
 
   it('clears that error as soon as the field changes', async () => {

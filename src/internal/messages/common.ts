@@ -9,6 +9,7 @@ export const COMMON: MPNamespace<'common'> = {
     open: 'Open',
     remove: 'Remove',
     removeNamed: 'Remove {label}',
-    loading: 'Loading'
+    loading: 'Loading',
+    required: 'Required'
   }
 };

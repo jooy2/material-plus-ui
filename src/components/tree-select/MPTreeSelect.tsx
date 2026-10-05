@@ -410,6 +410,8 @@ export const MPTreeSelect = React.forwardRef<HTMLButtonElement, MPTreeSelectProp
         slug="tree-select"
         size={size}
         color={color}
+        name={name}
+        locale={locale}
         readOnly={readOnly}
         disabled={disabled}
         triggerRef={ref}
@@ -420,6 +422,9 @@ export const MPTreeSelect = React.forwardRef<HTMLButtonElement, MPTreeSelectProp
         open={open}
         onOpenChange={setOpen}
         labels={labels}
+        // Several values as one string, comma-separated the way a native
+        // `<input type="email" multiple>` holds them.
+        formValue={held.map(String).join(',')}
         hiddenValues={name ? held.map((entry) => ({ name, value: String(entry) })) : undefined}
       >
         <div

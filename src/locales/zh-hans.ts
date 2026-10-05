@@ -29,7 +29,8 @@ export const zhHans: MPLocale = {
       open: '打开',
       remove: '移除',
       removeNamed: '移除 {label}',
-      loading: '加载中'
+      loading: '加载中',
+      required: '必填'
     },
     textField: { showPassword: '显示密码', hidePassword: '隐藏密码' },
     empty: { title: '暂无内容' },

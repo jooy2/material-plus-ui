@@ -34,6 +34,8 @@ What this owns is the part that has to live **above** the fields:
 
 Give it `onSubmit` and the values come to you, with the native submit cancelled. Give it an `action` instead — a URL, or a React server action — and a valid submit goes there, which is also the form a page has before its JavaScript has loaded.
 
+The pickers are fields like any other here: a required one holds the submit back while nothing is chosen, and each value comes to `onSubmit` under its `name` as one string. A date, a time and a colour arrive as their hidden inputs submit them, a range as an ISO 8601 interval such as `2026-07-01/2026-07-04`, and an `MPTreeSelect` with `multiple` as its values joined by commas.
+
 That is the whole of it. No surface, no padding, no measure — those belong to an [MPCard](../layout/card) or an [MPContainer](../layout/container) around it, for the reason a container gives: the thing that decides the shape of a page should not also be the thing that submits it.
 
 ## It is not a form library

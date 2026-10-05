@@ -317,6 +317,8 @@ export const MPDateRangePicker = React.forwardRef<HTMLButtonElement, MPDateRange
         slug="date-range-picker"
         size={size}
         color={color}
+        name={name}
+        locale={locale}
         readOnly={readOnly}
         disabled={disabled}
         triggerRef={ref}
@@ -360,6 +362,9 @@ export const MPDateRangePicker = React.forwardRef<HTMLButtonElement, MPDateRange
         open={open}
         onOpenChange={setOpen}
         labels={labels}
+        // One string for the pair, as an ISO 8601 interval, and only once both
+        // ends are chosen: half a range does not answer a required one.
+        formValue={start && end ? `${toISODate(start)}/${toISODate(end)}` : ''}
         hiddenValues={
           name
             ? [

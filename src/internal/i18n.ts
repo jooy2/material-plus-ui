@@ -97,6 +97,12 @@ export interface MPMessages {
     removeNamed: string;
     /** The spinner that replaces a button's leading glyph while it waits. */
     loading: string;
+    /**
+     * The asterisk after a field's label, read out where the control cannot
+     * say it itself. A picker's trigger is a `<button>`, which takes neither
+     * `required` nor `aria-required`, so its label carries the word instead.
+     */
+    required: string;
   };
   /**
    * MPTextField.

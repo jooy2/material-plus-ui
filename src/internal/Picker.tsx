@@ -5,10 +5,13 @@ import { MPIcon } from '../components/icon/MPIcon';
 import { CloseIcon } from '../constants/icons';
 import { accentSlots } from './accent';
 import { MPFieldLabel, MPFieldOutline, useFloatingLabel } from './FieldOutline';
+import { MPFieldValue } from './FieldValue';
 import { MPStateLayer } from './StateLayer';
 import { MPSupportingText } from './SupportingText';
 import { MPWidthSizer } from './WidthSizer';
 import { displaySamples } from './date';
+import { useMPMessages } from './locale';
+import { COMMON } from './messages/common';
 import { CONTROL_ICON, hasContent, PROSE_TEXT } from './scale';
 import { FADE, PORTAL_LAYER } from './surface';
 import type { MPPickerLabels } from './Calendar';
@@ -151,7 +154,10 @@ export interface MPPickerShellProps extends MPStyleProps, MPControlEventProps<HT
    * `null` is how that glyph is asked for by name to go away.
    */
   startIcon?: React.ReactNode;
-  /** Marks the picker required, both to assistive technology and to the label. */
+  /**
+   * Marks the picker required, both to assistive technology and to the label,
+   * and keeps a form from submitting while nothing is chosen.
+   */
   required?: boolean;
   /** Greys the picker out and stops it opening. */
   disabled?: boolean;
@@ -194,11 +200,27 @@ interface InternalShellProps extends MPPickerShellProps {
   /**
    * `<input type="hidden">` rows, so the control submits with a form.
    *
-   * Each row carries its own name, which is why the shell takes no `name` of
-   * its own: a range picker submits two of them under one name, and the id the
-   * label points at is generated rather than derived from it.
+   * Each row carries its own name: a range picker submits two of them under one
+   * name, and the id the label points at is generated rather than derived from
+   * it.
    */
   hiddenValues?: Array<{ name: string; value: string }>;
+  /**
+   * The value as one string, `''` while nothing is chosen: what `required` is
+   * checked against, and what `MPForm` reports under the field's name. See
+   * `MPFieldValue`.
+   */
+  formValue: string;
+  /**
+   * The field's own name, which is what `MPForm`'s `errors` are matched by.
+   *
+   * Base UI finds a field's error by the name its control registers, and a
+   * popover trigger registers none, so the name goes on the `Field.Root`. It
+   * names no input; the rows above still carry their own.
+   */
+  name?: string;
+  /** The language the label's spoken "required" is written in. */
+  locale?: string;
   children: React.ReactNode;
   triggerRef?: React.Ref<HTMLButtonElement>;
 }
@@ -243,9 +265,13 @@ export function MPPickerShell({
   onOpenChange,
   labels,
   hiddenValues,
+  formValue,
+  name,
+  locale,
   children,
   triggerRef
 }: InternalShellProps) {
+  const common = useMPMessages(COMMON, locale);
   const invalid = hasContent(errorMessage);
   const scale = TRIGGER[size];
   const generatedId = React.useId();
@@ -265,6 +291,7 @@ export function MPPickerShell({
 
   return (
     <Field.Root
+      name={name}
       disabled={disabled}
       invalid={invalid}
       data-mp-size={size}
@@ -371,6 +398,13 @@ export function MPPickerShell({
             </button>
           ) : null}
 
+          <MPFieldValue
+            value={formValue}
+            required={required}
+            readOnly={readOnly}
+            targetId={fieldId}
+          />
+
           <MPFieldOutline label={label} required={required} notched={shrunk} />
 
           {hasContent(label) ? (
@@ -378,6 +412,7 @@ export function MPPickerShell({
               size={size}
               label={label}
               required={required}
+              requiredLabel={common.required}
               htmlFor={fieldId}
               shrunk={shrunk}
             />

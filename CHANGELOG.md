@@ -10,6 +10,14 @@
 
 - **`MPFloatingBottomNavigation` draws the `variant` it is given.** Its default `elevation` of 3 applied whatever `variant` said, and a level brings its own tone, so every variant but `outlined` drew the same sheet. The default level now applies only while `variant` is unset; set `elevation` as well to lift a chosen surface.
 
+- **A required picker says so to a screen reader.** `MPDatePicker`, `MPDateRangePicker`, `MPDateTimePicker`, `MPTimePicker`, `MPTreeSelect` and `MPColorPicker` open from a `<button>`, which takes neither `required` nor `aria-required`, and the asterisk is hidden from assistive technology, so nothing said it. The label now carries the word in the reader's language. It is `common.required` in a table passed to `registerMPMessages`. An `MPColorPicker` drawn `inline` says it in its label as well.
+
+- **`MPForm`'s `errors` reach the pickers and `MPColorPicker`.** Base UI matches an error to a field by the name its control registers, and a popover trigger registers none, so an error keyed by a picker's `name` found nothing to show on. The name is now given to the field itself.
+
+- **A required picker holds a form's submit back while nothing is chosen.** `required` only drew an asterisk, because the trigger is a button and a button has no value for a form to check. Each picker and `MPColorPicker` now carries an input that stands in for its value: `MPForm` refuses the submit, shows the browser's message under the field and moves focus to the trigger, and an ordinary `<form>` refuses it too. A read-only picker is not checked, as a read-only input is not.
+
+- **`MPForm`'s `onSubmit` receives the pickers' values.** It only sees the fields Base UI registers, and a popover trigger registers none, so a picker's value reached an `action` but never `onSubmit`. Each now comes under its `name` as one string: a range as an ISO 8601 interval such as `2026-07-01/2026-07-04`, and an `MPTreeSelect` with `multiple` as its values joined by commas.
+
 ## 1.10.0 (2026-10-04)
 
 This release is about what the library costs the site it runs on. A server-rendered page hydrates without the mismatches that made React throw its markup away and render it again, and its header, panes, charts, mockups and `priority` image are drawn from the first paint where they stay. Tables, trees, filtered lists and charts re-render only what a change touches, a page of 1,430 elements styles in 21ms in WebKit where it took 164ms, and a handful of opt-in props keep links, headings and pictures in the markup a crawler reads.

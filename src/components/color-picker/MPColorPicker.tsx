@@ -4,14 +4,17 @@ import { Popover } from '@base-ui/react/popover';
 import { MPIcon } from '../icon/MPIcon';
 import { CheckIcon, CloseIcon } from '../../constants/icons';
 import { MPFieldLabel, MPFieldOutline, useFloatingLabel } from '../../internal/FieldOutline';
+import { MPFieldValue } from '../../internal/FieldValue';
 import { useMPSize } from '../../internal/config';
 import type { MPMessages } from '../../internal/i18n';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
+import { COMMON } from '../../internal/messages/common';
 import { COLOR_PICKER } from '../../internal/messages/color-picker';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { MPSupportingText } from '../../internal/SupportingText';
 import { CONTROL_ICON, META_TEXT, PROSE_TEXT, STACK_GAP, hasContent } from '../../internal/scale';
 import { FADE, PORTAL_LAYER } from '../../internal/surface';
+import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
 import {
   CHECKER_BACKGROUND,
   DEFAULT_SWATCHES,
@@ -739,6 +742,7 @@ export const MPColorPicker = React.forwardRef<HTMLDivElement, MPColorPickerProps
     const size = useMPSize(sizeProp);
     const locale = useMPLocale(localeProp);
     const labels = useMPMessages(COLOR_PICKER, locale, labelOverrides);
+    const common = useMPMessages(COMMON, locale);
 
     const invalid = hasContent(errorMessage);
     const scale = TRIGGER[size];
@@ -877,6 +881,9 @@ export const MPColorPicker = React.forwardRef<HTMLDivElement, MPColorPickerProps
             >
               {label}
               {required ? <span aria-hidden="true"> *</span> : null}
+              {/* The panel has no control to carry `required`, so the label
+                  says it in words, as a picker's does. */}
+              {required ? <span className={VISUALLY_HIDDEN}> {common.required}</span> : null}
             </span>
           ) : null}
 
@@ -896,6 +903,10 @@ export const MPColorPicker = React.forwardRef<HTMLDivElement, MPColorPickerProps
     return (
       <Field.Root
         ref={ref}
+        // What `MPForm`'s `errors` are matched by. A popover trigger registers no
+        // name of its own, so without this a server's error for the field could
+        // not find it.
+        name={name}
         disabled={disabled}
         invalid={invalid}
         data-mp-size={size}
@@ -984,6 +995,13 @@ export const MPColorPicker = React.forwardRef<HTMLDivElement, MPColorPickerProps
               </button>
             ) : null}
 
+            <MPFieldValue
+              value={empty ? '' : written}
+              required={required}
+              readOnly={readOnly}
+              targetId={fieldId}
+            />
+
             <MPFieldOutline label={label} required={required} notched={shrunk} />
 
             {hasContent(label) ? (
@@ -991,6 +1009,7 @@ export const MPColorPicker = React.forwardRef<HTMLDivElement, MPColorPickerProps
                 size={size}
                 label={label}
                 required={required}
+                requiredLabel={common.required}
                 htmlFor={fieldId}
                 shrunk={shrunk}
               />

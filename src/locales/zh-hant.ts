@@ -28,7 +28,8 @@ export const zhHant: MPLocale = {
       open: '開啟',
       remove: '移除',
       removeNamed: '移除 {label}',
-      loading: '載入中'
+      loading: '載入中',
+      required: '必填'
     },
     textField: { showPassword: '顯示密碼', hidePassword: '隱藏密碼' },
     empty: { title: '暫無內容' },

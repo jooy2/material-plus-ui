@@ -24,7 +24,8 @@ export const ar: MPLocale = {
       open: 'فتح',
       remove: 'إزالة',
       removeNamed: 'إزالة {label}',
-      loading: 'جارٍ التحميل'
+      loading: 'جارٍ التحميل',
+      required: 'مطلوب'
     },
     textField: { showPassword: 'إظهار كلمة المرور', hidePassword: 'إخفاء كلمة المرور' },
     empty: { title: 'لا يوجد شيء هنا' },
