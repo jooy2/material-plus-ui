@@ -160,8 +160,9 @@ export interface MPComboboxProps<Multiple extends boolean | undefined = false>
    * *is* the query, so a filter that hid it would be hiding the answer to the
    * question it was asked.
    *
-   * Left out, Base UI's own collator-backed match is used, which is what handles
-   * accents and case across eighteen locales.
+   * Left out, Base UI's own collator-backed match is used, in `locale`'s
+   * language: it leaves case, accents and punctuation out of the comparison.
+   * `MPTreeSelect` searches the same way.
    */
   filter?: ((option: MPComboboxOption, query: string) => boolean) | null;
   /**
@@ -646,6 +647,10 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
         isItemEqualToValue={(a, b) => a.value === b.value}
         limit={limit}
         filter={listFilter}
+        // The language the default match compares in. Left out, Base UI's
+        // collator falls back to the browser's, which need not be the one the
+        // field is written in.
+        locale={locale}
         disabled={disabled}
         readOnly={readOnly}
         required={required}

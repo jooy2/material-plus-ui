@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { render } from 'vitest-browser-react';
+import { render, renderHook } from 'vitest-browser-react';
+import { Combobox } from '@base-ui/react/combobox';
 import { userEvent } from 'vitest/browser';
 import { MPTreeSelect } from 'material-plus-ui';
 import type { MPTreeSelectItem } from 'material-plus-ui';
@@ -261,29 +262,81 @@ describe('MPTreeSelect', () => {
     await vi.waitFor(() => expect(rows()).toEqual(['asia', 'korea', 'seoul']));
   });
 
-  it('folds each node once, not once per keystroke', async () => {
-    // Every keystroke folded every node's label again before comparing it.
-    const screen = await render(<MPTreeSelect label="Region" items={ITEMS} searchable />);
+  // It folded case and nothing else, while MPCombobox matches through Base UI's
+  // collator — so the same query found "Málaga" in one and not in the other.
+  it('matches the way MPCombobox does, setting case, accents and punctuation aside', async () => {
+    const places: MPTreeSelectItem[] = [
+      {
+        value: 'europe',
+        label: 'Europe',
+        children: [
+          { value: 'malaga', label: 'Málaga' },
+          { value: 'etienne', label: 'Saint-Étienne' },
+          { value: 'paris', label: 'Paris' }
+        ]
+      }
+    ];
+    const screen = await render(<MPTreeSelect label="Region" items={places} searchable />);
 
     await open(screen);
-    await search(screen, 'k');
-    await vi.waitFor(() => expect(rows()).toContain('korea'));
+    await search(screen, 'MALAGA');
+    await vi.waitFor(() => expect(rows()).toEqual(['europe', 'malaga']));
 
-    const folds = vi.spyOn(String.prototype, 'toLocaleLowerCase');
+    await search(screen, 'saint etienne');
+    await vi.waitFor(() => expect(rows()).toEqual(['europe', 'etienne']));
+  });
 
-    await search(screen, 'ko');
-    await vi.waitFor(() => expect(rows()).toContain('korea'));
+  // The match is written out in the tree select rather than borrowed, because
+  // borrowing it brings the whole combobox into the bundle. This is what keeps
+  // the copy honest: the same labels and the same queries, the same answers.
+  it('finds what Base UI’s own filter finds, query for query', async () => {
+    const labels = [
+      'Málaga',
+      'Saint-Étienne',
+      'São Paulo',
+      'Zürich',
+      'Ærøskøbing',
+      'İstanbul',
+      'co-op',
+      'Coöp',
+      'Straße'
+    ];
+    const queries = [
+      'malaga',
+      'SAINT ETIENNE',
+      'sao',
+      'zur',
+      'aero',
+      'istanbul',
+      'coop',
+      'é',
+      'strasse'
+    ];
+    const places: MPTreeSelectItem[] = [
+      {
+        value: 'world',
+        label: 'World',
+        children: labels.map((label, index) => ({ value: `place-${index}`, label }))
+      }
+    ];
+    const { result } = await renderHook(() =>
+      Combobox.useFilter({ locale: 'en-US', multiple: true })
+    );
+    const screen = await render(
+      <MPTreeSelect label="Region" locale="en-US" items={places} searchable />
+    );
 
-    // The query is folded once per render, and how many renders a keystroke
-    // takes is the browser's business. What must not happen is a node's label
-    // being folded again, so that is what is asked.
-    const labels = ['europe', 'france', 'spain', 'asia', 'korea', 'seoul', 'japan'];
-    const folded = folds.mock.contexts.map((text) => String(text).toLowerCase());
+    await screen.getByRole('button', { name: 'Region' }).click();
+    await vi.waitFor(() => expect(row('world')).not.toBeNull());
 
-    folds.mockRestore();
+    for (const query of queries) {
+      const expected = labels
+        .map((label, index) => (result.current.contains(label, query) ? `place-${index}` : null))
+        .filter((value) => value !== null);
 
-    expect(folded.length).toBeGreaterThan(0);
-    expect(folded.filter((text) => labels.some((label) => text.includes(label)))).toEqual([]);
+      await search(screen, query);
+      await vi.waitFor(() => expect(rows().filter((value) => value !== 'world')).toEqual(expected));
+    }
   });
 
   it('opens every branch a search kept', async () => {

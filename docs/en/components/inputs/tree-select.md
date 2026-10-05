@@ -54,7 +54,7 @@ Two rules follow from the same reasoning:
 
 While a search is on, the tree's open branches are the search's answer rather than the reader's, so `onExpandedChange` is quiet. Clearing the field — or shutting the popup, which clears it — gives the reader's own back.
 
-Matching is `toLocaleLowerCase` and nothing more, which is the fold [MPCombobox](combobox) already uses. `searchLabel` is what a node is matched against when its `label` is not a plain string.
+Matching is [MPCombobox](combobox)'s: Base UI's collator, in the language of `locale`, which leaves case, accents and punctuation out of the comparison — "malaga" finds "Málaga" and "saint etienne" finds "Saint-Étienne". `searchLabel` is what a node is matched against when its `label` is not a plain string.
 
 The field's own word is [MPTransfer](transfer)'s "Search", which is the same field doing the same job — one more spelling of it would be one more thing to translate in eighteen locales, and one more chance for the two to disagree.
 

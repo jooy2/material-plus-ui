@@ -54,7 +54,7 @@ item 자신의 `selectable`은 어느 쪽으로든 이 규칙을 뒤집습니다
 
 검색이 켜져 있는 동안 열려 있는 가지는 읽는 사람의 답이 아니라 검색의 답이므로 `onExpandedChange`는 조용합니다. 필드를 비우면 — 팝업을 닫아도 비워집니다 — 읽는 사람 자신의 상태가 돌아옵니다.
 
-일치 판정은 `toLocaleLowerCase`가 전부이며, [MPCombobox](combobox)가 이미 쓰는 접기와 같습니다. `label`이 순수한 문자열이 아닐 때 무엇에 대고 일치를 볼지는 `searchLabel`이 정합니다.
+일치 판정은 [MPCombobox](combobox)와 같습니다. `locale`의 언어로 Base UI의 collator가 비교하고, 대소문자와 악센트와 문장부호는 비교에서 뺍니다. "malaga"로 "Málaga"를, "saint etienne"으로 "Saint-Étienne"을 찾습니다. `label`이 순수한 문자열이 아닐 때 무엇에 대고 일치를 볼지는 `searchLabel`이 정합니다.
 
 필드에 적히는 단어 자체는 [MPTransfer](transfer)의 "검색"입니다. 같은 일을 하는 같은 필드이기 때문입니다. 한 번 더 적어 두면 열여덟 개 로케일에서 한 번 더 번역해야 하고, 둘이 어긋날 기회가 한 번 더 생깁니다.
 

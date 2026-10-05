@@ -8,6 +8,8 @@
 
 - **An indeterminate `MPProgressLinear` moves on the library's own motion tokens.** Each bar's leading and trailing edge now travel separately, the head on `standard` and the tail on `standard-accelerate`, over a cycle of two `extra-long4`s, so a page that retunes its motion retunes the indicator with it. It is still a long sweep followed by a short one that catches up; the timing is new.
 
+- **`MPTreeSelect` searches the way `MPCombobox` does.** It folded case and nothing else, while the combobox matches through Base UI's collator, so "malaga" found "Málaga" in one and not in the other. Both now leave case, accents and punctuation out of the comparison, and both compare in the language of `locale` — the combobox fell back to the browser's before, which need not be the one the field is written in.
+
 ### Documentation
 
 - **A page on how far the library follows the specification.** Design › Spec coverage lists, component by component, what Material Design 3 and M3 Expressive define, which of it is here, what the library adds, and what Material UI offers for the same need.

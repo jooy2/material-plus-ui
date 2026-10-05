@@ -114,35 +114,55 @@ function flatten(
   return into;
 }
 
+/** What a node is matched against: `searchLabel`, or the label when it is text. */
+function searchTextOf(item: MPTreeSelectItem): string {
+  return item.searchLabel ?? (typeof item.label === 'string' ? item.label : String(item.value));
+}
+
 /**
- * What a needle and a node are both folded to before they are compared.
+ * The comparison a search runs, which is `MPCombobox`'s.
  *
- * `toLocaleLowerCase` and nothing else, which is the fold `MPCombobox` already
- * uses: a filter is a convenience, and a collator that knew about diacritics
- * would be a second answer to a question this library has already answered one
- * way.
+ * The combobox matches through Base UI's own filter, and this asks
+ * `Intl.Collator` the same question with the same three options — a search
+ * that sets case, accents and punctuation aside — trying the query at every
+ * position of the text. It is written out rather than borrowed because the one
+ * public way in is `Combobox.useFilter`, and importing that brings the whole
+ * combobox along: some 20 kB on a page that renders a tree select and nothing
+ * else. A test holds the two to the same answers.
  */
-const fold = (text: string) => text.trim().toLocaleLowerCase();
+const COLLATOR_OPTIONS: Intl.CollatorOptions = {
+  usage: 'search',
+  sensitivity: 'base',
+  ignorePunctuation: true
+};
 
 /**
- * Each node's folded text, worked out once per node rather than once per node
- * per keystroke. Keyed by the node object, which a caller's tree keeps between
- * renders, and forgotten with it.
+ * One collator per language, made the first time it is asked for. Making one is
+ * the expensive part; comparing with it is not.
  */
-const folded = new WeakMap<MPTreeSelectItem, string>();
+const collators = new Map<string, Intl.Collator>();
 
-/** What a node is matched against. */
-function haystackOf(item: MPTreeSelectItem): string {
-  let text = folded.get(item);
+function collatorFor(locale: string | undefined): Intl.Collator {
+  const key = locale ?? '';
+  let collator = collators.get(key);
 
-  if (text === undefined) {
-    text = fold(
-      item.searchLabel ?? (typeof item.label === 'string' ? item.label : String(item.value))
-    );
-    folded.set(item, text);
+  if (collator === undefined) {
+    collator = new Intl.Collator(locale, COLLATOR_OPTIONS);
+    collators.set(key, collator);
   }
 
-  return text;
+  return collator;
+}
+
+/** Whether `needle` appears anywhere in `text`, as the collator reads them. */
+function contains(text: string, needle: string, collator: Intl.Collator): boolean {
+  for (let start = 0; start + needle.length <= text.length; start += 1) {
+    if (collator.compare(text.slice(start, start + needle.length), needle) === 0) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 /**
@@ -155,8 +175,17 @@ function haystackOf(item: MPTreeSelectItem): string {
  * A node that matches keeps **all** of its own children rather than the ones
  * that matched: having found the branch the reader was looking for, hiding what
  * is inside it is the opposite of helpful.
+ *
+ * A match is `MPCombobox`'s — see `contains` — which leaves case, accents and
+ * punctuation out of the comparison, in the language the picker is written in.
+ * Two searches in one library that disagreed about whether "malaga" finds
+ * "Málaga" would be two answers to one question.
  */
-function filterTree(items: MPTreeSelectItem[], needle: string): MPTreeSelectItem[] {
+function filterTree(
+  items: MPTreeSelectItem[],
+  needle: string,
+  collator: Intl.Collator
+): MPTreeSelectItem[] {
   if (needle === '') {
     return items;
   }
@@ -164,8 +193,8 @@ function filterTree(items: MPTreeSelectItem[], needle: string): MPTreeSelectItem
   const kept: MPTreeSelectItem[] = [];
 
   for (const item of items) {
-    const children = item.children ? filterTree(item.children, needle) : undefined;
-    const hit = haystackOf(item).includes(needle);
+    const children = item.children ? filterTree(item.children, needle, collator) : undefined;
+    const hit = contains(searchTextOf(item), needle, collator);
 
     if (hit || (children && children.length > 0)) {
       kept.push({ ...item, children: hit ? item.children : children });
@@ -285,8 +314,12 @@ export const MPTreeSelect = React.forwardRef<HTMLButtonElement, MPTreeSelectProp
     // Deferred, so the letter typed is drawn in the field straight away and the
     // tree — a one-letter query can open most of a large one — catches up in
     // the time left over, rather than holding the keystroke until it has.
-    const needle = fold(React.useDeferredValue(query));
-    const shown = React.useMemo(() => filterTree(items, needle), [items, needle]);
+    const needle = React.useDeferredValue(query).trim();
+    const collator = collatorFor(locale);
+    const shown = React.useMemo(
+      () => filterTree(items, needle, collator),
+      [items, needle, collator]
+    );
 
     // A search opens every branch it kept: a match folded inside a shut parent
     // is a match the reader was not shown.
