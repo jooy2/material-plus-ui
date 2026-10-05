@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { MPIcon } from '../icon/MPIcon';
-import { CloseIcon } from '../../constants/icons';
+import { CheckIcon, CloseIcon } from '../../constants/icons';
 import { accentSlots } from '../../internal/accent';
 import { transitionProps } from '../../internal/transition';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
@@ -55,7 +55,7 @@ export interface MPChipProps extends Omit<React.ComponentPropsWithoutRef<'span'>
    *
    * MD3's selected filter chip fills with the container tone of its own family
    * rather than changing family, which is what this does: a filter that is on is
-   * still the same filter.
+   * still the same filter. It also leads with a tick, unless `startIcon` is set.
    *
    * Deliberately **without a default**, which is the one thing about it worth
    * knowing. Passing it — either way round — is what says this chip is a toggle,
@@ -167,8 +167,9 @@ const REST: Record<MPVariant, string> = {
 
 /**
  * Selected fills with the family's container tone and takes its `on-` ink —
- * MD3's selected filter chip exactly. `filled` has nowhere louder to go, so it
- * stays where it is and lets the state layer and the tick say it.
+ * MD3's selected filter chip exactly. `filled` and `tonal` already rest on those
+ * tones and have nowhere louder to go, so they stay where they are and let the
+ * tick say it — see `label` in the component.
  */
 const SELECTED: Record<MPVariant, string> = {
   filled: 'border-0 bg-(--_mp-accent) text-(--_mp-on-accent)',
@@ -341,9 +342,16 @@ export const MPChip = React.forwardRef<HTMLElement, MPChipProps>(function MPChip
     .filter(Boolean)
     .join(' ');
 
+  // MD3's selected filter chip leads with a tick, and on a `filled` or `tonal`
+  // chip it is the only thing that changes, since both already rest on the
+  // tones a selected chip takes. A caller's own `startIcon` is never replaced:
+  // it may be an avatar or a status, and a chip that already draws its own
+  // tick when it is on would otherwise draw two.
+  const leading = startIcon ?? (selected ? <MPIcon icon={CheckIcon} size="1.25em" /> : null);
+
   const label = (
     <>
-      {startIcon}
+      {leading}
       {/* `truncate` clips at the line box, and the shell's `leading-none` makes
           that box one em — shorter than the glyphs, so it cut every descender.
           `normal` sizes it to the font's own ascent and descent, and it grows

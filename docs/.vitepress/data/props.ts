@@ -4419,10 +4419,9 @@ const componentTables: Record<string, PropRow[]> = {
     {
       name: 'selected',
       type: 'boolean',
-      default: 'false',
       description: {
-        ko: '고른 상태. 색 계열을 바꾸는 대신 그 계열의 container 색으로 채웁니다',
-        en: 'Marks the chip as chosen. Fills with the family’s container tone rather than changing family'
+        ko: '고른 상태. 색 계열을 바꾸는 대신 그 계열의 container 색으로 채우고, `startIcon`이 없으면 앞에 체크 표시를 그립니다. 기본값이 없는 것이 의도입니다 — 넘기면 토글로 안내되고, 넘기지 않으면 액션입니다',
+        en: 'Marks the chip as chosen. Fills with the family’s container tone rather than changing family, and leads with a tick unless `startIcon` is set. No default, on purpose: passing it either way makes the chip a toggle, and leaving it off makes it an action'
       }
     },
     disabled,

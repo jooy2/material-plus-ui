@@ -45,6 +45,8 @@ Two things say so, and both are the specification's.
 
 Selected fills with the family's **container** tone and takes its `on-` ink — MD3's selected filter chip exactly. Not a second colour and not a bolder weight: a filter that is on is still the same filter.
 
+It also leads with a tick, which on `filled` and `tonal` is the only change: both already rest on the tones a selected chip takes. A `startIcon` of your own is kept in its place, so an avatar or a status stays where it was.
+
 `outlined` reads `on-surface-variant` rather than the accent at rest, which is also MD3's choice: the label of a filter that is off is not making a claim, and twenty accent-coloured labels in a row is a filter bar that looks like it is all switched on.
 
 ### onClick and onDelete

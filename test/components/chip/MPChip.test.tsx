@@ -182,6 +182,35 @@ describe('MPChip', () => {
       expect(element).toHaveAttribute('data-selected', 'true');
     });
 
+    // `filled` and `tonal` rest on the tones a selected chip takes, so before the
+    // tick a selected one was drawn exactly like one that was off.
+    it('leads with a tick when selected, which is all a filled chip has to show it', async () => {
+      const screen = await render(
+        <>
+          <MPChip variant="filled" selected data-testid="on">
+            Draft
+          </MPChip>
+          <MPChip variant="filled" selected={false} data-testid="off">
+            Draft
+          </MPChip>
+        </>
+      );
+
+      expect(screen.getByTestId('on').element().querySelector('svg')).not.toBeNull();
+      expect(screen.getByTestId('off').element().querySelector('svg')).toBeNull();
+    });
+
+    it('keeps its own start icon in place of the tick', async () => {
+      const screen = await render(
+        <MPChip selected startIcon={<span data-testid="avatar">A</span>} data-testid="chip">
+          Ada
+        </MPChip>
+      );
+
+      expect(screen.getByTestId('avatar').query()).not.toBeNull();
+      expect(screen.getByTestId('chip').element().querySelector('svg')).toBeNull();
+    });
+
     it('stays inert while disabled', async () => {
       const onClick = vi.fn();
       const screen = await render(
