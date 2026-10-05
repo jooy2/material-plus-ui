@@ -85,6 +85,24 @@ describe('MPProgressBox', () => {
       ).toEqual(['0', '1', '2']);
     });
 
+    // The grey track class used to sit beside the accent one, and the grey came
+    // later in the stylesheet, so the wave pulsed in a 12% wash.
+    it('pulses in the accent, the colour a filled segment is', async () => {
+      await render(
+        <>
+          <MPProgressBox />
+          <MPProgressBox value={100} />
+        </>
+      );
+
+      const [waiting, done] = document.querySelectorAll('.mp-progress-box');
+      const wave = waiting.querySelector('.mp-progress-segment-wave')!;
+      // A determinate segment is a track with its fill inside it.
+      const fill = done.querySelector('div:last-of-type > span > span')!;
+
+      expect(getComputedStyle(wave).backgroundColor).toBe(getComputedStyle(fill).backgroundColor);
+    });
+
     it('stops cycling once a value arrives', async () => {
       const screen = await render(<MPProgressBox />);
 

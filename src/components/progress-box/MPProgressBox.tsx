@@ -146,13 +146,18 @@ export const MPProgressBox = React.forwardRef<HTMLDivElement, MPProgressBoxProps
             <span
               key={index}
               className={[
-                'bg-mp-on-surface/12 relative overflow-hidden',
+                'relative overflow-hidden',
                 SEGMENT_SIZE[size],
                 SEGMENT_RADIUS[size],
                 // The wave animates opacity, not position, and reads `--_mp-index`
                 // for its own delay — which is why the whole row is one class and
                 // one custom property rather than N generated keyframe names.
-                indeterminate ? 'mp-progress-segment-wave bg-(--_mp-accent)' : ''
+                //
+                // An if/else rather than both fills: two classes of equal
+                // specificity resolve by their order in the generated stylesheet,
+                // and the grey came later, so the wave pulsed in a 12% wash
+                // instead of the accent.
+                indeterminate ? 'mp-progress-segment-wave bg-(--_mp-accent)' : 'bg-mp-on-surface/12'
               ]
                 .filter(Boolean)
                 .join(' ')}

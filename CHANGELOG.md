@@ -24,6 +24,8 @@
 
 - **`MPAccordion`'s `density` takes room from under each body as well.** It tightened the header and the sides of the body and left the space under the body where it was.
 
+- **An indeterminate `MPProgressBox` pulses in the accent.** Its segments carried the grey track class and the accent one together, and the grey came later in the stylesheet, so the wave was a 12% wash that was barely there.
+
 - **`MPIconButton` takes the `variant` of the `MPButtonGroup` around it.** Its own default of `text` reached the button as if the caller had chosen it, so the group's never arrived, and a group of `outlined` buttons drew its icon buttons bare. Outside a group, or in one that names no variant, an icon button is still `text`.
 
 - **A selected `MPChip` leads with a tick.** `filled` and `tonal` already rest on the tones a selected chip takes, so a selected one looked exactly like one that was off. The tick is MD3's selected filter chip's, and on those two variants it is the only change. A chip given a `startIcon` of its own keeps it.
