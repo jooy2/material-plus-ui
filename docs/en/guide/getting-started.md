@@ -56,7 +56,7 @@ This is **finished CSS**: the design tokens and the real rules behind every util
 
 ### If you only render a few components
 
-The sheet above is every rule the library has, and for most projects that is the right trade: one line, and never a thought about which components are on the page. It is also 174.3 kB — 23.7 kB compressed — whether the page renders one component or all of them, because Tailwind generates from a file scan and not from your imports.
+The sheet above is every rule the library has, and for most projects that is the right trade: one line, and never a thought about which components are on the page. It is also 175.0 kB — 23.7 kB compressed — whether the page renders one component or all of them, because Tailwind generates from a file scan and not from your imports.
 
 So the package also ships the same rules cut along the same seams the components are: the tokens once, and a sheet per component.
 
@@ -347,9 +347,9 @@ Gzipped, from a real bundler, with React and `@base-ui/react` held external — 
 | --------------------- | ---------- | ----------------- |
 | `MPBox` alone         | 1.7 kB     | 6.3 kB            |
 | `MPButton` alone      | 3.8 kB     | 6.3 kB            |
-| Five components       | 9.9 kB     | 9.4 kB            |
-| Ten components        | 14.4 kB    | 12.2 kB           |
-| Every export there is | 137.5 kB   | 23.7 kB           |
+| Five components       | 10.0 kB    | 9.4 kB            |
+| Ten components        | 14.5 kB    | 12.2 kB           |
+| Every export there is | 138.2 kB   | 23.7 kB           |
 
 The last row leaves out one thing on purpose: `MPCodeBlock`'s grammars are 49.7 kB more, fetched only when a block colours something and never at all on a page that has none. `npm run measure` prints it as a separate figure for that reason.
 
