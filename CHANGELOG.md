@@ -2,6 +2,10 @@
 
 ## vNext (2026--)
 
+## 1.11.0 (2026-10-07)
+
+Most of this release closes the distance between what a component was said to do and what it did. A required picker now tells a screen reader it is required, holds a form's submit back while nothing is chosen, and reaches `MPForm`'s `errors` and `onSubmit` under its `name`. Props that were accepted and then lost, such as the `variant` an `MPButtonGroup` gives its icon buttons and `aria-label` on `MPTextField`, now take effect, and descriptions that promised what no component did now describe the components. `MPSegmentedButton` is the one breaking change: it is MD3's 40px at `md`, so a set at the default size is smaller than before. A new page, Design › Spec coverage, lists how far each component follows Material Design 3.
+
 ### Breaking changes
 
 - **`MPSegmentedButton` is MD3's 40px at `md`, on a ladder of its own.** It took the control ladder a button walks, which put the specification's 40dp at `sm` and made the default a 56px pill. Its rungs are now 32, 36, 40, 48 and 56px. What `sm` drew is now `md`, and what `md` drew is `xl`: pass `size="xl"` to keep a 56px set. There is no 64px or 72px set any more.
