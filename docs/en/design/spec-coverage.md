@@ -5,7 +5,7 @@ order: 5
 
 # Spec coverage
 
-<p class="mp-lede">Which Material Design this library implements, how much of it, where it goes further, and how that compares with Material UI. Every row was read off the source of Material Plus 1.10.0 and checked against the published specification and Material UI's own API pages in October 2026.</p>
+<p class="mp-lede">Which Material Design this library implements, how much of it, where it goes further, and how that compares with Material UI. Every row was read off the source of Material Plus 1.11.0 and checked against the published specification and Material UI's own API pages in October 2026.</p>
 
 ## In short
 
