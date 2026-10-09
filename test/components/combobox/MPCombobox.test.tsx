@@ -247,6 +247,26 @@ describe('MPCombobox', () => {
 
       expect(screen.getByTestId('model').element().textContent).toBe('banana');
     });
+
+    it('takes a readonly array without the caller copying it', async () => {
+      // A frozen array throws on any write, so this also says the field never
+      // sorts or splices the caller's own copy.
+      const chosen: readonly MPComboboxValue[] = Object.freeze(['apple', 'banana']);
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <MPCombobox
+          items={FRUIT}
+          label="Fruit"
+          multiple
+          value={chosen}
+          onValueChange={onValueChange}
+        />
+      );
+
+      await screen.getByRole('button', { name: 'Remove Apple' }).click();
+
+      expect(onValueChange).toHaveBeenCalledWith(['banana']);
+    });
   });
 
   describe('the floating label', () => {

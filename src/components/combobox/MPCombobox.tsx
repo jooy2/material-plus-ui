@@ -71,6 +71,15 @@ type Selection<Multiple extends boolean | undefined> = Multiple extends true
   ? MPComboboxValue[]
   : MPComboboxValue | null;
 
+/**
+ * The same, as a caller hands it in. A `readonly` array is accepted because
+ * the field copies it before keeping it, and a caller holding one should not
+ * have to copy it first.
+ */
+type SelectionInput<Multiple extends boolean | undefined> = Multiple extends true
+  ? readonly MPComboboxValue[]
+  : MPComboboxValue | null;
+
 export interface MPComboboxProps<Multiple extends boolean | undefined = false>
   extends MPStyleProps, MPControlEventProps<HTMLInputElement> {
   /**
@@ -108,9 +117,9 @@ export interface MPComboboxProps<Multiple extends boolean | undefined = false>
    * "not picked yet" rather than a `0` or an empty string, or the field will
    * show it.
    */
-  value?: Selection<Multiple> | null;
+  value?: SelectionInput<Multiple> | null;
   /** The initially chosen value, for an uncontrolled combobox. `null` is none. */
-  defaultValue?: Selection<Multiple> | null;
+  defaultValue?: SelectionInput<Multiple> | null;
   onValueChange?: (value: Selection<Multiple>) => void;
   /** Called as the text in the input changes — the filter query, not the value. */
   onInputValueChange?: (inputValue: string) => void;
