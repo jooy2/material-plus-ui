@@ -31,6 +31,10 @@ import { FLEX_ALIGN, accessibilityAttributes, weightStyle } from '../internal/co
 export const MPA2uiList = createComponentImplementation(ListApi, ({ props, buildChild }) => (
   <MPFlex
     render={<ul />}
+    // Safari takes the list semantics off a `<ul>` whose markers are gone, and
+    // this one never has any. Saying `role="list"` out loud is the fix `MPList`
+    // uses for the same reason.
+    role="list"
     direction={props.direction === 'horizontal' ? 'row' : 'column'}
     align={FLEX_ALIGN[props.align ?? 'stretch'] ?? 'stretch'}
     gap={8}
