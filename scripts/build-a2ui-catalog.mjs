@@ -37,8 +37,9 @@
  * So the conversion runs here, with the deduplication turned off and the protocol's
  * own `REF:` convention applied as it goes, which is how a schema in Zod says "this
  * is the protocol's `DynamicString`". Those definitions are the protocol's common
- * types, so each reference is written against `common_types.json`. The envelope is
- * the SDK's, and the last two steps check the result: every reference names a
+ * types, so each reference is written against the specification's
+ * `common_types.json`, by the full address its own basic catalog uses. The envelope
+ * is the SDK's, and the last two steps check the result: every reference names a
  * definition the protocol has, and the component names and their required props
  * match what the SDK produces — so the day the protocol changes either, the build
  * says so here rather than the site serving a description of a renderer that no
@@ -72,6 +73,14 @@ if (host !== 'material-plus.cdget.com') {
 
 const out = resolve(root, 'docs/public', `.${pathname}`);
 
+/*
+ * Where the protocol's common types are published, and the `$id` of the file
+ * served there. The specification's own basic catalog points at it by this
+ * address, and so does this file: a relative `common_types.json` would resolve
+ * beside the published catalog, where the site serves nothing.
+ */
+const COMMON_TYPES = 'https://a2ui.org/specification/v0_9/common_types.json#/$defs/';
+
 /**
  * The protocol's `REF:` convention, applied as the conversion meets it.
  *
@@ -80,8 +89,7 @@ const out = resolve(root, 'docs/public', `.${pathname}`);
  * reference and everything after it is the description to keep. This is the SDK's
  * rule, followed rather than invented: the strings it reads are written in A2UI's
  * own schemas. The definitions they name are the protocol's common types, so the
- * reference is written against `common_types.json`, the way the SDK wrote it itself
- * up to 0.11.
+ * reference is written against `COMMON_TYPES`.
  *
  * It is answered before the converter descends rather than patched in afterwards. A
  * function call's arguments are dynamic values, and a dynamic value may be another
@@ -95,7 +103,9 @@ const protocolRef = (def) => {
   }
 
   const [pointer, description] = def.description.slice(4).split('|');
-  const reference = pointer.startsWith('#/$defs/') ? `common_types.json${pointer}` : pointer;
+  const reference = pointer.startsWith('#/$defs/')
+    ? `${COMMON_TYPES}${pointer.slice('#/$defs/'.length)}`
+    : pointer;
 
   return description ? { $ref: reference, description } : { $ref: reference };
 };
@@ -114,7 +124,7 @@ const asComponent = (name, schema) => {
 
   return {
     allOf: [
-      { $ref: 'common_types.json#/$defs/ComponentCommon' },
+      { $ref: `${COMMON_TYPES}ComponentCommon` },
       {
         properties: { component: { const: name }, ...converted.properties },
         required: ['component', ...(converted.required ?? [])]
@@ -207,10 +217,9 @@ const document = {
 
 /*
  * Every reference has to name a definition the protocol publishes. One that points
- * into this document, or at a name `common_types.json` does not define, names
- * nothing for an agent that fetched the id.
+ * into this document, or at a name the protocol's `common_types.json` does not
+ * define, names nothing for an agent that fetched the id.
  */
-const COMMON_TYPES = 'common_types.json#/$defs/';
 const references = [...JSON.stringify(document).matchAll(/"\$ref":"([^"]*)"/g)].map(
   ([, ref]) => ref
 );

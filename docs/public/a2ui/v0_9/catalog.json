@@ -5,7 +5,7 @@
     "Text": {
       "allOf": [
         {
-          "$ref": "common_types.json#/$defs/ComponentCommon"
+          "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentCommon"
         },
         {
           "properties": {
@@ -13,14 +13,14 @@
               "const": "Text"
             },
             "accessibility": {
-              "$ref": "common_types.json#/$defs/AccessibilityAttributes"
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/AccessibilityAttributes"
             },
             "weight": {
               "type": "number",
               "description": "The relative weight of this component within a Row or Column. This is similar to the CSS 'flex-grow' property. Note: this may ONLY be set when the component is a direct descendant of a Row or Column."
             },
             "text": {
-              "$ref": "common_types.json#/$defs/DynamicString",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
               "description": "The text content to display. While simple Markdown formatting is supported (i.e. without HTML, images, or links), utilizing dedicated UI components is generally preferred for a richer and more structured presentation."
             },
             "variant": {
@@ -48,7 +48,7 @@
     "Image": {
       "allOf": [
         {
-          "$ref": "common_types.json#/$defs/ComponentCommon"
+          "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentCommon"
         },
         {
           "properties": {
@@ -56,18 +56,18 @@
               "const": "Image"
             },
             "accessibility": {
-              "$ref": "common_types.json#/$defs/AccessibilityAttributes"
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/AccessibilityAttributes"
             },
             "weight": {
               "type": "number",
               "description": "The relative weight of this component within a Row or Column. This is similar to the CSS 'flex-grow' property. Note: this may ONLY be set when the component is a direct descendant of a Row or Column."
             },
             "url": {
-              "$ref": "common_types.json#/$defs/DynamicString",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
               "description": "The URL of the image to display."
             },
             "description": {
-              "$ref": "common_types.json#/$defs/DynamicString",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
               "description": "Accessibility text for the image."
             },
             "fit": {
@@ -106,7 +106,7 @@
     "Icon": {
       "allOf": [
         {
-          "$ref": "common_types.json#/$defs/ComponentCommon"
+          "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentCommon"
         },
         {
           "properties": {
@@ -114,7 +114,7 @@
               "const": "Icon"
             },
             "accessibility": {
-              "$ref": "common_types.json#/$defs/AccessibilityAttributes"
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/AccessibilityAttributes"
             },
             "weight": {
               "type": "number",
@@ -199,7 +199,7 @@
                   "additionalProperties": false
                 },
                 {
-                  "$ref": "common_types.json#/$defs/DataBinding"
+                  "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DataBinding"
                 }
               ],
               "description": "The name of the icon to display."
@@ -215,7 +215,7 @@
     "Video": {
       "allOf": [
         {
-          "$ref": "common_types.json#/$defs/ComponentCommon"
+          "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentCommon"
         },
         {
           "properties": {
@@ -223,14 +223,14 @@
               "const": "Video"
             },
             "accessibility": {
-              "$ref": "common_types.json#/$defs/AccessibilityAttributes"
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/AccessibilityAttributes"
             },
             "weight": {
               "type": "number",
               "description": "The relative weight of this component within a Row or Column. This is similar to the CSS 'flex-grow' property. Note: this may ONLY be set when the component is a direct descendant of a Row or Column."
             },
             "url": {
-              "$ref": "common_types.json#/$defs/DynamicString",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
               "description": "The URL of the video to display."
             }
           },
@@ -244,7 +244,7 @@
     "AudioPlayer": {
       "allOf": [
         {
-          "$ref": "common_types.json#/$defs/ComponentCommon"
+          "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentCommon"
         },
         {
           "properties": {
@@ -252,18 +252,18 @@
               "const": "AudioPlayer"
             },
             "accessibility": {
-              "$ref": "common_types.json#/$defs/AccessibilityAttributes"
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/AccessibilityAttributes"
             },
             "weight": {
               "type": "number",
               "description": "The relative weight of this component within a Row or Column. This is similar to the CSS 'flex-grow' property. Note: this may ONLY be set when the component is a direct descendant of a Row or Column."
             },
             "url": {
-              "$ref": "common_types.json#/$defs/DynamicString",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
               "description": "The URL of the audio to be played."
             },
             "description": {
-              "$ref": "common_types.json#/$defs/DynamicString",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
               "description": "A description of the audio, such as a title or summary."
             }
           },
@@ -277,7 +277,7 @@
     "Row": {
       "allOf": [
         {
-          "$ref": "common_types.json#/$defs/ComponentCommon"
+          "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentCommon"
         },
         {
           "properties": {
@@ -285,14 +285,14 @@
               "const": "Row"
             },
             "accessibility": {
-              "$ref": "common_types.json#/$defs/AccessibilityAttributes"
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/AccessibilityAttributes"
             },
             "weight": {
               "type": "number",
               "description": "The relative weight of this component within a Row or Column. This is similar to the CSS 'flex-grow' property. Note: this may ONLY be set when the component is a direct descendant of a Row or Column."
             },
             "children": {
-              "$ref": "common_types.json#/$defs/ChildList",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ChildList",
               "description": "Defines the children. Use an array of strings for a fixed set of children, or a template object to generate children from a data list. Children cannot be defined inline, they must be referred to by ID."
             },
             "justify": {
@@ -331,7 +331,7 @@
     "Column": {
       "allOf": [
         {
-          "$ref": "common_types.json#/$defs/ComponentCommon"
+          "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentCommon"
         },
         {
           "properties": {
@@ -339,14 +339,14 @@
               "const": "Column"
             },
             "accessibility": {
-              "$ref": "common_types.json#/$defs/AccessibilityAttributes"
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/AccessibilityAttributes"
             },
             "weight": {
               "type": "number",
               "description": "The relative weight of this component within a Row or Column. This is similar to the CSS 'flex-grow' property. Note: this may ONLY be set when the component is a direct descendant of a Row or Column."
             },
             "children": {
-              "$ref": "common_types.json#/$defs/ChildList",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ChildList",
               "description": "Defines the children. Use an array of strings for a fixed set of children, or a template object to generate children from a data list. Children cannot be defined inline, they must be referred to by ID."
             },
             "justify": {
@@ -385,7 +385,7 @@
     "List": {
       "allOf": [
         {
-          "$ref": "common_types.json#/$defs/ComponentCommon"
+          "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentCommon"
         },
         {
           "properties": {
@@ -393,14 +393,14 @@
               "const": "List"
             },
             "accessibility": {
-              "$ref": "common_types.json#/$defs/AccessibilityAttributes"
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/AccessibilityAttributes"
             },
             "weight": {
               "type": "number",
               "description": "The relative weight of this component within a Row or Column. This is similar to the CSS 'flex-grow' property. Note: this may ONLY be set when the component is a direct descendant of a Row or Column."
             },
             "children": {
-              "$ref": "common_types.json#/$defs/ChildList",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ChildList",
               "description": "Defines the children. Use an array of strings for a fixed set of children, or a template object to generate children from a data list."
             },
             "direction": {
@@ -434,7 +434,7 @@
     "Card": {
       "allOf": [
         {
-          "$ref": "common_types.json#/$defs/ComponentCommon"
+          "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentCommon"
         },
         {
           "properties": {
@@ -442,14 +442,14 @@
               "const": "Card"
             },
             "accessibility": {
-              "$ref": "common_types.json#/$defs/AccessibilityAttributes"
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/AccessibilityAttributes"
             },
             "weight": {
               "type": "number",
               "description": "The relative weight of this component within a Row or Column. This is similar to the CSS 'flex-grow' property. Note: this may ONLY be set when the component is a direct descendant of a Row or Column."
             },
             "child": {
-              "$ref": "common_types.json#/$defs/ComponentId",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId",
               "description": "The ID of the single child component to be rendered inside the card. To display multiple elements, you MUST wrap them in a layout component (like Column or Row) and pass that container's ID here. Do NOT pass multiple IDs or a non-existent ID."
             }
           },
@@ -463,7 +463,7 @@
     "Tabs": {
       "allOf": [
         {
-          "$ref": "common_types.json#/$defs/ComponentCommon"
+          "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentCommon"
         },
         {
           "properties": {
@@ -471,7 +471,7 @@
               "const": "Tabs"
             },
             "accessibility": {
-              "$ref": "common_types.json#/$defs/AccessibilityAttributes"
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/AccessibilityAttributes"
             },
             "weight": {
               "type": "number",
@@ -483,11 +483,11 @@
                 "type": "object",
                 "properties": {
                   "title": {
-                    "$ref": "common_types.json#/$defs/DynamicString",
+                    "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
                     "description": "The tab title."
                   },
                   "child": {
-                    "$ref": "common_types.json#/$defs/ComponentId",
+                    "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId",
                     "description": "The ID of the child component."
                   }
                 },
@@ -511,7 +511,7 @@
     "Modal": {
       "allOf": [
         {
-          "$ref": "common_types.json#/$defs/ComponentCommon"
+          "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentCommon"
         },
         {
           "properties": {
@@ -519,18 +519,18 @@
               "const": "Modal"
             },
             "accessibility": {
-              "$ref": "common_types.json#/$defs/AccessibilityAttributes"
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/AccessibilityAttributes"
             },
             "weight": {
               "type": "number",
               "description": "The relative weight of this component within a Row or Column. This is similar to the CSS 'flex-grow' property. Note: this may ONLY be set when the component is a direct descendant of a Row or Column."
             },
             "trigger": {
-              "$ref": "common_types.json#/$defs/ComponentId",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId",
               "description": "The ID of the component that opens the modal when interacted with (e.g., a button)."
             },
             "content": {
-              "$ref": "common_types.json#/$defs/ComponentId",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId",
               "description": "The ID of the component to be displayed inside the modal."
             }
           },
@@ -545,7 +545,7 @@
     "Divider": {
       "allOf": [
         {
-          "$ref": "common_types.json#/$defs/ComponentCommon"
+          "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentCommon"
         },
         {
           "properties": {
@@ -553,7 +553,7 @@
               "const": "Divider"
             },
             "accessibility": {
-              "$ref": "common_types.json#/$defs/AccessibilityAttributes"
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/AccessibilityAttributes"
             },
             "weight": {
               "type": "number",
@@ -578,7 +578,7 @@
     "Button": {
       "allOf": [
         {
-          "$ref": "common_types.json#/$defs/ComponentCommon"
+          "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentCommon"
         },
         {
           "properties": {
@@ -586,7 +586,7 @@
               "const": "Button"
             },
             "accessibility": {
-              "$ref": "common_types.json#/$defs/AccessibilityAttributes"
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/AccessibilityAttributes"
             },
             "weight": {
               "type": "number",
@@ -595,13 +595,13 @@
             "checks": {
               "type": "array",
               "items": {
-                "$ref": "common_types.json#/$defs/CheckRule",
+                "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/CheckRule",
                 "description": "A single validation rule applied to an input component."
               },
               "description": "A list of checks to perform. These are function calls that must return a boolean indicating validity."
             },
             "child": {
-              "$ref": "common_types.json#/$defs/ComponentId",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId",
               "description": "The ID of the child component. Use a 'Text' component for a labeled button. Only use an 'Icon' if the requirements explicitly ask for an icon-only button."
             },
             "variant": {
@@ -615,7 +615,7 @@
               "description": "A hint for the button style. If omitted, a default button style is used. 'primary' indicates this is the main call-to-action button. 'borderless' means the button has no visual border or background, making its child content appear like a clickable link."
             },
             "action": {
-              "$ref": "common_types.json#/$defs/Action"
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/Action"
             }
           },
           "required": [
@@ -629,7 +629,7 @@
     "TextField": {
       "allOf": [
         {
-          "$ref": "common_types.json#/$defs/ComponentCommon"
+          "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentCommon"
         },
         {
           "properties": {
@@ -637,7 +637,7 @@
               "const": "TextField"
             },
             "accessibility": {
-              "$ref": "common_types.json#/$defs/AccessibilityAttributes"
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/AccessibilityAttributes"
             },
             "weight": {
               "type": "number",
@@ -646,17 +646,17 @@
             "checks": {
               "type": "array",
               "items": {
-                "$ref": "common_types.json#/$defs/CheckRule",
+                "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/CheckRule",
                 "description": "A single validation rule applied to an input component."
               },
               "description": "A list of checks to perform. These are function calls that must return a boolean indicating validity."
             },
             "label": {
-              "$ref": "common_types.json#/$defs/DynamicString",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
               "description": "The text label for the input field."
             },
             "value": {
-              "$ref": "common_types.json#/$defs/DynamicString",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
               "description": "The value of the text field."
             },
             "variant": {
@@ -685,7 +685,7 @@
     "CheckBox": {
       "allOf": [
         {
-          "$ref": "common_types.json#/$defs/ComponentCommon"
+          "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentCommon"
         },
         {
           "properties": {
@@ -693,7 +693,7 @@
               "const": "CheckBox"
             },
             "accessibility": {
-              "$ref": "common_types.json#/$defs/AccessibilityAttributes"
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/AccessibilityAttributes"
             },
             "weight": {
               "type": "number",
@@ -702,17 +702,17 @@
             "checks": {
               "type": "array",
               "items": {
-                "$ref": "common_types.json#/$defs/CheckRule",
+                "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/CheckRule",
                 "description": "A single validation rule applied to an input component."
               },
               "description": "A list of checks to perform. These are function calls that must return a boolean indicating validity."
             },
             "label": {
-              "$ref": "common_types.json#/$defs/DynamicString",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
               "description": "The text to display next to the checkbox."
             },
             "value": {
-              "$ref": "common_types.json#/$defs/DynamicBoolean",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicBoolean",
               "description": "The current state of the checkbox (true for checked, false for unchecked)."
             }
           },
@@ -727,7 +727,7 @@
     "ChoicePicker": {
       "allOf": [
         {
-          "$ref": "common_types.json#/$defs/ComponentCommon"
+          "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentCommon"
         },
         {
           "properties": {
@@ -735,7 +735,7 @@
               "const": "ChoicePicker"
             },
             "accessibility": {
-              "$ref": "common_types.json#/$defs/AccessibilityAttributes"
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/AccessibilityAttributes"
             },
             "weight": {
               "type": "number",
@@ -744,13 +744,13 @@
             "checks": {
               "type": "array",
               "items": {
-                "$ref": "common_types.json#/$defs/CheckRule",
+                "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/CheckRule",
                 "description": "A single validation rule applied to an input component."
               },
               "description": "A list of checks to perform. These are function calls that must return a boolean indicating validity."
             },
             "label": {
-              "$ref": "common_types.json#/$defs/DynamicString",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
               "description": "The label for the group of options."
             },
             "variant": {
@@ -768,7 +768,7 @@
                 "type": "object",
                 "properties": {
                   "label": {
-                    "$ref": "common_types.json#/$defs/DynamicString",
+                    "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
                     "description": "The text to display for this option."
                   },
                   "value": {
@@ -785,7 +785,7 @@
               "description": "The list of available options to choose from."
             },
             "value": {
-              "$ref": "common_types.json#/$defs/DynamicStringList",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicStringList",
               "description": "The list of currently selected values. This should be bound to a string array in the data model."
             },
             "displayStyle": {
@@ -814,7 +814,7 @@
     "Slider": {
       "allOf": [
         {
-          "$ref": "common_types.json#/$defs/ComponentCommon"
+          "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentCommon"
         },
         {
           "properties": {
@@ -822,7 +822,7 @@
               "const": "Slider"
             },
             "accessibility": {
-              "$ref": "common_types.json#/$defs/AccessibilityAttributes"
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/AccessibilityAttributes"
             },
             "weight": {
               "type": "number",
@@ -831,13 +831,13 @@
             "checks": {
               "type": "array",
               "items": {
-                "$ref": "common_types.json#/$defs/CheckRule",
+                "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/CheckRule",
                 "description": "A single validation rule applied to an input component."
               },
               "description": "A list of checks to perform. These are function calls that must return a boolean indicating validity."
             },
             "label": {
-              "$ref": "common_types.json#/$defs/DynamicString",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
               "description": "The label for the slider."
             },
             "min": {
@@ -850,7 +850,7 @@
               "description": "The maximum value of the slider."
             },
             "value": {
-              "$ref": "common_types.json#/$defs/DynamicNumber",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicNumber",
               "description": "The current value of the slider."
             }
           },
@@ -865,7 +865,7 @@
     "DateTimeInput": {
       "allOf": [
         {
-          "$ref": "common_types.json#/$defs/ComponentCommon"
+          "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentCommon"
         },
         {
           "properties": {
@@ -873,7 +873,7 @@
               "const": "DateTimeInput"
             },
             "accessibility": {
-              "$ref": "common_types.json#/$defs/AccessibilityAttributes"
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/AccessibilityAttributes"
             },
             "weight": {
               "type": "number",
@@ -882,13 +882,13 @@
             "checks": {
               "type": "array",
               "items": {
-                "$ref": "common_types.json#/$defs/CheckRule",
+                "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/CheckRule",
                 "description": "A single validation rule applied to an input component."
               },
               "description": "A list of checks to perform. These are function calls that must return a boolean indicating validity."
             },
             "value": {
-              "$ref": "common_types.json#/$defs/DynamicString",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
               "description": "The selected date and/or time value in ISO 8601 format. If not yet set, initialize with an empty string."
             },
             "enableDate": {
@@ -902,15 +902,15 @@
               "description": "If true, allows the user to select a time."
             },
             "min": {
-              "$ref": "common_types.json#/$defs/DynamicString",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
               "description": "The minimum allowed date/time in ISO 8601 format."
             },
             "max": {
-              "$ref": "common_types.json#/$defs/DynamicString",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
               "description": "The maximum allowed date/time in ISO 8601 format."
             },
             "label": {
-              "$ref": "common_types.json#/$defs/DynamicString",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
               "description": "The text label for the input field."
             }
           },
@@ -924,7 +924,7 @@
     "DataTable": {
       "allOf": [
         {
-          "$ref": "common_types.json#/$defs/ComponentCommon"
+          "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentCommon"
         },
         {
           "properties": {
@@ -935,11 +935,11 @@
               "type": "object",
               "properties": {
                 "label": {
-                  "$ref": "common_types.json#/$defs/DynamicString",
+                  "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
                   "description": "A short name used by assistive technologies."
                 },
                 "description": {
-                  "$ref": "common_types.json#/$defs/DynamicString",
+                  "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
                   "description": "Additional detail about the element."
                 }
               },
@@ -959,7 +959,7 @@
                     "description": "The property this column reads from each row. Also the column's own id."
                   },
                   "label": {
-                    "$ref": "common_types.json#/$defs/DynamicString",
+                    "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
                     "description": "The column heading. Defaults to the key itself."
                   },
                   "align": {
@@ -1002,10 +1002,10 @@
                   }
                 },
                 {
-                  "$ref": "common_types.json#/$defs/DataBinding"
+                  "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DataBinding"
                 },
                 {
-                  "$ref": "common_types.json#/$defs/FunctionCall",
+                  "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/FunctionCall",
                   "description": "Invokes a named function on the client."
                 }
               ],
@@ -1016,7 +1016,7 @@
               "description": "The column key whose value identifies a row, used for selection. Defaults to the row's position, which is only stable while the rows are."
             },
             "caption": {
-              "$ref": "common_types.json#/$defs/DynamicString",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
               "description": "A description of the table, read out before its contents. Use it to say what the rows are, since column headings rarely say that on their own."
             },
             "searchable": {
@@ -1055,7 +1055,7 @@
                   }
                 },
                 {
-                  "$ref": "common_types.json#/$defs/DataBinding"
+                  "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DataBinding"
                 }
               ],
               "description": "The keys of the selected rows. Bind this to a path to be told what the reader picked."
@@ -1076,7 +1076,7 @@
     "BarChart": {
       "allOf": [
         {
-          "$ref": "common_types.json#/$defs/ComponentCommon"
+          "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentCommon"
         },
         {
           "properties": {
@@ -1087,11 +1087,11 @@
               "type": "object",
               "properties": {
                 "label": {
-                  "$ref": "common_types.json#/$defs/DynamicString",
+                  "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
                   "description": "A short name used by assistive technologies."
                 },
                 "description": {
-                  "$ref": "common_types.json#/$defs/DynamicString",
+                  "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
                   "description": "Additional detail about the element."
                 }
               },
@@ -1140,10 +1140,10 @@
                   }
                 },
                 {
-                  "$ref": "common_types.json#/$defs/DataBinding"
+                  "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DataBinding"
                 },
                 {
-                  "$ref": "common_types.json#/$defs/FunctionCall",
+                  "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/FunctionCall",
                   "description": "Invokes a named function on the client."
                 }
               ],
@@ -1158,21 +1158,21 @@
                   }
                 },
                 {
-                  "$ref": "common_types.json#/$defs/DataBinding"
+                  "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DataBinding"
                 }
               ],
               "description": "The category axis' labels, one per value in each series."
             },
             "label": {
-              "$ref": "common_types.json#/$defs/DynamicString",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
               "description": "What the chart is of, read out before it. A chart with no label is a picture assistive technology cannot describe."
             },
             "xAxisLabel": {
-              "$ref": "common_types.json#/$defs/DynamicString",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
               "description": "A name for what the category axis counts."
             },
             "yAxisLabel": {
-              "$ref": "common_types.json#/$defs/DynamicString",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
               "description": "A name for what the value axis measures."
             },
             "height": {
@@ -1202,7 +1202,7 @@
     "LineChart": {
       "allOf": [
         {
-          "$ref": "common_types.json#/$defs/ComponentCommon"
+          "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentCommon"
         },
         {
           "properties": {
@@ -1213,11 +1213,11 @@
               "type": "object",
               "properties": {
                 "label": {
-                  "$ref": "common_types.json#/$defs/DynamicString",
+                  "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
                   "description": "A short name used by assistive technologies."
                 },
                 "description": {
-                  "$ref": "common_types.json#/$defs/DynamicString",
+                  "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
                   "description": "Additional detail about the element."
                 }
               },
@@ -1266,10 +1266,10 @@
                   }
                 },
                 {
-                  "$ref": "common_types.json#/$defs/DataBinding"
+                  "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DataBinding"
                 },
                 {
-                  "$ref": "common_types.json#/$defs/FunctionCall",
+                  "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/FunctionCall",
                   "description": "Invokes a named function on the client."
                 }
               ],
@@ -1284,21 +1284,21 @@
                   }
                 },
                 {
-                  "$ref": "common_types.json#/$defs/DataBinding"
+                  "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DataBinding"
                 }
               ],
               "description": "The category axis' labels, one per value in each series."
             },
             "label": {
-              "$ref": "common_types.json#/$defs/DynamicString",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
               "description": "What the chart is of, read out before it. A chart with no label is a picture assistive technology cannot describe."
             },
             "xAxisLabel": {
-              "$ref": "common_types.json#/$defs/DynamicString",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
               "description": "A name for what the category axis counts."
             },
             "yAxisLabel": {
-              "$ref": "common_types.json#/$defs/DynamicString",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
               "description": "A name for what the value axis measures."
             },
             "height": {
@@ -1333,7 +1333,7 @@
     "PieChart": {
       "allOf": [
         {
-          "$ref": "common_types.json#/$defs/ComponentCommon"
+          "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentCommon"
         },
         {
           "properties": {
@@ -1344,11 +1344,11 @@
               "type": "object",
               "properties": {
                 "label": {
-                  "$ref": "common_types.json#/$defs/DynamicString",
+                  "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
                   "description": "A short name used by assistive technologies."
                 },
                 "description": {
-                  "$ref": "common_types.json#/$defs/DynamicString",
+                  "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
                   "description": "Additional detail about the element."
                 }
               },
@@ -1370,10 +1370,10 @@
                   }
                 },
                 {
-                  "$ref": "common_types.json#/$defs/DataBinding"
+                  "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DataBinding"
                 },
                 {
-                  "$ref": "common_types.json#/$defs/FunctionCall",
+                  "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/FunctionCall",
                   "description": "Invokes a named function on the client."
                 }
               ],
@@ -1388,7 +1388,7 @@
                   }
                 },
                 {
-                  "$ref": "common_types.json#/$defs/DataBinding"
+                  "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DataBinding"
                 }
               ],
               "description": "Each slice's name, in the legend and the hover panel."
@@ -1403,7 +1403,7 @@
               "description": "The shape it is drawn as. 'donut' leaves room in the middle."
             },
             "label": {
-              "$ref": "common_types.json#/$defs/DynamicString",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
               "description": "What the chart is of, read out before it."
             },
             "height": {
@@ -1425,7 +1425,7 @@
     "Statistic": {
       "allOf": [
         {
-          "$ref": "common_types.json#/$defs/ComponentCommon"
+          "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentCommon"
         },
         {
           "properties": {
@@ -1436,11 +1436,11 @@
               "type": "object",
               "properties": {
                 "label": {
-                  "$ref": "common_types.json#/$defs/DynamicString",
+                  "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
                   "description": "A short name used by assistive technologies."
                 },
                 "description": {
-                  "$ref": "common_types.json#/$defs/DynamicString",
+                  "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
                   "description": "Additional detail about the element."
                 }
               },
@@ -1459,17 +1459,17 @@
                   "type": "number"
                 },
                 {
-                  "$ref": "common_types.json#/$defs/DataBinding"
+                  "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DataBinding"
                 },
                 {
-                  "$ref": "common_types.json#/$defs/FunctionCall",
+                  "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/FunctionCall",
                   "description": "Invokes a named function on the client."
                 }
               ],
               "description": "The figure itself. A number is formatted in the reader's locale; a string is drawn as it is."
             },
             "label": {
-              "$ref": "common_types.json#/$defs/DynamicString",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
               "description": "What the figure is of, drawn above it."
             },
             "previousValue": {
@@ -1495,19 +1495,19 @@
               "description": "Which direction is good news, which decides the colour of the change. Set it on a figure where down is better, such as a cost or a bounce rate — the default assumes up."
             },
             "unit": {
-              "$ref": "common_types.json#/$defs/DynamicString",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
               "description": "A unit after the figure, such as `ms` or `kg`."
             },
             "prefix": {
-              "$ref": "common_types.json#/$defs/DynamicString",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
               "description": "A symbol before the figure, such as `$`."
             },
             "period": {
-              "$ref": "common_types.json#/$defs/DynamicString",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
               "description": "What the change is measured over, such as `vs last week`."
             },
             "caption": {
-              "$ref": "common_types.json#/$defs/DynamicString",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
               "description": "A line under the figure."
             },
             "compact": {
@@ -1542,7 +1542,7 @@
           "values": {
             "type": "array",
             "items": {
-              "$ref": "common_types.json#/$defs/DynamicBoolean",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicBoolean",
               "description": "A boolean value that can be a literal, a path, or a function call returning a boolean."
             },
             "minItems": 2,
@@ -1565,7 +1565,7 @@
           "values": {
             "type": "array",
             "items": {
-              "$ref": "common_types.json#/$defs/DynamicBoolean",
+              "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicBoolean",
               "description": "A boolean value that can be a literal, a path, or a function call returning a boolean."
             },
             "minItems": 2,
@@ -1586,7 +1586,7 @@
         "type": "object",
         "properties": {
           "value": {
-            "$ref": "common_types.json#/$defs/DynamicBoolean",
+            "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicBoolean",
             "description": "The boolean value to negate."
           }
         },
@@ -1621,7 +1621,7 @@
         "type": "object",
         "properties": {
           "value": {
-            "$ref": "common_types.json#/$defs/DynamicString"
+            "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString"
           },
           "pattern": {
             "type": "string",
@@ -1643,7 +1643,7 @@
         "type": "object",
         "properties": {
           "value": {
-            "$ref": "common_types.json#/$defs/DynamicString"
+            "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString"
           },
           "min": {
             "type": "integer",
@@ -1668,7 +1668,7 @@
         "type": "object",
         "properties": {
           "value": {
-            "$ref": "common_types.json#/$defs/DynamicNumber"
+            "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicNumber"
           },
           "min": {
             "type": "number",
@@ -1693,7 +1693,7 @@
         "type": "object",
         "properties": {
           "value": {
-            "$ref": "common_types.json#/$defs/DynamicString"
+            "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString"
           }
         },
         "required": [
@@ -1710,7 +1710,7 @@
         "type": "object",
         "properties": {
           "value": {
-            "$ref": "common_types.json#/$defs/DynamicString"
+            "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString"
           }
         },
         "required": [
@@ -1727,15 +1727,15 @@
         "type": "object",
         "properties": {
           "value": {
-            "$ref": "common_types.json#/$defs/DynamicNumber",
+            "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicNumber",
             "description": "The number to format."
           },
           "decimals": {
-            "$ref": "common_types.json#/$defs/DynamicNumber",
+            "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicNumber",
             "description": "Optional. The number of decimal places to show. Defaults to 0 or 2 depending on locale."
           },
           "grouping": {
-            "$ref": "common_types.json#/$defs/DynamicBoolean",
+            "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicBoolean",
             "description": "Optional. If true, uses locale-specific grouping separators (e.g. '1,000'). If false, returns raw digits (e.g. '1000'). Defaults to true."
           }
         },
@@ -1753,19 +1753,19 @@
         "type": "object",
         "properties": {
           "value": {
-            "$ref": "common_types.json#/$defs/DynamicNumber",
+            "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicNumber",
             "description": "The monetary amount."
           },
           "currency": {
-            "$ref": "common_types.json#/$defs/DynamicString",
+            "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
             "description": "The ISO 4217 currency code (e.g., 'USD', 'EUR')."
           },
           "decimals": {
-            "$ref": "common_types.json#/$defs/DynamicNumber",
+            "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicNumber",
             "description": "Optional. The number of decimal places to show. Defaults to 0 or 2 depending on locale."
           },
           "grouping": {
-            "$ref": "common_types.json#/$defs/DynamicBoolean",
+            "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicBoolean",
             "description": "Optional. If true, uses locale-specific grouping separators (e.g. '1,000'). If false, returns raw digits (e.g. '1000'). Defaults to true."
           }
         },
@@ -1784,11 +1784,11 @@
         "type": "object",
         "properties": {
           "value": {
-            "$ref": "common_types.json#/$defs/DynamicValue",
+            "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicValue",
             "description": "The date to format."
           },
           "format": {
-            "$ref": "common_types.json#/$defs/DynamicString",
+            "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
             "description": "A Unicode TR35 date pattern string.\n\nToken Reference:\n- Year: 'yy' (26), 'yyyy' (2026)\n- Month: 'M' (1), 'MM' (01), 'MMM' (Jan), 'MMMM' (January)\n- Day: 'd' (1), 'dd' (01), 'E' (Tue), 'EEEE' (Tuesday)\n- Hour (12h): 'h' (1-12), 'hh' (01-12) - requires 'a' for AM/PM\n- Hour (24h): 'H' (0-23), 'HH' (00-23) - Military Time\n- Minute: 'mm' (00-59)\n- Second: 'ss' (00-59)\n- Period: 'a' (AM/PM)\n\nExamples:\n- 'MMM dd, yyyy' -> 'Jan 16, 2026'\n- 'HH:mm' -> '14:30' (Military)\n- 'h:mm a' -> '2:30 PM'\n- 'EEEE, d MMMM' -> 'Friday, 16 January'"
           }
         },
@@ -1807,31 +1807,31 @@
         "type": "object",
         "properties": {
           "value": {
-            "$ref": "common_types.json#/$defs/DynamicNumber",
+            "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicNumber",
             "description": "The numeric value used to determine the plural category."
           },
           "zero": {
-            "$ref": "common_types.json#/$defs/DynamicString",
+            "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
             "description": "String for the 'zero' category (e.g., 0 items)."
           },
           "one": {
-            "$ref": "common_types.json#/$defs/DynamicString",
+            "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
             "description": "String for the 'one' category (e.g., 1 item)."
           },
           "two": {
-            "$ref": "common_types.json#/$defs/DynamicString",
+            "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
             "description": "String for the 'two' category (used in Arabic, Welsh, etc.)."
           },
           "few": {
-            "$ref": "common_types.json#/$defs/DynamicString",
+            "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
             "description": "String for the 'few' category (e.g., small groups in Slavic languages)."
           },
           "many": {
-            "$ref": "common_types.json#/$defs/DynamicString",
+            "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
             "description": "String for the 'many' category (e.g., large groups in various languages)."
           },
           "other": {
-            "$ref": "common_types.json#/$defs/DynamicString",
+            "$ref": "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DynamicString",
             "description": "The default/fallback string (used for general plural cases)."
           }
         },

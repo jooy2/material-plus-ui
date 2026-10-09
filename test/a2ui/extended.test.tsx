@@ -90,16 +90,17 @@ describe('the extended catalog', () => {
     });
 
     it('publishes no reference that does not resolve', () => {
-      // Every `$ref` has to be the protocol's own definition file. A pointer into
-      // the document itself is what the SDK's conversion emits and what the
-      // generator rewrites, because the published file has no `$defs` for it to
-      // name.
+      // Every `$ref` has to be the protocol's own definition file, by its full
+      // address: a relative one resolves beside the published file, where the
+      // site serves nothing. A pointer into the document itself is what the SDK's
+      // conversion emits and what the generator rewrites, because the published
+      // file has no `$defs` for it to name.
       const refs = JSON.stringify(published).match(/"\$ref":"[^"]*"/g) ?? [];
 
       expect(refs.length).toBeGreaterThan(0);
 
       for (const ref of refs) {
-        expect(ref).toContain('common_types.json#/$defs/');
+        expect(ref).toContain('"https://a2ui.org/specification/v0_9/common_types.json#/$defs/');
       }
     });
   });

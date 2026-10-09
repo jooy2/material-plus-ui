@@ -29,6 +29,8 @@
 
 - **An A2UI `List` is a list to Safari's screen reader.** It takes the markers off its `<ul>`, and Safari drops the list role from a list without them, so an unmarked A2UI list was not announced as a list there. It says `role="list"` now, as `MPList` does.
 
+- **The catalog schema at `MP_A2UI_CATALOG_ID` names the protocol's definitions by their full address.** Its references were a relative `common_types.json`, which resolves beside the file on `material-plus.cdget.com`, where nothing is served. They point at `https://a2ui.org/specification/v0_9/common_types.json` now, the address the specification's own basic catalog uses.
+
 ## 1.11.0 (2026-10-07)
 
 Most of this release closes the distance between what a component was said to do and what it did. A required picker now tells a screen reader it is required, holds a form's submit back while nothing is chosen, and reaches `MPForm`'s `errors` and `onSubmit` under its `name`. Props that were accepted and then lost, such as the `variant` an `MPButtonGroup` gives its icon buttons and `aria-label` on `MPTextField`, now take effect, and descriptions that promised what no component did now describe the components. `MPSegmentedButton` is the one breaking change: it is MD3's 40px at `md`, so a set at the default size is smaller than before. A new page, Design › Spec coverage, lists how far each component follows Material Design 3.
