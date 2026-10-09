@@ -127,6 +127,31 @@ describe('MPAccordion', () => {
       expect(first).toBeDisabled();
       expect(second).not.toBeDisabled();
     });
+
+    it('draws a disabled section as disabled, not only as inert', async () => {
+      // Base UI up to 1.8 marked a disabled trigger with `aria-disabled` and no
+      // `disabled` attribute, so a `:disabled` style never matched and the
+      // section looked as pressable as the one under it. `data-disabled` is
+      // set on every version.
+      const screen = await render(
+        <MPAccordion>
+          <MPAccordionItem value="a" title="Delivery" disabled>
+            Body
+          </MPAccordionItem>
+          <MPAccordionItem value="b" title="Returns">
+            Thirty days, postage paid.
+          </MPAccordionItem>
+        </MPAccordion>
+      );
+
+      const [first, second] = [
+        ...screen.container.querySelectorAll<HTMLElement>('.mp-accordion__item button')
+      ];
+
+      expect(first).toHaveAttribute('data-disabled');
+      expect(getComputedStyle(first).cursor).toBe('default');
+      expect(getComputedStyle(first).color).not.toBe(getComputedStyle(second).color);
+    });
   });
 
   describe('the header', () => {

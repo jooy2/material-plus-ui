@@ -369,7 +369,11 @@ export const MPAccordionItem = React.forwardRef<HTMLDivElement, MPAccordionItemP
               // descendant's outline along with everything else.
               'outline-mp-secondary focus-visible:outline-2 focus-visible:-outline-offset-2',
               'focus-visible:outline-solid outline-none',
-              'disabled:text-mp-on-surface/38 disabled:cursor-default'
+              // `data-disabled` rather than `:disabled`. Base UI up to 1.8 kept a
+              // disabled trigger focusable with `aria-disabled` and no `disabled`
+              // attribute, so `:disabled` never matched and a disabled section was
+              // drawn at full ink. The data attribute is set on every version.
+              'data-disabled:text-mp-on-surface/38 data-disabled:cursor-default'
             ]
               .filter(Boolean)
               .join(' ')}

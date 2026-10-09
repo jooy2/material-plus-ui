@@ -122,6 +122,27 @@ describe('MPCollapsible', () => {
       expect(screen.container.querySelector('.mp-collapsible button')).toBeDisabled();
       expect(onOpenChange).not.toHaveBeenCalled();
     });
+
+    it('draws its header as disabled, not only as inert', async () => {
+      // The reason `MPAccordion` gives: Base UI up to 1.8 left `disabled` off a
+      // disabled trigger, so the look is keyed on `data-disabled`.
+      const screen = await render(
+        <>
+          <MPCollapsible title="Advanced" disabled>
+            The detail.
+          </MPCollapsible>
+          <MPCollapsible title="Basic">The summary.</MPCollapsible>
+        </>
+      );
+
+      const [off, on] = [
+        ...screen.container.querySelectorAll<HTMLElement>('.mp-collapsible button')
+      ];
+
+      expect(off).toHaveAttribute('data-disabled');
+      expect(getComputedStyle(off).cursor).toBe('default');
+      expect(getComputedStyle(off).color).not.toBe(getComputedStyle(on).color);
+    });
   });
 
   describe('the header slots', () => {
