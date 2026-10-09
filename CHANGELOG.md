@@ -2,6 +2,33 @@
 
 ## vNext (2026--)
 
+### Breaking changes
+
+- **`material-plus-ui/a2ui` needs A2UI's SDK at 0.12.** `@a2ui/react` and `@a2ui/web_core` are optional peers at `^0.12.0` now, because 0.12 changed the `Catalog` constructor the catalogs are built with; upgrade the two together. A project that does not import the subpath is not affected. Three things a project will notice come from the SDK rather than from this library:
+  - A `List` no longer takes `listStyle`. The specification's `List` never had it, the SDK dropped it in 0.12, and a payload that still sends one is refused, so an A2UI list is always an unmarked `<ul>`.
+  - The eleven arithmetic and comparison functions the specification does not define, such as `add`, `equals` and `contains`, are gone from the basic catalog. A project whose agent calls them registers its own through `createMPA2uiCatalog`'s `functions`.
+  - `MessageProcessor` no longer infers its component type from the catalogs, so `A2uiSurface` refuses its surfaces in TypeScript unless the processor is written `new MessageProcessor<ReactComponentImplementation>([…])`.
+
+  The SDK also checks every component against its schema as `updateComponents` arrives, so a payload missing a required prop, such as a `Button` with no `action`, is refused rather than drawn. The schema published at `MP_A2UI_CATALOG_ID` is generated from the same SDK and says the same: `Button` requires `action`, `List` has no `listStyle`, the input components no longer list `isValid` and `validationErrors`, and fourteen functions remain.
+
+### Changed
+
+- **The dependencies are current.** `@base-ui/react` moves to 1.9, `lucide-react` to 1.54, A2UI's SDK to 0.12, `playwright` to 1.64, `vite` to 8.3.4, `typescript-eslint` to 8.71.1, and the rest of the toolchain to its newest. `eslint`, `@eslint/js`, `typescript` and `zod` are deliberately held where they were, and the Base UI peer range stays `^1.7.0`: nothing here needs 1.9.
+
+  None of it moves this library's own figures. `MPButton` is still 3.8 kB and every export 138.3 kB. Base UI 1.9 is heavier where a menu is drawn: `MPMenu` with Base UI bundled in is 60.2 kB gzipped against 51.2 on 1.8, which takes ten components from 96.0 kB to 105.2. A2UI's SDK adds 16.6 kB at 0.12, so the basic catalog with the SDK is 95.0 kB where it was 78.4.
+
+- **`MPCombobox` takes a `readonly` array for `value` and `defaultValue`.** `MPToggleGroup`, `MPSegmentedButton` and `MPSlider` already did, and Base UI's own combobox does from 1.9. The field copies the array before keeping it, so a frozen one works too.
+
+### Documentation
+
+- **The A2UI guide follows SDK 0.12.** Its examples give `MessageProcessor` its type argument, it names `getRendererCapabilities` for the capabilities message, since `getClientCapabilities()` with no versions now throws, and the size table is measured again.
+
+### Fixed
+
+- **A disabled `MPAccordion` section or `MPCollapsible` looks disabled on Base UI 1.7 and 1.8.** Those versions put `aria-disabled` on a disabled trigger and no `disabled` attribute, so the 38% title and the plain cursor, which were keyed on `:disabled`, never applied: the section ignored a press and was drawn as if it took one. Both are keyed on `data-disabled` now, which every version sets. On Base UI 1.9 a disabled trigger also leaves the tab order, as a disabled button does.
+
+- **An A2UI `List` is a list to Safari's screen reader.** It takes the markers off its `<ul>`, and Safari drops the list role from a list without them, so an unmarked A2UI list was not announced as a list there. It says `role="list"` now, as `MPList` does.
+
 ## 1.11.0 (2026-10-07)
 
 Most of this release closes the distance between what a component was said to do and what it did. A required picker now tells a screen reader it is required, holds a form's submit back while nothing is chosen, and reaches `MPForm`'s `errors` and `onSubmit` under its `name`. Props that were accepted and then lost, such as the `variant` an `MPButtonGroup` gives its icon buttons and `aria-label` on `MPTextField`, now take effect, and descriptions that promised what no component did now describe the components. `MPSegmentedButton` is the one breaking change: it is MD3's 40px at `md`, so a set at the default size is smaller than before. A new page, Design › Spec coverage, lists how far each component follows Material Design 3.
