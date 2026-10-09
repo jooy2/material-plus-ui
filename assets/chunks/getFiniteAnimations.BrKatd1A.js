@@ -1,0 +1,1 @@
+function o(e,i){return e.getAnimations(i).filter(r=>{var n;const t=(n=r.effect)==null?void 0:n.getTiming();return(t==null?void 0:t.duration)!==1/0&&(t==null?void 0:t.iterations)!==1/0})}export{o as g};

@@ -1,0 +1,1 @@
+import{r as o}from"./index.BC-ZOPMe.js";import{u as a}from"./useRenderElement.DbiNgOTk.js";import{u as n,p}from"./ProgressLabel.r4E-MwLm.js";const P=o.forwardRef(function(e,r){const{render:i,className:c,style:u,...t}=e,{state:s}=n();return a("div",e,{state:s,ref:r,props:t,stateAttributesMapping:p})});export{P};
