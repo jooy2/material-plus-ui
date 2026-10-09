@@ -140,13 +140,21 @@ export const createMPA2uiCatalog = ({
   /** The functions an agent may call. Defaults to the basic catalog's. */
   functions?: typeof BASIC_FUNCTIONS;
 } = {}) =>
-  new Catalog<ReactComponentImplementation>(id, [...MP_A2UI_COMPONENTS, ...components], functions);
+  new Catalog<ReactComponentImplementation>(
+    id,
+    // The protocol version the schemas above are written against, spelled the
+    // way the SDK's own v0.9 catalog spells it. The processor refuses a
+    // `createSurface` that names a version this one is not compatible with.
+    '0.9',
+    [...MP_A2UI_COMPONENTS, ...components],
+    functions
+  );
 
 /**
  * The basic catalog, drawn as Material Plus.
  *
  * ```ts
- * const processor = new MessageProcessor([mpA2uiCatalog]);
+ * const processor = new MessageProcessor<ReactComponentImplementation>([mpA2uiCatalog]);
  * ```
  */
 export const mpA2uiCatalog = createMPA2uiCatalog();
@@ -159,7 +167,10 @@ export const mpA2uiCatalog = createMPA2uiCatalog();
  * table or a chart.
  *
  * ```ts
- * const processor = new MessageProcessor([mpA2uiCatalog, mpA2uiExtendedCatalog]);
+ * const processor = new MessageProcessor<ReactComponentImplementation>([
+ *   mpA2uiCatalog,
+ *   mpA2uiExtendedCatalog
+ * ]);
  * ```
  */
 export const mpA2uiExtendedCatalog = createMPA2uiCatalog({

@@ -16,14 +16,14 @@ importers:
         version: 1.54.0(@types/react@19.3.0)(react@19.3.0)
     devDependencies:
       '@a2ui/react':
-        specifier: ^0.11.1
-        version: 0.11.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(zod@3.25.76)
+        specifier: ^0.12.0
+        version: 0.12.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(zod@3.25.76)
       '@a2ui/web_core':
-        specifier: ^0.11.0
-        version: 0.11.0
+        specifier: ^0.12.0
+        version: 0.12.0
       '@base-ui/react':
         specifier: ^1.9.0
-        version: 1.9.0(@types/react@19.3.0)(date-fns@4.4.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        version: 1.9.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@eslint/js':
         specifier: ^9.39.1
         version: 9.39.5
@@ -129,21 +129,21 @@ importers:
 
 packages:
 
-  '@a2ui/markdown-it@0.1.2':
-    resolution: {integrity: sha512-jNyLgojKrOSx7C8ZTr8wlYoCcoqkdLNKRC82Z47f2PhgedHcVDK3yh3zk39QizMgwdv54L5ZryanVbsDUcl7LA==}
+  '@a2ui/markdown-it@0.2.0':
+    resolution: {integrity: sha512-B1nO5Nh2Vw+P0W1DdwYypIayOoAxj3/Fzohxy/q+0TGDG7t4rD+2roUpOnIWW67L7wvGgNclJ8gLzJTkmTcq/A==}
     peerDependencies:
-      '@a2ui/web_core': ^0.11.0
+      '@a2ui/web_core': ^0.12.0
 
-  '@a2ui/react@0.11.1':
-    resolution: {integrity: sha512-Tj4xZ3HCFSvNvKkkBEamUQ6cTKw+VBET51EwwbWr32Bxi/c7R3uQ7lBzlHDr0PjEo9m3aKuQB4hW9aF5H5Hn1A==}
+  '@a2ui/react@0.12.0':
+    resolution: {integrity: sha512-zGI6kNjus8m0OM4V/A0S3g3YDFodtd82C+f91CECmt9WQniJtFvlSLZqOu6xBz2R3uUh7aviOOZUhTCVft85Ng==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
       react-dom: ^18.0.0 || ^19.0.0
       zod: ^3.25.76
 
-  '@a2ui/web_core@0.11.0':
-    resolution: {integrity: sha512-HIrisBO5yAsNb1NFQRRSVLLNWaPlDu7LShwZ/j1qRUWT/W/J7g8dJFEKbq0/nUofI7ZiieDlDXQtrJmwo24Nzw==}
+  '@a2ui/web_core@0.12.0':
+    resolution: {integrity: sha512-wEg8954eDM4tx70O+qoUQYSCJbCywEIZEiqOpNXrmQUAKGsMNM47uns/7AE0W0nMfFbmJWE/huBwUVFaq+pDCA==}
 
   '@algolia/abtesting@1.25.0':
     resolution: {integrity: sha512-rSTin9Uta23uaewYVQEp8XI9T3iA/zrg0/1G2vhf8oFFDxFL5vybnZ5IQwsVAg4JpKxPX4/WYNKdcfWrZymk7w==}
@@ -1404,9 +1404,6 @@ packages:
   csstype@3.2.3:
     resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
 
-  date-fns@4.4.0:
-    resolution: {integrity: sha512-+1UMbeh68lH1SegH83CGWwpb6OHHbpSgr3+s5Eww5M4CAgswBpoWS0AjTOfEJ33HiYKz1hdj/KTFprzXHmq/6w==}
-
   debug@4.4.3:
     resolution: {integrity: sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA==}
     engines: {node: '>=6.0'}
@@ -2334,6 +2331,9 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
+  validate-color@2.2.4:
+    resolution: {integrity: sha512-Znolz+b6CwW6eBXYld7MFM3O7funcdyRfjKC/X9hqYV/0VcC5LB/L45mff7m3dIn9wdGdNOAQ/fybNuD5P/HDw==}
+
   vfile-message@4.0.3:
     resolution: {integrity: sha512-QTHzsGd1EhbZs4AsQ20JX1rC3cOlt/IWJruk893DfLRr57lcnOeMaWG4K0JrRta4mIJZKth2Au3mM3u03/JWKw==}
 
@@ -2540,28 +2540,28 @@ packages:
 
 snapshots:
 
-  '@a2ui/markdown-it@0.1.2(@a2ui/web_core@0.11.0)':
+  '@a2ui/markdown-it@0.2.0(@a2ui/web_core@0.12.0)':
     dependencies:
-      '@a2ui/web_core': 0.11.0
+      '@a2ui/web_core': 0.12.0
       dompurify: 3.4.11
       markdown-it: 14.3.2
 
-  '@a2ui/react@0.11.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(zod@3.25.76)':
+  '@a2ui/react@0.12.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(zod@3.25.76)':
     dependencies:
-      '@a2ui/markdown-it': 0.1.2(@a2ui/web_core@0.11.0)
-      '@a2ui/web_core': 0.11.0
+      '@a2ui/markdown-it': 0.2.0(@a2ui/web_core@0.12.0)
+      '@a2ui/web_core': 0.12.0
       clsx: 2.1.1
       markdown-it: 14.3.2
       react: 19.3.0
       react-dom: 19.3.0(react@19.3.0)
       zod: 3.25.76
 
-  '@a2ui/web_core@0.11.0':
+  '@a2ui/web_core@0.12.0':
     dependencies:
       '@lit/context': 1.1.6
       '@preact/signals-core': 1.14.4
-      date-fns: 4.4.0
       lit: 3.3.3
+      validate-color: 2.2.4
       zod: 3.25.76
       zod-to-json-schema: 3.25.2(zod@3.25.76)
 
@@ -2694,7 +2694,7 @@ snapshots:
       '@babel/helper-string-parser': 7.29.7
       '@babel/helper-validator-identifier': 7.29.7
 
-  '@base-ui/react@1.9.0(@types/react@19.3.0)(date-fns@4.4.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
+  '@base-ui/react@1.9.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
       '@babel/runtime': 8.0.7
       '@base-ui/utils': 0.5.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -2705,7 +2705,6 @@ snapshots:
       use-sync-external-store: 1.7.0(react@19.3.0)
     optionalDependencies:
       '@types/react': 19.3.0
-      date-fns: 4.4.0
 
   '@base-ui/utils@0.5.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
@@ -3664,8 +3663,6 @@ snapshots:
 
   csstype@3.2.3: {}
 
-  date-fns@4.4.0: {}
-
   debug@4.4.3:
     dependencies:
       ms: 2.1.3
@@ -4539,6 +4536,8 @@ snapshots:
   use-sync-external-store@1.7.0(react@19.3.0):
     dependencies:
       react: 19.3.0
+
+  validate-color@2.2.4: {}
 
   vfile-message@4.0.3:
     dependencies:

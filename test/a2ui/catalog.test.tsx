@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { A2uiSurface, MarkdownContext } from '@a2ui/react/v0_9';
+import { A2uiSurface, MarkdownContext, type ReactComponentImplementation } from '@a2ui/react/v0_9';
 import type { ActionListener, A2uiMessage } from '@a2ui/web_core/v0_9';
 import { MessageProcessor } from '@a2ui/web_core/v0_9';
 import { A2UI_BASIC_CATALOG_ID, MP_A2UI_COMPONENTS, mpA2uiCatalog } from 'material-plus-ui/a2ui';
@@ -20,7 +20,7 @@ const SURFACE = 'test-surface';
 
 /** A surface holding `components`, ready to render. */
 function surfaceOf(components: Record<string, unknown>[], onAction?: ActionListener) {
-  const processor = new MessageProcessor([mpA2uiCatalog], onAction);
+  const processor = new MessageProcessor<ReactComponentImplementation>([mpA2uiCatalog], onAction);
 
   processor.processMessages([
     {
@@ -91,7 +91,13 @@ describe('the A2UI catalog', () => {
           surface={surfaceOf([
             { id: 'root', component: 'Column', children: ['title', 'submit'] },
             { id: 'title', component: 'Text', text: 'Sign in', variant: 'h2' },
-            { id: 'submit', component: 'Button', child: 'label', variant: 'primary' },
+            {
+              id: 'submit',
+              component: 'Button',
+              child: 'label',
+              variant: 'primary',
+              action: { event: { name: 'continued' } }
+            },
             { id: 'label', component: 'Text', text: 'Continue' }
           ])}
         />
@@ -120,7 +126,7 @@ describe('the A2UI catalog', () => {
       const screen = await render(
         <A2uiSurface
           surface={surfaceOf([
-            { id: 'root', component: 'List', children: ['one'], listStyle: 'ordered' },
+            { id: 'root', component: 'List', children: ['one'] },
             { id: 'one', component: 'Text', text: 'First' }
           ])}
         />
@@ -228,7 +234,12 @@ describe('the A2UI catalog', () => {
         <A2uiSurface
           surface={surfaceOf([
             { id: 'root', component: 'Modal', trigger: 'open', content: 'sheet' },
-            { id: 'open', component: 'Button', child: 'open_label' },
+            {
+              id: 'open',
+              component: 'Button',
+              child: 'open_label',
+              action: { event: { name: 'details_opened' } }
+            },
             { id: 'open_label', component: 'Text', text: 'Details' },
             { id: 'sheet', component: 'Text', text: 'Departs at 09:40' }
           ])}
@@ -344,7 +355,12 @@ describe('the A2UI catalog', () => {
             { id: 'tabs', component: 'Tabs', tabs: [{ title: 'One', child: 'in_tab' }] },
             { id: 'in_tab', component: 'Text', text: 'In a tab' },
             { id: 'modal', component: 'Modal', trigger: 'opener', content: 'in_modal' },
-            { id: 'opener', component: 'Button', child: 'opener_label' },
+            {
+              id: 'opener',
+              component: 'Button',
+              child: 'opener_label',
+              action: { event: { name: 'more_opened' } }
+            },
             { id: 'opener_label', component: 'Text', text: 'More' },
             { id: 'in_modal', component: 'Text', text: 'In a modal' },
             { id: 'rule', component: 'Divider' },

@@ -26,30 +26,29 @@
  *
  * ## Why the conversion is here and not the SDK's
  *
- * `getClientCapabilities({ includeInlineCatalogs: true })` produces this document
- * and is what a client sends an agent that asks what it can draw. It is not what
- * should be written to a file: its conversion deduplicates repeated subschemas into
- * pointers like `#/properties/accessibility/properties/label/anyOf/1`, written
- * against the component's own schema — and the component is then wrapped in an
- * `allOf` envelope, and the subschema they point into is replaced by a
- * `common_types.json` reference. Both moves leave the pointers naming nothing. On
- * the wire that is survivable, because a model reads the text; in a file published
- * at a URL, every one of them is a dangling reference in the document that is
- * supposed to be the contract.
+ * `getRendererCapabilities({ versions: ['v0.9'], includeInlineCatalogs: true })`
+ * produces this document and is what a client sends an agent that asks what it can
+ * draw. It is not what should be written to a file: its references point into a
+ * `$defs` block — `#/$defs/DynamicString` and the like — that the v0.9 shape of the
+ * document leaves out. On the wire that is survivable, because a model reads the
+ * text; in a file published at a URL, every one of them is a dangling reference in
+ * the document that is supposed to be the contract.
  *
- * So the same two steps run here with the deduplication turned off: convert with
- * `$refStrategy: 'none'`, then apply the protocol's own `REF:` convention, which is
- * how a schema in Zod says "this is `common_types.json#/$defs/DynamicString`". The
- * envelope is the SDK's, and the last step checks this file's output against the
- * SDK's for the component names and their required props — so the day the protocol
- * changes either, the build says so here rather than the site serving a description
- * of a renderer that no longer matches.
+ * So the conversion runs here, with the deduplication turned off and the protocol's
+ * own `REF:` convention applied as it goes, which is how a schema in Zod says "this
+ * is the protocol's `DynamicString`". Those definitions are the protocol's common
+ * types, so each reference is written against `common_types.json`. The envelope is
+ * the SDK's, and the last two steps check the result: every reference names a
+ * definition the protocol has, and the component names and their required props
+ * match what the SDK produces — so the day the protocol changes either, the build
+ * says so here rather than the site serving a description of a renderer that no
+ * longer matches.
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, relative, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { MessageProcessor } from '@a2ui/web_core/v0_9';
-import { zodToJsonSchema } from 'zod-to-json-schema';
+import { MessageProcessor, V09_STANDARD_DEFS } from '@a2ui/web_core/v0_9';
+import { ignoreOverride, zodToJsonSchema } from 'zod-to-json-schema';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const { MP_A2UI_CATALOG_ID, mpA2uiExtendedCatalog } = await import(
@@ -74,39 +73,44 @@ if (host !== 'material-plus.cdget.com') {
 const out = resolve(root, 'docs/public', `.${pathname}`);
 
 /**
- * The protocol's `REF:` convention, applied.
+ * The protocol's `REF:` convention, applied as the conversion meets it.
  *
- * A schema in the SDK describes itself as `REF:common_types.json#/$defs/DynamicString|…`,
- * which means "in JSON Schema, this is that definition". Everything before the bar
- * is the reference and everything after it is the description to keep. This is the
- * SDK's rule, followed rather than invented: the strings it reads are written in
- * A2UI's own schemas.
+ * A schema in the SDK describes itself as `REF:#/$defs/DynamicString|…`, which means
+ * "in JSON Schema, this is that definition". Everything before the bar is the
+ * reference and everything after it is the description to keep. This is the SDK's
+ * rule, followed rather than invented: the strings it reads are written in A2UI's
+ * own schemas. The definitions they name are the protocol's common types, so the
+ * reference is written against `common_types.json`, the way the SDK wrote it itself
+ * up to 0.11.
+ *
+ * It is answered before the converter descends rather than patched in afterwards. A
+ * function call's arguments are dynamic values, and a dynamic value may be another
+ * function call, so the schema under `FunctionCall` is recursive: with the
+ * deduplication off, the converter walks into that recursion, warns, and writes `{}`
+ * in its place. Answering with the reference first means it never goes in.
  */
-const withProtocolRefs = (node) => {
-  if (Array.isArray(node)) {
-    return node.map(withProtocolRefs);
+const protocolRef = (def) => {
+  if (typeof def.description !== 'string' || !def.description.startsWith('REF:')) {
+    return ignoreOverride;
   }
 
-  if (!node || typeof node !== 'object') {
-    return node;
-  }
+  const [pointer, description] = def.description.slice(4).split('|');
+  const reference = pointer.startsWith('#/$defs/') ? `common_types.json${pointer}` : pointer;
 
-  if (typeof node.description === 'string' && node.description.startsWith('REF:')) {
-    const [reference, description] = node.description.slice(4).split('|');
-
-    return description ? { $ref: reference, description } : { $ref: reference };
-  }
-
-  return Object.fromEntries(
-    Object.entries(node).map(([key, value]) => [key, withProtocolRefs(value)])
-  );
+  return description ? { $ref: reference, description } : { $ref: reference };
 };
+
+/** A Zod schema as JSON Schema, with nothing deduplicated and every `REF:` applied. */
+const toJsonSchema = (schema) =>
+  zodToJsonSchema(schema, {
+    target: 'jsonSchema2019-09',
+    $refStrategy: 'none',
+    override: protocolRef
+  });
 
 /** One component's props, as the envelope the protocol wraps them in. */
 const asComponent = (name, schema) => {
-  const converted = withProtocolRefs(
-    zodToJsonSchema(schema, { target: 'jsonSchema2019-09', $refStrategy: 'none' })
-  );
+  const converted = toJsonSchema(schema);
 
   return {
     allOf: [
@@ -129,19 +133,41 @@ const functions = [...mpA2uiExtendedCatalog.functions.values()].map((api) => ({
   name: api.name,
   description: api.schema.description,
   returnType: api.returnType,
-  parameters: withProtocolRefs(
-    zodToJsonSchema(api.schema, { target: 'jsonSchema2019-09', $refStrategy: 'none' })
-  )
+  parameters: toJsonSchema(api.schema)
 }));
 
 /*
  * And the check that this file still says what the SDK would have said. Names and
  * required props only: what is deliberately different is the deduplication, and
  * what must not differ is the contract.
+ *
+ * Required as a set, with the envelope's own counted in. The SDK repeats `id` inside
+ * each component and lists `component` last; this file leaves `id` to the envelope
+ * that requires it and lists `component` first. Neither is a difference in what a
+ * payload has to carry.
+ *
+ * The SDK's conversion walks into the recursion `protocolRef` keeps this file's out
+ * of, and warns once per dynamic prop. Only names and required props are read from
+ * it, so those warnings are about output this script throws away, and they are kept
+ * off the build log rather than burying the lines that matter.
  */
-const [reference] = new MessageProcessor([mpA2uiExtendedCatalog]).getClientCapabilities({
+const warn = console.warn;
+
+console.warn = (message, ...rest) => {
+  if (!String(message).startsWith('Recursive reference detected')) {
+    warn(message, ...rest);
+  }
+};
+
+const [reference] = new MessageProcessor([mpA2uiExtendedCatalog]).getRendererCapabilities({
+  versions: ['v0.9'],
   includeInlineCatalogs: true
 })['v0.9'].inlineCatalogs;
+
+console.warn = warn;
+
+const requiredSet = (list) => JSON.stringify([...new Set(list)].sort());
+const envelopeRequired = V09_STANDARD_DEFS.ComponentCommon.required ?? [];
 
 const drifted = Object.keys(reference.components)
   .map((name) => {
@@ -152,7 +178,7 @@ const drifted = Object.keys(reference.components)
       return `${name} is missing`;
     }
 
-    return JSON.stringify(ours.required) === JSON.stringify(theirs.required)
+    return requiredSet([...envelopeRequired, ...ours.required]) === requiredSet(theirs.required)
       ? null
       : `${name} requires ${JSON.stringify(ours.required)} where the SDK requires ${JSON.stringify(theirs.required)}`;
   })
@@ -178,6 +204,25 @@ const document = {
   components,
   functions
 };
+
+/*
+ * Every reference has to name a definition the protocol publishes. One that points
+ * into this document, or at a name `common_types.json` does not define, names
+ * nothing for an agent that fetched the id.
+ */
+const COMMON_TYPES = 'common_types.json#/$defs/';
+const references = [...JSON.stringify(document).matchAll(/"\$ref":"([^"]*)"/g)].map(
+  ([, ref]) => ref
+);
+const dangling = [...new Set(references)].filter(
+  (ref) => !ref.startsWith(COMMON_TYPES) || !(ref.slice(COMMON_TYPES.length) in V09_STANDARD_DEFS)
+);
+
+if (dangling.length > 0) {
+  throw new Error(
+    `the generated catalog names definitions the protocol does not have: ${dangling.join(', ')}`
+  );
+}
 
 mkdirSync(dirname(out), { recursive: true });
 writeFileSync(out, `${JSON.stringify(document, null, 2)}\n`);

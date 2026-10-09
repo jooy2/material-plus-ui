@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { A2uiSurface } from '@a2ui/react/v0_9';
+import { A2uiSurface, type ReactComponentImplementation } from '@a2ui/react/v0_9';
 import type { A2uiMessage } from '@a2ui/web_core/v0_9';
 import { MessageProcessor } from '@a2ui/web_core/v0_9';
 import {
@@ -24,7 +24,7 @@ const SURFACE = 'test-surface';
 
 /** A surface on the extended catalog, with an optional starting data model. */
 function surfaceOf(components: Record<string, unknown>[], data?: Record<string, unknown>) {
-  const processor = new MessageProcessor([mpA2uiExtendedCatalog]);
+  const processor = new MessageProcessor<ReactComponentImplementation>([mpA2uiExtendedCatalog]);
 
   processor.processMessages([
     {
@@ -92,7 +92,8 @@ describe('the extended catalog', () => {
     it('publishes no reference that does not resolve', () => {
       // Every `$ref` has to be the protocol's own definition file. A pointer into
       // the document itself is what the SDK's conversion emits and what the
-      // generator expands, because the envelope leaves it naming nothing.
+      // generator rewrites, because the published file has no `$defs` for it to
+      // name.
       const refs = JSON.stringify(published).match(/"\$ref":"[^"]*"/g) ?? [];
 
       expect(refs.length).toBeGreaterThan(0);

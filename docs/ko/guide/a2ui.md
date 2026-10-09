@@ -19,26 +19,26 @@ order: 4
 npm install material-plus-ui @a2ui/react @a2ui/web_core
 ```
 
-optional인 이유는 둘이 가볍지 않기 때문입니다. Lit, signals, Zod, 날짜 라이브러리, 마크다운 파서가 함께 들어오는데, 이 패키지의 나머지가 약속하는 런타임 dependency는 두 개입니다. 이 서브패스 밖에서는 아무것도 둘을 import하지 않으므로, 에이전트 화면을 그리지 않는 프로젝트는 그중 아무것도 받지 않습니다.
+optional인 이유는 둘이 가볍지 않기 때문입니다. Lit, signals, Zod, 마크다운 파서가 함께 들어오는데, 이 패키지의 나머지가 약속하는 런타임 dependency는 두 개입니다. 이 서브패스 밖에서는 아무것도 둘을 import하지 않으므로, 에이전트 화면을 그리지 않는 프로젝트는 그중 아무것도 받지 않습니다.
 
 그리는 프로젝트가 얼마를 내는지는 이 문서의 다른 모든 수치처럼 빌드가 측정합니다.
 
 | 번들                    | 이 라이브러리 | SDK 포함 |
 | ----------------------- | ------------- | -------- |
-| `mpA2uiCatalog`         | 38.9 kB       | 77.3 kB  |
-| `mpA2uiExtendedCatalog` | 60.6 kB       | 98.9 kB  |
+| `mpA2uiCatalog`         | 39.9 kB       | 95.0 kB  |
+| `mpA2uiExtendedCatalog` | 65.0 kB       | 120.0 kB |
 
 gzip이고, React와 Base UI는 external입니다. 두 줄의 차이가 데이터 테이블과 차트 세 개입니다. basic 카탈로그를 별도 export로 둔 이유가 그것입니다. 등록할 쪽만 import하면 나머지는 떨어져 나갑니다.
 
 ## 서피스 그리기
 
 ```tsx
-import { A2uiSurface } from '@a2ui/react/v0_9';
+import { A2uiSurface, type ReactComponentImplementation } from '@a2ui/react/v0_9';
 import { MessageProcessor } from '@a2ui/web_core/v0_9';
 import { mpA2uiCatalog } from 'material-plus-ui/a2ui';
 import 'material-plus-ui/styles.css';
 
-const processor = new MessageProcessor([mpA2uiCatalog], (action) => {
+const processor = new MessageProcessor<ReactComponentImplementation>([mpA2uiCatalog], (action) => {
   // 읽는 사람이 한 일이 에이전트로 돌아가는 길입니다.
   void send(action);
 });
@@ -54,6 +54,8 @@ function Surfaces() {
 
 여기서 짚을 것이 셋입니다. 페이로드가 어떻게 그려질지 정하는 것은 `mpA2uiCatalog`입니다. `MessageProcessor`의 두 번째 인자는 누름·키 입력·선택이 에이전트로 떠나는 자리입니다. 그리고 관여하는 스타일시트는 `material-plus-ui/styles.css` 하나뿐입니다. 카탈로그는 자체 CSS가 없습니다. 이미 스타일이 있는 컴포넌트로 그리기 때문입니다.
 
+`MessageProcessor`의 타입 인자는 TypeScript를 위한 것입니다. 프로세서는 이 타입을 넘겨받은 카탈로그에서 추론하지 않고, 타입 인자가 없으면 `A2uiSurface`가 프로세서의 서피스를 받지 않습니다.
+
 에이전트가 보내야 하는 카탈로그 id는 내보내므로, 양쪽에서 다시 타이핑할 필요가 없습니다.
 
 ```ts
@@ -61,7 +63,7 @@ import { A2UI_BASIC_CATALOG_ID } from 'material-plus-ui/a2ui';
 // 'https://a2ui.org/specification/v0_9/catalogs/basic/catalog.json'
 ```
 
-클라이언트는 같은 문자열을 `supportedCatalogIds`로 알리고, 그 값은 `processor.getClientCapabilities()`가 만들어 줍니다.
+클라이언트는 같은 문자열을 `supportedCatalogIds`로 알리고, 그 값은 `processor.getRendererCapabilities({ versions: ['v0.9'] })`가 만들어 줍니다.
 
 ## 컴포넌트별로 무엇이 그려지는가
 
@@ -73,7 +75,7 @@ import { A2UI_BASIC_CATALOG_ID } from 'material-plus-ui/a2ui';
 | `Video` | `<video controls>` | 브라우저의 플레이어에 Material의 모서리 |
 | `AudioPlayer` | `<audio controls>` | 같고, 설명은 위에 그립니다 |
 | `Row`, `Column` | `MPFlex` | 간격은 8px이고 에이전트가 정할 수 없습니다 |
-| `List` | `<ul>`·`<ol>`로 그린 `MPFlex` | 진짜 목록 요소, 자식마다 `<li>` |
+| `List` | `<ul>`로 그린 `MPFlex` | 표시 기호 없는 진짜 목록 요소, 자식마다 `<li>` |
 | `Card` | `MPCard` | 자식 하나를 시트 위에 |
 | `Tabs` | `MPTabs` | 자식 id로 키를 잡아, 스트리밍 중 탭이 늘어도 됩니다 |
 | `Modal` | `MPDialog` | 스크림, 포커스 트랩, Escape, 포커스 복귀 |
@@ -129,7 +131,10 @@ basic 어휘로는 서술할 수 없는 다섯 개이고, 숫자를 보고하는
 ```tsx
 import { mpA2uiCatalog, mpA2uiExtendedCatalog } from 'material-plus-ui/a2ui';
 
-const processor = new MessageProcessor([mpA2uiCatalog, mpA2uiExtendedCatalog]);
+const processor = new MessageProcessor<ReactComponentImplementation>([
+  mpA2uiCatalog,
+  mpA2uiExtendedCatalog
+]);
 ```
 
 둘을 등록하면 에이전트가 화면마다 고릅니다. 다른 렌더러도 그려야 할 수 있는 것에는 basic id를, 표나 차트인 화면에는 `MP_A2UI_CATALOG_ID`를 씁니다. 스키마는 그 id에 게시됩니다 — [material-plus.cdget.com/a2ui/v0_9/catalog.json](https://material-plus.cdget.com/a2ui/v0_9/catalog.json). 렌더러가 검증하는 것과 같은 Zod 스키마에서 생성하므로, 에이전트가 읽는 설명과 페이로드가 검증되는 계약이 서로 어긋날 수 없습니다.

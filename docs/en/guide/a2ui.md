@@ -19,26 +19,26 @@ The protocol's SDK is two packages, and this library declares both as optional p
 npm install material-plus-ui @a2ui/react @a2ui/web_core
 ```
 
-They are optional because they are substantial: Lit, signals, Zod, a date library and a Markdown parser arrive with them, against the two runtime dependencies the rest of this package has. Nothing outside this subpath imports either one, so a project that renders no agent interfaces downloads none of it.
+They are optional because they are substantial: Lit, signals, Zod and a Markdown parser arrive with them, against the two runtime dependencies the rest of this package has. Nothing outside this subpath imports either one, so a project that renders no agent interfaces downloads none of it.
 
 What it costs a project that does is measured in the build, beside every other figure in this documentation:
 
 | Bundle                  | This library | With the SDK |
 | ----------------------- | ------------ | ------------ |
-| `mpA2uiCatalog`         | 38.9 kB      | 77.3 kB      |
-| `mpA2uiExtendedCatalog` | 60.6 kB      | 98.9 kB      |
+| `mpA2uiCatalog`         | 39.9 kB      | 95.0 kB      |
+| `mpA2uiExtendedCatalog` | 65.0 kB      | 120.0 kB     |
 
 Gzipped, with React and Base UI external. The difference between the two rows is the data table and the three charts, which is why the basic catalog is its own export rather than a subset of the other: import the one you register and the rest is dropped.
 
 ## Render a surface
 
 ```tsx
-import { A2uiSurface } from '@a2ui/react/v0_9';
+import { A2uiSurface, type ReactComponentImplementation } from '@a2ui/react/v0_9';
 import { MessageProcessor } from '@a2ui/web_core/v0_9';
 import { mpA2uiCatalog } from 'material-plus-ui/a2ui';
 import 'material-plus-ui/styles.css';
 
-const processor = new MessageProcessor([mpA2uiCatalog], (action) => {
+const processor = new MessageProcessor<ReactComponentImplementation>([mpA2uiCatalog], (action) => {
   // What the reader did, on its way back to the agent.
   void send(action);
 });
@@ -54,6 +54,8 @@ function Surfaces() {
 
 Three things are worth naming in that snippet. `mpA2uiCatalog` is what decides how the payload is drawn. The second argument to `MessageProcessor` is where a press, a keystroke or a choice leaves for the agent. And `material-plus-ui/styles.css` is the only stylesheet involved — the catalog adds no CSS of its own, because it draws with components this library already styles.
 
+The type argument on `MessageProcessor` is for TypeScript. The processor does not infer it from the catalogs it is given, and without it `A2uiSurface` does not accept the surfaces the processor holds.
+
 The catalog id the agent has to send is exported, so it does not have to be retyped on either side:
 
 ```ts
@@ -61,7 +63,7 @@ import { A2UI_BASIC_CATALOG_ID } from 'material-plus-ui/a2ui';
 // 'https://a2ui.org/specification/v0_9/catalogs/basic/catalog.json'
 ```
 
-A client announces the same string in `supportedCatalogIds`, and `processor.getClientCapabilities()` produces that for you.
+A client announces the same string in `supportedCatalogIds`, and `processor.getRendererCapabilities({ versions: ['v0.9'] })` produces that for you.
 
 ## What each component draws
 
@@ -73,7 +75,7 @@ A client announces the same string in `supportedCatalogIds`, and `processor.getC
 | `Video` | `<video controls>` | The browser's player, with Material's corner |
 | `AudioPlayer` | `<audio controls>` | The same, with the description drawn above it |
 | `Row`, `Column` | `MPFlex` | An 8px gap, which the agent cannot set |
-| `List` | `MPFlex` as `<ul>` / `<ol>` | A real list element, and `<li>` per child |
+| `List` | `MPFlex` as `<ul>` | A real list element, unmarked, and `<li>` per child |
 | `Card` | `MPCard` | One child, on a sheet |
 | `Tabs` | `MPTabs` | Keyed by child id, so a streamed payload can add a tab |
 | `Modal` | `MPDialog` | Scrim, focus trap, Escape, focus restored |
@@ -129,7 +131,10 @@ Five components the basic vocabulary has no way to describe, which is what an ag
 ```tsx
 import { mpA2uiCatalog, mpA2uiExtendedCatalog } from 'material-plus-ui/a2ui';
 
-const processor = new MessageProcessor([mpA2uiCatalog, mpA2uiExtendedCatalog]);
+const processor = new MessageProcessor<ReactComponentImplementation>([
+  mpA2uiCatalog,
+  mpA2uiExtendedCatalog
+]);
 ```
 
 Register both and the agent chooses per surface: the basic id for anything another renderer might also have to draw, and `MP_A2UI_CATALOG_ID` when the surface is a table or a chart. Its schema is published at that id — [material-plus.cdget.com/a2ui/v0_9/catalog.json](https://material-plus.cdget.com/a2ui/v0_9/catalog.json) — generated from the same Zod schemas the renderer enforces, so the description an agent reads and the contract a payload is checked against cannot drift apart.

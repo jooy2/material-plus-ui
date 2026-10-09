@@ -9,12 +9,14 @@
  * Material Plus on the other end with nothing changed at its end.
  *
  * ```tsx
- * import { A2uiSurface } from '@a2ui/react/v0_9';
+ * import { A2uiSurface, type ReactComponentImplementation } from '@a2ui/react/v0_9';
  * import { MessageProcessor } from '@a2ui/web_core/v0_9';
  * import { mpA2uiCatalog } from 'material-plus-ui/a2ui';
  * import 'material-plus-ui/styles.css';
  *
- * const processor = new MessageProcessor([mpA2uiCatalog]);
+ * // The processor does not infer its component type from the catalogs, and
+ * // `A2uiSurface` accepts its surfaces only with this type argument.
+ * const processor = new MessageProcessor<ReactComponentImplementation>([mpA2uiCatalog]);
  *
  * processor.processMessages(messagesFromTheAgent);
  *
@@ -27,10 +29,10 @@
  *
  * `@a2ui/react` and `@a2ui/web_core` are **optional peer dependencies**: install
  * them and this subpath works, leave them out and nothing else in the library
- * notices. That is not tidiness. The protocol SDK brings Lit, signals, Zod, a
- * date library and a Markdown parser with it, and the rest of this package
- * promises two runtime dependencies — so the SDK stays behind an import that only
- * a project rendering agent interfaces ever writes. Nothing in `src/` outside this
+ * notices. That is not tidiness. The protocol SDK brings Lit, signals, Zod and a
+ * Markdown parser with it, and the rest of this package promises two runtime
+ * dependencies — so the SDK stays behind an import that only a project
+ * rendering agent interfaces ever writes. Nothing in `src/` outside this
  * directory imports either package, and this module is not in the main barrel.
  *
  * ## No stylesheet of its own
