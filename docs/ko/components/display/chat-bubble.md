@@ -9,6 +9,8 @@ order: 12
 
 <Demo src="chat-bubble/hero" :minHeight="240" />
 
+::: fw react
+
 ```tsx
 import { MPChatBubble } from 'material-plus-ui';
 
@@ -16,6 +18,24 @@ import { MPChatBubble } from 'material-plus-ui';
   응 — 구석 자리로 예약했어.
 </MPChatBubble>;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+const MPChatBubble(
+  side: MPChatBubbleSide.end,
+  variant: MPVariant.filled,
+  time: Text('18:02'),
+  status: MPChatBubbleStatus.read,
+  child: Text('응 — 구석 자리로 예약했어.'),
+);
+```
+
+:::
 
 ## Props
 
@@ -27,7 +47,7 @@ MD3에는 채팅 말풍선이 없습니다. [MPProgressBox](../feedback/progress
 
 이름 붙일 만한 결정이 둘 있습니다.
 
-**꼬리는 삼각형이 아니라 잘린 모서리입니다.** 말한 사람 쪽 모서리만 `corner-extra-small`로 내려가고 나머지 셋은 `corner-extra-large`에 남습니다. 곧은 날로 잘렸어야 할 표면에 도형을 매달지 않고도 이 메시지가 행의 어느 쪽에서 왔는지 말해 줍니다. 두 값 모두 토큰이라서 잘림도 다른 모든 것과 함께 [`data-mp-shape`](../../guide/getting-started#모양)를 따라갑니다. _논리적_ 모서리로 쓰여 있어서, 아랍어 스레드는 알려 주지 않아도 반대쪽을 각지게 만듭니다.
+**꼬리는 삼각형이 아니라 잘린 모서리입니다.** 말한 사람 쪽 모서리만 `corner-extra-small`로 내려가고 나머지 셋은 `corner-extra-large`에 남습니다. 곧은 날로 잘렸어야 할 표면에 도형을 매달지 않고도 이 메시지가 행의 어느 쪽에서 왔는지 말해 줍니다. 두 값 모두 토큰이라서 잘림도 다른 모든 것과 함께 <Fw react="[`data-mp-shape`](../../guide/getting-started#모양)" flutter="테마의 `MPShapes`" />를 따라갑니다. _논리적_ 모서리로 쓰여 있어서, 아랍어 스레드는 알려 주지 않아도 반대쪽을 각지게 만듭니다.
 
 **말풍선은 강조 색을 받습니다.** [카드](../layout/card)와 달리 말풍선은 _스스로가_ 칠해지는 대상이므로, 여기서 `variant`는 컨트롤의 사다리입니다. `filled`가 면 전체를 채웁니다. `text`만은 "표면 없음"을 뜻하지 않습니다. 표면이 없는 말풍선은 말풍선이 아니므로, 대신 가장 조용한 중립 컨테이너를 씁니다.
 
@@ -40,6 +60,8 @@ MD3에는 채팅 말풍선이 없습니다. [MPProgressBox](../feedback/progress
 
 흔한 배치를 원하는 호출자는 한 번만 쓰면 됩니다.
 
+::: fw react
+
 ```tsx
 const mine = message.authorId === me.id;
 
@@ -48,11 +70,37 @@ const mine = message.authorId === me.id;
 </MPChatBubble>;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+final bool mine = message.authorId == me.id;
+
+MPChatBubble(
+  side: mine ? MPChatBubbleSide.end : MPChatBubbleSide.start,
+  variant: mine ? MPVariant.filled : MPVariant.tonal,
+  child: Text(message.text),
+);
+```
+
+:::
+
 ## 전송 표시
 
 <Demo src="chat-bubble/status" :minHeight="320">
 
+::: fw react
+
 <<< @/.vitepress/demos/chat-bubble/status.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/chat_bubble/status.dart
+
+:::
 
 </Demo>
 
@@ -76,6 +124,8 @@ const mine = message.authorId === me.id;
 
 모든 표시는 보이는 독자에게는 말이 없고 그 외의 모두에게는 읽힙니다. 그 뒤의 단어는 prop이 아니라 이 라이브러리 자신의 [메시지 표](../../design/localization)에서 옵니다.
 
+::: fw react
+
 ```tsx
 <MPChatBubble status="delivered" locale="ko">
   …
@@ -83,13 +133,34 @@ const mine = message.authorId === me.id;
 // "전달됨"으로 읽힙니다
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+MPChatBubble(status: MPChatBubbleStatus.delivered, locale: 'ko', child: message);
+// "전달됨"으로 읽힙니다
+```
+
+:::
+
 [MPDialog](../feedback/dialog)가 `closeLabel`로 하는 것과 정반대인데, 차이는 개수입니다. 다이얼로그에는 단어 하나와 인스턴스 하나가 있습니다. 스레드는 말풍선 마흔 개의 열이고 각각 다섯 개의 단어가 가능하며, 메시지마다 그것들을 넘겨야 하는 호출자는 영어를 넘기게 됩니다. 제품이 다른 이름으로 부른다면 `statusLabel`이 여전히 있습니다.
 
 ## 예시
 
 <Demo src="chat-bubble/slots" :minHeight="490">
 
+::: fw react
+
 <<< @/.vitepress/demos/chat-bubble/slots.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/chat_bubble/slots.dart
+
+:::
 
 </Demo>
 
@@ -99,31 +170,91 @@ const mine = message.authorId === me.id;
 
 ### preview
 
-텍스트 아래 카드로 펼쳐진 링크입니다. 표면은 역할을 가리키는 대신 `currentColor`에서 섞어 냅니다. 말풍선에서 강조 색 채움과 중립 표면 양쪽에서 모두 동작해야 하는 유일한 부분이기 때문입니다. 고정된 역할을 쓰면 둘 중 하나에서 보이지 않게 됩니다.
+텍스트 아래 카드로 펼쳐진 링크입니다. 표면은 역할을 가리키는 대신 <Fw react="`currentColor`" flutter="말풍선의 글자색" />에서 섞어 냅니다. 말풍선에서 강조 색 채움과 중립 표면 양쪽에서 모두 동작해야 하는 유일한 부분이기 때문입니다. 고정된 역할을 쓰면 둘 중 하나에서 보이지 않게 됩니다.
 
-이미지는 일부러 `alt=""`입니다. 그것이 말하는 모든 것이 바로 아래에 쓰여 있습니다. `newTab`은 target과 함께 `rel="noopener noreferrer"`를 붙입니다.
+::: fw react
+
+이미지는 일부러 `alt=""`입니다. 그것이 말하는 모든 것이 바로 아래에 쓰여 있습니다. `newTab`은 target과 함께 `rel="noopener noreferrer"`를 붙입니다. `url`은 렌더링하기 전에 검사합니다. 미리보기의 내용은 남이 보낸 것이므로 `http:`, `https:`, `mailto:`, `tel:`과 상대 주소만 링크가 됩니다.
+
+:::
+
+::: fw flutter
+
+카드에는 `url`이 없습니다. Flutter에는 자체 내비게이션이 없으므로 카드는 `onPressed`를 받고, 어디로 갈지는 앱이 그 자리에서 정합니다. 낯선 사람이 보낸 주소에 대한 검사도 앱이 거기서 합니다. `onPressed`가 없으면 카드는 누를 수 없습니다. 사진은 semantics 트리에서 빠집니다. 그것이 말하는 모든 것이 바로 아래에 쓰여 있기 때문입니다.
+
+```dart
+MPChatBubblePreview(
+  onPressed: () => openIfSafe(link.url),
+  site: const Text('m3.material.io'),
+  title: const Text('Cards — Material Design 3'),
+  image: NetworkImage(link.image),
+)
+```
+
+:::
 
 ### actions
 
-말풍선 안이 아니라 옆에 앉고, 행에 호버가 오거나 내부에 포커스가 들어오기 전까지 투명도 0으로 남습니다. 대화 한가운데에 늘 놓여 있는 메뉴 트리거는 읽기를 가로막는 손잡이입니다. 호버가 없는 포인터에는 드러낼 방법이 없으므로, 터치에서는 그냥 항상 보입니다.
+말풍선 안이 아니라 옆에 앉고, 행에 호버가 오거나 내부에 포커스가 들어오기 전까지 투명도 0으로 남습니다. 대화 한가운데에 늘 놓여 있는 메뉴 트리거는 읽기를 가로막는 손잡이입니다. 호버가 없는 포인터에는 드러낼 방법이 없으므로, 터치에서는 그냥 항상 보입니다. <Fw flutter="Flutter에서는 플랫폼으로 판단합니다. Android와 iOS에서는 액션이 항상 보입니다." />
 
 ### typing
 
 메시지 대신 점 세 개를 그리고 `children`은 건드리지 않으므로, 메시지가 도착하면 같은 말풍선이 그리로 돌아갑니다.
 
+::: fw react
+
 ```tsx
 <MPChatBubble typing>{아직_도착하지_않은_초안}</MPChatBubble>
 ```
 
-점들은 순서대로 밝아지고 절대 움직이지 않습니다. 누군가 입력하는 동안 튀는 말풍선은 다른 사람이 스크롤하고 있는 스레드에서 튑니다. [MPProgressBox](../feedback/progress-box)의 세그먼트가 도는 것과 같은 `mp-wave` 키프레임이고, `prefers-reduced-motion`에서 멈춥니다.
+:::
+
+::: fw flutter
+
+```dart
+MPChatBubble(typing: true, child: draftThatHasNotArrived);
+```
+
+:::
+
+점들은 순서대로 밝아지고 절대 움직이지 않습니다. 누군가 입력하는 동안 튀는 말풍선은 다른 사람이 스크롤하고 있는 스레드에서 튑니다. [MPProgressBox](../feedback/progress-box)의 세그먼트가 도는 것과 같은 물결이고, <Fw react="`prefers-reduced-motion`" flutter="`MediaQuery.disableAnimations`" />에서 멈춰 60%의 밝기로 쉽니다.
 
 ## 접근성
+
+::: fw react
 
 - 전송 표시는 장식이고, 그 뒤의 단어는 시각적으로 숨겨진 span에 있습니다. 보이는 독자가 체크 두 개를 볼 때 스크린 리더는 "전달됨"을 듣습니다.
 - 입력 중 점들은 "입력 중"이라는 단어를 뒤에 둔 `status` 영역입니다.
 - `actions`는 말풍선 바깥의 진짜 컨트롤이라서, 행에 포커스가 오기 전까지 보이지 않더라도 키보드로 닿을 수 있습니다. `group-focus-within`이 그것을 드러냅니다.
 - `preview`는 보이는 제목을 가진 진짜 링크이고, 사진은 `alt=""`입니다. 제목과 요약이 이미 그것이 무엇인지 말하고 있기 때문입니다.
 - 말풍선 자체에는 역할이 없습니다. 스레드는 목록이고, 이것들을 감싸는 것은 호출자의 몫입니다 — `<li>`가 든 `<ol>`이거나, 읽는 사람이 과거로 되짚어 갈 수 있느냐에 따라 `feed`입니다.
+
+:::
+
+::: fw flutter
+
+- 전송 표시는 그 단어를 이름으로 가진 별도의 노드입니다. 보이는 독자가 체크 두 개를 볼 때 스크린 리더는 "전달됨"을 듣습니다.
+- 입력 중 점들은 "입력 중"이라는 이름의 라이브 영역입니다.
+- `actions`는 말풍선 바깥의 진짜 컨트롤이라서, 아직 투명할 때도 키보드로 닿을 수 있습니다. 행 안 어디든 포커스가 들어오면 드러납니다.
+- 누를 수 있는 `preview`는 링크로 읽히고, 제목과 요약이 이름이 됩니다.
+- 말풍선 자체는 역할을 더하지 않습니다. 스레드는 목록이고, 이것들을 감싸는 것은 호출자의 몫입니다.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `side="end"`, `status="read"` | `MPChatBubbleSide.end`, `MPChatBubbleStatus.read` | 같은 단어를 Dart의 enum으로 씁니다. |
+| `preview.url`, `preview.newTab` | `preview.onPressed` | Flutter에는 자체 내비게이션이 없습니다. 카드가 어디로 갈지와 주소 검사는 앱이 맡습니다. |
+| URL로 주는 `preview.image` | `ImageProvider`로 주는 `preview.image` | Flutter는 이미지 프로바이더로 그림을 불러옵니다. |
+| `(hover: none)` | Android와 iOS | 포인터가 호버할 수 있는지를 플랫폼으로 판단합니다. |
+| `children` | `child` | Flutter의 이름입니다. |
+| `className`, `style` | — | 넘길 클래스 목록이나 style 속성이 없습니다. |
+
+:::
 
 ## 함께 보기
 
