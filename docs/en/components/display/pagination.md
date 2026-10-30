@@ -9,6 +9,8 @@ order: 15
 
 <Demo src="pagination/hero" :minHeight="140" />
 
+::: fw react
+
 ```tsx
 import { MPPagination } from 'material-plus-ui';
 
@@ -16,6 +18,20 @@ const [page, setPage] = useState(1);
 
 <MPPagination count={20} page={page} onPageChange={setPage} />;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+int page = 1;
+
+MPPagination(count: 20, page: page, onChanged: (int next) => setState(() => page = next));
+```
+
+:::
 
 Fewer than two pages and the whole control renders nothing. One page is not a set of pages, and a row holding a lone disabled "1" is a control advertising that it has nothing to do.
 
@@ -27,7 +43,17 @@ Fewer than two pages and the whole control renders nothing. One page is not a se
 
 <Demo src="pagination/window" :minHeight="380">
 
+::: fw react
+
 <<< @/.vitepress/demos/pagination/window.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/pagination/window.dart
+
+:::
 
 </Demo>
 
@@ -39,9 +65,13 @@ Three rules, and the third is the one most paginations get wrong:
 
 The row is also pinned to a constant number of slots. The window slides toward whichever end it is near instead of being clipped by it, so page 1 shows `1 2 3 4 5 … 20` and page 10 shows `1 … 9 10 11 … 20`. Which slots are pages and which are ellipses changes; how many there are does not — otherwise stepping from page 1 to page 2 would relayout the row and every cell would move out from under the pointer that just pressed one.
 
+:::: fw react
+
 ## getPageHref
 
 Without it the row is buttons, and a crawler cannot press one. A paged list of articles, products or search results then exists for a reader and stops at page one for everything else.
+
+::: fw react
 
 ```tsx
 <MPPagination
@@ -52,19 +82,43 @@ Without it the row is buttons, and a crawler cannot press one. A paged list of a
 />
 ```
 
+:::
+
 With it the numbers are real `<a href>`, the two steppers carry `rel="prev"` and `rel="next"`, and the browser's own behaviour comes back: open in a new tab, copy the address, see where a press is going before making it.
 
 `onPageChange` still fires and the navigation is still cancelled first, so a client-side router keeps the page it already has. A press carrying ⌘, Ctrl, Shift or Alt is never cancelled — that is the reader asking the browser for a new tab, and it is not ours to take away.
 
 Two cells stay buttons even so: **the page being read**, because the page you are already on is not somewhere to go, and **a stepper at the end of the row**, because `disabled` is not something an `<a>` can be. A link that only looks unavailable is one a keyboard still lands on and a crawler still follows.
 
+::::
+
+::: fw flutter
+
+## Links
+
+A Flutter screen has no crawler to follow a link and no address bar to show one, so the row is always buttons and there is no `getPageHref` or `renderLink`. A router moves to the page from `onChanged`.
+
+:::
+
 ## Localisation
 
 Nothing in this row is drawn except the numbers, so every word it says is one a screen reader hears and nobody sees. Those come from the library's own table:
 
+::: fw react
+
 ```tsx
 <MPPagination count={20} locale="ko" />
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+const MPPagination(count: 20, locale: 'ko');
+```
+
+:::
 
 `MPLocaleProvider` sets it for a whole application at once, and `labels` overrides one string at a time without losing the rest of the translation. See [Localisation](../../design/localization).
 
@@ -84,10 +138,38 @@ A cell is square until the number needs more room and grows by its inline paddin
 
 ## Accessibility
 
+::: fw react
+
 - A `<nav>` landmark named from the locale's word for "Pagination", holding a `<ul>` — a list whose length says how far the pages go.
 - `aria-current="page"` marks the page being read, and it is the only cell that claims anything.
 - Every cell has a spoken name — "Page 4", "Next page" — because what is drawn is a digit or a chevron.
 - The ellipsis is a `<span>`, not a disabled button: it is not a control that happens to be unavailable, it is punctuation. It is `aria-hidden`, because "horizontal ellipsis" read out between two numbers is noise.
+
+:::
+
+::: fw flutter
+
+- One container node named from the locale's word for "Pagination", whose value is the sentence "Page 7 of 20", announced again after every move. The cells are nodes of their own inside it.
+- The page being read is marked selected, the nearest Flutter has to `aria-current`, and it is the only cell that claims anything. It answers nothing when pressed but stays a stop, because it is where the reader is.
+- Every cell has a spoken name — "Page 4", "Next page" — because what is drawn is a digit or a chevron. The steppers point the other way under right-to-left.
+- The gap is punctuation rather than a disabled button, and it is left out of what is read.
+
+:::
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `defaultPage` | `initialPage` | `initialX` is the name Flutter gives a starting value. |
+| `onPageChange` | `onChanged` | Flutter’s name for a control’s value changing. |
+| `getPageHref`, `renderLink` | — | There is no crawler and no address bar; navigation runs through `onChanged`. |
+| `labels: Partial<MPPaginationLabels>` | `labels: Map<String, String>` | The same keys, as a map. |
+| `<nav>` with a list, a live region | A named container with a live value | The same three things said on one node. |
+| `className`, `style`, `ref` | — | There is no class list, no style attribute and no element. |
+
+:::
 
 ## See also
 
