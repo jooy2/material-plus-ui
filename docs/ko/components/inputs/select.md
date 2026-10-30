@@ -9,6 +9,8 @@ order: 2
 
 <Demo src="select/hero" :minHeight="72" />
 
+::: fw react
+
 ```tsx
 import { MPSelect } from 'material-plus-ui';
 
@@ -25,21 +27,71 @@ const [city, setCity] = useState(null);
 />;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPSelectValue? city;
+
+MPSelect(
+  label: const Text('도시'),
+  items: const <MPSelectOption>[
+    MPSelectOption(value: 'kr-11', label: Text('서울')),
+    MPSelectOption(value: 'jp-13', label: Text('도쿄')),
+  ],
+  value: city,
+  onChanged: (MPSelectValue? next) => setState(() => city = next),
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPSelect" />
 
+::: fw flutter
+
+`value`를 주면 controlled 셀렉트가 됩니다. `null`도 값이고, 아무것도 고르지 않았다는 뜻입니다. `value`를 빼면 셀렉트가 선택을 직접 들고 있고 `initialValue`에서 시작합니다. React 패키지에서 넘어오지 않는 것은 [React 빌드와 다른 점](#react-빌드와-다른-점)에 있습니다.
+
+:::
+
 ## 옵션이 데이터인 이유
+
+::: fw react
 
 조합해서 쓰는 `<MPSelect.Option>`은 없고, 그건 편법이 아닙니다.
 
 목록은 팝업이 마운트되기도 전에 **트리거**에서 필요합니다. 그렇지 않으면 닫힌 셀렉트는 원본 값밖에 보여 줄 수 없고, "서울"이라고 말해야 할 필드가 `kr-11`이라고 말하며 앉아 있게 됩니다. children으로는 이걸 할 수 없습니다. 팝업이 열리기 전까지 존재하지 않으니까요.
 
+:::
+
+::: fw flutter
+
+조합해서 쓰는 옵션 위젯은 없고, 그건 편법이 아닙니다.
+
+목록은 팝업이 빌드되기도 전에 **트리거**에서 필요합니다. 그렇지 않으면 닫힌 셀렉트는 원본 값밖에 보여 줄 수 없고, "서울"이라고 말해야 할 필드가 `kr-11`이라고 말하며 앉아 있게 됩니다. 자식 위젯으로는 이걸 할 수 없습니다. 팝업이 열리기 전까지 행이 빌드되지 않으니까요.
+
+:::
+
 게다가 호출하는 쪽은 이미 배열을 갖고 있는 경우가 대부분입니다. 옵션은 손으로 쓰이는 것보다 API나 상수에서 오는 일이 훨씬 많습니다.
 
 ## 값이 될 수 있는 것
 
+::: fw react
+
 `string` 또는 `number`입니다. 임의의 객체는 의도적으로 받지 않습니다.
+
+:::
+
+::: fw flutter
+
+`String` 또는 `num`입니다. 임의의 객체는 의도적으로 받지 않습니다. Dart에는 유니언 타입이 없어서 `MPSelectValue`는 `Object`의 별칭이고, 값은 `==`로 비교합니다.
+
+:::
 
 셀렉트는 폼 컨트롤이고 그 값은 폼이 제출하는 것입니다. 거기서 벗어나는 모든 장치 — 객체 값, 커스텀 동등성 비교, 트리거용 문자열 변환기 — 는 유연성을 사면서 흔한 경우를 더 쓰기 어렵게 만듭니다. 여기에는 식별자를 두고, 객체는 반대편에서 찾으세요.
 
@@ -55,7 +107,17 @@ const [city, setCity] = useState(null);
 
 <Demo src="select/states" :minHeight="300">
 
+::: fw react
+
 <<< @/.vitepress/demos/select/states.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/select/states.dart
+
+:::
 
 </Demo>
 
@@ -65,6 +127,8 @@ const [city, setCity] = useState(null);
 
 옵션은 선택 불가능하면서도 목록에 남을 수 있습니다.
 
+::: fw react
+
 ```tsx
 items={[
   { value: 'free', label: 'Free' },
@@ -72,15 +136,40 @@ items={[
 ]}
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+items: const <MPSelectOption>[
+  MPSelectOption(value: 'free', label: Text('Free')),
+  MPSelectOption(value: 'team', label: Text('Team'), disabled: true),
+],
+```
+
+:::
+
 지우지 않고 남기는 것은 의도입니다. "있지만 당신에게는 아님"과 "없음"은 다른 말이고, 동료가 말한 요금제가 왜 안 보이는지 설명해 주는 쪽은 하나뿐입니다.
 
 ### floatingLabel
 
 고른 값이 없고 팝업도 닫혀 있는 동안 라벨은 플레이스홀더가 있을 자리, 즉 트리거 자신의 줄 위에 내려와 있다가 포커스나 첫 선택에서 노치로 올라갑니다. `placeholder`는 그때까지 보류됩니다 — 한 상자 안의 회색 문자열 두 개는 힌트가 아닙니다. 규칙 전체는 [MPTextField](./text-field#floatinglabel)에 있습니다.
 
+::: fw react
+
 팝업이 열려 있는 것도 포커스로 칩니다. Base UI가 포커스를 목록 안으로 옮기기 때문에, 트리거만 보는 라벨이라면 사용자가 한창 고르는 중에 다시 내려와 버립니다.
 
 `floatingLabel={false}`는 라벨을 노치에 고정하고, `startIcon`이 있으면 어느 쪽이든 노치에 남습니다 — 글리프가 내려온 라벨이 설 자리에 이미 서 있기 때문입니다.
+
+:::
+
+::: fw flutter
+
+팝업이 열려 있는 것도 포커스로 칩니다. 그래서 목록이 열려 있는 동안에는 포커스가 어디에 있든 라벨이 올라가 있습니다.
+
+`floatingLabel: false`는 라벨을 노치에 고정하고, `startIcon`이 있으면 어느 쪽이든 노치에 남습니다 — 글리프가 내려온 라벨이 설 자리에 이미 서 있기 때문입니다.
+
+:::
 
 ### size
 
@@ -88,9 +177,25 @@ items={[
 
 <Demo src="select/sizes" :minHeight="440">
 
+::: fw react
+
 <<< @/.vitepress/demos/select/sizes.tsx
 
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/select/sizes.dart
+
+:::
+
 </Demo>
+
+::: fw flutter
+
+`fullWidth`가 아닌 셀렉트는 말할 수 있는 가장 긴 문자열 — 모든 옵션, 플레이스홀더, 내려와 있는 라벨 — 의 너비를 유지합니다. 그래서 더 짧은 옵션을 골라도 방금 고른 포인터 아래에서 필드가 줄어들지 않습니다.
+
+:::
 
 ## 팝업
 
@@ -104,12 +209,55 @@ items={[
 
 ## 접근성
 
+::: fw react
+
 - 트리거는 홈에 놓인 라벨로 이름이 붙고 `id`로 연결됩니다.
 - 팝업의 위치 계산과 뒤집기, 포커스 트랩, typeahead, 폼과 함께 제출되는 숨은 input은 모두 Base UI가 담당합니다.
 - `readOnly`는 값을 보여 주되 바꾸지 못하게 하고 탭 순서에 남습니다. `disabled`는 둘 다 아닙니다.
+
+:::
+
+::: fw flutter
+
+- 화면 낭독기에게 필드는 버튼 노드 하나입니다. 홈에 놓인 라벨로 이름이 붙고, 고른 옵션의 라벨을 값으로 갖고, 목록이 펼쳐졌는지 알립니다. 라벨, 값, 보조 텍스트를 한 번에 읽습니다.
+- 목록이 열려 있는 동안에도 포커스는 트리거에 남습니다. 화살표 키는 목록을 열고 비활성 행을 건너뛰며 움직이고, Home과 End는 양 끝으로 갑니다. Enter나 Space는 강조된 행을 고르고, Escape, Tab, 바깥 누르기는 고르지 않고 닫습니다.
+- 글자를 치면 그 글자로 시작하는 옵션으로 갑니다. 열린 목록에서는 강조가, 닫힌 셀렉트에서는 값 자체가 옮겨 갑니다. native select와 같습니다.
+- 방향 탐색, 즉 리모컨의 D-pad에서는 닫힌 셀렉트가 화살표를 포커스 시스템에 넘기고 Select나 Enter로 열립니다.
+- `readOnly`는 값을 보여 주되 바꾸지 못하게 하고 포커스 순서에 남습니다. `disabled`는 둘 다 아닙니다.
+- `MPForm` 안에서는 `name`으로 값이 나머지와 함께 넘어가고, 아무것도 고르지 않은 필수 셀렉트는 제출을 막고 포커스를 받으며, 폼이 그 이름으로 돌려준 오류가 트리거 아래에 보입니다.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+이 페이지의 대부분은 두 패키지에서 같습니다. 아래는 같지 않은 지점과 그 이유입니다.
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `onValueChange` | `onChanged` | 평범한 변경에 붙는 Flutter의 이름입니다. |
+| `defaultValue` | `initialValue` | Flutter의 이름입니다. `value`를 빼면 값이 아닌 표식이 기본값으로 들어가고, 그것이 셀렉트가 값을 직접 들게 만듭니다. `value: null`은 아무것도 고르지 않은 controlled 셀렉트입니다. |
+| `string \| number` | `MPSelectValue` (`Object`) | Dart에는 유니언 타입이 없습니다. `String`이나 `num`을 넘기세요. |
+| `label`, `placeholder`, 옵션의 `label` (`ReactNode`) | `Widget?` | 보통 `Text`입니다. 화면 낭독기와 typeahead는 `Text`의 글자를 읽습니다. |
+| 포커스가 목록 안으로 이동 | 포커스가 트리거에 남음 | 목록의 키가 트리거의 것이므로, 목록이 열려 있는 동안 외곽선이 포커스 색을 유지합니다. |
+| `onKeyDown`, `onKeyUp` | `onKeyEvent` | `KeyEventResult`를 돌려주는 콜백 하나입니다. 셀렉트보다 먼저 모든 키를 듣습니다. |
+| `onFocus`, `onBlur` | `onFocusChange` | `bool`을 받는 콜백 하나입니다. |
+| `onClick`, `onDoubleClick`, `onContextMenu` | — | 포인터는 셀렉트를 `GestureDetector`로 감싸서 받습니다. |
+| `id`, `className`, `style`, `classNames` | — | 넘겨줄 대상이 없습니다. |
+| — | `semanticLabel`, `focusNode`, `autofocus` | 보이는 라벨이 없는 셀렉트의 이름과, 밖에서 다루는 포커스입니다. |
+
+나머지는 일부러 맞췄습니다. 껍데기, 팝업의 면과 페이드, 행의 체크와 상태 레이어, 떠오르는 라벨, 크기 단계가 그렇습니다.
+
+:::
 
 ## 함께 보기
 
 - [MPTextField](./text-field) — 여기서 빌려 온 껍데기.
 - [MPRadioGroup](./radio-group) — 한꺼번에 다 보여 줄 만한 개수의 옵션이라면.
+
+::: fw react
+
 - [Base UI Select](https://base-ui.com/react/components/select) — 아래에 깔린 동작.
+
+:::
