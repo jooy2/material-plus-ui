@@ -317,6 +317,7 @@ void main() {
 
     testWidgets(
       'renders the avatar and the actions beside the bubble',
+      variant: TargetPlatformVariant.only(TargetPlatform.macOS),
       (WidgetTester tester) async {
         await tester.pumpWidget(
           host(
@@ -347,11 +348,11 @@ void main() {
 
         expect(opacity(), 1);
       },
-      variant: TargetPlatformVariant.only(TargetPlatform.macOS),
     );
 
     testWidgets(
       'shows the actions all the time on a touch platform',
+      variant: TargetPlatformVariant.only(TargetPlatform.android),
       (WidgetTester tester) async {
         await tester.pumpWidget(
           host(
@@ -362,7 +363,6 @@ void main() {
 
         expect(tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity)).opacity, 1);
       },
-      variant: TargetPlatformVariant.only(TargetPlatform.android),
     );
   });
 }

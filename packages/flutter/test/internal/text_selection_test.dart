@@ -83,7 +83,7 @@ void main() {
   });
 
   group('on a phone', () {
-    testWidgets('a tap focuses the field and typing reaches the parent', (
+    testWidgets('a tap focuses the field and typing reaches the parent', variant: mobile, (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(host(overlay: true, width: 300, const _Field()));
@@ -95,9 +95,9 @@ void main() {
       await tester.enterText(find.byType(EditableText), 'Ada');
       await tester.pump();
       expect(_editor(tester).widget.controller.text, 'Ada');
-    }, variant: mobile);
+    });
 
-    testWidgets('a long press selects the word, with handles and a menu', (
+    testWidgets('a long press selects the word, with handles and a menu', variant: mobile, (
       WidgetTester tester,
     ) async {
       _mockClipboard(tester, text: 'pasted');
@@ -118,9 +118,11 @@ void main() {
       expect(find.byType(MPTextSelectionToolbar), findsOneWidget);
       expect(find.text('Copy'), findsOneWidget);
       expect(find.text('Paste'), findsOneWidget);
-    }, variant: mobile);
+    });
 
-    testWidgets('the menu pastes what the clipboard holds', (WidgetTester tester) async {
+    testWidgets('the menu pastes what the clipboard holds', variant: mobile, (
+      WidgetTester tester,
+    ) async {
       _mockClipboard(tester, text: 'Lovelace');
       await tester.pumpWidget(host(overlay: true, width: 300, const _Field(initial: 'Ada')));
 
@@ -131,9 +133,9 @@ void main() {
 
       expect(_editor(tester).widget.controller.text, 'Lovelace');
       expect(find.byType(MPTextSelectionToolbar), findsNothing);
-    }, variant: mobile);
+    });
 
-    testWidgets('the menu copies the selection', (WidgetTester tester) async {
+    testWidgets('the menu copies the selection', variant: mobile, (WidgetTester tester) async {
       final List<String> copied = <String>[];
       _mockClipboard(tester, copied: copied);
       await tester.pumpWidget(host(overlay: true, width: 300, const _Field(initial: 'Ada')));
@@ -144,12 +146,13 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(copied, <String>['Ada']);
-    }, variant: mobile);
+    });
   });
 
   group('on android', () {
     testWidgets(
       'the menu speaks the field’s language',
+      variant: TargetPlatformVariant.only(TargetPlatform.android),
       (WidgetTester tester) async {
         registerMPMessages(<MPLocale>[ko]);
         addTearDown(resetMPMessages);
@@ -173,11 +176,11 @@ void main() {
         expect(find.text('잘라내기'), findsOneWidget);
         expect(find.text('공유'), findsOneWidget);
       },
-      variant: TargetPlatformVariant.only(TargetPlatform.android),
     );
 
     testWidgets(
       'a disabled field shows neither handles nor a menu',
+      variant: TargetPlatformVariant.only(TargetPlatform.android),
       (WidgetTester tester) async {
         await tester.pumpWidget(
           host(overlay: true, width: 300, const _Field(initial: 'Ada', disabled: true)),
@@ -189,11 +192,11 @@ void main() {
         expect(find.byType(MPTextSelectionToolbar), findsNothing);
         expect(_editor(tester).selectionOverlay?.handlesAreVisible ?? false, isFalse);
       },
-      variant: TargetPlatformVariant.only(TargetPlatform.android),
     );
 
     testWidgets(
       'the handles are Material’s drop, in primary',
+      variant: TargetPlatformVariant.only(TargetPlatform.android),
       (WidgetTester tester) async {
         _mockClipboard(tester);
         await tester.pumpWidget(host(overlay: true, width: 300, const _Field(initial: 'Ada')));
@@ -206,10 +209,10 @@ void main() {
         expect(controls, isA<MPTextSelectionControls>());
         expect(controls!.getHandleSize(20), const Size(22, 22));
       },
-      variant: TargetPlatformVariant.only(TargetPlatform.android),
     );
     testWidgets(
       'the other fields that take text get the same menu',
+      variant: TargetPlatformVariant.only(TargetPlatform.android),
       (WidgetTester tester) async {
         _mockClipboard(tester, text: '7');
         await tester.pumpWidget(
@@ -226,13 +229,13 @@ void main() {
         expect(find.byType(MPTextSelectionToolbar), findsOneWidget);
         expect(_editor(tester).selectionOverlay?.handlesAreVisible, isTrue);
       },
-      variant: TargetPlatformVariant.only(TargetPlatform.android),
     );
   });
 
   group('on macos', () {
     testWidgets(
       'a right click opens the menu and no handles are drawn',
+      variant: TargetPlatformVariant.only(TargetPlatform.macOS),
       (WidgetTester tester) async {
         _mockClipboard(tester, text: 'x');
         await tester.pumpWidget(host(overlay: true, width: 300, const _Field(initial: 'Ada')));
@@ -245,7 +248,6 @@ void main() {
         expect(find.byType(MPTextSelectionToolbar), findsOneWidget);
         expect(_editor(tester).widget.selectionControls?.getHandleSize(20), Size.zero);
       },
-      variant: TargetPlatformVariant.only(TargetPlatform.macOS),
     );
   });
 }

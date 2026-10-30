@@ -306,7 +306,9 @@ void main() {
       TargetPlatform.iOS,
     });
 
-    testWidgets('a long press offers Paste, which fills the slots', (WidgetTester tester) async {
+    testWidgets('a long press offers Paste, which fills the slots', variant: touch, (
+      WidgetTester tester,
+    ) async {
       _clipboard(tester, '4821');
       await tester.pumpWidget(host(overlay: true, const _Parent()));
 
@@ -335,10 +337,11 @@ void main() {
 
       expect(_code(tester), '4821');
       expect(find.byType(MPTextSelectionToolbar), findsNothing);
-    }, variant: touch);
+    });
 
     testWidgets(
       'a paste goes through the charset and the length',
+      variant: TargetPlatformVariant.only(TargetPlatform.android),
       (WidgetTester tester) async {
         final List<String> rejected = <String>[];
         _clipboard(tester, '48-21 99');
@@ -352,21 +355,25 @@ void main() {
         expect(_code(tester), '4821');
         expect(rejected, isNotEmpty);
       },
-      variant: TargetPlatformVariant.only(TargetPlatform.android),
     );
 
-    testWidgets('an empty clipboard opens no menu', (WidgetTester tester) async {
-      _clipboard(tester, '');
-      await tester.pumpWidget(host(overlay: true, const _Parent()));
+    testWidgets(
+      'an empty clipboard opens no menu',
+      variant: TargetPlatformVariant.only(TargetPlatform.android),
+      (WidgetTester tester) async {
+        _clipboard(tester, '');
+        await tester.pumpWidget(host(overlay: true, const _Parent()));
 
-      await tester.longPress(find.byType(MPOtpField));
-      await tester.pumpAndSettle();
+        await tester.longPress(find.byType(MPOtpField));
+        await tester.pumpAndSettle();
 
-      expect(find.byType(MPTextSelectionToolbar), findsNothing);
-    }, variant: TargetPlatformVariant.only(TargetPlatform.android));
+        expect(find.byType(MPTextSelectionToolbar), findsNothing);
+      },
+    );
 
     testWidgets(
       'a clipboard the platform will not read still offers Paste, which then does nothing',
+      variant: TargetPlatformVariant.only(TargetPlatform.android),
       (WidgetTester tester) async {
         _clipboard(tester, '4821', refused: true);
         await tester.pumpWidget(host(overlay: true, const _Parent()));
@@ -384,11 +391,11 @@ void main() {
         expect(_code(tester), '');
         expect(tester.takeException(), isNull);
       },
-      variant: TargetPlatformVariant.only(TargetPlatform.android),
     );
 
     testWidgets(
       'a disabled or read-only field opens no menu',
+      variant: TargetPlatformVariant.only(TargetPlatform.android),
       (WidgetTester tester) async {
         _clipboard(tester, '4821');
 
@@ -403,11 +410,11 @@ void main() {
           expect(find.byType(MPTextSelectionToolbar), findsNothing);
         }
       },
-      variant: TargetPlatformVariant.only(TargetPlatform.android),
     );
 
     testWidgets(
       'a press outside the menu closes it',
+      variant: TargetPlatformVariant.only(TargetPlatform.android),
       (WidgetTester tester) async {
         _clipboard(tester, '4821');
         // The surface a `WidgetsApp` puts round every app, which is what tells a
@@ -429,11 +436,11 @@ void main() {
         expect(find.byType(MPTextSelectionToolbar), findsNothing);
         expect(_code(tester), '');
       },
-      variant: TargetPlatformVariant.only(TargetPlatform.android),
     );
 
     testWidgets(
       'a right click opens it with a mouse, and Paste still lands',
+      variant: TargetPlatformVariant.only(TargetPlatform.macOS),
       (WidgetTester tester) async {
         _clipboard(tester, '4821');
         await tester.pumpWidget(host(overlay: true, const _Parent()));
@@ -447,11 +454,11 @@ void main() {
 
         expect(_code(tester), '4821');
       },
-      variant: TargetPlatformVariant.only(TargetPlatform.macOS),
     );
 
     testWidgets(
       'a screen reader\'s long press opens it too',
+      variant: TargetPlatformVariant.only(TargetPlatform.android),
       (WidgetTester tester) async {
         final SemanticsHandle handle = tester.ensureSemantics();
         _clipboard(tester, '4821');
@@ -472,7 +479,6 @@ void main() {
 
         handle.dispose();
       },
-      variant: TargetPlatformVariant.only(TargetPlatform.android),
     );
   });
 }
