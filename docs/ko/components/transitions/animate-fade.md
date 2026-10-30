@@ -9,6 +9,8 @@ order: 1
 
 <Demo src="animate-fade/hero" :minHeight="360" />
 
+::: fw react
+
 ```tsx
 import { MPAnimateFade } from 'material-plus-ui';
 
@@ -16,6 +18,20 @@ import { MPAnimateFade } from 'material-plus-ui';
   <MPCard title="Ready when you are" />
 </MPAnimateFade>;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+const MPAnimateFade(
+  child: MPCard(title: Text('Ready when you are')),
+);
+```
+
+:::
 
 ## Props
 
@@ -29,11 +45,25 @@ import { MPAnimateFade } from 'material-plus-ui';
 
 ## 길이와 곡선은 토큰에서 옵니다
 
+::: fw react
+
 `duration`에 아무 말도 하지 않으면 애니메이션은 `300ms`가 아니라 `var(--mp-sys-motion-duration-medium2)`로 돕니다. 오늘은 둘 다 같은 것을 그리지만, 페이지가 모션 토큰을 다시 조율했을 때 따라 움직이는 것은 하나뿐입니다.
 
 곡선도 같습니다. `easing`은 MD3의 일곱 가지 이름만 받고 임의의 `cubic-bezier()`는 받지 않습니다. `color`가 색상값이 아니라 계열을 받는 것과 같은 이유입니다 — `emphasized`가 _무엇인지_ 바꾸려면 `--mp-sys-motion-easing-emphasized`를 설정하세요. 그러면 페이지의 모든 애니메이션이 함께 움직입니다.
 
+:::
+
+::: fw flutter
+
+`duration`에 아무 말도 하지 않으면 위젯에 적힌 숫자가 아니라 그 효과의 MD3 토큰인 `MPMotion.medium2`로 돕니다.
+
+곡선도 같습니다. `easing`은 MD3의 일곱 가지 이름을 `MPEasing` 값으로만 받고 임의의 `Curve`는 받지 않습니다. `color`가 색상값이 아니라 계열을 받는 것과 같은 이유입니다. 이름마다 `MPMotion`의 곡선 하나에 대응하므로, 라이브러리의 모든 애니메이션이 같은 곡선 묶음에서 나옵니다.
+
+:::
+
 ## 나가는 쪽이 들어오는 쪽보다 짧습니다
+
+::: fw react
 
 `mode="out"`은 같은 키프레임을 거꾸로 돌리고, 들어올 때의 `medium2` 대신 `short4`를 기본으로 씁니다. 이 비대칭은 머터리얼의 것입니다. 도착하는 것은 소개되는 중이므로 도착으로 읽힐 시간을 받고, 떠나는 것은 할 말을 이미 다 했습니다.
 
@@ -41,9 +71,23 @@ import { MPAnimateFade } from 'material-plus-ui';
 
 사라진 요소는 사라진 채로 **붙들립니다**. `animation-fill-mode`가 `both`라서 애니메이션이 끝나는 순간 다시 튀어나오지 않습니다.
 
+:::
+
+::: fw flutter
+
+`MPAnimateMode.exit`는 같은 애니메이션을 거꾸로 돌리고, 들어올 때의 `medium2` 대신 `short4`를 기본으로 씁니다. 이 비대칭은 머터리얼의 것입니다. 도착하는 것은 소개되는 중이므로 도착으로 읽힐 시간을 받고, 떠나는 것은 할 말을 이미 다 했습니다.
+
+곡선도 진행과 함께 뒤집히므로, `emphasizedDecelerate`로 들어온 등장은 가속하며 떠납니다. 명세가 퇴장에 요구하는 바로 그 곡선입니다.
+
+사라진 위젯은 사라진 채로 **붙들립니다**. 진행이 끝나는 순간 다시 튀어나오지 않습니다.
+
+:::
+
 ## 하나의 효과를 집합 전체에
 
 `stagger`는 효과를 자식 단위로 바꿉니다. 상자가 페이드하는 대신 자식 하나하나가, 자기 순서만큼 늦게 페이드합니다. 그래서 도착하는 것은 **집합**이고, 읽혀야 하는 순서대로 도착합니다.
+
+::: fw react
 
 ```tsx
 <MPAnimateFade stagger={60}>
@@ -53,21 +97,50 @@ import { MPAnimateFade } from 'material-plus-ui';
 </MPAnimateFade>
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+MPAnimateFade(
+  stagger: const Duration(milliseconds: 60),
+  children: [for (final Item row in rows) ItemRow(key: ValueKey(row.id), item: row)],
+);
+```
+
+집합은 `child`가 아니라 `children`으로 넘기고, 배치는 `layoutBuilder`가 맡습니다. 아무 말도 없으면 세로로 쌓이고, 목록이든 행이든 그리드든 자식이 들어갈 자리를 넘기면 그 안에 놓입니다. React에서는 호출하는 쪽의 마크업이 계속 자식을 배치하지만, 위젯은 받은 것을 직접 놓아야 하므로 어떻게 놓을지를 여기서 말합니다.
+
+:::
+
 `MPAnimateStagger` 같은 컴포넌트는 일부러 없습니다. 차례로 자리를 잡는 목록은 페이드와 다른 효과가 아니라, 언제 시작할지를 들은 같은 페이드입니다. 래퍼를 두면 이 여섯이 이미 하는 일의 두 번째 철자가 되고, 호출하는 쪽은 import 시점에 "페이드"와 "하나씩 페이드" 중에 골라야 합니다.
 
 **`stagger`가 설정되면 상자 자신은 아무것도 재생하지 않습니다.** 여덟 자식이 페이드하는 위에서 상자도 페이드하면 같은 내용을 두 번 페이드하는 것입니다. 독자가 보는 것은 두 불투명도의 곱이고, 그것은 아무도 요청하지 않은 세 번째 곡선입니다.
 
 단계는 **자식마다**이므로, 무엇을 넘기는지가 곧 조절 손잡이입니다. 여덟 자식은 여덟 단계이고, 여덟 개를 담은 자식 하나는 한 단계입니다. 집합의 일부를 순서에서 빼는 방법도 그것입니다 — 묶으세요.
 
-`durationStep`은 각 자식에게 앞의 것보다 길거나 짧은 시간을 줍니다. 집합이 착지하면서 퍼지거나 모이는 것으로 읽힙니다. 음수도 되고 0에서 멈추므로, 긴 목록이 음수 duration을 요청해 스타일시트의 기본값으로 되돌아가는 일은 없습니다.
+`durationStep`은 각 자식에게 앞의 것보다 길거나 짧은 시간을 줍니다. 집합이 착지하면서 퍼지거나 모이는 것으로 읽힙니다. 음수도 되고 0에서 멈추므로, 긴 목록이 음수 duration을 요청하는 일은 없습니다.
+
+::: fw react
 
 `reverse`는 마지막 자식부터 첫 자식 순으로 재생합니다. 뒤집히는 것은 **순서**뿐이고 각 자식은 그대로 앞으로 재생됩니다. 그 점이 `mode="out"`과 다릅니다.
 
 `paused`는 여전히 집합 전체를 붙잡고, `trigger`도 여전히 전체를 한 번에 시작합니다. 재생 상태는 상자가 유지하는 유일한 것이고, 상속으로 자식에게 닿습니다.
 
+:::
+
+::: fw flutter
+
+`reverse`는 마지막 자식부터 첫 자식 순으로 재생합니다. 뒤집히는 것은 **순서**뿐이고 각 자식은 그대로 앞으로 재생됩니다. 그 점이 `MPAnimateMode.exit`와 다릅니다.
+
+`paused`는 여전히 집합 전체를 붙잡고, `trigger`도 여전히 전체를 한 번에 시작합니다. 트리거는 집합의 것이라서, 자식마다 따로가 아니라 모든 자식을 위해 한 번 결정합니다.
+
+:::
+
 이 셋은 요소 자신에게 걸린 `@keyframes` 하나인 여섯 효과에만 있습니다. [MPAnimateMarquee](./animate-marquee)는 자식을 복제하고, [MPAnimateHeadline](./animate-headline)은 자식 사이를 교체하고, [MPAnimateTyping](./animate-typing)은 자식의 글자를 셉니다. 셋 다 임의의 자식에게 애니메이션을 건넬 수 없습니다. [MPAnimateLighting](./animate-lighting)은 움직임을 자식에게는 대응물이 없는 pseudo-element에 둡니다. [MPAnimateAppear](./animate-appear)는 `stagger`가 80ms로 이미 켜져 있는 이것이고, 같은 코드 위에서 돕니다.
 
 ## 스크롤이 곧 시계입니다
+
+::: fw react
 
 `timeline="view"`는 애니메이션을 스톱워치가 아니라 읽는 사람에게 넘깁니다. 진행도가 곧 요소가 스크롤포트를 지나는 진행도입니다. 되돌려 스크롤하면 거꾸로 돌고, 중간에 멈추면 중간에 머뭅니다.
 
@@ -87,11 +160,29 @@ import { MPAnimateFade } from 'material-plus-ui';
 
 `view()`가 없는 브라우저는 시계로 되돌아가 효과를 한 번 재생합니다. 예전과 똑같습니다. 선언을 `@supports`로 감싼 이유가 그것이고, 특히 `animation-timeline`과 `animation-range`가 두 개의 속성이기 때문입니다. 앞의 것만 받아들이면 타임라인은 있고 그 위를 달릴 범위는 없는 애니메이션이 됩니다. 기능이 줄어드는 것은 괜찮지만, 빈 화면은 안 됩니다.
 
+:::
+
+::: fw flutter
+
+제공하지 않습니다. `timeline`과 `range`는 키프레임을 CSS의 `view()` 타임라인에 넘기는데, 여기에는 그에 대응하는 것이 없습니다. Flutter에서 스크롤에 묶인 효과는 `ScrollPosition`으로 `AnimationController`를 움직이는 것이고, 위젯이 매개변수로 받을 수 있는 것이 아니라 앱이 직접 연결할 일입니다. 가장 가까운 것은 `MPAnimateTrigger.visible`입니다. 위젯이 스크롤해서 보이는 순간 진행을 시작하고, 거기서부터는 시계로 재생합니다.
+
+:::
+
 ## 예제
 
 <Demo src="animate-fade/triggers" :minHeight="360">
 
+::: fw react
+
 <<< @/.vitepress/demos/animate-fade/triggers.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/animate_fade/triggers.dart
+
+:::
 
 </Demo>
 
@@ -104,20 +195,67 @@ import { MPAnimateFade } from 'material-plus-ui';
 
 다시 시작해도 안에 있는 것을 마운트 해제하지 않으므로, 내부의 상태가 사라지지 않습니다.
 
+::: fw flutter
+
+`visible`은 위젯 위에 있는 모든 `Scrollable`을 지켜보다가, 위젯이 그 모든 뷰포트와 화면 안에 충분히 들어오면 보인 것으로 칩니다. 위에 스크롤 영역이 하나도 없으면 지켜볼 것이 없으므로 끝없이 기다리지 않고 바로 시작합니다. `IntersectionObserver`가 없는 브라우저에서 React 빌드가 내리는 답과 같습니다.
+
+:::
+
 ### from
 
 어느 불투명도에서 시작할지. `0`이면 아무것도 없는 상태에서 도착하고, 완전히 사라지면 안 되는 내용 — 사라지는 대신 어두워지는 패널 — 이라면 값을 올리세요.
 
 ### repeat과 alternate
 
+::: fw react
+
 `repeat="infinite"`에 `alternate`를 더하면 한 방향의 등장이 호흡이 됩니다. 한 번 걸러 거꾸로 도니까, 처음으로 튀지 않고 되돌아옵니다.
 
+:::
+
+::: fw flutter
+
+`repeat: null`에 `alternate: true`를 더하면 한 방향의 등장이 호흡이 됩니다. 한 번 걸러 거꾸로 도니까, 처음으로 튀지 않고 되돌아옵니다. `MPAnimateRepeat`에서 _멈추지 않음_을 말하는 값이 `null`입니다.
+
+:::
+
 ## 접근성
+
+::: fw react
 
 - `prefers-reduced-motion`에서는 애니메이션을 아예 떨어뜨리고 내용만 그대로 둡니다. [진행 표시기](../feedback/progress-linear)와는 반대인데, 각자가 하는 말이 다르기 때문입니다. 멈춘 스피너는 무언가 일어나고 있는지에 대해 거짓말을 하지만, 돌지 않은 등장은 이미 실어 나르던 것을 전부 전달했습니다.
 - 애니메이션은 duration을 0으로 만드는 대신 `animation: none`으로 떨어뜨립니다. 단축 속성은 `fill-mode`까지 지우는데, 시작되지 않은 요소를 `opacity: 0`에 붙들고 있던 것이 바로 그 fill이기 때문입니다. 그대로 두면 설정을 존중하는 일이 페이지를 비우는 일이 됩니다.
 - 접근성 트리는 아무것도 달라지지 않습니다. 내용은 그려졌든 아니든 첫 프레임부터 문서 안에 있으므로, 스크린 리더가 애니메이션을 기다리는 일은 없습니다.
 - `trigger="hover"`는 포커스에서도 시작합니다. 키보드로 닿을 수 있는 것에 걸린 효과가 마우스를 쥔 사람만의 것이 되지 않도록 하기 위해서입니다.
+
+:::
+
+::: fw flutter
+
+- 플랫폼이 애니메이션을 끄면(`MediaQuery.disableAnimations`) 효과를 아예 떨어뜨리고 내용을 첫 프레임부터 완전한 불투명도로 그대로 둡니다. 퇴장도, 트리거를 기다리는 중인 것도 마찬가지입니다. [진행 표시기](../feedback/progress-linear)와는 반대인데, 각자가 하는 말이 다르기 때문입니다. 멈춘 스피너는 무언가 일어나고 있는지에 대해 거짓말을 하지만, 돌지 않은 등장은 이미 실어 나르던 것을 전부 전달했습니다.
+- 설정이 켜져 있는 동안에는 아무것도 틱하지 않고, 설정이 꺼진 뒤 트리거가 놓아준 진행은 첫 프레임부터 시작합니다.
+- 위젯은 시맨틱스에 아무것도 더하지 않습니다. 내용은 불투명도 `0`일 때도 첫 프레임부터 트리 안에 있으므로, 스크린 리더가 애니메이션을 기다리는 일은 없습니다.
+- `MPAnimateTrigger.hover`는 안에 있는 것에 포커스가 와도 시작합니다. 키보드로 닿을 수 있는 것에 걸린 효과가 마우스를 쥔 사람만의 것이 되지 않도록 하기 위해서입니다. 위젯 자신은 포커스를 받지 않으므로 탭 순서에 정거장을 더하지 않습니다.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| 밀리초 숫자인 `duration`, `delay`, `stagger`, `durationStep` | `Duration` | 프레임워크에 이미 그 타입이 있습니다. |
+| `easing="emphasized-decelerate"` | `MPEasing.emphasizedDecelerate` | 이름마다 `MPMotion`의 곡선 하나에 대응합니다. 테마가 다시 조율할 스타일시트 토큰은 없습니다. |
+| `repeat: number \| 'infinite'` | `null`이면 멈추지 않는 `int?`인 `MPAnimateRepeat` | Dart에는 숫자와 단어의 합집합 타입이 없고, `-1`은 따로 찾아봐야 하는 약속값이 됩니다. |
+| `mode="in" \| "out"` | `MPAnimateMode.enter` / `.exit` | `in`은 Dart의 예약어입니다. |
+| 호출하는 쪽의 마크업이 배치하는 `children` | `child`, 또는 `children`과 `layoutBuilder` | 위젯은 받은 것을 직접 놓아야 하므로, 차례로 움직이는 집합은 어떻게 놓일지를 함께 말합니다. |
+| `IntersectionObserver`로 보는 `trigger="visible"` | 위젯 위의 모든 `Scrollable`을 지켜봅니다 | 옵저버가 없습니다. 위에 스크롤 영역이 없으면 바로 시작합니다. |
+| `timeline`, `range` | — | CSS의 `view()` 타임라인에 대응하는 것이 없습니다. [스크롤이 곧 시계입니다](#스크롤이-곧-시계입니다)를 보세요. |
+| `render`, `className`, `style` | — | 바꿔 끼울 엘리먼트도, 넘겨줄 클래스 목록이나 style 속성도 없습니다. |
+| 끝없는 효과가 화면 밖에서도 돕니다 | 조금도 보이지 않는 동안 쉽니다 | Flutter는 아무도 보지 못하는 애니메이션도 계속 그리므로, 끝없는 진행은 화면 밖에서 멈췄다가 돌아오면 같은 프레임에서 이어 갑니다. |
+
+:::
 
 ## 함께 보기
 
