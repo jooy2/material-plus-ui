@@ -9,6 +9,8 @@ order: 36
 
 <Demo src="scatter-chart/hero" :minHeight="700" />
 
+::: fw react
+
 ```tsx
 import { MPScatterChart } from 'material-plus-ui';
 
@@ -25,6 +27,28 @@ import { MPScatterChart } from 'material-plus-ui';
 />;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPScatterChart(
+  series: const <MPChartSeries>[
+    MPChartSeries(
+      name: 'Runs',
+      data: <MPChartDatum>[
+        MPChartPoint(x: 12, y: 4.2),
+        MPChartPoint(x: 19, y: 5.1),
+      ],
+    ),
+  ],
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPScatterChart" />
@@ -34,6 +58,12 @@ import { MPScatterChart } from 'material-plus-ui';
 Every other chart here files its marks under shared categories. A scatter does not: each observation has its own place on both axes, so a point's `x` is data rather than a column heading, and two marks at the same index in two series are unrelated.
 
 An `x` has to be a number or a `Date`. A string is not a position on a number line, and a chart placed entirely by names has no x axis to draw — it shows the empty state rather than stacking every mark on a single tick.
+
+::: fw flutter
+
+In Dart an `x` is a `num` or a `DateTime`.
+
+:::
 
 ## Neither axis starts at zero
 
@@ -46,6 +76,12 @@ The palette's eight slots are separable pair by pair only to the third, and on a
 So the marks take shapes as well: a circle, a square, a triangle, a diamond and a cross, each scaled to the same **area** so no series looks heavier than another. The legend shows the shape rather than a dot, because a legend of identical circles carries only the colour.
 
 Past five series, facet the chart. `shapes={false}` exists for the single-series case where the extra channel is noise.
+
+::: fw flutter
+
+In Dart that is `shapes: false`.
+
+:::
 
 ## The grid runs both ways here and nowhere else
 
@@ -66,3 +102,11 @@ A scatter's marks are observations rather than a sequence, so nothing joins them
 ## Marks are drawn part-transparent
 
 They overlap by nature. Left solid, a dense cluster reads as one blob the colour of whichever series happened to be drawn last; part-transparent, density itself becomes visible. Each also carries a thin ring of the page's colour, so two marks that meet still read as two.
+
+::: fw flutter
+
+## Differences from the React build
+
+The vocabulary every chart shares — `MPChartSeries`, `MPChartAxis`, `MPChartLegend`, `MPChartTooltip` and the rest — differs from React the way [MPLineChart lists](line-chart#differences-from-the-react-build). There is no `zoom` here, as there is none on the web.
+
+:::

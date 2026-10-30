@@ -9,6 +9,8 @@ order: 36
 
 <Demo src="scatter-chart/hero" :minHeight="700" />
 
+::: fw react
+
 ```tsx
 import { MPScatterChart } from 'material-plus-ui';
 
@@ -25,6 +27,28 @@ import { MPScatterChart } from 'material-plus-ui';
 />;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPScatterChart(
+  series: const <MPChartSeries>[
+    MPChartSeries(
+      name: '실행',
+      data: <MPChartDatum>[
+        MPChartPoint(x: 12, y: 4.2),
+        MPChartPoint(x: 19, y: 5.1),
+      ],
+    ),
+  ],
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPScatterChart" />
@@ -34,6 +58,12 @@ import { MPScatterChart } from 'material-plus-ui';
 여기 다른 모든 차트는 표식을 공유하는 항목 아래에 정리합니다. 산점도는 그러지 않습니다. 관측마다 두 축 위에 자기 자리가 있으므로 점의 `x`는 열 제목이 아니라 데이터이고, 두 계열에서 같은 인덱스에 있는 두 표식은 서로 무관합니다.
 
 `x`는 숫자나 `Date`여야 합니다. 문자열은 수직선 위의 위치가 아니고, 전부 이름으로 배치된 차트에는 그릴 x축이 없습니다. 모든 표식을 눈금 하나에 쌓는 대신 빈 상태를 보여 줍니다.
+
+::: fw flutter
+
+Dart에서 `x`는 `num`이나 `DateTime`입니다.
+
+:::
 
 ## 양쪽 축 모두 0에서 시작하지 않습니다
 
@@ -46,6 +76,12 @@ import { MPScatterChart } from 'material-plus-ui';
 그래서 표식은 모양도 함께 씁니다. 원, 사각형, 삼각형, 마름모, 십자이고, 각각 같은 **넓이**가 되도록 맞춰서 어느 계열이 더 무거워 보이는 일이 없습니다. 범례는 점 대신 그 모양을 보여 줍니다. 똑같은 원만 늘어선 범례는 색만 전달하니까요.
 
 계열이 다섯을 넘으면 차트를 나누십시오. `shapes={false}`는 계열이 하나여서 두 번째 채널이 소음일 때를 위한 것입니다.
+
+::: fw flutter
+
+Dart에서는 `shapes: false`입니다.
+
+:::
 
 ## 격자가 양방향으로 그려지는 유일한 차트입니다
 
@@ -66,3 +102,11 @@ import { MPScatterChart } from 'material-plus-ui';
 ## 표식은 반투명하게 그립니다
 
 원래 겹치는 것이기 때문입니다. 불투명하게 두면 빽빽한 무리가 마지막에 그려진 계열 색의 덩어리 하나로 읽힙니다. 반투명하면 밀도 자체가 보입니다. 각 표식은 지면 색의 얇은 테두리도 둘러서, 맞닿은 두 표식이 여전히 둘로 읽힙니다.
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+`MPChartSeries`, `MPChartAxis`, `MPChartLegend`, `MPChartTooltip` 같은 차트 공용 어휘가 React와 어떻게 다른지는 [MPLineChart에 정리해 두었습니다](line-chart#react-빌드와-다른-점). 웹과 마찬가지로 여기에도 `zoom`은 없습니다.
+
+:::
