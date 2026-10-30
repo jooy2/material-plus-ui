@@ -9,11 +9,25 @@ order: 1
 
 <Demo src="icon-button/hero" :minHeight="72" />
 
+::: fw react
+
 ```tsx
 import { ICONS, MPIcon, MPIconButton } from 'material-plus-ui';
 
 <MPIconButton icon={<MPIcon icon={ICONS.more} />} label="추가 작업" onClick={open} />;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPIconButton(icon: const MPIcon(icon: MoreGlyph()), label: '추가 작업', onPressed: open);
+```
+
+:::
 
 ## Props
 
@@ -43,7 +57,17 @@ import { ICONS, MPIcon, MPIconButton } from 'material-plus-ui';
 
 <Demo src="icon-button/variants" :minHeight="220">
 
+::: fw react
+
 <<< @/.vitepress/demos/icon-button/variants.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/icon_button/variants.dart
+
+:::
 
 </Demo>
 
@@ -55,6 +79,8 @@ MD3에는 선택되면 컨테이너와 잉크를 바꾸는 _toggle_ 아이콘 �
 
 여러 개라면 [`MPSegmentedButton`](./segmented-button)이고, 하나뿐이라면 `icon`과 `label`을 직접 상태에서 끌어오는 `MPIconButton`입니다.
 
+::: fw react
+
 ```tsx
 <MPIconButton
   variant={starred ? 'tonal' : 'text'}
@@ -64,6 +90,21 @@ MD3에는 선택되면 컨테이너와 잉크를 바꾸는 _toggle_ 아이콘 �
   onClick={() => setStarred(!starred)}
 />
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+MPIconButton(
+  variant: starred ? MPVariant.tonal : MPVariant.text,
+  icon: MPIcon(icon: starred ? const StarGlyph() : const PlusGlyph()),
+  label: starred ? '즐겨찾기에서 제거' : '즐겨찾기에 추가',
+  onPressed: () => setState(() => starred = !starred),
+);
+```
+
+:::
 
 ## 예시
 
@@ -77,17 +118,55 @@ MD3에는 선택되면 컨테이너와 잉크를 바꾸는 _toggle_ 아이콘 �
 
 스피너가 글리프 자리를 대신하고, 버튼은 자기 footprint와 탭 순서 안의 자리를 지킵니다.
 
+::: fw react
+
 ```tsx
 <MPIconButton icon={<MPIcon icon={ICONS.upload} />} label="업로드" loading />
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+MPIconButton(icon: const MPIcon(icon: UploadGlyph()), label: '업로드', loading: true, onPressed: upload);
+```
+
+:::
 
 의도적으로 `disabled`가 아닙니다. 누르는 순간 탭 순서에서 사라지는 버튼은 키보드 포커스를 데리고 사라지고, 방금 보낸 요청이 아직 날아가는 중인데 읽는 사람은 문서 맨 위로 돌아가 있게 됩니다.
 
 ## 접근성
 
+::: fw react
+
 - `label`은 `aria-label`이 되고, 그게 버튼의 접근성 이름입니다. 그것 없이 렌더링할 방법은 없습니다.
 - `disabled`는 native 속성을 써서 탭 순서를 떠나고, `loading`은 `aria-disabled`를 써서 떠나지 않습니다.
 - 포커스 표시는 `secondary`이고 원반 **바깥**에 그려집니다. MD3 자신의 규칙이기도 합니다 — 채워진 버튼 안쪽에 그린 링은, 구별하려던 그 채움 위에 그린 링입니다.
+
+:::
+
+::: fw flutter
+
+- `label`은 버튼의 `semanticLabel`, 곧 하나뿐인 이름이 되고, 글리프는 읽지 않습니다. 이름 없이 만들 방법은 없습니다. 생성자가 컴파일되지 않습니다.
+- `onPressed: null`과 `disabled`는 포커스 순서에서 빠지고, `loading`은 남은 채 누름만 삼킵니다.
+- 포커스 표시는 `secondary`이고 원반 바깥에 그려집니다. MD3 자신의 규칙입니다.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `onClick` | `onPressed` | Flutter의 이름입니다. Flutter 어디서나처럼 `null`이면 비활성화됩니다. |
+| `aria-label`이 되는 `label` | `semanticLabel`이 되는 `label` | 같은 필수 이름을 시맨틱 노드에 답니다. |
+| 나머지로 넘기는 `aria-pressed` | — | 상태가 있는 토글은 `MPToggle`입니다. 이 버튼에는 알릴 상태가 없습니다. |
+| `type` | — | 버튼이 제출할 폼이 없습니다. |
+| `className`, `style`, `ref` | — | 클래스 목록도 style 속성도 엘리먼트도 없습니다. |
+
+:::
 
 ## 함께 보기
 

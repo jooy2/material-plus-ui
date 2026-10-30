@@ -9,11 +9,25 @@ order: 1
 
 <Demo src="icon-button/hero" :minHeight="72" />
 
+::: fw react
+
 ```tsx
 import { ICONS, MPIcon, MPIconButton } from 'material-plus-ui';
 
 <MPIconButton icon={<MPIcon icon={ICONS.more} />} label="More actions" onClick={open} />;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPIconButton(icon: const MPIcon(icon: MoreGlyph()), label: 'More actions', onPressed: open);
+```
+
+:::
 
 ## Props
 
@@ -43,7 +57,17 @@ The specification is right about why. A labelled button is usually the one thing
 
 <Demo src="icon-button/variants" :minHeight="220">
 
+::: fw react
+
 <<< @/.vitepress/demos/icon-button/variants.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/icon_button/variants.dart
+
+:::
 
 </Demo>
 
@@ -55,6 +79,8 @@ A toggle needs three things this does not have: a pressed state that survives th
 
 For a set of them, that is [`MPSegmentedButton`](./segmented-button). For a single one, it is an `MPIconButton` whose `icon` and `label` both come from your own state:
 
+::: fw react
+
 ```tsx
 <MPIconButton
   variant={starred ? 'tonal' : 'text'}
@@ -64,6 +90,21 @@ For a set of them, that is [`MPSegmentedButton`](./segmented-button). For a sing
   onClick={() => setStarred(!starred)}
 />
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+MPIconButton(
+  variant: starred ? MPVariant.tonal : MPVariant.text,
+  icon: MPIcon(icon: starred ? const StarGlyph() : const PlusGlyph()),
+  label: starred ? 'Remove from favourites' : 'Add to favourites',
+  onPressed: () => setState(() => starred = !starred),
+);
+```
+
+:::
 
 ## Examples
 
@@ -77,17 +118,55 @@ The glyph does **not** scale with it unless you say so: `icon` is laid out exact
 
 The spinner takes the glyph's place, and the button keeps its footprint and its place in the tab order:
 
+::: fw react
+
 ```tsx
 <MPIconButton icon={<MPIcon icon={ICONS.upload} />} label="Upload" loading />
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+MPIconButton(icon: const MPIcon(icon: UploadGlyph()), label: 'Upload', loading: true, onPressed: upload);
+```
+
+:::
 
 Deliberately not `disabled`. A button that vanishes from the tab order the moment it is pressed takes the keyboard focus with it, and the reader is returned to the top of the document while the request they just made is still in flight.
 
 ## Accessibility
 
+::: fw react
+
 - `label` becomes `aria-label`, which is the button's accessible name. There is no way to render one without it.
 - `disabled` uses the native attribute and leaves the tab order; `loading` uses `aria-disabled` and does not.
 - The focus indicator is `secondary` and sits outside the disc, which is MD3's own rule — a ring drawn inside a filled button is a ring drawn on top of the fill it is meant to be distinguishable from.
+
+:::
+
+::: fw flutter
+
+- `label` is the button's `semanticLabel`, its one name, and the glyph is left out of what is read. There is no way to build one without it: the constructor does not compile.
+- `onPressed: null` and `disabled` take it out of the focus order; `loading` keeps it there and swallows the press.
+- The focus indicator is `secondary` and sits outside the disc, which is MD3's own rule.
+
+:::
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `onClick` | `onPressed` | Flutter’s name. `null` disables the button, as everywhere in Flutter. |
+| `label` as `aria-label` | `label` as `semanticLabel` | The same required name, on the semantics node. |
+| `aria-pressed` passed through | — | A toggle with a state is `MPToggle`; this has no state to announce. |
+| `type` | — | There is no form for a button to submit. |
+| `className`, `style`, `ref` | — | There is no class list, no style attribute and no element. |
+
+:::
 
 ## See also
 
