@@ -1,0 +1,161 @@
+/// Turkish.
+///
+/// One of the tables `package:material_plus_ui/locales.dart` holds. Nothing in
+/// the library imports it: a translation reaches a component only once the
+/// application has handed it to `registerMPMessages`. Anything it leaves out
+/// falls back to English, a namespace at a time.
+library;
+
+import 'package:material_plus_ui/src/internal/i18n.dart';
+
+/// The library's words in Turkish.
+const MPLocale tr = MPLocale(
+  locale: 'tr',
+  messages: <String, Map<String, String>>{
+    'common': <String, String>{
+      'close': 'Kapat',
+      'clear': 'Temizle',
+      'open': 'Aç',
+      'remove': 'Kaldır',
+      'removeNamed': '{label} kaldır',
+      'loading': 'Yükleniyor',
+      'required': 'Zorunlu',
+    },
+    'textField': <String, String>{
+      'showPassword': 'Parolayı göster',
+      'hidePassword': 'Parolayı gizle',
+    },
+    'empty': <String, String>{'title': 'Burada bir şey yok'},
+    'picker': <String, String>{
+      'previousMonth': 'Önceki ay',
+      'nextMonth': 'Sonraki ay',
+      'previousYear': 'Önceki yıl',
+      'nextYear': 'Sonraki yıl',
+      'previousYears': 'Önceki yıllar',
+      'nextYears': 'Sonraki yıllar',
+      'chooseMonth': 'Ay seçin',
+      'chooseYear': 'Yıl seçin',
+      'today': 'Bugün',
+      'thisMonth': 'Bu ay',
+      'thisYear': 'Bu yıl',
+      'now': 'Şimdi',
+      'clear': 'Temizle',
+      'done': 'Tamam',
+      'hour': 'Saat',
+      'minute': 'Dakika',
+      'second': 'Saniye',
+      'meridiem': 'ÖÖ/ÖS',
+      'start': 'Başlangıç',
+      'end': 'Bitiş',
+    },
+    'numberField': <String, String>{'increase': 'Artır', 'decrease': 'Azalt'},
+    'carousel': <String, String>{
+      'label': 'Döngü',
+      'previous': 'Önceki slayt',
+      'next': 'Sonraki slayt',
+      'slide': '{total} slayttan {index}. slayt',
+    },
+    'scroll': <String, String>{
+      'label': 'Kaydırılabilir içerik',
+      'previous': 'Geri kaydır',
+      'next': 'İleri kaydır',
+    },
+    'anchor': <String, String>{'label': 'Bu sayfada'},
+    'code': <String, String>{
+      'copy': 'Kopyala',
+      'copied': 'Kopyalandı',
+      'copyFailed': 'Kopyalanamadı',
+      'raw': 'Düz metin',
+      'label': 'Kod',
+    },
+    'breadcrumb': <String, String>{'label': 'Gezinme yolu', 'expand': 'Gizli adımları göster'},
+    'combobox': <String, String>{'empty': 'Eşleşme yok', 'add': '“{label}” ekle'},
+    'tour': <String, String>{
+      'previous': 'Geri',
+      'next': 'İleri',
+      'done': 'Bitti',
+      'skip': 'Atla',
+      'position': 'Adım {index} / {total}',
+    },
+    'chart': <String, String>{
+      'label': 'Grafik',
+      'table': 'Grafik verileri',
+      'category': 'Kategori',
+      'total': 'Toplam',
+      'showAll': 'Tümünü göster',
+    },
+    'sparkline': <String, String>{'summary': '{count} nokta, {first} değerinden {last} değerine'},
+    'table': <String, String>{'empty': 'Veri yok'},
+    'dataTable': <String, String>{
+      'selectAll': 'Tüm satırları seç',
+      'selectRow': 'Satırı seç',
+      'total': 'Satır: {total}',
+      'selected': 'Seçili: {count}',
+      'download': 'CSV\'yi indir',
+      'perPage': 'Sayfa başına satır',
+      'resize': 'Sütun genişliğini değiştir',
+    },
+    'filePicker': <String, String>{'prompt': 'Dosyaları buraya bırakın veya seçmek için tıklayın'},
+    'textLink': <String, String>{'newTab': 'Yeni sekmede açılır'},
+    'overlay': <String, String>{'label': 'Yer paylaşımı'},
+    'alert': <String, String>{'dismiss': 'Kapat'},
+    'chat': <String, String>{
+      'sending': 'Gönderiliyor',
+      'sent': 'Gönderildi',
+      'delivered': 'İletildi',
+      'read': 'Okundu',
+      'failed': 'Gönderilemedi',
+      'typing': 'Yazıyor',
+    },
+    'spoiler': <String, String>{
+      'reveal': 'Göster',
+      'hide': 'Gizle',
+      'notice': 'Yanlışlıkla okunmasın diye gizlendi',
+    },
+    'pagination': <String, String>{
+      'label': 'Sayfalama',
+      'page': 'Sayfa {page}',
+      'status': '{total} sayfadan {page}. sayfa',
+      'previous': 'Önceki sayfa',
+      'next': 'Sonraki sayfa',
+      'first': 'İlk sayfa',
+      'last': 'Son sayfa',
+    },
+    'rating': <String, String>{
+      'label': 'Değerlendirme',
+      'value': '{max} üzerinden {value}',
+      'empty': 'Değerlendirilmedi',
+    },
+    'colorPicker': <String, String>{
+      'area': 'Doygunluk ve parlaklık',
+      'hue': 'Renk tonu',
+      'alpha': 'Opaklık',
+      'value': 'Renk değeri',
+      'swatches': 'Hazır renkler',
+      'clear': 'Temizle',
+      'empty': 'Renk yok',
+    },
+    'transfer': <String, String>{
+      'source': 'Kullanılabilir',
+      'target': 'Seçili',
+      'toTarget': 'Seçilenlere taşı',
+      'toSource': 'Kullanılabilire geri al',
+      'search': 'Ara',
+      'empty': 'Burada bir şey yok',
+      'moved': '{list} listesine taşındı: {count}',
+    },
+    'command': <String, String>{
+      'label': 'Komut paleti',
+      'search': 'Bir komut yazın veya arayın…',
+      'empty': 'Komut bulunamadı',
+    },
+    'layout': <String, String>{
+      'skipToContent': 'İçeriğe geç',
+      'sidebar': 'Kenar çubuğu',
+      'openSidebar': 'Kenar çubuğunu aç',
+      'closeSidebar': 'Kenar çubuğunu kapat',
+      'resizeSidebar': 'Kenar çubuğunu yeniden boyutlandır',
+    },
+    'confirm': <String, String>{'confirm': 'Onayla', 'cancel': 'İptal', 'ok': 'Tamam'},
+  },
+);

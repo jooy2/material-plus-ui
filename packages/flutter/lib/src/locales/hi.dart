@@ -1,0 +1,163 @@
+/// Hindi.
+///
+/// One of the tables `package:material_plus_ui/locales.dart` holds. Nothing in
+/// the library imports it: a translation reaches a component only once the
+/// application has handed it to `registerMPMessages`. Anything it leaves out
+/// falls back to English, a namespace at a time.
+library;
+
+import 'package:material_plus_ui/src/internal/i18n.dart';
+
+/// The library's words in Hindi.
+const MPLocale hi = MPLocale(
+  locale: 'hi',
+  messages: <String, Map<String, String>>{
+    'common': <String, String>{
+      'close': 'बंद करें',
+      'clear': 'हटाएँ',
+      'open': 'खोलें',
+      'remove': 'निकालें',
+      'removeNamed': '{label} निकालें',
+      'loading': 'लोड हो रहा है',
+      'required': 'आवश्यक',
+    },
+    'textField': <String, String>{
+      'showPassword': 'पासवर्ड दिखाएँ',
+      'hidePassword': 'पासवर्ड छिपाएँ',
+    },
+    'empty': <String, String>{'title': 'यहाँ कुछ नहीं है'},
+    'picker': <String, String>{
+      'previousMonth': 'पिछला महीना',
+      'nextMonth': 'अगला महीना',
+      'previousYear': 'पिछला वर्ष',
+      'nextYear': 'अगला वर्ष',
+      'previousYears': 'पिछले वर्ष',
+      'nextYears': 'अगले वर्ष',
+      'chooseMonth': 'महीना चुनें',
+      'chooseYear': 'वर्ष चुनें',
+      'today': 'आज',
+      'thisMonth': 'यह महीना',
+      'thisYear': 'यह वर्ष',
+      'now': 'अभी',
+      'clear': 'हटाएँ',
+      'done': 'हो गया',
+      'hour': 'घंटा',
+      'minute': 'मिनट',
+      'second': 'सेकंड',
+      'meridiem': 'AM/PM',
+      'start': 'प्रारंभ',
+      'end': 'समाप्ति',
+    },
+    'numberField': <String, String>{'increase': 'बढ़ाएँ', 'decrease': 'घटाएँ'},
+    'carousel': <String, String>{
+      'label': 'कैरोसेल',
+      'previous': 'पिछली स्लाइड',
+      'next': 'अगली स्लाइड',
+      'slide': '{total} में से स्लाइड {index}',
+    },
+    'scroll': <String, String>{
+      'label': 'स्क्रॉल करने योग्य सामग्री',
+      'previous': 'पीछे स्क्रॉल करें',
+      'next': 'आगे स्क्रॉल करें',
+    },
+    'anchor': <String, String>{'label': 'इस पृष्ठ पर'},
+    'code': <String, String>{
+      'copy': 'कॉपी करें',
+      'copied': 'कॉपी हो गया',
+      'copyFailed': 'कॉपी नहीं हो सका',
+      'raw': 'सादा',
+      'label': 'कोड',
+    },
+    'breadcrumb': <String, String>{'label': 'ब्रेडक्रंब', 'expand': 'छिपे हुए चरण दिखाएँ'},
+    'combobox': <String, String>{'empty': 'कोई मेल नहीं', 'add': '“{label}” जोड़ें'},
+    'tour': <String, String>{
+      'previous': 'पीछे',
+      'next': 'आगे',
+      'done': 'हो गया',
+      'skip': 'छोड़ें',
+      'position': 'चरण {index} / {total}',
+    },
+    'chart': <String, String>{
+      'label': 'चार्ट',
+      'table': 'चार्ट डेटा',
+      'category': 'श्रेणी',
+      'total': 'कुल',
+      'showAll': 'सभी दिखाएँ',
+    },
+    'sparkline': <String, String>{'summary': '{count} बिंदु, {first} से {last} तक'},
+    'table': <String, String>{'empty': 'कोई डेटा नहीं'},
+    'dataTable': <String, String>{
+      'selectAll': 'सभी पंक्तियाँ चुनें',
+      'selectRow': 'पंक्ति चुनें',
+      'total': 'पंक्तियाँ: {total}',
+      'selected': 'चुनी गईं: {count}',
+      'download': 'CSV डाउनलोड करें',
+      'perPage': 'प्रति पृष्ठ पंक्तियाँ',
+      'resize': 'कॉलम की चौड़ाई बदलें',
+    },
+    'filePicker': <String, String>{
+      'prompt': 'फ़ाइलें यहाँ छोड़ें, या ब्राउज़ करने के लिए क्लिक करें',
+    },
+    'textLink': <String, String>{'newTab': 'नए टैब में खुलता है'},
+    'overlay': <String, String>{'label': 'ओवरले'},
+    'alert': <String, String>{'dismiss': 'बंद करें'},
+    'chat': <String, String>{
+      'sending': 'भेजा जा रहा है',
+      'sent': 'भेजा गया',
+      'delivered': 'पहुँच गया',
+      'read': 'पढ़ लिया गया',
+      'failed': 'नहीं भेजा गया',
+      'typing': 'टाइप कर रहे हैं',
+    },
+    'spoiler': <String, String>{
+      'reveal': 'दिखाएँ',
+      'hide': 'छिपाएँ',
+      'notice': 'गलती से न पढ़ लिया जाए इसलिए छिपाया गया है',
+    },
+    'pagination': <String, String>{
+      'label': 'पृष्ठ क्रमांकन',
+      'page': 'पृष्ठ {page}',
+      'status': '{total} में से पृष्ठ {page}',
+      'previous': 'पिछला पृष्ठ',
+      'next': 'अगला पृष्ठ',
+      'first': 'पहला पृष्ठ',
+      'last': 'अंतिम पृष्ठ',
+    },
+    'rating': <String, String>{
+      'label': 'रेटिंग',
+      'value': '{max} में से {value}',
+      'empty': 'रेटिंग नहीं दी गई',
+    },
+    'colorPicker': <String, String>{
+      'area': 'संतृप्ति और चमक',
+      'hue': 'रंग',
+      'alpha': 'अपारदर्शिता',
+      'value': 'रंग मान',
+      'swatches': 'पूर्व निर्धारित रंग',
+      'clear': 'साफ़ करें',
+      'empty': 'कोई रंग नहीं',
+    },
+    'transfer': <String, String>{
+      'source': 'उपलब्ध',
+      'target': 'चयनित',
+      'toTarget': 'चयनित में ले जाएँ',
+      'toSource': 'उपलब्ध में वापस भेजें',
+      'search': 'खोजें',
+      'empty': 'यहाँ कुछ नहीं है',
+      'moved': '{list} में ले जाए गए: {count}',
+    },
+    'command': <String, String>{
+      'label': 'कमांड पैलेट',
+      'search': 'कमांड लिखें या खोजें…',
+      'empty': 'कोई कमांड नहीं मिली',
+    },
+    'layout': <String, String>{
+      'skipToContent': 'सामग्री पर जाएँ',
+      'sidebar': 'साइडबार',
+      'openSidebar': 'साइडबार खोलें',
+      'closeSidebar': 'साइडबार बंद करें',
+      'resizeSidebar': 'साइडबार का आकार बदलें',
+    },
+    'confirm': <String, String>{'confirm': 'पुष्टि करें', 'cancel': 'रद्द करें', 'ok': 'ठीक है'},
+  },
+);

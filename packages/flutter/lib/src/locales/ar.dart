@@ -1,0 +1,161 @@
+/// Arabic.
+///
+/// One of the tables `package:material_plus_ui/locales.dart` holds. Nothing in
+/// the library imports it: a translation reaches a component only once the
+/// application has handed it to `registerMPMessages`. Anything it leaves out
+/// falls back to English, a namespace at a time.
+library;
+
+import 'package:material_plus_ui/src/internal/i18n.dart';
+
+/// The library's words in Arabic.
+const MPLocale ar = MPLocale(
+  locale: 'ar',
+  messages: <String, Map<String, String>>{
+    'common': <String, String>{
+      'close': 'إغلاق',
+      'clear': 'مسح',
+      'open': 'فتح',
+      'remove': 'إزالة',
+      'removeNamed': 'إزالة {label}',
+      'loading': 'جارٍ التحميل',
+      'required': 'مطلوب',
+    },
+    'textField': <String, String>{
+      'showPassword': 'إظهار كلمة المرور',
+      'hidePassword': 'إخفاء كلمة المرور',
+    },
+    'empty': <String, String>{'title': 'لا يوجد شيء هنا'},
+    'picker': <String, String>{
+      'previousMonth': 'الشهر السابق',
+      'nextMonth': 'الشهر التالي',
+      'previousYear': 'السنة السابقة',
+      'nextYear': 'السنة التالية',
+      'previousYears': 'السنوات السابقة',
+      'nextYears': 'السنوات التالية',
+      'chooseMonth': 'اختيار شهر',
+      'chooseYear': 'اختيار سنة',
+      'today': 'اليوم',
+      'thisMonth': 'هذا الشهر',
+      'thisYear': 'هذه السنة',
+      'now': 'الآن',
+      'clear': 'مسح',
+      'done': 'تم',
+      'hour': 'الساعة',
+      'minute': 'الدقيقة',
+      'second': 'الثانية',
+      'meridiem': 'ص/م',
+      'start': 'البداية',
+      'end': 'النهاية',
+    },
+    'numberField': <String, String>{'increase': 'زيادة', 'decrease': 'إنقاص'},
+    'carousel': <String, String>{
+      'label': 'عرض دوّار',
+      'previous': 'الشريحة السابقة',
+      'next': 'الشريحة التالية',
+      'slide': 'الشريحة {index} من {total}',
+    },
+    'scroll': <String, String>{
+      'label': 'محتوى قابل للتمرير',
+      'previous': 'التمرير للخلف',
+      'next': 'التمرير للأمام',
+    },
+    'anchor': <String, String>{'label': 'في هذه الصفحة'},
+    'code': <String, String>{
+      'copy': 'نسخ',
+      'copied': 'تم النسخ',
+      'copyFailed': 'تعذّر النسخ',
+      'raw': 'النص الخام',
+      'label': 'شفرة',
+    },
+    'breadcrumb': <String, String>{'label': 'مسار التنقل', 'expand': 'إظهار الخطوات المخفية'},
+    'combobox': <String, String>{'empty': 'لا توجد نتائج', 'add': 'إضافة ”{label}“'},
+    'tour': <String, String>{
+      'previous': 'رجوع',
+      'next': 'التالي',
+      'done': 'تم',
+      'skip': 'تخطي',
+      'position': 'الخطوة {index} من {total}',
+    },
+    'chart': <String, String>{
+      'label': 'مخطط',
+      'table': 'بيانات المخطط',
+      'category': 'الفئة',
+      'total': 'الإجمالي',
+      'showAll': 'عرض الكل',
+    },
+    'sparkline': <String, String>{'summary': 'نقاط: {count}، من {first} إلى {last}'},
+    'table': <String, String>{'empty': 'لا توجد بيانات'},
+    'dataTable': <String, String>{
+      'selectAll': 'تحديد كل الصفوف',
+      'selectRow': 'تحديد الصف',
+      'total': 'الصفوف: {total}',
+      'selected': 'المحدد: {count}',
+      'download': 'تنزيل CSV',
+      'perPage': 'صفوف لكل صفحة',
+      'resize': 'تغيير عرض العمود',
+    },
+    'filePicker': <String, String>{'prompt': 'أفلِت الملفات هنا، أو انقر للاستعراض'},
+    'textLink': <String, String>{'newTab': 'يُفتح في تبويب جديد'},
+    'overlay': <String, String>{'label': 'طبقة تراكب'},
+    'alert': <String, String>{'dismiss': 'إغلاق'},
+    'chat': <String, String>{
+      'sending': 'جارٍ الإرسال',
+      'sent': 'تم الإرسال',
+      'delivered': 'تم التسليم',
+      'read': 'تمت القراءة',
+      'failed': 'لم يتم الإرسال',
+      'typing': 'يكتب الآن',
+    },
+    'spoiler': <String, String>{
+      'reveal': 'إظهار',
+      'hide': 'إخفاء',
+      'notice': 'مخفي حتى لا يُقرأ بالخطأ',
+    },
+    'pagination': <String, String>{
+      'label': 'ترقيم الصفحات',
+      'page': 'الصفحة {page}',
+      'status': 'الصفحة {page} من {total}',
+      'previous': 'الصفحة السابقة',
+      'next': 'الصفحة التالية',
+      'first': 'الصفحة الأولى',
+      'last': 'الصفحة الأخيرة',
+    },
+    'rating': <String, String>{
+      'label': 'التقييم',
+      'value': '{value} من {max}',
+      'empty': 'بدون تقييم',
+    },
+    'colorPicker': <String, String>{
+      'area': 'التشبع والسطوع',
+      'hue': 'درجة اللون',
+      'alpha': 'العتامة',
+      'value': 'قيمة اللون',
+      'swatches': 'ألوان جاهزة',
+      'clear': 'مسح',
+      'empty': 'بلا لون',
+    },
+    'transfer': <String, String>{
+      'source': 'المتاح',
+      'target': 'المحدد',
+      'toTarget': 'النقل إلى المحدد',
+      'toSource': 'الإرجاع إلى المتاح',
+      'search': 'بحث',
+      'empty': 'لا شيء هنا',
+      'moved': 'تم النقل إلى {list}: {count}',
+    },
+    'command': <String, String>{
+      'label': 'لوحة الأوامر',
+      'search': 'اكتب أمراً أو ابحث…',
+      'empty': 'لا توجد أوامر مطابقة',
+    },
+    'layout': <String, String>{
+      'skipToContent': 'تخطٍ إلى المحتوى',
+      'sidebar': 'الشريط الجانبي',
+      'openSidebar': 'فتح الشريط الجانبي',
+      'closeSidebar': 'إغلاق الشريط الجانبي',
+      'resizeSidebar': 'تغيير عرض الشريط الجانبي',
+    },
+    'confirm': <String, String>{'confirm': 'تأكيد', 'cancel': 'إلغاء', 'ok': 'حسنًا'},
+  },
+);

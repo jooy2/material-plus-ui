@@ -1,0 +1,164 @@
+/// Russian.
+///
+/// One of the tables `package:material_plus_ui/locales.dart` holds. Nothing in
+/// the library imports it: a translation reaches a component only once the
+/// application has handed it to `registerMPMessages`. Anything it leaves out
+/// falls back to English, a namespace at a time.
+library;
+
+import 'package:material_plus_ui/src/internal/i18n.dart';
+
+/// The library's words in Russian.
+const MPLocale ru = MPLocale(
+  locale: 'ru',
+  messages: <String, Map<String, String>>{
+    'common': <String, String>{
+      'close': 'Закрыть',
+      'clear': 'Очистить',
+      'open': 'Открыть',
+      'remove': 'Удалить',
+      'removeNamed': 'Удалить {label}',
+      'loading': 'Загрузка',
+      'required': 'Обязательное поле',
+    },
+    'textField': <String, String>{
+      'showPassword': 'Показать пароль',
+      'hidePassword': 'Скрыть пароль',
+    },
+    'empty': <String, String>{'title': 'Здесь ничего нет'},
+    'picker': <String, String>{
+      'previousMonth': 'Предыдущий месяц',
+      'nextMonth': 'Следующий месяц',
+      'previousYear': 'Предыдущий год',
+      'nextYear': 'Следующий год',
+      'previousYears': 'Предыдущие годы',
+      'nextYears': 'Следующие годы',
+      'chooseMonth': 'Выбрать месяц',
+      'chooseYear': 'Выбрать год',
+      'today': 'Сегодня',
+      'thisMonth': 'Текущий месяц',
+      'thisYear': 'Текущий год',
+      'now': 'Сейчас',
+      'clear': 'Очистить',
+      'done': 'Готово',
+      'hour': 'Часы',
+      'minute': 'Минуты',
+      'second': 'Секунды',
+      'meridiem': 'ДП/ПП',
+      'start': 'Начало',
+      'end': 'Конец',
+    },
+    'numberField': <String, String>{'increase': 'Увеличить', 'decrease': 'Уменьшить'},
+    'carousel': <String, String>{
+      'label': 'Карусель',
+      'previous': 'Предыдущий слайд',
+      'next': 'Следующий слайд',
+      'slide': 'Слайд {index} из {total}',
+    },
+    'scroll': <String, String>{
+      'label': 'Прокручиваемое содержимое',
+      'previous': 'Прокрутить назад',
+      'next': 'Прокрутить вперёд',
+    },
+    'anchor': <String, String>{'label': 'На этой странице'},
+    'code': <String, String>{
+      'copy': 'Копировать',
+      'copied': 'Скопировано',
+      'copyFailed': 'Не удалось скопировать',
+      'raw': 'Без подсветки',
+      'label': 'Код',
+    },
+    'breadcrumb': <String, String>{
+      'label': 'Навигационная цепочка',
+      'expand': 'Показать скрытые шаги',
+    },
+    'combobox': <String, String>{'empty': 'Совпадений нет', 'add': 'Добавить «{label}»'},
+    'tour': <String, String>{
+      'previous': 'Назад',
+      'next': 'Далее',
+      'done': 'Готово',
+      'skip': 'Пропустить',
+      'position': 'Шаг {index} из {total}',
+    },
+    'chart': <String, String>{
+      'label': 'Диаграмма',
+      'table': 'Данные диаграммы',
+      'category': 'Категория',
+      'total': 'Итого',
+      'showAll': 'Показать все',
+    },
+    'sparkline': <String, String>{'summary': 'Точек: {count}, от {first} до {last}'},
+    'table': <String, String>{'empty': 'Нет данных'},
+    'dataTable': <String, String>{
+      'selectAll': 'Выбрать все строки',
+      'selectRow': 'Выбрать строку',
+      'total': 'Строк: {total}',
+      'selected': 'Выбрано: {count}',
+      'download': 'Скачать CSV',
+      'perPage': 'Строк на странице',
+      'resize': 'Изменить ширину столбца',
+    },
+    'filePicker': <String, String>{'prompt': 'Перетащите файлы сюда или нажмите, чтобы выбрать'},
+    'textLink': <String, String>{'newTab': 'Откроется в новой вкладке'},
+    'overlay': <String, String>{'label': 'Наложение'},
+    'alert': <String, String>{'dismiss': 'Закрыть'},
+    'chat': <String, String>{
+      'sending': 'Отправка',
+      'sent': 'Отправлено',
+      'delivered': 'Доставлено',
+      'read': 'Прочитано',
+      'failed': 'Не отправлено',
+      'typing': 'Печатает',
+    },
+    'spoiler': <String, String>{
+      'reveal': 'Показать',
+      'hide': 'Скрыть',
+      'notice': 'Скрыто, чтобы не прочитать случайно',
+    },
+    'pagination': <String, String>{
+      'label': 'Постраничная навигация',
+      'page': 'Страница {page}',
+      'status': 'Страница {page} из {total}',
+      'previous': 'Предыдущая страница',
+      'next': 'Следующая страница',
+      'first': 'Первая страница',
+      'last': 'Последняя страница',
+    },
+    'rating': <String, String>{
+      'label': 'Оценка',
+      'value': '{value} из {max}',
+      'empty': 'Без оценки',
+    },
+    'colorPicker': <String, String>{
+      'area': 'Насыщенность и яркость',
+      'hue': 'Оттенок',
+      'alpha': 'Непрозрачность',
+      'value': 'Значение цвета',
+      'swatches': 'Готовые цвета',
+      'clear': 'Очистить',
+      'empty': 'Без цвета',
+    },
+    'transfer': <String, String>{
+      'source': 'Доступные',
+      'target': 'Выбранные',
+      'toTarget': 'Переместить в выбранные',
+      'toSource': 'Вернуть в доступные',
+      'search': 'Поиск',
+      'empty': 'Здесь пусто',
+      'moved': 'Перемещено в {list}: {count}',
+    },
+    'command': <String, String>{
+      'label': 'Палитра команд',
+      'search': 'Введите команду или поиск…',
+      'empty': 'Команды не найдены',
+    },
+    'layout': <String, String>{
+      'skipToContent': 'Перейти к содержимому',
+      'sidebar': 'Боковая панель',
+      'openSidebar': 'Открыть боковую панель',
+      'closeSidebar': 'Закрыть боковую панель',
+      'resizeSidebar': 'Изменить ширину боковой панели',
+    },
+    'confirm': <String, String>{'confirm': 'Подтвердить', 'cancel': 'Отмена', 'ok': 'ОК'},
+  },
+);

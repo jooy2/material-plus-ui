@@ -1,0 +1,161 @@
+/// Dutch.
+///
+/// One of the tables `package:material_plus_ui/locales.dart` holds. Nothing in
+/// the library imports it: a translation reaches a component only once the
+/// application has handed it to `registerMPMessages`. Anything it leaves out
+/// falls back to English, a namespace at a time.
+library;
+
+import 'package:material_plus_ui/src/internal/i18n.dart';
+
+/// The library's words in Dutch.
+const MPLocale nl = MPLocale(
+  locale: 'nl',
+  messages: <String, Map<String, String>>{
+    'common': <String, String>{
+      'close': 'Sluiten',
+      'clear': 'Wissen',
+      'open': 'Openen',
+      'remove': 'Verwijderen',
+      'removeNamed': '{label} verwijderen',
+      'loading': 'Laden',
+      'required': 'Verplicht',
+    },
+    'textField': <String, String>{
+      'showPassword': 'Wachtwoord tonen',
+      'hidePassword': 'Wachtwoord verbergen',
+    },
+    'empty': <String, String>{'title': 'Hier is niets'},
+    'picker': <String, String>{
+      'previousMonth': 'Vorige maand',
+      'nextMonth': 'Volgende maand',
+      'previousYear': 'Vorig jaar',
+      'nextYear': 'Volgend jaar',
+      'previousYears': 'Vorige jaren',
+      'nextYears': 'Volgende jaren',
+      'chooseMonth': 'Kies een maand',
+      'chooseYear': 'Kies een jaar',
+      'today': 'Vandaag',
+      'thisMonth': 'Deze maand',
+      'thisYear': 'Dit jaar',
+      'now': 'Nu',
+      'clear': 'Wissen',
+      'done': 'Klaar',
+      'hour': 'Uur',
+      'minute': 'Minuut',
+      'second': 'Seconde',
+      'meridiem': 'AM/PM',
+      'start': 'Begin',
+      'end': 'Einde',
+    },
+    'numberField': <String, String>{'increase': 'Verhogen', 'decrease': 'Verlagen'},
+    'carousel': <String, String>{
+      'label': 'Carrousel',
+      'previous': 'Vorige dia',
+      'next': 'Volgende dia',
+      'slide': 'Dia {index} van {total}',
+    },
+    'scroll': <String, String>{
+      'label': 'Scrollbare inhoud',
+      'previous': 'Terugscrollen',
+      'next': 'Vooruitscrollen',
+    },
+    'anchor': <String, String>{'label': 'Op deze pagina'},
+    'code': <String, String>{
+      'copy': 'Kopiëren',
+      'copied': 'Gekopieerd',
+      'copyFailed': 'Kopiëren mislukt',
+      'raw': 'Zonder opmaak',
+      'label': 'Code',
+    },
+    'breadcrumb': <String, String>{'label': 'Kruimelpad', 'expand': 'Verborgen stappen tonen'},
+    'combobox': <String, String>{'empty': 'Geen resultaten', 'add': '‘{label}’ toevoegen'},
+    'tour': <String, String>{
+      'previous': 'Terug',
+      'next': 'Volgende',
+      'done': 'Klaar',
+      'skip': 'Overslaan',
+      'position': 'Stap {index} van {total}',
+    },
+    'chart': <String, String>{
+      'label': 'Grafiek',
+      'table': 'Grafiekgegevens',
+      'category': 'Categorie',
+      'total': 'Totaal',
+      'showAll': 'Alles tonen',
+    },
+    'sparkline': <String, String>{'summary': '{count} punten, van {first} naar {last}'},
+    'table': <String, String>{'empty': 'Geen gegevens'},
+    'dataTable': <String, String>{
+      'selectAll': 'Alle rijen selecteren',
+      'selectRow': 'Rij selecteren',
+      'total': 'Rijen: {total}',
+      'selected': 'Geselecteerd: {count}',
+      'download': 'CSV downloaden',
+      'perPage': 'Rijen per pagina',
+      'resize': 'Kolombreedte aanpassen',
+    },
+    'filePicker': <String, String>{'prompt': 'Sleep bestanden hierheen of klik om te bladeren'},
+    'textLink': <String, String>{'newTab': 'Wordt geopend in een nieuw tabblad'},
+    'overlay': <String, String>{'label': 'Overlay'},
+    'alert': <String, String>{'dismiss': 'Sluiten'},
+    'chat': <String, String>{
+      'sending': 'Verzenden',
+      'sent': 'Verzonden',
+      'delivered': 'Bezorgd',
+      'read': 'Gelezen',
+      'failed': 'Niet verzonden',
+      'typing': 'Aan het typen',
+    },
+    'spoiler': <String, String>{
+      'reveal': 'Tonen',
+      'hide': 'Verbergen',
+      'notice': 'Verborgen zodat het niet per ongeluk wordt gelezen',
+    },
+    'pagination': <String, String>{
+      'label': 'Paginering',
+      'page': 'Pagina {page}',
+      'status': 'Pagina {page} van {total}',
+      'previous': 'Vorige pagina',
+      'next': 'Volgende pagina',
+      'first': 'Eerste pagina',
+      'last': 'Laatste pagina',
+    },
+    'rating': <String, String>{
+      'label': 'Beoordeling',
+      'value': '{value} van {max}',
+      'empty': 'Niet beoordeeld',
+    },
+    'colorPicker': <String, String>{
+      'area': 'Verzadiging en helderheid',
+      'hue': 'Kleurtoon',
+      'alpha': 'Dekking',
+      'value': 'Kleurwaarde',
+      'swatches': 'Vooraf ingestelde kleuren',
+      'clear': 'Wissen',
+      'empty': 'Geen kleur',
+    },
+    'transfer': <String, String>{
+      'source': 'Beschikbaar',
+      'target': 'Geselecteerd',
+      'toTarget': 'Naar geselecteerd verplaatsen',
+      'toSource': 'Terug naar beschikbaar',
+      'search': 'Zoeken',
+      'empty': 'Niets aanwezig',
+      'moved': 'Verplaatst naar {list}: {count}',
+    },
+    'command': <String, String>{
+      'label': 'Opdrachtenpalet',
+      'search': 'Typ een opdracht of zoek…',
+      'empty': 'Geen opdrachten gevonden',
+    },
+    'layout': <String, String>{
+      'skipToContent': 'Naar inhoud springen',
+      'sidebar': 'Zijbalk',
+      'openSidebar': 'Zijbalk openen',
+      'closeSidebar': 'Zijbalk sluiten',
+      'resizeSidebar': 'Zijbalk verbreden of versmallen',
+    },
+    'confirm': <String, String>{'confirm': 'Bevestigen', 'cancel': 'Annuleren', 'ok': 'OK'},
+  },
+);

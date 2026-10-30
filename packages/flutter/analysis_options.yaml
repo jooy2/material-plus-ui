@@ -1,0 +1,34 @@
+# The analyser's settings for the Material Plus Flutter package.
+#
+# `package:flutter_lints` is the set pub.dev scores against and the one a
+# Flutter developer already has in their own project, so the baseline is theirs
+# rather than a house style nobody else has read.
+#
+# What is added on top is only what this package would otherwise get wrong
+# quietly: a public API without documentation, a relative import that breaks the
+# moment a file moves, and an implicit `dynamic` where a type was meant.
+
+include: package:flutter_lints/flutter.yaml
+
+formatter:
+  page_width: 100
+
+linter:
+  rules:
+    # Every exported symbol is documentation for somebody. The React package
+    # holds itself to the same rule through its own doc comments.
+    - public_member_api_docs
+    - always_declare_return_types
+    - always_use_package_imports
+    - prefer_single_quotes
+    - directives_ordering
+    - unawaited_futures
+    - use_super_parameters
+
+analyzer:
+  errors:
+    unused_import: error
+    avoid_relative_lib_imports: error
+  exclude:
+    - example/build/**
+    - build/**

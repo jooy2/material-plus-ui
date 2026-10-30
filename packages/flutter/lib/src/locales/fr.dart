@@ -1,0 +1,160 @@
+/// French.
+///
+/// One of the tables `package:material_plus_ui/locales.dart` holds. Nothing in
+/// the library imports it: a translation reaches a component only once the
+/// application has handed it to `registerMPMessages`. Anything it leaves out
+/// falls back to English, a namespace at a time.
+library;
+
+import 'package:material_plus_ui/src/internal/i18n.dart';
+
+/// The library's words in French.
+const MPLocale fr = MPLocale(
+  locale: 'fr',
+  messages: <String, Map<String, String>>{
+    'common': <String, String>{
+      'close': 'Fermer',
+      'clear': 'Effacer',
+      'open': 'Ouvrir',
+      'remove': 'Supprimer',
+      'removeNamed': 'Supprimer {label}',
+      'loading': 'Chargement',
+      'required': 'Obligatoire',
+    },
+    'textField': <String, String>{
+      'showPassword': 'Afficher le mot de passe',
+      'hidePassword': 'Masquer le mot de passe',
+    },
+    'empty': <String, String>{'title': 'Il n\'y a rien ici'},
+    'picker': <String, String>{
+      'previousMonth': 'Mois précédent',
+      'nextMonth': 'Mois suivant',
+      'previousYear': 'Année précédente',
+      'nextYear': 'Année suivante',
+      'previousYears': 'Années précédentes',
+      'nextYears': 'Années suivantes',
+      'chooseMonth': 'Choisir un mois',
+      'chooseYear': 'Choisir une année',
+      'today': 'Aujourd\'hui',
+      'thisMonth': 'Ce mois-ci',
+      'thisYear': 'Cette année',
+      'now': 'Maintenant',
+      'clear': 'Effacer',
+      'done': 'Terminé',
+      'hour': 'Heure',
+      'minute': 'Minute',
+      'second': 'Seconde',
+      'meridiem': 'AM/PM',
+      'start': 'Début',
+      'end': 'Fin',
+    },
+    'numberField': <String, String>{'increase': 'Augmenter', 'decrease': 'Diminuer'},
+    'carousel': <String, String>{
+      'label': 'Carrousel',
+      'previous': 'Diapositive précédente',
+      'next': 'Diapositive suivante',
+      'slide': 'Diapositive {index} sur {total}',
+    },
+    'scroll': <String, String>{
+      'label': 'Contenu défilant',
+      'previous': 'Faire défiler vers l’arrière',
+      'next': 'Faire défiler vers l’avant',
+    },
+    'anchor': <String, String>{'label': 'Sur cette page'},
+    'code': <String, String>{
+      'copy': 'Copier',
+      'copied': 'Copié',
+      'copyFailed': 'Échec de la copie',
+      'raw': 'Texte brut',
+      'label': 'Code',
+    },
+    'breadcrumb': <String, String>{
+      'label': 'Fil d’Ariane',
+      'expand': 'Afficher les étapes masquées',
+    },
+    'combobox': <String, String>{'empty': 'Aucun résultat', 'add': 'Ajouter « {label} »'},
+    'tour': <String, String>{
+      'previous': 'Retour',
+      'next': 'Suivant',
+      'done': 'Terminé',
+      'skip': 'Passer',
+      'position': 'Étape {index} sur {total}',
+    },
+    'chart': <String, String>{
+      'label': 'Graphique',
+      'table': 'Données du graphique',
+      'category': 'Catégorie',
+      'total': 'Total',
+      'showAll': 'Tout afficher',
+    },
+    'sparkline': <String, String>{'summary': '{count} points, de {first} à {last}'},
+    'table': <String, String>{'empty': 'Aucune donnée'},
+    'dataTable': <String, String>{
+      'selectAll': 'Sélectionner toutes les lignes',
+      'selectRow': 'Sélectionner la ligne',
+      'total': 'Lignes : {total}',
+      'selected': 'Sélectionnées : {count}',
+      'download': 'Télécharger le CSV',
+      'perPage': 'Lignes par page',
+      'resize': 'Redimensionner la colonne',
+    },
+    'filePicker': <String, String>{'prompt': 'Déposez les fichiers ici, ou cliquez pour parcourir'},
+    'textLink': <String, String>{'newTab': 'S’ouvre dans un nouvel onglet'},
+    'overlay': <String, String>{'label': 'Superposition'},
+    'alert': <String, String>{'dismiss': 'Fermer'},
+    'chat': <String, String>{
+      'sending': 'Envoi en cours',
+      'sent': 'Envoyé',
+      'delivered': 'Distribué',
+      'read': 'Lu',
+      'failed': 'Non envoyé',
+      'typing': 'En train d\'écrire',
+    },
+    'spoiler': <String, String>{
+      'reveal': 'Afficher',
+      'hide': 'Masquer',
+      'notice': 'Masqué pour ne pas être lu par accident',
+    },
+    'pagination': <String, String>{
+      'label': 'Pagination',
+      'page': 'Page {page}',
+      'status': 'Page {page} sur {total}',
+      'previous': 'Page précédente',
+      'next': 'Page suivante',
+      'first': 'Première page',
+      'last': 'Dernière page',
+    },
+    'rating': <String, String>{'label': 'Note', 'value': '{value} sur {max}', 'empty': 'Non noté'},
+    'colorPicker': <String, String>{
+      'area': 'Saturation et luminosité',
+      'hue': 'Teinte',
+      'alpha': 'Opacité',
+      'value': 'Valeur de la couleur',
+      'swatches': 'Couleurs prédéfinies',
+      'clear': 'Effacer',
+      'empty': 'Aucune couleur',
+    },
+    'transfer': <String, String>{
+      'source': 'Disponibles',
+      'target': 'Sélectionnés',
+      'toTarget': 'Déplacer vers les sélectionnés',
+      'toSource': 'Renvoyer vers les disponibles',
+      'search': 'Rechercher',
+      'empty': 'Rien ici',
+      'moved': 'Déplacés vers {list} : {count}',
+    },
+    'command': <String, String>{
+      'label': 'Palette de commandes',
+      'search': 'Tapez une commande ou recherchez…',
+      'empty': 'Aucune commande trouvée',
+    },
+    'layout': <String, String>{
+      'skipToContent': 'Aller au contenu',
+      'sidebar': 'Barre latérale',
+      'openSidebar': 'Ouvrir la barre latérale',
+      'closeSidebar': 'Fermer la barre latérale',
+      'resizeSidebar': 'Redimensionner la barre latérale',
+    },
+    'confirm': <String, String>{'confirm': 'Confirmer', 'cancel': 'Annuler', 'ok': 'OK'},
+  },
+);

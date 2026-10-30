@@ -1,0 +1,158 @@
+/// Vietnamese.
+///
+/// One of the tables `package:material_plus_ui/locales.dart` holds. Nothing in
+/// the library imports it: a translation reaches a component only once the
+/// application has handed it to `registerMPMessages`. Anything it leaves out
+/// falls back to English, a namespace at a time.
+library;
+
+import 'package:material_plus_ui/src/internal/i18n.dart';
+
+/// The library's words in Vietnamese.
+const MPLocale vi = MPLocale(
+  locale: 'vi',
+  messages: <String, Map<String, String>>{
+    'common': <String, String>{
+      'close': 'Đóng',
+      'clear': 'Xóa',
+      'open': 'Mở',
+      'remove': 'Gỡ bỏ',
+      'removeNamed': 'Gỡ bỏ {label}',
+      'loading': 'Đang tải',
+      'required': 'Bắt buộc',
+    },
+    'textField': <String, String>{'showPassword': 'Hiện mật khẩu', 'hidePassword': 'Ẩn mật khẩu'},
+    'empty': <String, String>{'title': 'Không có gì ở đây'},
+    'picker': <String, String>{
+      'previousMonth': 'Tháng trước',
+      'nextMonth': 'Tháng sau',
+      'previousYear': 'Năm trước',
+      'nextYear': 'Năm sau',
+      'previousYears': 'Các năm trước',
+      'nextYears': 'Các năm sau',
+      'chooseMonth': 'Chọn tháng',
+      'chooseYear': 'Chọn năm',
+      'today': 'Hôm nay',
+      'thisMonth': 'Tháng này',
+      'thisYear': 'Năm nay',
+      'now': 'Bây giờ',
+      'clear': 'Xóa',
+      'done': 'Xong',
+      'hour': 'Giờ',
+      'minute': 'Phút',
+      'second': 'Giây',
+      'meridiem': 'SA/CH',
+      'start': 'Bắt đầu',
+      'end': 'Kết thúc',
+    },
+    'numberField': <String, String>{'increase': 'Tăng', 'decrease': 'Giảm'},
+    'carousel': <String, String>{
+      'label': 'Băng chuyền',
+      'previous': 'Trang trước',
+      'next': 'Trang sau',
+      'slide': 'Trang {index} trên {total}',
+    },
+    'scroll': <String, String>{
+      'label': 'Nội dung có thể cuộn',
+      'previous': 'Cuộn lùi',
+      'next': 'Cuộn tiếp',
+    },
+    'anchor': <String, String>{'label': 'Trên trang này'},
+    'code': <String, String>{
+      'copy': 'Sao chép',
+      'copied': 'Đã sao chép',
+      'copyFailed': 'Không sao chép được',
+      'raw': 'Văn bản thô',
+      'label': 'Mã',
+    },
+    'breadcrumb': <String, String>{'label': 'Đường dẫn', 'expand': 'Hiện các bước đã ẩn'},
+    'combobox': <String, String>{'empty': 'Không có kết quả', 'add': 'Thêm “{label}”'},
+    'tour': <String, String>{
+      'previous': 'Quay lại',
+      'next': 'Tiếp theo',
+      'done': 'Xong',
+      'skip': 'Bỏ qua',
+      'position': 'Bước {index} trên {total}',
+    },
+    'chart': <String, String>{
+      'label': 'Biểu đồ',
+      'table': 'Dữ liệu biểu đồ',
+      'category': 'Danh mục',
+      'total': 'Tổng',
+      'showAll': 'Hiện tất cả',
+    },
+    'sparkline': <String, String>{'summary': '{count} điểm, từ {first} đến {last}'},
+    'table': <String, String>{'empty': 'Không có dữ liệu'},
+    'dataTable': <String, String>{
+      'selectAll': 'Chọn tất cả các hàng',
+      'selectRow': 'Chọn hàng',
+      'total': '{total} hàng',
+      'selected': 'Đã chọn {count}',
+      'download': 'Tải CSV',
+      'perPage': 'Số hàng mỗi trang',
+      'resize': 'Đổi độ rộng cột',
+    },
+    'filePicker': <String, String>{'prompt': 'Thả tệp vào đây, hoặc bấm để chọn'},
+    'textLink': <String, String>{'newTab': 'Mở trong tab mới'},
+    'overlay': <String, String>{'label': 'Lớp phủ'},
+    'alert': <String, String>{'dismiss': 'Đóng'},
+    'chat': <String, String>{
+      'sending': 'Đang gửi',
+      'sent': 'Đã gửi',
+      'delivered': 'Đã nhận',
+      'read': 'Đã đọc',
+      'failed': 'Chưa gửi được',
+      'typing': 'Đang nhập',
+    },
+    'spoiler': <String, String>{
+      'reveal': 'Hiện',
+      'hide': 'Ẩn',
+      'notice': 'Đã ẩn để không vô tình đọc phải',
+    },
+    'pagination': <String, String>{
+      'label': 'Phân trang',
+      'page': 'Trang {page}',
+      'status': 'Trang {page} trên {total}',
+      'previous': 'Trang trước',
+      'next': 'Trang sau',
+      'first': 'Trang đầu',
+      'last': 'Trang cuối',
+    },
+    'rating': <String, String>{
+      'label': 'Đánh giá',
+      'value': '{value} trên {max}',
+      'empty': 'Chưa đánh giá',
+    },
+    'colorPicker': <String, String>{
+      'area': 'Độ bão hòa và độ sáng',
+      'hue': 'Sắc độ',
+      'alpha': 'Độ mờ đục',
+      'value': 'Giá trị màu',
+      'swatches': 'Màu dựng sẵn',
+      'clear': 'Xóa',
+      'empty': 'Không có màu',
+    },
+    'transfer': <String, String>{
+      'source': 'Có sẵn',
+      'target': 'Đã chọn',
+      'toTarget': 'Chuyển sang đã chọn',
+      'toSource': 'Trả về có sẵn',
+      'search': 'Tìm kiếm',
+      'empty': 'Không có gì ở đây',
+      'moved': 'Đã chuyển sang {list}: {count}',
+    },
+    'command': <String, String>{
+      'label': 'Bảng lệnh',
+      'search': 'Nhập lệnh hoặc tìm kiếm…',
+      'empty': 'Không tìm thấy lệnh',
+    },
+    'layout': <String, String>{
+      'skipToContent': 'Chuyển đến nội dung',
+      'sidebar': 'Thanh bên',
+      'openSidebar': 'Mở thanh bên',
+      'closeSidebar': 'Đóng thanh bên',
+      'resizeSidebar': 'Đổi chiều rộng thanh bên',
+    },
+    'confirm': <String, String>{'confirm': 'Xác nhận', 'cancel': 'Huỷ', 'ok': 'OK'},
+  },
+);
