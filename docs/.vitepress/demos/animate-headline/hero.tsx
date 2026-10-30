@@ -23,7 +23,7 @@ export default function AnimateHeadlineHero() {
           Material Design 3
         </MPTypography>
         <MPTypography level="h4" color="tertiary" gutter={false}>
-          built on Base UI
+          for React and Flutter
         </MPTypography>
       </MPAnimateHeadline>
     </div>
