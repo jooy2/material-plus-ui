@@ -7,6 +7,8 @@ order: 20
 
 <p class="mp-lede">Content at some window sizes and not others. A rail on a laptop and a bottom bar on a phone, written as two components with a boundary between them rather than as one component with a branch inside it.</p>
 
+::: fw react
+
 ```tsx
 import { MPShow } from 'material-plus-ui';
 
@@ -17,6 +19,19 @@ import { MPShow } from 'material-plus-ui';
   <MPBottomNavigation items={nav} />
 </MPShow>;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPShow(from: MPWindowClass.expanded, child: MPSidebar(child: navigation));
+MPShow(until: MPWindowClass.expanded, child: MPBottomNavigation(children: destinations));
+```
+
+:::
 
 `from` and `until` over the same class are exclusive and exhaustive: one of them is on screen at every width, and never both.
 
@@ -32,9 +47,17 @@ import { MPShow } from 'material-plus-ui';
 | `until="medium"` | under 600dp    |
 | `only="medium"`  | 600dp to 839dp |
 
+::: fw flutter
+
+In Dart the three take an `MPWindowClass`: `from: MPWindowClass.medium`. The window is read through `MediaQuery`, against MD3's boundaries or the ones an `MPConfigProvider` moved.
+
+:::
+
 `only` is `from` and `until` said together, and either of them still overrides its own half — `only="medium" until="large"` is 600dp to 1199dp. Which of the two spellings to use is a question of which one reads like the intention.
 
 The classes are [Material's window size classes](../../design/breakpoints), not Tailwind's breakpoints.
+
+::: fw react
 
 ## It is `display: none`, not a condition
 
@@ -73,6 +96,41 @@ The hiding is Tailwind's own `hidden` under the variants this library registers,
 ```
 
 Those classes are in the shipped stylesheet on both installation paths. `MPShow` adds the wrapper that takes no part in the layout, `only`, and a name that says what the element is for.
+
+:::
+
+::: fw flutter
+
+## It builds nothing while it is closed
+
+The half that is closed is not built at all: not a zero-opacity box, not a subtree behind an `Offstage`. `MediaQuery` is already right on the first frame, so there is nothing to win by building both halves the way the React component has to.
+
+That cuts both ways. An expensive subtree costs nothing while it is closed, and any state inside one is lost when the window crosses the boundary: a text field half filled in on a laptop is empty again after the window is narrowed past the line and widened back. Lift that state above the gate.
+
+A closed gate is a zero-sized box and an open one is its child, so nothing is read out twice and the gate adds no focus stop. It is also a widget in its own right: inside a `Row` or a `Column` the gate is the child the row lays out, so an `Expanded` goes round the gate rather than inside it.
+
+```dart
+Row(
+  children: <Widget>[
+    MPShow(from: MPWindowClass.medium, child: filters),
+    Expanded(child: results),
+  ],
+)
+```
+
+:::
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| both halves rendered, one `display: none` | only the open half built | `MediaQuery` is right on the first frame. An expensive half is free while closed, and its state is lost when the window crosses the boundary. |
+| `display: contents` wrapper | the child itself, or a zero-sized box | Flutter has no element that takes no part in the layout; a gate in a row is the row's child. |
+| `className`, `render`, the `mp-*:hidden` classes | — | There is no class list and no element to replace. |
+
+:::
 
 ## Next
 
