@@ -9,6 +9,8 @@ order: 7
 
 <Demo src="collapsible/hero" :minHeight="220" />
 
+::: fw react
+
 ```tsx
 import { MPCollapsible } from 'material-plus-ui';
 
@@ -17,9 +19,31 @@ import { MPCollapsible } from 'material-plus-ui';
 </MPCollapsible>;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+const MPCollapsible(
+  title: Text('배송 옵션'),
+  subtitle: Text('일반 배송 선택됨'),
+  child: Text('일반 배송은 영업일 기준 3~5일이 걸립니다.'),
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPCollapsible" />
+
+::: fw flutter
+
+기본은 uncontrolled입니다. `initialOpen`에서 시작해 상태를 스스로 들고 있고, 바뀔 때마다 `onOpenChange`에 알립니다. `open`까지 넘기면 넘긴 자리에 그대로 머뭅니다.
+
+:::
 
 ## 아코디언이 아닌 이유
 
@@ -38,13 +62,33 @@ import { MPCollapsible } from 'material-plus-ui';
 
 변형(transform)되는 것이 없고, 글자가 다시 샘플링되지 않으며, 내용이 자기가 담긴 패널을 기준으로 이동하지도 않습니다. 패널은 가만히 있는 내용 위로 열리는 창입니다. 규칙이 막으려는 것은 읽는 사람이 이미 보고 있는 문장을 화면 위로 끌고 다니는 시트이고, 그건 다른 문제입니다.
 
+::: fw react
+
 높이는 Base UI가 내용을 재서 `--collapsible-panel-height`로 내놓은 값입니다. 지속 시간과 커브는 명세의 `short4`와 `standard`로, 텍스트 필드의 외곽선이 정착할 때 쓰는 것과 같은 조합입니다. `prefers-reduced-motion`에서는 전환이 사라지고 그냥 잘립니다.
+
+:::
+
+::: fw flutter
+
+패널은 전체 높이로 배치되고, 그중 보이는 비율만 늘어납니다. 그래서 두 번 잴 일이 없습니다. 지속 시간과 커브는 명세의 `short4`와 `standard`로, 텍스트 필드의 외곽선이 정착할 때 쓰는 것과 같은 조합입니다. `MediaQuery.disableAnimations`에서는 그냥 잘립니다. 높이가 움직이는 동안에만 잘라내므로, 열린 패널 안의 컨트롤은 포커스 링을 온전히 지킵니다.
+
+:::
 
 ## 표면은 중립으로 남습니다
 
 <Demo src="collapsible/variants" :minHeight="420">
 
+::: fw react
+
 <<< @/.vitepress/demos/collapsible/variants.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/collapsible/variants.dart
+
+:::
 
 </Demo>
 
@@ -58,13 +102,25 @@ import { MPCollapsible } from 'material-plus-ui';
 
 <Demo src="collapsible/slots" :minHeight="260">
 
+::: fw react
+
 <<< @/.vitepress/demos/collapsible/slots.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/collapsible/slots.dart
+
+:::
 
 </Demo>
 
-`action`은 트리거 **바깥**에 있고, 이건 겉모습이 아니라 구조의 문제입니다. 접히기도 하고 스위치도 들고 있는 헤더에는 누를 것이 두 개 있는데, `<button>` 안의 `<button>`은 브라우저가 파싱하면서 고쳐 쓰는 마크업입니다. 그래서 액션은 트리거의 형제이고, 그것을 눌러도 자기가 앉아 있는 구획이 접히지 않습니다.
+`action`은 트리거 **바깥**에 있고, 이건 겉모습이 아니라 구조의 문제입니다. 접히기도 하고 스위치도 들고 있는 헤더에는 누를 것이 두 개 있는데, 하나가 다른 하나 안에 있으면 스위치를 누를 때 구획까지 접힙니다(웹에서는 `<button>` 안의 `<button>`을 브라우저가 파싱하면서 고쳐 씁니다). 그래서 액션은 트리거의 형제이고, 그것을 눌러도 자기가 앉아 있는 구획이 접히지 않습니다.
 
-### trigger
+### <Fw react="trigger" flutter="triggerBuilder" />
+
+::: fw react
 
 헤더 전체를 직접 만든 컨트롤로 바꿉니다. 넘긴 엘리먼트가 _트리거가 됩니다_ — Base UI가 클릭 핸들러, `aria-expanded`, 패널을 가리키는 `aria-controls`를 쥐여 줍니다.
 
@@ -74,11 +130,32 @@ import { MPCollapsible } from 'material-plus-ui';
 </MPCollapsible>
 ```
 
+:::
+
+::: fw flutter
+
+헤더 전체를 직접 만든 컨트롤로 바꿉니다. 위젯에는 연결해 줄 자리가 없으므로, 빌더가 대신 연결 고리를 받습니다. 패널이 열려 있는지, 그리고 접었다 펴는 콜백입니다. 상태는 `Semantics(expanded: open)`으로 트리거에 직접 알리세요.
+
+```dart
+MPCollapsible(
+  variant: MPVariant.text,
+  triggerBuilder: (BuildContext context, bool open, VoidCallback toggle) => Semantics(
+    expanded: open,
+    child: MPButton(variant: MPVariant.text, onPressed: toggle, child: const Text('더 보기')),
+  ),
+  child: const Text('여기서 무엇이 무엇을 제어하는지 따로 알려 줄 필요가 없었습니다.'),
+);
+```
+
+:::
+
 직접 만든 트리거를 쓰면 패널은 내용 위의 여백까지 부담합니다. 기본 헤더가 아닌 컨트롤은 그 여백을 지불한 적이 없기 때문입니다.
 
 ### padded
 
 가장자리까지 닿아야 하는 내용 — 테이블, 사진, 자기 행을 직접 그리는 리스트 — 에는 꺼 두세요.
+
+::: fw react
 
 ```tsx
 <MPCollapsible title="행" padded={false}>
@@ -86,7 +163,29 @@ import { MPCollapsible } from 'material-plus-ui';
 </MPCollapsible>
 ```
 
-### hiddenUntilFound과 keepMounted
+:::
+
+::: fw flutter
+
+```dart
+MPCollapsible(
+  title: const Text('행'),
+  padded: false,
+  child: MPTable<Build>(headers: headers, items: items, variant: MPVariant.text),
+);
+```
+
+:::
+
+### <Fw react="hiddenUntilFound과 keepMounted" flutter="keepMounted" />
+
+::: fw flutter
+
+닫힌 패널을 계속 빌드해 둡니다. 만드는 비용이 큰 내용, 또는 접혀 있는 동안에도 살아남아야 하는 폼 상태에 씁니다. 닫힌 패널은 어느 경우든 포커스를 받지 않고 스크린 리더에도 읽히지 않습니다. `hiddenUntilFound`는 없습니다. Flutter에는 그것이 답할 브라우저 페이지 검색이 없습니다.
+
+:::
+
+::: fw react
 
 닫힌 패널을 DOM에 남겨 두는 두 가지 다른 이유이고, 서로 바꿔 쓸 수 없습니다.
 
@@ -103,12 +202,42 @@ import { MPCollapsible } from 'material-plus-ui';
 </MPCollapsible>
 ```
 
+:::
+
 ## 접근성
+
+::: fw react
 
 - 트리거는 `aria-expanded`와 패널을 가리키는 `aria-controls`를 가진 진짜 `<button>`이고, 둘 다 Base UI가 연결합니다. `<div>`에 핸들러를 붙인 것이 아니라 버튼이므로 Space와 Enter가 모두 동작합니다.
 - `action`은 트리거 바깥에 있으므로, 키보드 사용자는 접힘과 그 위의 컨트롤을 하나가 다른 하나 안에 중첩된 형태가 아니라 별개의 정지점 두 개로 만납니다.
 - 호버·포커스·프레스는 머터리얼의 state layer — 내용 색을 반투명하게 덮는 층 — 이라서, 다섯 표면 어디에서나 헤더가 똑같이 읽힙니다.
 - 포커스 링은 **안쪽**으로 그려집니다. 패널이 창이 될 수 있도록 시트가 자식을 잘라내는데, `overflow: hidden`은 시트 상단을 가득 채운 트리거의 바깥쪽 링을 함께 깎아 냅니다.
+
+:::
+
+::: fw flutter
+
+- 트리거는 semantics 노드 하나입니다. 펼쳐졌는지를 알리는 버튼이고, Space와 Enter로 모두 접힙니다.
+- 닫힌 패널은 `keepMounted`로 빌드해 두더라도 포커스 순서와 semantics 트리에서 빠집니다.
+- `action`은 트리거 바깥에 있으므로, 키보드 사용자는 접힘과 그 위의 컨트롤을 별개의 정지점 두 개로 만납니다.
+- 호버·포커스·프레스는 머터리얼의 state layer라서, 다섯 표면 어디에서나 헤더가 똑같이 읽힙니다.
+- 포커스 링은 키보드 포커스일 때만 **안쪽**으로 그려집니다. 패널이 창이 될 수 있도록 시트가 잘라내므로, 시트 상단을 채운 트리거의 바깥쪽 링은 깎여 나가기 때문입니다.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `defaultOpen` | `initialOpen` | 위젯이 받아서 이후 스스로 들고 있는 시작값을 Flutter는 이렇게 부릅니다. |
+| `trigger` 엘리먼트 | `triggerBuilder` | 라이브러리가 연결해 줄 엘리먼트가 없으므로, 빌더가 열림 상태와 토글을 받습니다. |
+| `hiddenUntilFound` | — | 브라우저의 페이지 검색에 답하는 기능인데, Flutter에는 그 검색이 없습니다. |
+| `children` | `child` | Flutter의 이름입니다. |
+| `className` | — | 넘길 클래스 목록이 없습니다. |
+
+:::
 
 ## 함께 보기
 
