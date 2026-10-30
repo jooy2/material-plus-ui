@@ -9,6 +9,8 @@ order: 8
 
 <Demo src="drawer/hero" :minHeight="120" />
 
+::: fw react
+
 ```tsx
 import { MPDrawer, MPDrawerClose, MPButton } from 'material-plus-ui';
 
@@ -21,31 +23,76 @@ import { MPDrawer, MPDrawerClose, MPButton } from 'material-plus-ui';
 </MPDrawer>;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPDrawer(
+  trigger: (BuildContext context, VoidCallback open) =>
+      MPButton(onPressed: open, child: const Text('메뉴 열기')),
+  title: const Text('Material Plus'),
+  actions: <Widget>[
+    MPDrawerClose(
+      builder: (BuildContext context, VoidCallback close) =>
+          MPButton(variant: MPVariant.text, onPressed: close, child: const Text('닫기')),
+    ),
+  ],
+  child: …,
+);
+```
+
+모달 드로어는 트리 밖으로 들려 올라가므로 위쪽에 `Overlay`가 있어야 합니다. 내비게이터가 있는 `WidgetsApp`이 하나를 줍니다. 드로어를 쓴 자리에는 트리거만 놓이고, 패널은 그 자리를 차지하지 않습니다.
+
+:::
+
 ## Props
 
 <PropsTable name="MPDrawer" />
+
+::: fw flutter
+
+### MPDrawerClose
+
+<PropsTable name="MPDrawerClose" />
+
+:::
 
 ## modal과 standard
 
 MD3가 내비게이션 드로어의 변종을 부르는 바로 그 두 단어이고, `mode`가 정하는 것의 전부입니다.
 
-|                  | `modal`                           | `standard`                    |
-| ---------------- | --------------------------------- | ----------------------------- |
-| 렌더링 위치      | `<body>` 끝의 포털                | 작성한 자리, 레이아웃 안      |
-| 뒤쪽 페이지      | 스크림, inert, 스크롤 잠금        | 그대로 — 패널을 둘러싸고 배치 |
-| 포커스           | 안에 갇히고, 닫히면 트리거로 복귀 | 특별한 처리 없음              |
-| Escape·바깥 클릭 | 닫힘                              | 닫을 것이 없음                |
-| 표면             | 레벨 1의 `surface-container-low`  | 평평한 `surface`              |
-| 시작 상태        | 닫힘                              | 열림                          |
-| ×                | 켬                                | 끔                            |
+|  | `modal` | `standard` |
+| --- | --- | --- |
+| 렌더링 위치 | <Fw react="`<body>` 끝의 포털" flutter="가장 가까운 `Overlay`로 들려 올라감" /> | 작성한 자리, 레이아웃 안 |
+| 뒤쪽 페이지 | <Fw react="스크림, inert, 스크롤 잠금" flutter="스크림, 포인터·키보드·화면 낭독기 모두 닿지 못함" /> | 그대로 — 패널을 둘러싸고 배치 |
+| 포커스 | 안에 갇히고, 닫히면 트리거로 복귀 | 특별한 처리 없음 |
+| Escape·바깥 클릭 | 닫힘 | 닫을 것이 없음 |
+| 표면 | 레벨 1의 `surface-container-low` | 평평한 `surface` |
+| 시작 상태 | 닫힘 | 열림 |
+| × | 켬 | 끔 |
 
 <Demo src="drawer/standard" :minHeight="260">
 
+::: fw react
+
 <<< @/.vitepress/demos/drawer/standard.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/drawer/standard.dart
+
+:::
 
 </Demo>
 
 둘이 한 컴포넌트인 이유는, 브레이크포인트에서 사이드바가 햄버거로 바뀌는 일이 **prop 하나**여야 하기 때문입니다. prop이 서로 다른 두 컴포넌트를 갈아 끼우는 일이 아니라요.
+
+::: fw react
 
 ```tsx
 <MPDrawer mode={wide ? 'standard' : 'modal'} open={open} onOpenChange={setOpen} title="섹션">
@@ -53,17 +100,47 @@ MD3가 내비게이션 드로어의 변종을 부르는 바로 그 두 단어이
 </MPDrawer>
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+MPDrawer(
+  mode: wide ? MPDrawerMode.standard : MPDrawerMode.modal,
+  open: open,
+  onOpenChange: (bool next) => setState(() => open = next),
+  title: const Text('섹션'),
+  child: …,
+);
+```
+
+:::
+
 닫힌 `standard` 드로어는 **아무것도** 렌더링하지 않습니다. 흐름 속 패널에게 "닫힘"은 "레이아웃에 없음"이기 때문입니다. 나가는 길에 애니메이션할 것도 없습니다. 움직이는 것은 그 주변의 페이지이고, 페이지를 움직이는 일은 이 컴포넌트의 몫이 아닙니다.
+
+::: fw react
 
 ### 닫혀 있어도 페이지에 남기기
 
 닫힌 `modal` 서랍은 내용까지 통째로 페이지에서 빠집니다. `keepMounted`를 주면 내용이 숨겨진 채로 문서에 남고, 좁은 화면에서 사이트 링크를 담은 서랍이라면 바로 이것이 필요합니다. 페이지를 렌더링하는 크롤러가 링크를 찾습니다. 서랍은 포털이고 포털은 서버가 렌더링하지 않으므로 내용은 하이드레이션과 함께 들어옵니다. 색인되어야 하는 링크는 서버 마크업 어딘가에도 있어야 합니다.
 
+:::
+
 ## 네 가장자리
 
 <Demo src="drawer/sides" :minHeight="120">
 
+::: fw react
+
 <<< @/.vitepress/demos/drawer/sides.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/drawer/sides.dart
+
+:::
 
 </Demo>
 
@@ -86,7 +163,7 @@ MD3가 내비게이션 드로어의 변종을 부르는 바로 그 두 단어이
 
 대신 페이드가 치르는 비용은, 도착하는 동안 패널에게 남아 있던 유일한 말입니다. 페이드에는 방향이 없어서, 왼쪽 드로어와 오른쪽 드로어는 둘 다 끝날 때까지 같은 사건입니다. 어느 가장자리인지는 모양이 _끝난 뒤에_ 말해 줍니다 — 창 쪽은 각지고, 자유로운 쪽은 잘려 있게. 움직임은 그것을 _도착하는 동안_ 말합니다.
 
-움직임을 덜 원한다고 밝힌 독자에게는 출발할 곳이 없는 페이드가 남습니다. 이 패널이 예전에 하던 것이 정확히 그것입니다.
+<Fw react="움직임을 덜 원한다고 밝힌 독자에게는 출발할 곳이 없는 페이드가 남습니다. 이 패널이 예전에 하던 것이 정확히 그것입니다." flutter="운영체제에서 애니메이션을 끄면 패널과 스크림이 이동도 페이드도 없이 바로 나타납니다." />
 
 `standard` 패널은 들어올 때도 나갈 때도 아무 애니메이션이 없습니다. 위가 아니라 레이아웃 안에 있으므로 "닫힘"은 "레이아웃에 없음"입니다. 하나가 열릴 때 움직이는 것은 그 주위의 페이지이고, 페이지를 움직이는 일은 애플리케이션의 몫입니다.
 
@@ -96,6 +173,8 @@ MD3가 내비게이션 드로어의 변종을 부르는 바로 그 두 단어이
 
 `color`가 없는 것은 읽을 것이 없기 때문입니다. MD3의 내비게이션 드로어는 중립 잉크 아래의 중립 표면이고, 그 안에서 강조 색을 지니는 것은 **선택된 행**입니다. 그건 호출자가 안에 넣은 [리스트](../display/list)의 몫입니다.
 
+::: fw react
+
 ```tsx
 <MPDrawer title="섹션">
   <MPList variant="text">
@@ -104,16 +183,31 @@ MD3가 내비게이션 드로어의 변종을 부르는 바로 그 두 단어이
 </MPDrawer>
 ```
 
+:::
+
 ## 예시
 
 ### extent
 
-크기 사다리를 덮어쓰며, 축에 따라 다른 것을 뜻합니다 — 옆면 패널에서는 **너비**, 시트에서는 **높이**. 숫자는 픽셀입니다.
+크기 사다리를 덮어쓰며, 축에 따라 다른 것을 뜻합니다 — 옆면 패널에서는 **너비**, 시트에서는 **높이**. <Fw react="숫자는 픽셀입니다." flutter="값은 논리 픽셀 단위의 숫자입니다." />
+
+::: fw react
 
 ```tsx
 <MPDrawer extent={280}>…</MPDrawer>
 <MPDrawer side="bottom" extent="40vh">…</MPDrawer>
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+MPDrawer(extent: 280, child: …);
+MPDrawer(side: MPSide.bottom, extent: 320, child: …);
+```
+
+:::
 
 ### dividers
 
@@ -125,6 +219,8 @@ MD3가 내비게이션 드로어의 변종을 부르는 바로 그 두 단어이
 
 반드시 대답을 받아야 하는 드로어에서는 꺼 두세요. 그리고 대답할 수 있는 액션을 주세요. 다른 나갈 길이 없어집니다.
 
+::: fw react
+
 ```tsx
 <MPDrawer open dismissible={false} title="요금제 선택" actions={<MPButton>계속</MPButton>}>
   …
@@ -133,9 +229,31 @@ MD3가 내비게이션 드로어의 변종을 부르는 바로 그 두 단어이
 
 `MPDrawerClose`와 코드에 의한 닫기는 그대로 동작합니다. 취소되는 것은 Escape와 스크림 클릭입니다.
 
+:::
+
+::: fw flutter
+
+```dart
+MPDrawer(
+  open: true,
+  dismissible: false,
+  title: const Text('요금제 선택'),
+  actions: <Widget>[MPButton(onPressed: next, child: const Text('계속'))],
+  child: …,
+);
+```
+
+×와 `MPDrawerClose`는 그대로 닫습니다. 거절되는 것은 Escape, 시스템 뒤로 가기, 스크림 누름이고, 시스템 뒤로 가기는 드로어 아래 페이지로 넘어가지도 않습니다.
+
+:::
+
 ### MPDrawerClose
 
-uncontrolled 드로어에는 Cancel 버튼이 부를 `setOpen`이 없고, 모든 드로어를 controlled로 만드는 건 버튼 하나에 답하려고 드로어마다 상태를 하나씩 두는 일입니다. `render`는 Base UI 자신의 탈출구라서, 진짜 Material Plus 버튼이 닫습니다.
+uncontrolled 드로어에는 Cancel 버튼이 바꿀 호출자 쪽 상태가 없고, 모든 드로어를 controlled로 만드는 건 버튼 하나에 답하려고 드로어마다 상태를 하나씩 두는 일입니다.
+
+::: fw react
+
+`render`는 Base UI 자신의 탈출구라서, 진짜 Material Plus 버튼이 닫습니다.
 
 ```tsx
 <MPDrawerClose render={<MPButton variant="text">취소</MPButton>} />
@@ -143,12 +261,60 @@ uncontrolled 드로어에는 Cancel 버튼이 부를 `setOpen`이 없고, 모든
 
 `modal` 드로어의 버튼입니다. `standard`는 다이얼로그가 아니라서 이것이 말을 걸 상대가 없습니다.
 
+:::
+
+::: fw flutter
+
+`builder`가 둘러싼 드로어를 닫는 콜백을 받습니다.
+
+```dart
+MPDrawerClose(
+  builder: (BuildContext context, VoidCallback close) =>
+      MPButton(variant: MPVariant.text, onPressed: close, child: const Text('취소')),
+);
+```
+
+`standard` 드로어에서도 동작하며, ×처럼 패널을 닫습니다.
+
+:::
+
 ## 접근성
+
+::: fw react
 
 - `modal` 드로어는 진짜 다이얼로그입니다. 포커스가 안에 갇히고, 뒤쪽 페이지는 inert가 되며, 스크롤이 잠기고, 닫히면 포커스가 트리거로 돌아갑니다. 전부 Base UI의 것입니다.
 - `title`과 `description`은 `aria-labelledby`·`aria-describedby`로 연결되어, 패널이 이름 없는 영역으로 읽히지 않고 스스로를 알립니다.
 - `standard` 드로어는 다이얼로그가 **아니고** 그런 척하지도 않습니다. 평범한 `<h2>`와 `<p>`를 쓰는데, 다이얼로그 바깥에서 쓰는 다이얼로그의 부품은 패널에 없는 역할을 주장하기 때문입니다.
-- 스크롤되는 것은 본문뿐이라서 제목과 액션은 화면에서 사라지지 않습니다. `dividers`가 없을 때 본문은 1픽셀의 여백을 가지고 음수 마진으로 그 공간을 그대로 돌려줍니다. 스크롤 컨테이너가 잘라 냈을 포커스 링의 자리입니다.
+
+:::
+
+::: fw flutter
+
+- `modal` 드로어는 화면 낭독기에 대화상자(`SemanticsRole.dialog`)로 알려집니다. 여는 경로의 이름은 `title`이 `Text`이면 그 글자, 아니면 `semanticLabel`입니다. 다른 위젯으로 만든 제목은 넘겨줄 글자가 없으니 그런 드로어에는 `semanticLabel`을 주세요.
+- 포커스는 레이어 안으로 들어가 거기 머뭅니다. 레이어가 자신만의 포커스 범위라서 <kbd>Tab</kbd>도 화면 낭독기도 아래 페이지에 닿지 못합니다. 드로어가 닫히면 포커스는 원래 가지고 있던 곳, 대개 트리거로 돌아갑니다.
+- 시스템 뒤로 가기(Android의 뒤로 버튼과 제스처, TalkBack의 뒤로, VoiceOver의 escape 문지르기)는 `dismissible` 드로어를 <kbd>Escape</kbd>처럼 닫습니다.
+- `title`은 두 모드 모두에서 수준 2 제목으로 알려집니다. `description`은 그 뒤에 글로 읽힙니다. Flutter 시맨틱에는 연결할 `aria-describedby`가 없습니다.
+- `standard` 드로어는 대화상자가 **아니며** 그중 무엇도 주장하지 않습니다.
+
+:::
+
+- 스크롤되는 것은 본문뿐이라서 제목과 액션은 화면에서 사라지지 않습니다. `dividers`가 없을 때 본문은 약간의 여백을 가지고 그 공간을 그대로 돌려줍니다. 스크롤 컨테이너가 잘라 냈을 포커스 링의 자리입니다.
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+- **`trigger`는 빌더입니다.** Base UI는 받은 엘리먼트에 클릭 처리기를 합쳐 넣습니다. Flutter 위젯은 그렇게 안을 건드릴 수 없으므로 `trigger`가 드로어를 여는 콜백을 받고, `MPDrawerClose`는 `render` 대신 `builder`를 받습니다.
+- **`defaultOpen`은 `initialOpen`입니다.** 시작값을 부르는 Flutter의 말입니다.
+- **`actions`는 위젯 목록**이고, 줄 끝에 맞춘 `Wrap`으로 놓입니다.
+- **`extent`는 논리 픽셀 숫자**이며, `'40vh'` 같은 React의 CSS 문자열은 받지 않습니다.
+- **`semanticLabel`이 새로 있습니다.** React는 제목이 그리는 내용으로 드로어 이름을 붙이지만, `Text`가 아닌 Flutter 위젯에는 넘겨줄 글자가 없습니다.
+- **`keepMounted`가 없습니다.** 닫힌 드로어의 링크를 크롤러가 읽는 마크업에 남기는 기능인데, Flutter 화면에는 크롤러가 읽을 마크업이 없습니다.
+- **패널은 스크림과 함께 페이드합니다.** 패널 아래 레이어가 스크림의 300ms로 들고 나므로, 패널의 불투명도는 슬라이드의 시간이 아니라 이것을 따릅니다. 슬라이드 자체는 MD3의 짝 그대로입니다.
+- **모달 패널은 시스템 막대와 소프트 키보드를 피합니다.** 화면에 닿은 세 변에서는 막대 밑까지 깔리되 내용은 그 안쪽에 두고, 키보드가 열리면 그 위에서 끝납니다.
+- **`classNames`, `className`, `style`이 없습니다.** 넘겨줄 클래스 목록도 style 속성도 없습니다.
+
+:::
 
 ## 함께 보기
 
