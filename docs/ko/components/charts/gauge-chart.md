@@ -9,11 +9,29 @@ order: 37
 
 <Demo src="gauge-chart/hero" :minHeight="560" />
 
+::: fw react
+
 ```tsx
 import { MPGaugeChart } from 'material-plus-ui';
 
 <MPGaugeChart value={72} label="CPU" thresholds={[{ from: 80, color: 'error' }]} />;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPGaugeChart(
+  value: 72,
+  label: const Text('CPU'),
+  thresholds: const <MPThreshold>[MPThreshold(from: 80, color: MPColor.error)],
+);
+```
+
+:::
 
 ## Props
 
@@ -29,13 +47,29 @@ import { MPGaugeChart } from 'material-plus-ui';
 
 ## 마크업에서는 meter입니다
 
+::: fw react
+
 값과 최솟값, 최댓값을 실은 `role="meter"`입니다. [MPMeter](../feedback/meter)와 같은 의미론이고, 둘은 같은 양의 두 가지 모양이기 때문입니다. 계기판을 볼 수 없는 독자도 그림을 설명받지 않고 숫자와 범위를 얻습니다.
+
+:::
+
+::: fw flutter
+
+이름과 숫자를 실은 의미 노드 하나입니다. 계기판 아래의 레이블이 이름이고, 수치가 그 값입니다. Flutter에는 meter 역할이 없어 범위를 따로 읽어 주지 않으니, 독자에게 범위가 필요하면 레이블에 넣으십시오.
+
+:::
 
 뒤에 표가 없고 호버 레이어도 없는 이유가 그것입니다. 숫자 하나짜리 차트에는 가운데 숫자가 이미 말하지 않는, 독자가 캐낼 것이 없습니다.
 
 ## 임계값은 역할을 지목하고, 두 모양이 같은 해석기를 씁니다
 
 `{ from: 80, color: 'error' }`이지 절대 색상값이 아닙니다. 그래서 한 페이지의 계기판과 막대가 주의 구간이 어디서 시작하는지를 두고 어긋날 수 없습니다. 수치가 지나온 마지막 임계값이 이기므로 작은 것부터 나열하십시오.
+
+::: fw flutter
+
+Dart에서 임계값은 `MPThreshold(from: 80, color: MPColor.error)`입니다. `MPMeter`가 받는 것과 같은 타입이고, 둘은 같은 해석기를 씁니다.
+
+:::
 
 머터리얼에는 `warning` 역할이 없어서, 주의 구간은 페이지가 어떤 시드 색으로 테마를 잡았든 `tertiary`입니다. 한계가 아니라 정직한 답입니다. 임계값이 역할을 지목하니 테마가 그것을 옮길 수 있습니다.
 
@@ -50,3 +84,17 @@ import { MPGaugeChart } from 'material-plus-ui';
 ## 양 끝에 표시가 있습니다
 
 시작과 끝에 눈금 하나씩. 그래서 비어 있거나 가득 찬 계기판도 자기 눈금이 어디서 어디까지인지를 보여 줍니다. 이것이 없으면 가득 찬 계기판과 눈금 없는 계기판이 똑같아 보입니다.
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| 아무 노드나 되는 `label` | 위젯인 `label`, 보통 `Text` | `Text` 레이블은 화면 낭독기가 읽는 계기판의 이름도 됩니다. 레이블이 다른 위젯이면 `semanticLabel`로 이름을 줍니다. |
+| 범위를 실은 `role="meter"` | 레이블과 숫자를 실은 노드 | Flutter에는 meter 역할이 없습니다. |
+| `Intl.NumberFormatOptions`인 `format` | `String Function(double value)`인 `format` | 프레임워크에 `Intl`이 없습니다. |
+| CSS 길이인 `height` | 픽셀인 `height` | 해석할 CSS 길이가 없습니다. |
+| `className`, `style` | — | 넘길 클래스 목록도 style 속성도 없습니다. |
+
+:::
