@@ -9,6 +9,8 @@ order: 10
 
 <Demo src="popover/hero" :minHeight="140" />
 
+::: fw react
+
 ```tsx
 import { MPPopover, MPPopoverClose, MPButton } from 'material-plus-ui';
 
@@ -18,9 +20,44 @@ import { MPPopover, MPPopoverClose, MPButton } from 'material-plus-ui';
 </MPPopover>;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPPopover(
+  trigger: (BuildContext context, VoidCallback toggle) =>
+      MPButton(variant: MPVariant.outlined, onPressed: toggle, child: const Text('Rename')),
+  title: const Text('Rename this view'),
+  child: Column(
+    children: <Widget>[
+      MPTextField(label: const Text('Name'), value: name, onChanged: setName, fullWidth: true),
+      MPPopoverClose(
+        builder: (BuildContext context, VoidCallback close) =>
+            MPButton(onPressed: close, child: const Text('Save')),
+      ),
+    ],
+  ),
+);
+```
+
+`trigger` is a builder rather than a widget. The React build merges its handler onto the element it is given, and a widget cannot be reached into, so the popover hands the handler over instead: wire `toggle` to the control's `onPressed`. An `MPButton` or `MPIconButton` built there is also told whether its popup is open, and a screen reader announces it as expanded or collapsed.
+
+:::
+
 ## Props
 
 <PropsTable name="MPPopover" />
+
+::: fw flutter
+
+### MPPopoverClose
+
+<PropsTable name="MPPopoverClose" />
+
+:::
 
 ## Which of the three you want
 
@@ -48,11 +85,21 @@ There is no `variant` and no `color`, for the reasons the dialog gives: the five
 
 <Demo src="popover/placement" :minHeight="120">
 
+::: fw react
+
 <<< @/.vitepress/demos/popover/placement.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/popover/placement.dart
+
+:::
 
 </Demo>
 
-`side` is a **preference**, not an instruction. Base UI flips the popup to the opposite edge when there is no room, which is the right behaviour — a popup half off the screen is worse than one on the other side of its trigger.
+`side` is a **preference**, not an instruction. The popup flips to the opposite edge when there is no room, which is the right behaviour — a popup half off the screen is worse than one on the other side of its trigger.
 
 `side` is physical (`top`, `right`, `bottom`, `left`) because it is the axis a popup travels along: a popover above its trigger is above it in every writing direction. `align` is logical (`start`, `center`, `end`) because it is a position along an edge, and that edge runs the other way under RTL.
 
@@ -66,23 +113,64 @@ Off by default, which is what MD3 does with both the menu and the rich tooltip: 
 
 An uncontrolled popover has no `setOpen` for its Cancel button to call, and making every popover controlled is a piece of state per popover that exists only to answer a button:
 
+::: fw react
+
 ```tsx
 <MPPopoverClose render={<MPButton variant="text">Cancel</MPButton>} />
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+MPPopoverClose(
+  builder: (BuildContext context, VoidCallback close) =>
+      MPButton(variant: MPVariant.text, onPressed: close, child: const Text('Cancel')),
+);
+```
+
+:::
+
 ### modal
 
-`false` by default, and that is what separates a popover from a dialog: the page behind stays scrollable and clickable, because a detail beside the page should not stop the page.
+<Fw react="`false`" flutter="`MPPopoverModal.off`" /> by default, and that is what separates a popover from a dialog: the page behind stays scrollable and clickable, because a detail beside the page should not stop the page.
 
-`'trap-focus'` holds focus inside the popup without locking the scroll, which is what a popover full of form controls usually wants.
+<Fw react="`'trap-focus'`" flutter="`MPPopoverModal.trapFocus`" /> holds focus inside the popup without locking the scroll, which is what a popover full of form controls usually wants.
+
+::: fw flutter
+
+React's `modal` is `false`, `'trap-focus'` or `true`, and Dart has no union of a boolean and a string, so the three answers are the three values of `MPPopoverModal`:
+
+- `off` leaves the page working. Tab past the last control in the popup goes on to whatever follows the trigger and closes the popup; Shift+Tab before the first goes back to the trigger and leaves it open.
+- `trapFocus` keeps Tab going round the popup.
+- `on` holds the focus as well, and lays an invisible layer over the page: a press outside reaches nothing there, which is also what keeps the page from scrolling, and a screen reader cannot reach the page either. A press outside still closes a dismissible popup.
+
+:::
 
 ### dismissible
 
-Turn it off only for a popup with its own way out, because there will be no other. Escape, the click outside and focus leaving are all cancelled; `MPPopoverClose` and an imperative close still work, which is what keeps `dismissible={false}` from being a trap.
+Turn it off only for a popup with its own way out, because there will be no other.
+
+::: fw react
+
+Escape, the click outside and focus leaving are all cancelled; `MPPopoverClose` and an imperative close still work, which is what keeps `dismissible={false}` from being a trap.
+
+:::
+
+::: fw flutter
+
+The press outside, Escape, the system back and Tab leaving the popup are all refused. The ×, an `MPPopoverClose`, the trigger and a controlled `open` still close it, which is what keeps `dismissible: false` from being a trap.
+
+The system back is Android's back button and gesture, TalkBack's back and VoiceOver's escape scrub. A dismissible popover takes it first, so a popover opened inside a dialog closes and leaves the dialog up.
+
+:::
 
 ### width
 
 Overrides the cap `size` implies, for the popover whose _content_ decides its width — a form, a single line of help:
+
+::: fw react
 
 ```tsx
 <MPPopover width={420} title="Rename">
@@ -92,13 +180,54 @@ Overrides the cap `size` implies, for the popover whose _content_ decides its wi
 
 An inline style rather than a class, because Tailwind finds classes by scanning source text and a `max-w-[420px]` built from a prop generates no rule at all.
 
+:::
+
+::: fw flutter
+
+```dart
+MPPopover(width: 420, title: const Text('Rename'), child: …);
+```
+
+:::
+
 ## Accessibility
+
+::: fw react
 
 - `title` and `description` are wired to `aria-labelledby` and `aria-describedby`, so the popup announces itself rather than being read as an unnamed group.
 - Focus returns to the trigger when the popup closes, whichever way it was closed.
 - The trigger carries `aria-expanded` and the popup's id. All of that is Base UI's.
+
+:::
+
+::: fw flutter
+
+- The popup is a dialog to a screen reader and a route of its own, named by `title`, which is also announced as a heading. `description` is read as the line under it.
+- The focus moves into the popup as it opens, onto the first thing in it that takes the focus, and returns to the trigger when it closes, whichever way it was closed. A press outside that landed on a field leaves the focus on the field.
+- An `MPButton` or `MPIconButton` built in `trigger` says whether its popup is expanded.
+
+:::
+
 - The × is a real button with a name, and it is the last thing in the header rather than the first, so a reader hears what the popup is about before the way out of it.
 - A popover is **not** a live region. It appears because somebody pressed something, and a reader who did that already knows.
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `trigger: ReactElement` | `trigger: MPPopoverTriggerBuilder?` | Base UI merges its handler onto the element. A widget cannot be reached into, so the builder is handed `toggle`. |
+| `<MPPopoverClose render={…} />` | `MPPopoverClose(builder: …)` | The same reason: the builder is handed `close`. |
+| `defaultOpen` | `initialOpen` | Flutter's name for where state a widget keeps for itself starts. |
+| `modal: boolean \| 'trap-focus'` | `modal: MPPopoverModal` | Dart has no union of a boolean and a string. |
+| `width: number \| string` | `width: double?` | Logical pixels. There is no CSS length to accept. |
+| The popup shrinks to its content, up to the cap | The popup is as wide as the cap | A browser measures content for free; Flutter would have to ask every widget inside for its intrinsic width, which a `LayoutBuilder` cannot answer. Set `width` for a narrower popup. |
+| Base UI slides the popup along its edge to keep it on screen | It flips and never slides | A popup that crept sideways as its trigger neared the edge would point at nothing, and the slide would have to be worked out again every frame of a scroll. |
+| `description` is the popup's `aria-describedby` | `description` is read as text inside the popup | Flutter's semantics tree has no description relation. |
+| `className`, `style` | — | There is no class list and no style attribute to pass through. |
+
+:::
 
 ## See also
 

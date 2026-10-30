@@ -9,6 +9,8 @@ order: 10
 
 <Demo src="popover/hero" :minHeight="140" />
 
+::: fw react
+
 ```tsx
 import { MPPopover, MPPopoverClose, MPButton } from 'material-plus-ui';
 
@@ -18,9 +20,44 @@ import { MPPopover, MPPopoverClose, MPButton } from 'material-plus-ui';
 </MPPopover>;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPPopover(
+  trigger: (BuildContext context, VoidCallback toggle) =>
+      MPButton(variant: MPVariant.outlined, onPressed: toggle, child: const Text('이름 변경')),
+  title: const Text('이 뷰의 이름'),
+  child: Column(
+    children: <Widget>[
+      MPTextField(label: const Text('이름'), value: name, onChanged: setName, fullWidth: true),
+      MPPopoverClose(
+        builder: (BuildContext context, VoidCallback close) =>
+            MPButton(onPressed: close, child: const Text('저장')),
+      ),
+    ],
+  ),
+);
+```
+
+`trigger`는 위젯이 아니라 위젯을 만드는 함수입니다. React 빌드는 받은 엘리먼트에 핸들러를 합쳐 넣지만, 위젯은 밖에서 손댈 수 없어서 팝오버가 핸들러를 건네줍니다. `toggle`을 컨트롤의 `onPressed`에 연결하세요. 여기서 만든 `MPButton`과 `MPIconButton`은 팝업이 열렸는지도 전달받고, 화면 낭독기는 이를 펼침·접힘으로 읽습니다.
+
+:::
+
 ## Props
 
 <PropsTable name="MPPopover" />
+
+::: fw flutter
+
+### MPPopoverClose
+
+<PropsTable name="MPPopoverClose" />
+
+:::
 
 ## 셋 중 무엇이 필요한지
 
@@ -48,11 +85,21 @@ import { MPPopover, MPPopoverClose, MPButton } from 'material-plus-ui';
 
 <Demo src="popover/placement" :minHeight="120">
 
+::: fw react
+
 <<< @/.vitepress/demos/popover/placement.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/popover/placement.dart
+
+:::
 
 </Demo>
 
-`side`는 지시가 아니라 **선호**입니다. 자리가 없으면 Base UI가 팝업을 반대편으로 뒤집는데, 그게 옳은 동작입니다. 화면 밖으로 절반 걸친 팝업은 트리거 반대편에 놓인 팝업보다 나쁩니다.
+`side`는 지시가 아니라 **선호**입니다. 자리가 없으면 팝업이 반대편으로 뒤집히는데, 그게 옳은 동작입니다. 화면 밖으로 절반 걸친 팝업은 트리거 반대편에 놓인 팝업보다 나쁩니다.
 
 `side`는 물리적(`top`, `right`, `bottom`, `left`)입니다. 팝업이 이동하는 축이기 때문입니다 — 트리거 위에 뜬 팝오버는 어느 표기 방향에서든 위에 있습니다. `align`은 논리적(`start`, `center`, `end`)입니다. 한 변을 따라가는 위치이고, 그 변은 RTL에서 반대로 흐르기 때문입니다.
 
@@ -66,23 +113,64 @@ import { MPPopover, MPPopoverClose, MPButton } from 'material-plus-ui';
 
 uncontrolled 팝오버에는 Cancel 버튼이 부를 `setOpen`이 없고, 모든 팝오버를 controlled로 만드는 건 버튼 하나에 답하려고 팝오버마다 상태를 두는 일입니다.
 
+::: fw react
+
 ```tsx
 <MPPopoverClose render={<MPButton variant="text">취소</MPButton>} />
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+MPPopoverClose(
+  builder: (BuildContext context, VoidCallback close) =>
+      MPButton(variant: MPVariant.text, onPressed: close, child: const Text('취소')),
+);
+```
+
+:::
+
 ### modal
 
-기본은 `false`이고, 그것이 팝오버와 다이얼로그를 가릅니다. 뒤쪽 페이지는 계속 스크롤되고 눌립니다. 페이지 옆의 상세가 페이지를 멈춰 세워서는 안 되기 때문입니다.
+기본은 <Fw react="`false`" flutter="`MPPopoverModal.off`" />이고, 그것이 팝오버와 다이얼로그를 가릅니다. 뒤쪽 페이지는 계속 스크롤되고 눌립니다. 페이지 옆의 상세가 페이지를 멈춰 세워서는 안 되기 때문입니다.
 
-`'trap-focus'`는 스크롤을 잠그지 않고 포커스만 팝업 안에 붙잡아 둡니다. 폼 컨트롤이 가득한 팝오버가 보통 원하는 것입니다.
+<Fw react="`'trap-focus'`" flutter="`MPPopoverModal.trapFocus`" />는 스크롤을 잠그지 않고 포커스만 팝업 안에 붙잡아 둡니다. 폼 컨트롤이 가득한 팝오버가 보통 원하는 것입니다.
+
+::: fw flutter
+
+React의 `modal`은 `false`, `'trap-focus'`, `true` 중 하나입니다. Dart에는 불리언과 문자열을 합친 타입이 없어서, 세 값을 `MPPopoverModal`의 세 값으로 나눴습니다.
+
+- `off`는 페이지를 그대로 둡니다. 팝업의 마지막 컨트롤에서 Tab을 누르면 트리거 다음 컨트롤로 넘어가며 팝업이 닫힙니다. 첫 컨트롤에서 Shift+Tab을 누르면 트리거로 돌아가고 팝업은 열린 채로 남습니다.
+- `trapFocus`는 Tab이 팝업 안에서만 돕니다.
+- `on`은 포커스를 붙잡는 데 더해 페이지 위에 보이지 않는 층을 깝니다. 바깥을 눌러도 페이지에는 닿지 않고, 그래서 페이지가 스크롤되지도 않습니다. 화면 낭독기도 페이지에 닿지 못합니다. 닫을 수 있는 팝업이라면 바깥 누름으로 닫히는 것은 그대로입니다.
+
+:::
 
 ### dismissible
 
-스스로 나갈 길을 가진 팝업에서만 끄세요. 다른 길이 없어집니다. Escape, 바깥 클릭, 포커스 이탈이 모두 취소됩니다. `MPPopoverClose`와 코드에 의한 닫기는 그대로 동작하고, 그래서 `dismissible={false}`가 덫이 되지 않습니다.
+스스로 나갈 길을 가진 팝업에서만 끄세요. 다른 길이 없어집니다.
+
+::: fw react
+
+Escape, 바깥 클릭, 포커스 이탈이 모두 취소됩니다. `MPPopoverClose`와 코드에 의한 닫기는 그대로 동작하고, 그래서 `dismissible={false}`가 덫이 되지 않습니다.
+
+:::
+
+::: fw flutter
+
+바깥 누름, Escape, 시스템 뒤로 가기, Tab으로 빠져나가기를 모두 거절합니다. ×, `MPPopoverClose`, 트리거, controlled `open`으로는 계속 닫히고, 그래서 `dismissible: false`가 덫이 되지 않습니다.
+
+시스템 뒤로 가기는 Android의 뒤로 버튼과 제스처, TalkBack의 뒤로, VoiceOver의 escape 스크럽을 말합니다. 닫을 수 있는 팝오버가 이를 먼저 받으므로, 다이얼로그 안에서 연 팝오버는 자기만 닫히고 다이얼로그는 남습니다.
+
+:::
 
 ### width
 
 `size`가 함의하는 상한을 덮어씁니다. _내용_ 이 너비를 정하는 팝오버 — 폼, 도움말 한 줄 — 를 위한 것입니다.
+
+::: fw react
 
 ```tsx
 <MPPopover width={420} title="이름 변경">
@@ -92,13 +180,54 @@ uncontrolled 팝오버에는 Cancel 버튼이 부를 `setOpen`이 없고, 모든
 
 클래스가 아니라 인라인 스타일인 이유는, Tailwind가 소스 텍스트를 훑어 클래스를 찾기 때문에 prop으로 만든 `max-w-[420px]`은 아무 규칙도 만들어 내지 않기 때문입니다.
 
+:::
+
+::: fw flutter
+
+```dart
+MPPopover(width: 420, title: const Text('이름 변경'), child: …);
+```
+
+:::
+
 ## 접근성
+
+::: fw react
 
 - `title`과 `description`은 `aria-labelledby`·`aria-describedby`로 연결되어, 팝업이 이름 없는 그룹으로 읽히지 않고 스스로를 알립니다.
 - 어떤 방식으로 닫혔든 포커스는 트리거로 돌아갑니다.
 - 트리거는 `aria-expanded`와 팝업의 id를 가집니다. 전부 Base UI의 것입니다.
+
+:::
+
+::: fw flutter
+
+- 화면 낭독기에게 팝업은 다이얼로그이자 독립된 라우트이고, 이름은 `title`입니다. `title`은 제목으로도 읽힙니다. `description`은 그 아래 줄로 읽힙니다.
+- 팝업이 열리면 포커스가 그 안에서 포커스를 받는 첫 요소로 옮겨 가고, 어떤 방식으로 닫혔든 트리거로 돌아옵니다. 바깥 누름이 입력란에 떨어졌다면 포커스는 그 입력란에 남습니다.
+- `trigger`에서 만든 `MPButton`과 `MPIconButton`은 팝업이 펼쳐졌는지 알립니다.
+
+:::
+
 - ×는 이름이 있는 진짜 버튼이고 헤더의 처음이 아니라 마지막에 있습니다. 그래서 읽는 사람은 나가는 방법보다 팝업이 무엇에 대한 것인지를 먼저 듣습니다.
 - 팝오버는 live region이 **아닙니다**. 누군가 무언가를 눌러서 나타난 것이고, 그렇게 한 사람은 이미 알고 있습니다.
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `trigger: ReactElement` | `trigger: MPPopoverTriggerBuilder?` | Base UI는 엘리먼트에 핸들러를 합쳐 넣습니다. 위젯은 밖에서 손댈 수 없으므로 빌더가 `toggle`을 받습니다. |
+| `<MPPopoverClose render={…} />` | `MPPopoverClose(builder: …)` | 같은 이유로 빌더가 `close`를 받습니다. |
+| `defaultOpen` | `initialOpen` | 위젯이 스스로 갖는 상태의 시작값을 Flutter에서 부르는 이름입니다. |
+| `modal: boolean \| 'trap-focus'` | `modal: MPPopoverModal` | Dart에는 불리언과 문자열을 합친 타입이 없습니다. |
+| `width: number \| string` | `width: double?` | 논리 픽셀입니다. 받을 CSS 길이가 없습니다. |
+| 팝업이 상한 안에서 내용만큼 줄어듭니다 | 팝업이 상한만큼 넓습니다 | 브라우저는 내용의 너비를 공짜로 잽니다. Flutter는 안에 든 모든 위젯에 고유 너비를 물어야 하고, `LayoutBuilder`는 거기에 답하지 못합니다. 더 좁은 팝업은 `width`로 정하세요. |
+| Base UI는 화면 안에 두려고 팝업을 변을 따라 밉니다 | 뒤집기만 하고 밀지 않습니다 | 트리거가 가장자리에 다가갈수록 옆으로 밀리는 팝업은 아무것도 가리키지 않게 되고, 미는 위치는 스크롤의 매 프레임마다 다시 계산해야 합니다. |
+| `description`이 팝업의 `aria-describedby`입니다 | `description`은 팝업 안의 텍스트로 읽힙니다 | Flutter의 시맨틱 트리에는 설명 관계가 없습니다. |
+| `className`, `style` | — | 넘길 클래스 목록도 스타일 속성도 없습니다. |
+
+:::
 
 ## 함께 보기
 
