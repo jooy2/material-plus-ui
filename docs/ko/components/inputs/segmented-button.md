@@ -9,6 +9,8 @@ order: 3
 
 <Demo src="segmented-button/hero" :minHeight="64" />
 
+::: fw react
+
 ```tsx
 import { MPSegmentedButton } from 'material-plus-ui';
 
@@ -26,9 +28,40 @@ const [view, setView] = useState(['week']);
 />;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+List<String> view = <String>['week'];
+
+MPSegmentedButton(
+  semanticLabel: '달력 보기',
+  items: const <MPSegment>[
+    MPSegment(value: 'day', label: Text('일')),
+    MPSegment(value: 'week', label: Text('주')),
+    MPSegment(value: 'month', label: Text('월')),
+  ],
+  value: view,
+  onChanged: (List<String> next) => setState(() => view = next),
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPSegmentedButton" />
+
+::: fw flutter
+
+### MPSegment
+
+<PropsTable name="MPSegment" />
+
+:::
 
 ## 값이 항상 배열인 이유
 
@@ -38,7 +71,17 @@ const [view, setView] = useState(['week']);
 
 <Demo src="segmented-button/multiple" :minHeight="240">
 
+::: fw react
+
 <<< @/.vitepress/demos/segmented-button/multiple.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/segmented_button/multiple.dart
+
+:::
 
 </Demo>
 
@@ -74,9 +117,38 @@ const [view, setView] = useState(['week']);
 
 ## 접근성
 
+::: fw react
+
 - 아래에는 Base UI의 toggle group이 깔려 있습니다. 묶음에 탭 정지 하나, 그 안에서 화살표 키, 각 세그먼트에 `aria-pressed`.
 - 평범한 버튼으로 만들면 4방향 스위치가 서로 관계없는 동작 네 개로 읽힙니다. 그중 셋은 마침 꺼져 있고요.
 - 보이는 라벨이 없으면 `aria-label`을 주세요. 이름이 필요한 것은 묶음이고, 세그먼트는 자기 이름만 갖습니다.
+
+:::
+
+::: fw flutter
+
+- 묶음 전체에 포커스 정지점이 하나입니다. 왼쪽과 오른쪽 화살표가 글이 흐르는 방향으로 정지점을 세그먼트 사이에서 옮기고, <kbd>Home</kbd>과 <kbd>End</kbd>는 양 끝으로 갑니다. <kbd>Enter</kbd>와 <kbd>Space</kbd>는 정지점이 있는 세그먼트를 누릅니다.
+- 세그먼트마다 켜짐과 꺼짐을 알리는 버튼입니다. 웹에서 `aria-pressed`가 하는 말과 같습니다.
+- 링은 없습니다. 세그먼트는 잘라 내는 알약 안에 있고, React 빌드처럼 10%의 스테이트 레이어가 키보드 위치를 보여 줍니다.
+- 라벨이 필요로 하는 너비보다 좁으면, 세트는 비율대로 너비를 내주고 라벨을 줄임표로 자릅니다. 가장자리 밖으로 넘치지 않습니다.
+- 보이는 라벨이 없으면 `semanticLabel`을 주세요. 묶음에는 이름이 필요하고, 세그먼트는 자기 이름만 말합니다.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `defaultValue` | `initialValue` | Flutter는 시작 값을 `initialX`로 부릅니다. |
+| `onValueChange` | `onChanged` | 컨트롤의 값이 바뀔 때 Flutter가 쓰는 이름입니다. |
+| 일반 객체인 `items` | `List<MPSegment>` | 객체 리터럴 대신 타입이 있는 클래스입니다. |
+| `aria-label` | `semanticLabel` | Flutter의 이름입니다. |
+| — | `focusNode`, `autofocus` | Flutter의 포커스는 노드로 다루고, 노드는 정지점을 따라 움직입니다. |
+| `className`, `style` | — | 넘길 클래스 목록도 style 속성도 없습니다. |
+
+:::
 
 ## 함께 보기
 

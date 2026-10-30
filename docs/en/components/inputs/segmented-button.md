@@ -9,6 +9,8 @@ order: 3
 
 <Demo src="segmented-button/hero" :minHeight="64" />
 
+::: fw react
+
 ```tsx
 import { MPSegmentedButton } from 'material-plus-ui';
 
@@ -26,9 +28,40 @@ const [view, setView] = useState(['week']);
 />;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+List<String> view = <String>['week'];
+
+MPSegmentedButton(
+  semanticLabel: 'Calendar view',
+  items: const <MPSegment>[
+    MPSegment(value: 'day', label: Text('Day')),
+    MPSegment(value: 'week', label: Text('Week')),
+    MPSegment(value: 'month', label: Text('Month')),
+  ],
+  value: view,
+  onChanged: (List<String> next) => setState(() => view = next),
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPSegmentedButton" />
+
+::: fw flutter
+
+### MPSegment
+
+<PropsTable name="MPSegment" />
+
+:::
 
 ## Why the value is always an array
 
@@ -38,7 +71,17 @@ A segmented button is genuinely the same control either way — MD3 documents on
 
 <Demo src="segmented-button/multiple" :minHeight="240">
 
+::: fw react
+
 <<< @/.vitepress/demos/segmented-button/multiple.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/segmented_button/multiple.dart
+
+:::
 
 </Demo>
 
@@ -72,9 +115,38 @@ The control ladder a button walks would put the specification's segmented button
 
 ## Accessibility
 
+::: fw react
+
 - Underneath it is Base UI's toggle group: one tab stop for the set, arrow keys inside it, and `aria-pressed` on each segment.
 - Built out of plain buttons instead, a four-way switch would announce itself as four unrelated actions — three of which happen to be off.
 - With no visible label, pass `aria-label`. The set needs a name; the segments only name themselves.
+
+:::
+
+::: fw flutter
+
+- One focus stop for the set, with the left and right arrows moving it between segments in the writing direction and <kbd>Home</kbd> and <kbd>End</kbd> going to the ends. <kbd>Enter</kbd> and <kbd>Space</kbd> press the segment holding it.
+- Each segment is a button announced as toggled on or off, which is what `aria-pressed` says on the web.
+- There is no ring: the segments live inside a pill that clips, and the state layer at 10% is what shows where the keyboard is, as in the React build.
+- In less room than its labels need, the set gives up width in proportion and truncates the labels rather than running off the edge.
+- With no visible label, pass `semanticLabel`. The set needs a name; the segments only name themselves.
+
+:::
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `defaultValue` | `initialValue` | `initialX` is the name Flutter gives a starting value. |
+| `onValueChange` | `onChanged` | Flutter’s name for a control’s value changing. |
+| `items` of plain objects | `List<MPSegment>` | A typed class in place of an object literal. |
+| `aria-label` | `semanticLabel` | Flutter’s name. |
+| — | `focusNode`, `autofocus` | Flutter’s focus is driven by nodes; the node moves with the stop. |
+| `className`, `style` | — | There is no class list and no style attribute to pass through. |
+
+:::
 
 ## See also
 
