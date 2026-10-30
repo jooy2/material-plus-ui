@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { registerMPMessages } from 'material-plus-ui';
+import { MPLocaleProvider, registerMPMessages } from 'material-plus-ui';
 import { LOCALES } from 'material-plus-ui/locales';
 
 /*
@@ -14,7 +14,7 @@ import { LOCALES } from 'material-plus-ui/locales';
 registerMPMessages(...LOCALES);
 
 /**
- * The scheme context every preview is rendered inside.
+ * The scheme and the language every preview is rendered in.
  *
  * There is no provider. The components take their colours from CSS custom
  * properties, so telling a preview which scheme to draw is a `data-mp-scheme`
@@ -30,15 +30,27 @@ registerMPMessages(...LOCALES);
  * What still has to be dealt with is the opposite problem — VitePress styling
  * the components, since a preview is rendered inside rendered Markdown and a
  * form is built from the same tags an article is. That is `styles/scope.css`.
+ *
+ * The language is the page's, handed to an `MPLocaleProvider` the way the
+ * Flutter gallery is handed `?locale=`. Without it a component with no locale of
+ * its own formats with the browser's, so a reader whose browser is set to
+ * Korean saw "12.8만" on the English page. A demo that sets a locale of its own
+ * still wins, because the nearest provider or prop always does.
  */
 export type DemoMode = 'light' | 'dark';
 
 export default function DemoRoot({
   mode,
+  locale,
   children
 }: {
   mode: DemoMode;
+  locale: string;
   children: React.ReactNode;
 }) {
-  return <div data-mp-scheme={mode}>{children}</div>;
+  return (
+    <div data-mp-scheme={mode}>
+      <MPLocaleProvider locale={locale}>{children}</MPLocaleProvider>
+    </div>
+  );
 }

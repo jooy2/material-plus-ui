@@ -259,11 +259,12 @@ function watchMargin(margin, target) {
  * ------------------------------------------------------------------------- */
 
 /**
- * Draws the demo in the current theme.
+ * Draws the demo in the current theme and the page's language.
  *
  * The scheme is a `data-mp-scheme` attribute on the wrapper `DemoRoot` renders,
  * so a theme change is a re-render with a new `mode`, and this is called again
- * whenever `theme` moves.
+ * whenever `theme` moves. The language is the page's `lang`, the same tag the
+ * Flutter frame is given.
  */
 function paint() {
   if (!root || !loaded) {
@@ -275,9 +276,10 @@ function paint() {
   root.render(
     React.createElement(
       DemoRoot,
-      { mode: theme.value },
-      // Demos are written in English and reused by every locale — they are code
-      // samples. The few that carry docs chrome of their own take the locale
+      { mode: theme.value, locale: lang.value },
+      // Demos are written in English and reused by every locale, since they are
+      // code samples; only the words and numbers the library supplies follow
+      // the page. The few that carry docs chrome of their own take the locale
       // and localise themselves.
       React.createElement(demo.default, { locale, base })
     )
