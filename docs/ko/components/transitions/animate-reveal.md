@@ -9,6 +9,8 @@ order: 6
 
 <Demo src="animate-reveal/hero" :minHeight="360" />
 
+::: fw react
+
 ```tsx
 import { MPAnimateReveal } from 'material-plus-ui';
 
@@ -16,6 +18,20 @@ import { MPAnimateReveal } from 'material-plus-ui';
   <MPTypography level="h3">이번 분기에 만든 것</MPTypography>
 </MPAnimateReveal>;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+const MPAnimateReveal(
+  child: MPTypography('이번 분기에 만든 것', level: MPTypographyLevel.h3),
+);
+```
+
+:::
 
 ## Props
 
@@ -33,6 +49,8 @@ reveal에는 두 문제가 다 없습니다. 상자는 첫 프레임부터 최�
 
 ## 마스크도 `overflow` 상자도 아니고 `clip-path`인 이유
 
+::: fw react
+
 무언가를 걷어내는 방법이 셋 있고, 나머지 둘은 둘 다 더 비쌉니다.
 
 **마스크**는 gradient가 필요하고, gradient에는 방향이 필요하고, 그 방향은 side와 맞아야 합니다. 그래서 발을 맞춰야 할 것이 하나가 아니라 둘이 되고, 정지 상태는 "전부"를 뜻하는 두 번째 gradient가 됩니다.
@@ -40,6 +58,14 @@ reveal에는 두 문제가 다 없습니다. 상자는 첫 프레임부터 최�
 **`overflow: hidden`** 래퍼는 원래 없던 요소를 레이아웃에 집어넣습니다. grid나 flex 행 안에서는 내용이 누구의 자식인지가 바뀌는데, 그것이야말로 이 효과가 건드리지 않으려고 존재하는 것입니다. 내용을 움직이지 않으려고 grid 셀 밖으로 내보낸 reveal은 자기가 말한 일을 하지 않은 것입니다.
 
 `clip-path`에는 둘 다 없습니다. `inset(0)`이 이미 "아무것도 잘리지 않음"의 철자라서, 정지 상태의 모습은 요소 자신의 것이고 to-state에는 custom property가 필요 없습니다. 아무것도 다시 흐르지 않으므로, 문단을 감싼 reveal은 페이지에 아무 비용도 들지 않습니다.
+
+:::
+
+::: fw flutter
+
+Flutter에서 wipe는 그리는 순간 사각형 하나를 요청받는 clipper를 단 `ClipRect`입니다. 레이아웃에는 아무것도 닿지 않습니다. 상자는 크기와 자리를 그대로 지키고, 문단을 감싼 reveal은 페이지에 아무 비용도 들지 않습니다. wipe가 끝나면 clip은 상자 전체가 되므로, `inset(0)`처럼 정지 상태의 모습은 위젯 자신의 것입니다.
+
+:::
 
 ## 예제
 
@@ -59,17 +85,64 @@ wipe의 가장자리가 그 아래를 지나는 것에 비해 너무 단단할 �
 
 ### mode
 
+::: fw react
+
 `mode="out"`은 같은 keyframe을 거꾸로 돌려 내용을 다시 덮고, 덮인 채로 멈춥니다. 원래대로 튕겨 돌아오지 않습니다. 나가는 쪽이 들어오는 쪽보다 짧습니다 — `medium4`에 대해 `short4` — MD3의 비대칭이고, 여기 있는 모든 효과가 지고 있는 것과 같습니다.
+
+:::
+
+::: fw flutter
+
+`MPAnimateMode.exit`는 같은 wipe를 거꾸로 돌려 내용을 다시 덮고, 덮인 채로 멈춥니다. 원래대로 튕겨 돌아오지 않습니다. 나가는 쪽이 들어오는 쪽보다 짧습니다. `medium4`에 대해 `short4`로, MD3의 비대칭이고 여기 있는 모든 효과가 지고 있는 것과 같습니다.
+
+:::
 
 ### stagger
 
 `stagger`가 있으면 wipe는 상자가 아니라 자식마다, 자기 순서만큼 늦게 돕니다. 여러 개의 선이나 헤딩 묶음이라면 독자의 눈을 그 아래로 걸어 내려가게 합니다. [하나의 효과를 집합 전체에](./animate-fade#하나의-효과를-집합-전체에)를 보세요.
 
+::: fw flutter
+
+집합은 `child`가 아니라 `children`으로 넘기고, 배치는 `layoutBuilder`가 맡습니다. 아무 말도 없으면 세로로 쌓이고, 헤딩과 그 아래 선과 문단에는 그것이 맞습니다.
+
+:::
+
 ## 접근성
+
+::: fw react
 
 - `prefers-reduced-motion`에서는 애니메이션이 통째로 빠지고 내용이 온전히 그냥 거기 있습니다. 등장에 맞는 답입니다. 등장은 이미 자기가 나르던 것을 다 전달했습니다.
 - 여기서 접근성 트리는 바뀌지 않습니다. 내용은 그려졌든 아니든 첫 프레임부터 문서 안에 있으므로, 스크린 리더가 wipe를 기다리는 일은 없습니다.
 - clip은 감추기가 아닙니다. 아직 드러나지 않은 내용도 여전히 **탭 순서** 안에 있고 스크린 리더가 읽습니다. 끝나지 않은 페이드 뒤의 내용과 똑같습니다. 등장에는 그것이 옳은 기본값이지만 — 내용은 이미 전달되었고 그리기만 진행 중입니다 — reveal이 무언가를 감춰 두는 수단은 아니라는 뜻이기도 합니다. 그쪽은 [MPSpoiler](../display/spoiler)이고, 그것은 `inert`로 합니다.
+
+:::
+
+::: fw flutter
+
+- 플랫폼이 애니메이션을 끄면(`MediaQuery.disableAnimations`) 효과가 통째로 빠지고 내용이 첫 프레임부터 온전히 그냥 거기 있습니다. 퇴장도 마찬가지입니다. 등장에 맞는 답입니다. 등장은 이미 자기가 나르던 것을 다 전달했습니다.
+- 위젯은 시맨틱스에 아무것도 더하지 않습니다. 내용은 그려졌든 아니든 첫 프레임부터 트리 안에 있으므로, 스크린 리더가 wipe를 기다리는 일은 없습니다.
+- clip은 감추기가 아닙니다. 아직 드러나지 않은 내용에도 키보드가 닿고 스크린 리더가 읽습니다. 끝나지 않은 페이드 뒤의 내용과 똑같습니다. 등장에는 그것이 옳은 기본값이지만, reveal이 무언가를 감춰 두는 수단은 아니라는 뜻이기도 합니다. 그쪽은 [MPSpoiler](../display/spoiler)입니다.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `clip-path: inset()` 키프레임 | 그리는 순간 사각형을 요청받는 clipper를 단 `ClipRect` | Flutter에는 `clip-path`가 없습니다. 그리는 순간의 clip도 레이아웃이 모른다는 같은 약속을 지킵니다. |
+| 밀리초 숫자인 `duration`, `delay`, `stagger`, `durationStep` | `Duration` | 프레임워크에 이미 그 타입이 있습니다. |
+| `easing="emphasized-decelerate"` | `MPEasing.emphasizedDecelerate` | 이름마다 `MPMotion`의 곡선 하나에 대응합니다. 테마가 다시 조율할 스타일시트 토큰은 없습니다. |
+| `repeat: number \| 'infinite'` | `null`이면 멈추지 않는 `int?`인 `MPAnimateRepeat` | Dart에는 숫자와 단어의 합집합 타입이 없습니다. |
+| `mode="in" \| "out"` | `MPAnimateMode.enter` / `.exit` | `in`은 Dart의 예약어입니다. |
+| 호출하는 쪽의 마크업이 배치하는 `children` | `child`, 또는 `children`과 `layoutBuilder` | 위젯은 받은 것을 직접 놓아야 하므로, 차례로 움직이는 집합은 어떻게 놓일지를 함께 말합니다. |
+| `IntersectionObserver`로 보는 `trigger="visible"` | 위젯 위의 모든 `Scrollable`을 지켜봅니다 | 옵저버가 없습니다. 위에 스크롤 영역이 없으면 바로 시작합니다. |
+| `timeline`, `range` | — | CSS의 `view()` 타임라인에 대응하는 것이 없습니다. |
+| `render`, `className`, `style` | — | 바꿔 끼울 엘리먼트도, 넘겨줄 클래스 목록이나 style 속성도 없습니다. |
+| 끝없는 효과가 화면 밖에서도 돕니다 | 조금도 보이지 않는 동안 쉽니다 | Flutter는 아무도 보지 못하는 애니메이션도 계속 그립니다. |
+
+:::
 
 ## 함께 보기
 
