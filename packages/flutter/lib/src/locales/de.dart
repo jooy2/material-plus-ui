@@ -160,5 +160,12 @@ const MPLocale de = MPLocale(
       'resizeSidebar': 'Seitenleiste anpassen',
     },
     'confirm': <String, String>{'confirm': 'Bestätigen', 'cancel': 'Abbrechen', 'ok': 'OK'},
+    'textSelection': <String, String>{
+      'cut': 'Ausschneiden',
+      'copy': 'Kopieren',
+      'paste': 'Einfügen',
+      'selectAll': 'Alles auswählen',
+      'share': 'Teilen',
+    },
   },
 );

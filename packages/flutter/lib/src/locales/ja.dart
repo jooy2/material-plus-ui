@@ -142,5 +142,12 @@ const MPLocale ja = MPLocale(
       'resizeSidebar': 'サイドバーの幅を変更',
     },
     'confirm': <String, String>{'confirm': '確認', 'cancel': 'キャンセル', 'ok': 'OK'},
+    'textSelection': <String, String>{
+      'cut': '切り取り',
+      'copy': 'コピー',
+      'paste': '貼り付け',
+      'selectAll': 'すべて選択',
+      'share': '共有',
+    },
   },
 );

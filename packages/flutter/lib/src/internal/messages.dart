@@ -231,3 +231,19 @@ const MPNamespace mpTransferMessages = MPNamespace('transfer', <String, String>{
   'empty': 'Nothing here',
   'moved': 'Moved to {list}: {count}',
 });
+
+/// The `textSelection` namespace, in English.
+///
+/// The one namespace the React package does not have: a browser draws the menu
+/// above a selection itself, and a Flutter field draws its own.
+const MPNamespace mpTextSelectionMessages = MPNamespace('textSelection', <String, String>{
+  'cut': 'Cut',
+  'copy': 'Copy',
+  'paste': 'Paste',
+  'selectAll': 'Select all',
+  'delete': 'Delete',
+  'lookUp': 'Look Up',
+  'searchWeb': 'Search Web',
+  'share': 'Share',
+  'liveTextInput': 'Scan Text',
+});

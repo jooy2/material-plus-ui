@@ -150,5 +150,12 @@ const MPLocale pl = MPLocale(
       'resizeSidebar': 'Zmień szerokość panelu bocznego',
     },
     'confirm': <String, String>{'confirm': 'Potwierdź', 'cancel': 'Anuluj', 'ok': 'OK'},
+    'textSelection': <String, String>{
+      'cut': 'Wytnij',
+      'copy': 'Kopiuj',
+      'paste': 'Wklej',
+      'selectAll': 'Zaznacz wszystko',
+      'share': 'Udostępnij',
+    },
   },
 );

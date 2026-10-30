@@ -19,6 +19,7 @@ import 'package:material_plus_ui/src/internal/search.dart';
 import 'package:material_plus_ui/src/internal/select_trigger.dart';
 import 'package:material_plus_ui/src/internal/surface.dart';
 import 'package:material_plus_ui/src/internal/text.dart';
+import 'package:material_plus_ui/src/internal/text_selection.dart';
 import 'package:material_plus_ui/src/theme/color_scheme.dart';
 import 'package:material_plus_ui/src/theme/theme.dart';
 import 'package:material_plus_ui/src/theme/tokens.dart';
@@ -794,18 +795,25 @@ class _SearchField extends StatelessWidget {
               ),
               MPEditorPress(
                 onPress: () => mpTapEditor(editor),
-                child: EditableText(
-                  key: editor,
-                  controller: controller,
-                  focusNode: focusNode,
-                  maxLines: 1,
-                  style: style,
-                  cursorColor: MPFieldPaint.caret(colors),
-                  backgroundCursorColor: colors.onSurfaceVariant,
-                  selectionColor: MPFieldPaint.selection(colors),
-                  showSelectionHandles: false,
-                  autofillHints: const <String>[],
-                  onEditingComplete: () {},
+                child: MPTextSelectionArea(
+                  editableKey: editor,
+                  builder: (BuildContext context, MPTextSelection selection) => EditableText(
+                    key: editor,
+                    controller: controller,
+                    focusNode: focusNode,
+                    maxLines: 1,
+                    style: style,
+                    cursorColor: MPFieldPaint.caret(colors),
+                    backgroundCursorColor: colors.onSurfaceVariant,
+                    selectionColor: MPFieldPaint.selection(colors),
+                    selectionControls: selection.controls,
+                    contextMenuBuilder: selection.contextMenuBuilder,
+                    showSelectionHandles: selection.showHandles,
+                    onSelectionChanged: selection.onSelectionChanged,
+                    rendererIgnoresPointer: selection.rendererIgnoresPointer,
+                    autofillHints: const <String>[],
+                    onEditingComplete: () {},
+                  ),
                 ),
               ),
             ],

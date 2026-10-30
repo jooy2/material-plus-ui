@@ -17,6 +17,7 @@ import 'package:material_plus_ui/src/internal/fieldset.dart';
 import 'package:material_plus_ui/src/internal/i18n.dart';
 import 'package:material_plus_ui/src/internal/icons.dart';
 import 'package:material_plus_ui/src/internal/messages.dart';
+import 'package:material_plus_ui/src/internal/text_selection.dart';
 import 'package:material_plus_ui/src/theme/color_scheme.dart';
 import 'package:material_plus_ui/src/theme/theme.dart';
 import 'package:material_plus_ui/src/types.dart';
@@ -877,31 +878,39 @@ class _MPNumberFieldState extends State<MPNumberField> {
         );
     final TextAlign align = split ? TextAlign.center : TextAlign.start;
 
-    Widget editor = EditableText(
-      key: _editor,
-      controller: _controller,
-      focusNode: _focusNode,
-      readOnly: widget.readOnly,
-      autofocus: widget.autofocus,
-      keyboardType: const TextInputType.numberWithOptions(signed: true, decimal: true),
-      onChanged: _onTyped,
-      textAlign: align,
-      style: style,
-      cursorColor: MPFieldPaint.caret(colors),
-      backgroundCursorColor: colors.onSurfaceVariant,
-      selectionColor: MPFieldPaint.selection(colors),
-      showSelectionHandles: false,
-      enableInteractiveSelection: !disabled,
-      stylusHandwritingEnabled: !disabled,
-      autofillHints: disabled ? null : const <String>[],
-      // Enter settles the field and keeps the focus in it.
-      onEditingComplete: () {},
-      onSubmitted: (String text) {
-        if (_typed || _unsettled) {
-          _commit(_read(text));
-        }
-      },
-      cursorOpacityAnimates: true,
+    Widget editor = MPTextSelectionArea(
+      editableKey: _editor,
+      enabled: !disabled,
+      builder: (BuildContext context, MPTextSelection selection) => EditableText(
+        key: _editor,
+        controller: _controller,
+        focusNode: _focusNode,
+        readOnly: widget.readOnly,
+        autofocus: widget.autofocus,
+        keyboardType: const TextInputType.numberWithOptions(signed: true, decimal: true),
+        onChanged: _onTyped,
+        textAlign: align,
+        style: style,
+        cursorColor: MPFieldPaint.caret(colors),
+        backgroundCursorColor: colors.onSurfaceVariant,
+        selectionColor: MPFieldPaint.selection(colors),
+        selectionControls: selection.controls,
+        contextMenuBuilder: selection.contextMenuBuilder,
+        showSelectionHandles: selection.showHandles,
+        onSelectionChanged: selection.onSelectionChanged,
+        rendererIgnoresPointer: selection.rendererIgnoresPointer,
+        enableInteractiveSelection: !disabled,
+        stylusHandwritingEnabled: !disabled,
+        autofillHints: disabled ? null : const <String>[],
+        // Enter settles the field and keeps the focus in it.
+        onEditingComplete: () {},
+        onSubmitted: (String text) {
+          if (_typed || _unsettled) {
+            _commit(_read(text));
+          }
+        },
+        cursorOpacityAnimates: true,
+      ),
     );
 
     editor = ExcludeFocus(excluding: disabled, child: editor);

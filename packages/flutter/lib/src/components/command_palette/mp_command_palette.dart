@@ -17,6 +17,7 @@ import 'package:material_plus_ui/src/internal/portal.dart';
 import 'package:material_plus_ui/src/internal/scale.dart';
 import 'package:material_plus_ui/src/internal/search.dart';
 import 'package:material_plus_ui/src/internal/surface.dart';
+import 'package:material_plus_ui/src/internal/text_selection.dart';
 import 'package:material_plus_ui/src/theme/color_scheme.dart';
 import 'package:material_plus_ui/src/theme/theme.dart';
 import 'package:material_plus_ui/src/theme/tokens.dart';
@@ -549,21 +550,29 @@ class _MPCommandPaletteState extends State<MPCommandPalette> with SingleTickerPr
               child: MPEditorArrows(
                 editor: _editor,
                 vertical: false,
-                child: EditableText(
-                  key: _editor,
-                  controller: _query,
-                  focusNode: _field,
-                  onChanged: (String _) {
-                    setState(() => _highlighted = -1);
+                child: MPTextSelectionArea(
+                  editableKey: _editor,
+                  builder: (BuildContext context, MPTextSelection selection) => EditableText(
+                    key: _editor,
+                    controller: _query,
+                    focusNode: _field,
+                    onChanged: (String _) {
+                      setState(() => _highlighted = -1);
 
-                    if (_scroll.hasClients) {
-                      _scroll.jumpTo(0);
-                    }
-                  },
-                  style: text,
-                  cursorColor: caret,
-                  backgroundCursorColor: colors.onSurfaceVariant,
-                  selectionColor: caret.withValues(alpha: 0.3),
+                      if (_scroll.hasClients) {
+                        _scroll.jumpTo(0);
+                      }
+                    },
+                    style: text,
+                    cursorColor: caret,
+                    backgroundCursorColor: colors.onSurfaceVariant,
+                    selectionColor: caret.withValues(alpha: 0.3),
+                    selectionControls: selection.controls,
+                    contextMenuBuilder: selection.contextMenuBuilder,
+                    showSelectionHandles: selection.showHandles,
+                    onSelectionChanged: selection.onSelectionChanged,
+                    rendererIgnoresPointer: selection.rendererIgnoresPointer,
+                  ),
                 ),
               ),
             ),

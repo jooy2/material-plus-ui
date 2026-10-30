@@ -160,5 +160,12 @@ const MPLocale id = MPLocale(
       'resizeSidebar': 'Ubah lebar bilah sisi',
     },
     'confirm': <String, String>{'confirm': 'Konfirmasi', 'cancel': 'Batal', 'ok': 'OK'},
+    'textSelection': <String, String>{
+      'cut': 'Potong',
+      'copy': 'Salin',
+      'paste': 'Tempel',
+      'selectAll': 'Pilih semua',
+      'share': 'Bagikan',
+    },
   },
 );

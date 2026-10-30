@@ -160,5 +160,12 @@ const MPLocale pt = MPLocale(
       'resizeSidebar': 'Redimensionar a barra lateral',
     },
     'confirm': <String, String>{'confirm': 'Confirmar', 'cancel': 'Cancelar', 'ok': 'OK'},
+    'textSelection': <String, String>{
+      'cut': 'Cortar',
+      'copy': 'Copiar',
+      'paste': 'Colar',
+      'selectAll': 'Selecionar tudo',
+      'share': 'Compartilhar',
+    },
   },
 );

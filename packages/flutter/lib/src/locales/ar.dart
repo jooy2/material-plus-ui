@@ -157,5 +157,12 @@ const MPLocale ar = MPLocale(
       'resizeSidebar': 'تغيير عرض الشريط الجانبي',
     },
     'confirm': <String, String>{'confirm': 'تأكيد', 'cancel': 'إلغاء', 'ok': 'حسنًا'},
+    'textSelection': <String, String>{
+      'cut': 'قص',
+      'copy': 'نسخ',
+      'paste': 'لصق',
+      'selectAll': 'تحديد الكل',
+      'share': 'مشاركة',
+    },
   },
 );

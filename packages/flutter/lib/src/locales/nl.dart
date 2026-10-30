@@ -157,5 +157,12 @@ const MPLocale nl = MPLocale(
       'resizeSidebar': 'Zijbalk verbreden of versmallen',
     },
     'confirm': <String, String>{'confirm': 'Bevestigen', 'cancel': 'Annuleren', 'ok': 'OK'},
+    'textSelection': <String, String>{
+      'cut': 'Knippen',
+      'copy': 'Kopiëren',
+      'paste': 'Plakken',
+      'selectAll': 'Alles selecteren',
+      'share': 'Delen',
+    },
   },
 );

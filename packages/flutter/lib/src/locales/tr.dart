@@ -157,5 +157,12 @@ const MPLocale tr = MPLocale(
       'resizeSidebar': 'Kenar çubuğunu yeniden boyutlandır',
     },
     'confirm': <String, String>{'confirm': 'Onayla', 'cancel': 'İptal', 'ok': 'Tamam'},
+    'textSelection': <String, String>{
+      'cut': 'Kes',
+      'copy': 'Kopyala',
+      'paste': 'Yapıştır',
+      'selectAll': 'Tümünü seç',
+      'share': 'Paylaş',
+    },
   },
 );

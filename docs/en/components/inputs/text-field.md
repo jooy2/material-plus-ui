@@ -483,7 +483,7 @@ Most of this page is the same in both packages. These are the places where it is
 | `onKeyDown`, `onKeyUp` | `onKeyEvent` | One callback for both, returning a `KeyEventResult` in place of `preventDefault()`. |
 | `onFocus`, `onBlur` | `onFocusChange` | One callback with a `bool`. |
 | `onClick`, `onDoubleClick`, `onContextMenu` | — | Wrap the field in a `GestureDetector` or a `Listener` for the pointer. |
-| The browser's selection handles and context menu | — | `EditableText` draws none of its own, and the package imports no Material to borrow them from. On the web the browser's menu covers copy and paste, and on a desktop the keyboard shortcuts do; on a phone there is no long-press menu or selection handle yet. |
+| The browser's selection handles and context menu | Drawn by the package | On Android a long press selects a word, with handles to drag in the theme's primary colour and a menu of cut, copy, paste, select all and share in the field's language. iOS shows its own system menu. On a desktop a right click opens the same menu, and on the web the browser's menu stays. There is no magnifier. |
 | `resizable` | — | It is CSS's `resize`, which has no Flutter counterpart. |
 | `id` | — | There is no document to point a label at; the label is part of the field's semantics node. |
 | `className`, `style` | — | There is nothing to pass them through to. `focusNode` is offered instead. |

@@ -160,5 +160,12 @@ const MPLocale es = MPLocale(
       'resizeSidebar': 'Cambiar el ancho de la barra lateral',
     },
     'confirm': <String, String>{'confirm': 'Confirmar', 'cancel': 'Cancelar', 'ok': 'Aceptar'},
+    'textSelection': <String, String>{
+      'cut': 'Cortar',
+      'copy': 'Copiar',
+      'paste': 'Pegar',
+      'selectAll': 'Seleccionar todo',
+      'share': 'Compartir',
+    },
   },
 );

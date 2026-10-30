@@ -22,6 +22,7 @@ import 'package:material_plus_ui/src/internal/search.dart';
 import 'package:material_plus_ui/src/internal/select_list.dart';
 import 'package:material_plus_ui/src/internal/select_trigger.dart';
 import 'package:material_plus_ui/src/internal/text.dart';
+import 'package:material_plus_ui/src/internal/text_selection.dart';
 import 'package:material_plus_ui/src/theme/color_scheme.dart';
 import 'package:material_plus_ui/src/theme/theme.dart';
 import 'package:material_plus_ui/src/types.dart';
@@ -1430,29 +1431,37 @@ class _MPComboboxState extends State<MPCombobox> {
         .text(theme.typescale)
         .style(MPFieldPaint.value(colors, disabled: disabled));
 
-    Widget editor = EditableText(
-      key: _editor,
-      controller: _text,
-      focusNode: _focusNode,
-      readOnly: widget.readOnly,
-      autofocus: widget.autofocus,
-      maxLines: 1,
-      onChanged: _onQueryChanged,
-      // Enter takes the lit row and nothing else. Left to itself the editor
-      // also gives the focus up, which would end a multiple set of picks at
-      // the first one.
-      onEditingComplete: () {},
-      // The on-screen keyboard's action key, which sends no key event.
-      onSubmitted: (String text) => _submit(),
-      style: style,
-      cursorColor: MPFieldPaint.caret(colors),
-      backgroundCursorColor: colors.onSurfaceVariant,
-      selectionColor: MPFieldPaint.selection(colors),
-      showSelectionHandles: false,
-      enableInteractiveSelection: !disabled,
-      stylusHandwritingEnabled: !disabled,
-      autofillHints: disabled ? null : const <String>[],
-      cursorOpacityAnimates: true,
+    Widget editor = MPTextSelectionArea(
+      editableKey: _editor,
+      enabled: !disabled,
+      builder: (BuildContext context, MPTextSelection selection) => EditableText(
+        key: _editor,
+        controller: _text,
+        focusNode: _focusNode,
+        readOnly: widget.readOnly,
+        autofocus: widget.autofocus,
+        maxLines: 1,
+        onChanged: _onQueryChanged,
+        // Enter takes the lit row and nothing else. Left to itself the editor
+        // also gives the focus up, which would end a multiple set of picks at
+        // the first one.
+        onEditingComplete: () {},
+        // The on-screen keyboard's action key, which sends no key event.
+        onSubmitted: (String text) => _submit(),
+        style: style,
+        cursorColor: MPFieldPaint.caret(colors),
+        backgroundCursorColor: colors.onSurfaceVariant,
+        selectionColor: MPFieldPaint.selection(colors),
+        selectionControls: selection.controls,
+        contextMenuBuilder: selection.contextMenuBuilder,
+        showSelectionHandles: selection.showHandles,
+        onSelectionChanged: selection.onSelectionChanged,
+        rendererIgnoresPointer: selection.rendererIgnoresPointer,
+        enableInteractiveSelection: !disabled,
+        stylusHandwritingEnabled: !disabled,
+        autofillHints: disabled ? null : const <String>[],
+        cursorOpacityAnimates: true,
+      ),
     );
 
     editor = ExcludeFocus(excluding: disabled, child: editor);

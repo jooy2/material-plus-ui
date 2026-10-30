@@ -154,5 +154,12 @@ const MPLocale th = MPLocale(
       'resizeSidebar': 'ปรับความกว้างแถบด้านข้าง',
     },
     'confirm': <String, String>{'confirm': 'ยืนยัน', 'cancel': 'ยกเลิก', 'ok': 'ตกลง'},
+    'textSelection': <String, String>{
+      'cut': 'ตัด',
+      'copy': 'คัดลอก',
+      'paste': 'วาง',
+      'selectAll': 'เลือกทั้งหมด',
+      'share': 'แชร์',
+    },
   },
 );

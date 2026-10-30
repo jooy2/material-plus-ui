@@ -85,6 +85,7 @@ void main() {
       mpTextLinkMessages,
       mpTourMessages,
       mpTransferMessages,
+      mpTextSelectionMessages,
     ];
     final Map<String, Map<String, String>> byName = <String, Map<String, String>>{
       for (final MPNamespace namespace in english) namespace.name: namespace.en,

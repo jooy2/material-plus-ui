@@ -62,7 +62,7 @@ A team that ships a web app and a mobile app writes one design system twice. Wit
 ## Where `material_ui` is the better choice
 
 - **The frame of the app.** `Scaffold`, `AppBar`, `NavigationRail`, `NavigationDrawer`, `MaterialPageRoute` and its transitions, modal bottom sheets with drag, and `SnackBar` tied to a scaffold are Flutter's own and belong there. Material Plus has an `MPPageLayout`, an `MPHeader`, an `MPDrawer` and an `MPBottomNavigation`, but it does not replace the router or the scaffold.
-- **Platform behaviour around text.** `material_ui`'s `TextField` brings Material's selection handles, toolbar and magnifier. `MPTextField` is built on the framework's `EditableText` and keeps composition intact for Korean, Japanese and Chinese input, but it draws no selection handles or toolbar of its own: on the web the browser's menu covers copy and paste and on a desktop the keyboard shortcuts do, while on a phone there is no long-press menu yet.
+- **Platform behaviour around text.** `material_ui`'s `TextField` brings the magnifier and the spell-check suggestions as well as the selection handles and toolbar. `MPTextField` is built on the framework's `EditableText` and keeps composition intact for Korean, Japanese and Chinese input. It draws its own handles and menu on Android and a desktop and uses the system menu on iOS, but it has no magnifier and offers no spelling suggestions.
 - **Ecosystem fit.** Every Flutter tutorial and most third-party widgets read `Theme.of(context)`. Material Plus does not, which is what lets it coexist, and also what means a third-party widget will not follow an `MPTheme`.
 - **Official support.** `material_ui` is maintained by the Flutter team, on Flutter's schedule.
 

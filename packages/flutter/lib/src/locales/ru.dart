@@ -160,5 +160,12 @@ const MPLocale ru = MPLocale(
       'resizeSidebar': 'Изменить ширину боковой панели',
     },
     'confirm': <String, String>{'confirm': 'Подтвердить', 'cancel': 'Отмена', 'ok': 'ОК'},
+    'textSelection': <String, String>{
+      'cut': 'Вырезать',
+      'copy': 'Копировать',
+      'paste': 'Вставить',
+      'selectAll': 'Выбрать все',
+      'share': 'Поделиться',
+    },
   },
 );

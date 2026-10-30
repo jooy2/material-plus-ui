@@ -483,7 +483,7 @@ MPTextField(
 | `onKeyDown`, `onKeyUp` | `onKeyEvent` | 둘을 한 콜백으로 받고, `preventDefault()` 대신 `KeyEventResult`를 돌려줍니다. |
 | `onFocus`, `onBlur` | `onFocusChange` | `bool`을 받는 콜백 하나입니다. |
 | `onClick`, `onDoubleClick`, `onContextMenu` | — | 포인터는 필드를 `GestureDetector`나 `Listener`로 감싸서 받습니다. |
-| 브라우저의 선택 핸들과 컨텍스트 메뉴 | — | `EditableText`는 이것들을 직접 그리지 않고, 패키지는 빌려 올 머터리얼을 가져오지 않습니다. 웹에서는 브라우저 메뉴가, 데스크톱에서는 단축키가 복사와 붙여넣기를 맡지만, 휴대폰에서는 아직 길게 눌러 여는 메뉴와 선택 핸들이 없습니다. |
+| 브라우저의 선택 핸들과 컨텍스트 메뉴 | 패키지가 그림 | Android에서는 길게 누르면 단어가 선택되고, 테마의 primary 색으로 끌 수 있는 핸들과 잘라내기, 복사, 붙여넣기, 모두 선택, 공유 메뉴가 필드의 언어로 나타납니다. iOS에서는 시스템 메뉴가 뜹니다. 데스크톱에서는 오른쪽 클릭이 같은 메뉴를 열고, 웹에서는 브라우저 메뉴를 그대로 씁니다. 돋보기는 없습니다. |
 | `resizable` | — | CSS의 `resize`이고, Flutter에는 대응하는 것이 없습니다. |
 | `id` | — | 라벨이 가리킬 문서가 없습니다. 라벨은 필드의 시맨틱 노드에 들어갑니다. |
 | `className`, `style` | — | 넘겨줄 대상이 없습니다. 대신 `focusNode`를 받습니다. |

@@ -159,5 +159,12 @@ const MPLocale hi = MPLocale(
       'resizeSidebar': 'साइडबार का आकार बदलें',
     },
     'confirm': <String, String>{'confirm': 'पुष्टि करें', 'cancel': 'रद्द करें', 'ok': 'ठीक है'},
+    'textSelection': <String, String>{
+      'cut': 'काटें',
+      'copy': 'कॉपी करें',
+      'paste': 'चिपकाएं',
+      'selectAll': 'सभी चुनें',
+      'share': 'शेयर करें',
+    },
   },
 );

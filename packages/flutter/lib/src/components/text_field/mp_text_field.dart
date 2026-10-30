@@ -12,6 +12,7 @@ import 'package:material_plus_ui/src/internal/field_form.dart';
 import 'package:material_plus_ui/src/internal/fieldset.dart';
 import 'package:material_plus_ui/src/internal/i18n.dart';
 import 'package:material_plus_ui/src/internal/messages.dart';
+import 'package:material_plus_ui/src/internal/text_selection.dart';
 import 'package:material_plus_ui/src/theme/color_scheme.dart';
 import 'package:material_plus_ui/src/theme/theme.dart';
 import 'package:material_plus_ui/src/types.dart';
@@ -565,43 +566,50 @@ class _MPTextFieldState extends State<MPTextField> {
         .text(theme.typescale)
         .style(MPFieldPaint.value(colors, disabled: disabled));
 
-    Widget control = EditableText(
-      key: _editor,
-      controller: _text.controller,
-      focusNode: _focusNode,
-      // The caller's alone. A disabled field is still a text field to a screen
-      // reader, as the React `<input disabled>` is; it takes no text because it
-      // cannot take the focus, and the ways in that need none are shut below.
-      readOnly: widget.readOnly,
-      autofocus: _autofocus ?? false,
-      obscureText: password && !_showPassword,
-      autocorrect: widget.type == MPTextFieldType.text || widget.type == MPTextFieldType.search,
-      enableSuggestions: widget.type != MPTextFieldType.password,
-      keyboardType: _keyboard,
-      textInputAction: _action,
-      inputFormatters: <TextInputFormatter>[
-        if (widget.maxLength != null) LengthLimitingTextInputFormatter(widget.maxLength),
-      ],
-      maxLines: multiline ? widget.rows : 1,
-      minLines: multiline ? widget.rows : null,
-      onChanged: _report,
-      onSubmitted: _onSubmitted,
-      onEditingComplete: _answersAction ? () {} : null,
-      style: style,
-      cursorColor: MPFieldPaint.caret(colors),
-      backgroundCursorColor: colors.onSurfaceVariant,
-      selectionColor: MPFieldPaint.selection(colors),
-      // `EditableText` rather than a `TextField`, which is Material. What it
-      // costs is the drag handles a touch platform puts under a selection,
-      // which are Material's and Cupertino's: a selection here is made by
-      // dragging and has no handles to adjust afterwards.
-      showSelectionHandles: false,
-      enableInteractiveSelection: !disabled,
-      // A pen on an iPad and autofill both write into a field that does not
-      // have the focus, so a disabled field opts out of both.
-      stylusHandwritingEnabled: !disabled,
-      autofillHints: disabled ? null : (widget.autofillHints ?? const <String>[]),
-      cursorOpacityAnimates: true,
+    Widget control = MPTextSelectionArea(
+      editableKey: _editor,
+      enabled: !disabled,
+      builder: (BuildContext context, MPTextSelection selection) => EditableText(
+        key: _editor,
+        controller: _text.controller,
+        focusNode: _focusNode,
+        // The caller's alone. A disabled field is still a text field to a screen
+        // reader, as the React `<input disabled>` is; it takes no text because it
+        // cannot take the focus, and the ways in that need none are shut below.
+        readOnly: widget.readOnly,
+        autofocus: _autofocus ?? false,
+        obscureText: password && !_showPassword,
+        autocorrect: widget.type == MPTextFieldType.text || widget.type == MPTextFieldType.search,
+        enableSuggestions: widget.type != MPTextFieldType.password,
+        keyboardType: _keyboard,
+        textInputAction: _action,
+        inputFormatters: <TextInputFormatter>[
+          if (widget.maxLength != null) LengthLimitingTextInputFormatter(widget.maxLength),
+        ],
+        maxLines: multiline ? widget.rows : 1,
+        minLines: multiline ? widget.rows : null,
+        onChanged: _report,
+        onSubmitted: _onSubmitted,
+        onEditingComplete: _answersAction ? () {} : null,
+        style: style,
+        cursorColor: MPFieldPaint.caret(colors),
+        backgroundCursorColor: colors.onSurfaceVariant,
+        selectionColor: MPFieldPaint.selection(colors),
+        // `EditableText` rather than a `TextField`, which is Material, so the
+        // handles under a selection and the menu above it come from
+        // `MPTextSelectionArea` instead.
+        selectionControls: selection.controls,
+        contextMenuBuilder: selection.contextMenuBuilder,
+        showSelectionHandles: selection.showHandles,
+        onSelectionChanged: selection.onSelectionChanged,
+        rendererIgnoresPointer: selection.rendererIgnoresPointer,
+        enableInteractiveSelection: !disabled,
+        // A pen on an iPad and autofill both write into a field that does not
+        // have the focus, so a disabled field opts out of both.
+        stylusHandwritingEnabled: !disabled,
+        autofillHints: disabled ? null : (widget.autofillHints ?? const <String>[]),
+        cursorOpacityAnimates: true,
+      ),
     );
 
     // A disabled field leaves the focus order. In the tree either way, so

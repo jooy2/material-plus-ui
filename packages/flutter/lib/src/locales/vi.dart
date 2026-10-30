@@ -154,5 +154,12 @@ const MPLocale vi = MPLocale(
       'resizeSidebar': 'Đổi chiều rộng thanh bên',
     },
     'confirm': <String, String>{'confirm': 'Xác nhận', 'cancel': 'Huỷ', 'ok': 'OK'},
+    'textSelection': <String, String>{
+      'cut': 'Cắt',
+      'copy': 'Sao chép',
+      'paste': 'Dán',
+      'selectAll': 'Chọn tất cả',
+      'share': 'Chia sẻ',
+    },
   },
 );

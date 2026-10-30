@@ -139,5 +139,12 @@ const MPLocale zhHant = MPLocale(
       'resizeSidebar': '調整側邊欄寬度',
     },
     'confirm': <String, String>{'confirm': '確認', 'cancel': '取消', 'ok': '好'},
+    'textSelection': <String, String>{
+      'cut': '剪下',
+      'copy': '複製',
+      'paste': '貼上',
+      'selectAll': '全選',
+      'share': '分享',
+    },
   },
 );

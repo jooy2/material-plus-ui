@@ -21,6 +21,7 @@ import 'package:material_plus_ui/src/internal/messages.dart';
 import 'package:material_plus_ui/src/internal/scale.dart';
 import 'package:material_plus_ui/src/internal/select_trigger.dart';
 import 'package:material_plus_ui/src/internal/text.dart';
+import 'package:material_plus_ui/src/internal/text_selection.dart';
 import 'package:material_plus_ui/src/theme/color_scheme.dart';
 import 'package:material_plus_ui/src/theme/theme.dart';
 import 'package:material_plus_ui/src/theme/tokens.dart';
@@ -1205,23 +1206,31 @@ class _ValueFieldState extends State<_ValueField> {
         .style(MPFieldPaint.value(colors, disabled: disabled))
         .copyWith(fontFamily: 'monospace', fontFamilyFallback: const <String>['Menlo', 'Consolas']);
 
-    Widget editor = EditableText(
-      key: _editor,
-      controller: widget.controller,
-      focusNode: widget.focusNode,
-      readOnly: widget.readOnly || disabled,
-      onChanged: widget.onChanged,
-      maxLines: 1,
-      style: style,
-      cursorColor: MPFieldPaint.caret(colors),
-      backgroundCursorColor: colors.onSurfaceVariant,
-      selectionColor: MPFieldPaint.selection(colors),
-      showSelectionHandles: false,
-      enableInteractiveSelection: !disabled,
-      autocorrect: false,
-      enableSuggestions: false,
-      stylusHandwritingEnabled: !disabled,
-      autofillHints: disabled ? null : const <String>[],
+    Widget editor = MPTextSelectionArea(
+      editableKey: _editor,
+      enabled: !disabled,
+      builder: (BuildContext context, MPTextSelection selection) => EditableText(
+        key: _editor,
+        controller: widget.controller,
+        focusNode: widget.focusNode,
+        readOnly: widget.readOnly || disabled,
+        onChanged: widget.onChanged,
+        maxLines: 1,
+        style: style,
+        cursorColor: MPFieldPaint.caret(colors),
+        backgroundCursorColor: colors.onSurfaceVariant,
+        selectionColor: MPFieldPaint.selection(colors),
+        selectionControls: selection.controls,
+        contextMenuBuilder: selection.contextMenuBuilder,
+        showSelectionHandles: selection.showHandles,
+        onSelectionChanged: selection.onSelectionChanged,
+        rendererIgnoresPointer: selection.rendererIgnoresPointer,
+        enableInteractiveSelection: !disabled,
+        autocorrect: false,
+        enableSuggestions: false,
+        stylusHandwritingEnabled: !disabled,
+        autofillHints: disabled ? null : const <String>[],
+      ),
     );
 
     editor = ExcludeFocus(excluding: disabled, child: editor);

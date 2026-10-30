@@ -142,5 +142,12 @@ const MPLocale ko = MPLocale(
       'resizeSidebar': '사이드바 너비 조절',
     },
     'confirm': <String, String>{'confirm': '확인', 'cancel': '취소', 'ok': '확인'},
+    'textSelection': <String, String>{
+      'cut': '잘라내기',
+      'copy': '복사',
+      'paste': '붙여넣기',
+      'selectAll': '모두 선택',
+      'share': '공유',
+    },
   },
 );

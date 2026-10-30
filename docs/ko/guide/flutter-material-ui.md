@@ -62,7 +62,7 @@ order: 5
 ## `material_ui`가 더 나은 경우
 
 - **앱의 뼈대.** `Scaffold`, `AppBar`, `NavigationRail`, `NavigationDrawer`, `MaterialPageRoute`와 그 전환, 끌어서 닫는 모달 바텀 시트, 스캐폴드에 묶인 `SnackBar`는 Flutter 자체의 것이고 거기서 쓰는 게 맞습니다. Material Plus에도 `MPPageLayout`, `MPHeader`, `MPDrawer`, `MPBottomNavigation`이 있지만 라우터나 스캐폴드를 대신하지는 않습니다.
-- **텍스트 주변의 플랫폼 동작.** `material_ui`의 `TextField`는 머터리얼의 선택 핸들, 툴바, 돋보기를 함께 가져옵니다. `MPTextField`는 프레임워크의 `EditableText` 위에 만들어져 한국어, 일본어, 중국어 조합 입력을 깨뜨리지 않지만, 선택 핸들과 툴바를 직접 그리지는 않습니다. 웹에서는 브라우저 메뉴가, 데스크톱에서는 단축키가 복사와 붙여넣기를 맡고, 휴대폰에서는 아직 길게 눌러 여는 메뉴가 없습니다.
+- **텍스트 주변의 플랫폼 동작.** `material_ui`의 `TextField`는 선택 핸들과 툴바에 더해 돋보기와 맞춤법 제안까지 가져옵니다. `MPTextField`는 프레임워크의 `EditableText` 위에 만들어져 한국어, 일본어, 중국어 조합 입력을 깨뜨리지 않습니다. Android와 데스크톱에서는 핸들과 메뉴를 직접 그리고 iOS에서는 시스템 메뉴를 쓰지만, 돋보기와 맞춤법 제안은 없습니다.
 - **생태계와의 궁합.** Flutter 튜토리얼과 대부분의 서드파티 위젯은 `Theme.of(context)`를 읽습니다. Material Plus는 읽지 않습니다. 그래서 함께 쓸 수 있지만, 같은 이유로 서드파티 위젯은 `MPTheme`을 따르지 않습니다.
 - **공식 지원.** `material_ui`는 Flutter 팀이 Flutter 일정에 맞춰 관리합니다.
 
