@@ -5,9 +5,11 @@ order: 10
 
 # MPBlockquote
 
-<p class="mp-lede">남의 말을 내 글과 구분해서 놓습니다. 여기에는 상태도 키보드 계약도 없습니다 — 있는 것은 틀리기 쉬운 마크업이고, 그것을 제대로 하는 것이 이 컴포넌트의 대부분입니다.</p>
+<p class="mp-lede">남의 말을 내 글과 구분해서 놓습니다. 여기에는 상태도 키보드 계약도 없습니다. 여백의 세로선, 따옴표, 그리고 말한 내용과 떨어뜨려 놓은 출처 표시가 있습니다.</p>
 
 <Demo src="blockquote/hero" :minHeight="220" />
+
+::: fw react
 
 ```tsx
 import { MPBlockquote } from 'material-plus-ui';
@@ -17,9 +19,27 @@ import { MPBlockquote } from 'material-plus-ui';
 </MPBlockquote>;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+const MPBlockquote(
+  author: Text('Ada Lovelace'),
+  source: Text('Notes on the Analytical Engine'),
+  child: Text('해석기관은 무언가를 스스로 만들어낸다고 주장하지 않는다.'),
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPBlockquote" />
+
+::: fw react
 
 모든 native `<figure>` 속성이 그대로 전달되고, `ref`는 래퍼에 닿습니다.
 
@@ -46,13 +66,37 @@ import { MPBlockquote } from 'material-plus-ui';
 
 면도, 세로선도, 여백도 모두 그것을 감싼 엘리먼트의 것입니다. 정갈함의 문제가 아닙니다. `blockquote`는 호스트 스타일시트가 여전히 태그 이름으로 스타일링하는 몇 안 되는 태그 중 하나입니다 — VitePress의 `.vp-doc blockquote`는 회색 `border-left`와 `padding-left`, `color`를 설정하고, 그 특이도는 클래스 하나짜리 유틸리티가 이길 수 없습니다. 인용문 자체에 그은 선은 조용히 회색이 되고 1px 얇아집니다.
 
+마크업은 틀리기 쉽고, 그것을 제대로 하는 것이 React 빌드가 하는 일의 대부분입니다.
+
+:::
+
+::: fw flutter
+
+## 출처 표시는 인용문 아래에 놓입니다
+
+`author`와 `source`는 인용문 아래에 `bodySmall`로 놓입니다. 면이 없는 인용문에서는 보조 역할의 색을, 칠한 인용문에서는 면의 잉크를 조금 흐리게 씁니다. 저자 앞에는 em 대시가 붙는데, 화면 낭독기는 읽지 않습니다. 이름 앞에서 "em 대시"를 읽는 것은 글이 아니라 조판을 읽는 것입니다.
+
+앞쪽 가장자리의 세로선은 시작 쪽에 그리므로, 오른쪽에서 왼쪽으로 쓰는 `Directionality`에서는 오른쪽으로 옮겨 갑니다.
+
+:::
+
 ## 예시
 
 ### variant
 
 <Demo src="blockquote/variants">
 
+::: fw react
+
 <<< @/.vitepress/demos/blockquote/variants.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/blockquote/variants.dart
+
+:::
 
 </Demo>
 
@@ -68,7 +112,17 @@ import { MPBlockquote } from 'material-plus-ui';
 
 <Demo src="blockquote/sizes" :minHeight="320">
 
+::: fw react
+
 <<< @/.vitepress/demos/blockquote/sizes.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/blockquote/sizes.dart
+
+:::
 
 </Demo>
 
@@ -78,11 +132,41 @@ import { MPBlockquote } from 'material-plus-ui';
 
 인용 부호는 타이핑한 것이 아니라 그린 것입니다. 진짜 `“`는 페이지가 쓰는 서체로 조판되어 모양·굵기·베이스라인이 함께 바뀌고 — 2em에서 컴포넌트 안 가장 큰 단일 글리프이므로 — 그것이 바뀌는 것이 가장 눈에 띄는 일이 됩니다.
 
+::: fw react
+
 ```tsx
 <MPBlockquote />                       // 기본 표시
 <MPBlockquote icon={false} />          // 없음
 <MPBlockquote icon={<MyMark />} />     // 직접
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+const MPBlockquote(child: words)                       // 기본 표시
+const MPBlockquote(icon: false, child: words)          // 없음
+const MPBlockquote(icon: MyMark(), child: words)       // 직접
+```
+
+Dart에는 유니언 타입이 없어 `icon`은 `Object?`로 받습니다. 위젯이나 `false`여야 하며 디버그에서 확인합니다.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `<figure>`, `<blockquote>`, `<cite>` | 위젯 | 엘리먼트를 고를 마크업이 없습니다. 인용문, 저자, 출처를 서로 떨어뜨려 배치합니다. |
+| `cite` | — | 아무도 보지 않는 엘리먼트의 기계용 URL은 둘 곳이 없습니다. |
+| `ReactNode`인 `author`, `source` | `Widget?` | 보통 `Text`입니다. |
+| `children` | `child` | Flutter의 이름이고, 필수입니다. 아무것도 없는 인용문은 인용문이 아닙니다. |
+| `transition`, `className`, `style`, `ref` | — | 등장 효과는 애니메이션 위젯이 맡고, 넘길 클래스 목록, style 속성, 엘리먼트가 없습니다. |
+
+:::
 
 ## 함께 보기
 
