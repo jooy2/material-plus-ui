@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-Security fixes go into the latest release of `material-plus-ui`. Before reporting, check that the problem still happens on the current version.
+Security fixes go into the latest release of each package: `material-plus-ui` on npm and `material_plus_ui` on pub.dev. Before reporting, check that the problem still happens on the current version.
 
 ## Reporting Security Issues
 
@@ -12,7 +12,7 @@ Do not report a vulnerability as a general issue, and do not describe it in a pu
 
 A report is easier to act on when it includes:
 
-- The version of `material-plus-ui` it affects, and the React and Node.js versions you ran it on.
+- Which package it affects and its version: for `material-plus-ui`, the React and Node.js versions you ran it on; for `material_plus_ui`, the Flutter version and the platform.
 - The steps to reproduce it, with the smallest example that shows the problem.
 - What an attacker gains from it.
 - A patch or a workaround, if you already have one.

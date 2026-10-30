@@ -1,130 +1,82 @@
-<!-- An absolute URL, not `docs/public/logo-large.png`: this file is the package
-     page on npm as well as the front page on GitHub, `.npmignore` keeps `docs/`
-     out of the tarball, and npm resolves a relative image against the published
-     package before it falls back to anything else. -->
-<img src="https://raw.githubusercontent.com/jooy2/material-plus-ui/main/docs/public/logo-large.png" alt="Material Plus" width="96" height="96">
+<img src="docs/public/logo-large.png" alt="Material Plus" width="96" height="96">
 
 # Material Plus
 
-[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/jooy2/material-plus-ui/blob/main/LICENSE) ![Programming Language Usage](https://img.shields.io/github/languages/top/jooy2/material-plus-ui) [![npm downloads](https://img.shields.io/npm/dm/material-plus-ui.svg)](https://www.npmjs.com/package/material-plus-ui) [![npm latest package](https://img.shields.io/npm/v/material-plus-ui/latest.svg)](https://www.npmjs.com/package/material-plus-ui) ![npm bundle size](https://img.shields.io/bundlephobia/min/material-plus-ui)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/jooy2/material-plus-ui/blob/main/LICENSE) [![npm latest package](https://img.shields.io/npm/v/material-plus-ui/latest.svg)](https://www.npmjs.com/package/material-plus-ui) [![npm downloads](https://img.shields.io/npm/dm/material-plus-ui.svg)](https://www.npmjs.com/package/material-plus-ui) [![pub package](https://img.shields.io/pub/v/material_plus_ui.svg)](https://pub.dev/packages/material_plus_ui)
 
-This README is the quick start. [The documentation site](https://material-plus.cdget.com) has a page per component, with live previews and the full props table.
+Live previews and full props for every component, in both frameworks, are at [material-plus.cdget.com](https://material-plus.cdget.com). This README is the map; each package has a quick start of its own.
 
-![Material Plus components arranged around the Material Plus mark: a search field, a settings card, radio buttons and checkboxes, buttons and chips, a segmented button and pagination, an alert, a slider, a progress bar and a meter, an avatar stack, a badge and a rating](https://raw.githubusercontent.com/jooy2/material-plus-ui/main/.github/showcase.png)
+![Material Plus components arranged around the Material Plus mark: a search field, a settings card, radio buttons and checkboxes, buttons and chips, a segmented button and pagination, an alert, a slider, a progress bar and a meter, an avatar stack, a badge and a rating](.github/showcase.png)
 
 ---
 
-**Material Plus is a React component library implementing Material Design 3.** It follows the specification directly rather than wrapping somebody's implementation of it, so its colour roles, type scale and shapes are the ones the spec names.
+> **Material Plus is Material Design 3, written from the specification and extended past it, in two libraries.** Over 120 components in **React** and in **Flutter**, under the same names, the same prop vocabulary and the same numbers.
+>
+> It follows the specification directly rather than wrapping somebody's implementation of it, so its colour roles, type scale and shapes are the ones MD3 names. Then it goes on past where the specification stops: a size ladder on every control, density on every container, and the components the specification never named at all, such as charts, a data table, a command palette, a tour and a transfer list.
 
-It also goes on past where the specification stops. The button ladder keeps the spec's 32, 40 and 56px and adds 64 and 72 — the next size the spec names is 96, and a 96px button beside a 64px field is not a row — and the charts, the data table and the command palette are components the spec never named at all.
+## Highlights
 
-- **Themed in one line.** Set `--mp-source-color` and every colour role follows, the way Material generates a scheme from a source colour. No provider, no theme object, no re-render.
-- **It coexists.** Nothing here is page-level — no reset, no provider, no global styling — and it reads the `--md-sys-color-*` tokens your page already has if they are there. A project already running Material keeps its own setup.
-- **IME-safe by construction.** Korean, Japanese and Chinese composition survives whatever your `onChange` does with the value.
-- **Bring your own icons.** `MPIcon` takes a component or an element from any set. `lucide-react` ships with the package, gathered in one readable constants file.
-- **Works in a Next.js server component**, and in any bundler: the components carry `"use client"`, the barrel and the data do not, and every specifier in `dist/` names a file — so webpack, Vite, esbuild, Rollup and plain Node all resolve it.
-- **ESM only**, TypeScript declarations included, and tree-shakeable for real: one component is 3.8 kB gzipped and five are 10.0 kB, against 138.3 kB for every export there is. `npm run measure` prints those numbers off a real bundler, so they cannot quietly stop being true. The stylesheet splits the same way.
-- **Two runtime dependencies**, and the second is loaded rather than bundled: `lucide-react` for the glyphs, and `highlight.js` behind `MPCodeBlock` — every grammar sits behind an `import()`, so a page that renders no code block never downloads one. React 18 or 19, Node.js 22 or later.
+- **Themed from one colour.** Material generates a whole scheme from a source colour, and so does this, with the same arithmetic in both packages: the same source colour gives the same hex values in React and in Flutter.
+- **Learn it once, use it on both.** An `md` control is 56px in either framework, `primary` is the same role, and one documentation page covers the two.
+- **Five props, not fifty.** `size`, `color`, `variant`, `density` and `elevation` mean the same thing on every component, so the tenth component costs nothing to learn after the first.
+- **It coexists.** Nothing here is page-level or app-level. The React package adds no reset and reads the `--md-sys-color-*` tokens a page already has; the Flutter package needs no provider and sits inside a `MaterialApp`, a `CupertinoApp` or a bare `WidgetsApp`.
+- **Accessible without the checklist.** Roles, labels, keyboard operation and focus management live inside the components.
+- **Eighteen languages.** Every word a component says about itself is translated, and a translation is a table you register once.
+- **Nothing you did not ask for.** The npm package is ESM and tree-shakeable. The pub package has no dependencies at all and imports neither Material nor Cupertino.
 
-## Documentation
+## Packages
 
-Everything is documented at **[material-plus.cdget.com](https://material-plus.cdget.com)**, where the previews are not screenshots — they are the components, running in the page.
+| Package                                | Registry                                                                | Requires                          | Quick start                          |
+| -------------------------------------- | ----------------------------------------------------------------------- | --------------------------------- | ------------------------------------ |
+| [`packages/react`](packages/react)     | [npm: `material-plus-ui`](https://www.npmjs.com/package/material-plus-ui) | React 18 or 19, Node.js 22 or later | [README](packages/react/README.md)   |
+| [`packages/flutter`](packages/flutter) | [pub.dev: `material_plus_ui`](https://pub.dev/packages/material_plus_ui)  | Flutter 3.41 or newer (Dart 3.11) | [README](packages/flutter/README.md) |
 
-| Page | What you will find |
-| --- | --- |
-| [**Getting started**](https://material-plus.cdget.com/guide/getting-started) | Install and setup, end to end. |
-| [**All components**](https://material-plus.cdget.com/components/) | Every component, one page each: live previews and the full props table. |
-| [**A2UI catalog**](https://material-plus.cdget.com/guide/a2ui) | Rendering an agent's interface: A2UI's basic catalog, drawn as Material Design 3. |
-| [**Browser support**](https://material-plus.cdget.com/browser-support) | Which browsers and versions it runs in, and what is reduced in the older ones. |
-| [**Changelog**](https://material-plus.cdget.com/changelog) | What changed in each release. |
+The two **version independently** and keep separate changelogs: [`packages/react/CHANGELOG.md`](packages/react/CHANGELOG.md) is the React package's and [`packages/flutter/CHANGELOG.md`](packages/flutter/CHANGELOG.md) the Flutter one's. A release on one side is not a release on the other, so the numbers will not always agree.
 
-Also available in Korean / 한국어 문서: **[material-plus.cdget.com/ko/](https://material-plus.cdget.com/ko/)**
+## Install
 
-## Installation
+### React
 
 ```bash
 npm install material-plus-ui
 ```
 
-```bash
-pnpm add material-plus-ui
-```
-
-### Peer dependencies
-
-| Package                         | Versions | Required                         |
-| ------------------------------- | -------- | -------------------------------- |
-| `@base-ui/react`                | 1        | Yes                              |
-| `react`, `react-dom`            | 18 or 19 | Yes                              |
-| `@a2ui/react`, `@a2ui/web_core` | 0.11     | Only for `material-plus-ui/a2ui` |
-
-`@base-ui/react` is a peer rather than a dependency because it carries React context: a `Form` of yours has to be able to see a field of ours, and that only works with one copy in the tree.
-
-The two `@a2ui` packages are optional and only needed to render an agent's interface — see [the A2UI catalog](https://material-plus.cdget.com/guide/a2ui). Install nothing extra and the rest of the library is unaffected.
-
-### Setup
-
-Add one line to your app's CSS entry point:
-
 ```css
+/* your app's CSS entry point */
 @import 'material-plus-ui/styles.css';
 ```
 
-This is finished CSS — no PostCSS plugin, no `@source`, no build-side configuration. It deliberately contains **no reset**, and no page-level styling of any kind: a component resets what it owns on the element it owns, so whatever your page already does stays in charge.
-
-If Tailwind v4 is already in your project, import the token sheet instead:
-
-```css
-@import 'tailwindcss';
-@import 'material-plus-ui/tailwind.css';
-```
-
-A page that renders a handful of components can take the tokens and a sheet each instead of the whole 174.9 kB — 6.3 kB gzipped for one component against 23.7 kB for the lot. [The guide](https://material-plus.cdget.com/guide/getting-started#if-you-only-render-a-few-components) has the numbers and where the two paths cross.
-
-```ts
-import 'material-plus-ui/styles/tokens.css';
-import 'material-plus-ui/styles/button.css';
-```
-
-### Languages other than English
-
-The library carries English. Every other translation is a module you hand over, once, at startup:
-
-```ts
-import { registerMPMessages } from 'material-plus-ui';
-import { ko } from 'material-plus-ui/locales';
-
-registerMPMessages(ko);
-```
-
-After that `locale="ko"` resolves the way it always did. Eighteen languages ship; `registerMPMessages(...LOCALES)` takes all of them, a tag nobody registered falls back to English, and a table of your own is a plain object. See [the localisation guide](https://material-plus.cdget.com/design/localization).
-
-## Usage
-
-There is no provider. Import a component and render it.
-
 ```tsx
-import { useState } from 'react';
-import { MPTextField, MPIcon, ICONS } from 'material-plus-ui';
+import { MPButton, MPTextField } from 'material-plus-ui';
 
-export default function App() {
-  const [email, setEmail] = useState('');
-
-  return (
-    <MPTextField
-      label="Email"
-      type="email"
-      value={email}
-      onChange={setEmail}
-      startIcon={<MPIcon icon={ICONS.search} size={18} />}
-    />
-  );
-}
+<MPTextField label="Email" type="email" />
+<MPButton type="submit">Sign in</MPButton>
+<MPButton variant="outlined">Cancel</MPButton>
 ```
+
+`@base-ui/react`, `react` and `react-dom` are peer dependencies. The stylesheet is finished CSS: Tailwind CSS v4 builds this package and does not have to be installed in yours, though there is a second entry point for a project that already runs it. [**The React quick start**](packages/react/README.md) has the rest.
+
+### Flutter
+
+```bash
+flutter pub add material_plus_ui
+```
+
+```dart
+import 'package:flutter/widgets.dart';
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPButton(
+  onPressed: save,
+  child: const Text('Save'),
+)
+```
+
+Nothing else to install: no dependencies, no assets, no platform channels and no provider. It is built on `package:flutter/widgets.dart` alone, so it drops into any Flutter app without bringing a second implementation of Material in behind it, and it is unaffected by Material and Cupertino moving out of the framework into `material_ui` and `cupertino_ui`. [**The Flutter quick start**](packages/flutter/README.md) has the rest.
 
 ## Theming
 
-Material generates a whole scheme from one source colour, and so does this.
+One colour, in either framework:
 
 ```css
 :root {
@@ -132,39 +84,127 @@ Material generates a whole scheme from one source colour, and so does this.
 }
 ```
 
-Dark mode follows `prefers-color-scheme` on its own; `data-mp-scheme="dark"` or `.dark` on any element drives it yourself. To disagree with one generated colour, set that role — `--mp-sys-color-outline` — and to follow tokens your page already defines, do nothing: `--md-sys-color-*` is read where it is present.
+```dart
+MPTheme(
+  sourceColor: const Color(0xFF7C3AED),
+  child: const App(),
+)
+```
 
-Full details, including scoped and runtime theming, are in [the theming guide](https://material-plus.cdget.com/guide/getting-started#theming).
+Dark mode follows the platform in both. React drives it with `data-mp-scheme="dark"` or `.dark` on any element, Flutter with `MPTheme(brightness: Brightness.dark, ...)` on any subtree. To disagree with one generated role, set that role: `--mp-sys-color-outline` in CSS, `MPColorScheme.fromSource(...).copyWith(outline: ...)` in Dart.
+
+## Documentation
+
+| Page                                                                                 | What you will find                                                                   |
+| ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ |
+| [**Getting started**](https://material-plus.cdget.com/guide/getting-started)         | Install and setup, end to end, in either framework.                                  |
+| [**All components**](https://material-plus.cdget.com/components/)                    | Every component, one page each: live previews and the full props table.              |
+| [**Material Plus and `material_ui`**](https://material-plus.cdget.com/guide/flutter-material-ui) | What the Flutter package adds to Flutter's own Material library, and when to use which. |
+| [**A2UI catalog**](https://material-plus.cdget.com/guide/a2ui)                       | Rendering an agent's interface with the React package.                               |
+| [**Prop conventions**](https://material-plus.cdget.com/design/prop-conventions)      | The shared vocabulary every component draws from.                                    |
+| [**Colour**](https://material-plus.cdget.com/design/color)                           | The roles, how they are derived from the source colour, and how to theme them.       |
+| [**Changelog**](https://material-plus.cdget.com/changelog)                           | What changed in each release of either package.                                      |
+
+Also available in Korean / 한국어 문서: **[material-plus.cdget.com/ko/](https://material-plus.cdget.com/ko/)**
 
 ## Components
 
-There are over 120, grouped into layout, inputs, display, feedback, motion and charts. Each has a page of its own at [material-plus.cdget.com/components/](https://material-plus.cdget.com/components/), with the full props table and previews that are the component running in the page.
+Every component is exported under an `MP` prefix, in both packages. The props are the same props under Dart's names, and each component's page says exactly what differs.
 
-### Why `MPTextField` exists
+A **†** marks a component that is React-only. `MPFlex`, `MPPortal` and `MPVisuallyHidden` answer problems only the DOM has, and the Flutter answer is a line of framework code rather than a widget. `MPContextMenu` is React-only for a reason of its own: no right-click gesture means the same thing on every platform Flutter runs on, so a Flutter app opens an `MPMenu` from `onLongPress` or `onSecondaryTap` itself. Each page names the Flutter equivalent.
 
-A controlled `<input>` renders from its `value`. While an input method is composing, the browser holds a **provisional** string in the element that has not been committed — and writing `value` back over it in that moment throws away the syllable in progress and jumps the caret. Trimming, upper-casing or validating in your `onChange` is enough to trigger it.
+<!-- components:start -->
 
-`MPTextField` stops rendering `value` for the duration of a composition and shows what the element actually contains, while `onChange` keeps firing for every keystroke. When the composition ends, the field is controlled again.
+### Charts
+
+`MPAreaChart` · `MPBarChart` · `MPGaugeChart` · `MPHeatmapChart` · `MPLineChart` · `MPPieChart` · `MPScatterChart` · `MPSparkline` · `MPTimelineChart`
+
+### Display
+
+`MPAnchor` · `MPAppLogo` · `MPAvatar` · `MPBadge` · `MPBlockquote` · `MPBreadcrumb` · `MPChatBubble` · `MPChip` · `MPCodeBlock` · `MPDataList` · `MPDataTable` · `MPDivider` · `MPHighlight` · `MPIcon` · `MPImage` · `MPList` · `MPPagination` · `MPPill` · `MPShortcut` · `MPSpoiler` · `MPStatistic` · `MPStepper` · `MPTable` · `MPTextLink` · `MPTimeline` · `MPTreeView` · `MPTypography` · `MPVisuallyHidden`†
+
+### Feedback
+
+`MPAlert` · `MPConfirmProvider` · `MPDialog` · `MPEmpty` · `MPHoverCard` · `MPMeter` · `MPOverlay` · `MPPopconfirm` · `MPPopover` · `MPProgressBox` · `MPProgressCircular` · `MPProgressLinear` · `MPSkeleton` · `MPSnackbarProvider` · `MPTooltip` · `MPTour`
+
+### Inputs
+
+`MPButton` · `MPButtonGroup` · `MPCalendar` · `MPCheckbox` · `MPColorPicker` · `MPCombobox` · `MPCommandPalette` · `MPContextMenu`† · `MPDatePicker` · `MPDateRangePicker` · `MPDateTimePicker` · `MPFieldset` · `MPFilePicker` · `MPFloatingActionButton` · `MPForm` · `MPIconButton` · `MPMenu` · `MPMenubar` · `MPNumberField` · `MPOtpField` · `MPRadioGroup` · `MPRating` · `MPSegmentedButton` · `MPSelect` · `MPSlider` · `MPSwitch` · `MPTextField` · `MPTimePicker` · `MPToggle` · `MPToggleGroup` · `MPTransfer` · `MPTreeSelect`
+
+### Layout
+
+`MPAccordion` · `MPAspectRatio` · `MPBottomNavigation` · `MPBox` · `MPCard` · `MPCarousel` · `MPCollapsible` · `MPContainer` · `MPDrawer` · `MPFlex`† · `MPFloatingBottomNavigation` · `MPFooter` · `MPGrid` · `MPHeader` · `MPMockup` · `MPNavigationMenu` · `MPPageLayout` · `MPPanes` · `MPPortal`† · `MPScrollArea` · `MPScrollZone` · `MPShow` · `MPSidebar` · `MPStack` · `MPTabs` · `MPToolbar`
+
+### Transitions
+
+`MPAnimateAppear` · `MPAnimateBlink` · `MPAnimateCounter` · `MPAnimateFade` · `MPAnimateFloat` · `MPAnimateGrow` · `MPAnimateHeadline` · `MPAnimateLighting` · `MPAnimateMarquee` · `MPAnimateReveal` · `MPAnimateRotate` · `MPAnimateScramble` · `MPAnimateShake` · `MPAnimateSlide` · `MPAnimateSplit` · `MPAnimateTyping` · `MPAnimateZoom`
+
+<!-- components:end -->
+
+## Setting defaults
+
+`size`, `color`, `density` and the language can be decided once for an application rather than at every call site. Optional: the library is finished without it.
 
 ```tsx
-// Upper-cases everything — and a Korean syllable still composes correctly.
-<MPTextField value={name} onChange={(next) => setName(next.toUpperCase())} />
+import { MPConfigProvider } from 'material-plus-ui';
+
+<MPConfigProvider size="sm" density={-1} locale="ko">
+  <App />
+</MPConfigProvider>;
 ```
+
+```dart
+MPConfigProvider(
+  size: MPSize.sm,
+  density: -1,
+  locale: 'ko',
+  child: const App(),
+)
+```
+
+A component's own prop beats the set it is in, which beats the provider. [The guide](https://material-plus.cdget.com/guide/config) has the long version.
+
+## Hooks
+
+React-only, and the machinery the library already ran on rather than anything new. `useMPColorScheme`, `useMPDisclosure`, `useMPElementSize`, `useMPMediaQuery`, `useMPOnScreen`, `useMPReducedMotion`, `useMPShortcut` and `useMPWindowClass` are imported from the barrel or from `material-plus-ui/hooks`. Flutter answers the same questions with framework calls (`MediaQuery`, `MPTheme`, `MPConfigProvider`), and each hook's page names the Dart equivalent.
+
+## Development
+
+One design system, three things built out of it. Each is entered and run on its own; there is no install at the repository root and no root `package.json`.
+
+```bash
+cd packages/react
+npm install           # also builds, via `prepare`
+npm test              # Vitest, in a real browser
+npm run typecheck
+npm run lint
+```
+
+```bash
+cd packages/flutter
+flutter pub get
+flutter test          # widget tests
+flutter analyze
+cd example && flutter run   # the gallery, on any device
+```
+
+```bash
+cd docs
+npm install
+npm run flutter:demos # compiles the gallery into public/flutter (needs the Flutter SDK)
+npm run dev           # VitePress: the develop-and-look loop for both packages
+npm run build
+```
+
+The site renders the React components from `packages/react/src` and embeds the Flutter gallery as a frame per preview, so `npm run dev` shows both. An edit to a React component shows up immediately; the Flutter side is rebuilt with `npm run flutter:demos -- --force`.
 
 ## Contributing
 
-Issues and pull requests are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) has the repository layout, the commands and what a component is expected to own. Participation is subject to the [Code of Conduct](CODE_OF_CONDUCT.md).
-
-```bash
-npm install        # also builds, via `prepare`
-npm run test       # vitest, in a real browser
-npm run typecheck  # src, test and docs
-npm run docs:dev   # the documentation site
-```
+Anyone can contribute to the project by reporting new issues or submitting a pull request. [CONTRIBUTING.md](CONTRIBUTING.md) has the rest: where things live, and how a change to a component is expected to arrive. Participation is subject to the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 To report a security issue, follow the process in [SECURITY.md](SECURITY.md) instead of opening a public issue.
 
-For anything else that does not belong in a public issue, write to CDGet at [cdget.com/contact](https://cdget.com/contact).
+For anything else, reach the maintainers at [cdget.com/contact](https://cdget.com/contact).
 
 ## Sponsor
 
