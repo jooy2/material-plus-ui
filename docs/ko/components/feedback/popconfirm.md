@@ -9,9 +9,21 @@ order: 13
 
 <Demo src="popconfirm/hero" :minHeight="220">
 
+::: fw react
+
 <<< @/.vitepress/demos/popconfirm/hero.tsx
 
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/popconfirm/hero.dart
+
+:::
+
 </Demo>
+
+::: fw react
 
 ```tsx
 import { MPPopconfirm } from 'material-plus-ui';
@@ -25,20 +37,39 @@ import { MPPopconfirm } from 'material-plus-ui';
 />;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPPopconfirm(
+  trigger: (BuildContext context, VoidCallback toggle) =>
+      MPButton(color: MPColor.error, onPressed: toggle, child: const Text('Delete')),
+  title: const Text('Delete this row?'),
+  confirmLabel: const Text('Delete'),
+  color: MPColor.error,
+  onConfirm: () => remove(id),
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPPopconfirm" />
 
-## `useMPConfirm` 대신 이걸 쓸 때
+## <Fw react="`useMPConfirm`" flutter="`MPConfirmProvider`" /> 대신 이걸 쓸 때
 
 둘은 같은 질문을 합니다. 다른 것은 **읽는 사람의 눈이 어디에 있는가**이고, 그건 취향이 아니라 실재하는 차이입니다.
 
-|             | `MPPopconfirm` | [`useMPConfirm`](../hooks/confirm.md) |
-| ----------- | -------------- | ------------------------------------- |
-| 나타나는 곳 | 컨트롤 옆      | 화면 한가운데                         |
-| 뒤의 페이지 | 그대로         | 스크림 아래로                         |
-| 비용        | 엘리먼트 하나  | 프로바이더                            |
-| 답하는 방식 | 콜백           | promise                               |
+|  | `MPPopconfirm` | [<Fw react="`useMPConfirm`" flutter="`MPConfirmProvider`" />](../hooks/confirm.md) |
+| --- | --- | --- |
+| 나타나는 곳 | 컨트롤 옆 | 화면 한가운데 |
+| 뒤의 페이지 | 그대로 | 스크림 아래로 |
+| 비용 | 엘리먼트 하나 | 프로바이더 |
+| 답하는 방식 | 콜백 | <Fw react="promise" flutter="`Future`" /> |
 
 **삭제 버튼 열두 개가 늘어선 행**이 이쪽의 경우입니다. 표를 덮는 모달은 읽는 사람이 가리키고 있던 행을 빼앗고, 그 뒤에 다시 찾아야 하는 것이 바로 엉뚱한 행이 지워지는 방식입니다.
 
@@ -46,7 +77,13 @@ import { MPPopconfirm } from 'material-plus-ui';
 
 ## 나가는 나머지 길은 전부 *아니오*입니다
 
-Escape, 바깥 누름, 취소 버튼 셋 다 확인 없이 닫고 `onCancel`을 부릅니다. [`useMPConfirm`](../hooks/confirm.md)이 따르는 그 규칙이고 이유도 같습니다 — "정말인가요"의 안전한 답은 아니오입니다.
+Escape, 바깥 누름, 취소 버튼 셋 다 확인 없이 닫고 `onCancel`을 부릅니다. [<Fw react="`useMPConfirm`" flutter="`MPConfirmProvider`" />](../hooks/confirm.md)이 따르는 그 규칙이고 이유도 같습니다 — "정말인가요"의 안전한 답은 아니오입니다.
+
+::: fw flutter
+
+시스템 뒤로 가기와 Tab으로 질문을 빠져나가는 것도 아니오로 셉니다.
+
+:::
 
 여는 것은 답이 **아니므로** 두 핸들러 모두 호출되지 않습니다.
 
@@ -56,13 +93,46 @@ Escape, 바깥 누름, 취소 버튼 셋 다 확인 없이 닫고 `onCancel`을 
 
 답이 정말로 주어져야만 하는 곳에서는 모달을 쓰세요.
 
+::: fw flutter
+
+질문이 열리면 포커스가 그 안으로 옮겨 가 첫 버튼인 취소에 놓입니다. 습관처럼 누른 Enter는 아니오로 답합니다.
+
+:::
+
 ## 날카로운 모서리
 
+::: fw react
+
 - **트리거는 ref를 받고 prop을 spread할 수 있어야 합니다.** Material Plus 컴포넌트는 전부 그렇습니다. 직접 만든 맨 함수 컴포넌트는 아닐 수 있습니다.
-- **`color`는 "예" 버튼만 칠하고**, `error`는 기본이 아닙니다 — [`useMPConfirm`](../hooks/confirm.md)이 대는 이유와 같습니다.
+
+:::
+
+::: fw flutter
+
+- **트리거는 빌더입니다.** 빌더가 받는 `toggle`을 컨트롤의 `onPressed`에 연결하세요. 연결하지 않은 트리거로는 질문이 열리지 않습니다.
+
+:::
+
+- **`color`는 "예" 버튼만 칠하고**, `error`는 기본이 아닙니다 — [<Fw react="`useMPConfirm`" flutter="`MPConfirmProvider`" />](../hooks/confirm.md)이 대는 이유와 같습니다.
 - **버튼 문구는 번역되고 질문은 되지 않습니다.** *Confirm*과 *Cancel*은 유효한 언어에서 오고, `title`과 `description`은 여러분의 카피입니다.
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `trigger: ReactElement` | `trigger: MPPopoverTriggerBuilder` | Base UI는 엘리먼트에 핸들러를 합쳐 넣습니다. 위젯은 밖에서 손댈 수 없으므로 빌더가 `toggle`을 받습니다. |
+| `defaultOpen` | `initialOpen` | 위젯이 스스로 갖는 상태의 시작값을 Flutter에서 부르는 이름입니다. |
+| `children` | `child` | 위젯 하나를 받습니다. 여럿이면 `Column`에 담으세요. |
+| 버튼이 `flex` 행에 놓입니다 | 버튼이 `Wrap`에 놓입니다 | "Confirm"과 "Cancel"보다 긴 말로 번역된 두 문구가 시트 밖으로 넘치지 않고 아래로 내려갑니다. |
+| `className` | — | 넘길 클래스 목록이 없습니다. |
+
+[`MPPopover`](./popover#react-빌드와-다른-점)가 다르게 하는 것은 이 컴포넌트도 똑같이 다릅니다.
+
+:::
 
 ## 다음
 
-- [useMPConfirm](../hooks/confirm.md) — 화면 한가운데의 같은 질문.
+- [<Fw react="useMPConfirm" flutter="MPConfirmProvider" />](../hooks/confirm.md) — 화면 한가운데의 같은 질문.
 - [MPPopover](./popover.md) — 질문이 아닌 팝업을 위한, 아래에 깔린 컴포넌트.
