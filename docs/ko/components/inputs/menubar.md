@@ -5,9 +5,11 @@ order: 16
 
 # MPMenubar
 
-<p class="mp-lede">애플리케이션 맨 위의 말들의 띠입니다. File, Edit, View — 각각이 메뉴를 엽니다.</p>
+<p class="mp-lede">애플리케이션 맨 위에 놓이는 단어 띠입니다. File, Edit, View처럼 단어마다 메뉴를 하나씩 엽니다.</p>
 
 <Demo src="menubar/hero" :minHeight="200" />
+
+::: fw react
 
 ```tsx
 import { MPMenubar, MPMenubarMenu, MPMenuItem } from 'material-plus-ui';
@@ -21,6 +23,27 @@ import { MPMenubar, MPMenubarMenu, MPMenuItem } from 'material-plus-ui';
 </MPMenubar>;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPMenubar(
+  menus: <MPMenubarMenu>[
+    MPMenubarMenu(
+      label: '파일',
+      items: <MPMenuEntry>[
+        MPMenuItem(label: '새로 만들기', shortcut: 'Mod+N', onPressed: create),
+      ],
+    ),
+  ],
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPMenubar" />
@@ -31,7 +54,17 @@ import { MPMenubar, MPMenubarMenu, MPMenuItem } from 'material-plus-ui';
 
 띠를 따라 움직이면 떠나온 메뉴가 닫히는 대신 다른 메뉴들을 걸어 지나가고, 방향키는 메뉴 안뿐 아니라 메뉴 사이도 움직입니다. 나란히 놓인 별개의 [MPMenu](./menu) 셋은 둘 다 하지 못합니다. 하나에서 다음으로 건너가면 앞의 것이 닫히고 아무것도 열리지 않습니다.
 
-그 전부를 Base UI가 소유하고, `menubar` 역할도 함께입니다. 그것이 스크린 리더에게 이 띠가 서로 무관한 버튼 여섯 개가 아니라 **탭 정지 하나짜리 하나의 위젯**이라고 말합니다.
+::: fw react
+
+이 동작은 모두 Base UI가 맡고, `menubar` role도 Base UI가 붙입니다. 이 role 덕분에 스크린 리더는 이 띠를 서로 무관한 버튼 여섯 개가 아니라 **탭 정지가 하나인 위젯 하나**로 읽습니다.
+
+:::
+
+::: fw flutter
+
+여기서는 바가 직접 맡습니다. 한 번에 메뉴 하나만 열리고, 포인터가 올라간 단어가 열린 메뉴 대신 자기 메뉴를 엽니다. 열린 메뉴에 하위 메뉴가 없는 행에서 띠 방향의 방향키를 누르면 다음 메뉴가 첫 행을 밝힌 채로 열립니다. 바는 menu bar role을 가진 노드이고, 덕분에 스크린 리더는 이 띠를 서로 무관한 버튼 여섯 개가 아니라 **탭 정지가 하나인 위젯 하나**로 읽습니다.
+
+:::
 
 ## 말은 버튼이 아닙니다
 
@@ -47,11 +80,27 @@ import { MPMenubar, MPMenubarMenu, MPMenuItem } from 'material-plus-ui';
 
 무언가 위에 놓으세요.
 
+::: fw react
+
 ```tsx
 <MPHeader brand="Acme" size="sm">
   <MPMenubar size="sm">…</MPMenubar>
 </MPHeader>
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+MPHeader(
+  brand: const <Widget>[Text('Acme')],
+  size: MPSize.sm,
+  child: MPMenubar(size: MPSize.sm, menus: menus),
+)
+```
+
+:::
 
 ## 어느 말이 열려 있는지
 
@@ -67,6 +116,8 @@ import { MPMenubar, MPMenubarMenu, MPMenuItem } from 'material-plus-ui';
 
 자기 `size`도 `color`도 없습니다. 둘 다 바의 것이고, 바가 한 번 정해서 모든 메뉴에 통하게 할 수 있는 유일한 자리입니다. 안의 행은 [MPMenu](./menu)가 받는 것과 같은 `MPMenuItem`, `MPMenuSeparator`, `MPMenuGroup`, `MPMenuCheckboxItem`, `MPMenuRadioItem`, `MPMenuSubmenu`입니다. 같은 메뉴이기 때문입니다.
 
+::: fw react
+
 ```tsx
 <MPMenubarMenu label="보기">
   <MPMenuCheckboxItem checked={rulers} onCheckedChange={setRulers}>
@@ -78,6 +129,29 @@ import { MPMenubar, MPMenubarMenu, MPMenuItem } from 'material-plus-ui';
 </MPMenubarMenu>
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+MPMenubarMenu(
+  label: '보기',
+  items: <MPMenuEntry>[
+    MPMenuCheckboxItem(
+      label: '눈금자',
+      checked: rulers,
+      onChanged: (bool next) => setState(() => rulers = next),
+    ),
+    MPMenuSubmenu(
+      label: '확대',
+      items: <MPMenuEntry>[MPMenuItem(label: '200%', onPressed: () => zoom(2))],
+    ),
+  ],
+)
+```
+
+:::
+
 ## 이것이 맞지 않을 때
 
 띠가 담을 수 있는 것보다 행동이 많을 때입니다.
@@ -88,10 +162,37 @@ import { MPMenubar, MPMenubarMenu, MPMenuItem } from 'material-plus-ui';
 
 ## 접근성
 
-- 띠는 탭 정지 하나를 가진 `menubar`입니다. Tab은 바 전체를 지나가고, 방향키가 그 안을 움직입니다.
-- 각 말은 `aria-haspopup`과 `aria-expanded`를 단 `menuitem`이고, 자기 메뉴를 소유합니다.
-- 비활성 말은 명세의 38%로 띠에 남고 아무것도 열지 않습니다.
-- 포커스 링은 말 **안쪽**에 그려집니다. 이 라이브러리에서 링을 안으로 넣는 유일한 자리입니다. 말들의 띠에는 링을 그릴 틈이 없으므로, 바깥쪽 링은 다음 말 밑에 깔려 버립니다.
+::: fw react
+
+- 띠는 탭 정지 하나를 가진 `menubar`입니다. Tab은 바 전체를 건너뛰고, 방향키가 그 안을 움직입니다.
+- 각 단어는 `aria-haspopup`과 `aria-expanded`를 단 `menuitem`이고, 자기 메뉴를 소유합니다.
+
+:::
+
+::: fw flutter
+
+- 띠는 menu bar role을 가진 노드이고 탭 정지는 하나입니다. Tab은 바 전체를 건너뛰고, 띠 방향의 방향키는 단어 사이를 옮겨 다니며 `loopFocus`를 끄지 않는 한 양 끝에서 돌아갑니다. <kbd>Home</kbd>과 <kbd>End</kbd>는 양 끝으로 갑니다. 방향 내비게이션에서는 방향키가 양 끝에서 멈추고, 끝을 넘는 방향키는 다음 컨트롤로 넘어갑니다.
+- 가로 띠에서는 아래 방향키가, 세로 띠에서는 가로지르는 방향키가 단어의 메뉴를 첫 행을 밝힌 채로 엽니다. 메뉴가 열려 있을 때 하위 메뉴가 없는 행에서 띠 방향의 방향키를 누르면 다음 메뉴가 열립니다.
+- 각 단어는 menu item role을 가진 노드이고 메뉴가 펼쳐졌는지를 말합니다. 메뉴가 닫히면 포커스는 그 단어로 돌아갑니다.
+
+:::
+
+- 비활성 단어는 명세의 38%로 띠에 남고 아무것도 열지 않습니다.
+- 포커스 링은 단어 **안쪽**에 그립니다. 이 라이브러리에서 링을 안쪽에 그리는 유일한 곳입니다. 단어 띠에는 링을 그릴 틈이 없어서, 바깥쪽에 그리면 다음 단어 밑에 깔립니다.
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| 바의 children인 `MPMenubarMenu` | `menus: List<MPMenubarMenu>` | 바가 메뉴마다 포커스 노드와 방향키 순서상의 자리를 나눠 주므로, 무엇을 담는지 알아야 합니다. |
+| `MPMenubarMenu` 안에 조합하는 행 | `items: List<MPMenuEntry>` | `MPMenu`가 받는 것과 같은 설명입니다. [MPMenu](./menu#왜-행을-설명으로-넘기는가)를 보세요. |
+| `modal` | — | 열린 메뉴는 `MPMenu`처럼 자기 단어에 매달리고, 바깥을 누르면 닫힙니다. |
+| `aria-label` | `semanticLabel` | Flutter의 이름입니다. |
+| 바나 단어의 `className`, `style` | — | 넘겨줄 클래스 목록도 style 속성도 없습니다. |
+
+:::
 
 ## 함께 보기
 

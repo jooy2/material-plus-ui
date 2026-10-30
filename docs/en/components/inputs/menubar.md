@@ -9,6 +9,8 @@ order: 16
 
 <Demo src="menubar/hero" :minHeight="200" />
 
+::: fw react
+
 ```tsx
 import { MPMenubar, MPMenubarMenu, MPMenuItem } from 'material-plus-ui';
 
@@ -21,6 +23,27 @@ import { MPMenubar, MPMenubarMenu, MPMenuItem } from 'material-plus-ui';
 </MPMenubar>;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPMenubar(
+  menus: <MPMenubarMenu>[
+    MPMenubarMenu(
+      label: 'File',
+      items: <MPMenuEntry>[
+        MPMenuItem(label: 'New', shortcut: 'Mod+N', onPressed: create),
+      ],
+    ),
+  ],
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPMenubar" />
@@ -31,7 +54,17 @@ What happens once one of them is **open**.
 
 Moving along the strip walks through the others instead of closing the one you left, and the arrow keys move between the menus as well as inside them. Three separate [MPMenu](./menu)s side by side do neither: crossing from one to the next closes the first and opens nothing.
 
+::: fw react
+
 Base UI owns all of that, along with the `menubar` role — which is what tells a screen reader the strip is **one widget with one tab stop** rather than six unrelated buttons.
+
+:::
+
+::: fw flutter
+
+The bar owns it here: only one of its menus is open at a time, a word the pointer comes onto opens its menu in place of the open one, and an arrow along the strip that the open menu has no submenu for opens the next menu with its first row lit. The bar is a node with the menu bar role, which is what tells a screen reader it is **one widget with one tab stop** rather than six unrelated buttons.
+
+:::
 
 ## The words are not buttons
 
@@ -47,11 +80,27 @@ Same reason. A sheet under a strip that is already on a sheet is two sheets, and
 
 Put it on something:
 
+::: fw react
+
 ```tsx
 <MPHeader brand="Acme" size="sm">
   <MPMenubar size="sm">…</MPMenubar>
 </MPHeader>
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+MPHeader(
+  brand: const <Widget>[Text('Acme')],
+  size: MPSize.sm,
+  child: MPMenubar(size: MPSize.sm, menus: menus),
+)
+```
+
+:::
 
 ## Which word is open
 
@@ -67,6 +116,8 @@ One menu on the bar: the word, and the rows behind it.
 
 It has no `size` and no `color` of its own — both belong to the bar, which is the only place they can be set once and hold for every menu on it. The rows inside are the same `MPMenuItem`, `MPMenuSeparator`, `MPMenuGroup`, `MPMenuCheckboxItem`, `MPMenuRadioItem` and `MPMenuSubmenu` an [MPMenu](./menu) takes, because it **is** the same menu.
 
+::: fw react
+
 ```tsx
 <MPMenubarMenu label="View">
   <MPMenuCheckboxItem checked={rulers} onCheckedChange={setRulers}>
@@ -78,6 +129,29 @@ It has no `size` and no `color` of its own — both belong to the bar, which is 
 </MPMenubarMenu>
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+MPMenubarMenu(
+  label: 'View',
+  items: <MPMenuEntry>[
+    MPMenuCheckboxItem(
+      label: 'Rulers',
+      checked: rulers,
+      onChanged: (bool next) => setState(() => rulers = next),
+    ),
+    MPMenuSubmenu(
+      label: 'Zoom',
+      items: <MPMenuEntry>[MPMenuItem(label: '200%', onPressed: () => zoom(2))],
+    ),
+  ],
+)
+```
+
+:::
+
 ## When this is the wrong component
 
 When there are more actions than a strip can hold.
@@ -88,10 +162,37 @@ The two live together well. A palette bound to `Mod+K` and a bar of five words i
 
 ## Accessibility
 
+::: fw react
+
 - The strip is a `menubar` with one tab stop. Tab moves past the whole bar; the arrow keys move along it.
 - Each word is a `menuitem` with `aria-haspopup` and `aria-expanded`, and its menu is owned by it.
+
+:::
+
+::: fw flutter
+
+- The strip is a node with the menu bar role and one tab stop. Tab moves past the whole bar, and the arrow keys along it move between the words and wrap at the ends unless `loopFocus` is off. <kbd>Home</kbd> and <kbd>End</kbd> go to either end. Under directional navigation the arrows halt at the ends and an arrow past one goes on to the next control.
+- On a row the down arrow opens a word's menu with its first row lit; on a column it is the arrow pointing across. While a menu is open, the arrow along the bar that the menu has no submenu for opens the next menu instead.
+- Each word is a node with the menu item role that says whether its menu is expanded. Once a menu closes the focus goes back to its word.
+
+:::
+
 - A disabled word stays on the strip at the spec's 38% and opens nothing.
 - The focus ring is drawn **inside** the word — the one place in this library it is inset. A strip of words has no gaps to draw a ring in, so an outside ring would be painted under whichever word comes after it.
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `MPMenubarMenu` children of the bar | `menus: List<MPMenubarMenu>` | The bar hands each menu its focus node and its place in the arrow order, so it has to be told what it holds. |
+| Rows composed inside `MPMenubarMenu` | `items: List<MPMenuEntry>` | The same descriptions an `MPMenu` takes. See [MPMenu](./menu#why-the-rows-are-descriptions). |
+| `modal` | — | An open menu hangs off its word and a press outside closes it, as an `MPMenu` does. |
+| `aria-label` | `semanticLabel` | Flutter's name. |
+| `className`, `style` on the bar or a word | — | There is no class list and no style attribute to pass through. |
+
+:::
 
 ## See also
 
