@@ -9,6 +9,8 @@ order: 6
 
 <Demo src="switch/hero" :minHeight="64" />
 
+::: fw react
+
 ```tsx
 import { MPSwitch } from 'material-plus-ui';
 
@@ -16,6 +18,24 @@ const [on, setOn] = useState(false);
 
 <MPSwitch label="Wi-Fi" checked={on} onCheckedChange={setOn} />;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+bool on = false;
+
+MPSwitch(
+  label: const Text('Wi-Fi'),
+  checked: on,
+  onChanged: (bool next) => setState(() => on = next),
+);
+```
+
+:::
 
 ## Props
 
@@ -25,7 +45,13 @@ const [on, setOn] = useState(false);
 
 차이는 시각적인 것이 아니라 시간적인 것입니다.
 
-**체크박스**는 폼과 함께 제출되는 값입니다. **스위치**는 움직이는 순간 적용됩니다. 아래에 저장 버튼이 있다면 그것은 체크박스였어야 합니다. 그리고 스크린 리더는 어느 쪽인지 듣습니다. 스위치는 `role="checkbox"`가 아니라 `role="switch"`를 갖기 때문입니다.
+**체크박스**는 폼과 함께 제출되는 값입니다. **스위치**는 움직이는 순간 적용됩니다. 아래에 저장 버튼이 있다면 그것은 체크박스였어야 합니다. 그리고 스크린 리더는 어느 쪽인지 듣습니다. React에서는 스위치가 `role="checkbox"`가 아니라 `role="switch"`를 갖고, Flutter에서는 체크됨이 아니라 켜짐(toggled)으로 알리기 때문입니다.
+
+::: fw flutter
+
+`checked`와 `onChanged`로 controlled로 쓰거나, `initialChecked`에서 시작해 상태를 스스로 들고 있게 둘 수 있습니다. `onChanged`가 없다고 비활성화되지는 않으며, 비활성화는 `disabled`가 맡습니다.
+
+:::
 
 ## 예시
 
@@ -35,7 +61,17 @@ const [on, setOn] = useState(false);
 
 <Demo src="switch/settings" :minHeight="240">
 
+::: fw react
+
 <<< @/.vitepress/demos/switch/settings.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/switch/settings.dart
+
+:::
 
 </Demo>
 
@@ -63,9 +99,39 @@ const [on, setOn] = useState(false);
 
 ## 접근성
 
+::: fw react
+
 - `aria-checked`를 가진 `role="switch"`입니다. 이것이 보조기술에게 "지금 적용된다"고 말해 줍니다.
 - 라벨은 `id`로 컨트롤과 연결됩니다. 글자를 누르면 전환됩니다.
 - `readOnly`는 상태를 보여 주되 바꾸지 못하게 하고 포커스는 가능합니다. `disabled`는 둘 다 아닙니다.
+
+:::
+
+::: fw flutter
+
+- 켜짐과 꺼짐을 toggled로 알리는 시맨틱 노드 하나입니다. Flutter는 이것으로 보조기술에 바로 적용되는 컨트롤임을 알립니다.
+- 라벨을 눌러도 바뀝니다. 줄 전체가 대상입니다.
+- <kbd>Enter</kbd>와 <kbd>Space</kbd>로 바꾸며, 키보드로 도달하면 썸의 후광가 10%로 켜집니다.
+- 썸은 글이 흐르는 방향으로 움직입니다. 오른쪽에서 왼쪽으로 쓰는 화면에서는 오른쪽 끝에 있다가 왼쪽으로 가며 켜집니다.
+- `readOnly`는 상태를 보여 주되 바꾸지 못하게 하고 포커스는 받습니다. `disabled`는 둘 다 하지 않습니다.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `checked`, `defaultChecked` | `checked`, `initialChecked` | Flutter는 시작 값을 `initialX`로 부릅니다. |
+| `onCheckedChange` | `onChanged` | 컨트롤의 값이 바뀔 때 Flutter가 쓰는 이름입니다. |
+| `labelPlacement="start"` | `MPSwitchLabelPlacement.start` | 문자열 대신 열거형입니다. |
+| 테두리를 그리는 inset ring | 썸 아래의 별도 레이어 | 이유는 같습니다. 테두리가 생기고 사라져도 썸이 움직이지 않습니다. |
+| `name`, `id` | — | 참여할 폼 제출도, 엘리먼트 id도 없습니다. |
+| — | `semanticLabel` | 보이는 라벨이 없는 스위치의 이름입니다. React의 `aria-label` 자리입니다. |
+| `className`, `style` | — | 넘길 클래스 목록도 style 속성도 없습니다. |
+
+:::
 
 ## 함께 보기
 

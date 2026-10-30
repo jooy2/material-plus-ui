@@ -9,6 +9,8 @@ order: 6
 
 <Demo src="switch/hero" :minHeight="64" />
 
+::: fw react
+
 ```tsx
 import { MPSwitch } from 'material-plus-ui';
 
@@ -16,6 +18,24 @@ const [on, setOn] = useState(false);
 
 <MPSwitch label="Wi-Fi" checked={on} onCheckedChange={setOn} />;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+bool on = false;
+
+MPSwitch(
+  label: const Text('Wi-Fi'),
+  checked: on,
+  onChanged: (bool next) => setState(() => on = next),
+);
+```
+
+:::
 
 ## Props
 
@@ -25,7 +45,13 @@ const [on, setOn] = useState(false);
 
 The difference is not visual, it is temporal.
 
-A **checkbox** is a value that gets submitted with a form. A **switch** takes effect the moment it moves. If there is a Save button underneath, it should have been a checkbox — and a screen reader is told which one it is, because a switch carries `role="switch"` rather than `role="checkbox"`.
+A **checkbox** is a value that gets submitted with a form. A **switch** takes effect the moment it moves. If there is a Save button underneath, it should have been a checkbox — and a screen reader is told which one it is: a switch carries `role="switch"` rather than `role="checkbox"` in React, and is announced as toggled rather than checked in Flutter.
+
+::: fw flutter
+
+Controlled with `checked` and `onChanged`, or left to hold its own state from `initialChecked`. A missing `onChanged` does not disable the switch; `disabled` does.
+
+:::
 
 ## Examples
 
@@ -35,7 +61,17 @@ A **checkbox** is a value that gets submitted with a form. A **switch** takes ef
 
 <Demo src="switch/settings" :minHeight="240">
 
+::: fw react
+
 <<< @/.vitepress/demos/switch/settings.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/switch/settings.dart
+
+:::
 
 </Demo>
 
@@ -63,9 +99,39 @@ This is also the only component in the library that reads the spec's `standard` 
 
 ## Accessibility
 
+::: fw react
+
 - `role="switch"` with `aria-checked`, which is what tells an assistive technology that this takes effect now.
 - The label is wired to the control by `id`; clicking the words flips it.
 - `readOnly` shows the state without allowing a change and stays focusable; `disabled` does neither.
+
+:::
+
+::: fw flutter
+
+- One semantics node announced as toggled on or off, which is how Flutter tells an assistive technology that this takes effect now.
+- Pressing the label flips it; the whole row is the target.
+- <kbd>Enter</kbd> and <kbd>Space</kbd> flip it, and the halo on the thumb lights at 10% when a keyboard reaches it.
+- The thumb travels the way the text does: under right-to-left it rests at the right-hand end and moves left to say "on".
+- `readOnly` shows the state without allowing a change and stays focusable; `disabled` does neither.
+
+:::
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `checked`, `defaultChecked` | `checked`, `initialChecked` | `initialX` is the name Flutter gives a starting value. |
+| `onCheckedChange` | `onChanged` | Flutter’s name for a control’s value changing. |
+| `labelPlacement="start"` | `MPSwitchLabelPlacement.start` | An enum rather than a string. |
+| An inset ring for the edge | A layer of its own under the thumb | The same reason: the edge comes and goes without moving the thumb. |
+| `name`, `id` | — | There is no form submission or element id to be part of. |
+| — | `semanticLabel` | The name for a switch with no visible label, React’s `aria-label`. |
+| `className`, `style` | — | There is no class list and no style attribute to pass through. |
+
+:::
 
 ## See also
 
