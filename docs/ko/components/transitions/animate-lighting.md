@@ -9,6 +9,8 @@ order: 11
 
 <Demo src="animate-lighting/hero" :minHeight="300" />
 
+::: fw react
+
 ```tsx
 import { MPAnimateLighting } from 'material-plus-ui';
 
@@ -17,13 +19,38 @@ import { MPAnimateLighting } from 'material-plus-ui';
 </MPAnimateLighting>;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+const MPAnimateLighting(
+  size: MPSize.md,
+  child: MPCard(variant: MPVariant.elevated, title: Text('Recommended')),
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPAnimateLighting" />
 
 ## 빛은 내용 뒤에 있습니다
 
+::: fw react
+
 위가 아니라요. 격리된 쌓임 맥락 안에서 의사 요소가 `z-index: -1`에 놓이므로, 읽는 사람이 보는 것은 가장자리를 두른 테두리가 아니라 가장자리 **밑에서** 새어 나오는 빛입니다.
+
+:::
+
+::: fw flutter
+
+위가 아니라요. 빛은 `Stack`의 첫 자식이고 내용은 마지막 자식이라서 내용이 그 위에 그려집니다. 그래서 읽는 사람이 보는 것은 가장자리를 두른 테두리가 아니라 가장자리 **밑에서** 새어 나오는 빛입니다.
+
+:::
 
 그래서 [카드](../layout/card), [버튼](../inputs/button), 폼 구획 전체를 감싸면서도 그것들이 그려지는 방식을 전혀 건드리지 않습니다. 안의 것에 무엇도 겹쳐지지 않고 무엇도 물들지 않으며, 내용은 정확히 이전만큼 읽힙니다 — 색을 바꾸거나 맥동시키는 대신 이것을 집는 이유 전부입니다.
 
@@ -31,19 +58,51 @@ import { MPAnimateLighting } from 'material-plus-ui';
 
 "뒤"는 앞에 불투명한 것이 있을 때만 뒤로 읽힙니다. 배경을 전혀 칠하지 않는 `outlined` 카드나 `text` 버튼을 감싸면, 호는 내용 아래가 아니라 내용을 **통과해** 지나갑니다.
 
+::: fw react
+
 투명한 상자 뒤의 빛을 그리면 정확히 그렇게 됩니다. 다만 아무도 원한 효과가 아닐 뿐입니다. 내용에 면을 주세요 — `variant="filled"` 또는 `variant="elevated"`.
+
+:::
+
+::: fw flutter
+
+투명한 상자 뒤의 빛을 그리면 정확히 그렇게 됩니다. 다만 아무도 원한 효과가 아닐 뿐입니다. 내용에 면을 주세요 — `variant: MPVariant.filled` 또는 `variant: MPVariant.elevated`.
+
+:::
 
 ## `size`는 안의 것과 맞아야 합니다
 
+::: fw react
+
 빛은 `border-radius: inherit`을 통해 래퍼 **자신의** 모서리를 따릅니다. 그러니 `md` Lighting 안의 `xl` 카드는, 카드가 이미 둥글게 깎아 낸 네 모서리에서 빛이 삐져나옵니다.
+
+:::
+
+::: fw flutter
+
+빛의 모서리는 `size`가 테마의 모서리 사다리 `MPShapes`에서 가리키는 단계입니다. `xs`는 `extraSmall`이고 `xl`은 `extraLarge`입니다. 그러니 `md` 빛 안의 `xl` 카드는, 카드가 이미 둥글게 깎아 낸 네 모서리에서 빛이 삐져나옵니다.
+
+:::
 
 중요도가 아니라 내용의 반경에 맞춰 단계를 정하세요.
 
 ## 호가 왜 conic gradient인가
 
+::: fw react
+
 실제로 움직이는 것은 그라디언트의 `from` 각도이고, 각도가 타입을 가진 등록된 커스텀 프로퍼티 — `@property --mp-glow-angle { syntax: '<angle>' }` — 이기 때문에만 애니메이션이 가능합니다.
 
 떠오르는 대안인 의사 요소 자체를 회전시키는 방법은, 4분의 1 바퀴마다 모서리를 요소 밖으로 휘두릅니다. 중심을 축으로 돌아간 직사각형은 원래 직사각형보다 넓기 때문입니다. 그라디언트는 제자리에 있고 빛만 움직입니다.
+
+:::
+
+::: fw flutter
+
+빛은 내용 뒤에서 사방으로 `spread`만큼 더 나간 상자이고, `SweepGradient`로 채운 뒤 `ImageFiltered`로 흐리게 합니다. 움직이는 것은 상자가 아니라 그라디언트 자신의 회전입니다.
+
+떠오르는 대안인 상자 자체를 회전시키는 방법은, 4분의 1 바퀴마다 모서리를 내용 밖으로 휘두릅니다. 중심을 축으로 돌아간 직사각형은 원래 직사각형보다 넓기 때문입니다. 상자는 제자리에 있고 빛만 움직입니다.
+
+:::
 
 ## `easing`이 없습니다
 
@@ -53,7 +112,17 @@ import { MPAnimateLighting } from 'material-plus-ui';
 
 <Demo src="animate-lighting/shape" :minHeight="280">
 
+::: fw react
+
 <<< @/.vitepress/demos/animate-lighting/shape.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/animate_lighting/shape.dart
+
+:::
 
 </Demo>
 
@@ -63,18 +132,69 @@ import { MPAnimateLighting } from 'material-plus-ui';
 
 ### blur
 
+::: fw react
+
 빛이 얼마나 부드러운지. `0`이면 가장자리가 딱 떨어지는 쐐기가 되고, 빛이 아니라 그래픽으로 읽힙니다. 기본값 `4px`는 빛으로 읽히는 가장 작은 값입니다.
+
+:::
+
+::: fw flutter
+
+빛이 얼마나 부드러운지, 논리 픽셀 단위입니다. `0`이면 가장자리가 딱 떨어지는 쐐기가 되고, 빛이 아니라 그래픽으로 읽힙니다. 기본값 `4`는 빛으로 읽히는 가장 작은 값입니다.
+
+:::
 
 ### color
 
+::: fw react
+
 MD3의 네 강조 계열 중 하나이고, 임의의 색상값은 아닙니다 — 이 라이브러리의 어떤 것도 그것을 받지 않는 이유와 같습니다. `primary`가 **무엇인지** 바꾸려면 토큰을 설정하세요.
 
+:::
+
+::: fw flutter
+
+MD3의 네 강조 계열 중 하나인 `MPColor`이고, 임의의 색상값은 아닙니다 — 이 라이브러리의 어떤 것도 그것을 받지 않는 이유와 같습니다. `primary`가 **무엇인지** 바꾸려면 테마의 원천 색을 설정하세요. 비워 두면 `MPConfigProvider`가 달리 말하지 않는 한 `MPColor.primary`이고, `size`도 마찬가지입니다.
+
+:::
+
 ## 접근성
+
+::: fw react
 
 - `prefers-reduced-motion`에서는 호가 이동을 멈추고 **고른 빛**이 됩니다. [MPSkeleton](../feedback/skeleton)이 하는 것과 같은 거래입니다. 장식은 살아남고 움직임은 사라지며, 살아 있는 행을 표시하던 빛은 멈춘 채로도 여전히 그것을 표시합니다.
 - 이 표시는 장식이고 접근성 트리에는 전혀 닿지 않습니다. 그것이 가리키던 것 — "추천", "처리 중", "확인 중" — 은 내용에서도 말해져야 합니다.
 - 래퍼 안의 것은 아무것도 달라지지 않으므로, 명암비와 포커스 링과 클릭 영역은 이것이 없을 때와 똑같습니다.
 - 기본으로 영원히 돕니다. 살아 있는 영역이 여럿인 페이지에서는 여러 개가 동시에 움직이는 것이 됩니다. 하나만 표시하세요.
+
+:::
+
+::: fw flutter
+
+- 플랫폼이 애니메이션을 끄면(`MediaQuery.disableAnimations`) 호가 이동을 멈추고 **고른 빛**이 되며, 아무것도 틱하지 않습니다. [MPSkeleton](../feedback/skeleton)이 하는 것과 같은 거래입니다. 장식은 살아남고 움직임은 사라지며, 살아 있는 행을 표시하던 빛은 멈춘 채로도 여전히 그것을 표시합니다.
+- 이 표시는 장식이고 시맨틱스에 아무것도 더하지 않습니다. 그것이 가리키던 것 — "추천", "처리 중", "확인 중" — 은 내용에서도 말해져야 합니다.
+- 위젯 안의 것은 아무것도 달라지지 않고 빛은 포인터를 받지 않으므로, 명암비와 포커스 링과 누르는 영역은 이것이 없을 때와 똑같습니다.
+- 기본으로 끝없이 돌고, 조금도 보이지 않는 동안에는 쉽니다. 살아 있는 영역이 여럿인 화면에서는 여러 개가 동시에 움직이는 것이 됩니다. 하나만 표시하세요.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `z-index: -1`인 의사 요소 | `Stack` 안에서 내용 뒤에 놓인 상자 | 의사 요소가 없으므로 그리는 순서가 같은 일을 합니다. |
+| 등록된 `@property` 각도를 쓰는 conic gradient | `ImageFiltered`로 흐리게 한, 회전하는 `SweepGradient` | 프레임워크의 그라디언트와 블러입니다. |
+| `border-radius: inherit`으로 얻는 모서리 | `size`가 `MPShapes`에서 가리키는 단계 | 물려받을 반경이 없습니다. |
+| CSS 픽셀인 `spread`, `blur` | 논리 픽셀 `double` | 같은 숫자를 프레임워크의 단위로 쓴 것입니다. |
+| 밀리초 숫자인 `duration`, `delay` | `Duration` | 프레임워크에 이미 그 타입이 있습니다. |
+| `repeat: number \| 'infinite'` | `null`이면 멈추지 않는 `int?`인 `MPAnimateRepeat` | Dart에는 숫자와 단어의 합집합 타입이 없습니다. |
+| `IntersectionObserver`로 보는 `trigger="visible"` | 위젯 위의 모든 `Scrollable`을 지켜봅니다 | 옵저버가 없습니다. 위에 스크롤 영역이 없으면 바로 시작합니다. |
+| `IntersectionObserver`로 화면 밖에서 멈춤 | 끝없는 `MPAnimate*`가 모두 그러듯, 조금도 보이지 않는 동안 쉽니다 | 여기서는 빛만이 아니라 모두의 규칙입니다. |
+| `render`, `className`, `style` | — | 바꿔 끼울 엘리먼트도, 넘겨줄 클래스 목록이나 style 속성도 없습니다. |
+
+:::
 
 ## 함께 보기
 
