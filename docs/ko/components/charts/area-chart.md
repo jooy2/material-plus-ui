@@ -9,6 +9,8 @@ order: 33
 
 <Demo src="area-chart/hero" :minHeight="620" />
 
+::: fw react
+
 ```tsx
 import { MPAreaChart } from 'material-plus-ui';
 
@@ -17,6 +19,23 @@ import { MPAreaChart } from 'material-plus-ui';
   series={[{ name: '저장소', data: [12, 19, 24, 31] }]}
 />;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPAreaChart(
+  categories: const <String>['1월', '2월', '3월', '4월'],
+  series: const <MPChartSeries>[
+    MPChartSeries(name: '저장소', data: <num>[12, 19, 24, 31]),
+  ],
+);
+```
+
+:::
 
 ## Props
 
@@ -36,6 +55,12 @@ import { MPAreaChart } from 'material-plus-ui';
 
 `stacked="percent"`는 그것을 정규화합니다. 윗변이 평평해지고 플롯이 가득 차며, 그림에 남는 것은 구성뿐입니다. 트래픽 점유율 차트가 원하는 모양이고, 그것을 얻는 대가로 합계를 내줍니다. 양이 크게 다른 두 달이 똑같이 그려집니다. 음수는 전체의 몫이 없어 빠지고, 그 숫자는 표에 그대로 있습니다.
 
+::: fw flutter
+
+Dart에서 `stacked`는 `MPChartStack`이고 `MPChartStack.none`, `MPChartStack.stacked`, `MPChartStack.percent` 중 하나입니다.
+
+:::
+
 percent 쌓기의 값 레이블은 누적 합계가 아니라 각 밴드 **자신의** 몫을 씁니다. 누적 합계는 그 밴드의 숫자가 아니라 쌓기의 숫자이기 때문입니다.
 
 ## 밴드 사이의 틈은 위에서 가져옵니다
@@ -54,6 +79,12 @@ percent 쌓기의 값 레이블은 누적 합계가 아니라 각 밴드 **자�
 
 `gaps="connect"`는 그래도 닫고, 이어지는 윗변을 **점선**으로 그립니다. 채움은 한 덩어리가 되고, 윤곽은 어디까지가 측정한 값인지를 여전히 말합니다. `gaps="zero"`는 측정되지 않은 달을 0인 달로 읽어, 축 위에 선 밴드를 그 자리에서 오므립니다. 빈 자리가 "하나도 일어나지 않았다"를 뜻할 때는 맞고, "아무도 세지 않았다"를 뜻할 때는 틀립니다.
 
+::: fw flutter
+
+Dart에서는 `MPChartGaps.connect`와 `MPChartGaps.zero`이고, React의 `'break'`는 `MPChartGaps.gap`입니다.
+
+:::
+
 바뀌는 것은 그림뿐입니다. 호버 패널과 뒤에 놓인 표는 셋 다에서 빈 값을 빈 값으로 말합니다.
 
 ## 겹칠 때는 옅게, 쌓을 때는 진하게
@@ -64,4 +95,22 @@ percent 쌓기의 값 레이블은 누적 합계가 아니라 각 밴드 **자�
 
 ## 나머지는 프레임이 합니다
 
+::: fw react
+
 호버 레이어, 십자선, 키보드 이동, 잘린 라이브 영역, 그림 뒤의 표는 여기 모든 차트가 똑같습니다. [MPLineChart](line-chart)에 설명이 있습니다.
+
+:::
+
+::: fw flutter
+
+호버 레이어, 십자선, 키보드 이동, 라이브 영역, 그림 뒤의 문장은 여기 모든 차트가 똑같습니다. [MPLineChart](line-chart)에 설명이 있습니다.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+`MPChartSeries`, `MPChartAxis`, `MPChartLegend`, `MPChartTooltip` 같은 차트 공용 어휘가 React와 어떻게 다른지는 [MPLineChart에 정리해 두었습니다](line-chart#react-빌드와-다른-점). `markers`는 `bool?`이고, `null`이 React의 `'auto'`입니다.
+
+:::

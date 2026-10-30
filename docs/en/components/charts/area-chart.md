@@ -9,6 +9,8 @@ order: 33
 
 <Demo src="area-chart/hero" :minHeight="620" />
 
+::: fw react
+
 ```tsx
 import { MPAreaChart } from 'material-plus-ui';
 
@@ -17,6 +19,23 @@ import { MPAreaChart } from 'material-plus-ui';
   series={[{ name: 'Storage', data: [12, 19, 24, 31] }]}
 />;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPAreaChart(
+  categories: const <String>['Jan', 'Feb', 'Mar', 'Apr'],
+  series: const <MPChartSeries>[
+    MPChartSeries(name: 'Storage', data: <num>[12, 19, 24, 31]),
+  ],
+);
+```
+
+:::
 
 ## Props
 
@@ -36,6 +55,12 @@ If the comparison between parts is what matters, that is a grouped bar chart or 
 
 `stacked="percent"` normalises it: the top edge is flat, the plot is full, and the only thing left in the picture is the composition. It is the shape a share-of-traffic chart wants, and it trades away the totals to get it — two months with wildly different volume are drawn the same. A negative has no share of a whole and is left out of one; the table still has the number.
 
+::: fw flutter
+
+In Dart `stacked` is an `MPChartStack`: `MPChartStack.none`, `MPChartStack.stacked` or `MPChartStack.percent`.
+
+:::
+
 Value labels on a percent stack write each band's **own** share rather than the running total, since the running total is the stack's number and not the band's.
 
 ## The gap between bands comes from above
@@ -54,6 +79,12 @@ A `null` breaks the band. An area closed over a missing month fills in a value t
 
 `gaps="connect"` closes it anyway and draws the joining top edge **dashed**, so the fill is one shape and the outline still says which part of it was measured. `gaps="zero"` reads the missing month as a month of none, which on a band standing on the axis pinches it shut — right where a gap means "none of it happened", wrong where it means "nobody was counting".
 
+::: fw flutter
+
+In Dart these are `MPChartGaps.connect` and `MPChartGaps.zero`, and React's `'break'` is `MPChartGaps.gap`.
+
+:::
+
 Only the drawing changes. The hover panel and the table behind the chart report a gap as a gap in all three.
 
 ## Faint when they overlap, solid when they stack
@@ -64,4 +95,22 @@ Three overlapping bands is about the limit. Past that, stack them or draw small 
 
 ## Everything else is the frame
 
+::: fw react
+
 The hover layer, the crosshair, the keyboard walk, the clipped live region and the table behind the picture are the same on every chart here. [MPLineChart](line-chart) documents them.
+
+:::
+
+::: fw flutter
+
+The hover layer, the crosshair, the keyboard walk, the live region and the words behind the picture are the same on every chart here. [MPLineChart](line-chart) documents them.
+
+:::
+
+::: fw flutter
+
+## Differences from the React build
+
+The vocabulary every chart shares — `MPChartSeries`, `MPChartAxis`, `MPChartLegend`, `MPChartTooltip` and the rest — differs from React the way [MPLineChart lists](line-chart#differences-from-the-react-build). `markers` is a `bool?`, where `null` is React's `'auto'`.
+
+:::
