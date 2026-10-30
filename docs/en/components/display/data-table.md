@@ -9,6 +9,8 @@ order: 29
 
 <Demo src="data-table/hero" :minHeight="520" />
 
+::: fw react
+
 ```tsx
 import { MPDataTable } from 'material-plus-ui';
 
@@ -25,6 +27,33 @@ import { MPDataTable } from 'material-plus-ui';
 />;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPDataTable<Player>(
+  headers: <MPDataTableColumn<Player>>[
+    MPDataTableColumn<Player>(key: 'name', label: const Text('Name'), value: (row) => row.name),
+    MPDataTableColumn<Player>(
+      key: 'score',
+      label: const Text('Score'),
+      align: MPAlign.end,
+      value: (row) => row.score,
+    ),
+  ],
+  items: rows,
+  getRowKey: (row, _) => row.id,
+  sortable: true,
+  searchable: true,
+  paged: true,
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPDataTable" />
@@ -37,7 +66,7 @@ import { MPDataTable } from 'material-plus-ui';
 
 Because [MPTable](table) is the presentational half and should stay that way. It draws what it is given, in the order it is given, and a page that only shows a grid has no business shipping a comparator, a CSV writer and a page clamp to do it — `MPTable` is 2.0 kB and this is 14.7.
 
-What the two do share is the geometry. `internal/table.ts` holds the cells' room, the type they are set in and the slot a row's background is read from, so a data table never sits a pixel off the plain table beside it in the same form.
+What the two do share is the geometry. One internal file holds the cells' room, the type they are set in and the slot a row's background is read from, so a data table never sits a pixel off the plain table beside it in the same form.
 
 It is the same reason [MPTreeSelect](../inputs/tree-select) is not `MPSelect` with a `tree` prop: a component that grew a mode for every job it resembles ends up carrying all of them for every caller.
 
@@ -45,21 +74,21 @@ It is the same reason [MPTreeSelect](../inputs/tree-select) is not `MPSelect` wi
 
 **Search, then `filter`, then sort, then the page.** That is the only order in which each step means what it says: sorting before searching would put rows nobody is going to see in order, and paging before either would cut a page out of a list the reader has not asked for yet.
 
-`render`'s `index` counts along the sorted, searched order and across every page, so `(row, index) => index + 1` is a running row number rather than a position on the screen.
+`render`'s `index` counts along the sorted, searched order and across every page, so a cell drawing `index + 1` is a running row number rather than a position on the screen.
 
 ## `value`, `render`, `compare`, `exportValue`
 
 Four ways to say what a column holds, and the split between them is the whole shape of `MPDataTableColumn`.
 
-|               |                                                                          |
-| ------------- | ------------------------------------------------------------------------ |
-| _nothing_     | The cell is `row[key]`, and that is what is sorted, searched and written |
-| `render`      | What a reader sees                                                       |
-| `value`       | What the sort and the search see                                         |
-| `compare`     | How two rows rank, for a value that has no natural order                 |
-| `exportValue` | What a file gets                                                         |
+|  |  |
+| --- | --- |
+| _nothing_ | The cell is `row[key]`, and that is what is sorted, searched and written<Fw flutter=" (for a map row; give rows of your own type a `value`)" /> |
+| `render` | What a reader sees |
+| `value` | What the sort and the search see |
+| `compare` | How two rows rank, for a value that has no natural order |
+| `exportValue` | What a file gets |
 
-Most columns need none of them. A column that draws an [MPChip](chip) needs `render` — and it needs `value` or `compare` as well the moment it is sortable, because a React element has no order, and `exportValue` the moment it is downloadable, because a chip has no text a spreadsheet can hold.
+Most columns need none of them. A column that draws an [MPChip](chip) needs `render` — and it needs `value` or `compare` as well the moment it is sortable, because <Fw react="a React element" flutter="a widget" /> has no order, and `exportValue` the moment it is downloadable, because a chip has no text a spreadsheet can hold.
 
 A `compare` is always written **ascending**. The table reverses it, so a column that sorted itself would sort itself twice.
 
@@ -67,20 +96,20 @@ A `compare` is always written **ascending**. The table reverses it, so a column 
 
 Three states per column — ascending, descending, unsorted — because the order the rows arrived in is a state a reader cannot get back to by pressing anything if the cycle only has two. That is the opposite of the choice [MPTreeView](tree-view)'s single select makes, read the other way: there, "nothing chosen" is reachable by pressing something else; here it is not.
 
-With `sortMode="multiple"`, a Shift-press **adds** a column to the sort instead of replacing it, and each sorted heading carries its place in the order. A column added that way stays where it already is in the list, so flipping the second key does not quietly make it the first.
+With <Fw react="`sortMode=&quot;multiple&quot;`" flutter="`MPDataTableSortMode.multiple`" />, a Shift-press **adds** a column to the sort instead of replacing it, and each sorted heading carries its place in the order. A column added that way stays where it already is in the list, so flipping the second key does not quietly make it the first.
 
-Two things the default comparison does that a `localeCompare` does not:
+Two things the default comparison does that a plain string comparison does not:
 
 - **A run of digits inside a string is read as a number**, so `item2` comes before `item10`.
-- **An empty cell sorts last whichever way the column runs.** A blank is not the smallest value, it is the absence of one, and a descending sort whose first screen is forty blanks has answered a question nobody asked. `NaN` counts as empty for the same reason: it compares false against everything, so left to the subtraction the order would depend on which rows happened to be next to each other.
+- **An empty cell sorts last whichever way the column runs.** A blank is not the smallest value, it is the absence of one, and a descending sort whose first screen is forty blanks has answered a question nobody asked.<Fw react=" `NaN` counts as empty for the same reason: it compares false against everything, so left to the subtraction the order would depend on which rows happened to be next to each other." />
 
 That second rule is why the direction is handed to the comparison rather than applied to what it returns. A sort that reversed the result would reverse the empties with it.
 
 ## The search
 
-`searchable` puts a field above the table. Every column is searched unless it says `searchable: false`, and what is matched is `value` — or `row[key]` — folded with `toLocaleLowerCase`, which is the fold [MPCombobox](../inputs/combobox) and [MPCommandPalette](../inputs/command-palette) already use.
+`searchable` puts a field above the table. Every column is searched unless it says `searchable: false`, and what is matched is `value` — or `row[key]` — folded to lower case, which is the fold [MPCombobox](../inputs/combobox) and [MPCommandPalette](../inputs/command-palette) already use.
 
-A row's values are folded **once** and joined into one string. The alternative is a fold on every cell of every row on every keystroke, which is what a `matches(row, query)` signature quietly asks for. They are joined on a character no keyboard produces, so a query cannot span the seam between two cells and find a row on text that is not next to each other — searching `adaseoul` finds nothing, even in a row holding "Ada" and "Seoul".
+Each cell is matched on its own, so a query cannot span the seam between two cells and find a row on text that is not next to each other — searching `adaseoul` finds nothing, even in a row holding "Ada" and "Seoul".
 
 A `Date` is deliberately not formatted for the search. What a reader sees in that cell came out of your own `render`, and guessing a format the search would agree with is how a table ends up not finding a date that is on the screen. Give the column a `value`.
 
@@ -102,21 +131,36 @@ The tick in the heading takes the rows on the page, not the whole set: it sits i
 
 A row that answers a press has to answer a keyboard, and a table of two hundred rows that each did would be two hundred tab stops. So there is exactly one route into a row, and `checkboxes` picks it:
 
-|                               |                                                          |
-| ----------------------------- | -------------------------------------------------------- |
-| `checkboxes`                  | The tick is the control; the row is not in the tab order |
-| `selectionMode` without ticks | The row is                                               |
-| `onRowClick` alone            | The row is — there is nothing else to press              |
+|  |  |
+| --- | --- |
+| `checkboxes` | The tick is the control; the row is not in the tab order |
+| `selectionMode` without ticks | The row is |
+| <Fw react="`onRowClick`" flutter="`onRowPressed`" /> alone | The row is — there is nothing else to press |
 
 ## Resizing
 
-`resizable` gives every heading a handle, and the handle is a **control** rather than a target: it takes focus, and the arrow keys widen and narrow the column by 8px, or 32px with Shift. Home gives the column its original width back, and so does a double-click. Column width is a real preference — reading a long value — and there is no other way to get it.
+`resizable` gives every heading a handle, and the handle is a **control** rather than a target: it takes focus, and the arrow keys widen and narrow the column by 8px, or 32px with Shift. Home gives the column its original width back, and so does a double <Fw react="click" flutter="tap" />. Column width is a real preference — reading a long value — and there is no other way to get it.
 
-**It also changes how the columns are laid out, and it has to.** Without it the browser balances the columns against their contents, which is what makes a plain table read well; but a balanced column springs back from a drag, because a width in that layout is a hint rather than a measurement. Turning it on fixes the layout, so `width` becomes exact and a column that has not said how wide it is takes 160.
+**It also changes how the columns are laid out, and it has to.** Without it the columns are balanced against their contents, which is what makes a plain table read well; but a balanced column springs back from a drag, because a width in that layout is a hint rather than a measurement. Turning it on fixes the layout, so `width` becomes exact and a column that has not said how wide it is takes 160.
 
-## The download
+## The <Fw react="download" flutter="export" />
 
-`exportable` adds a button that writes the rows out as a CSV file. **Every row the reader is currently looking at, not the page they are on**: the search and the sort are applied and the paging is not, because a file of page three is not a file anybody asked for.
+::: fw flutter
+
+**Flutter hands you the text rather than a file.** A widgets-only package cannot write a file or start a download, so the button builds the CSV described below and passes it to `onExport`; saving it, sharing it or posting it is the app's to do, with whatever file or share plugin it already uses. Without an `onExport` the button is drawn disabled. There is no `exportFileName`, because the app names the file it writes.
+
+```dart
+MPDataTable<Release>(
+  headers: columns,
+  items: rows,
+  exportable: true,
+  onExport: (String csv) => saveFile('packages.csv', csv),
+);
+```
+
+:::
+
+`exportable` adds a button that <Fw react="writes the rows out as a CSV file" flutter="builds the rows as CSV" />. **Every row the reader is currently looking at, not the page they are on**: the search and the sort are applied and the paging is not, because a file of page three is not a file anybody asked for.
 
 The escaping is RFC 4180 and it is four rules — a field is quoted if it holds the separator, a quote or a line break, and a quote inside a quoted field is written twice. Getting it wrong is silent: a comma inside a cell shifts every column after it by one, and nobody notices until a spreadsheet somewhere is off by a column.
 
@@ -130,10 +174,27 @@ So a cell that would be read as a formula goes out with an apostrophe in front. 
 
 A number keeps its sign. `-5` and `+82 2 555 0100` begin with a formula character and are not formulas, and a table of negative figures whose every cell had been prefixed would be a fix more annoying than the thing it fixed.
 
-`exportEscapeFormulas={false}` turns it off, for the one case where it is wrong: a file going to a parser rather than to a person. A database loader has no apostrophe rule and would take the character as part of the value.
+<Fw react="`exportEscapeFormulas={false}`" flutter="`exportEscapeFormulas: false`" /> turns it off, for the one case where it is wrong: a file going to a parser rather than to a person. A database loader has no apostrophe rule and would take the character as part of the value.
 
-`onExport` takes the text instead of downloading it — to post it somewhere, to open it in a viewer of your own, or to put a sheet around it.
+<Fw react="`onExport` takes the text instead of downloading it — to post it somewhere, to open it in a viewer of your own, or to put a sheet around it." flutter="`onExport` is the only way the text leaves the table." />
 
 ## What it deliberately does not do
 
 Virtual scrolling, cell editing, grouped rows with aggregates, column reordering, frozen columns, and a mode where the server does the sorting. Each of those is a component's worth of decisions rather than a prop, and a table that half-did six of them would be worse than one that does five things completely. `paged` is the answer to the row count; the rest is a table this library has not built yet.
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| a CSV file downloaded in the browser | the CSV text handed to `onExport` | A widgets-only package cannot write a file; the app saves or shares the text. |
+| `exportFileName` | — | The app names the file it writes. |
+| `defaultSort`, `defaultSearch`, `defaultPage`, `defaultPageSize`, `defaultColumnWidths`, `defaultSelected` | `initialSort`, `initialSearch`, `initialPage`, `initialPageSize`, `initialColumnWidths`, `initialSelected` | Flutter's word for a starting value the widget then keeps. |
+| `onRowClick` | `onRowPressed` | Flutter's name. |
+| `row[key]` on any object | `row[key]` on a map, or `value` | Dart cannot read a field by name. |
+| `aria-sort` on a sorted heading | — | Flutter has no sort state for a screen reader to announce; the arrow and the order number are drawn. |
+| a locale-aware collator | a case-folded natural comparison | Dart has no `Intl.Collator`; numbers inside text still sort by value. |
+| `classNames`, `className`, `style` | — | There is no class list or style attribute to pass through. |
+
+:::

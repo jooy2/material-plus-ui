@@ -9,6 +9,8 @@ order: 29
 
 <Demo src="data-table/hero" :minHeight="520" />
 
+::: fw react
+
 ```tsx
 import { MPDataTable } from 'material-plus-ui';
 
@@ -25,6 +27,33 @@ import { MPDataTable } from 'material-plus-ui';
 />;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPDataTable<Player>(
+  headers: <MPDataTableColumn<Player>>[
+    MPDataTableColumn<Player>(key: 'name', label: const Text('이름'), value: (row) => row.name),
+    MPDataTableColumn<Player>(
+      key: 'score',
+      label: const Text('점수'),
+      align: MPAlign.end,
+      value: (row) => row.score,
+    ),
+  ],
+  items: rows,
+  getRowKey: (row, _) => row.id,
+  sortable: true,
+  searchable: true,
+  paged: true,
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPDataTable" />
@@ -37,7 +66,7 @@ import { MPDataTable } from 'material-plus-ui';
 
 [MPTable](table)은 그리는 쪽 절반이고, 그대로 두는 편이 맞기 때문입니다. 받은 것을 받은 순서대로 그리며, 격자만 보여 주는 페이지가 그러기 위해 비교 함수와 CSV 작성기와 페이지 클램프를 함께 싣고 다닐 이유는 없습니다. `MPTable`은 2.0 kB이고 이것은 14.7 kB입니다.
 
-두 컴포넌트가 공유하는 것은 기하학입니다. `internal/table.ts`가 셀의 여백, 셀이 조판되는 활자, 행 배경을 읽어 오는 슬롯을 쥐고 있어서, 같은 폼 안에서 데이터 테이블이 옆의 평범한 테이블과 1픽셀도 어긋나지 않습니다.
+두 컴포넌트가 공유하는 것은 기하학입니다. 내부 파일 하나가 셀의 여백, 셀이 조판되는 활자, 행 배경을 읽어 오는 슬롯을 쥐고 있어서, 같은 폼 안에서 데이터 테이블이 옆의 평범한 테이블과 1픽셀도 어긋나지 않습니다.
 
 [MPTreeSelect](../inputs/tree-select)가 `tree` prop을 단 `MPSelect`가 아닌 것과 같은 이유입니다. 닮은 일마다 모드를 하나씩 늘린 컴포넌트는 결국 모든 호출자에게 그 전부를 지웁니다.
 
@@ -59,7 +88,7 @@ import { MPDataTable } from 'material-plus-ui';
 | `compare`     | 자연스러운 순서가 없는 값에서 두 행의 순위              |
 | `exportValue` | 파일에 들어가는 것                                      |
 
-대부분의 컬럼은 넷 다 필요 없습니다. [MPChip](chip)을 그리는 컬럼은 `render`가 필요하고, 정렬 가능해지는 순간 `value`나 `compare`도 필요합니다 — React 엘리먼트에는 순서가 없기 때문입니다. 내려받기에 들어가는 순간 `exportValue`도 필요합니다 — 칩에는 스프레드시트가 담을 수 있는 텍스트가 없습니다.
+대부분의 컬럼은 넷 다 필요 없습니다. [MPChip](chip)을 그리는 컬럼은 `render`가 필요하고, 정렬 가능해지는 순간 `value`나 `compare`도 필요합니다 — <Fw react="React 엘리먼트" flutter="위젯" />에는 순서가 없기 때문입니다. 내려받기에 들어가는 순간 `exportValue`도 필요합니다 — 칩에는 스프레드시트가 담을 수 있는 텍스트가 없습니다.
 
 `compare`는 언제나 **오름차순**으로 씁니다. 뒤집는 일은 표가 하므로, 스스로 뒤집는 컬럼은 두 번 뒤집히게 됩니다.
 
@@ -67,20 +96,20 @@ import { MPDataTable } from 'material-plus-ui';
 
 컬럼마다 세 가지 상태입니다 — 오름차순, 내림차순, 정렬 없음. 순환이 둘뿐이면 행이 원래 도착했던 순서로는 무엇을 눌러도 돌아갈 수 없기 때문입니다. [MPTreeView](tree-view)의 단일 선택이 내린 결정을 반대로 읽은 것입니다. 거기서는 "아무것도 고르지 않음"에 다른 것을 눌러서 갈 수 있지만, 여기서는 갈 수 없습니다.
 
-`sortMode="multiple"`이면 Shift-누름이 정렬을 바꾸는 대신 컬럼을 **더합니다**. 정렬된 각 헤딩은 자기가 몇 번째 키인지를 함께 답니다. 그렇게 더해진 컬럼은 목록에서 있던 자리에 그대로 남으므로, 두 번째 키를 뒤집는다고 그것이 슬그머니 첫 번째가 되지 않습니다.
+<Fw react="`sortMode=&quot;multiple&quot;`" flutter="`MPDataTableSortMode.multiple`" />이면 Shift-누름이 정렬을 바꾸는 대신 컬럼을 **더합니다**. 정렬된 각 헤딩은 자기가 몇 번째 키인지를 함께 답니다. 그렇게 더해진 컬럼은 목록에서 있던 자리에 그대로 남으므로, 두 번째 키를 뒤집는다고 그것이 슬그머니 첫 번째가 되지 않습니다.
 
-기본 비교가 `localeCompare`와 다르게 하는 두 가지가 있습니다.
+기본 비교가 평범한 문자열 비교와 다르게 하는 두 가지가 있습니다.
 
 - **문자열 안의 숫자 뭉치를 숫자로 읽습니다.** 그래서 `item2`가 `item10`보다 앞에 옵니다.
-- **빈 셀은 어느 방향이든 마지막에 옵니다.** 빈칸은 가장 작은 값이 아니라 값이 없는 것이고, 첫 화면이 빈칸 마흔 개인 내림차순 정렬은 아무도 하지 않은 질문에 답한 것입니다. `NaN`도 같은 이유로 빈 것으로 셉니다. 무엇과 비교해도 거짓이라, 뺄셈에 맡기면 순서가 "어느 행이 마침 옆에 있었는지"에 달리게 됩니다.
+- **빈 셀은 어느 방향이든 마지막에 옵니다.** 빈칸은 가장 작은 값이 아니라 값이 없는 것이고, 첫 화면이 빈칸 마흔 개인 내림차순 정렬은 아무도 하지 않은 질문에 답한 것입니다.<Fw react=" `NaN`도 같은 이유로 빈 것으로 셉니다. 무엇과 비교해도 거짓이라, 뺄셈에 맡기면 순서가 &quot;어느 행이 마침 옆에 있었는지&quot;에 달리게 됩니다." />
 
 두 번째 규칙이 바로 방향을 비교 함수가 돌려준 값에 적용하지 않고 비교 함수 자체에 넘기는 이유입니다. 결과를 뒤집는 정렬은 빈칸까지 함께 뒤집습니다.
 
 ## 검색
 
-`searchable`은 표 위에 필드를 답니다. `searchable: false`라고 말하지 않은 모든 컬럼을 뒤지고, 대조되는 것은 `value` — 없으면 `row[key]` — 를 `toLocaleLowerCase`로 접은 것입니다. [MPCombobox](../inputs/combobox)와 [MPCommandPalette](../inputs/command-palette)가 이미 쓰는 접기와 같습니다.
+`searchable`은 표 위에 필드를 답니다. `searchable: false`라고 말하지 않은 모든 컬럼을 뒤지고, 대조되는 것은 `value` — 없으면 `row[key]` — 를 소문자로 접은 것입니다. [MPCombobox](../inputs/combobox)와 [MPCommandPalette](../inputs/command-palette)가 이미 쓰는 접기와 같습니다.
 
-한 행의 값들은 **한 번** 접혀 하나의 문자열로 이어집니다. 그러지 않으면 키를 누를 때마다 모든 행의 모든 셀에서 접기가 일어나는데, 그것이 바로 `matches(row, query)` 같은 시그니처가 슬그머니 요구하는 모양입니다. 이어 붙이는 문자는 어떤 키보드도 만들지 못하는 것이라, 질의가 두 셀 사이의 이음매를 건너 서로 붙어 있지도 않은 텍스트로 행을 찾는 일은 없습니다. "Ada"와 "Seoul"을 가진 행이 있어도 `adaseoul`로는 아무것도 나오지 않습니다.
+셀마다 따로 대조하므로, 질의가 두 셀 사이의 이음매를 건너 서로 붙어 있지도 않은 텍스트로 행을 찾는 일은 없습니다. "Ada"와 "Seoul"을 가진 행이 있어도 `adaseoul`로는 아무것도 나오지 않습니다.
 
 `Date`는 검색을 위해 일부러 서식화하지 않습니다. 그 셀에서 읽는 사람이 보는 것은 여러분의 `render`에서 나온 것이고, 검색이 동의할 서식을 짐작하는 것이야말로 화면에 있는 날짜를 표가 못 찾게 되는 경로입니다. 그 컬럼에는 `value`를 주세요.
 
@@ -102,21 +131,36 @@ import { MPDataTable } from 'material-plus-ui';
 
 누름에 답하는 행은 키보드에도 답해야 하고, 이백 행이 저마다 그러면 탭 스톱이 이백 개입니다. 그래서 행으로 들어가는 길은 정확히 하나이고, `checkboxes`가 그것을 고릅니다.
 
-|                           |                                                  |
-| ------------------------- | ------------------------------------------------ |
-| `checkboxes`              | 체크가 컨트롤이고, 행은 탭 순서에 없습니다       |
-| 체크 없는 `selectionMode` | 행이 탭 순서에 있습니다                          |
-| `onRowClick`만            | 행이 탭 순서에 있습니다 — 누를 것이 그것뿐입니다 |
+|  |  |
+| --- | --- |
+| `checkboxes` | 체크가 컨트롤이고, 행은 탭 순서에 없습니다 |
+| 체크 없는 `selectionMode` | 행이 탭 순서에 있습니다 |
+| <Fw react="`onRowClick`" flutter="`onRowPressed`" />만 | 행이 탭 순서에 있습니다 — 누를 것이 그것뿐입니다 |
 
 ## 너비 조절
 
-`resizable`은 모든 헤딩에 핸들을 답니다. 그리고 그 핸들은 표적이 아니라 **컨트롤**입니다. 포커스를 받고, 화살표 키가 컬럼을 8px씩(Shift와 함께면 32px씩) 넓히고 좁힙니다. Home은 원래 너비로 되돌리고, 더블클릭도 같습니다. 컬럼 너비는 긴 값을 읽기 위한 실제 선호이고, 달리 그것을 얻을 방법이 없습니다.
+`resizable`은 모든 헤딩에 핸들을 답니다. 그리고 그 핸들은 표적이 아니라 **컨트롤**입니다. 포커스를 받고, 화살표 키가 컬럼을 8px씩(Shift와 함께면 32px씩) 넓히고 좁힙니다. Home은 원래 너비로 되돌리고, <Fw react="더블클릭" flutter="두 번 탭" />도 같습니다. 컬럼 너비는 긴 값을 읽기 위한 실제 선호이고, 달리 그것을 얻을 방법이 없습니다.
 
-**그리고 이것은 컬럼 레이아웃 방식도 바꾸는데, 바꿀 수밖에 없습니다.** 이것이 없으면 브라우저가 컬럼을 내용에 맞춰 균형 잡고, 그것이 평범한 표를 잘 읽히게 만드는 것입니다. 하지만 균형 잡힌 컬럼은 드래그에서 튕겨 돌아옵니다. 그 레이아웃에서 너비는 치수가 아니라 힌트이기 때문입니다. 이것을 켜면 레이아웃이 고정되어 `width`가 정확해지고, 너비를 말하지 않은 컬럼은 160을 가집니다.
+**그리고 이것은 컬럼 레이아웃 방식도 바꾸는데, 바꿀 수밖에 없습니다.** 이것이 없으면 컬럼이 내용에 맞춰 균형을 잡고, 그것이 평범한 표를 잘 읽히게 만드는 것입니다. 하지만 균형 잡힌 컬럼은 드래그에서 튕겨 돌아옵니다. 그 레이아웃에서 너비는 치수가 아니라 힌트이기 때문입니다. 이것을 켜면 레이아웃이 고정되어 `width`가 정확해지고, 너비를 말하지 않은 컬럼은 160을 가집니다.
 
-## 내려받기
+## <Fw react="내려받기" flutter="내보내기" />
 
-`exportable`은 행들을 CSV 파일로 쓰는 버튼을 답니다. **읽는 사람이 지금 보고 있는 모든 행이고, 지금 펼친 페이지가 아닙니다.** 검색과 정렬은 적용되고 페이징은 적용되지 않습니다. 3페이지짜리 파일은 아무도 요청한 적 없는 파일이기 때문입니다.
+::: fw flutter
+
+**Flutter에서는 파일이 아니라 텍스트를 넘겨받습니다.** 위젯만으로 된 패키지는 파일을 쓰거나 내려받기를 시작할 수 없으므로, 버튼은 아래에서 설명하는 CSV를 만들어 `onExport`에 넘깁니다. 저장하든 공유하든 보내든, 앱이 이미 쓰는 파일이나 공유 플러그인으로 앱이 할 일입니다. `onExport`가 없으면 버튼은 비활성으로 그려집니다. `exportFileName`은 없습니다. 쓰는 파일의 이름은 앱이 정합니다.
+
+```dart
+MPDataTable<Release>(
+  headers: columns,
+  items: rows,
+  exportable: true,
+  onExport: (String csv) => saveFile('packages.csv', csv),
+);
+```
+
+:::
+
+`exportable`은 행들을 <Fw react="CSV 파일로 쓰는" flutter="CSV로 만드는" /> 버튼을 답니다. **읽는 사람이 지금 보고 있는 모든 행이고, 지금 펼친 페이지가 아닙니다.** 검색과 정렬은 적용되고 페이징은 적용되지 않습니다. 3페이지짜리 파일은 아무도 요청한 적 없는 파일이기 때문입니다.
 
 이스케이핑은 RFC 4180이고 규칙은 넷입니다 — 구분자, 따옴표, 줄바꿈 중 하나라도 들어 있으면 필드에 따옴표를 두르고, 따옴표 안의 따옴표는 두 번 씁니다. 이것을 틀리면 조용합니다. 셀 안의 쉼표 하나가 그 뒤의 모든 컬럼을 한 칸씩 밀어내고, 어딘가의 스프레드시트가 한 컬럼 어긋날 때까지 아무도 눈치채지 못합니다.
 
@@ -130,10 +174,27 @@ RFC 4180은 나머지 절반에 대해 아무 말도 하지 않습니다. 스프
 
 숫자는 부호를 그대로 지킵니다. `-5`와 `+82 2 555 0100`은 수식 문자로 시작하지만 수식이 아니고, 음수 표의 모든 셀에 따옴표가 붙는다면 그건 고치려던 것보다 더 성가신 수정입니다.
 
-`exportEscapeFormulas={false}`가 이것을 끕니다. 틀리는 경우는 하나뿐입니다. 사람이 아니라 파서에게 가는 파일입니다. 데이터베이스 로더에는 작은따옴표 규칙이 없어서 그 문자를 값의 일부로 받습니다.
+<Fw react="`exportEscapeFormulas={false}`" flutter="`exportEscapeFormulas: false`" />가 이것을 끕니다. 틀리는 경우는 하나뿐입니다. 사람이 아니라 파서에게 가는 파일입니다. 데이터베이스 로더에는 작은따옴표 규칙이 없어서 그 문자를 값의 일부로 받습니다.
 
-`onExport`는 내려받는 대신 텍스트를 받아 갑니다 — 어딘가로 보내거나, 여러분의 뷰어로 열거나, 그 둘레에 시트를 두르기 위해서입니다.
+<Fw react="`onExport`는 내려받는 대신 텍스트를 받아 갑니다 — 어딘가로 보내거나, 여러분의 뷰어로 열거나, 그 둘레에 시트를 두르기 위해서입니다." flutter="텍스트가 표 밖으로 나가는 길은 `onExport`뿐입니다." />
 
 ## 일부러 하지 않는 것
 
 가상 스크롤, 셀 인라인 편집, 집계가 붙은 그룹 행, 컬럼 재배치, 고정 컬럼, 그리고 서버가 정렬을 대신하는 모드. 하나하나가 prop이 아니라 컴포넌트 하나만큼의 결정이고, 그중 여섯 가지를 반쯤 하는 표는 다섯 가지를 온전히 하는 표보다 나쁩니다. 행 수에 대한 답은 `paged`이고, 나머지는 이 라이브러리가 아직 만들지 않은 표입니다.
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| 브라우저에서 내려받는 CSV 파일 | `onExport`로 넘기는 CSV 텍스트 | 위젯만으로 된 패키지는 파일을 쓰지 못합니다. 저장과 공유는 앱이 맡습니다. |
+| `exportFileName` | — | 쓰는 파일의 이름은 앱이 정합니다. |
+| `defaultSort`, `defaultSearch`, `defaultPage`, `defaultPageSize`, `defaultColumnWidths`, `defaultSelected` | `initialSort`, `initialSearch`, `initialPage`, `initialPageSize`, `initialColumnWidths`, `initialSelected` | 위젯이 받아서 이후 스스로 들고 있는 시작값을 Flutter는 이렇게 부릅니다. |
+| `onRowClick` | `onRowPressed` | Flutter의 이름입니다. |
+| 아무 객체의 `row[key]` | 맵의 `row[key]`, 또는 `value` | Dart는 이름으로 필드를 읽지 못합니다. |
+| 정렬된 헤딩의 `aria-sort` | — | Flutter에는 스크린 리더가 알릴 정렬 상태가 없습니다. 화살표와 순번은 그려집니다. |
+| 로케일을 아는 collator | 대소문자를 접은 자연 정렬 | Dart에는 `Intl.Collator`가 없습니다. 텍스트 속 숫자는 여전히 값으로 정렬됩니다. |
+| `classNames`, `className`, `style` | — | 넘길 클래스 목록이나 style 속성이 없습니다. |
+
+:::
