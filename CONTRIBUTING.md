@@ -157,11 +157,41 @@ Typically, a project maintainer will review and test your code before merging it
 
 ## Releasing
 
-A maintainer releases each package on its own, from a tag of its own. The GitHub release in between is written by `.github/workflows/release.yml`, which holds no registry token and never publishes. The steps are the same for both packages.
+A maintainer releases each package on its own, from a tag of its own. Pushing the tag is the whole release: `.github/workflows/release.yml` publishes the package to its registry and writes its GitHub release. It holds no registry token. npm and pub.dev both trust the workflow through OpenID Connect, so the only credential is the short-lived one GitHub signs for the job.
 
 1. **Cut the version** in one commit on `main`. For the React package, that is `version` in `packages/react/package.json` and the same number twice at the top of `packages/react/package-lock.json`: the file's own `version` and `packages[""].version`. `packages/react/pnpm-lock.yaml` does not record it. For the Flutter package, it is `version` in `packages/flutter/pubspec.yaml` and the `material_plus_ui` entry in `packages/flutter/example/pubspec.lock`, which follows the path dependency. In the package's `CHANGELOG.md`, rename `## vNext (YYYY--)` to `## X.Y.Z (YYYY-MM-DD)`, open the section with a paragraph saying what the release is, and put a new, empty `## vNext (YYYY--)` above it. Push, and let CI pass on that commit.
 1. **Tag that commit** with the package's prefix, `react-vX.Y.Z` or `flutter-vX.Y.Z`, and push the tag by name: `git tag react-v1.12.0`, then `git push origin react-v1.12.0`. `git push --tags` would push every local tag, so it is not used. The React package's releases from before the repository held two packages are tagged `vX.Y.Z`.
-1. **The workflow** checks that the tag names the version in the package's manifest and writes the release notes from its changelog. The React job then packs the package with `npm pack`, which runs the build and its bundle check, and attaches the tarball, which is exactly what `npm publish` uploads. The Flutter job runs `dart pub publish --dry-run` and attaches nothing, because pub has no command that writes its archive to a file. Re-running it updates that release instead of failing.
-1. **Publish to the registries by hand**, with `npm publish` in `packages/react` and `dart pub publish` in `packages/flutter`.
+1. **The workflow** checks that the tag names the version in the package's manifest and that its changelog has a dated section for it.
+   - The React job packs the package with `npm pack`, which runs the build and its bundle check, publishes that tarball with `npm publish`, and attaches the same tarball to the GitHub release. npm adds a provenance statement on its own. A pre-release version goes out under the `next` dist-tag.
+   - The Flutter jobs hand the package to the Dart team's reusable workflow, `dart-lang/setup-dart/.github/workflows/publish.yml`, which validates it with Flutter set up, packs it in a job with no network, and publishes the archive from a job that runs none of the package's code. The GitHub release is written afterwards and carries that archive.
+   - A version the registry already has is not published again, so pushing the tag a second time only brings the GitHub release up to date.
+
+### Setting up the registries
+
+Done once per package, by an owner of it on the registry. Neither registry checks the settings when they are saved, so a mistake shows up as a failed publish.
+
+**npm.** On npmjs.com, open `material-plus-ui`, then **Settings**, then **Trusted Publisher**, and choose **GitHub Actions**:
+
+| Field                | Value              |
+| -------------------- | ------------------ |
+| Organization or user | `jooy2`            |
+| Repository           | `material-plus-ui` |
+| Workflow filename    | `release.yml`      |
+| Environment name     | `npm`              |
+| Allowed actions      | `npm publish`      |
+
+The workflow publishes directly, so `npm publish` has to be ticked: a configuration made since September 2026 allows only `npm stage publish` unless told otherwise. A new configuration expires if it has not published within two days, and a configuration cannot be edited, only deleted and made again. Once the first publish through the workflow has worked, the package's **Publishing access** can be set to require two-factor authentication and disallow tokens, which leaves the workflow as the only way in.
+
+**pub.dev.** pub.dev only lets a workflow publish a package that already exists, so the first version is published by hand from `packages/flutter` with `dart pub publish`, before its tag is pushed. Then open `pub.dev/packages/material_plus_ui/admin`, find **Automated publishing**, and choose **Enable publishing from GitHub Actions**:
+
+| Field                              | Value                    |
+| ---------------------------------- | ------------------------ |
+| Repository                         | `jooy2/material-plus-ui` |
+| Tag pattern                        | `flutter-v{{version}}`   |
+| Require GitHub Actions environment | on, `pub.dev`            |
+
+Push the first version's tag after that. The workflow finds the version already on pub.dev, publishes nothing, and writes the GitHub release.
+
+**GitHub.** The workflow names the environments `npm` and `pub.dev`, and GitHub creates an environment the first time a job names it. Required reviewers or a rule that only `react-v*` and `flutter-v*` tags may deploy are added under **Settings**, then **Environments**.
 
 The body of the release is the version's whole changelog section, followed by links to the changelog on the docs site and in the repository. GitHub cuts a body off at 125,000 characters, so a section longer than that is replaced by its opening paragraph and the links. Preview the body with `node .github/scripts/release-notes.mjs react-v1.12.0`; it fails on a version that is missing, undated or empty.
