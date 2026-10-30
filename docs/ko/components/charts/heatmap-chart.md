@@ -9,6 +9,8 @@ order: 38
 
 <Demo src="heatmap-chart/hero" :minHeight="720" />
 
+::: fw react
+
 ```tsx
 import { MPHeatmapChart } from 'material-plus-ui';
 
@@ -20,6 +22,24 @@ import { MPHeatmapChart } from 'material-plus-ui';
   ]}
 />;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPHeatmapChart(
+  categories: const <String>['월', '화', '수'],
+  series: const <MPChartSeries>[
+    MPChartSeries(name: '09:00', data: <num>[4, 9, 2]),
+    MPChartSeries(name: '10:00', data: <num>[7, 12, 5]),
+  ],
+);
+```
+
+:::
 
 ## Props
 
@@ -34,6 +54,12 @@ import { MPHeatmapChart } from 'material-plus-ui';
 ## 색은 팔레트가 아니라 램프입니다
 
 여덟 개 차트 슬롯은 **신원** 채널입니다. 어느 계열인지를 말할 뿐, 슬롯 6이 슬롯 3보다 큰지는 아무도 알 수 없습니다. 칸의 색은 얼마인지를 말해야 하므로 순차 램프에서 옵니다. 한 색상, 다섯 단계이고, 밝은 지면에서는 옅은 쪽에서 짙은 쪽으로, 어두운 지면에서는 짙은 쪽에서 밝은 쪽으로 갑니다. 양쪽 모두 "더 많음"이 지면에서 더 멀어야 하기 때문입니다.
+
+::: fw flutter
+
+Flutter에서 램프는 테마의 `MPColorScheme.chartScale`이고, 밝기마다 맞춘 다섯 색입니다.
+
+:::
 
 덕분에 팔레트가 부딪히는 상한도 피해 갑니다. 모든 칸이 이웃과 맞닿아 있고, 맞닿은 것들을 색으로 구분하는 한계는 셋입니다. [MPScatterChart](scatter-chart)가 모양을 꺼내 드는 이유가 그것입니다. 램프는 무언가를 구분하라는 요구를 받지 않습니다. 순서를 가지라는 요구를 받습니다.
 
@@ -62,3 +88,17 @@ import { MPHeatmapChart } from 'material-plus-ui';
 포인터 아래의 칸은 색이 바뀌는 대신 **테두리**가 생깁니다. 호버할 때 색이 바뀌는 칸은 읽히는 바로 그 순간에 다른 숫자를 보고하는 칸입니다. 그러면 안 되는 유일한 순간입니다.
 
 두 축 모두 화살표로 이동합니다. 좌우는 열을, 위아래는 행을 옮기고, 읽어 주는 문장에는 행과 열의 이름이 함께 들어갑니다.
+
+::: fw flutter
+
+그림 뒤의 문장은 격자를 행 단위로 읽습니다. "09:00: 월 4, 화 9, 수 2. 10:00: …" 같은 식이고, 빈 칸은 "데이터가 없습니다"로 읽힙니다.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+`MPChartSeries`, `MPChartAxis`, `MPChartLegend`, `MPChartTooltip` 같은 차트 공용 어휘가 React와 어떻게 다른지는 [MPLineChart에 정리해 두었습니다](line-chart#react-빌드와-다른-점). `legend`에서는 `visible`만 뜻이 있습니다. 램프는 언제나 격자 아래에 놓입니다.
+
+:::

@@ -9,6 +9,8 @@ order: 38
 
 <Demo src="heatmap-chart/hero" :minHeight="720" />
 
+::: fw react
+
 ```tsx
 import { MPHeatmapChart } from 'material-plus-ui';
 
@@ -20,6 +22,24 @@ import { MPHeatmapChart } from 'material-plus-ui';
   ]}
 />;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPHeatmapChart(
+  categories: const <String>['Mon', 'Tue', 'Wed'],
+  series: const <MPChartSeries>[
+    MPChartSeries(name: '09:00', data: <num>[4, 9, 2]),
+    MPChartSeries(name: '10:00', data: <num>[7, 12, 5]),
+  ],
+);
+```
+
+:::
 
 ## Props
 
@@ -34,6 +54,12 @@ If the exact numbers matter more than the pattern, that is a table. [MPDataTable
 ## Its colour is a ramp, not the palette
 
 The eight chart slots are an **identity** channel: they say which series, and nobody can tell whether slot 6 is more than slot 3. A cell's colour has to say how much, so it comes from a sequential ramp instead — one hue, five steps, running pale to deep on a light page and deep to bright on a dark one, because "more" has to be further from the page in both.
+
+::: fw flutter
+
+In Flutter the ramp is the theme's `MPColorScheme.chartScale`, five colours fitted for each brightness.
+
+:::
 
 That also sidesteps the cap the palette runs into. Every cell touches its neighbours, and colour separates only three touching things — which is why [MPScatterChart](scatter-chart) reaches for shapes. A ramp is not being asked to separate anything; it is being asked to be ordered.
 
@@ -62,3 +88,17 @@ A `null` is drawn as an empty outline, not as the lowest step. The bottom of a r
 The cell under the pointer is **ringed** rather than recoloured. A cell that changed colour on hover would be a cell reporting a different number while it is being read, which is the one moment it must not.
 
 Both axes are walked with the arrow keys: left and right move along the columns, up and down between the rows, and the row and column are named together in the readout.
+
+::: fw flutter
+
+The words behind the picture are the grid row by row — "09:00: Mon 4, Tue 9, Wed 2. 10:00: …" — and an empty cell is read as "No data".
+
+:::
+
+::: fw flutter
+
+## Differences from the React build
+
+The vocabulary every chart shares — `MPChartSeries`, `MPChartAxis`, `MPChartLegend`, `MPChartTooltip` and the rest — differs from React the way [MPLineChart lists](line-chart#differences-from-the-react-build). Of `legend`, only `visible` means anything here: the ramp always sits under the grid.
+
+:::
