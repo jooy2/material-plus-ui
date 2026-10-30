@@ -9,9 +9,21 @@ order: 23
 
 <Demo src="image/hero" :minHeight="240">
 
+::: fw react
+
 <<< @/.vitepress/demos/image/hero.tsx
 
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/image/hero.dart
+
+:::
+
 </Demo>
+
+::: fw react
 
 ```tsx
 import { MPImage } from 'material-plus-ui';
@@ -19,21 +31,45 @@ import { MPImage } from 'material-plus-ui';
 <MPImage src={photo} alt="The east face at dawn" ratio="16 / 9" preview />;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPImage(image: photo, semanticLabel: 'The east face at dawn', ratio: 16 / 9, preview: true);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPImage" />
 
 ## `<img>`에는 상태가 셋이고 그중 둘을 잘 못 보여 줍니다
 
+::: fw react
+
 오는 중에는 아무것도 아닌 크기의 구멍이 있고, 도착하면 페이지가 **뜁니다**. 실패하면 브라우저 자신의 깨진 이미지 표시가 남는데, 그건 브라우저마다 다르고 어느 것에도 속하지 않으며 누구 잘못인지도 읽는 사람에게 말해 주지 않습니다.
 
-| 상태      | 맨 `<img>`                        | 이것                                          |
+:::
+
+::: fw flutter
+
+Flutter의 맨 `Image`도 같습니다. 오는 중에는 아무것도 아닌 크기의 상자이고, 도착하면 화면이 **뜁니다**. 실패하면 호출하는 곳마다 `errorBuilder`를 쓰지 않는 한 아무것도 그리지 않습니다.
+
+:::
+
+| 상태      | 맨 `<img>`나 `Image`              | 이것                                          |
 | --------- | --------------------------------- | --------------------------------------------- |
 | `loading` | 아무것도 없고, 자리도 잡히지 않음 | `ratio`가 이미 잡아 둔 상자 안의 플레이스홀더 |
 | `loaded`  | 그림                              | 그림, 페이드 인                               |
 | `error`   | 브라우저 자신의 표시              | `fallback`                                    |
 
 자리를 잡아 두는 것이 `ratio`입니다. 없으면 상자는 그림이 밝혀진 크기가 되고, 그게 정해질 때 아래의 모든 것이 움직입니다.
+
+::: fw react
 
 ## 캐시된 경우가 깨지는 경우입니다
 
@@ -43,21 +79,45 @@ import { MPImage } from 'material-plus-ui';
 
 호출 지점의 `useState` 세 줄이 아니라 컴포넌트인 이유가 그것입니다.
 
+:::
+
+::: fw flutter
+
+## 캐시된 경우가 깨지는 경우입니다
+
+이미지 캐시에 이미 있는 그림은 위젯이 만들어지는 바로 그 프레임에 동기적으로 도착하고, 필요 없었던 플레이스홀더에서 페이드 인하지 않고 곧바로 그려집니다. 그래도 `onStateChange`는 `loaded`를 알립니다. 첫 프레임에도, 그 뒤 모든 프레임에도 그렇습니다.
+
+:::
+
 ## `alt`은 필수입니다
 
-[`MPIconButton`](../inputs/icon-button.md)의 `label`이 필수인 이유와 같습니다 — 텍스트 대체가 없는 그림은 라이브러리가 실제로 도울 수 있는 가장 흔한 접근성 결함이고, 그 도움은 컴파일을 거부하는 것입니다.
+Flutter에서는 `semanticLabel`이고 역시 필수입니다. [`MPIconButton`](../inputs/icon-button.md)의 `label`이 필수인 이유와 같습니다 — 텍스트 대체가 없는 그림은 라이브러리가 실제로 도울 수 있는 가장 흔한 접근성 결함이고, 그 도움은 컴파일을 거부하는 것입니다.
 
-`alt=""`가 *장식*이라고 말하는 방법입니다. 누군가 빠뜨린 prop이 아니라 누군가 한 주장입니다.
+`alt=""`(`semanticLabel: ''`)가 *장식*이라고 말하는 방법입니다. 누군가 빠뜨린 prop이 아니라 누군가 한 주장입니다.
 
 ## `preview`
 
 상자를 **버튼**으로 만들고 그림을 스크림 위에 엽니다.
 
+::: fw react
+
 ```tsx
 <MPImage src={thumb} previewSrc={full} alt="The east face at dawn" preview />
 ```
 
-기본은 꺼짐입니다. 페이지의 그림 대부분은 열어 볼 가치가 없고, 조용히 눌리게 된 것은 아무도 선언하지 않은 컨트롤입니다. `previewSrc`가 썸네일을 썸네일답게 만듭니다 — 작은 파일은 페이지에 있고 큰 파일은 누군가 요청할 때만 가져옵니다.
+:::
+
+::: fw flutter
+
+```dart
+MPImage(image: thumb, previewImage: full, semanticLabel: 'The east face at dawn', preview: true)
+```
+
+그림은 스크림 위의 오버레이에 화면 크기에 맞춰 디코딩되어 열립니다. 스크림을 누르거나 <kbd>Escape</kbd>, 시스템 뒤로 가기로 닫히고, 포커스는 그림으로 돌아옵니다.
+
+:::
+
+기본은 꺼짐입니다. 페이지의 그림 대부분은 열어 볼 가치가 없고, 조용히 눌리게 된 것은 아무도 선언하지 않은 컨트롤입니다. `previewSrc`(`previewImage`)가 썸네일을 썸네일답게 만듭니다 — 작은 파일은 페이지에 있고 큰 파일은 누군가 요청할 때만 가져옵니다.
 
 **실패한** 그림은 열리기를 거부합니다. 깨진 이미지 글리프 위의 스크림은 그 제스처만큼의 가치가 없습니다.
 
@@ -69,29 +129,59 @@ import { MPImage } from 'material-plus-ui';
 
 <Demo src="image/rotate" :minHeight="440">
 
+::: fw react
+
 <<< @/.vitepress/demos/image/rotate.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/image/rotate.dart
+
+:::
 
 </Demo>
 
-180도는 상자 모양을 그대로 둡니다. 90도와 270도는 가로세로를 바꾸므로, 그림이 도착하기 전에 상자가 파일의 비율을 알아야 합니다. 파일의 `width`와 `height`를 주면 상자가 돌린 모양으로 자리를 잡습니다. `width={1200} height={800}`을 옆으로 눕히면 가로 2, 세로 3입니다. 둘이 없으면 파일이 도착할 때 모양을 읽고, 그때 페이지가 움직입니다. `ratio`를 주면 그 비율을 그대로 씁니다. 레이아웃의 모양이기 때문이고, 돌린 그림이 그 상자를 어떻게 채울지는 `fit`이 정합니다.
+180도는 상자 모양을 그대로 둡니다. 90도와 270도는 가로세로를 바꾸므로, 그림이 도착하기 전에 상자가 파일의 비율을 알아야 합니다. 파일의 `width`와 `height`를 주면 상자가 돌린 모양으로 자리를 잡습니다. 1200×800 파일을 옆으로 눕히면 가로 2, 세로 3입니다. 둘이 없으면 파일이 도착할 때 모양을 읽고, 그때 페이지가 움직입니다. `ratio`를 주면 그 비율을 그대로 씁니다. 레이아웃의 모양이기 때문이고, 돌린 그림이 그 상자를 어떻게 채울지는 `fit`이 정합니다.
 
-90도 단위만 받습니다. 다른 각도로 돌린 그림은 상자를 다 덮지 못하고, 빈 모서리를 채우려면 그림을 확대해야 하는데 그 배율은 결국 호출하는 쪽이 조정하고 싶어집니다. JavaScript에서 다른 숫자를 넘기면 가장 가까운 90도 단위로 반올림합니다. `-90`은 `270`이 됩니다.
+90도 단위만 받습니다. 다른 각도로 돌린 그림은 상자를 다 덮지 못하고, 빈 모서리를 채우려면 그림을 확대해야 하는데 그 배율은 결국 호출하는 쪽이 조정하고 싶어집니다. 90도 단위가 아닌 숫자는 가장 가까운 90도 단위로 반올림합니다. `-90`은 `270`이 됩니다.
 
 `flip`은 화면에 보이는 축을 기준으로 뒤집습니다. 그래서 `horizontal`은 그림을 돌렸든 아니든 화면의 좌우를 바꿉니다.
 
 `preview`도 같은 방향으로 돌리고 뒤집은 그림을 엽니다.
 
+::: fw react
+
 돌리기는 CSS `rotate` 속성으로, 뒤집기는 `scale` 속성으로 그리고 `transform`은 쓰지 않습니다. 그래서 호버 확대처럼 직접 건 `transform`도 그 위에 함께 적용됩니다.
 
 옆으로 누운 그림은 흐름 밖에 놓이므로 상자에 너비를 줄 수 없습니다. 상자는 놓인 곳의 너비를 따릅니다. 플렉스 행처럼 내용으로 상자 크기를 정하는 곳에서는 너비를 따로 주세요.
 
+:::
+
+::: fw flutter
+
+돌리기는 `RotatedBox`입니다. 돌려서 칠하는 것이 아니라 옆으로 눕혀서 배치하므로, 둘러싼 상자가 돌린 모양을 갖습니다. 뒤집기는 `Transform.flip`입니다.
+
+:::
+
 ## `fit`, `width`, `height`
 
-`fit`은 CSS `object-fit`의 값을 그대로 받습니다. `cover`, `contain`, `fill`, `none`, `scale-down`입니다. `scale-down`은 `contain`처럼 그리지만, 상자보다 작은 파일은 키우지 않습니다.
+`fit`은 CSS `object-fit`의 값을 그대로 받습니다. `cover`, `contain`, `fill`, `none`, `scale-down`(Flutter에서는 `MPImageFit.scaleDown`)입니다. `scale-down`은 `contain`처럼 그리지만, 상자보다 작은 파일은 키우지 않습니다.
 
 <Demo src="image/fit" :minHeight="440">
 
+::: fw react
+
 <<< @/.vitepress/demos/image/fit.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/image/fit.dart
+
+:::
 
 </Demo>
 
@@ -100,53 +190,141 @@ import { MPImage } from 'material-plus-ui';
 - `height`만 주면 상자가 그 높이가 되고 너비는 컨테이너를 채웁니다. `ratio`도 주면 너비는 비율에서 나오고, 컨테이너보다 넓어지지 않습니다.
 - `width`만 주면 상자가 그 너비가 되고 컨테이너보다 넓어지지 않습니다. 높이는 그림이나 `ratio`가 정합니다.
 
-숫자와 숫자로만 된 문자열은 픽셀이고, 다른 문자열은 CSS 길이로 그대로 씁니다. 그래서 `height={240}`, `height="240"`, `height="15rem"`이 모두 됩니다. 상자가 컨테이너보다 좁아지면 `preview`가 그리는 버튼도 함께 좁아지므로, 포커스 링이 그림 둘레에 머뭅니다.
+::: fw react
+
+숫자와 숫자로만 된 문자열은 픽셀이고, 다른 문자열은 CSS 길이로 그대로 씁니다. 그래서 `height={240}`, `height="240"`, `height="15rem"`이 모두 됩니다.
+
+:::
+
+상자가 컨테이너보다 좁아지면 `preview`가 그리는 버튼도 함께 좁아지므로, 포커스 링이 그림 둘레에 머뭅니다.
 
 ## `position`
 
-`cover`로 잘릴 때 그림의 어느 부분을 남길지, `contain`, `none`, `scale-down`이 빈 공간을 어디에 둘지 정합니다. 가운데, 한 변, CSS 방식으로 쓴 모서리(`'top left'`), 가로와 세로 백분율 두 개(`'30% 20%'`)를 받습니다.
+`cover`로 잘릴 때 그림의 어느 부분을 남길지, `contain`, `none`, `scale-down`이 빈 공간을 어디에 둘지 정합니다.
+
+::: fw react
+
+가운데, 한 변, CSS 방식으로 쓴 모서리(`'top left'`), 가로와 세로 백분율 두 개(`'30% 20%'`)를 받습니다.
+
+:::
+
+::: fw flutter
+
+`Alignment`로 받습니다. 한 변은 `Alignment.topCenter`, 모서리는 `Alignment.topLeft`, 그 사이 어디든 축마다 `-1`부터 `1`까지의 `Alignment(x, y)`로 씁니다.
+
+:::
 
 <Demo src="image/position" :minHeight="200">
 
+::: fw react
+
 <<< @/.vitepress/demos/image/position.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/image/position.dart
+
+:::
 
 </Demo>
 
-값은 화면에 보이는 그림을 기준으로 읽습니다. `object-position`은 요소를 돌리거나 뒤집기 전의 요소 좌표에서 동작하므로, 컴포넌트가 값을 바꿔서 씁니다. 그래서 `rotate`와 `flip`이 무엇이든 `position="top"`은 화면에서 위쪽을 남깁니다.
+값은 화면에 보이는 그림을 기준으로 읽습니다. `object-position`과 `Image`의 정렬은 둘 다 돌리거나 뒤집기 전의 그림 좌표에서 동작하므로, 컴포넌트가 값을 바꿔서 씁니다. 그래서 `rotate`와 `flip`이 무엇이든 `position="top"`은 화면에서 위쪽을 남깁니다.
 
 논리 방향이 아니라 물리 방향입니다. 오른쪽에서 왼쪽으로 쓰는 페이지라고 사진 속 피사체가 반대편으로 옮겨 가지는 않으므로, `left`는 계속 왼쪽입니다.
 
+::: fw react
+
 길이가 들어간 값처럼 다른 형태의 값은 바꾸지 않고 그대로 `object-position`에 들어갑니다.
+
+:::
 
 ## `letterbox`
 
-`fit`이 그림 둘레에 남긴 공간을 채웁니다. `none`은 비워 두고, `blur`는 그림 뒤에 같은 그림을 한 번 더 그리며, 다른 문자열은 색, 커스텀 프로퍼티, 그라디언트 같은 CSS `background`로 칠합니다.
+`fit`이 그림 둘레에 남긴 공간을 채웁니다.
+
+::: fw react
+
+`none`은 비워 두고, `blur`는 그림 뒤에 같은 그림을 한 번 더 그리며, 다른 문자열은 색, 커스텀 프로퍼티, 그라디언트 같은 CSS `background`로 칠합니다.
+
+:::
+
+::: fw flutter
+
+비워 두면 상자도 비어 있습니다. `MPImageLetterbox.blur`는 그림 뒤에 같은 그림을 한 번 더 그리고, `MPImageLetterbox(decoration)`은 색이나 그라디언트 같은 `Decoration`을 뒤에 칠합니다.
+
+:::
 
 <Demo src="image/letterbox" :minHeight="220">
 
+::: fw react
+
 <<< @/.vitepress/demos/image/letterbox.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/image/letterbox.dart
+
+:::
 
 </Demo>
 
-`blur`는 동영상 플레이어가 세로 영상의 양옆을 채우는 방식과 같습니다. 같은 파일의 `<img>`를 하나 더 두어 상자를 흐리게 덮고, 그림과 함께 페이드 인합니다. 이 `<img>`는 그림과 같은 `src`, `srcSet`, `sizes`, `loading`, `decoding`, `crossOrigin`, `referrerPolicy`를 받으므로 브라우저는 파일을 한 번만 가져옵니다. 보조 기술에는 숨겨지고 포인터도 받지 않으므로, 흐린 부분을 오른쪽 클릭해도 이미지 저장 메뉴가 뜨지 않습니다.
+`blur`는 동영상 플레이어가 세로 영상의 양옆을 채우는 방식과 같습니다. 같은 파일의 사본을 하나 더 두어 상자를 흐리게 덮고, 그림과 함께 페이드 인합니다.
+
+::: fw react
+
+이 `<img>`는 그림과 같은 `src`, `srcSet`, `sizes`, `loading`, `decoding`, `crossOrigin`, `referrerPolicy`를 받으므로 브라우저는 파일을 한 번만 가져옵니다. 보조 기술에는 숨겨지고 포인터도 받지 않으므로, 흐린 부분을 오른쪽 클릭해도 이미지 저장 메뉴가 뜨지 않습니다.
+
+:::
+
+::: fw flutter
+
+사본은 같은 provider에서 같은 크기로 디코딩하므로, 이미지 캐시에는 파일이 한 번만 담깁니다. 의미 트리에서 빠지고 포인터도 받지 않습니다.
+
+:::
 
 `fit`이 공간을 남길 수 있을 때, 즉 `contain`, `none`, `scale-down`일 때만 그립니다. `cover`와 `fill`은 그림이 상자 전체를 덮으므로 채울 공간이 없습니다.
 
 ## 그림을 플레이스홀더로
 
-`placeholder`는 `{ src, blur }` 형태의 그림도 받습니다. 파일이 오는 동안 반짝임 대신 작은 사본, 데이터 URI, `Blob`을 그립니다.
+`placeholder`는 그림도 받습니다. React에서는 `{ src, blur }`, Flutter에서는 `MPImagePlaceholder(image:, blur:)`입니다. 파일이 오는 동안 반짝임 대신 작은 사본을 그립니다.
 
 <Demo src="image/placeholder" :minHeight="400">
 
+::: fw react
+
 <<< @/.vitepress/demos/image/placeholder.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/image/placeholder.dart
+
+:::
 
 </Demo>
 
-대신 그리는 그림은 본 그림과 같은 방식으로 맞추고, 배치하고, 돌리고, 뒤집습니다. `blur: true`는 반경 20픽셀로 흐리게 하고, 숫자를 주면 그 픽셀 값을 반경으로 씁니다. 본 그림이 그 위로 다 페이드 인할 때까지 불투명하게 있다가 한 번에 사라집니다. 둘을 서로 교차해서 페이드하면 중간에 둘 다 반투명해져 뒤의 페이지가 비치기 때문입니다. 파일을 불러오지 못하면 대신 그리던 그림을 지우고 `fallback`을 그립니다.
+대신 그리는 그림은 본 그림과 같은 방식으로 맞추고, 배치하고, 돌리고, 뒤집습니다. `blur: true`는 반경 20픽셀로 흐리게 하고, 숫자를 주면 그 픽셀 값을 반경으로 씁니다. Flutter의 `blur`는 언제나 반경이고 기본값은 `0`입니다. 본 그림이 그 위로 다 페이드 인할 때까지 불투명하게 있다가 한 번에 사라집니다. 둘을 서로 교차해서 페이드하면 중간에 둘 다 반투명해져 뒤의 페이지가 비치기 때문입니다. 파일을 불러오지 못하면 대신 그리던 그림을 지우고 `fallback`을 그립니다.
+
+::: fw react
 
 `Blob`은 객체 URL로 그립니다. URL은 Blob을 받을 때 만들고, Blob이 바뀌거나 이미지가 언마운트될 때 해제합니다. 렌더마다 같은 Blob을 넘기세요. 상태에 담아 두면 됩니다. 렌더마다 새 Blob을 만들면 URL도 매번 새로 만들어집니다.
 
+:::
+
+::: fw flutter
+
+사용자가 방금 고른 파일은 그 바이트로 만든 `MemoryImage`입니다. 빌드마다 같은 provider를 넘기세요. 빌드마다 새로 만들면 캐시 항목도 매번 새로 생깁니다.
+
+:::
+
 반짝임과 마찬가지로 대신 그리는 그림도 상자를 채우므로, 상자에 `ratio`나 `width`와 `height` 둘 다로 자리를 잡아 두어야 합니다. 그렇지 않으면 그림이 도착하기 전까지 상자에 높이를 줄 것이 없어서 대신 그릴 자리도 없습니다.
+
+::: fw react
 
 ## 그림을 불러오는 시점
 
@@ -169,17 +347,62 @@ import { MPImage } from 'material-plus-ui';
 
 React 19는 이 속성을 `fetchPriority`로, React 18은 `fetchpriority`로 씁니다. `priority`는 실행 중인 React가 아는 표기로 쓰므로 어느 버전에서도 경고가 나지 않습니다.
 
+:::
+
+::: fw flutter
+
+## 그림을 불러오는 시점
+
+그림은 위젯이 만들어질 때 요청합니다. `ListView.builder` 안이라면 행이 가까이 스크롤되어 올 때입니다. 파일 크기가 아니라 상자 크기에 맞춰 디코딩하므로, 큰 사진의 썸네일은 썸네일만큼의 메모리만 씁니다.
+
+화면을 평가받는 그림이라면 화면이 나타나기 전에 `precacheImage`로 캐시를 데워 두세요. 그러면 첫 프레임에 페이드 없이 그려집니다.
+
+지연해서 불러오는 그림도 자리를 잡아 두어야 합니다. 불러오기 전까지 상자의 크기는 `ratio`나 `width`와 `height`가 정한 만큼입니다.
+
+:::
+
 ## 이것이 아닌 것
 
 - **갤러리가 아닙니다.** `preview`는 _이_ 그림 하나를 엽니다. 이미지 사이를 걸어 다니는 라이트박스는 어떤 이미지들이 어떤 순서로 있는지 알아야 하고, 그건 그림이 아니라 컬렉션을 든 컴포넌트입니다.
-- **`next/image`가 아닙니다.** `srcset` 생성도, loader도, 포맷 협상도 없습니다. 그건 파일을 서빙하는 쪽의 일이고, 그걸 추측하는 라이브러리는 남의 CDN에 대해 추측하는 것입니다. `srcSet` · `sizes` · `loading` · `decoding` · `fetchPriority`는 `<img>`로 그대로 통과합니다.
+- **React에서 `next/image`가 아닙니다.** `srcset` 생성도, loader도, 포맷 협상도 없습니다. 그건 파일을 서빙하는 쪽의 일이고, 그걸 추측하는 라이브러리는 남의 CDN에 대해 추측하는 것입니다. `srcSet` · `sizes` · `loading` · `decoding` · `fetchPriority`는 `<img>`로 그대로 통과합니다.
 
 ## 날카로운 모서리
 
+::: fw react
+
 - **로딩 중에도 `<img>`는 레이아웃에 남습니다.** 숨기는 게 아니라 투명합니다. 이미지의 `display: none`은 일부 브라우저가 건너뛰는 fetch이고, 그러면 그림이 아예 오기 시작하지 않습니다.
-- **새 `src`는 `loading`으로 돌아갑니다.** 새 소스의 플레이스홀더 아래에 옛 그림을 붙들고 있지 않습니다.
+
+:::
+
+- **새 `src`(`image`)는 `loading`으로 돌아갑니다.** 새 소스의 플레이스홀더 아래에 옛 그림을 붙들고 있지 않습니다.
+- **`alt`은 미리보기가 아니라 그림에 주세요.** `previewLabel`이 달리 말하지 않는 한 버튼의 이름은 `alt`(`semanticLabel`)에서 오므로, 좋은 `alt`은 한 번에 두 가지 일을 합니다.
+
+::: fw react
+
 - **`<img>`는 블록입니다.** 그래서 자리를 잡아 두지 않은 상자도 그림이 끝나는 곳에서 끝납니다. 인라인 이미지라면 글줄이 글자 아랫부분을 위해 남기는 몇 픽셀이 그림 아래에 생깁니다.
-- **`alt`은 미리보기가 아니라 그림에 주세요.** `previewLabel`이 달리 말하지 않는 한 버튼의 이름은 `alt`에서 오므로, 좋은 `alt`은 한 번에 두 가지 일을 합니다.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `src`, `srcSet`, `sizes` | `ImageProvider`인 `image` | Flutter의 사진은 모두 provider이고, 해상도 고르기는 provider가 맡습니다. |
+| `alt` | `semanticLabel` | 화면 낭독기가 읽는 이름을 Flutter에서 부르는 이름입니다. 여전히 필수입니다. |
+| `previewSrc` | `previewImage` | 같은 이유로 provider입니다. |
+| `'16 / 9'`인 `ratio` | `double?`인 `16 / 9` | Dart가 두 수를 직접 나눕니다. |
+| CSS 길이인 `width`, `height` | `double?` | CSS 길이가 없습니다. |
+| `object-position` 문자열인 `position` | `Alignment` | 상자 안의 위치를 말하는 Flutter의 방식입니다. |
+| CSS `background`인 `letterbox` | `MPImageLetterbox` | `.blur`이거나 칠할 `Decoration`입니다. |
+| `placeholder={false}` | `SizedBox.shrink()` | Dart에서는 `null`이 이미 "기본 맥박"을 뜻합니다. |
+| `src`와 `blur`를 담은 객체인 `placeholder` | `MPImagePlaceholder` | 이미지가 알아보는 위젯이고, provider와 반경을 받습니다. |
+| `priority`, `loading`, `decoding`, `fetchPriority` | — | 브라우저의 가져오기 속성입니다. 대신 `precacheImage`로 그림을 미리 데웁니다. |
+| `size` | — | React는 스타일링용으로 상자에 싣기만 하고 아무것도 그리지 않습니다. |
+| `onLoad`, `ref`, `className`, `style` | — | 도착은 `onStateChange`가 알리고, 넘길 엘리먼트, 클래스 목록, style 속성이 없습니다. |
+
+:::
 
 ## 다음
 
