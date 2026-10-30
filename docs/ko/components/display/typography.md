@@ -9,6 +9,8 @@ order: 2
 
 <Demo src="typography/hero" />
 
+::: fw react
+
 ```tsx
 import { MPTypography } from 'material-plus-ui';
 
@@ -16,32 +18,65 @@ import { MPTypography } from 'material-plus-ui';
 <MPTypography>아래의 모든 단계는 MD3 자신의 타입 역할입니다.</MPTypography>;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+const MPTypography('Material Plus 1.0', level: MPTypographyLevel.h2);
+const MPTypography('아래의 모든 단계는 MD3 자신의 타입 역할입니다.');
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPTypography" />
 
+::: fw react
+
 모든 native 속성이 그대로 전달되고, `ref`는 엘리먼트에 닿습니다.
+
+:::
+
+::: fw flutter
+
+글자는 `Text`처럼 첫 번째 위치 인자로 받습니다. 여러 스타일이 섞인 문단은 `MPTypography.rich`에 `InlineSpan`으로 넘깁니다.
+
+:::
 
 ## 모든 level은 머터리얼의 역할입니다
 
 여기에는 보간한 값도, 새로 지어낸 값도 없습니다. `level` 하나하나가 MD3 자신의 타입 역할을 고르고, 크기·행간·자간은 물론 **굵기까지** 스펙 그대로입니다.
 
-| `level`    | 머터리얼 역할     | 크기 / 행간 | 엘리먼트 |
-| ---------- | ----------------- | ----------- | -------- |
-| `h1`       | `display-small`   | 36 / 44     | `<h1>`   |
-| `h2`       | `headline-large`  | 32 / 40     | `<h2>`   |
-| `h3`       | `headline-medium` | 28 / 36     | `<h3>`   |
-| `h4`       | `headline-small`  | 24 / 32     | `<h4>`   |
-| `h5`       | `title-large`     | 22 / 28     | `<h5>`   |
-| `h6`       | `title-medium`    | 16 / 24     | `<h6>`   |
-| `lead`     | `title-large`     | 22 / 28     | `<p>`    |
-| `body`     | `body-large`      | 16 / 24     | `<p>`    |
-| `caption`  | `body-small`      | 12 / 16     | `<span>` |
-| `overline` | `label-small`     | 11 / 16     | `<span>` |
+| `level`    | 머터리얼 역할     | 크기 / 행간 | 엘리먼트(React) |
+| ---------- | ----------------- | ----------- | --------------- |
+| `h1`       | `display-small`   | 36 / 44     | `<h1>`          |
+| `h2`       | `headline-large`  | 32 / 40     | `<h2>`          |
+| `h3`       | `headline-medium` | 28 / 36     | `<h3>`          |
+| `h4`       | `headline-small`  | 24 / 32     | `<h4>`          |
+| `h5`       | `title-large`     | 22 / 28     | `<h5>`          |
+| `h6`       | `title-medium`    | 16 / 24     | `<h6>`          |
+| `lead`     | `title-large`     | 22 / 28     | `<p>`           |
+| `body`     | `body-large`      | 16 / 24     | `<p>`           |
+| `caption`  | `body-small`      | 12 / 16     | `<span>`        |
+| `overline` | `label-small`     | 11 / 16     | `<span>`        |
 
 <Demo src="typography/scale">
 
+::: fw react
+
 <<< @/.vitepress/demos/typography/scale.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/typography/scale.dart
+
+:::
 
 </Demo>
 
@@ -57,13 +92,21 @@ MD3의 모든 display, headline, `title-large` 역할은 **굵기 400**이고, `
 
 :::
 
-`weight`는 정말 필요할 때를 위한 것이고 — 표 헤더, 캡션 안의 강조 — `font-*` 클래스는 언제나 정확히 하나만 나갑니다. 그래야 덮어쓰기가 실제로 이깁니다. 특이도가 같은 두 유틸리티는 생성된 스타일시트의 순서로 승부가 갈리는데, 컴포넌트가 기댈 만한 것이 아닙니다.
+`weight`는 정말 필요할 때를 위한 것입니다. 표 헤더나 캡션 안의 강조 같은 경우입니다.
+
+::: fw react
+
+`font-*` 클래스는 언제나 정확히 하나만 나갑니다. 그래야 덮어쓰기가 실제로 이깁니다. 특이도가 같은 두 유틸리티는 생성된 스타일시트의 순서로 승부가 갈리는데, 컴포넌트가 기댈 만한 것이 아닙니다.
+
+:::
 
 ## 크기 사다리 위에 있지 않습니다
 
 `size` prop이 없고, 이것은 [MPIcon](./icon)이 내리는 것과 같은 판단입니다. `MPSize`는 _컨트롤_ 사다리입니다. `md`는 높이 56px을 뜻하고, 문단에는 스케일에서 고를 높이가 없습니다. `level`이 이 컴포넌트의 스케일이고, 그것은 라이브러리가 지어낸 다섯 단계가 아니라 머터리얼의 것입니다.
 
 ## `level`은 스케일과 엘리먼트를 함께 정합니다
+
+::: fw react
 
 그것이 일반적인 경우이고, `level`이 `headline-large`가 아니라 `h2`로 적히는 이유이기도 합니다 — 역할 이름을 쓴 호출자에게는 몇 번째 제목인지 말할 방법이 없습니다.
 
@@ -77,9 +120,28 @@ MD3의 모든 display, headline, `title-large` 역할은 **굵기 400**이고, `
 <MPTypography level="h4" render={<h1 />}>설정</MPTypography>
 ```
 
+:::
+
+::: fw flutter
+
+Flutter에서 "엘리먼트"는 그 글이 제목으로 읽히는지 여부입니다. `h1`부터 `h6`까지는 각자의 단계를 가진 제목으로 읽히므로 화면 낭독기가 화면의 제목을 모아 보거나 제목 사이를 건너뛸 수 있고, `lead`, `body`, `caption`, `overline`은 제목이 아닙니다.
+
+둘이 달라져야 할 때는 `headingLevel`이 정합니다.
+
+```dart
+// 의미상으로는 화면 제목이지만 더 조용한 크기로.
+const MPTypography('설정', level: MPTypographyLevel.h4, headingLevel: 1)
+```
+
+제목 크기이면서 제목으로 읽히지 않는 줄은 Flutter에서 만들 수 없습니다. `MPTypographyLevel.lead`를 쓰거나 그 역할의 스타일을 입힌 `Text`를 씁니다.
+
+:::
+
 ## `color`에는 기본값이 없습니다
 
 역할을 지정하지 않으면 글은 면의 잉크 색을 그대로 물려받습니다. 문단의 일반적인 경우는 주변 문단과 같아 보이는 것이기 때문입니다.
+
+::: fw react
 
 **기본값이 없다는 것은 선언이 없다는 뜻**이지, 조용한 기본값이 있다는 뜻이 아닙니다. prop을 넘기기 전까지 여기서는 `color`를 쓰지 않으므로, 위쪽 어두운 히어로 섹션에 걸어 둔 `text-white`가 말한 유일한 것으로서 이깁니다. 들리는 것보다 중요한 차이입니다. 이 컴포넌트가 쓰는 다른 모든 규칙은 `[&.mp-typography]`를 거치는데, 그것은 클래스 두 개라 페이지의 유틸리티를 이깁니다 — 색을 거기에 썼다면 아무도 이길 수 없었을 것입니다.
 
@@ -97,6 +159,44 @@ MD3의 모든 display, headline, `title-large` 역할은 **굵기 400**이고, `
 ```
 
 `caption`과 `overline`이 원하든 원하지 않든 받던 그 흐린 색이 이것입니다. 반대 방향의 같은 버그였습니다. MD3의 `on-surface-variant`는 그 글이 *무엇인가*에 대한 선택이지, 크기가 정할 수 있는 것이 아니기 때문입니다.
+
+:::
+
+::: fw flutter
+
+`color`가 없으면 스타일에 색이 들어가지 않으므로, 글은 놓인 자리의 `DefaultTextStyle` 색을 씁니다.
+
+```dart
+const MPTypography('주변의 잉크 색을 물려받습니다')
+const MPTypography('error 계열을 읽습니다', color: MPColor.error)
+```
+
+네 강조 색 밖의 역할은 `DefaultTextStyle`로 감싸서 줍니다.
+
+```dart
+DefaultTextStyle.merge(
+  style: TextStyle(color: MPTheme.of(context).colors.onSurfaceVariant),
+  child: const MPTypography('2분 전', level: MPTypographyLevel.caption),
+)
+```
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `children` | 첫 번째 위치 인자 | Flutter의 이름이자 `Text`의 모양입니다. 스팬은 `MPTypography.rich`로 받습니다. |
+| `render` | `headingLevel` | 엘리먼트를 바꿀 수 없습니다. `headingLevel`은 줄의 제목 단계를 옮기거나 어떤 단계든 제목으로 만듭니다. |
+| `'start' \| 'end' \| …`인 `align` | `TextAlign?` | Flutter의 `TextAlign`이 같은 네 가지를 이미 말하고, 그 이상도 말합니다. |
+| 6을 넘으면 6에서 멈추는 `lines` | 어떤 수든 | 6은 CSS clamp 표가 끝나는 지점입니다. `maxLines`에는 그런 표가 없습니다. |
+| CSS로 대문자로 바꾸는 `overline` | 문자열을 대문자로 바꿈 | `text-transform`이 없습니다. 화면 낭독기는 원래 대소문자로 읽고, `.rich`는 스팬의 대소문자를 두고 갑니다. |
+| 다른 역할을 주는 `className` | 감싸는 `DefaultTextStyle` | 클래스 목록이 없습니다. 글을 감싸는 스타일이 Flutter에서 같은 말을 합니다. |
+| `transition`, `style`, `ref` | — | 등장 효과는 애니메이션 위젯이 맡고, 넘길 style 속성과 엘리먼트가 없습니다. |
+
+:::
 
 ## 함께 보기
 
