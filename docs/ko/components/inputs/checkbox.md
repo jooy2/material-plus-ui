@@ -9,6 +9,8 @@ order: 4
 
 <Demo src="checkbox/hero" :minHeight="64" />
 
+::: fw react
+
 ```tsx
 import { MPCheckbox } from 'material-plus-ui';
 
@@ -17,9 +19,33 @@ const [agreed, setAgreed] = useState(false);
 <MPCheckbox label="약관에 동의합니다" checked={agreed} onCheckedChange={setAgreed} />;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+bool agreed = false;
+
+MPCheckbox(
+  label: const Text('약관에 동의합니다'),
+  checked: agreed,
+  onChanged: (bool next) => setState(() => agreed = next),
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPCheckbox" />
+
+::: fw flutter
+
+`checked`와 `onChanged`로 controlled로 쓰거나, `initialChecked`에서 시작해 상태를 스스로 들고 있게 둘 수 있습니다. 대부분의 Flutter 컨트롤과 달리 `onChanged`가 없어도 비활성화되지 않습니다. 상태를 스스로 들고 있는 체크박스는 콜백 없이도 할 일이 있기 때문이며, 비활성화는 `disabled`가 맡습니다.
+
+:::
 
 ## 예시
 
@@ -29,7 +55,17 @@ const [agreed, setAgreed] = useState(false);
 
 <Demo src="checkbox/parent" :minHeight="180">
 
+::: fw react
+
 <<< @/.vitepress/demos/checkbox/parent.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/checkbox/parent.dart
+
+:::
 
 </Demo>
 
@@ -41,7 +77,17 @@ const [agreed, setAgreed] = useState(false);
 
 <Demo src="checkbox/states" :minHeight="200">
 
+::: fw react
+
 <<< @/.vitepress/demos/checkbox/states.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/checkbox/states.dart
+
+:::
 
 </Demo>
 
@@ -59,7 +105,17 @@ const [agreed, setAgreed] = useState(false);
 
 <Demo src="checkbox/sizes" :minHeight="260">
 
+::: fw react
+
 <<< @/.vitepress/demos/checkbox/sizes.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/checkbox/sizes.dart
+
+:::
 
 </Demo>
 
@@ -77,9 +133,40 @@ const [agreed, setAgreed] = useState(false);
 
 ## 접근성
 
+::: fw react
+
 - 보이고 눌리는 것은 `role="checkbox"`인 span이고 `aria-labelledby`로 라벨에서 이름을 받습니다. 라벨 자신의 `for`는 값을 폼으로 나르는 숨은 input을 가리킵니다. 글자를 눌러도 체크되는 이유가 그것입니다.
 - `indeterminate`는 `aria-checked="mixed"`로 읽힙니다.
 - 후광이 상자보다 큰 것은 의도입니다. 18dp는 쓸 만한 포인터 표적에 한참 못 미칩니다.
+
+:::
+
+::: fw flutter
+
+- 상자와 라벨, 보조 줄은 체크 여부와 함께 시맨틱 노드 **하나**로 묶여, 스크린 리더가 한 번에 읽습니다.
+- 라벨을 눌러도 체크됩니다. 18px 사각형이 아니라 줄 전체가 대상입니다.
+- `indeterminate`는 mixed로 알리고, 색이 아니라 체크 대신 그리는 대시가 그 상태를 보여 줍니다.
+- <kbd>Enter</kbd>와 <kbd>Space</kbd>로 체크합니다. 키보드로 도달하면 후광가 10%로 켜지며, React 빌드와 마찬가지로 이것이 포커스 표시입니다.
+- `required`는 노드에 필수 플래그를 세우고, 라벨의 별표는 읽지 않습니다. `errorMessage`가 있으면 노드를 유효하지 않음으로 표시합니다.
+- `label`이 없는 체크박스에는 `semanticLabel`을 주세요.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `checked`, `defaultChecked` | `checked`, `initialChecked` | Flutter는 시작 값을 `initialX`로 부릅니다. |
+| `onCheckedChange` | `onChanged` | 컨트롤의 값이 바뀔 때 Flutter가 쓰는 이름입니다. |
+| `name`, `value`, `id` | — | 참여할 폼 제출도, 엘리먼트 id도 없습니다. |
+| Base UI의 `Field` 연결 | 하나로 합친 시맨틱 노드 | 라벨과 설명, 오류가 한 노드라서 함께 읽힙니다. |
+| — | `semanticLabel` | 보이는 라벨이 없는 상자의 이름입니다. React의 `aria-label` 자리입니다. |
+| — | `focusNode`, `autofocus` | Flutter의 포커스는 노드로 다룹니다. |
+| `className`, `style` | — | 넘길 클래스 목록도 style 속성도 없습니다. |
+
+:::
 
 ## 함께 보기
 

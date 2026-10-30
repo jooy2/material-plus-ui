@@ -9,6 +9,8 @@ order: 4
 
 <Demo src="checkbox/hero" :minHeight="64" />
 
+::: fw react
+
 ```tsx
 import { MPCheckbox } from 'material-plus-ui';
 
@@ -17,9 +19,33 @@ const [agreed, setAgreed] = useState(false);
 <MPCheckbox label="I accept the terms" checked={agreed} onCheckedChange={setAgreed} />;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+bool agreed = false;
+
+MPCheckbox(
+  label: const Text('I accept the terms'),
+  checked: agreed,
+  onChanged: (bool next) => setState(() => agreed = next),
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPCheckbox" />
+
+::: fw flutter
+
+Controlled with `checked` and `onChanged`, or left to hold its own state from `initialChecked`. A missing `onChanged` does not disable the box, unlike most Flutter controls: a box that keeps its own state has something to do without one, so `disabled` is what disables it.
+
+:::
 
 ## Examples
 
@@ -29,7 +55,17 @@ Neither ticked nor empty — what a parent box shows when some of its children a
 
 <Demo src="checkbox/parent" :minHeight="180">
 
+::: fw react
+
 <<< @/.vitepress/demos/checkbox/parent.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/checkbox/parent.dart
+
+:::
 
 </Demo>
 
@@ -41,7 +77,17 @@ There is no separate `error` boolean, the same bargain [MPTextField](./text-fiel
 
 <Demo src="checkbox/states" :minHeight="200">
 
+::: fw react
+
 <<< @/.vitepress/demos/checkbox/states.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/checkbox/states.dart
+
+:::
 
 </Demo>
 
@@ -59,7 +105,17 @@ Five rungs, and the halo grows with the box rather than staying at 40dp: what th
 
 <Demo src="checkbox/sizes" :minHeight="260">
 
+::: fw react
+
 <<< @/.vitepress/demos/checkbox/sizes.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/checkbox/sizes.dart
+
+:::
 
 </Demo>
 
@@ -77,9 +133,40 @@ It is drawn from 60% rather than from nothing: a mark that started at zero would
 
 ## Accessibility
 
+::: fw react
+
 - What you see and press is a span with `role="checkbox"`, named by the label through `aria-labelledby`; the label's own `for` points at the hidden input that carries the value into a form. That is what makes clicking the words tick the box.
 - `indeterminate` is announced as `aria-checked="mixed"`.
 - The halo is bigger than the box on purpose. 18dp is far below any usable pointer target.
+
+:::
+
+::: fw flutter
+
+- The box, its label and its supporting line are **one** semantics node, checked or not, so a screen reader reads the whole thing once.
+- Pressing the label ticks the box: the whole row is the target, not the 18px square.
+- `indeterminate` is announced as mixed, and the dash rather than the tick is what says so without colour.
+- <kbd>Enter</kbd> and <kbd>Space</kbd> tick it. The halo lights at 10% when a keyboard reaches the box, which is where the focus shows, as it does in the React build.
+- `required` sets the node's required flag, and the asterisk on the label is left out of what is read. `errorMessage` marks the node invalid.
+- A checkbox with no `label` needs a `semanticLabel`.
+
+:::
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `checked`, `defaultChecked` | `checked`, `initialChecked` | `initialX` is the name Flutter gives a starting value. |
+| `onCheckedChange` | `onChanged` | Flutter’s name for a control’s value changing. |
+| `name`, `value`, `id` | — | There is no form submission or element id to be part of. |
+| Base UI’s `Field` wiring | one merged semantics node | The label, description and error are read together because they are one node. |
+| — | `semanticLabel` | The name for a box with no visible label, React’s `aria-label`. |
+| — | `focusNode`, `autofocus` | Flutter’s focus is driven by nodes. |
+| `className`, `style` | — | There is no class list and no style attribute to pass through. |
+
+:::
 
 ## See also
 
