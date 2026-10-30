@@ -9,11 +9,34 @@ order: 9
 
 <Demo src="floating-action-button/hero" :minHeight="140" />
 
+::: fw react
+
 ```tsx
 import { ICONS, MPFloatingActionButton, MPIcon } from 'material-plus-ui';
 
 <MPFloatingActionButton icon={<MPIcon icon={ICONS.add} />} label="Compose" />;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+Stack(
+  children: <Widget>[
+    const Inbox(),
+    MPFloatingActionButton(
+      icon: const MPIcon(icon: PlusGlyph()),
+      label: 'Compose',
+      onPressed: compose,
+    ),
+  ],
+);
+```
+
+:::
 
 ## Props
 
@@ -59,19 +82,49 @@ The width cannot simply be transitioned: there is no interpolating a definite wi
 
 The label is therefore in the DOM at both widths — an element that is not there has no width to travel from. While the button is a disc it is clipped to nothing, and it is not read out twice: `aria-label` names the button, and a name replaces its contents rather than adding to them.
 
+::: fw flutter
+
+In Flutter one number runs from 0, a disc, to 1, a stadium, over the same 200ms, and the floor under the width, the padding, the gap and the label all read it, so they arrive together. The label is cropped to nothing rather than taken away, and it is never read: `label` is the button's name either way.
+
+:::
+
+:::: fw react
+
 ## position
 
 `fixed` by default — against the `static` everything else in this library defaults to — because that is the component. Everything else sits in the page's flow and would be wrong to take out of it; this one is defined by not being part of the page.
 
 <Demo src="floating-action-button/anchored" :minHeight="260">
 
+::: fw react
+
 <<< @/.vitepress/demos/floating-action-button/anchored.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/floating_action_button/anchored.dart
+
+:::
 
 </Demo>
 
 `absolute` pins it to the nearest positioned ancestor instead, which is what a button floating over a card, a map or a preview wants. `static` puts it back in the flow — drawn as `position: relative`, because the state layer still needs something to fill.
 
 `corner` is logical, so `bottom-end` is bottom-left under RTL, and `offset` is the distance from both edges. Material's own is 16dp, which is the default.
+
+::::
+
+::: fw flutter
+
+## floating
+
+In Flutter the button floats in the `Stack` it is put in, which is what a screen's body usually already is once anything floats over it: `floating` is on by default and the button positions itself in a corner of that `Stack`. Put it in the `Stack` round a card or a map and it belongs to that region, which is React's `absolute`. Turn `floating` off and it sits in the layout like any other widget, which is React's `static`.
+
+`corner` is logical, so `MPCorner.bottomEnd` is bottom-left under right-to-left, and `offset` is the distance from both edges, Material's 16dp by default. The screen's safe area on those two edges is added on top, so the button clears a home indicator or a navigation bar on an edge-to-edge screen.
+
+:::
 
 ## Why there is no speed dial
 
@@ -81,12 +134,16 @@ The fan was never good. The actions are unlabelled discs in the corner of the sc
 
 When there genuinely are several actions, they belong in an [MPMenu](./menu) — which _is_ a menu, with the roving focus, the typeahead and the escape behaviour that word promises — opened from this button:
 
+::: fw react
+
 ```tsx
 <MPMenu trigger={<MPFloatingActionButton icon={<MPIcon icon={ICONS.add} />} label="Create" />}>
   <MPMenuItem>Document</MPMenuItem>
   <MPMenuItem>Spreadsheet</MPMenuItem>
 </MPMenu>
 ```
+
+:::
 
 ## When this is the wrong component
 
@@ -96,10 +153,39 @@ When there genuinely are several actions, they belong in an [MPMenu](./menu) —
 
 ## Accessibility
 
+::: fw react
+
 - `label` is the accessible name, and it is required. There is no way to render this component without one.
 - Base UI's button is underneath, so `disabled` keeps it out of the tab order without the composition problems a bare `aria-disabled` brings, and a keyboard press lights the same state layer a pointer press does.
 - A disabled floating button loses its shadow as well as its colour. A button still floating while it cannot be pressed is a button still claiming to be the thing to do.
 - `type` is `button`, not `submit`. A native button defaults to submitting the form around it.
+
+:::
+
+::: fw flutter
+
+- `label` is the button's name on its semantics node, whether or not the words are drawn, and it is required.
+- `onPressed: null` and `disabled` take it out of the focus order, and a keyboard press lights the same state layer a pointer press does.
+- A disabled floating button loses its shadow as well as its colour. A button still floating while it cannot be pressed is a button still claiming to be the thing to do.
+- The focus ring is `secondary`, outside the button, at the button's own corner.
+
+:::
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `onClick` | `onPressed` | Flutter’s name. `null` disables the button, as everywhere in Flutter. |
+| `position` | `floating` | A Flutter widget floats in a `Stack`; there is no window to fix it to, so the choice is floating or not. |
+| `offset: number \| string` | `offset: double` | Logical pixels, with the safe area added. |
+| `corner: 'bottom-end'` | `corner: MPCorner.bottomEnd` | An enum rather than a string. |
+| A grid track that travels | One eased fraction | The same disc-to-stadium travel without a grid. |
+| `type` | — | There is no form for a button to submit. |
+| `className`, `style`, `ref` | — | There is no class list, no style attribute and no element. |
+
+:::
 
 ## See also
 

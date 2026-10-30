@@ -9,11 +9,34 @@ order: 9
 
 <Demo src="floating-action-button/hero" :minHeight="140" />
 
+::: fw react
+
 ```tsx
 import { ICONS, MPFloatingActionButton, MPIcon } from 'material-plus-ui';
 
 <MPFloatingActionButton icon={<MPIcon icon={ICONS.add} />} label="새 글" />;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+Stack(
+  children: <Widget>[
+    const Inbox(),
+    MPFloatingActionButton(
+      icon: const MPIcon(icon: PlusGlyph()),
+      label: '새 글',
+      onPressed: compose,
+    ),
+  ],
+);
+```
+
+:::
 
 ## Props
 
@@ -59,19 +82,49 @@ import { ICONS, MPFloatingActionButton, MPIcon } from 'material-plus-ui';
 
 그래서 라벨은 두 너비 모두에서 DOM에 있습니다. 거기 없는 요소에는 출발할 너비가 없기 때문입니다. 버튼이 원반인 동안 라벨은 0으로 잘려 있고, 두 번 읽히지도 않습니다. `aria-label`이 버튼의 이름이고, 이름은 내용에 더해지는 것이 아니라 내용을 대체합니다.
 
+::: fw flutter
+
+Flutter에서는 원반인 0에서 스타디움인 1까지 가는 숫자 하나가 같은 200ms 동안 움직이고, 너비의 하한과 안쪽 여백, 간격, 라벨이 모두 그 숫자를 읽어서 함께 도착합니다. 라벨은 빼지 않고 0으로 잘라 둘 뿐이며, 읽히지는 않습니다. 어느 쪽이든 `label`이 버튼의 이름입니다.
+
+:::
+
+:::: fw react
+
 ## position
 
 기본값이 `fixed`입니다. 이 라이브러리의 다른 모든 것이 `static`인 것과 반대인데, 그것이 이 컴포넌트이기 때문입니다. 나머지는 모두 페이지의 흐름 안에 있고 거기서 꺼내는 것이 잘못이지만, 이것은 페이지의 일부가 아니라는 사실로 정의됩니다.
 
 <Demo src="floating-action-button/anchored" :minHeight="260">
 
+::: fw react
+
 <<< @/.vitepress/demos/floating-action-button/anchored.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/floating_action_button/anchored.dart
+
+:::
 
 </Demo>
 
 `absolute`는 창이 아니라 가장 가까운 위치 지정 조상에 고정합니다. 카드 위, 지도 위, 미리보기 위에 뜨는 버튼이 원하는 값입니다. `static`은 흐름으로 되돌립니다 — 실제로는 `position: relative`로 그려지는데, 스테이트 레이어가 채울 것이 여전히 필요하기 때문입니다.
 
 `corner`는 논리 방향이라 `bottom-end`는 RTL에서 왼쪽 아래이고, `offset`은 양쪽 가장자리로부터의 거리입니다. 머터리얼 자신의 값인 16dp가 기본값입니다.
+
+::::
+
+::: fw flutter
+
+## floating
+
+Flutter에서 버튼은 자기가 놓인 `Stack` 안에 떠 있습니다. 화면 위에 무언가를 띄우면 화면 본문은 대개 이미 `Stack`입니다. `floating`은 기본으로 켜져 있고, 버튼이 그 `Stack`의 한 모서리에 스스로 자리를 잡습니다. 카드나 지도를 감싼 `Stack`에 두면 그 영역에 속하며, 이것이 React의 `absolute`입니다. `floating`을 끄면 다른 위젯처럼 레이아웃 안에 놓이며, 이것이 React의 `static`입니다.
+
+`corner`는 논리 방향이라서 오른쪽에서 왼쪽으로 쓰는 화면에서는 `MPCorner.bottomEnd`가 왼쪽 아래입니다. `offset`은 두 가장자리에서 들어오는 거리이고 기본값은 머터리얼의 16dp입니다. 그 두 가장자리의 안전 영역이 더해지므로, 화면 끝까지 그리는 기기에서도 홈 표시줄이나 내비게이션 바를 비켜 갑니다.
+
+:::
 
 ## 스피드 다이얼이 없는 이유
 
@@ -81,12 +134,16 @@ import { ICONS, MPFloatingActionButton, MPIcon } from 'material-plus-ui';
 
 액션이 정말로 여러 개라면 그건 [MPMenu](./menu)에 속합니다. 그 단어가 약속하는 로빙 포커스, 타이프어헤드, Escape 동작을 실제로 갖춘 진짜 메뉴이고, 이 버튼에서 열면 됩니다.
 
+::: fw react
+
 ```tsx
 <MPMenu trigger={<MPFloatingActionButton icon={<MPIcon icon={ICONS.add} />} label="만들기" />}>
   <MPMenuItem>문서</MPMenuItem>
   <MPMenuItem>스프레드시트</MPMenuItem>
 </MPMenu>
 ```
+
+:::
 
 ## 이게 틀린 컴포넌트일 때
 
@@ -96,10 +153,39 @@ import { ICONS, MPFloatingActionButton, MPIcon } from 'material-plus-ui';
 
 ## 접근성
 
+::: fw react
+
 - `label`이 접근성 이름이고 필수입니다. 이름 없이 이 컴포넌트를 렌더링할 방법은 없습니다.
 - 밑에 Base UI의 버튼이 있어서 `disabled`가 맨 `aria-disabled`의 합성 문제 없이 탭 순서에서 빠지고, 키보드로 누른 것도 포인터와 같은 스테이트 레이어를 켭니다.
 - 비활성 플로팅 버튼은 색과 함께 그림자도 잃습니다. 누를 수 없는데도 여전히 떠 있는 버튼은 여전히 자기가 할 일이라고 주장하는 버튼입니다.
 - `type`은 `submit`이 아니라 `button`입니다. 네이티브 버튼은 기본적으로 자기를 감싼 폼을 제출합니다.
+
+:::
+
+::: fw flutter
+
+- `label`은 글자를 그리든 안 그리든 시맨틱 노드에 붙는 버튼의 이름이고, 필수입니다.
+- `onPressed: null`과 `disabled`는 포커스 순서에서 빠지고, 키보드로 눌러도 포인터로 누를 때와 같은 스테이트 레이어가 켜집니다.
+- 비활성 플로팅 버튼은 색과 함께 그림자도 잃습니다. 누를 수 없는데 떠 있는 버튼은 여전히 할 일이라고 주장하는 버튼입니다.
+- 포커스 링은 `secondary`이고 버튼 바깥에, 버튼 자신의 모서리를 따라 그려집니다.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `onClick` | `onPressed` | Flutter의 이름입니다. Flutter 어디서나처럼 `null`이면 비활성화됩니다. |
+| `position` | `floating` | Flutter 위젯은 `Stack` 안에 뜹니다. 고정할 창이 없어서 선택지는 뜨느냐 마느냐입니다. |
+| `offset: number \| string` | `offset: double` | 논리 픽셀이고, 안전 영역이 더해집니다. |
+| `corner: 'bottom-end'` | `corner: MPCorner.bottomEnd` | 문자열 대신 열거형입니다. |
+| 움직이는 그리드 트랙 | 부드럽게 바뀌는 비율 하나 | 그리드 없이 같은 원반에서 스타디움으로의 변화를 만듭니다. |
+| `type` | — | 버튼이 제출할 폼이 없습니다. |
+| `className`, `style`, `ref` | — | 클래스 목록도 style 속성도 엘리먼트도 없습니다. |
+
+:::
 
 ## 함께 보기
 
