@@ -1,0 +1,5 @@
+# Every text file is checked out with LF line endings, Windows included. The
+# generator writes LF and `test/package` compares its output with the files and
+# reads `pubspec.yaml` line by line, so a CRLF checkout failed them there with
+# nothing wrong in the code.
+* text=auto eol=lf

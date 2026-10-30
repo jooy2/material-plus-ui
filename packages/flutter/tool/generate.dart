@@ -23,7 +23,7 @@ import 'dart:io';
 
 Future<void> main(List<String> arguments) async {
   final bool check = arguments.contains('--check');
-  final Directory root = File.fromUri(Platform.script).parent.parent;
+  final Directory root = Directory(_posix(File.fromUri(Platform.script).parent.parent.path));
 
   final List<(String, String)> outputs = <(String, String)>[
     for (final (String path, String source) in <(String, String)>[
@@ -89,7 +89,7 @@ String barrel(Directory root) {
           .where(
             (File file) => _basename(file.path).startsWith('mp_') && file.path.endsWith('.dart'),
           )
-          .map((File file) => file.path.substring('${root.path}/lib/'.length))
+          .map((File file) => _posix(file.path).substring('${root.path}/lib/'.length))
           .toList()
         ..sort();
 
@@ -173,7 +173,7 @@ String registry(Directory root) {
 
       final String component = _basename(folder.path).replaceAll('_', '-');
       final String demo = _basename(file.path).replaceAll('.dart', '').replaceAll('_', '-');
-      final String import = file.path.substring('${root.path}/example/lib/'.length);
+      final String import = _posix(file.path).substring('${root.path}/example/lib/'.length);
 
       entries.add(('$component/$demo', import, match.group(1)!));
     }
@@ -215,4 +215,9 @@ String _alias(String import) {
       .replaceAll(RegExp('[^a-z0-9_]'), '_');
 }
 
-String _basename(String path) => path.split(Platform.pathSeparator).last;
+String _basename(String path) => _posix(path).split('/').last;
+
+/// [path] with forward slashes. On Windows a listing joins the names it finds
+/// with backslashes onto a root that was written with forward ones, and an
+/// import has to say `/` whichever machine generated it.
+String _posix(String path) => path.replaceAll(r'\', '/');
