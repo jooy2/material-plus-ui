@@ -1,6 +1,7 @@
 /// A row of one-character slots: a PIN, a texted code, an invite key.
 library;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -13,6 +14,7 @@ import 'package:material_plus_ui/src/internal/fieldset.dart';
 import 'package:material_plus_ui/src/internal/i18n.dart';
 import 'package:material_plus_ui/src/internal/messages.dart';
 import 'package:material_plus_ui/src/internal/scale.dart';
+import 'package:material_plus_ui/src/internal/text_selection.dart';
 import 'package:material_plus_ui/src/theme/color_scheme.dart';
 import 'package:material_plus_ui/src/theme/theme.dart';
 import 'package:material_plus_ui/src/theme/tokens.dart';
@@ -92,7 +94,10 @@ MPTypeRole _slotText(MPTypescale typescale, MPSize size) {
 /// One editor stands behind however many slots, so a paste spreads across them
 /// from wherever the caret was, backspace steps back a box, a press anywhere
 /// lands on the first empty slot, and a phone can offer the code straight from
-/// the message it arrived in.
+/// the message it arrived in. A long press, or a right click with a mouse,
+/// opens a menu with Paste in it, the system's own on iOS: the editor is hidden
+/// behind the boxes, so there is no text for selection handles to hold, and
+/// without the menu a phone would have no way to paste a code it copied.
 ///
 /// Each slot is Material's outlined text field cut down to one character: the
 /// same `corner-extra-small`, the same hairline in `outline`, the same
@@ -222,6 +227,8 @@ class MPOtpField extends StatefulWidget {
 class _MPOtpFieldState extends State<MPOtpField> {
   late final MPFieldText _text = MPFieldText(value: _current, onCommit: () {});
   final GlobalKey<EditableTextState> _editor = GlobalKey<EditableTextState>();
+  final GlobalKey _row = GlobalKey();
+  final ContextMenuController _menu = ContextMenuController();
   late final MPFormFieldBinding _form = MPFormFieldBinding(
     read: () => _current,
     validate: () {
@@ -277,6 +284,7 @@ class _MPOtpFieldState extends State<MPOtpField> {
 
   @override
   void dispose() {
+    _menu.remove();
     _focusNode.removeListener(_onFocus);
     _ownedFocus?.dispose();
     _text.dispose();
@@ -292,6 +300,7 @@ class _MPOtpFieldState extends State<MPOtpField> {
     setState(() => _focused = _focusNode.hasFocus);
 
     if (!_focused) {
+      _menu.remove();
       _form.blurred();
     }
   }
@@ -304,6 +313,8 @@ class _MPOtpFieldState extends State<MPOtpField> {
   }
 
   void _onChanged(String text) {
+    _menu.remove();
+
     if (!_controlled) {
       _own = text;
     }
@@ -331,6 +342,107 @@ class _MPOtpFieldState extends State<MPOtpField> {
 
     mpTapEditor(_editor);
     _text.controller.selection = TextSelection.collapsed(offset: _text.controller.text.length);
+  }
+
+  /// Whether the row answers a long press or a right click with the menu.
+  bool get _menuEnabled => !_disabled && !widget.readOnly && Overlay.maybeOf(context) != null;
+
+  /// The menu with Paste in it, over the row where [at] is across it, or under
+  /// the row when there is no room above.
+  ///
+  /// It takes the focus first, which is where a paste lands, and appears only
+  /// when the clipboard may hold text, since a menu whose one entry does
+  /// nothing is worse than none. iOS 16 and later draw their own menu, which
+  /// pastes without asking the reader's permission first; it needs the editor
+  /// to be connected to the keyboard, so it is used once the focus has arrived.
+  Future<void> _openMenu(Offset at) async {
+    if (!_menuEnabled) {
+      return;
+    }
+
+    _focusAtEnd();
+
+    final bool pasteable = await _clipboardMayHoldText();
+    final EditableTextState? editor = _editor.currentState;
+
+    if (!mounted || !pasteable || editor == null) {
+      return;
+    }
+
+    if (SystemContextMenu.isSupportedByField(editor) && _focusNode.hasFocus) {
+      _menu.show(
+        context: context,
+        contextMenuBuilder: (BuildContext context) => SystemContextMenu.editableText(
+          editableTextState: editor,
+          items: const <IOSSystemContextMenuItem>[IOSSystemContextMenuItemPaste()],
+        ),
+      );
+
+      return;
+    }
+
+    // Read here rather than in the builder, which runs in the app's overlay,
+    // so the menu matches the field's theme and language.
+    final MPThemeData theme = MPTheme.of(context);
+    final Map<String, String> words = mpMessagesOf(context, mpTextSelectionMessages);
+
+    final RenderObject? row = _row.currentContext?.findRenderObject();
+    final TextSelectionToolbarAnchors anchors = row is RenderBox && row.hasSize
+        ? TextSelectionToolbarAnchors(
+            primaryAnchor: Offset(at.dx, row.localToGlobal(Offset.zero).dy),
+            secondaryAnchor: Offset(at.dx, row.localToGlobal(Offset(0, row.size.height)).dy),
+          )
+        : TextSelectionToolbarAnchors(primaryAnchor: at);
+
+    _menu.show(
+      context: context,
+      // In the field's tap region, as a field's own menu is: a press on Paste is
+      // not a press outside the field, which with a mouse would take the focus
+      // away, and the menu with it, before the press landed.
+      contextMenuBuilder: (BuildContext context) => TextFieldTapRegion(
+        child: MPTextSelectionToolbar(
+          anchors: anchors,
+          items: <ContextMenuButtonItem>[
+            ContextMenuButtonItem(type: ContextMenuButtonType.paste, onPressed: _paste),
+          ],
+          theme: theme,
+          words: words,
+          onDismiss: _menu.remove,
+        ),
+      ),
+    );
+  }
+
+  /// The menu for a screen reader's long press, which has no point of its own,
+  /// over the middle of the row.
+  void _openMenuOverRow() {
+    final RenderObject? row = _row.currentContext?.findRenderObject();
+
+    if (row is RenderBox && row.hasSize) {
+      _openMenu(row.localToGlobal(row.size.center(Offset.zero)));
+    }
+  }
+
+  /// Whether the clipboard holds text, or `true` when the platform will not
+  /// say. A browser answers only once the reader has let the page read the
+  /// clipboard, and pressing Paste is what asks them.
+  static Future<bool> _clipboardMayHoldText() async {
+    try {
+      return await Clipboard.hasStrings();
+    } on PlatformException {
+      return true;
+    }
+  }
+
+  Future<void> _paste() async {
+    _menu.remove();
+
+    try {
+      await _editor.currentState?.pasteText(SelectionChangedCause.toolbar);
+    } on PlatformException {
+      // The reader did not let the page read the clipboard, so nothing was
+      // pasted and the code is as it was.
+    }
   }
 
   @override
@@ -457,7 +569,10 @@ class _MPOtpFieldState extends State<MPOtpField> {
       ),
     );
 
+    final bool menu = _menuEnabled;
+
     Widget slotRow = Stack(
+      key: _row,
       children: <Widget>[
         Row(mainAxisSize: MainAxisSize.min, spacing: _slotGap[size]!, children: row),
         Positioned.fill(
@@ -476,6 +591,14 @@ class _MPOtpFieldState extends State<MPOtpField> {
         behavior: HitTestBehavior.opaque,
         excludeFromSemantics: true,
         onTap: disabled ? null : _focusAtEnd,
+        onLongPressStart: menu
+            ? (LongPressStartDetails details) => _openMenu(details.globalPosition)
+            : null,
+        // On the web a right click belongs to the browser's own menu, as it
+        // does on every Flutter text field there, unless the app turned it off.
+        onSecondaryTapUp: menu && !(kIsWeb && BrowserContextMenu.enabled)
+            ? (TapUpDetails details) => _openMenu(details.globalPosition)
+            : null,
         child: TextFieldTapRegion(child: slotRow),
       ),
     );
@@ -532,6 +655,7 @@ class _MPOtpFieldState extends State<MPOtpField> {
       // The editor is painted at zero opacity, which takes it off the semantics
       // tree, so the focus and the action that gives it are declared here.
       onTap: disabled ? null : _focusAtEnd,
+      onLongPress: menu ? _openMenuOverRow : null,
       onFocus: disabled ? null : () => mpFocusEditor(_editor, focus: _focusAtEnd),
       child: widget.fullWidth
           ? SizedBox(width: double.infinity, child: column)

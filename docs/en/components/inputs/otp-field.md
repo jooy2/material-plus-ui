@@ -132,6 +132,7 @@ The type scale goes well above the control ladder for the same reason. A verific
 ::: fw flutter
 
 - One editor stands behind the slots, so paste spreads across them from wherever the caret was, backspace steps back a box, and a press anywhere in the row lands after the last character rather than on the slot under the pointer. The editor asks for `AutofillHints.oneTimeCode`, which lets a phone offer the code straight from the message.
+- A long press, or a right click with a mouse, opens a menu with Paste in it when the clipboard holds text: iOS's own menu where the system offers it, and Material's elsewhere. The editor is hidden behind the boxes, so there is nothing for selection handles to hold, and this is how a phone pastes a code it copied. A screen reader opens the same menu with its long-press action.
 - The field is one text field node for a screen reader, holding the code itself; with `mask` it says so and reads dots.
 - The separator is kept off the semantics tree: the dash is punctuation inside one value, not a break between two things, and a reader that announces it once per group is reading out the shape of the box instead of the code in it.
 - The ring is drawn whenever the field has the focus, by pointer or keyboard, because a slot is put in focus by pressing it as often as by typing into it — and the ring is the only thing saying which character the next keystroke lands on.

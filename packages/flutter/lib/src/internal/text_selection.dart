@@ -327,6 +327,7 @@ class MPTextSelectionToolbar extends StatelessWidget {
     required this.items,
     this.theme,
     this.words,
+    this.onDismiss,
     super.key,
   });
 
@@ -341,6 +342,11 @@ class MPTextSelectionToolbar extends StatelessWidget {
 
   /// The field's words for the buttons, from the `textSelection` namespace.
   final Map<String, String>? words;
+
+  /// Called on a press outside the menu, for a menu its caller shows and takes
+  /// down itself. A field's own menu leaves it out, since the field closes the
+  /// menu when the selection or the focus moves.
+  final VoidCallback? onDismiss;
 
   /// Between the menu and the edge of the screen, and above the selection.
   static const double _gap = 8;
@@ -374,32 +380,46 @@ class MPTextSelectionToolbar extends StatelessWidget {
           anchorBelow: below - inset,
           fitsAbove: _height <= above.dy - top,
         ),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: theme.colors.surfaceContainer,
-            borderRadius: BorderRadius.circular(theme.shapes.small),
-            boxShadow: MPShadows.of(2),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(theme.shapes.small),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  for (final ContextMenuButtonItem item in items)
-                    _MenuButton(
-                      label: _labelOf(item, words),
-                      onPressed: item.onPressed,
-                      theme: theme,
-                    ),
-                ],
+        child: _dismissible(
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: theme.colors.surfaceContainer,
+              borderRadius: BorderRadius.circular(theme.shapes.small),
+              boxShadow: MPShadows.of(2),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(theme.shapes.small),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    for (final ContextMenuButtonItem item in items)
+                      _MenuButton(
+                        label: _labelOf(item, words),
+                        onPressed: item.onPressed,
+                        theme: theme,
+                      ),
+                  ],
+                ),
               ),
             ),
           ),
         ),
       ),
     );
+  }
+
+  /// [menu] in a region that hears a press outside it, around the menu itself
+  /// rather than the layout, which fills the screen.
+  Widget _dismissible(Widget menu) {
+    final VoidCallback? dismiss = onDismiss;
+
+    if (dismiss == null) {
+      return menu;
+    }
+
+    return TapRegion(onTapOutside: (PointerDownEvent event) => dismiss(), child: menu);
   }
 
   static String _labelOf(ContextMenuButtonItem item, Map<String, String> words) {

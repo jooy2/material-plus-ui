@@ -1,7 +1,10 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_plus_ui/src/components/otp_field/mp_otp_field.dart';
+import 'package:material_plus_ui/src/internal/text_selection.dart';
 import 'package:material_plus_ui/src/theme/color_scheme.dart';
 import 'package:material_plus_ui/src/types.dart';
 
@@ -47,6 +50,31 @@ List<AnimatedContainer> _slots(WidgetTester tester) {
 }
 
 Border _edgeOf(AnimatedContainer slot) => (slot.decoration! as BoxDecoration).border! as Border;
+
+/// Answers the clipboard channel with [text], or refuses to read it, as a
+/// browser does before the reader has allowed it.
+void _clipboard(WidgetTester tester, String text, {bool refused = false}) {
+  tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (
+    MethodCall call,
+  ) async {
+    if (refused && call.method.startsWith('Clipboard.')) {
+      throw PlatformException(code: 'NotAllowedError');
+    }
+
+    return switch (call.method) {
+      'Clipboard.getData' => <String, dynamic>{'text': text},
+      'Clipboard.hasStrings' => <String, dynamic>{'value': text.isNotEmpty},
+      _ => null,
+    };
+  });
+  addTearDown(() {
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null);
+  });
+}
+
+String _code(WidgetTester tester) {
+  return tester.state<EditableTextState>(find.byType(EditableText)).widget.controller.text;
+}
 
 Future<void> _type(WidgetTester tester, String text) async {
   await tester.tap(find.byType(MPOtpField));
@@ -270,5 +298,181 @@ void main() {
 
       handle.dispose();
     });
+  });
+
+  group('the paste menu', () {
+    const TargetPlatformVariant touch = TargetPlatformVariant(<TargetPlatform>{
+      TargetPlatform.android,
+      TargetPlatform.iOS,
+    });
+
+    testWidgets('a long press offers Paste, which fills the slots', (WidgetTester tester) async {
+      _clipboard(tester, '4821');
+      await tester.pumpWidget(host(overlay: true, const _Parent()));
+
+      await tester.longPress(find.byType(MPOtpField));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(MPTextSelectionToolbar), findsOneWidget);
+
+      // Over the row, not over the slots it is pasting into.
+      final Rect menu = tester.getRect(
+        find
+            .descendant(
+              of: find.byType(MPTextSelectionToolbar),
+              matching: find.byType(DecoratedBox),
+            )
+            .first,
+      );
+
+      expect(
+        menu.bottom,
+        lessThanOrEqualTo(tester.getRect(find.byType(AnimatedContainer).first).top),
+      );
+
+      await tester.tap(find.text('Paste'));
+      await tester.pumpAndSettle();
+
+      expect(_code(tester), '4821');
+      expect(find.byType(MPTextSelectionToolbar), findsNothing);
+    }, variant: touch);
+
+    testWidgets(
+      'a paste goes through the charset and the length',
+      (WidgetTester tester) async {
+        final List<String> rejected = <String>[];
+        _clipboard(tester, '48-21 99');
+        await tester.pumpWidget(host(overlay: true, _Parent(onInvalid: rejected.add)));
+
+        await tester.longPress(find.byType(MPOtpField));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Paste'));
+        await tester.pumpAndSettle();
+
+        expect(_code(tester), '4821');
+        expect(rejected, isNotEmpty);
+      },
+      variant: TargetPlatformVariant.only(TargetPlatform.android),
+    );
+
+    testWidgets('an empty clipboard opens no menu', (WidgetTester tester) async {
+      _clipboard(tester, '');
+      await tester.pumpWidget(host(overlay: true, const _Parent()));
+
+      await tester.longPress(find.byType(MPOtpField));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(MPTextSelectionToolbar), findsNothing);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.android));
+
+    testWidgets(
+      'a clipboard the platform will not read still offers Paste, which then does nothing',
+      (WidgetTester tester) async {
+        _clipboard(tester, '4821', refused: true);
+        await tester.pumpWidget(host(overlay: true, const _Parent()));
+        // The editor's own clipboard check, which the framework reports as the
+        // editor is built, for every text field. What follows is the menu's.
+        expect(tester.takeException(), isA<PlatformException>());
+
+        await tester.longPress(find.byType(MPOtpField));
+        await tester.pumpAndSettle();
+        expect(find.byType(MPTextSelectionToolbar), findsOneWidget);
+
+        await tester.tap(find.text('Paste'));
+        await tester.pumpAndSettle();
+
+        expect(_code(tester), '');
+        expect(tester.takeException(), isNull);
+      },
+      variant: TargetPlatformVariant.only(TargetPlatform.android),
+    );
+
+    testWidgets(
+      'a disabled or read-only field opens no menu',
+      (WidgetTester tester) async {
+        _clipboard(tester, '4821');
+
+        for (final MPOtpField field in <MPOtpField>[
+          const MPOtpField(label: Text('Code'), length: 4, disabled: true),
+          const MPOtpField(label: Text('Code'), length: 4, readOnly: true),
+        ]) {
+          await tester.pumpWidget(host(overlay: true, field));
+          await tester.longPress(find.byType(MPOtpField), warnIfMissed: false);
+          await tester.pumpAndSettle();
+
+          expect(find.byType(MPTextSelectionToolbar), findsNothing);
+        }
+      },
+      variant: TargetPlatformVariant.only(TargetPlatform.android),
+    );
+
+    testWidgets(
+      'a press outside the menu closes it',
+      (WidgetTester tester) async {
+        _clipboard(tester, '4821');
+        // The surface a `WidgetsApp` puts round every app, which is what tells a
+        // tap region where a press landed, over a page that takes the press.
+        await tester.pumpWidget(
+          TapRegionSurface(
+            child: ColoredBox(
+              color: const Color(0xFFFFFFFF),
+              child: host(overlay: true, const _Parent()),
+            ),
+          ),
+        );
+
+        await tester.longPress(find.byType(MPOtpField));
+        await tester.pumpAndSettle();
+        await tester.tapAt(const Offset(4, 4));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(MPTextSelectionToolbar), findsNothing);
+        expect(_code(tester), '');
+      },
+      variant: TargetPlatformVariant.only(TargetPlatform.android),
+    );
+
+    testWidgets(
+      'a right click opens it with a mouse, and Paste still lands',
+      (WidgetTester tester) async {
+        _clipboard(tester, '4821');
+        await tester.pumpWidget(host(overlay: true, const _Parent()));
+
+        await tester.tap(find.byType(MPOtpField), buttons: kSecondaryMouseButton);
+        await tester.pumpAndSettle();
+        expect(find.byType(MPTextSelectionToolbar), findsOneWidget);
+
+        await tester.tap(find.text('Paste'), kind: PointerDeviceKind.mouse);
+        await tester.pumpAndSettle();
+
+        expect(_code(tester), '4821');
+      },
+      variant: TargetPlatformVariant.only(TargetPlatform.macOS),
+    );
+
+    testWidgets(
+      'a screen reader\'s long press opens it too',
+      (WidgetTester tester) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+        _clipboard(tester, '4821');
+        await tester.pumpWidget(host(overlay: true, const _Parent()));
+
+        final SemanticsNode field = semanticsOf(tester, find.byType(MPOtpField));
+
+        expect(field.getSemanticsData().hasAction(SemanticsAction.longPress), isTrue);
+
+        tester
+            .renderObject(find.byType(MPOtpField))
+            .owner!
+            .semanticsOwner!
+            .performAction(field.id, SemanticsAction.longPress);
+        await tester.pumpAndSettle();
+
+        expect(find.byType(MPTextSelectionToolbar), findsOneWidget);
+
+        handle.dispose();
+      },
+      variant: TargetPlatformVariant.only(TargetPlatform.android),
+    );
   });
 }
