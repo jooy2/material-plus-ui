@@ -9,6 +9,8 @@ order: 9
 
 <Demo src="animate-float/hero" :minHeight="360" />
 
+::: fw react
+
 ```tsx
 import { MPAnimateFloat } from 'material-plus-ui';
 
@@ -16,6 +18,20 @@ import { MPAnimateFloat } from 'material-plus-ui';
   <img src="/hero.png" alt="" />
 </MPAnimateFloat>;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+const MPAnimateFloat(
+  child: Image(image: AssetImage('assets/hero.png'), excludeFromSemantics: true),
+);
+```
+
+:::
 
 ## Props
 
@@ -33,9 +49,19 @@ import { MPAnimateFloat } from 'material-plus-ui';
 
 ## 공용 효과 중 하나가 아닙니다
 
+::: fw react
+
 여섯 개의 등장은 적어 둔 상태에서 요소 자신의 상태로 가고, 그중 모두에 **도착**이 있습니다. 표류에는 목적지가 없습니다. 아무 데도 가지 않고 되돌아옵니다. 그래서 `MPAnimation`에 합류하지 않고 자기 파일에 keyframe을 둡니다.
 
 정돈의 문제가 아닙니다. 공용 union은 조회 테이블 세 개가 뒷받침하고, 객체 리터럴은 키 단위로 tree-shake되지 않습니다. 그 테이블을 읽는 모든 컴포넌트가 절대 쓰지 않을 행까지 지불합니다. 어떤 값이 공용 테이블에 들어갈 자격은, 그것을 절대 쓰지 않을 컴포넌트가 그것을 짊어질 이유가 있을 때 생깁니다. 표류는 그런 이유를 주지 않습니다.
+
+:::
+
+::: fw flutter
+
+여섯 개의 등장은 시작 상태에서 위젯 자신의 상태로 가고, 그중 모두에 **도착**이 있습니다. 표류에는 목적지가 없습니다. 아무 데도 가지 않고 되돌아옵니다. 그래서 `MPAnimation`이 아니고, 그 표의 길이와 곡선도 받지 않습니다. 경로는 표류만의 것입니다. 제자리, 위로 올라 한쪽으로, 가장 높은 곳, 위로 올라 다른 쪽으로, 다시 제자리의 키프레임 다섯 개이고, CSS 타이밍 함수가 키프레임 두 개 사이마다 걸리듯 곡선도 구간마다 걸립니다.
+
+:::
 
 ## 예제
 
@@ -44,6 +70,12 @@ import { MPAnimateFloat } from 'material-plus-ui';
 `distance`는 경로의 꼭대기에서 얼마나 떠오르는지이고, `sway`는 좌우로 얼마나 헤매는지입니다. 둘 다 설계상 작습니다. 이것은 *고정되어 있지 않다*를 말하고, 읽는 사람이 잴 수 있는 값은 대신 *움직인다*를 말합니다.
 
 `sway`가 `distance`보다 작아서 경로가 원이 아니라 표류로 읽힙니다. 원점 주위의 네 점입니다. 한 축만 쓰면 위아래 까딱거림이 되고, 까딱거림은 로딩 인디케이터입니다.
+
+::: fw flutter
+
+둘 다 논리 픽셀입니다. 기본값 `10`과 `6`은 React의 기본값 `0.625rem`과 `0.375rem`을 루트 글자 크기 16px로 환산한 값입니다.
+
+:::
 
 ### tilt
 
@@ -57,10 +89,46 @@ import { MPAnimateFloat } from 'material-plus-ui';
 
 `stagger`는 표류를 자식들에게 옮깁니다. 그래서 도형 세 개가 한 덩어리로 움직이는 대신 한 박자씩 어긋난 세 개의 표류가 됩니다. 이것이 하나보다 많이 쓰는 것이 옳은 유일한 배치입니다.
 
+::: fw flutter
+
+집합은 `children`으로 넘기고 `layoutBuilder`가 배치합니다. 위 데모는 `Row`를 넘기는데, React 데모의 `display: flex`가 말하는 것과 같습니다.
+
+:::
+
 ## 접근성
+
+::: fw react
 
 - `prefers-reduced-motion`에서는 표류가 빠지고 내용은 가만히 있습니다. 잃는 것은 없습니다. 이 효과는 장식이고, 보지 않겠다고 한 독자에게 장식은 필요하지 않은 것입니다.
 - 여기서 접근성 트리는 바뀌지 않고 안의 무엇도 손이 닿지 않는 곳으로 옮겨지지 않습니다. 다만 **컨트롤에는 절대 쓰지 마세요**를 보세요. 포인터 아래의 움직임은 어떤 속성으로도 고칠 수 없는 물리적 장벽입니다.
+
+:::
+
+::: fw flutter
+
+- 플랫폼이 애니메이션을 끄면(`MediaQuery.disableAnimations`) 표류가 빠지고 내용은 제자리에 가만히 있으며, 아무것도 틱하지 않습니다. 잃는 것은 없습니다. 이 효과는 장식이고, 보지 않겠다고 한 독자에게 장식은 필요하지 않은 것입니다.
+- 여기서 시맨틱스 트리는 바뀌지 않고 안의 무엇도 손이 닿지 않는 곳으로 옮겨지지 않습니다. 다만 **컨트롤에는 절대 쓰지 마세요**를 보세요. 포인터 아래의 움직임은 어떤 매개변수로도 고칠 수 없는 물리적 장벽입니다.
+- 표류는 조금도 보이지 않는 동안 쉬다가, 돌아오면 같은 프레임에서 이어 갑니다.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| 밀리초 숫자인 `duration`, `delay`, `stagger`, `durationStep` | `Duration` | 프레임워크에 이미 그 타입이 있습니다. |
+| 픽셀 숫자나 CSS 길이인 `distance`, `sway` | 논리 픽셀 단위의 `double` | `rem`을 환산할 루트 글자 크기가 없습니다. |
+| `easing="standard"` | `MPEasing.standard` | 이름마다 `MPMotion`의 곡선 하나에 대응합니다. |
+| 기본값이 `'infinite'`인 `repeat: number \| 'infinite'` | 기본값이 `null`인 `int?`, `MPAnimateRepeat` | Dart에는 숫자와 단어의 합집합 타입이 없습니다. 멈추지 않는 값이 `null`입니다. |
+| 키프레임 두 개 사이마다 걸리는 타이밍 함수 | 경로의 구간마다 걸리는 곡선 | Flutter의 진행에는 곡선이 하나뿐이라서, 위젯이 구간마다 직접 곡선을 걸어 같은 결과를 냅니다. |
+| 호출하는 쪽의 마크업이 배치하는 `children` | `child`, 또는 `children`과 `layoutBuilder` | 위젯은 받은 것을 직접 놓아야 하므로, 차례로 움직이는 집합은 어떻게 놓일지를 함께 말합니다. |
+| `IntersectionObserver`로 보는 `trigger="visible"` | 위젯 위의 모든 `Scrollable`을 지켜봅니다 | 옵저버가 없습니다. 위에 스크롤 영역이 없으면 바로 시작합니다. |
+| `render`, `className`, `style` | — | 바꿔 끼울 엘리먼트도, 넘겨줄 클래스 목록이나 style 속성도 없습니다. |
+| 표류가 화면 밖에서도 돕니다 | 조금도 보이지 않는 동안 쉽니다 | Flutter는 아무도 보지 못하는 애니메이션도 계속 그립니다. |
+
+:::
 
 ## 함께 보기
 
