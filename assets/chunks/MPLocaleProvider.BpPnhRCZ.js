@@ -1,0 +1,1 @@
+import{j as s}from"./jsx-runtime.BjG_zV1W.js";import{r as n}from"./index.CKsxLMuf.js";import{M as a}from"./locale.CqgFCqRW.js";const c=()=>()=>{},i=()=>{};function x({locale:o,serverLocale:r,children:t}){const e=n.useSyncExternalStore(c,i,()=>r);return s.jsx(a.Provider,{value:o??e,children:t})}export{x as M};

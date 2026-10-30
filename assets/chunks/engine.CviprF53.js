@@ -1,0 +1,1 @@
+import{a as o}from"./shared.D1277sO_.js";var e;const r=typeof CSS<"u"&&!!((e=CSS.supports)!=null&&e.call(CSS,"-webkit-backdrop-filter:none")),t=!r&&o.includes("firefox");!r&&o.includes("chrom");export{t as g,r as w};

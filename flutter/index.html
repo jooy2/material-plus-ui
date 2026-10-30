@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base href="/flutter/" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="no-referrer" />
+    <!-- Embedded in a documentation page, one preview per frame. Nothing here
+         should be indexed on its own. -->
+    <meta name="robots" content="noindex" />
+    <title>Material Plus</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        /* The surface the app is about to paint, for the default source colour.
+           Without it the engine's first frames show through as white, which on
+           a dark page reads as the preview flashing rather than arriving. */
+        background-color: #f3fbff;
+      }
+
+      html[data-theme='dark'],
+      html[data-theme='dark'] body {
+        background-color: #0e1418;
+      }
+    </style>
+    <script>
+      // The theme the page asked for, applied before the engine boots. Same
+      // parameter the Dart side reads out of `Uri.base`.
+      if (new URLSearchParams(location.search).get('theme') === 'dark') {
+        document.documentElement.dataset.theme = 'dark';
+      }
+    </script>
+  </head>
+  <body>
+    <script src="flutter_bootstrap.js" async></script>
+  </body>
+</html>
