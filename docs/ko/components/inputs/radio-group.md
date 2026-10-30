@@ -9,6 +9,8 @@ order: 5
 
 <Demo src="radio-group/hero" :minHeight="180" />
 
+::: fw react
+
 ```tsx
 import { MPRadio, MPRadioGroup } from 'material-plus-ui';
 
@@ -19,6 +21,28 @@ const [delivery, setDelivery] = useState('standard');
   <MPRadio value="express" label="특급" />
 </MPRadioGroup>;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+String delivery = 'standard';
+
+MPRadioGroup(
+  label: const Text('배송'),
+  value: delivery,
+  onChanged: (String next) => setState(() => delivery = next),
+  children: const <Widget>[
+    MPRadio(value: 'standard', label: Text('일반')),
+    MPRadio(value: 'express', label: Text('특급')),
+  ],
+);
+```
+
+:::
 
 ## Props
 
@@ -36,9 +60,15 @@ const [delivery, setDelivery] = useState('standard');
 
 옵션에는 자기 `size`도 `color`도 없습니다. 둘 다 그룹의 것이고, 한 번 설정해서 묶음의 모든 옵션에 같은 의미를 갖게 할 수 있는 유일한 자리가 그룹입니다.
 
+::: fw flutter
+
+Flutter에서도 옵션은 `children`, 곧 `List<Widget>`입니다. 항목 하나가 옵션 하나입니다. `MPRadio`이거나 패딩이나 정렬로 감싼 `MPRadio`이면 그룹이 안을 들여다보고 값을 찾습니다. 직접 만든 위젯으로 감싼 옵션도 그려지고 눌리지만, 화살표 키가 그 옵션에 멈추지는 않습니다.
+
+:::
+
 ## 탭 정지는 다섯이 아니라 하나
 
-라디오 그룹이 `<div>`에 input을 담은 것이 아니라 컴포넌트인 이유의 전부입니다. ARIA 패턴은 묶음이 탭 정지 **하나**를 갖고 그 안에서 화살표 키가 움직이라고 말하고, Base UI가 그것을 담당합니다. 그룹에 들어올 때 어느 옵션이 포커스를 받는지 — 첫 번째가 아니라 선택된 것 — 까지 포함해서요.
+라디오 그룹이 `<div>`에 input을 담은 것이 아니라 컴포넌트인 이유의 전부입니다. ARIA 패턴은 묶음이 탭 정지 **하나**를 갖고 그 안에서 화살표 키가 움직이라고 말합니다. 그룹에 들어올 때 어느 옵션이 포커스를 받는지 — 첫 번째가 아니라 선택된 것 — 까지 포함해서요. React에서는 Base UI가 이것을 담당하고, Flutter에서는 그룹이 포커스 노드 하나를 옵션 사이로 옮깁니다.
 
 위 그룹으로 Tab해서 들어간 뒤 화살표 키를 눌러 보세요.
 
@@ -58,7 +88,17 @@ const [delivery, setDelivery] = useState('standard');
 
 <Demo src="radio-group/orientation" :minHeight="200">
 
+::: fw react
+
 <<< @/.vitepress/demos/radio-group/orientation.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/radio_group/orientation.dart
+
+:::
 
 </Demo>
 
@@ -74,9 +114,38 @@ const [delivery, setDelivery] = useState('standard');
 
 ## 접근성
 
+::: fw react
+
 - 라벨은 그룹 안의 `<legend>`가 아니라 `aria-labelledby`가 가리키는 형제 요소입니다. Base UI는 둘 다 문서화하지만, `orientation="horizontal"`에서 살아남는 것은 이쪽뿐입니다. legend는 옵션들의 행에서 flex 아이템이 되어 첫 옵션 위가 아니라 옆에 앉습니다.
 - 각 옵션은 자기 라벨로 이름이 붙고 `id`로 연결됩니다.
 - `readOnly`는 선택을 보여 주되 바꾸지 못하게 하고, 묶음은 탭 순서에 남습니다.
+
+:::
+
+::: fw flutter
+
+- 그룹은 라디오 그룹 역할의 노드이며, `label`이 `Text`면 그 글자로, 아니면 `semanticLabel`로 이름이 붙습니다. 옵션은 저마다 서로 배타적인 집합에 속한 라디오이고, 자기 라벨로 이름이 붙습니다.
+- 집합 전체에 포커스 정지점이 하나입니다. 화살표 키는 선택을 옮기고 끝에서 처음으로 돌아갑니다. 왼쪽과 오른쪽 화살표는 글이 흐르는 방향을 따릅니다. 방향 내비게이션에서는 화살표가 집합을 빠져나가는 길이기도 해서, 끝에서 멈춥니다.
+- `readOnly`에서는 정지점이 남고, 화살표가 선택은 그대로 두고 정지점만 옮깁니다. 그래서 옵션마다 도달해서 들을 수 있습니다.
+- 라벨과 설명, 오류는 옵션 줄 밖에 있어서, 스크린 리더가 두 옵션 사이에서 그것들을 지나가지 않습니다.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `defaultValue` | `initialValue` | Flutter는 시작 값을 `initialX`로 부릅니다. |
+| `onValueChange` | `onChanged` | 컨트롤의 값이 바뀔 때 Flutter가 쓰는 이름입니다. |
+| `value={null}`인 controlled | — | Dart에서는 `null`이 uncontrolled를 뜻합니다. 그래서 아무것도 고르지 않은 controlled 그룹은 첫 선택 전까지 자기 값을 들고 있습니다. |
+| 아무 children | 항목 하나가 옵션 하나 | 화살표로 선택을 옮기려고 그룹이 항목에서 옵션의 값을 읽습니다. |
+| `aria-labelledby`로 연결한 라벨 | 그룹 노드의 이름 | `Text` 라벨을 그룹의 이름으로 읽습니다. |
+| `name`, `id` | — | 참여할 폼 제출도, 엘리먼트 id도 없습니다. |
+| `className`, `style` | — | 넘길 클래스 목록도 style 속성도 없습니다. |
+
+:::
 
 ## 함께 보기
 

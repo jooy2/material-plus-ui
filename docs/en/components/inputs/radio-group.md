@@ -9,6 +9,8 @@ order: 5
 
 <Demo src="radio-group/hero" :minHeight="180" />
 
+::: fw react
+
 ```tsx
 import { MPRadio, MPRadioGroup } from 'material-plus-ui';
 
@@ -19,6 +21,28 @@ const [delivery, setDelivery] = useState('standard');
   <MPRadio value="express" label="Express" />
 </MPRadioGroup>;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+String delivery = 'standard';
+
+MPRadioGroup(
+  label: const Text('Delivery'),
+  value: delivery,
+  onChanged: (String next) => setState(() => delivery = next),
+  children: const <Widget>[
+    MPRadio(value: 'standard', label: Text('Standard')),
+    MPRadio(value: 'express', label: Text('Express')),
+  ],
+);
+```
+
+:::
 
 ## Props
 
@@ -36,9 +60,15 @@ The difference is that a radio option is a **block**. It carries a label and a d
 
 An option has no `size` and no `color` of its own, either. Both belong to the group, which is the only place they can be set once and mean the same thing for every option in the set.
 
+::: fw flutter
+
+In Flutter the options are `children` too, a `List<Widget>`. Each entry is one option: an `MPRadio`, or an `MPRadio` inside padding or alignment, which the group sees through to find its value. An option wrapped in a widget of your own is drawn and pressed like any other, but the arrow keys do not stop on it.
+
+:::
+
 ## One tab stop, not five
 
-This is the whole reason a radio group is a component rather than a `<div>` full of inputs. The ARIA pattern says the set takes **one** tab stop and the arrow keys move inside it, and Base UI owns that — including which option receives focus when the group is entered, which is the chosen one rather than the first.
+This is the whole reason a radio group is a component rather than a column of separate controls. The set takes **one** tab stop and the arrow keys move inside it, including which option receives focus when the group is entered, which is the chosen one rather than the first. Base UI owns that in React; the Flutter group moves one focus node between its options.
 
 Tab into the group above and press the arrow keys.
 
@@ -58,7 +88,17 @@ Vertical by default. A column is scannable at any length; a row silently stops b
 
 <Demo src="radio-group/orientation" :minHeight="200">
 
+::: fw react
+
 <<< @/.vitepress/demos/radio-group/orientation.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/radio_group/orientation.dart
+
+:::
 
 </Demo>
 
@@ -74,9 +114,38 @@ On the group it disables every option at once; on an option it disables that one
 
 ## Accessibility
 
+::: fw react
+
 - The label is a sibling element pointed at by `aria-labelledby` rather than a `<legend>` inside the group. Base UI documents both; only this one survives `orientation="horizontal"`, where a legend would become a flex item in the row of options and sit beside the first one instead of above it.
 - Each option is named by its own label, wired by `id`.
 - `readOnly` shows the choice without allowing a change, and the set stays in the tab order.
+
+:::
+
+::: fw flutter
+
+- The group is a node with the radio group role, named by `label` when it is a `Text`, or by `semanticLabel`. Each option is a radio of its own, in a mutually exclusive set, named by its label.
+- One focus stop for the set. The arrow keys move the choice and wrap at the ends; the left and right arrows follow the writing direction. Under directional navigation the arrows stop at the ends instead, because there they are also the way out of the set.
+- `readOnly` keeps the stop and lets the arrows move it without changing the choice, so each option can still be reached and heard.
+- The label, the description and the error sit outside the run of options, so a screen reader does not walk past them between two options.
+
+:::
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `defaultValue` | `initialValue` | `initialX` is the name Flutter gives a starting value. |
+| `onValueChange` | `onChanged` | Flutter’s name for a control’s value changing. |
+| `value={null}`, controlled | — | `null` is the uncontrolled case in Dart, so a controlled group with nothing chosen holds its own choice until the first one. |
+| Any children | Each entry one option | The group reads each option’s value off the entry to move the choice with the arrows. |
+| `aria-labelledby` label | The group node’s own label | A `Text` label is read as the group’s name. |
+| `name`, `id` | — | There is no form submission or element id to be part of. |
+| `className`, `style` | — | There is no class list and no style attribute to pass through. |
+
+:::
 
 ## See also
 
