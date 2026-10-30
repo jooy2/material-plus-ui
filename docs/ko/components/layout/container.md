@@ -9,6 +9,8 @@ order: 11
 
 <Demo src="container/hero" :minHeight="180" />
 
+::: fw react
+
 ```tsx
 import { MPContainer } from 'material-plus-ui';
 
@@ -16,6 +18,18 @@ import { MPContainer } from 'material-plus-ui';
   …
 </MPContainer>;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPContainer(maxWidth: const MPResponsive<MPMeasure>(MPMeasure.lg), child: page);
+```
+
+:::
 
 ## Props
 
@@ -35,11 +49,19 @@ import { MPContainer } from 'material-plus-ui';
 | `lg`       | 1200dp | large가 시작하는 지점         |
 | `xl`       | 1600dp | extra-large가 시작하는 지점   |
 
+::: fw flutter
+
+Dart에서는 각 칸이 `MPMeasure.xs`부터 `MPMeasure.xl`이고, `maxWidth`는 이것을 `MPResponsive`에 담아 받습니다. `MPResponsive<MPMeasure>(MPMeasure.md)`처럼 씁니다.
+
+:::
+
 그래서 `maxWidth="md"`는 "expanded 윈도우보다 넓어지지 않는다"는 뜻이고, 이건 누군가 마음에 들어 한 숫자가 아니라 명세에 대한 문장입니다. Tailwind의 `max-w-*` 스케일은 일부러 **아닙니다**. 거기서 `max-w-lg`는 32rem이고, 한 페이지에 `lg`라는 이름의 사다리가 둘이면 아무도 나중에 찾을 수 없는 이유로 레이아웃이 몇 픽셀씩 어긋납니다.
 
 사다리의 각 칸은 옆에 따로 적힌 숫자가 아니라 윈도우 크기 클래스에서 읽어 옵니다. 그래서 [경계를 옮긴](../../design/breakpoints) 프로젝트에서는 본문 폭도 함께 옮겨집니다.
 
 ## 직접 쓰는 길이
+
+::: fw react
 
 본문 폭은 창이 아니라 **글**에 대한 결정일 때가 많습니다. 산문 한 단의 고전적인 답은 60자쯤인데, 창 너비의 사다리로는 그걸 표현할 수 없습니다. 그래서 `maxWidth`는 CSS 길이도 받습니다:
 
@@ -49,21 +71,64 @@ import { MPContainer } from 'material-plus-ui';
 
 `'42rem'`, `'800px'`, `'min(90vw, 70ch)'` — `max-width`가 받는 것이면 그대로 전달됩니다. 검증하지 않습니다. CSS가 해석할 수 없는 길이는 컨테이너를 제한하지 않은 채로 두는데, 이는 `none`이 주는 답과 같습니다.
 
+:::
+
+::: fw flutter
+
+본문 폭은 창보다 **글**이 정할 때가 많고, 창 너비의 사다리로는 그것을 표현할 수 없습니다. 그래서 `maxWidth`는 논리 픽셀 단위의 길이도 받습니다.
+
+```dart
+MPContainer(maxWidth: const MPResponsive<MPMeasure>(MPMeasure.pixels(640)), child: article)
+```
+
+Flutter에는 글자 단위가 없으므로 60자쯤의 폭은 `60ch`로 쓰지 않고, 쓰는 글꼴에서 계산해 정합니다.
+
+:::
+
 ## 너비마다 다른 본문 폭
 
 `maxWidth`는 반응형이고, [`MPGrid`](./grid)의 prop들과 같은 모양입니다 — 윈도우 크기 클래스를 키로 하는 맵이며, 각 항목은 자기 클래스**부터 위로** 적용됩니다:
+
+::: fw react
 
 ```tsx
 <MPContainer maxWidth={{ compact: 'none', expanded: 'lg' }}>
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+MPContainer(
+  maxWidth: const MPResponsive<MPMeasure>.from(expanded: MPMeasure.lg),
+  child: page,
+)
+```
+
+`MPResponsive(value, medium: …, expanded: …)`는 기본값에 덮어쓸 값을 더한 것이고, `MPResponsive.from(expanded: …)`는 바꾸는 클래스만 적습니다. 그 아래 클래스는 매개변수의 기본값을 따르며, 여기서는 한도 없음입니다.
+
+:::
+
 휴대폰에서는 가장자리까지, 840dp부터는 1200dp로 묶입니다. 지정하지 않은 클래스는 아래 클래스가 말한 것을 그대로 유지하므로, 보통 두 항목이면 페이지 전체를 설명합니다.
 
+::: fw react
+
 이건 자바스크립트가 아니라 CSS가 해결합니다. 서버가 렌더링한 것을 포함해 브라우저가 그리는 첫 프레임에서 이미 올바른 폭이고, 윈도우 클래스가 바뀌어도 리렌더링 비용이 없습니다.
+
+:::
+
+::: fw flutter
+
+윈도우 크기 클래스는 `MediaQuery`로 창에서 읽고, 이 값은 첫 프레임부터 정확합니다. 그래서 컨테이너는 처음부터 올바른 폭으로 만들어지고, 창이 경계를 넘을 때만 다시 만들어집니다.
+
+:::
 
 ## size는 여백, maxWidth는 본문 폭
 
 사다리가 둘이고, 일부러 서로 독립적입니다. 내용이 창 가장자리에서 얼마나 떨어져 있는가와, 내용이 얼마나 넓어질 수 있는가는 다른 질문입니다.
+
+::: fw react
 
 `size="md"`는 16dp로 MD3의 compact 여백입니다. 명세는 medium 윈도우부터 이를 24dp로 넓히는데, 여기서는 `size="lg"`입니다.
 
@@ -73,13 +138,35 @@ import { MPContainer } from 'material-plus-ui';
 </MPContainer>
 ```
 
+:::
+
+::: fw flutter
+
+`MPSize.md`는 16으로 MD3의 compact 여백이고, 사다리는 10, 12, 16, 20, 24입니다. 명세는 medium 윈도우부터 여백을 24로 넓히는데, 이는 `MPSize.xl`입니다.
+
+```dart
+MPContainer(size: MPSize.xl, maxWidth: const MPResponsive<MPMeasure>(MPMeasure.lg), child: page)
+```
+
+:::
+
 [MPBox](./box)와 마찬가지로 여기서 `size`는 높이도 타입 스케일도 정하지 않습니다. 컨테이너는 담은 것만큼 높습니다.
 
 ## 레이아웃 컴포넌트 셋
 
 <Demo src="container/page" :minHeight="320">
 
+::: fw react
+
 <<< @/.vitepress/demos/container/page.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/container/page.dart
+
+:::
 
 </Demo>
 
@@ -101,6 +188,8 @@ import { MPContainer } from 'material-plus-ui';
 
 컨테이너 안의 컨테이너는 여백 두 개이고, 의도한 경우는 거의 없습니다. 안쪽 구획에 더 좁은 본문 폭이 필요하다면 폭만 주고 여백은 빼세요.
 
+::: fw react
+
 ```tsx
 <MPContainer>
   <MPContainer maxWidth="sm" padded={false}>
@@ -109,13 +198,51 @@ import { MPContainer } from 'material-plus-ui';
 </MPContainer>
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+MPContainer(
+  child: MPContainer(
+    maxWidth: const MPResponsive<MPMeasure>(MPMeasure.sm),
+    padded: false,
+    child: section,
+  ),
+)
+```
+
+:::
+
 ## 접근성
+
+::: fw react
 
 컨테이너는 여백을 가진 `<div>`입니다. role도, 상태도, 키보드 계약도 없고 일부러 아무것도 더하지 않습니다. 대부분의 페이지에는 정확히 하나가 있고 그건 보통 문서의 main 영역인데, `render`가 그것을 위한 것입니다.
 
 ```tsx
 <MPContainer render={<main />}>…</MPContainer>
 ```
+
+:::
+
+::: fw flutter
+
+컨테이너는 시맨틱 트리에 아무것도 더하지 않습니다. 화면의 main 영역은 `MPPageLayout`이 맡고, 컨테이너는 보통 그 안에 담기는 쪽입니다.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| 단계, CSS 길이, 맵을 받는 `maxWidth` | `MPResponsive<MPMeasure>?` | 값과 맵을 합친 TypeScript 유니언은 Dart에서 생성자 두 개가 되고, 길이는 논리 픽셀입니다. `ch`, `rem`, `vw`는 없습니다. |
+| 스타일시트의 미디어 쿼리로 결정 | 만들 때 `MediaQuery`로 결정 | 스타일시트가 없습니다. 창의 크기는 첫 프레임부터 알 수 있으므로 결과는 같습니다. |
+| `render` | — | 바꿔 끼울 엘리먼트가 없습니다. |
+
+:::
 
 ## 함께 보기
 
