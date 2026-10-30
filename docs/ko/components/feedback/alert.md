@@ -9,6 +9,8 @@ order: 1
 
 <Demo src="alert/hero" :minHeight="180" />
 
+::: fw react
+
 ```tsx
 import { MPAlert, MPButton } from 'material-plus-ui';
 
@@ -21,6 +23,24 @@ import { MPAlert, MPButton } from 'material-plus-ui';
   은행에서 결제를 거절했습니다. 청구된 금액은 없습니다.
 </MPAlert>;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPAlert(
+  color: MPColor.error,
+  title: const Text('카드 결제에 실패했습니다'),
+  action: MPButton(variant: MPVariant.text, onPressed: retry, child: const Text('다시 시도')),
+  onClose: dismiss,
+  child: const Text('은행에서 결제를 거절했습니다. 청구된 금액은 없습니다.'),
+);
+```
+
+:::
 
 ## Props
 
@@ -46,7 +66,17 @@ import { MPAlert, MPButton } from 'material-plus-ui';
 
 <Demo src="alert/variants" :minHeight="420">
 
+::: fw react
+
 <<< @/.vitepress/demos/alert/variants.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/alert/variants.dart
+
+:::
 
 </Demo>
 
@@ -62,7 +92,17 @@ import { MPAlert, MPButton } from 'material-plus-ui';
 
 <Demo src="alert/colors" :minHeight="320">
 
+::: fw react
+
 <<< @/.vitepress/demos/alert/colors.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/alert/colors.dart
+
+:::
 
 </Demo>
 
@@ -79,6 +119,8 @@ import { MPAlert, MPButton } from 'material-plus-ui';
 
 `live`로 덮어쓸 수 있고, 알아둘 만한 값은 세 번째입니다. **live region은 _도착하는_ 내용을 위한 것입니다.** 페이지가 열릴 때 이미 마크업에 있던 알림은 도착한 게 아니라 페이지의 일부이고, 그걸 읽으려고 끼어드는 건 독자가 어차피 도달할 문장 때문에 끼어드는 것입니다.
 
+::: fw react
+
 ```tsx
 // 서버가 렌더한 오류 요약. 화면에는 여전히 알림이지만, 공지는 아닙니다.
 <MPAlert color="error" live="off">
@@ -86,11 +128,40 @@ import { MPAlert, MPButton } from 'material-plus-ui';
 </MPAlert>
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+// 화면이 만들어질 때부터 있던 오류 요약. 여전히 알림이지만, 공지는 아닙니다.
+const MPAlert(
+  color: MPColor.error,
+  live: MPAlertLive.off,
+  child: Text('세 개 항목을 확인해 주세요.'),
+);
+```
+
+:::
+
 반대 방향도 있습니다 — 계열은 조용하지만 실제로는 급한 메시지:
+
+::: fw react
 
 ```tsx
 <MPAlert live="assertive">1분 후 세션이 종료됩니다.</MPAlert>
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+const MPAlert(live: MPAlertLive.assertive, child: Text('1분 후 세션이 종료됩니다.'));
+```
+
+Flutter의 live region은 공손함 단계가 하나뿐이고, 그 단계는 polite입니다. 그래서 웹이 아닌 곳에서는 assertive 얼럿도 polite 얼럿처럼 다음 쉬는 지점에 읽힙니다. 웹 엔진은 노드의 역할도 읽으므로, 웹에서는 assertive 얼럿이 React 빌드처럼 `role="alert"`가 됩니다. `MPAlertLive.off`는 어느 쪽에서도 live region이 아닙니다.
+
+:::
 
 ## 예시
 
@@ -98,15 +169,31 @@ import { MPAlert, MPButton } from 'material-plus-ui';
 
 제목이 있으면 두 부분이 되고, 없으면 전체가 한 줄입니다. 제목 아래의 본문은 `on-surface-variant`로 한 걸음 물러납니다. 필드의 보조 텍스트가 쓰는 것과 같은 역할입니다. 제목이 없으면 본문이 곧 얼럿이므로 읽기 텍스트 그대로 남습니다.
 
+::: fw react
+
 ```tsx
 <MPAlert>한 줄.</MPAlert>
 
 <MPAlert title="두 부분">그리고 그 아래의 상세.</MPAlert>
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+const MPAlert(child: Text('한 줄.'));
+
+const MPAlert(title: Text('두 부분'), child: Text('그리고 그 아래의 상세.'));
+```
+
+:::
+
 ### icon
 
 `color`에 맞는 글리프가 기본값입니다. 기본값이 둘뿐인 이유는 정직한 게 둘뿐이기 때문입니다. error 계열은 오류 글리프를, 나머지는 정보 글리프를 받습니다.
+
+::: fw react
 
 ```tsx
 <MPAlert icon={false}>글리프 없이.</MPAlert>
@@ -114,11 +201,27 @@ import { MPAlert, MPButton } from 'material-plus-ui';
 <MPAlert icon={<MPIcon icon={ICONS.success} size={20} />}>더 구체적인 의미로.</MPAlert>
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+const MPAlert(showIcon: false, child: Text('글리프 없이.'));
+
+MPAlert(icon: MPIcon(icon: mySet.success, size: 20), child: const Text('더 구체적인 의미로.'));
+```
+
+Dart에는 `null`도 위젯도 아닌 값이 없으므로, "빼 달라"는 `icon`의 세 번째 값이 아니라 `showIcon: false`로 말합니다.
+
+:::
+
 글리프는 메시지 전체가 아니라 **첫 줄**에 맞춰 중앙에 놓입니다. 그래서 한 줄짜리 얼럿은 가운데 정렬로 보이고, 세 줄짜리도 글리프는 여전히 맨 위에 있습니다.
 
 ### action과 onClose
 
 `action`은 메시지가 줄바꿈되어도 첫 줄에 남도록 `children`과 분리했습니다. `onClose`는 그것을 넘기는 일 자체가 ×를 만드는 일입니다. `dismissible` boolean이 없는 이유는, 호출할 대상이 없는 닫기 버튼은 아무 일도 하지 않는 버튼이기 때문입니다.
+
+::: fw react
 
 ```tsx
 <MPAlert action={<MPButton variant="text">다시 시도</MPButton>} onClose={() => setShown(false)}>
@@ -126,9 +229,27 @@ import { MPAlert, MPButton } from 'material-plus-ui';
 </MPAlert>
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+MPAlert(
+  action: MPButton(variant: MPVariant.text, onPressed: retry, child: const Text('다시 시도')),
+  onClose: () => setState(() => shown = false),
+  child: const Text('업로드에 실패했습니다.'),
+);
+```
+
+:::
+
+`onClose`는 ×를 누른 순간이 아니라 얼럿이 다 빠져나간 뒤에 호출됩니다. 얼럿은 페이지의 흐름 안에 있으므로, 누르면 먼저 자기 높이를 접고 그 아래 내용이 빈자리를 메웁니다. `onClose`를 받았을 때 얼럿을 빼면 됩니다. 동작 줄이기 설정이나 Flutter의 `MediaQuery.disableAnimations`가 켜져 있으면 바로 호출됩니다.
+
 ### locale
 
 ×에는 자기 텍스트가 없으므로, 그 접근성 이름은 이 라이브러리가 지어내야 하는 단어입니다. `locale`에서, 또는 가장 가까운 [`MPLocaleProvider`](../../design/localization)에서, 둘 다 맞지 않으면 `closeLabel`에서 옵니다.
+
+::: fw react
 
 ```tsx
 <MPAlert locale="ko" onClose={dismiss}>
@@ -136,11 +257,49 @@ import { MPAlert, MPButton } from 'material-plus-ui';
 </MPAlert>
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+MPAlert(locale: 'ko', onClose: dismiss, child: const Text('저장했습니다.'));
+```
+
+:::
+
 ## 접근성
+
+::: fw react
 
 - 얼럿 전체가 live region이므로, 페이지가 로드된 뒤에 나타난 메시지도 읽힙니다. 어느 종류인지는 위 표를 보세요.
 - ×는 이름이 있는 진짜 버튼이고, 행의 처음이 아니라 마지막에 있습니다. 그래서 읽는 사람은 나가는 방법보다 메시지를 먼저 듣습니다.
 - 기본 글리프는 장식이라 접근성 트리에서 빠집니다. 그것이 가리키는 계열은 이미 문장 안에 있습니다.
+
+:::
+
+::: fw flutter
+
+- 얼럿은 시맨틱 노드 하나이고, `live`가 `MPAlertLive.off`가 아니면 live region입니다. 그래서 화면이 만들어진 뒤에 나타난 메시지도 읽힙니다.
+- ×는 이름을 가진 별도의 버튼 노드이고 메시지 뒤에 있습니다. 그래서 읽는 사람은 나가는 방법보다 메시지를 먼저 듣습니다. <kbd>Tab</kbd>으로 닿고 <kbd>Enter</kbd>나 <kbd>Space</kbd>로 누릅니다. 포커스 링은 `secondary`이고, 키보드로 포커스가 왔을 때만 버튼 바깥에 그려집니다.
+- 누른 순간부터 사라질 때까지 얼럿은 시맨틱 트리와 포커스 순서와 포인터에서 빠집니다. 나가는 중인 얼럿에는 아무것도 들어갈 수 없습니다.
+- 기본 글리프는 스크린 리더에 아무것도 말하지 않습니다. 그것이 가리키는 계열은 이미 문장 안에 있습니다.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `children` | `child` | Flutter의 이름입니다. |
+| `icon={false}` | `showIcon: false` | Dart에는 `null`도 위젯도 아닌 값이 없습니다. |
+| 문자열 `live` | `MPAlertLive` 값의 `live` | 세 값은 같습니다. Flutter의 live region은 단계가 하나뿐이라, 웹이 아닌 곳에서는 assertive 얼럿도 polite로 읽힙니다. |
+| `onClose(event)` | `onClose()` | 돌려줄 이벤트 객체가 없습니다. 얼럿이 다 빠져나간 뒤에 호출되는 것은 같습니다. |
+| `transition` | — | 등장 효과는 얼럿을 `MPAnimateFade`나 그 형제 컴포넌트로 감싸서 줍니다. |
+| `className`, `style`, 네이티브 속성 | — | 넘겨줄 곳이 없습니다. |
+
+:::
 
 ## 함께 보기
 
