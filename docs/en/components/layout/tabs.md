@@ -9,6 +9,8 @@ order: 12
 
 <Demo src="tabs/hero" :minHeight="200" />
 
+::: fw react
+
 ```tsx
 import { MPTab, MPTabPanel, MPTabs } from 'material-plus-ui';
 
@@ -21,7 +23,34 @@ import { MPTab, MPTabPanel, MPTabs } from 'material-plus-ui';
 </MPTabs>;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPTabs<String>(
+  semanticLabel: 'Trip',
+  initialValue: 'flights',
+  children: const <Widget>[
+    MPTab<String>(value: 'flights', child: Text('Flights')),
+    MPTab<String>(value: 'stays', child: Text('Stays')),
+    MPTabPanel<String>(value: 'flights', child: FlightsPanel()),
+    MPTabPanel<String>(value: 'stays', child: StaysPanel()),
+  ],
+);
+```
+
+:::
+
 Tabs and panels go in as one list of children and are sorted into the bar and the body for you. There is no `<MPTabList>` to remember: a wrapper whose only job is to say what the elements already say is one more thing to get wrong.
+
+::: fw flutter
+
+Every child is an `MPTab` or an `MPTabPanel` of the same value type, and the bar runs in the order the tabs are written. Anything else is an assertion in debug: a widget that is neither has no place in the bar and none in the body.
+
+:::
 
 ## Props
 
@@ -39,7 +68,17 @@ Tabs and panels go in as one list of children and are sorted into the bar and th
 
 <Demo src="tabs/variants" :minHeight="260">
 
+::: fw react
+
 <<< @/.vitepress/demos/tabs/variants.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/tabs/variants.dart
+
+:::
 
 </Demo>
 
@@ -64,6 +103,12 @@ The consequence worth knowing: with `fullWidth`, where a tab is much wider than 
 
 It moves by animating `left` and `width` on an empty box — a layout animation on something with no text in it, which is the one kind this library allows.
 
+::: fw flutter
+
+The box is measured rather than worked out from the count, so it lands under the right tab when two labels differ. It is measured again whenever the bar is given a new width or a tab changes size.
+
+:::
+
 ## The panel fades through
 
 The arriving panel fades in over 200ms, which is MD3's own answer and the other half of the indicator sliding: a bar that animated its decoration while the content it points at cut was animating the wrong thing.
@@ -74,7 +119,7 @@ Nothing fades on the first paint either. A bar that faded its own content in on 
 
 ## activateOnFocus
 
-Off by default, so an arrow key moves focus and <kbd>Enter</kbd> or <kbd>Space</kbd> chooses.
+Off by default, so an arrow key moves focus and <kbd>Enter</kbd> or <kbd>Space</kbd> chooses. <kbd>Home</kbd> and <kbd>End</kbd> go to either end of the bar.
 
 Automatic activation is only kind when every panel is already on the page. The moment one of them fetches, walking past four tabs fires four requests — and a reader on a keyboard cannot get past a tab without loading it.
 
@@ -82,11 +127,25 @@ Automatic activation is only kind when every panel is already on the page. The m
 
 A hidden panel is unmounted, which is right for the common case — four panels of which one is on screen — and wrong for a panel holding a half-filled form.
 
+::: fw react
+
 ```tsx
 <MPTabPanel value="compose" keepMounted>
   …
 </MPTabPanel>
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+const MPTabPanel<String>(value: 'compose', keepMounted: true, child: ComposeForm())
+```
+
+A kept panel stays in the tree in the same place whether it shows or not, so its state survives. While it is hidden it is not painted, takes no focus, is left off the semantics tree, and its animations are paused.
+
+:::
 
 ## Horizontal only
 
@@ -104,7 +163,11 @@ macOS draws an overlay scrollbar that does not exist until it is used, so a bar 
 
 The scrollbar is hidden on both, and the bar **fades at the end that has more bar past it**: at the right when there is more to the right, at both when a reader is somewhere in the middle, at neither when everything fits. Fading an end already reached would be the same lie as saying nothing.
 
-Whether it overflows is measured rather than declared, because it depends entirely on the room the bar was given — the same six tabs fit at 640px and do not at 320. The measurement is written out as `data-mp-overflow` on `.mp-tabs__list`, so a page that wants a different treatment can read the same fact:
+Whether it overflows is measured rather than declared, because it depends entirely on the room the bar was given — the same six tabs fit at 640px and do not at 320.
+
+::: fw react
+
+The measurement is written out as `data-mp-overflow` on `.mp-tabs__list`, so a page that wants a different treatment can read the same fact:
 
 ```css
 /* An arrow instead of a fade, say. */
@@ -114,6 +177,16 @@ Whether it overflows is measured rather than declared, because it depends entire
 ```
 
 The value is `left`, `right` or `both`, and it is **physical** — it names a side of the box, not a side of the text. That is the same rule the indicator's `--active-tab-left` follows: a measurement stays a measurement under RTL, and pairing one with a logical property is what would break the direction rather than what would fix it.
+
+:::
+
+::: fw flutter
+
+The fade is a mask over the strip, so it is right on whatever the bar sits on, and it is left out entirely while every tab fits. The gradient runs in the reader's direction, so under RTL it turns round with the strip.
+
+The tab the focus is on is brought into view as the arrow keys move it, and the chosen tab as the bar is first laid out, clear of the fade. Only the strip moves: the page around it stays where it is.
+
+:::
 
 The divider under the bar does not fade with the tabs. It is the boundary between the bar and the panel, and it runs the full width whatever the bar is doing.
 
@@ -127,10 +200,37 @@ The divider under the bar does not fade with the tabs. It is the boundary betwee
 
 ## Accessibility
 
+::: fw react
+
 - Base UI is underneath, which is what makes this a tab bar rather than a row of buttons: one tab stop for the whole set, arrow keys within it, <kbd>Home</kbd> and <kbd>End</kbd>, the `tab` and `tabpanel` roles, and the `aria-controls` wiring between them.
 - A panel with nothing focusable inside it takes focus itself, so the keyboard can reach the content the tab just revealed.
 - Pass `aria-label` — it names the bar. The tabs only name themselves.
 - A disabled tab stays in the bar and stays announced. It is a place that exists and is unavailable, which is not the same as a place that is gone.
+
+:::
+
+::: fw flutter
+
+- The bar is one focus stop. The arrow keys move the focus along it and skip a disabled tab, <kbd>Home</kbd> and <kbd>End</kbd> go to either end, and <kbd>Enter</kbd> or <kbd>Space</kbd> chooses. Once the focus leaves the bar, the stop goes back to the chosen tab.
+- Under directional navigation, a remote's D-pad, the arrows halt at either end of the bar instead of wrapping, and an arrow past the end goes on to the next control.
+- The bar is a node with the tab bar role, named by `semanticLabel`, and each tab a node with the tab role that says whether it is selected. The chosen tab names its panel through `controlsNodes`, and the panel is a node with the tab panel role.
+- A disabled tab stays in the bar and stays announced as unavailable.
+- The focus ring is drawn inside the tab, in `secondary`, because a ring outside a tab in a row of them is drawn over its neighbours.
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `onValueChange` | `onChanged` | Flutter's name for a plain change of value. |
+| `defaultValue` | `initialValue` | Flutter's name. Left out, the first tab that is not disabled starts chosen. |
+| `value={null}` | — | `value: null` means the set keeps its own choice, so a controlled bar with nothing chosen is not expressible. |
+| Children sorted through fragments | Children are `MPTab`s and `MPTabPanel`s | Dart has no fragments. A pair that comes and goes together is written with a collection `if`. |
+| `aria-label` | `semanticLabel` | Flutter's name. |
+| A panel with nothing focusable takes the focus | — | A Flutter screen reader reaches the panel's content through the semantics tree, and Tab goes to the first control in it. A panel that was a focus stop of its own would be a stop with nothing to do. |
+| `data-mp-overflow` | — | There is no stylesheet to read it. The fade is drawn by the bar itself. |
+| `className`, `style` and the attributes a `div` takes | — | There is no class list or style attribute to pass through. |
+
+:::
 
 ## See also
 

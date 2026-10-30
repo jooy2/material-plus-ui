@@ -9,6 +9,8 @@ order: 12
 
 <Demo src="tabs/hero" :minHeight="200" />
 
+::: fw react
+
 ```tsx
 import { MPTab, MPTabPanel, MPTabs } from 'material-plus-ui';
 
@@ -21,7 +23,34 @@ import { MPTab, MPTabPanel, MPTabs } from 'material-plus-ui';
 </MPTabs>;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPTabs<String>(
+  semanticLabel: '여행',
+  initialValue: 'flights',
+  children: const <Widget>[
+    MPTab<String>(value: 'flights', child: Text('항공')),
+    MPTab<String>(value: 'stays', child: Text('숙소')),
+    MPTabPanel<String>(value: 'flights', child: FlightsPanel()),
+    MPTabPanel<String>(value: 'stays', child: StaysPanel()),
+  ],
+);
+```
+
+:::
+
 탭과 패널은 children 하나로 넣으면 바와 본문으로 알아서 나뉩니다. 기억해야 할 `<MPTabList>` 같은 건 없습니다. 엘리먼트가 이미 말하고 있는 것을 다시 말하는 것이 유일한 일인 래퍼는 틀릴 기회만 하나 더 늘립니다.
+
+::: fw flutter
+
+children은 모두 값 타입이 같은 `MPTab`이나 `MPTabPanel`이어야 하고, 바의 탭 순서는 `MPTab`을 쓴 순서입니다. 그 밖의 위젯을 넣으면 디버그 모드에서 assertion이 납니다. 탭도 패널도 아닌 위젯은 바에도 본문에도 놓일 자리가 없기 때문입니다.
+
+:::
 
 ## Props
 
@@ -39,7 +68,17 @@ import { MPTab, MPTabPanel, MPTabs } from 'material-plus-ui';
 
 <Demo src="tabs/variants" :minHeight="260">
 
+::: fw react
+
 <<< @/.vitepress/demos/tabs/variants.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/tabs/variants.dart
+
+:::
 
 </Demo>
 
@@ -64,6 +103,12 @@ primary 바에서 인디케이터는 탭 자신의 좌우 패딩만큼 정확히
 
 인디케이터는 `left`와 `width`를 애니메이션해서 움직입니다. 글자가 들어 있지 않은 빈 상자의 레이아웃 애니메이션이고, 이 라이브러리가 허용하는 유일한 종류입니다.
 
+::: fw flutter
+
+인디케이터 위치는 탭 개수로 계산하지 않고 탭 상자를 직접 잽니다. 그래야 라벨 길이가 서로 달라도 맞는 탭 아래에 놓입니다. 바의 너비가 바뀌거나 탭 크기가 바뀌면 다시 잽니다.
+
+:::
+
 ## 패널은 페이드로 넘어갑니다
 
 새로 들어오는 패널은 200ms 동안 서서히 나타납니다. MD3가 정한 답이고, 인디케이터가 미끄러지는 것의 나머지 절반입니다. 장식은 애니메이션하면서 그 장식이 가리키는 내용은 뚝 끊기는 바는 엉뚱한 쪽을 애니메이션하고 있던 셈이니까요.
@@ -74,7 +119,7 @@ primary 바에서 인디케이터는 탭 자신의 좌우 패딩만큼 정확히
 
 ## activateOnFocus
 
-기본값은 꺼짐입니다. 방향키는 포커스만 옮기고, 선택은 <kbd>Enter</kbd>나 <kbd>Space</kbd>가 합니다.
+기본값은 꺼짐입니다. 방향키는 포커스만 옮기고, 선택은 <kbd>Enter</kbd>나 <kbd>Space</kbd>가 합니다. <kbd>Home</kbd>과 <kbd>End</kbd>는 바의 양 끝으로 갑니다.
 
 자동 활성화는 모든 패널이 이미 페이지에 있을 때만 친절합니다. 그중 하나라도 데이터를 가져오기 시작하면 탭 네 개를 지나가는 동안 요청이 네 번 나가고, 키보드 사용자는 탭을 불러오지 않고서는 지나갈 수조차 없게 됩니다.
 
@@ -82,11 +127,25 @@ primary 바에서 인디케이터는 탭 자신의 좌우 패딩만큼 정확히
 
 숨겨진 패널은 언마운트됩니다. 패널 넷 중 하나만 화면에 있는 흔한 경우에는 맞는 기본값이고, 절반쯤 채워진 폼을 들고 있는 패널에는 틀린 기본값입니다.
 
+::: fw react
+
 ```tsx
 <MPTabPanel value="compose" keepMounted>
   …
 </MPTabPanel>
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+const MPTabPanel<String>(value: 'compose', keepMounted: true, child: ComposeForm())
+```
+
+남겨 둔 패널은 보이든 숨든 트리의 같은 자리에 있으므로 상태가 유지됩니다. 숨어 있는 동안에는 그려지지 않고, 포커스를 받지 않고, 시맨틱 트리에서 빠지며, 애니메이션도 멈춥니다.
+
+:::
 
 ## 가로 전용입니다
 
@@ -104,7 +163,11 @@ macOS는 쓰기 전까지 존재하지 않는 오버레이 스크롤바를 그�
 
 이제 스크롤바는 양쪽 모두에서 감추고, 바는 **남은 바가 있는 쪽 끝을 흐립니다**. 오른쪽에 더 있으면 오른쪽을, 독자가 중간 어딘가에 있으면 양쪽을, 전부 들어가면 어느 쪽도 흐리지 않습니다. 이미 도달한 끝을 흐리는 것은 아무 말도 하지 않는 것과 같은 거짓말입니다.
 
-넘치는지 아닌지는 선언이 아니라 측정입니다. 그것은 전적으로 바가 받은 공간에 달려 있기 때문입니다. 같은 탭 여섯 개가 640px에서는 들어가고 320px에서는 들어가지 않습니다. 측정 결과는 `.mp-tabs__list`에 `data-mp-overflow`로 적히므로, 다른 방식으로 표현하고 싶은 페이지도 같은 사실을 읽을 수 있습니다.
+넘치는지 아닌지는 선언이 아니라 측정입니다. 그것은 전적으로 바가 받은 공간에 달려 있기 때문입니다. 같은 탭 여섯 개가 640px에서는 들어가고 320px에서는 들어가지 않습니다.
+
+::: fw react
+
+측정 결과는 `.mp-tabs__list`에 `data-mp-overflow`로 적히므로, 다른 방식으로 표현하고 싶은 페이지도 같은 사실을 읽을 수 있습니다.
 
 ```css
 /* 예를 들면 페이드 대신 화살표. */
@@ -114,6 +177,16 @@ macOS는 쓰기 전까지 존재하지 않는 오버레이 스크롤바를 그�
 ```
 
 값은 `left`, `right`, `both`이고 **물리적**입니다. 글의 방향이 아니라 상자의 면을 가리킵니다. 인디케이터의 `--active-tab-left`가 따르는 것과 같은 규칙입니다. 측정값은 RTL에서도 측정값으로 남고, 물리적 측정값을 논리적 속성과 짝지우는 것이야말로 방향을 고치는 게 아니라 망가뜨리는 일입니다.
+
+:::
+
+::: fw flutter
+
+흐림은 스트립 위에 씌운 마스크라서 바가 어떤 배경 위에 놓여도 맞게 보입니다. 탭이 모두 들어가면 마스크 자체를 씌우지 않습니다. 그러데이션은 읽는 방향을 따르므로 RTL에서는 스트립과 함께 뒤집힙니다.
+
+방향키로 포커스를 옮기면 그 탭이 보이는 자리로 들어오고, 바가 처음 배치될 때는 선택된 탭이 흐린 부분을 벗어난 자리에 옵니다. 움직이는 것은 스트립뿐이고, 둘레의 페이지는 그대로 있습니다.
+
+:::
 
 바 아래 구분선은 탭과 함께 흐려지지 않습니다. 그것은 바와 패널 사이의 경계이고, 바가 무엇을 하든 전체 너비를 달립니다.
 
@@ -127,10 +200,37 @@ macOS는 쓰기 전까지 존재하지 않는 오버레이 스크롤바를 그�
 
 ## 접근성
 
+::: fw react
+
 - 밑에는 Base UI가 있고, 그것이 이 컴포넌트를 버튼 몇 개가 아니라 탭 바로 만듭니다. 묶음 전체가 하나의 탭 스톱, 그 안에서 방향키, <kbd>Home</kbd>과 <kbd>End</kbd>, `tab`과 `tabpanel` role, 그리고 둘을 잇는 `aria-controls`까지입니다.
 - 포커스 가능한 것이 하나도 없는 패널은 스스로 포커스를 받습니다. 방금 탭이 드러낸 내용에 키보드가 닿을 수 있어야 하기 때문입니다.
 - `aria-label`을 주세요. 그것이 바의 이름입니다. 탭들은 자기 이름만 말합니다.
 - 비활성 탭은 바에 남고 계속 읽힙니다. 존재하지만 지금은 쓸 수 없는 자리이고, 사라진 자리와는 다릅니다.
+
+:::
+
+::: fw flutter
+
+- 바 전체가 포커스 지점 하나입니다. 방향키는 비활성 탭을 건너뛰며 포커스를 옮기고, <kbd>Home</kbd>과 <kbd>End</kbd>는 양 끝으로 가며, <kbd>Enter</kbd>나 <kbd>Space</kbd>로 선택합니다. 포커스가 바를 떠나면 포커스 지점은 선택된 탭으로 돌아갑니다.
+- 리모컨 D-pad 같은 방향 내비게이션에서는 방향키가 양 끝에서 돌아가지 않고 멈추며, 끝을 넘는 방향키는 다음 컨트롤로 넘어갑니다.
+- 바는 tab bar role을 가진 노드이고 이름은 `semanticLabel`입니다. 각 탭은 tab role 노드이고 선택 여부를 말합니다. 선택된 탭은 `controlsNodes`로 자기 패널을 가리키고, 패널은 tab panel role 노드입니다.
+- 비활성 탭은 바에 남고, 쓸 수 없는 상태로 읽힙니다.
+- 포커스 링은 `secondary` 색으로 탭 안쪽에 그립니다. 나란히 놓인 탭의 바깥에 링을 그리면 이웃 탭 위를 덮기 때문입니다.
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `onValueChange` | `onChanged` | 값이 바뀌는 것뿐인 콜백에 Flutter가 쓰는 이름입니다. |
+| `defaultValue` | `initialValue` | Flutter의 이름입니다. 비워 두면 비활성화되지 않은 첫 탭이 선택된 채로 시작합니다. |
+| `value={null}` | — | `value: null`은 바가 스스로 선택을 관리한다는 뜻이므로, 아무것도 선택되지 않은 controlled 바는 표현할 수 없습니다. |
+| 프래그먼트까지 들여다보는 children 정렬 | children은 `MPTab`과 `MPTabPanel`뿐 | Dart에는 프래그먼트가 없습니다. 함께 나타나고 사라지는 짝은 컬렉션 `if`로 씁니다. |
+| `aria-label` | `semanticLabel` | Flutter의 이름입니다. |
+| 포커스 가능한 것이 없는 패널이 스스로 포커스를 받음 | — | Flutter의 화면 낭독기는 시맨틱 트리로 패널 내용에 닿고, Tab 키는 패널 안의 첫 컨트롤로 갑니다. 패널을 따로 포커스 지점으로 만들면 할 일이 없는 지점이 하나 생깁니다. |
+| `data-mp-overflow` | — | 그 값을 읽을 스타일시트가 없습니다. 흐림은 바가 직접 그립니다. |
+| `className`, `style`, `div`가 받는 속성 | — | 넘겨줄 클래스 목록도 style 속성도 없습니다. |
+
+:::
 
 ## 함께 보기
 
