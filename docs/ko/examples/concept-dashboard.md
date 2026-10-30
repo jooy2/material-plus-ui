@@ -8,9 +8,19 @@ aside: false
 
 <p class="mp-lede">존재하지 않는 상점 Grange의 백오피스입니다. 레일, 필터 줄, 네 개의 수치, 행마다 동작이 달린 표, 그리고 그 아래 크기를 바꿀 수 있는 분할 — 전부 한 화면에, 전부 같은 크기로. 크기 체계가 실제로 성립하는지 드러나는 배치입니다.</p>
 
-<Demo src="concepts/dashboard" :minHeight="960" />
+<Demo src="concepts/dashboard" :minHeight="960" :flutter="false" />
+
+::: fw flutter
+
+이 화면은 React 패키지로 만들었고 Flutter 버전은 없습니다. 아래 표는 그래도 각 블록이 어떤 컴포넌트로 이루어졌는지 보여 주고, 각 컴포넌트에 Flutter 쪽이 있는지는 그 컴포넌트 페이지에 있습니다.
+
+:::
+
+::: fw react
 
 소스는 파일 하나입니다: `docs/.vitepress/demos/concepts/dashboard.tsx`. 표는 살아 있습니다. 검색하고, 채널로 거르고, 행 몇 개를 체크하면 일괄 동작이 나타납니다.
+
+:::
 
 ## 무엇으로 만들어졌나
 

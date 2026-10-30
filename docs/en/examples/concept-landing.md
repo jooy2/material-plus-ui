@@ -8,9 +8,19 @@ aside: false
 
 <p class="mp-lede">A marketing page for Kestrel, a deploy tool that does not exist. It is the screen a component library is least obviously for — mostly type, space and one call to action repeated — which makes it the best test of whether the parts compose.</p>
 
-<Demo src="concepts/landing" :minHeight="2600" />
+<Demo src="concepts/landing" :minHeight="2600" :flutter="false" />
+
+::: fw flutter
+
+The screen is built with the React package, and there is no Flutter version of it. The table below still names the components each block is made of, and each component's own page says whether it has a Flutter half.
+
+:::
+
+::: fw react
 
 The source is one file: `docs/.vitepress/demos/concepts/landing.tsx`. Everything on the page is a Material Plus component or a Material Plus token; nothing is a bare `div` dressed up as one.
+
+:::
 
 ## What it is made of
 

@@ -9,6 +9,8 @@ order: 3
 
 <Demo src="config/hero" :minHeight="380" />
 
+::: fw react
+
 ```tsx
 import { MPConfigProvider } from 'material-plus-ui';
 
@@ -16,6 +18,24 @@ import { MPConfigProvider } from 'material-plus-ui';
   <App />
 </MPConfigProvider>;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+const MPConfigProvider(
+  size: MPSize.sm,
+  color: MPColor.tertiary,
+  density: -1,
+  locale: 'ko',
+  child: App(),
+);
+```
+
+:::
 
 ## Props
 
@@ -31,6 +51,8 @@ the prop at the call site  →  a group around it  →  MPConfigProvider  →  M
 
 A `size` written on a button beats everything. An [`MPButtonGroup`](../components/inputs/button-group.md) around it is a statement about _those_ controls and beats the provider, which is a statement about the page. And what Material says — `md`, `primary` — is what is left when nobody says anything at all.
 
+::: fw react
+
 ```tsx
 <MPConfigProvider size="xl">
   <MPButtonGroup size="sm">
@@ -41,7 +63,37 @@ A `size` written on a button beats everything. An [`MPButtonGroup`](../component
 </MPConfigProvider>
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+MPConfigProvider(
+  size: MPSize.xl,
+  child: Column(
+    children: <Widget>[
+      MPButtonGroup(
+        size: MPSize.sm,
+        children: <Widget>[
+          MPButton(onPressed: save, child: const Text('One')), // sm: the group is nearer
+        ],
+      ),
+      MPButton(size: MPSize.lg, onPressed: save, child: const Text('Two')), // lg: the call site wins
+      MPButton(onPressed: save, child: const Text('Three')), // xl: the provider
+    ],
+  ),
+)
+```
+
+:::
+
 ## Why these three and not a theme
+
+::: fw flutter
+
+Flutter has no cascade, so the colours, the type scale and the corners live in [`MPTheme`](../design/color.md), which scopes to a subtree the same way and needs no provider until you want to change something. `MPConfigProvider` stays what it is in React: the three axes a whole product is set on together, plus the language. The rest of this section is about why the React package draws the line there.
+
+:::
 
 Everything a theme normally holds is already a **CSS custom property** here — the colour roles, the type scale, the corners, the motion durations. Those reach a component through the cascade, which means a section of a page can differ from the rest without a provider at all and without a re-render. A JavaScript theme object would be a second place the same values live, and the two would drift. See [Colour](../design/color.md) for how the token side works.
 
@@ -51,11 +103,23 @@ Everything a theme normally holds is already a **CSS custom property** here — 
 
 `density` joins them for the first reason: it resolves to class strings exactly as `size` does. It is also the one of the three most likely to be set here and nowhere else: how dense a product reads is a decision about the product, not about any one table. Only the components that hold things read it, so a page set to `-2` tightens its lists, tables and cards and leaves every control at the height a finger needs. See [`density`](../design/prop-conventions#density).
 
+::: fw react
+
 ```tsx
 <MPConfigProvider density={-1}>
   <App />
 </MPConfigProvider>
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+const MPConfigProvider(density: -1, child: App())
+```
+
+:::
 
 ## Why `variant` is not here
 
@@ -87,7 +151,24 @@ A component whose prop has **no** default is also left alone — `MPSkeleton`'s 
 
 ## Moving the window size classes
 
-`breakpoints` moves where the five [window size classes](../design/breakpoints) begin, in CSS pixels, merged over MD3's own:
+`breakpoints` moves where the five [window size classes](../design/breakpoints) begin, merged over MD3's own.
+
+::: fw flutter
+
+```dart
+MPConfigProvider(
+  breakpoints: const <MPWindowClass, double>{MPWindowClass.medium: 700},
+  child: child,
+)
+```
+
+In Flutter it moves everything: the grid's reflow, what `MPShow` hides, where `MPSidebar` collapses and the rungs `maxWidth` resolves to all read the same map, because there is no stylesheet compiled ahead of time for a boundary to be stuck in. `MPConfigProvider.of(context).windowClassOf(width)` answers the question for anything of your own.
+
+`compact` is always nought whatever it is given: a first class whose floor is above zero leaves a band of windows in no class at all.
+
+:::
+
+::: fw react
 
 ```tsx
 <MPConfigProvider breakpoints={{ medium: 700 }}>
@@ -112,9 +193,13 @@ A project on the compiled `material-plus-ui/styles.css` cannot move the styleshe
 
 `compact` is always nought whatever it is given — a first class whose floor is above zero leaves a band of windows in no class at all.
 
+:::
+
 ## Nesting
 
 Providers nest and **merge**, nearest wins per field. A section that only changes the accent keeps the size from above:
+
+::: fw react
 
 ```tsx
 <MPConfigProvider size="sm">
@@ -125,9 +210,27 @@ Providers nest and **merge**, nearest wins per field. A section that only change
 </MPConfigProvider>
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+const MPConfigProvider(
+  size: MPSize.sm,
+  child: MPConfigProvider(
+    color: MPColor.error,
+    child: DangerZone(), // MPSize.sm still, MPColor.error now
+  ),
+)
+```
+
+:::
+
 ## The locale comes with it
 
 `MPConfigProvider` carries `locale` too, so an application needs one provider rather than two:
+
+::: fw react
 
 ```tsx
 <MPConfigProvider size="sm" locale="ko">
@@ -135,9 +238,27 @@ Providers nest and **merge**, nearest wins per field. A section that only change
 </MPConfigProvider>
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+const MPConfigProvider(size: MPSize.sm, locale: 'ko', child: App())
+```
+
+:::
+
 [`MPLocaleProvider`](../design/localization.md#_2-mplocaleprovider) still exists and still works — it is the narrow one, for a subtree that only changes language. A `MPConfigProvider` with no `locale` inherits whatever is above it rather than resetting to the platform default.
 
+::: fw flutter
+
+With no locale anywhere above it, a Flutter component follows the app's own `Localizations`, then English. The React package never reads the browser's language, because a server and the browser that hydrates its page can disagree about it; a Flutter app has no such split, and the locale its `Localizations` carries is the one it already chose.
+
+:::
+
 ## Reading it back
+
+::: fw react
 
 ```tsx
 import { useMPConfig } from 'material-plus-ui';
@@ -147,12 +268,48 @@ const { size, color } = useMPConfig();
 
 For a wrapper component of your own around one of these, so it resolves a prop the way the component underneath will. The fields are **optional**, and `undefined` means _nobody set one_ rather than `md` or `primary` — the library's own defaults are applied by the components, not stored here, so a future change of default is one place.
 
+:::
+
+::: fw flutter
+
+```dart
+final MPConfigValue? config = MPConfigProvider.maybeOf(context);
+final MPSize size = config?.size ?? MPSize.md;
+```
+
+For a widget of your own around one of these, so it resolves a parameter the way the component underneath will. `maybeOf` returns `null` with no provider above, and every field is nullable: `null` means _nobody set one_ rather than `md` or `primary`, because the library's own defaults are applied by the components. `MPConfigProvider.of(context)` returns an empty set instead of `null`.
+
+:::
+
 ## Sharp edges
+
+::: fw react
 
 - **It is not `defaultProps`.** There is no per-component override map, and adding one would mean a second, name-keyed way to say the same thing. Two props cover the case that comes up; anything narrower is a wrapper component of your own.
 - **It re-renders what is under it.** The value is memoised on the fields rather than the object, so a parent re-rendering with the same configuration costs nothing — but _changing_ `size` at runtime does re-render every consumer, which is what the demo above is doing. That is a settings screen's job, not a scroll handler's.
 
+:::
+
+::: fw flutter
+
+- **It is not a theme for each component.** There is no per-component override map; two parameters cover the case that comes up, and anything narrower is a widget of your own.
+- **It rebuilds what reads it.** The provider is an `InheritedWidget` that compares its resolved fields, so a parent rebuilding with the same configuration costs nothing, but changing `size` at runtime rebuilds every component under it. That is a settings screen's job, not an animation's.
+
+:::
+
 ## Right to left
+
+::: fw flutter
+
+```dart
+const MPConfigProvider(textDirection: TextDirection.rtl, child: App())
+```
+
+`textDirection` puts a `Directionality` round the subtree, and every component lays itself out from it: padding, corners and icon slots are `start` and `end` rather than left and right, and the slider, the menus and the carousels read the same value. Left out, the ambient `Directionality` stays in charge, which in an app is the one `WidgetsApp` derives from the locale. `MPSide` stays physical for the reason given below.
+
+:::
+
+::: fw react
 
 Every padding, margin, corner and icon slot in this library is already a **logical** property — `ps`/`pe` rather than `pl`/`pr`, `startIcon`/`endIcon` rather than left and right, `MPCorner`'s `top-start` rather than `top-left`. So the stylesheet half of RTL has always worked from a `dir` anywhere above a component, and a `dir="rtl"` section inside an otherwise LTR page is a supported arrangement rather than an accident.
 
@@ -192,15 +349,29 @@ Left out, nothing is rendered and nothing is claimed: a page that sets `dir` on 
 - **Mixed-direction pages need the provider where the direction changes**, not only at the root — the Base UI context follows the tree, and the CSS follows the DOM, so put them together.
 - **`display: contents` renders an element.** It participates in no layout, but it is in the DOM: a `> *` selector of your own counts it.
 
+:::
+
 ## A line under every field
 
 `reserveSupportingText` keeps a line under every field for its description or its error, whether there is one yet or not. By default the line opens when there is something to put in it, and everything below the field moves down by a line. That is fine right after the reader typed. An error that arrives later is a different matter: a server's answer to a submit, a check that waited for the reader to stop typing, or `MPForm`'s `errors` filled in from a response all move the page with nothing the reader did to explain it, and that is the shift a layout-shift score counts.
+
+::: fw react
 
 ```tsx
 <MPConfigProvider reserveSupportingText>
   <SignUpForm />
 </MPConfigProvider>
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+const MPConfigProvider(reserveSupportingText: true, child: SignUpForm())
+```
+
+:::
 
 The cost is a line of space under fields that never have anything to say. A message longer than a line still grows the field.
 

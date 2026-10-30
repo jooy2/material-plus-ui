@@ -8,9 +8,19 @@ aside: false
 
 <p class="mp-lede">Registration for Kestrel, in three steps. This is the library's fields with nothing else in the way — every kind of answer a form can ask for, and the states around them. <code>label</code>, <code>description</code> and <code>errorMessage</code> are the same three slots on nearly all of them.</p>
 
-<Demo src="concepts/signup" :minHeight="660" />
+<Demo src="concepts/signup" :minHeight="660" :flutter="false" />
+
+::: fw flutter
+
+The screen is built with the React package, and there is no Flutter version of it. The table below still names the components each block is made of, and each component's own page says whether it has a Flutter half.
+
+:::
+
+::: fw react
 
 The source is one file: `docs/.vitepress/demos/concepts/signup.tsx`. The flow works — fill the first step in and Continue turns on.
+
+:::
 
 ## Which field asks what
 

@@ -5,14 +5,22 @@ order: 2
 
 # Prop 규약
 
-`size="md"`는 텍스트 필드에서든 버튼에서든 다이얼로그에서든 같은 것을 뜻해야 합니다. 공유 어휘는 [`src/types.ts`](https://github.com/jooy2/material-plus-ui/blob/main/src/types.ts)에 있고, 각 컴포넌트는 자기가 필요한 축만 가져갑니다.
+`size="md"`는 텍스트 필드에서든 버튼에서든 다이얼로그에서든, 그리고 두 패키지 모두에서 같은 것을 뜻해야 합니다. 공유 어휘는 [`packages/react/src/types.ts`](https://github.com/jooy2/material-plus-ui/blob/main/packages/react/src/types.ts)와 그 Dart 쪽인 [`packages/flutter/lib/src/types.dart`](https://github.com/jooy2/material-plus-ui/blob/main/packages/flutter/lib/src/types.dart)에 있고, 각 컴포넌트는 자기가 필요한 축만 가져갑니다.
 
 아래 전체를 지배하는 규칙이 두 개입니다.
 
 1. **스펙에 단어가 있으면 스펙의 단어를 씁니다.** 색상 롤은 `primary`나 `on-surface-variant`, 모서리는 `extra-small`, 타입 롤은 `body-large`입니다. `main`/`light`/`dark`/`contrastText`가 아닙니다 — 그건 Material UI의 팔레트 모델이고 더 이전의 다른 색상 시스템이라, 그 이름을 빌려오면 이 라이브러리가 구현하지 않는 것을 설명하게 됩니다.
 2. **이미 이름이 있는 개념에 두 번째 표기를 만들지 않습니다.** 다른 컴포넌트가 이미 가진 축이 필요하면 그것을 가져다 씁니다.
 
+::: fw flutter
+
+Dart는 같은 단어를 camelCase로 씁니다 — `onSurfaceVariant`, `extraSmall`, `bodyLarge`. 단어 자체는 같습니다. 누르는 동작의 `onPressed`나 위젯 안의 위젯 하나를 가리키는 `child`처럼 Flutter에 이미 이름이 있는 것은 Flutter의 이름을 씁니다. 전부 [Dart 표기](#dart-표기)에 있습니다.
+
+:::
+
 ## 공유 타입
+
+::: fw react
 
 ```ts
 type MPSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -51,7 +59,62 @@ export interface MPTextFieldProps extends MPStyleProps {
 
 `MPStyleProps`는 의도적으로 짧습니다. 축은 **두 번째** 컴포넌트가 필요해질 때 합류하고, 필요해질 것을 예상해서 미리 들어오지 않습니다 — 디자인 토큰과 같은 규칙입니다.
 
+:::
+
+::: fw flutter
+
+```dart
+enum MPSize { xs, sm, md, lg, xl }
+enum MPColor { primary, secondary, tertiary, error }
+enum MPVariant { filled, tonal, elevated, outlined, text }
+typedef MPDensity = int; // 0, -1, -2, -3
+typedef MPElevation = int; // 0부터 5까지
+enum MPOrientation { horizontal, vertical }
+enum MPAlign { start, center, end }
+enum MPSide { top, right, bottom, left }
+enum MPCorner { topStart, topEnd, bottomStart, bottomEnd }
+enum MPWindowClass { compact, medium, expanded, large, extraLarge }
+```
+
+단어 목록은 enum이라서, 철자를 틀리면 조용히 기본값이 되는 대신 컴파일 오류가 납니다. `density`와 `elevation`은 머터리얼의 척도 위의 숫자라서 그냥 `int`입니다. `0`부터 `-3`을 벗어난 `density`는 거부하지 않고 범위 안으로 붙잡습니다.
+
+확장할 props 묶음은 없습니다. Dart 위젯은 생성자 파라미터를 각자 선언하므로, 컴포넌트마다 `size`, `color` 같은 파라미터를 같은 이름과 같은 타입으로 직접 씁니다.
+
+:::
+
 `variant`와 `color`, `density`는 묶음의 구성원이 아니라 공유되는 *어휘*입니다. 의미 있는 변형을 가진 컴포넌트가 `variant`를, 강조 색 계열을 읽는 컴포넌트가 `color`를, 다른 것을 담는 컴포넌트가 `density`를 받습니다. 셋 다 모든 컴포넌트에 있지는 않고, `MPTextField`에서는 어느 것도 의미가 없습니다. `elevation`도 같은 종류의 어휘이고, 띄울 수 있는 시트들이 받습니다.
+
+::: fw flutter
+
+## Dart 표기
+
+공유 prop을 Flutter 패키지가 받는 표기로 옮긴 표입니다.
+
+| React | Flutter | 참고 |
+| --- | --- | --- |
+| `size="md"` | `size: MPSize.md` |  |
+| `color="primary"` | `color: MPColor.primary` |  |
+| `variant="filled"` | `variant: MPVariant.filled` |  |
+| `density={-2}` | `density: -2` | `int`이고, `0`부터 `-3` 안으로 붙잡힙니다 |
+| `elevation={1}` | `elevation: 1` | `int`이고, `0`부터 `5`까지 |
+| `orientation="vertical"` | `orientation: MPOrientation.vertical` |  |
+| `side="top"` | `side: MPSide.top` | 두 패키지 모두 물리적 방향 |
+| `align="start"` | `align: MPAlign.start` | 두 패키지 모두 논리적 방향 |
+| `'top-start'` | `MPCorner.topStart` | 두 패키지 모두 논리적 방향 |
+| `'extra-large'` | `MPWindowClass.extraLarge` | 창 크기 클래스 |
+| `weekStartsOn={1}` | `weekStartsOn: MPWeekday.monday` | React는 `getDay()`처럼 일요일을 `0`으로 셉니다. Dart는 `DateTime`의 번호를 따라 월요일이 `1`입니다 |
+| `fullWidth` | `fullWidth: true` |  |
+| `startIcon`, `endIcon` | `startIcon`, `endIcon` | 슬롯마다 위젯 하나 |
+| `onClick` | `onPressed` | Flutter 자체 위젯처럼 `null`이면 컨트롤이 비활성화됩니다 |
+| `onChange`, `onValueChange` | `onChanged` | 이벤트가 아니라 값을 넘깁니다 |
+| `onOpenChange` | `onOpenChange` | 그대로 |
+| `children` | `child`, 목록이면 `children` | Flutter의 이름 |
+| `aria-label` | `semanticLabel` | Flutter의 이름 |
+| `className`, `style`, `classNames` | — | 넘겨줄 엘리먼트가 없습니다. [스타일 덮어쓰기](#스타일-덮어쓰기)를 보세요 |
+
+컴포넌트 하나만 다르게 쓰는 것은 그 컴포넌트 페이지의 "React 빌드와 다른 점" 절에 있습니다.
+
+:::
 
 ## `variant`
 
@@ -77,7 +140,17 @@ export interface MPTextFieldProps extends MPStyleProps {
 
 <Demo src="text-field/sizes">
 
+::: fw react
+
 <<< @/.vitepress/demos/text-field/sizes.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/text_field/sizes.dart
+
+:::
 
 </Demo>
 
@@ -97,6 +170,12 @@ export interface MPTextFieldProps extends MPStyleProps {
 
 살아남는 규칙은 정말로 중요한 쪽입니다. **사다리 안에서는 한 단이 어디서나 같은 것을 뜻합니다.** 사다리에 없는 컴포넌트는 묶음을 확장하지 않는 것으로 그것을 말합니다.
 
+::: fw flutter
+
+Flutter에서 `MPIcon`의 `size`는 논리 픽셀 단위의 `double`입니다. 생략하면 주변 `IconTheme`의 크기를 따르고, 컨트롤 안에서는 그것이 컨트롤 자신의 크기이므로 버튼 안의 아이콘에는 크기를 줄 필요가 없습니다.
+
+:::
+
 ## `density`
 
 머터리얼의 척도를 머터리얼의 숫자 그대로 씁니다. `0`이 요청한 크기 그대로이고, 한 단계 내려갈 때마다 4dp가 빠집니다.
@@ -105,10 +184,22 @@ export interface MPTextFieldProps extends MPStyleProps {
 
 같은 이유로 두 축을 하나로 합칠 수 없습니다. 리스트의 `size="sm"`은 작은 리스트이고, `density={-2}`는 화면에 더 많이 들어간 보통 리스트입니다. 사다리가 하나면 이 둘이 같은 요청이 됩니다.
 
+::: fw react
+
 ```tsx
 <MPList density={-1}>       // 행 높이가 56이 아니라 52
 <MPTable size="sm" density={-2} />
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+MPList(density: -1, children: rows) // 행 높이가 56이 아니라 52
+```
+
+:::
 
 각 단계는 사다리가 이미 이름을 가진 높이에 정확히 내려앉습니다. 조밀한 리스트가 옆의 컨트롤과 높이를 맞추는 것이 이 때문입니다. `md`는 56, 52, 48, 44로 걷고, 48은 `lg`의 `-2`가 주는 값과 같습니다.
 
@@ -137,10 +228,14 @@ MD3의 단계를 그대로, 떠 있는 다섯 단계 전부. `1`은 elevated 카
 
 단계를 주면 단계가 표면을 정하고, `variant`에는 테두리만 남습니다. `outlined` 시트는 테두리를 지키고 다른 것은 아무것도 칠하지 않습니다. 그 외의 방식은 두 prop이 하나의 `background-color`를 쓰는 것이고, 승자는 두 클래스 이름이 생성된 순서가 정하게 됩니다.
 
+::: fw react
+
 ```tsx
 <MPBox elevation={2}>          // surface-container, level 2
 <MPBox variant="outlined" elevation={3} />  // 테두리를 유지한 채 띄웁니다
 ```
+
+:::
 
 바는 같은 단계를 한 칸 위에서 읽습니다. `MPHeader`, `MPFooter`, `MPSidebar`는 `variant="elevated"`에서 `2`에 쉽니다. 바는 페이지의 내용 안이 아니라 위에 있기 때문입니다. 명시한 단계는 명시한 그대로입니다.
 
@@ -152,7 +247,15 @@ Material UI의 여섯 개가 아닙니다. 스펙의 색상 시스템에는 `inf
 
 임의의 색상 값은 prop으로 받지 않습니다. 롤이 *무엇인지*를 바꾸려면 토큰을 지정하세요. 그러면 호출 지점마다가 아니라 한 번의 변경이 모든 컴포넌트에 닿습니다.
 
+::: fw flutter
+
+Flutter에서 토큰은 `MPTheme`입니다. `sourceColor`를 주거나, `copyWith`로 그 롤 하나만 바꾼 스킴을 줍니다. 둘 다 [색상](./color#바꾸기)에 있습니다.
+
+:::
+
 ## 모션
+
+::: fw react
 
 무언가를 움직이는 방법이 셋이고, 셋인 이유는 서로 다른 질문에 답하기 때문입니다.
 
@@ -175,7 +278,23 @@ Material UI의 여섯 개가 아닙니다. 스펙의 색상 시스템에는 `inf
 
 **`prefers-reduced-motion`은 어디서나 존중됩니다.** 컴포넌트도 스타일시트도 그렇습니다. 이를 위한 prop은 필요 없습니다.
 
+:::
+
+::: fw flutter
+
+무언가를 움직이는 방법이 둘입니다. Flutter 패키지에는 `transition` 파라미터가 없어서, React에서 그 prop이 실행하는 등장 효과를 여기서는 래퍼가 맡습니다.
+
+**토큰.** 컴포넌트가 쓰는 모든 지속 시간과 곡선은 `MPMotion`의 상수입니다. `MPMotion.short4`, `MPMotion.emphasized` 같은 것들이고, 직접 만든 위젯도 이것을 읽어 라이브러리와 같은 속도로 움직일 수 있습니다. `MPEasing`은 그 곡선 절반을 파라미터로 말한 것입니다. 명세의 이름만 받고 임의의 `Cubic`은 받지 않습니다. `color`가 색이 아니라 계열을 받는 것과 같은 이유입니다.
+
+**`MPAnimate*` 위젯.** 무엇이든 감싸고, 트리거와 스태거와 재생 제어를 가집니다. 카드의 등장 효과는 카드를 `MPAnimateFade`로 감싸는 것입니다.
+
+**`MediaQuery.disableAnimations`는 어디서나 존중됩니다.** 움직이는 모든 컴포넌트가 그렇습니다. 이를 위한 파라미터는 필요 없습니다.
+
+:::
+
 ## 스타일 덮어쓰기
+
+::: fw react
 
 통로가 셋이고, 무엇을 바꾸느냐에 따라 쓸 것이 정해집니다.
 
@@ -214,15 +333,40 @@ Material UI의 여섯 개가 아닙니다. 스펙의 색상 시스템에는 `inf
 
 넘긴 클래스도 컴포넌트가 쓴 클래스도 클래스 하나입니다. 어느 쪽도 더 구체적이지 않으므로, 이기는 쪽은 **생성된 스타일시트에서의 순서**가 정합니다. 그 순서는 Tailwind의 것이지 작성한 순서가 아닙니다. [시작하기](../guide/getting-started.md)에 전부 있습니다. `!`가 무엇을 하는지, 그리고 그것에 두 번 걸려 넘어지는 지점까지.
 
+:::
+
+::: fw flutter
+
+`className`도 `classNames`도 `style`도 없습니다. 위젯에는 클래스를 합칠 스타일시트가 없으므로, 바꿀 수 있는 것은 둘 중 하나입니다.
+
+- **테마.** 색, 모서리, 타입 스케일은 `MPTheme`의 것이고, 테마는 감싼 서브트리에 적용됩니다. [색상](./color.md)을 보세요.
+- **파라미터.** `size`, `color`, `variant`, `density`, `elevation`이 컴포넌트가 내놓는 축이고, 여백이나 폭처럼 컴포넌트 바깥의 것은 `Padding`이나 `SizedBox` 같은 위젯으로 감쌉니다.
+
+:::
+
 ## 이름 규칙
 
 - **아이콘 슬롯은 `startIcon` / `endIcon`입니다.** `leftIcon`과 `rightIcon`은 RTL에서 의미가 뒤집힙니다.
 - **불리언은 긍정형입니다.** `disabled`는 되고 `notDisabled`는 안 됩니다.
 - **컨테이너를 채우는 것은 `fullWidth`입니다.**
+
+::: fw react
+
 - **이벤트 핸들러는 네이티브 이름을 유지하고** 그대로 통과시킵니다. 네이티브 이벤트를 신뢰할 수 없는 경우만 예외이고, 지금까지 정확히 한 건입니다 — `MPTextField`의 `onChange`는 문자열을 넘깁니다. 조합 중에는 이벤트의 `target.value`가 읽어서는 안 되는 임시 텍스트이기 때문입니다.
 - **이름 붙은 콜백은 그 컴포넌트가 *무엇을 위한 것인지*를 보고합니다.** `onValueChange`는 선택이고 `onSubmit`은 그냥 누른 Enter입니다. 그 아래의 날것 이벤트는 별도의 prop입니다 — [날것 이벤트](#날것-이벤트)를 보세요.
 
+:::
+
+::: fw flutter
+
+- **콜백은 Flutter의 이름을 씁니다.** 누르는 동작은 `onPressed`, 새 값은 `onChanged`이고, `onPressed`를 `null`로 두면 컨트롤이 비활성화됩니다. `onOpenChange`는 React의 이름을 그대로 씁니다.
+- **콜백은 그 컴포넌트가 _무엇을 위한 것인지_를 보고합니다.** `MPTextField`의 `onChanged`는 `String`을, 스위치는 `bool`을, 슬라이더는 `List<double>`을 넘기고, 이벤트를 넘기지 않습니다. `onSubmit`은 그냥 누른 Enter입니다. 그 아래의 키는 별도의 파라미터입니다 — [날것 이벤트](#날것-이벤트)를 보세요.
+
+:::
+
 ## 상태 prop
+
+::: fw react
 
 | Prop | 의미 |
 | --- | --- |
@@ -230,6 +374,21 @@ Material UI의 여섯 개가 아닙니다. 스펙의 색상 시스템에는 `inf
 | `readOnly` | 존재하지만 여기서는 아님. 선택 가능한 상태를 유지하고 **탭 순서에도 남습니다** |
 
 `readOnly`가 네이티브 `disabled`를 쓰지 않는 것은 의도적입니다. 포커스 순서에서 빠지면 키보드 사용자는 페이지의 감각을 잃고, 누군가 복사해야 할 값은 도달 가능해야 합니다.
+
+:::
+
+::: fw flutter
+
+| 파라미터 | 의미 |
+| --- | --- |
+| `disabled` | 사용할 수 없음. 머터리얼의 disabled 처리(내용 38%, 외곽선 12%)를 씁니다. 콜백을 받는 컨트롤은 콜백이 `null`일 때도 비활성입니다 |
+| `readOnly` | 존재하지만 여기서는 아님. 선택 가능한 상태를 유지하고 **포커스 순서에도 남습니다** |
+
+`readOnly`는 조용한 `disabled`가 아닙니다. 포커스 순서에서 빠지면 키보드 사용자는 화면의 감각을 잃고, 누군가 복사해야 할 값은 도달 가능해야 합니다.
+
+:::
+
+::: fw react
 
 ## 상태가 DOM에 있는 곳
 
@@ -252,7 +411,38 @@ Material UI의 여섯 개가 아닙니다. 스펙의 색상 시스템에는 `inf
 
 모든 컴포넌트는 `className`과 `style`도 받으며, 각 컴포넌트의 props 표에 둘이 어느 엘리먼트에 붙는지 적혀 있습니다. 그것으로 무엇을 가져올 수 있고 무엇은 가져올 수 없는지는 [클래스와 스타일](../guide/getting-started#클래스와-스타일)에 있습니다.
 
+:::
+
 ## 날것 이벤트
+
+::: fw flutter
+
+Flutter 위젯은 DOM prop을 받지 않으므로, 컨트롤은 대신 Flutter 자체 컨트롤이 받는 것을 받습니다. `focusNode`와 `autofocus`, `onFocusChange`, 그리고 필드라면 `onKeyEvent`입니다.
+
+**`onKeyEvent`는 필드보다 먼저 키를 듣습니다.** `KeyEventResult.handled`를 돌려주면 키를 가져가므로, Enter에 대한 자기 답을 가진 필드가 같은 키에 또 답하지 않습니다.
+
+```dart
+MPTextField(
+  value: draft,
+  onChanged: (String next) => setState(() => draft = next),
+  onSubmit: send, // 그냥 누른 Enter
+  onKeyEvent: (FocusNode node, KeyEvent event) {
+    final bool modified =
+        HardwareKeyboard.instance.isMetaPressed || HardwareKeyboard.instance.isControlPressed;
+
+    if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.enter && modified) {
+      sendAndClose(); // ⌘Enter는 당신 것 — onSubmit은 함께 불리지 않습니다
+      return KeyEventResult.handled;
+    }
+
+    return KeyEventResult.ignored;
+  },
+)
+```
+
+:::
+
+::: fw react
 
 대부분의 컴포넌트는 이미 모든 DOM prop을 받습니다. props가 `React.ComponentPropsWithoutRef`를 확장하고 나머지를 자기가 소유한 엘리먼트에 펼치기 때문에, `MPButton`의 `onKeyDown`은 그 `<button>` 자신의 것입니다.
 
@@ -284,7 +474,11 @@ Material UI의 여섯 개가 아닙니다. 스펙의 색상 시스템에는 `inf
 
 나머지는 이미 모든 DOM prop을 받거나, 이것들이 붙을 단 하나의 엘리먼트가 없습니다. `MPOtpField`는 입력이 여섯이고, 그 칸 사이를 옮길 때마다 `blur`가 발생한다면 일어나지 않은 일을 보고하는 셈입니다.
 
+:::
+
 ## 새 컴포넌트 체크리스트
+
+::: fw react
 
 1. `src/components/{소문자-이름}/`에 `{PascalCase}.tsx`와 `index.ts` 배럴
 2. named export만. `export default`는 쓰지 않습니다
@@ -297,6 +491,22 @@ Material UI의 여섯 개가 아닙니다. 스펙의 색상 시스템에는 `inf
 9. `docs/.vitepress/data/props.ts`에 행 추가, `docs/.vitepress/demos/{name}/`에 데모 추가
 10. `demos/gallery/all.tsx`에 카드 추가 — [모든 컴포넌트](../components/)에 나타나게
 11. `npm run typecheck && npm test && npm run lint` 전부 통과
+
+:::
+
+::: fw flutter
+
+1. `packages/flutter/lib/src/components/{snake_name}/mp_{snake_name}.dart`
+1. `package:flutter/widgets.dart` 위에 만들고, Material과 Cupertino는 import하지 않음
+1. `dart run tool/generate.dart` — 배럴에 추가하고 데모를 갤러리 레지스트리에 등록
+1. 공유 파라미터는 `types.dart`에서 React 컴포넌트와 같은 이름으로 가져오고, 아직 이름이 없는 것만 정의
+1. 색·타입·모서리·모션은 `MPTheme.of(context)`와 토큰 클래스에서 읽음
+1. `test/components/{snake_name}/` 아래의 위젯 테스트 — 같은 커밋에, `MaterialApp` 없이
+1. `example/lib/demos/{snake_name}/` 아래의 데모 — 사이트가 그대로 인용합니다
+1. `docs/.vitepress/data/props-flutter/{page}.ts`에 행을 추가하고, 그 페이지의 `::: fw flutter` 쪽을 작성
+1. `flutter analyze`, `dart format lib test tool`, `flutter test` 전부 통과
+
+:::
 
 ## 다음
 

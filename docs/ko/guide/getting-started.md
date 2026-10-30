@@ -5,11 +5,23 @@ order: 1
 
 # 시작하기
 
-Material Plus는 [Material Design 3](https://m3.material.io)를 구현한 React 컴포넌트 라이브러리입니다. 다른 구현체를 감싸는 것이 아니라 스펙을 직접 따르기 때문에, 색상 롤·타입 스케일·모양의 이름이 모두 스펙의 이름입니다.
+Material Plus는 [Material Design 3](https://m3.material.io)를 구현한 React·Flutter 컴포넌트 라이브러리입니다. 다른 구현체를 감싸는 것이 아니라 스펙을 직접 따르기 때문에, 색상 롤·타입 스케일·모양의 이름이 모두 스펙의 이름입니다.
+
+::: fw react
 
 동작은 [Base UI](https://base-ui.com)가 맡습니다. 라벨 연결, 유효성 배선, 접근성이 그쪽에서 옵니다. 스타일은 [Tailwind CSS](https://tailwindcss.com) v4가, 테마는 평범한 CSS 커스텀 프로퍼티가 맡습니다. 이 마지막 선택이 이미 자체 머터리얼 환경을 갖춘 프로젝트 안에서 서로 충돌하지 않고 함께 쓰일 수 있게 하는 부분입니다.
 
+:::
+
+::: fw flutter
+
+Flutter 패키지는 `package:flutter/widgets.dart`만으로 만들었습니다. Material도 Cupertino도 import하지 않으므로 `MaterialApp`이든 `CupertinoApp`이든 맨 `WidgetsApp`이든 그 안에 넣어도 머터리얼 구현을 하나 더 끌고 오지 않습니다. 컴포넌트 이름, 파라미터 어휘, 수치는 React 패키지와 같습니다.
+
+:::
+
 ## 설치
+
+::: fw react
 
 ```bash
 npm install material-plus-ui
@@ -37,6 +49,22 @@ Material Plus가 자기 사본을 들고 오는 대신 프로젝트에 있을 �
 ### 브라우저
 
 데스크톱과 모바일의 Chrome·Edge 111, Firefox 113, Safari 16.4 이상입니다. 이 범위의 오래된 쪽에서는 몇몇 효과가 줄어듭니다. 그 목록과 버전마다 확인한 방법은 [브라우저 지원](../browser-support)에 있습니다.
+
+:::
+
+::: fw flutter
+
+```bash
+flutter pub add material_plus_ui
+```
+
+Flutter 3.41 이상, 즉 Dart 3.11 이상이 필요합니다.
+
+패키지는 Flutter 말고는 의존성이 없고 에셋도 싣지 않습니다. 선언할 폰트나 이미지가 없다는 뜻입니다. 글자는 앱의 `DefaultTextStyle`이 지정한 폰트로 그려지므로, 컴포넌트가 주변 앱과 같은 글꼴로 보입니다.
+
+:::
+
+::: fw react
 
 ## 스타일시트 연결
 
@@ -103,7 +131,11 @@ Material Plus는 페이지 수준 스타일링을 전혀 추가하지 않습니�
 
 결과적으로 여러분의 CSS 파일이 어디에 있든 상관이 없습니다.
 
+:::
+
 ## 사용
+
+::: fw react
 
 provider가 없습니다. 컴포넌트를 import해서 렌더링하면 됩니다.
 
@@ -118,7 +150,35 @@ export default function App() {
 }
 ```
 
+:::
+
+::: fw flutter
+
+여기에도 provider가 없습니다. 라이브러리를 import해서 위젯을 쓰면 됩니다.
+
+```dart
+import 'package:flutter/widgets.dart';
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+class SaveBar extends StatelessWidget {
+  const SaveBar({required this.onSave, super.key});
+
+  final VoidCallback onSave;
+
+  @override
+  Widget build(BuildContext context) {
+    return MPButton(onPressed: onSave, child: const Text('저장'));
+  }
+}
+```
+
+import 한 줄로 모든 위젯과 테마, 공유 타입이 들어옵니다. 번역만 별도 라이브러리이고, 그 이유는 [언어](#언어)에 있습니다.
+
+:::
+
 ## 테마
+
+::: fw react
 
 컴포넌트가 그리는 모든 것이 CSS 커스텀 프로퍼티에서 옵니다. 그래서 테마 설정이 곧 CSS입니다. provider도, 테마 객체도 없고, 색이 바뀔 때 리렌더도 없습니다. Tailwind를 쓰든 안 쓰든 동일하게 동작합니다.
 
@@ -251,17 +311,113 @@ Tailwind의 `dark:` 변형이 기준으로 삼는 `.dark`도 동작합니다. `[
 }
 ```
 
+:::
+
+::: fw flutter
+
+`MPTheme`은 그 아래 서브트리에 테마를 적용합니다. 테마가 없으면 컴포넌트는 기본 스킴으로 그려지고 `MediaQuery.platformBrightness`를 따르며, 기기가 라이트와 다크를 오가면 다시 그려집니다.
+
+```dart
+MPTheme(
+  sourceColor: const Color(0xFF7C3AED),
+  brightness: Brightness.dark,
+  shapes: MPShapes.rounded,
+  child: const App(),
+)
+```
+
+| 파라미터 | 역할 |
+| --- | --- |
+| `sourceColor` | 모든 롤을 생성하는 색입니다. 머터리얼의 스킴 생성과 같은 방식입니다. 기본값은 깊은 azure `#00639b`입니다. |
+| `brightness` | `Brightness.light` 또는 `Brightness.dark`. 생략하면 위쪽 테마를 물려받고, 위에 테마가 없으면 플랫폼이 정합니다. |
+| `shapes` | 모서리 사다리입니다. `MPShapes.material`(기본값), `MPShapes.rounded`, `MPShapes.sharp` 중 하나이거나 직접 만든 것입니다. |
+| `colors` | `sourceColor`로 생성하는 대신 그대로 쓰는 `MPColorScheme` 전체입니다. |
+| `typescale` | 타입 스케일입니다. 주지 않으면 MD3의 것을 씁니다. |
+
+모든 파라미터는 선택이고, 다른 테마 안에 놓인 테마는 바꿀 것만 말하면 됩니다. 그래서 자기 브랜드 색을 가진 영역은 위젯 하나로 끝납니다.
+
+```dart
+MPTheme(sourceColor: const Color(0xFF00696D), child: const PromoBanner())
+```
+
+같은 소스 색상은 두 패키지에서 같은 스킴을 만듭니다. 파생 방식과, 소스 색상에 대해 알아 둘 유일한 제약(회색에 가까우면 안 된다는 것)은 [색상](../design/color)에 있습니다.
+
+`MPShapes.rounded`는 버튼을 건드리지 않습니다. 알약은 더 둥글어질 곳이 없기 때문입니다. `MPShapes.sharp`는 버튼까지 모든 모서리를 각지게 만듭니다.
+
+:::
+
 ## 크기
 
 모든 컨트롤이 하나의 사다리에서 `size`를 가져갑니다 — `xs`, `sm`, `md`, `lg`, `xl` — 그리고 `md`가 머터리얼 본래의 크기이므로 아무것도 지정하지 않으면 그것이 나옵니다.
+
+::: fw react
 
 ```tsx
 <MPTextField label="검색" size="sm" value={query} onChange={setQuery} />
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+MPButton(size: MPSize.sm, onPressed: search, child: const Text('검색'));
+```
+
+:::
+
 이 사다리는 라이브러리가 스펙을 알면서 넘어서는 유일한 지점입니다. 이유와 각 단계가 무엇인지는 [Prop 규약](../design/prop-conventions#size)에 있습니다.
 
 제품 전체를 한 단계로 돌리려면 호출 지점마다가 아니라 한 번만 정하세요 — [앱 전역 기본값](./config)을 보세요.
+
+::: fw flutter
+
+```dart
+MPConfigProvider(
+  size: MPSize.sm,
+  color: MPColor.tertiary,
+  locale: 'ko',
+  child: const App(),
+)
+```
+
+| 파라미터 | 정하는 기본값 |
+| --- | --- |
+| `size` | 모든 컨트롤이 시작하는 단계 |
+| `color` | 모든 컨트롤이 읽는 강조 색 계열 |
+| `density` | 무언가를 담는 컴포넌트가 얼마나 촘촘한지. `0`부터 `-3`까지 |
+| `breakpoints` | 창 크기 구간이 시작되는 지점. MD3의 값 위에 병합됩니다 |
+| `locale` | 컴포넌트가 쓰는 언어. [언어](#언어)를 보세요 |
+| `textDirection` | 글자가 흐르는 방향. 생략하면 주변 `Directionality`를 따릅니다 |
+| `reserveSupportingText` | 필드마다 설명이나 오류를 위한 줄을 미리 비워 둡니다. 나중에 오류가 생겨도 폼의 나머지가 밀려나지 않습니다 |
+
+컴포넌트 자신의 파라미터가 가장 먼저이고, 그다음이 속한 묶음, 그다음이 provider, 마지막이 컴포넌트의 기본값입니다. provider 안의 provider는 바깥 provider가 정했고 자기가 말하지 않은 것을 그대로 물려받습니다.
+
+:::
+
+::: fw flutter
+
+## 언어
+
+라이브러리는 따로 알려 주기 전까지 영어만 씁니다. 다른 언어는 앱이 시작할 때 한 번 넘겨주는 표이고, 별도 라이브러리에서 가져옵니다.
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+import 'package:material_plus_ui/locales.dart';
+
+void main() {
+  registerMPMessages(<MPLocale>[ko]);
+  runApp(const App());
+}
+```
+
+`registerMPMessages(mpLocales)`는 열여덟 개를 모두 등록합니다. 번역이 별도 라이브러리인 것은 표가 데이터이기 때문입니다. 데이터를 앱에서 빼는 방법은 아무것도 그것을 import하지 않는 것뿐입니다.
+
+컴포넌트는 다음 중 먼저 언어를 말하는 것을 따릅니다. 자기 `locale` 파라미터, 가장 가까운 `MPLocaleProvider`, 가장 가까운 `MPConfigProvider`의 `locale`, 앱의 `Localizations` 순서입니다. 아무것도 없거나 등록하지 않은 언어라면 영어를 씁니다. 표 자체는 React 패키지와 같고, [현지화](../design/localization)에서 다룹니다.
+
+:::
+
+::: fw react
 
 ## 클래스와 스타일
 
@@ -428,7 +584,11 @@ onwarn(warning, warn) {
 }
 ```
 
+:::
+
 ## 패키지에 들어 있는 것
+
+::: fw react
 
 | Export                             | 내용                                                 |
 | ---------------------------------- | ---------------------------------------------------- |
@@ -441,8 +601,31 @@ onwarn(warning, warn) {
 | `material-plus-ui/styles/*.css`    | 같은 CSS를 컴포넌트별 시트로                         |
 | `material-plus-ui/tailwind.css`    | 토큰과 `@source`. Tailwind가 있는 프로젝트용         |
 
+:::
+
+::: fw flutter
+
+| Import | 내용 |
+| --- | --- |
+| `package:material_plus_ui/material_plus_ui.dart` | 모든 위젯, `MPTheme`, 두 provider, 공유 타입 |
+| `package:material_plus_ui/locales.dart` | 열여덟 개의 번역. 이 파일을 import하기 전에는 하나도 앱에 들어가지 않음 |
+
+:::
+
 ## 다음
+
+::: fw react
 
 - [전체 컴포넌트](../components/) — 컴포넌트당 한 페이지. 라이브 프리뷰와 전체 props 표가 있습니다.
 - [MPTextField](../components/inputs/text-field) — 필드, 그리고 조합 처리가 왜 필요한지.
 - [MPIcon](../components/display/icon) — 직접 쓰는 아이콘 세트 연결하기.
+
+:::
+
+::: fw flutter
+
+- [전체 컴포넌트](../components/) — 컴포넌트당 한 페이지. 라이브 프리뷰와 패키지별 props 표가 있습니다.
+- [MPButton](../components/inputs/button) — 버튼, 그리고 두 패키지가 서로 다른 점.
+- [Prop 규약](../design/prop-conventions) — 두 패키지에서 같은 뜻인 `size`, `color`, `variant`, `density`.
+
+:::

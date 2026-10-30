@@ -7,6 +7,28 @@ order: 2
 
 <p class="mp-lede">The machinery the library was already running, with a name you can import. Every one of these existed inside the components first; what is new is that your own code can ask the same question and get the same answer.</p>
 
+::: fw flutter
+
+Hooks are React-only. A hook is how a React component subscribes to something, and a Flutter widget already subscribes through an `InheritedWidget` such as `MediaQuery`, so each of these is a line or two of Dart:
+
+| Hook | In Flutter |
+| --- | --- |
+| `useMPColorScheme` | `MPTheme.of(context).brightness` is the scheme in force, and `MediaQuery.platformBrightnessOf(context)` the device's. To choose one, put `MPTheme(brightness:)` above the app and keep the choice in your own state and storage |
+| `useMPWindowClass` | `MPConfigProvider.of(context).windowClassOf(MediaQuery.sizeOf(context).width)` |
+| `useMPReducedMotion` | `MediaQuery.disableAnimationsOf(context)` |
+| `useMPShortcut` | `CallbackShortcuts`, or `Shortcuts` with `Actions`. `MPShortcut` draws the keys and leaves binding them to these |
+| `useMPPlatform` | `defaultTargetPlatform`, from `package:flutter/foundation.dart` |
+| `useMPDisclosure` | A `bool` on a `State` and `setState`, or a `ValueNotifier<bool>` with a `ValueListenableBuilder` |
+| `useMPMediaQuery` | `MediaQuery`'s own accessors, such as `MediaQuery.highContrastOf(context)` |
+| `useMPElementSize` | `LayoutBuilder`, which rebuilds with the constraints its box is given |
+| `useMPOnScreen` | `trigger: MPAnimateTrigger.visible` on an `MPAnimate*` widget does its own watching. For anything else, Flutter has no visibility callback built in, and a package such as `visibility_detector` adds one |
+| `useMPLocale` | `MPLocaleProvider.maybeOf(context)`, or `MPConfigProvider.maybeOf(context)?.locale` |
+| `useMPSnackbar` | `MPSnackbarProvider.of(context)` |
+
+The rest of this page, demos included, is about the React package.
+
+:::
+
 That is the whole of why they are exported. A page that wants one more decision than a prop covers had to write out breakpoints, platform detection or a media query again — in numbers that had to match the library's, or the layout disagreed with itself at one width and nobody could find out why.
 
 | Hook | Answers |
@@ -39,7 +61,7 @@ const { resolved, toggle } = useMPColorScheme();
 />;
 ```
 
-<Demo src="hooks/color-scheme" :minHeight="260">
+<Demo src="hooks/color-scheme" :minHeight="260" :flutter="false">
 
 <<< @/.vitepress/demos/hooks/color-scheme.tsx
 
@@ -117,7 +139,7 @@ const size = useMPWindowClass();
 return size === 'compact' ? <MPDrawer>{nav}</MPDrawer> : <MPSidebar>{nav}</MPSidebar>;
 ```
 
-<Demo src="hooks/window-class" :minHeight="140" />
+<Demo src="hooks/window-class" :minHeight="140" :flutter="false" />
 
 The five are [`MPWindowClass`](../design/prop-conventions.md) — Material's own ladder, at 600, 840, 1200 and 1600dp. The same axis `MPGrid` reflows along and `MPResponsive` is written in terms of, so a layout switched by this hook and a grid switched by a prop change at the same width.
 
@@ -161,7 +183,7 @@ const still = useMPReducedMotion();
 useMPShortcut('Mod+K', () => setOpen(true));
 ```
 
-<Demo src="hooks/shortcut" :minHeight="140">
+<Demo src="hooks/shortcut" :minHeight="140" :flutter="false">
 
 <<< @/.vitepress/demos/hooks/shortcut.tsx
 

@@ -8,9 +8,19 @@ aside: false
 
 <p class="mp-lede">존재하지 않는 배포 도구 Kestrel의 마케팅 페이지입니다. 컴포넌트 라이브러리가 가장 덜 필요해 보이는 화면 — 대부분이 타이포그래피와 여백, 그리고 반복되는 하나의 행동 유도 — 이기 때문에, 오히려 부품들이 서로 맞물리는지 가장 잘 드러납니다.</p>
 
-<Demo src="concepts/landing" :minHeight="2600" />
+<Demo src="concepts/landing" :minHeight="2600" :flutter="false" />
+
+::: fw flutter
+
+이 화면은 React 패키지로 만들었고 Flutter 버전은 없습니다. 아래 표는 그래도 각 블록이 어떤 컴포넌트로 이루어졌는지 보여 주고, 각 컴포넌트에 Flutter 쪽이 있는지는 그 컴포넌트 페이지에 있습니다.
+
+:::
+
+::: fw react
 
 소스는 파일 하나입니다: `docs/.vitepress/demos/concepts/landing.tsx`. 페이지 위의 모든 것은 Material Plus 컴포넌트이거나 Material Plus 토큰이고, 컴포넌트인 척하는 맨 `div`는 없습니다.
+
+:::
 
 ## 무엇으로 만들어졌나
 

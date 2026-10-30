@@ -1,9 +1,12 @@
 ---
 title: Browser support
 order: 2
+description: The browsers the React package runs in and what an older one loses, and the platforms the Flutter package runs on, which are every platform Flutter 3.41 or later builds for.
 ---
 
 # Browser support
+
+::: fw react
 
 <p class="mp-lede">Material Plus runs in <strong>Chrome and Edge 111, Firefox 113 and Safari 16.4</strong> and every later version, on desktop and mobile. The engines behind those versions were run against every demo on this site. In the older ones a few effects are reduced, and the table further down lists each of them.</p>
 
@@ -80,6 +83,28 @@ A brand that has to appear in Chrome 111 to 118, Firefox 113 to 127 or Safari 16
 Every demo on this site was rendered in one page, each behind its own error boundary, and the page was opened in Playwright's builds of Chromium 111, Firefox 113, 127 and 128, and WebKit 16.4, 17.4 and 18.0, and in Chrome for Testing 122. In each one the run checked for render and page errors and compared all 29 colour roles in both schemes with a current Chromium. In the three oldest it also opened nine popups, from a select to a command palette, and the counter, the lighting effect and the rating's focus ring were checked in the versions the table names. The WebKit builds are Playwright's builds of the engine at the Safari version they are named for, not Safari itself.
 
 Versions between those were not run. For them, and for the version each requirement and feature above was introduced in, the numbers come from [MDN's browser compatibility data](https://github.com/mdn/browser-compat-data) and from what Base UI and Tailwind CSS publish for themselves. The test suite itself runs in the current releases of Chromium, Firefox and WebKit on Linux, Windows and macOS.
+
+:::
+
+::: fw flutter
+
+<p class="mp-lede">The Flutter package runs wherever <strong>Flutter 3.41</strong> or later runs: Android, iOS, the web, Windows, macOS and Linux. It adds no requirement of its own to any of them.</p>
+
+## Why it adds nothing
+
+`material_plus_ui` depends on the Flutter SDK and nothing else. It contains no plugin and no platform channel of its own, ships no fonts or images, and imports neither Material nor Cupertino. Every component is drawn by the Flutter engine from the widgets library, so an app that uses the package runs on the same platforms and versions it would run on without it.
+
+Which versions of each platform those are is decided by the Flutter SDK the app is built with, not by this package. [Flutter's supported platforms page](https://docs.flutter.dev/reference/supported-platforms) lists them for each release.
+
+## Flutter web
+
+A web build of an app that uses this package needs nothing the rest of the app does not. The previews on this site are that case: each one is the package's example gallery, compiled with `flutter build web` and shown in a frame. The minimum browser versions on the React half of this page belong to the React package and do not apply here.
+
+## How this was checked
+
+The widget tests run on every change to the package, on Linux, Windows and macOS, under Flutter 3.41.0 and under the current stable release. They run headless in the Flutter tester, so they check the package rather than any one device or browser. The same changes analyse the example gallery and build it for the web.
+
+:::
 
 ## Next
 

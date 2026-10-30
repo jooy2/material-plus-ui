@@ -8,7 +8,13 @@ aside: false
 
 <p class="mp-lede">라이브러리의 모든 부분을 한 화면에 담았습니다. 컴포넌트를 낱개로 늘어놓는 대신 실제 애플리케이션이 배치하는 방식으로 놓아서, 나란히 두었을 때 크기와 기준선과 표면이 서로 맞는지 볼 수 있게 했습니다.</p>
 
-<Demo src="showcase/app" :minHeight="2000" />
+<Demo src="showcase/app" :minHeight="2000" :flutter="false" />
+
+::: fw flutter
+
+이 화면은 React 패키지로 만들었고 Flutter 버전은 없습니다. 아래 표는 그래도 각 블록이 어떤 컴포넌트로 이루어졌는지 보여 주고, 각 컴포넌트에 Flutter 쪽이 있는지는 그 컴포넌트 페이지에 있습니다.
+
+:::
 
 ## 이 페이지에서 볼 것
 

@@ -8,7 +8,13 @@ aside: false
 
 <p class="mp-lede">Every part of the library on one screen. Not a grid of specimens — the components are laid out the way an application would lay them out, so you can see whether the sizes, the baselines and the surfaces agree with each other once they are side by side.</p>
 
-<Demo src="showcase/app" :minHeight="2000" />
+<Demo src="showcase/app" :minHeight="2000" :flutter="false" />
+
+::: fw flutter
+
+The screen is built with the React package, and there is no Flutter version of it. The table below still names the components each block is made of, and each component's own page says whether it has a Flutter half.
+
+:::
 
 ## What to look at
 

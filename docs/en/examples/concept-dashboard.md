@@ -8,9 +8,19 @@ aside: false
 
 <p class="mp-lede">The back office of Grange, a shop that does not exist. A rail, a filter row, four figures, a table with an action on every row and a resizable split under it — all on one screen and all at the same size, which is the arrangement that shows whether a size ladder actually holds.</p>
 
-<Demo src="concepts/dashboard" :minHeight="960" />
+<Demo src="concepts/dashboard" :minHeight="960" :flutter="false" />
+
+::: fw flutter
+
+The screen is built with the React package, and there is no Flutter version of it. The table below still names the components each block is made of, and each component's own page says whether it has a Flutter half.
+
+:::
+
+::: fw react
 
 The source is one file: `docs/.vitepress/demos/concepts/dashboard.tsx`. The table is live — search it, filter it by channel, tick some rows and the bulk actions appear.
+
+:::
 
 ## What it is made of
 

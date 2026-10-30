@@ -1,9 +1,12 @@
 ---
 title: 브라우저 지원
 order: 2
+description: React 패키지가 동작하는 브라우저와 오래된 브라우저에서 줄어드는 것, 그리고 Flutter 패키지가 동작하는 플랫폼을 정리합니다. Flutter 패키지는 Flutter 3.41 이상이 빌드하는 모든 플랫폼에서 동작합니다.
 ---
 
 # 브라우저 지원
+
+::: fw react
 
 <p class="mp-lede">Material Plus는 데스크톱과 모바일의 <strong>Chrome·Edge 111, Firefox 113, Safari 16.4</strong> 이상에서 동작합니다. 이 버전들의 엔진으로 이 사이트의 데모를 전부 실행해 확인했습니다. 오래된 버전에서는 몇몇 효과가 줄어들고, 무엇이 줄어드는지는 아래 표에 정리했습니다.</p>
 
@@ -80,6 +83,28 @@ oklch(from var(--mp-source-color) var(--tone) var(--chroma) h)
 이 사이트의 데모를 전부 한 페이지에 각각 에러 바운더리로 감싸 렌더하고, Playwright가 빌드한 Chromium 111, Firefox 113·127·128, WebKit 16.4·17.4·18.0과 Chrome for Testing 122에서 열었습니다. 버전마다 렌더 오류와 페이지 오류를 확인하고, 두 스킴의 색상 롤 29개를 현재 Chromium의 값과 비교했습니다. 가장 오래된 세 버전에서는 select부터 command palette까지 팝업 아홉 개를 열어 봤고, 카운터와 조명 효과, 별점 포커스 링은 표에 적힌 버전에서 확인했습니다. WebKit 빌드는 Safari 자체가 아니라, 이름에 붙은 Safari 버전 시점의 엔진을 Playwright가 빌드한 것입니다.
 
 그 사이의 버전은 실행하지 않았습니다. 그 버전들과, 위의 요구 사항과 기능이 각각 어느 버전에서 들어왔는지는 [MDN 브라우저 호환성 데이터](https://github.com/mdn/browser-compat-data)와 Base UI, Tailwind CSS가 직접 밝힌 내용에서 가져왔습니다. 테스트 스위트는 Linux, Windows, macOS에서 Chromium, Firefox, WebKit의 현재 릴리스로 실행합니다.
+
+:::
+
+::: fw flutter
+
+<p class="mp-lede">Flutter 패키지는 <strong>Flutter 3.41</strong> 이상이 동작하는 곳이면 어디서나 동작합니다. Android, iOS, 웹, Windows, macOS, Linux입니다. 어느 플랫폼에도 자기 요구 사항을 더하지 않습니다.</p>
+
+## 아무것도 더하지 않는 이유
+
+`material_plus_ui`는 Flutter SDK 말고는 의존성이 없습니다. 자체 플러그인도 플랫폼 채널도 없고, 폰트도 이미지도 싣지 않으며, Material도 Cupertino도 import하지 않습니다. 모든 컴포넌트를 Flutter 엔진이 widgets 라이브러리로 그리므로, 이 패키지를 쓰는 앱은 쓰지 않을 때와 같은 플랫폼과 버전에서 동작합니다.
+
+각 플랫폼의 어느 버전까지인지는 이 패키지가 아니라 앱을 빌드한 Flutter SDK가 정합니다. [Flutter의 지원 플랫폼 페이지](https://docs.flutter.dev/reference/supported-platforms)에 릴리스마다 정리되어 있습니다.
+
+## Flutter 웹
+
+이 패키지를 쓰는 앱의 웹 빌드에는 앱의 나머지가 필요로 하지 않는 것이 하나도 더 필요하지 않습니다. 이 사이트의 미리보기가 바로 그 경우입니다. 각각이 패키지의 예제 갤러리를 `flutter build web`으로 컴파일해 프레임 안에 띄운 것입니다. 이 페이지의 React 쪽에 있는 최소 브라우저 버전은 React 패키지의 것이고 여기에는 해당하지 않습니다.
+
+## 확인한 방법
+
+위젯 테스트는 패키지가 바뀔 때마다 Linux, Windows, macOS에서 Flutter 3.41.0과 현재 stable 릴리스로 실행됩니다. Flutter 테스터에서 화면 없이 실행되므로, 특정 기기나 브라우저가 아니라 패키지 자체를 확인합니다. 같은 변경에서 예제 갤러리도 분석하고 웹용으로 빌드합니다.
+
+:::
 
 ## 다음
 

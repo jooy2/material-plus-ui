@@ -9,6 +9,8 @@ order: 3
 
 <Demo src="config/hero" :minHeight="380" />
 
+::: fw react
+
 ```tsx
 import { MPConfigProvider } from 'material-plus-ui';
 
@@ -16,6 +18,24 @@ import { MPConfigProvider } from 'material-plus-ui';
   <App />
 </MPConfigProvider>;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+const MPConfigProvider(
+  size: MPSize.sm,
+  color: MPColor.tertiary,
+  density: -1,
+  locale: 'ko',
+  child: App(),
+);
+```
+
+:::
 
 ## Props
 
@@ -31,6 +51,8 @@ import { MPConfigProvider } from 'material-plus-ui';
 
 버튼에 적힌 `size`는 모든 것을 이깁니다. 그것을 감싼 [`MPButtonGroup`](../components/inputs/button-group.md)은 *그 컨트롤들*에 대한 진술이라 페이지에 대한 진술인 프로바이더를 이깁니다. 그리고 아무도 아무 말도 하지 않았을 때 남는 것이 머터리얼이 말하는 것 — `md`, `primary` — 입니다.
 
+::: fw react
+
 ```tsx
 <MPConfigProvider size="xl">
   <MPButtonGroup size="sm">
@@ -41,7 +63,37 @@ import { MPConfigProvider } from 'material-plus-ui';
 </MPConfigProvider>
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+MPConfigProvider(
+  size: MPSize.xl,
+  child: Column(
+    children: <Widget>[
+      MPButtonGroup(
+        size: MPSize.sm,
+        children: <Widget>[
+          MPButton(onPressed: save, child: const Text('One')), // sm: 그룹이 더 가깝습니다
+        ],
+      ),
+      MPButton(size: MPSize.lg, onPressed: save, child: const Text('Two')), // lg: 호출 지점이 이깁니다
+      MPButton(onPressed: save, child: const Text('Three')), // xl: 프로바이더
+    ],
+  ),
+)
+```
+
+:::
+
 ## 왜 이 셋이고 테마가 아닌가
+
+::: fw flutter
+
+Flutter에는 cascade가 없으므로 색, 타입 스케일, 모서리는 [`MPTheme`](../design/color.md)이 담습니다. `MPTheme`도 서브트리 단위로 적용되고, 무언가를 바꾸고 싶어질 때까지는 넣지 않아도 됩니다. `MPConfigProvider`는 React에서와 같은 역할을 합니다. 제품 전체를 정할 때 함께 정하는 세 축과 언어를 담습니다. 이 절의 나머지는 React 패키지가 왜 그 자리에 선을 그었는지 설명합니다.
+
+:::
 
 테마가 보통 담는 것은 여기서 이미 전부 **CSS custom property**입니다 — 색 역할, 타입 스케일, 모서리, 모션 지속 시간. 그것들은 cascade를 타고 컴포넌트에 도달하므로, 페이지의 한 구역이 나머지와 달라지는 데 프로바이더도 리렌더도 필요 없습니다. 자바스크립트 테마 객체는 같은 값이 사는 두 번째 장소가 되고, 둘은 어긋납니다. 토큰 쪽이 어떻게 도는지는 [색](../design/color.md)을 보세요.
 
@@ -51,11 +103,23 @@ import { MPConfigProvider } from 'material-plus-ui';
 
 `density`가 합류한 이유는 첫 번째 것입니다. `size`와 똑같이 클래스 문자열로 풀립니다. 셋 중에서 여기서만 정해지고 다른 데서는 손대지 않을 가능성이 가장 높은 축이기도 합니다. 제품이 얼마나 조밀한지는 제품에 대한 결정이지 특정 표에 대한 결정이 아니기 때문입니다. 담는 컴포넌트만 이 값을 읽으므로, `-2`로 설정한 페이지는 리스트와 표와 카드가 조여지고 모든 컨트롤은 손가락에 필요한 높이를 지킵니다. [`density`](../design/prop-conventions#density)를 보세요.
 
+::: fw react
+
 ```tsx
 <MPConfigProvider density={-1}>
   <App />
 </MPConfigProvider>
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+const MPConfigProvider(density: -1, child: App())
+```
+
+:::
 
 ## 왜 `variant`는 여기 없는가
 
@@ -87,7 +151,24 @@ _그_ 기본 variant라는 것이 없기 때문입니다.
 
 ## 윈도우 크기 클래스 옮기기
 
-`breakpoints`는 다섯 개의 [윈도우 크기 클래스](../design/breakpoints)가 시작하는 지점을 CSS 픽셀 단위로 옮깁니다. MD3의 값 위에 부분적으로 덮어씁니다:
+`breakpoints`는 다섯 개의 [윈도우 크기 클래스](../design/breakpoints)가 시작하는 지점을 옮깁니다. MD3의 값 위에 부분적으로 덮어씁니다.
+
+::: fw flutter
+
+```dart
+MPConfigProvider(
+  breakpoints: const <MPWindowClass, double>{MPWindowClass.medium: 700},
+  child: child,
+)
+```
+
+Flutter에서는 모든 것이 함께 옮겨집니다. 그리드의 재배치, `MPShow`가 숨기는 것, `MPSidebar`가 접히는 지점, `maxWidth`가 해석되는 칸이 모두 같은 맵을 읽습니다. 경계가 미리 컴파일된 스타일시트에 묶여 있지 않기 때문입니다. 직접 만든 위젯에서는 `MPConfigProvider.of(context).windowClassOf(width)`로 같은 답을 얻습니다.
+
+`compact`는 무엇을 주든 항상 0입니다. 첫 클래스의 바닥이 0보다 높으면 어떤 클래스에도 속하지 않는 너비 구간이 생깁니다.
+
+:::
+
+::: fw react
 
 ```tsx
 <MPConfigProvider breakpoints={{ medium: 700 }}>
@@ -112,9 +193,13 @@ _그_ 기본 variant라는 것이 없기 때문입니다.
 
 `compact`는 무엇을 주든 항상 0입니다. 첫 클래스의 바닥이 0보다 높으면 어떤 클래스에도 속하지 않는 너비 구간이 생깁니다.
 
+:::
+
 ## 중첩
 
 프로바이더는 중첩되고 **병합**되며, 필드별로 가장 가까운 것이 이깁니다. 강조색만 바꾸는 구역은 위에서 온 크기를 그대로 지킵니다.
+
+::: fw react
 
 ```tsx
 <MPConfigProvider size="sm">
@@ -125,9 +210,27 @@ _그_ 기본 variant라는 것이 없기 때문입니다.
 </MPConfigProvider>
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+const MPConfigProvider(
+  size: MPSize.sm,
+  child: MPConfigProvider(
+    color: MPColor.error,
+    child: DangerZone(), // 여전히 MPSize.sm, 이제 MPColor.error
+  ),
+)
+```
+
+:::
+
 ## 로케일도 함께 옵니다
 
 `MPConfigProvider`는 `locale`도 함께 나릅니다. 애플리케이션에 프로바이더가 둘이 아니라 하나면 되도록.
+
+::: fw react
 
 ```tsx
 <MPConfigProvider size="sm" locale="ko">
@@ -135,9 +238,27 @@ _그_ 기본 variant라는 것이 없기 때문입니다.
 </MPConfigProvider>
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+const MPConfigProvider(size: MPSize.sm, locale: 'ko', child: App())
+```
+
+:::
+
 [`MPLocaleProvider`](../design/localization.md#_2-mplocaleprovider)는 그대로 있고 그대로 동작합니다 — 언어만 바꾸는 서브트리를 위한 좁은 쪽입니다. `locale`을 주지 않은 `MPConfigProvider`는 플랫폼 기본값으로 되돌리지 않고 위에 있는 것을 물려받습니다.
 
+::: fw flutter
+
+위 어디에도 로케일이 없으면 Flutter 컴포넌트는 앱의 `Localizations`를 따르고, 그다음 영어로 내려갑니다. React 패키지는 브라우저의 언어를 읽지 않습니다. 페이지를 렌더링한 서버와 그 페이지를 hydrate하는 브라우저가 서로 다른 언어를 말할 수 있기 때문입니다. Flutter 앱에는 그런 분리가 없고, `Localizations`가 들고 있는 로케일이 곧 앱이 고른 로케일입니다.
+
+:::
+
 ## 되읽기
+
+::: fw react
 
 ```tsx
 import { useMPConfig } from 'material-plus-ui';
@@ -147,12 +268,48 @@ const { size, color } = useMPConfig();
 
 이것들을 감싸는 자기 래퍼 컴포넌트를 위한 것입니다. 아래에 있는 컴포넌트가 풀 방식 그대로 prop을 풀 수 있습니다. 필드는 **선택적**이고, `undefined`는 `md`나 `primary`가 아니라 *아무도 정하지 않음*을 뜻합니다 — 라이브러리 자신의 기본값은 여기 저장되지 않고 컴포넌트가 적용하므로, 나중에 기본값을 바꿀 자리가 한 곳입니다.
 
+:::
+
+::: fw flutter
+
+```dart
+final MPConfigValue? config = MPConfigProvider.maybeOf(context);
+final MPSize size = config?.size ?? MPSize.md;
+```
+
+이것들을 감싸는 위젯을 직접 만들 때, 아래 컴포넌트가 푸는 방식 그대로 매개변수를 풀기 위한 것입니다. 위에 프로바이더가 없으면 `maybeOf`는 `null`을 돌려주고, 모든 필드는 nullable입니다. `null`은 `md`나 `primary`가 아니라 *아무도 정하지 않음*을 뜻합니다. 라이브러리 자체의 기본값은 컴포넌트가 적용하기 때문입니다. `MPConfigProvider.of(context)`는 `null` 대신 빈 설정을 돌려줍니다.
+
+:::
+
 ## 날카로운 모서리
+
+::: fw react
 
 - **`defaultProps`가 아닙니다.** 컴포넌트별 override 맵은 없고, 그걸 더하면 같은 말을 하는 두 번째 방식이 이름을 키로 생깁니다. 실제로 생기는 경우는 prop 두 개로 덮이고, 그보다 좁은 것은 직접 만드는 래퍼 컴포넌트의 몫입니다.
 - **아래를 리렌더합니다.** 값은 객체가 아니라 필드에 memoise되어 있어서 같은 설정으로 부모가 리렌더되는 것은 공짜입니다 — 다만 런타임에 `size`를 _바꾸면_ 모든 소비자가 리렌더되고, 위 데모가 하고 있는 것이 그것입니다. 그건 설정 화면의 일이지 스크롤 핸들러의 일이 아닙니다.
 
+:::
+
+::: fw flutter
+
+- **컴포넌트별 테마가 아닙니다.** 컴포넌트별로 덮어쓰는 맵은 없습니다. 실제로 생기는 경우는 매개변수 두 개로 덮이고, 그보다 좁은 것은 직접 만드는 위젯의 몫입니다.
+- **읽는 위젯을 다시 빌드합니다.** 프로바이더는 풀린 필드끼리 비교하는 `InheritedWidget`이라서, 같은 설정으로 부모가 다시 빌드되는 것은 비용이 없습니다. 다만 런타임에 `size`를 바꾸면 그 아래 모든 컴포넌트가 다시 빌드됩니다. 그건 설정 화면의 일이지 애니메이션의 일이 아닙니다.
+
+:::
+
 ## 오른쪽에서 왼쪽으로
+
+::: fw flutter
+
+```dart
+const MPConfigProvider(textDirection: TextDirection.rtl, child: App())
+```
+
+`textDirection`은 서브트리를 `Directionality`로 감싸고, 모든 컴포넌트가 그 값을 보고 배치됩니다. 패딩, 모서리, 아이콘 슬롯은 왼쪽·오른쪽이 아니라 `start`와 `end`이고, 슬라이더와 메뉴와 캐러셀도 같은 값을 읽습니다. 주지 않으면 주변의 `Directionality`가 그대로 쓰이며, 앱에서는 `WidgetsApp`이 로케일에서 끌어낸 값입니다. `MPSide`는 아래에 적은 이유로 물리적인 방향 그대로입니다.
+
+:::
+
+::: fw react
 
 이 라이브러리의 패딩·마진·모서리·아이콘 슬롯은 전부 이미 **논리** 속성입니다 — `pl`/`pr`이 아니라 `ps`/`pe`, 왼쪽·오른쪽이 아니라 `startIcon`/`endIcon`, `top-left`가 아니라 `MPCorner`의 `top-start`. 그래서 RTL의 스타일시트 쪽은 컴포넌트 위 어디든 `dir`만 있으면 예전부터 동작했고, LTR 페이지 속 `dir="rtl"` 구역도 사고가 아니라 지원되는 배치입니다.
 
@@ -192,15 +349,29 @@ Base UI의 일곱 부품이 그 컨텍스트를 봅니다 — 슬라이더·메�
 - **방향이 섞인 페이지는 방향이 바뀌는 지점마다 프로바이더가 필요합니다.** 루트에만이 아니라요 — Base UI 컨텍스트는 트리를 따르고 CSS는 DOM을 따르므로 둘을 같이 두세요.
 - **`display: contents`도 엘리먼트를 렌더합니다.** 레이아웃에는 참여하지 않지만 DOM에는 있습니다. 직접 쓴 `> *` 셀렉터는 이걸 셉니다.
 
+:::
+
 ## 모든 필드 아래의 한 줄
 
 `reserveSupportingText`를 주면 설명이나 오류가 아직 없어도 모든 필드 아래에 한 줄을 남겨 둡니다. 기본값에서는 넣을 것이 생길 때 그 줄이 열리고, 필드 아래의 모든 것이 한 줄만큼 내려갑니다. 방금 입력한 직후라면 괜찮습니다. 나중에 도착하는 오류는 다릅니다. 제출에 대한 서버의 답, 입력이 멈추기를 기다린 검사, 응답으로 채워진 `MPForm`의 `errors`는 읽는 사람이 한 일과 무관하게 페이지를 움직이고, 레이아웃 이동 점수가 세는 것이 바로 그 이동입니다.
+
+::: fw react
 
 ```tsx
 <MPConfigProvider reserveSupportingText>
   <SignUpForm />
 </MPConfigProvider>
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+const MPConfigProvider(reserveSupportingText: true, child: SignUpForm())
+```
+
+:::
 
 비용은 아무 말도 하지 않는 필드 아래의 한 줄 여백입니다. 한 줄보다 긴 메시지는 여전히 필드를 키웁니다.
 

@@ -16,6 +16,25 @@ order: 5
 
 구글도 Expressive를 지원하는 웹 구현은 내놓지 않았습니다. Material Web은 2024년 6월부터 유지보수 모드이고, 명세의 웹 페이지는 Expressive가 웹에 구현되어 있지 않다고 밝힙니다.
 
+::: fw flutter
+
+## Flutter 패키지
+
+아래 행은 React 패키지에서 읽은 것입니다. Flutter 패키지는 같은 기반을 같은 수치로 구현합니다. 소스 색 하나에서 만드는 색 역할 29개, 같은 타입 역할 13개, 모서리 단계, 0부터 5까지의 높이, 상태 레이어 불투명도, standard와 emphasized 곡선입니다. React 패키지와 함께 가진 컴포넌트는 같은 범위를 같은 `variant`, 크기, 색 계열로 구현합니다. Flutter 패키지에 그 컴포넌트가 있는지는 각 컴포넌트 페이지에 있고, 다르게 쓰거나 다르게 동작하는 것은 그 페이지의 "React 빌드와 다른 점" 절에 있습니다.
+
+기반 표의 네 행은 CSS에 관한 것이라 Flutter는 다른 방식으로 답합니다.
+
+| 행 | Flutter에서는 |
+| --- | --- |
+| 소스 색 하나로 배색 전체를 생성 | ✓ `MPTheme(sourceColor:)` |
+| 페이지에 이미 있는 `--md-sys-color-*` 토큰 읽기 | — 읽어 올 페이지가 없습니다. `MPColorScheme.copyWith`로 역할을 넘겨줍니다. [색상](./color#이미-있는-머터리얼-환경과의-공존)을 보세요 |
+| 하위 트리 하나만 다른 소스 색이나 스킴으로, CSS만으로 | ✓ 안쪽에 하나 더 둔 `MPTheme` |
+| 하위 트리 단위의 `rounded`, `sharp` 모서리 프리셋 | ✓ `MPTheme`에 주는 `MPShapes.rounded`, `MPShapes.sharp` |
+
+명세에 없는 컴포넌트 표의 `MPFlex`, `MPPortal`, `MPVisuallyHidden`은 React 전용입니다. Flutter의 `Row`, `Column`, `Wrap`, `OverlayPortal`, `Semantics`가 이미 그 답입니다.
+
+:::
+
 ## 표 읽는 법
 
 **정의한 곳** 열은 기능이 어디서 왔는지 알려 줍니다.

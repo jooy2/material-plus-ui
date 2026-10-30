@@ -7,6 +7,28 @@ order: 2
 
 <p class="mp-lede">라이브러리가 이미 돌리고 있던 기계에, 가져다 쓸 수 있는 이름을 붙인 것입니다. 여기 있는 것은 전부 먼저 컴포넌트 안에 있었고, 새로운 것은 이제 여러분의 코드도 같은 질문을 하고 같은 답을 받을 수 있다는 점뿐입니다.</p>
 
+::: fw flutter
+
+훅은 React 전용입니다. 훅은 React 컴포넌트가 무언가를 구독하는 방법이고, Flutter 위젯은 이미 `MediaQuery` 같은 `InheritedWidget`으로 구독하므로, 각각이 Dart 한두 줄입니다.
+
+| 훅 | Flutter에서는 |
+| --- | --- |
+| `useMPColorScheme` | `MPTheme.of(context).brightness`가 적용 중인 스킴이고, `MediaQuery.platformBrightnessOf(context)`가 기기의 스킴입니다. 직접 고르려면 앱 위에 `MPTheme(brightness:)`을 두고, 고른 값은 앱의 상태와 저장소에 보관합니다 |
+| `useMPWindowClass` | `MPConfigProvider.of(context).windowClassOf(MediaQuery.sizeOf(context).width)` |
+| `useMPReducedMotion` | `MediaQuery.disableAnimationsOf(context)` |
+| `useMPShortcut` | `CallbackShortcuts`, 또는 `Shortcuts`와 `Actions`. `MPShortcut`은 키를 그리기만 하고 연결은 이쪽에 맡깁니다 |
+| `useMPPlatform` | `package:flutter/foundation.dart`의 `defaultTargetPlatform` |
+| `useMPDisclosure` | `State`의 `bool` 필드와 `setState`, 또는 `ValueNotifier<bool>`과 `ValueListenableBuilder` |
+| `useMPMediaQuery` | `MediaQuery.highContrastOf(context)` 같은 `MediaQuery` 자체의 접근자 |
+| `useMPElementSize` | 상자가 받은 제약으로 다시 빌드되는 `LayoutBuilder` |
+| `useMPOnScreen` | `MPAnimate*` 위젯의 `trigger: MPAnimateTrigger.visible`이 스스로 지켜봅니다. 그 밖의 용도라면 Flutter에는 화면 표시 콜백이 기본으로 없고, `visibility_detector` 같은 패키지가 그것을 더합니다 |
+| `useMPLocale` | `MPLocaleProvider.maybeOf(context)`, 또는 `MPConfigProvider.maybeOf(context)?.locale` |
+| `useMPSnackbar` | `MPSnackbarProvider.of(context)` |
+
+데모를 포함한 이 페이지의 나머지는 React 패키지에 관한 것입니다.
+
+:::
+
 공개한 이유가 그것뿐입니다. prop이 덮는 것보다 한 번 더 판단해야 하는 페이지는 브레이크포인트·플랫폼 감지·미디어 쿼리를 다시 적어야 했고, 그 숫자는 라이브러리의 것과 일치해야 했습니다. 어긋나면 레이아웃이 딱 한 너비에서 자기 자신과 어긋나고, 아무도 이유를 못 찾습니다.
 
 | 훅 | 답하는 것 |
@@ -39,7 +61,7 @@ const { resolved, toggle } = useMPColorScheme();
 />;
 ```
 
-<Demo src="hooks/color-scheme" :minHeight="260">
+<Demo src="hooks/color-scheme" :minHeight="260" :flutter="false">
 
 <<< @/.vitepress/demos/hooks/color-scheme.tsx
 
@@ -117,7 +139,7 @@ const size = useMPWindowClass();
 return size === 'compact' ? <MPDrawer>{nav}</MPDrawer> : <MPSidebar>{nav}</MPSidebar>;
 ```
 
-<Demo src="hooks/window-class" :minHeight="140" />
+<Demo src="hooks/window-class" :minHeight="140" :flutter="false" />
 
 다섯은 [`MPWindowClass`](../design/prop-conventions.md) — 600, 840, 1200, 1600dp에서 갈리는 머터리얼 자신의 사다리입니다. `MPGrid`가 흐름을 바꾸는 축이자 `MPResponsive`가 쓰여 있는 축이므로, 이 훅으로 바꾼 레이아웃과 prop으로 바꾼 그리드는 같은 너비에서 함께 바뀝니다.
 
@@ -161,7 +183,7 @@ const still = useMPReducedMotion();
 useMPShortcut('Mod+K', () => setOpen(true));
 ```
 
-<Demo src="hooks/shortcut" :minHeight="140">
+<Demo src="hooks/shortcut" :minHeight="140" :flutter="false">
 
 <<< @/.vitepress/demos/hooks/shortcut.tsx
 

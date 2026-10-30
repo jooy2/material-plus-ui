@@ -27,7 +27,19 @@ The same five words mean something different on a component that **is** the thin
 
 ## Colour is a role, never a value
 
-The scheme is generated from **one source colour**, the way Material generates one. Set `--mp-source-color` and every role follows. No provider, no theme object, no re-render — it is CSS, so a section of a page can differ from the rest of it without either knowing.
+The scheme is generated from **one source colour**, the way Material generates one, and the same source colour gives the same scheme in both packages.
+
+::: fw react
+
+Set `--mp-source-color` and every role follows. No provider, no theme object, no re-render — it is CSS, so a section of a page can differ from the rest of it without either knowing.
+
+:::
+
+::: fw flutter
+
+Give `MPTheme` a `sourceColor` and every role follows. A theme applies to the subtree it wraps, so a section of a screen can differ from the rest of it, and with no theme anywhere the components draw the default scheme at the platform's brightness.
+
+:::
 
 That is why `color` takes a family rather than a colour, and why there are four of them: `primary`, `secondary`, `tertiary`, `error`. MD3's colour system has no `success`, `info` or `warning`, and offering them would promise roles the token sheet has no way to derive. An alert that needs green sets a token; it does not get a fifth family that the rest of the library cannot honour.
 
@@ -82,19 +94,51 @@ It has to be a layer rather than a `hover:bg-…` because a background can only 
 
 ## Motion is a token, and it has a direction
 
+::: fw react
+
 Every duration and curve is a custom property, so a page that wants everything a little slower sets one value. `MPEasing` takes the specification's names and no arbitrary `cubic-bezier()`, for the same reason `color` takes a family: a curve written into one component's props is a curve the theme cannot reach.
+
+:::
+
+::: fw flutter
+
+Every duration and curve is a constant on `MPMotion`, so every component moves at one pace and a widget of your own can move at it too. `MPEasing` takes the specification's names and no arbitrary `Cubic`, for the same reason `color` takes a family: every animation in the library reads its curve from `MPMotion`, so the set stays one set.
+
+:::
 
 The pairs are how Material describes a transition rather than four interchangeable options. Something **arriving** decelerates into place; something **leaving** accelerates away. That asymmetry is in the defaults, so an exit is quicker than an entrance without anybody having to know the numbers.
 
+::: fw react
+
 `prefers-reduced-motion` is honoured by the components and by the stylesheet, everywhere, with no prop to set.
 
+:::
+
+::: fw flutter
+
+`MediaQuery.disableAnimations` is honoured by every component that moves, with no parameter to set.
+
+:::
+
 ## It coexists
+
+::: fw react
 
 Nothing here is page-level. No reset, no provider, no global styling — and the components read the `--md-sys-color-*` tokens your page already has if they are there, so a project already running Material keeps its own setup.
 
 This is the reason for a handful of decisions that look odd on their own. Every control writes `box-sizing` explicitly, because with no page reset an outlined box's hairline would land outside its padding and come out two pixels wider than a filled one beside it. `<ul role="list">` is said out loud, because a host reset may take the bullets off and Safari takes the list semantics with them. A table's padding is inline, because `.prose td` and `.vp-doc td` style cells by tag name at a specificity a utility cannot outrank.
 
 A component library that assumed it owned the page would not need any of that. This one does not assume it.
+
+:::
+
+::: fw flutter
+
+Nothing here takes over the app. The package is built on Flutter's widgets library alone and imports neither Material nor Cupertino, so it reads nothing from a `MaterialApp`'s theme and brings no second Material implementation in behind it. It sits in a `MaterialApp`, a `CupertinoApp` or a bare `WidgetsApp` alike.
+
+Text is drawn in whatever face the app's `DefaultTextStyle` names, because MD3's type roles name a size, a line height, a weight and a tracking and leave the face to the brand. A component reads like the app around it.
+
+:::
 
 ## Next
 

@@ -7,6 +7,12 @@ order: 4
 
 <p class="mp-lede">에이전트가 화면을 서술하면 Material Plus가 그립니다. <a href="https://a2ui.org">A2UI</a>가 바로 그것을 위한 프로토콜입니다. 에이전트는 <em>카탈로그</em>에 있는 컴포넌트 이름을 담은 JSON을 보내고, 클라이언트의 렌더러가 그것을 해석하며, <code>material-plus-ui/a2ui</code>가 그 카탈로그를 Material Design 3으로 구현한 것입니다.</p>
 
+::: fw flutter
+
+A2UI 카탈로그는 React 전용입니다. `material-plus-ui/a2ui`는 A2UI의 React 렌더러인 `@a2ui/react` 위에 만들었고, Flutter 패키지에는 카탈로그가 없습니다. 이 페이지의 내용은 모두 React 패키지에 관한 것입니다.
+
+:::
+
 카탈로그의 핵심은 에이전트가 마크업을 쓰지 않는다는 데 있습니다. 에이전트는 `{ "component": "Button", "variant": "primary" }`를 쓰고, 그것이 무엇으로 그려지는지는 클라이언트가 정합니다. 그래서 같은 에이전트가 여기서는 Material로 그려지고, 다른 카탈로그를 등록한 애플리케이션에서는 다른 것으로 그려집니다. 페이로드는 카탈로그가 선언한 어휘 밖으로 나갈 수 없습니다.
 
 카탈로그는 두 개입니다. `mpA2uiCatalog`는 A2UI의 **basic 카탈로그** 18개를 전부 구현하고 basic 카탈로그의 id로 등록되므로, 이미 그것을 겨냥하는 에이전트는 바꿀 것이 없습니다. `mpA2uiExtendedCatalog`는 그 18개에 이 라이브러리 자신의 다섯 개를 더한 것이고, 자체 id를 씁니다. basic 어휘로는 표현할 수 없는 화면 — 표, 차트 세 개, 숫자 하나 — 를 위한 것입니다.

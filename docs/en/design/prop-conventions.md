@@ -5,14 +5,22 @@ order: 2
 
 # Prop conventions
 
-`size="md"` has to mean the same thing on a text field, a button and a dialog. The shared vocabulary lives in [`src/types.ts`](https://github.com/jooy2/material-plus-ui/blob/main/src/types.ts), and each component takes only the axes it needs.
+`size="md"` has to mean the same thing on a text field, a button and a dialog, and in both packages. The shared vocabulary lives in [`packages/react/src/types.ts`](https://github.com/jooy2/material-plus-ui/blob/main/packages/react/src/types.ts) and in its Dart counterpart, [`packages/flutter/lib/src/types.dart`](https://github.com/jooy2/material-plus-ui/blob/main/packages/flutter/lib/src/types.dart), and each component takes only the axes it needs.
 
 Two rules govern everything below.
 
 1. **Where the specification has a word, use the specification's word.** A colour role is `primary` or `on-surface-variant`, a corner is `extra-small`, a type role is `body-large`. They are not `main`/`light`/`dark`/`contrastText` — that is Material UI's palette model, a different and earlier colour system, and borrowing its names would describe something this library does not implement.
 2. **Do not invent a second spelling for an idea that already has one.** If a component needs an axis another component already has, it takes that one.
 
+::: fw flutter
+
+Dart spells the same words in camelCase — `onSurfaceVariant`, `extraSmall`, `bodyLarge` — and the words are the same. Where Flutter already has a name for something, such as `onPressed` for a press or `child` for the one widget inside another, the Flutter package uses Flutter's; [In Dart](#in-dart) lists every one.
+
+:::
+
 ## The shared types
+
+::: fw react
 
 ```ts
 type MPSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -51,7 +59,62 @@ export interface MPTextFieldProps extends MPStyleProps {
 
 `MPStyleProps` is deliberately short. An axis joins it when a **second** component needs it, not in anticipation of one — the same rule the design tokens follow.
 
+:::
+
+::: fw flutter
+
+```dart
+enum MPSize { xs, sm, md, lg, xl }
+enum MPColor { primary, secondary, tertiary, error }
+enum MPVariant { filled, tonal, elevated, outlined, text }
+typedef MPDensity = int; // 0, -1, -2 or -3
+typedef MPElevation = int; // 0 to 5
+enum MPOrientation { horizontal, vertical }
+enum MPAlign { start, center, end }
+enum MPSide { top, right, bottom, left }
+enum MPCorner { topStart, topEnd, bottomStart, bottomEnd }
+enum MPWindowClass { compact, medium, expanded, large, extraLarge }
+```
+
+The word lists are enums, so a misspelt value is a compile error rather than a silent default. `density` and `elevation` are plain `int`s, because they are numbers on Material's own scales; a `density` outside `0` to `-3` is clamped rather than refused.
+
+There is no props bundle to extend. A Dart widget declares its own constructor parameters, so each component writes out `size`, `color` and the rest itself, under the same names and the same types.
+
+:::
+
 `variant`, `color` and `density` are shared _vocabulary_ rather than members of the bundle: a component that has meaningful variants takes `variant`, one that reads an accent family takes `color`, and one that holds other things takes `density` — but none of the three is on every component, and none of them would mean anything on `MPTextField`. `elevation` is the same kind of vocabulary and reaches the sheets that can be raised.
+
+::: fw flutter
+
+## In Dart
+
+Every shared prop, spelled the way the Flutter package takes it:
+
+| React | Flutter | Note |
+| --- | --- | --- |
+| `size="md"` | `size: MPSize.md` |  |
+| `color="primary"` | `color: MPColor.primary` |  |
+| `variant="filled"` | `variant: MPVariant.filled` |  |
+| `density={-2}` | `density: -2` | An `int`, clamped to `0` to `-3` |
+| `elevation={1}` | `elevation: 1` | An `int`, `0` to `5` |
+| `orientation="vertical"` | `orientation: MPOrientation.vertical` |  |
+| `side="top"` | `side: MPSide.top` | Physical in both packages |
+| `align="start"` | `align: MPAlign.start` | Logical in both packages |
+| `'top-start'` | `MPCorner.topStart` | Logical in both packages |
+| `'extra-large'` | `MPWindowClass.extraLarge` | A window size class |
+| `weekStartsOn={1}` | `weekStartsOn: MPWeekday.monday` | React counts from Sunday as `0`, as `getDay()` does. Dart uses `DateTime`'s numbering, Monday as `1` |
+| `fullWidth` | `fullWidth: true` |  |
+| `startIcon`, `endIcon` | `startIcon`, `endIcon` | A widget in each slot |
+| `onClick` | `onPressed` | Leaving it `null` disables the control, as in Flutter's own widgets |
+| `onChange`, `onValueChange` | `onChanged` | Hands over the value, never an event |
+| `onOpenChange` | `onOpenChange` | Unchanged |
+| `children` | `child`, or `children` for a list | Flutter's names |
+| `aria-label` | `semanticLabel` | Flutter's name |
+| `className`, `style`, `classNames` | — | There is no element to pass them to. See [Overriding the styling](#overriding-the-styling) |
+
+What one component spells differently is in the "Differences from the React build" section of its own page.
+
+:::
 
 ## `variant`
 
@@ -77,7 +140,17 @@ So the rule is: **`md` is the specification's size, and the other four are ours.
 
 <Demo src="text-field/sizes">
 
+::: fw react
+
 <<< @/.vitepress/demos/text-field/sizes.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/text_field/sizes.dart
+
+:::
 
 </Demo>
 
@@ -97,6 +170,12 @@ An icon is not a control. It has no height of its own to pick from a scale: it i
 
 The rule that survives is the one that matters: **within the size ladder, a rung means the same thing everywhere.** A component that is not on the ladder says so by not extending the bundle.
 
+::: fw flutter
+
+In Flutter, `MPIcon`'s `size` is a `double` in logical pixels. Left out, the icon takes the size of the `IconTheme` around it, which inside a control is the control's own, so an icon in a button needs no size at all.
+
+:::
+
 ## `density`
 
 Material's own scale and Material's own numbers: `0` is the component at the size it was asked for, and each step below it takes 4dp out.
@@ -105,10 +184,22 @@ It is not a second size ladder. `size` picks which control this is — the heigh
 
 The two axes cannot be collapsed into one for the same reason. `size="sm"` on a list is a small list; `density={-2}` on a list is a normal list with more of it on the screen. One ladder would make those the same request.
 
+::: fw react
+
 ```tsx
 <MPList density={-1}>       // 52px rows instead of 56
 <MPTable size="sm" density={-2} />
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+MPList(density: -1, children: rows) // 52px rows instead of 56
+```
+
+:::
 
 Every step lands on a height the ladder already has a name for, which is what keeps a dense list lined up with the controls beside it: `md` walks 56, 52, 48, 44, and 48 is exactly what `lg` at `-2` gives.
 
@@ -137,10 +228,14 @@ Four and five share a tone on purpose. The specification runs out of container r
 
 Given a level, the level decides the surface and `variant` is left holding only its hairline: an `outlined` sheet keeps its border and nothing else paints. Anything else would be two props writing one `background-color`, and the winner would depend on the order two class names happened to be generated in.
 
+::: fw react
+
 ```tsx
 <MPBox elevation={2}>          // surface-container, level 2
 <MPBox variant="outlined" elevation={3} />  // the hairline, raised
 ```
+
+:::
 
 A bar reads the same levels from one rung higher: `MPHeader`, `MPFooter` and `MPSidebar` rest at `2` on `variant="elevated"`, because a bar sits over the page's content rather than in it. An explicit level says exactly what it says.
 
@@ -152,7 +247,15 @@ Not Material UI's six. The specification's colour system has no `info`, `success
 
 Arbitrary colour values are not accepted as a prop. To change what a role _is_, set the token — that way one change reaches every component at once instead of every call site.
 
+::: fw flutter
+
+In Flutter the token is `MPTheme`: a `sourceColor`, or a scheme with that one role replaced through `copyWith`. [Colour](./color#changing-it) has both.
+
+:::
+
 ## Motion
+
+::: fw react
 
 Three ways to move something, and they are three because they answer three different questions.
 
@@ -175,7 +278,23 @@ The prop exists alongside the wrapper because wrapping is the wrong shape twice.
 
 **`prefers-reduced-motion` is honoured throughout**, by the components and by the stylesheet. Nothing here needs a prop for it.
 
+:::
+
+::: fw flutter
+
+Two ways to move something. The Flutter package has no `transition` parameter, so the entrance React runs from one is a wrapper here.
+
+**A token.** Every duration and curve the components use is a constant on `MPMotion`, `MPMotion.short4` and `MPMotion.emphasized` among them, so a widget of your own can move at the library's pace. `MPEasing` is the curve half said as a parameter: it takes the specification's names and no arbitrary `Cubic`, for the reason `color` takes a family rather than a colour.
+
+**An `MPAnimate*` widget.** A wrapper round anything, with a trigger, a stagger and control over when it plays. An entrance on a card is the card inside an `MPAnimateFade`.
+
+**`MediaQuery.disableAnimations` is honoured throughout**, by every component that moves. Nothing here needs a parameter for it.
+
+:::
+
 ## Overriding the styling
+
+::: fw react
 
 Three channels, and which one you want depends on what you are changing.
 
@@ -214,15 +333,40 @@ One rung up, the same names on `:root` change the whole page — see [Colour](./
 
 A class you pass and a class the component wrote are both one class. Neither is more specific, so the winner is decided by their **order in the generated stylesheet**, which is Tailwind's own and not the order you wrote them in. [Getting started](../guide/getting-started.md) has the whole of that, including what `!` does and the one thing about it that catches people twice.
 
+:::
+
+::: fw flutter
+
+There is no `className`, `classNames` or `style`. A widget has no stylesheet to merge a class into, so what you change is one of two things:
+
+- **The theme.** Colours, corners and the type scale are `MPTheme`'s, and a theme scopes to the subtree it wraps. See [Colour](./color.md).
+- **A parameter.** `size`, `color`, `variant`, `density` and `elevation` are the axes a component offers, and anything outside it, a margin or a width, is a widget around it, such as `Padding` or `SizedBox`.
+
+:::
+
 ## Naming
 
 - **Icon slots are `startIcon` / `endIcon`.** `leftIcon` and `rightIcon` invert their meaning under RTL.
 - **Booleans are positive.** `disabled` yes, `notDisabled` no.
 - **Filling the container is `fullWidth`.**
+
+::: fw react
+
 - **Event handlers keep their native names** and are passed straight through — except where the native event cannot be trusted, which so far is exactly one case: `MPTextField`'s `onChange` hands over a string, because mid-composition an event's `target.value` is the provisional text that must not be read.
 - **A named callback reports what the component is _for_.** `onValueChange` is the choice, `onSubmit` is the plain Enter. The raw event underneath it is a separate prop — see [Raw events](#raw-events).
 
+:::
+
+::: fw flutter
+
+- **Callbacks take Flutter's names.** `onPressed` for a press and `onChanged` for a new value, and leaving `onPressed` `null` disables the control. `onOpenChange` keeps its React name.
+- **A callback reports what the component is _for_.** `MPTextField`'s `onChanged` hands over a `String`, a switch's a `bool` and a slider's a `List<double>`, never an event. `onSubmit` is the plain Enter. The key underneath it is a separate parameter — see [Raw events](#raw-events).
+
+:::
+
 ## State props
+
+::: fw react
 
 | Prop | Meaning |
 | --- | --- |
@@ -230,6 +374,21 @@ A class you pass and a class the component wrote are both one class. Neither is 
 | `readOnly` | It exists, but not here. Stays selectable and **stays in the tab order** |
 
 `readOnly` deliberately does not use native `disabled`: dropping out of the focus order costs keyboard users their sense of the page, and a value someone may need to copy has to be reachable.
+
+:::
+
+::: fw flutter
+
+| Parameter | Meaning |
+| --- | --- |
+| `disabled` | Unavailable, with the Material disabled treatment: content at 38%, an outline at 12%. A control that takes a callback is also disabled when the callback is `null` |
+| `readOnly` | It exists, but not here. Stays selectable and **stays in the focus order** |
+
+`readOnly` is not a quieter `disabled`: dropping out of the focus order costs keyboard users their sense of the screen, and a value someone may need to copy has to be reachable.
+
+:::
+
+::: fw react
 
 ## Where state lives in the DOM
 
@@ -252,7 +411,38 @@ The library also publishes `data-mp-size` on a component's root, so a consumer c
 
 Every component also takes a `className` and a `style`, and each one's props table names the element they land on. What they can and cannot take over is in [Class names and styles](../guide/getting-started#class-names-and-styles).
 
+:::
+
 ## Raw events
+
+::: fw flutter
+
+A Flutter widget takes no DOM props, so the controls take what Flutter's own controls take instead: `focusNode` and `autofocus`, `onFocusChange`, and on a field, `onKeyEvent`.
+
+**`onKeyEvent` hears a key before the field does.** Returning `KeyEventResult.handled` takes the key, so a field with its own answer for Enter does not also give it:
+
+```dart
+MPTextField(
+  value: draft,
+  onChanged: (String next) => setState(() => draft = next),
+  onSubmit: send, // plain Enter
+  onKeyEvent: (FocusNode node, KeyEvent event) {
+    final bool modified =
+        HardwareKeyboard.instance.isMetaPressed || HardwareKeyboard.instance.isControlPressed;
+
+    if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.enter && modified) {
+      sendAndClose(); // ⌘Enter is yours; onSubmit does not also fire
+      return KeyEventResult.handled;
+    }
+
+    return KeyEventResult.ignored;
+  },
+)
+```
+
+:::
+
+::: fw react
 
 Most components take every DOM prop already: their props extend `React.ComponentPropsWithoutRef` and spread the rest onto an element they own, so `onKeyDown` on an `MPButton` is the `<button>`'s own.
 
@@ -284,7 +474,11 @@ The components that take these are `MPTextField`, `MPNumberField`, `MPSelect`, `
 
 The rest either take every DOM prop already or have no single element these would belong to: an `MPOtpField` is six inputs, and a `blur` that fired between two of its boxes would be reporting something that did not happen.
 
+:::
+
 ## Checklist for a new component
+
+::: fw react
 
 1. `src/components/{lowercase-name}/` with `{PascalCase}.tsx` and an `index.ts` barrel
 2. Named exports only, never `export default`
@@ -297,6 +491,22 @@ The rest either take every DOM prop already or have no single element these woul
 9. Its rows in `docs/.vitepress/data/props.ts` and its demos in `docs/.vitepress/demos/{name}/`
 10. A card in `demos/gallery/all.tsx` so it appears on [All components](../components/)
 11. `npm run typecheck && npm test && npm run lint` all pass
+
+:::
+
+::: fw flutter
+
+1. `packages/flutter/lib/src/components/{snake_name}/mp_{snake_name}.dart`
+1. Built on `package:flutter/widgets.dart`; never import Material or Cupertino
+1. `dart run tool/generate.dart`, which adds it to the barrel and its demos to the gallery's registry
+1. Take the shared parameters from `types.dart`, under the React component's names; define only what has no name yet
+1. Read the colours, type, corners and motion from `MPTheme.of(context)` and the token classes
+1. Widget tests under `test/components/{snake_name}/`, in the same commit, never inside a `MaterialApp`
+1. Demos under `example/lib/demos/{snake_name}/`, which the site quotes verbatim
+1. Its rows in `docs/.vitepress/data/props-flutter/{page}.ts`, and the `::: fw flutter` half of its page
+1. `flutter analyze`, `dart format lib test tool` and `flutter test` all pass
+
+:::
 
 ## Next
 

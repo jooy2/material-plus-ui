@@ -5,11 +5,23 @@ order: 1
 
 # Getting started
 
-Material Plus is a React component library that implements [Material Design 3](https://m3.material.io). It follows the specification directly rather than wrapping somebody's implementation of it, so its colour roles, type scale and shapes are the ones the spec names.
+Material Plus is a component library for React and Flutter that implements [Material Design 3](https://m3.material.io). It follows the specification directly rather than wrapping somebody's implementation of it, so its colour roles, type scale and shapes are the ones the spec names.
+
+::: fw react
 
 Behaviour comes from [Base UI](https://base-ui.com) — the labelling, the validity plumbing, the accessibility. Styling comes from [Tailwind CSS](https://tailwindcss.com) v4, and theming from plain CSS custom properties, which is what lets the library sit inside a project that already has its own Material setup without either one fighting the other.
 
+:::
+
+::: fw flutter
+
+The Flutter package is built on `package:flutter/widgets.dart` alone. It imports neither Material nor Cupertino, so it sits inside a `MaterialApp`, a `CupertinoApp` or a bare `WidgetsApp` without bringing a second implementation of Material in behind it. The component names, the parameter vocabulary and the numbers are the React package's.
+
+:::
+
 ## Install
+
+::: fw react
 
 ```bash
 npm install material-plus-ui
@@ -37,6 +49,22 @@ These are the packages Material Plus expects to find in your project rather than
 ### Browsers
 
 Chrome and Edge 111, Firefox 113 and Safari 16.4 or later, on desktop and mobile. A few effects are reduced at the older end of that range; [Browser support](../browser-support) lists them and how each version was checked.
+
+:::
+
+::: fw flutter
+
+```bash
+flutter pub add material_plus_ui
+```
+
+It needs Flutter 3.41 or newer, which is Dart 3.11.
+
+The package depends on nothing but Flutter itself, and it ships no assets, so there are no fonts or images to declare. Text is drawn in whatever font the app's `DefaultTextStyle` names, which is how a component reads like the app around it.
+
+:::
+
+::: fw react
 
 ## Wiring up the stylesheet
 
@@ -103,7 +131,11 @@ You do not write an `@source` of your own. The classes the components use are Ta
 
 The upshot is that nothing depends on where your own CSS file sits.
 
+:::
+
 ## Use
+
+::: fw react
 
 There is no provider. Import a component and render it.
 
@@ -118,7 +150,35 @@ export default function App() {
 }
 ```
 
+:::
+
+::: fw flutter
+
+There is no provider here either. Import the library and use a widget.
+
+```dart
+import 'package:flutter/widgets.dart';
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+class SaveBar extends StatelessWidget {
+  const SaveBar({required this.onSave, super.key});
+
+  final VoidCallback onSave;
+
+  @override
+  Widget build(BuildContext context) {
+    return MPButton(onPressed: onSave, child: const Text('Save'));
+  }
+}
+```
+
+That one import carries every widget, the theme and the shared types. The translations are a second library, for the reason [Languages](#languages) gives.
+
+:::
+
 ## Theming
+
+::: fw react
 
 Everything the components draw comes from CSS custom properties, so theming is CSS. No provider, no theme object, no re-render when a colour changes — and it works the same whether or not you run Tailwind.
 
@@ -251,17 +311,113 @@ The derivation uses CSS relative colour syntax, so `--mp-source-color` has to be
 }
 ```
 
+:::
+
+::: fw flutter
+
+`MPTheme` themes the subtree below it. Without one, a component draws in the default scheme and follows `MediaQuery.platformBrightness`, and it redraws when the device switches between light and dark.
+
+```dart
+MPTheme(
+  sourceColor: const Color(0xFF7C3AED),
+  brightness: Brightness.dark,
+  shapes: MPShapes.rounded,
+  child: const App(),
+)
+```
+
+| Parameter | What it does |
+| --- | --- |
+| `sourceColor` | The colour every role is generated from, as in Material's own scheme generation. The default is a deep azure, `#00639b`. |
+| `brightness` | `Brightness.light` or `Brightness.dark`. Left out, it comes from the theme above; with no theme above, the platform decides. |
+| `shapes` | The corner ladder: `MPShapes.material` (the default), `MPShapes.rounded`, `MPShapes.sharp`, or one of your own. |
+| `colors` | A whole `MPColorScheme`, used as it is instead of one generated from `sourceColor`. |
+| `typescale` | The type scale. MD3's own unless given. |
+
+Every parameter is optional, and a theme inside another one says only what it changes, so a section with its own brand colour is one widget:
+
+```dart
+MPTheme(sourceColor: const Color(0xFF00696D), child: const PromoBanner())
+```
+
+The same source colour gives the same scheme in both packages. [Colour](../design/color) explains the derivation and the one constraint on a source colour worth knowing: it must not be near-grey.
+
+`MPShapes.rounded` leaves buttons alone, because a pill has no rounder to go. `MPShapes.sharp` squares every corner, buttons included.
+
+:::
+
 ## Sizes
 
 Every control takes a `size` from one ladder — `xs`, `sm`, `md`, `lg`, `xl` — and `md` is Material's own size, so you get it by saying nothing.
+
+::: fw react
 
 ```tsx
 <MPTextField label="Search" size="sm" value={query} onChange={setQuery} />
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+MPButton(size: MPSize.sm, onPressed: search, child: const Text('Search'));
+```
+
+:::
+
 The ladder is the one place the library knowingly goes beyond the specification. Why, and what each rung is, is in [Prop conventions](../design/prop-conventions#size).
 
 To run a whole product at one rung, set it once rather than at every call site — see [App-wide defaults](./config).
+
+::: fw flutter
+
+```dart
+MPConfigProvider(
+  size: MPSize.sm,
+  color: MPColor.tertiary,
+  locale: 'ko',
+  child: const App(),
+)
+```
+
+| Parameter | The default it sets |
+| --- | --- |
+| `size` | The rung every control starts at. |
+| `color` | The accent family every control reads. |
+| `density` | How tightly every container packs, from `0` to `-3`. |
+| `breakpoints` | Where the window size classes begin, merged over MD3's own. |
+| `locale` | The language the components speak. See [Languages](#languages). |
+| `textDirection` | Which way the text runs. Left out, the ambient `Directionality` stays in charge. |
+| `reserveSupportingText` | Keeps a line under every field for its description or its error, so an error that arrives later does not push the rest of the form down. |
+
+A component's own parameter wins, then the group it sits in, then the provider, then the component's own default. A provider inside another one keeps whatever the outer one decided and it left unsaid.
+
+:::
+
+::: fw flutter
+
+## Languages
+
+The library speaks English until it is told otherwise. Every other language is a table the app hands over once, at startup, from a second library:
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+import 'package:material_plus_ui/locales.dart';
+
+void main() {
+  registerMPMessages(<MPLocale>[ko]);
+  runApp(const App());
+}
+```
+
+`registerMPMessages(mpLocales)` takes all eighteen. The translations are a library of their own because a table is data, and the only way to leave data out of an app is for nothing to import it.
+
+A component takes its language from the first of these that says one: its own `locale` parameter, the nearest `MPLocaleProvider`, the nearest `MPConfigProvider`'s `locale`, and the app's own `Localizations`. With none of them, or with a language nobody registered, it speaks English. The tables themselves are the React package's, and [Localisation](../design/localization) covers them.
+
+:::
+
+::: fw react
 
 ## Class names and styles
 
@@ -428,7 +584,11 @@ onwarn(warning, warn) {
 }
 ```
 
+:::
+
 ## What is in the package
+
+::: fw react
 
 | Export | What it is |
 | --- | --- |
@@ -441,8 +601,31 @@ onwarn(warning, warn) {
 | `material-plus-ui/styles/*.css` | The same CSS, one sheet per component |
 | `material-plus-ui/tailwind.css` | Tokens and `@source`, for a project that has it |
 
+:::
+
+::: fw flutter
+
+| Import | What it is |
+| --- | --- |
+| `package:material_plus_ui/material_plus_ui.dart` | Every widget, `MPTheme`, the two providers and the shared types |
+| `package:material_plus_ui/locales.dart` | The eighteen translations, none of them in the app until you import this |
+
+:::
+
 ## Next
+
+::: fw react
 
 - [All components](../components/) — one page each, with live previews and the full props table.
 - [MPTextField](../components/inputs/text-field) — the field, and why composition needs handling at all.
 - [MPIcon](../components/display/icon) — bringing your own icon set.
+
+:::
+
+::: fw flutter
+
+- [All components](../components/) — one page each, with live previews and the props table for each package.
+- [MPButton](../components/inputs/button) — the button, and what differs between the two packages.
+- [Prop conventions](../design/prop-conventions) — `size`, `color`, `variant` and `density`, which mean the same in both packages.
+
+:::

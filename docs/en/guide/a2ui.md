@@ -7,6 +7,12 @@ order: 4
 
 <p class="mp-lede">An agent describes an interface, and Material Plus draws it. <a href="https://a2ui.org">A2UI</a> is a protocol for exactly that: the agent sends JSON naming components from a <em>catalog</em>, a renderer resolves it on the client, and <code>material-plus-ui/a2ui</code> is that catalog implemented as Material Design 3.</p>
 
+::: fw flutter
+
+The A2UI catalog is React-only. `material-plus-ui/a2ui` is built on A2UI's React renderer, `@a2ui/react`, and the Flutter package ships no catalog. Everything on this page is about the React package.
+
+:::
+
 The point of a catalog is that the agent never writes markup. It writes `{ "component": "Button", "variant": "primary" }`, and what that draws is the client's decision — so the same agent renders as Material here, and as something else in an application that registered a different catalog. Nothing in the payload can reach past the vocabulary the catalog declares.
 
 There are two catalogs here. `mpA2uiCatalog` implements A2UI's own **basic catalog**, all eighteen components, under the basic catalog's own id — so an agent already targeting it needs no change. `mpA2uiExtendedCatalog` is those eighteen plus five of this library's own, under an id of ours, for the surfaces the basic vocabulary cannot express: a table, three charts and a figure.

@@ -9,13 +9,25 @@ order: 3
 
 <Demo src="locale/provider" :minHeight="520">
 
+::: fw react
+
 <<< @/.vitepress/demos/locale/provider.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/locale/provider.dart
+
+:::
 
 </Demo>
 
 ## 태그 하나, 두 계통
 
 로케일은 BCP 47 태그입니다 — `ko`, `ja`, `pt-BR`, `zh-Hant`. 그리고 서로 다르게 무너지는 두 계통에 닿습니다.
+
+::: fw react
 
 | 무엇                              | 어디서 오는가 | 번역이 없는 태그에서 |
 | --------------------------------- | ------------- | -------------------- |
@@ -30,7 +42,39 @@ order: 3
 
 그래서 이 라이브러리에 표가 없는 언어라도 **막다른 길이 아닙니다**. 달력은 여전히 그 언어이고, 영어인 것은 단어 몇 개뿐이며, `labels`가 그걸 하나씩 채웁니다.
 
+:::
+
+::: fw flutter
+
+Flutter에서는 첫 번째 계통이 플랫폼의 것이 아닙니다. 프레임워크에는 `Intl`이 없고 패키지도 그것을 가져올 의존성이 없으므로, 날짜 이름은 라이브러리가 직접 싣고 있습니다. 영어와, 라이브러리가 번역하는 18개 언어마다 Unicode CLDR 데이터에서 뽑은 표가 하나씩 있습니다. 선택기와 차트는 단어가 따르는 것과 같은 로케일로 이 표를 찾고, 따로 등록할 것은 없습니다.
+
+| 무엇 | 어디서 오는가 | 표가 없는 태그에서 |
+| --- | --- | --- |
+| 월 이름, 요일 이름, 오전/오후 | 그 로케일의 라이브러리 날짜 표 | `names`를 넘기지 않으면 영어 |
+| 주가 시작하는 요일 | 같은 표 | `weekStartsOn`으로 정하지 않으면 일요일 |
+| 월을 연도 앞에 쓰는지, 날짜와 시각의 형식 | 같은 표 | 영어 순서 |
+| "이전 달", "오늘", "시", "닫기" | 등록한 이 라이브러리의 메시지 표 | 영어로 내려감 |
+
+React 패키지가 `Intl`에서 받는 것과 두 가지가 다릅니다. 숫자는 항상 서양식이고 달력은 항상 그레고리력입니다. 그래서 아랍어 날짜도 `0`–`9`를 쓰고, 태국어 연도도 불기가 아닙니다. 지역 변형도 구분하지 않아서 `en-GB`는 영어 표를 읽습니다.
+
+18개 언어 밖의 언어도 **막다른 길이 아닙니다**. 날짜를 쓰는 컴포넌트에 직접 만든 `MPDateNames`를 넘기면 됩니다. 선택기에서는 `names`, 차트에서는 `dateNames`입니다. 이미 `package:intl`을 쓰는 앱이라면 `DateFormat`으로 만들 수 있습니다.
+
+```dart
+MPDateNames(
+  months: List<String>.generate(12, (int i) => DateFormat.MMMM(locale).format(DateTime(2021, i + 1))),
+  monthsShort: List<String>.generate(12, (int i) => DateFormat.MMM(locale).format(DateTime(2021, i + 1))),
+  weekdays: List<String>.generate(7, (int i) => DateFormat.EEEE(locale).format(DateTime(2021, 8, i + 1))),
+  weekdaysShort: List<String>.generate(7, (int i) => DateFormat.E(locale).format(DateTime(2021, 8, i + 1))),
+)
+```
+
+요일 목록은 둘 다 일요일부터 시작합니다. 2021년 8월 1일부터 세는 이유가 그것입니다. `monthBeforeYear`, `firstDayOfWeek`, `hour12`는 형식에서 읽어 낼 수 없으므로 언어에 맞게 직접 지정하고, 남은 단어 몇 개는 `labels`로 하나씩 채우세요.
+
+:::
+
 ## 언어 등록하기
+
+::: fw react
 
 라이브러리에 들어 있는 언어는 영어뿐입니다. 나머지 번역은 각각 하나의 모듈이고, 넘겨주는 일은 시작할 때 한 줄입니다.
 
@@ -62,7 +106,33 @@ import { ko } from 'material-plus-ui/locales/ko';
 
 무엇이든 렌더링되기 전에 한 번만 호출하세요. 모듈 수준 상태라서, 컴포넌트가 이미 문자열을 해석한 뒤에 도착한 표는 다음 렌더링부터 반영됩니다. App Router에서는 컴포넌트가 실행되는 곳, 즉 클라이언트 모듈에서 호출해야 합니다. 동작하는 형태는 [시작하기](../guide/getting-started#next-js와-react-server-components)에 있습니다.
 
+:::
+
+::: fw flutter
+
+여기서도 라이브러리에 들어 있는 언어는 영어뿐입니다. 나머지 표는 두 번째 라이브러리인 `package:material_plus_ui/locales.dart`에서 오고, 넘겨주는 일은 시작할 때 한 줄입니다.
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+import 'package:material_plus_ui/locales.dart';
+
+void main() {
+  registerMPMessages(<MPLocale>[ko]);
+  runApp(const App());
+}
+```
+
+이후로는 `locale: 'ko'`가 — 프로바이더에 쓰든 컴포넌트에 쓰든 — React 패키지와 같은 한국어로 해석됩니다. 같은 키 아래의 같은 표이기 때문입니다.
+
+`registerMPMessages(mpLocales)`는 열여덟 개를 모두 등록합니다. 표가 별도 라이브러리인 것은 표가 데이터이기 때문입니다. 데이터를 앱에서 빼는 방법은 아무것도 그것을 import하지 않는 것뿐이므로, `locales.dart`를 import하지 않은 앱에는 표가 하나도 들어가지 않습니다.
+
+무엇이든 빌드되기 전에 한 번만 호출하세요. 나중에 등록한 표는 컴포넌트가 다음에 빌드될 때부터 반영됩니다.
+
+:::
+
 ### 이 라이브러리에 없는 언어
+
+::: fw react
 
 `MPLocale`은 평범한 객체입니다. 직접 만든 표도 여기 들어 있는 표와 똑같이 쓰입니다.
 
@@ -78,21 +148,74 @@ registerMPMessages({
 
 빠뜨린 항목은 네임스페이스 단위로 영어로 되돌아갑니다. 일부만 채워진 기본 번역과 똑같이 동작합니다. `aliases`는 중국어에 필요한 경우를 위한 것으로 — `{ locale: 'zh-hant', aliases: ['zh-TW', 'zh-HK'] }` — 표 하나를 여러 태그에 달아 줍니다.
 
+:::
+
+::: fw flutter
+
+`MPLocale`은 평범한 값입니다. 직접 만든 표도 여기 들어 있는 표와 똑같이 쓰입니다.
+
+```dart
+registerMPMessages(<MPLocale>[
+  const MPLocale(
+    locale: 'sv',
+    messages: <String, Map<String, String>>{
+      'common': <String, String>{'close': 'Stäng', 'clear': 'Rensa'},
+      'picker': <String, String>{'today': 'I dag', 'done': 'Klar'},
+    },
+  ),
+]);
+```
+
+빠뜨린 항목은 네임스페이스 단위로 영어로 되돌아갑니다. 일부만 채워진 기본 번역과 똑같이 동작합니다. `aliases`는 중국어에 필요한 경우를 위한 것으로 — `zh-hant` 표에 `aliases: <String>['zh-TW', 'zh-HK']` — 표 하나를 여러 태그에 달아 줍니다.
+
+:::
+
 ## 지정하는 방법
+
+::: fw react
 
 세 군데이고, 이기는 순서대로입니다.
 
+:::
+
+::: fw flutter
+
+자리도 순서도 같고, 영어 앞에 한 단계가 더 있습니다. 컴포넌트는 다음 중 먼저 언어를 말하는 것을 따릅니다.
+
+1. 자기 `locale` 파라미터
+1. 가장 가까운 `MPLocaleProvider`
+1. 가장 가까운 `MPConfigProvider`의 `locale`
+1. 앱의 `Localizations`
+
+아무것도 없거나 등록하지 않은 태그라면 영어를 씁니다.
+
+:::
+
 ### 1. 컴포넌트 자신의 `locale`
+
+::: fw react
 
 ```tsx
 <MPDatePicker locale="ja" label="期限" />
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+MPButton(locale: 'ja', loading: true, onPressed: save, child: const Text('保存'))
+```
+
+:::
 
 주변 페이지와 다른 언어를 쓰는 컨트롤 하나는 실제로 있는 상황입니다 — 한국어 대시보드에서 일본어 매물을 편집하는 관리자. 그걸 그릴 수 없는 라이브러리는 호출자를 대신해 페이지의 언어를 결정해 버린 것입니다.
 
 ### 2. `MPLocaleProvider`
 
 애플리케이션이 실제로 가진 것: 하나의 언어를, 루트에서, 한 번.
+
+::: fw react
 
 ```tsx
 import { MPLocaleProvider } from 'material-plus-ui';
@@ -102,9 +225,21 @@ import { MPLocaleProvider } from 'material-plus-ui';
 </MPLocaleProvider>;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+MPLocaleProvider(locale: 'ko', child: const App())
+```
+
+:::
+
 <PropsTable name="MPLocaleProvider" />
 
 프로바이더는 중첩되고 가장 가까운 것이 이깁니다. 한국어 페이지 안에 일본어 매물의 날짜를 보여 주는 구역이 하나 있으면 프로바이더 두 개이고, 안쪽은 아무것도 다시 말할 필요가 없습니다. 값이 하나뿐이니까요.
+
+::: fw react
 
 `useMPLocale()`로 되읽을 수 있으므로, 이 라이브러리에 언어를 말해 준 애플리케이션이 자기 자신에게 같은 말을 두 번 할 필요는 없습니다.
 
@@ -113,7 +248,25 @@ const locale = useMPLocale();
 const price = new Intl.NumberFormat(locale, { style: 'currency', currency: 'KRW' });
 ```
 
+:::
+
+::: fw flutter
+
+`MPLocaleProvider.maybeOf(context)`는 가장 가까운 프로바이더가 정한 태그를 돌려주고, 프로바이더가 없으면 `null`을 돌려줍니다. 프로바이더 하나만 보고 답하므로, `MPConfigProvider`에 지정한 `locale`은 `MPConfigProvider.maybeOf(context)?.locale`로 읽습니다.
+
+:::
+
 ### 3. 아무것도 지정하지 않음
+
+::: fw flutter
+
+아무것도 지정하지 않으면 컴포넌트는 앱의 `Localizations`를 따릅니다. `WidgetsApp`이 기기의 언어를 앱의 `supportedLocales`와 맞춰 고른 로케일입니다. 한국어 표를 등록하고 `supportedLocales`에 `ko`를 넣은 앱은 한국어 기기에서 `locale`을 어디에도 쓰지 않아도 한국어를 씁니다. `supportedLocales`를 기본값, 즉 영어 하나로 둔 앱은 영어를 씁니다.
+
+React 패키지가 일부러 빼 둔 단계가 이것입니다. 브라우저의 언어는 페이지를 렌더링한 서버와 하이드레이션하는 브라우저 사이에서 달라질 수 있기 때문입니다. Flutter 앱에는 그런 갈림이 없고, `Localizations`가 담은 로케일은 앱이 이미 고른 것입니다.
+
+:::
+
+::: fw react
 
 `undefined`이고, 빠뜨린 것이 아니라 진짜 답입니다.
 
@@ -145,17 +298,41 @@ const price = new Intl.NumberFormat(locale, { style: 'currency', currency: 'KRW'
 
 시간대도 같은 문제인데, 이것을 해결하는 프로바이더는 없습니다. `Date`는 런타임의 시간대로 쓰이므로, UTC 자정인 차트 카테고리는 UTC 서버에서는 그날이고 로스앤젤레스의 브라우저에서는 전날입니다. 서버의 시간대가 읽는 사람과 다를 수 있으면 차트 카테고리를 `Date` 객체 대신 보여 줄 문자열로 넘기세요.
 
+:::
+
+::: fw react
+
 ## 이 라이브러리의 유일한 프로바이더인 이유
 
 테마 프로바이더가 실어 나를 만한 나머지는 여기서 이미 전부 CSS 커스텀 프로퍼티입니다. 색 역할, 타입 스케일, 모서리, 모션 지속시간. 그것들은 캐스케이드를 타고 컴포넌트에 닿으므로, 페이지의 한 구역이 나머지와 달라지는 데 두 번째 프로바이더도 리렌더도 필요 없습니다.
 
 로케일은 그 길로 이동할 수 없습니다. 어떻게 칠할지가 아니라 어떤 **문자열**을 렌더링할지를 결정하니까요. 그래서 React 컨텍스트가 정말로 필요한 유일한 것이고, 이 프로바이더는 그것만 실어 나릅니다.
 
+:::
+
+::: fw flutter
+
+## 로케일에 프로바이더가 따로 있는 이유
+
+Flutter에는 캐스케이드가 없으므로 이 패키지에서 색, 타입 스케일, 모서리는 [`MPTheme`](./color)이 담고, 크기, 색 계열, 밀도, 로케일은 [`MPConfigProvider`](../guide/config)가 담습니다. `MPLocaleProvider`는 언어만 바꾸는 서브트리를 위한 좁은 프로바이더로 남습니다. 문자열 하나만 담으므로, 그것을 읽는 컴포넌트는 그 문자열이 바뀔 때만 다시 빌드됩니다.
+
+:::
+
 ## 표가 있는 언어
 
 네덜란드어, 독일어, 러시아어, 베트남어, 스페인어, 아랍어, 영어, 이탈리아어, 인도네시아어, 일본어, 중국어(간체·번체), 태국어, 터키어, 포르투갈어, 폴란드어, 프랑스어, 한국어, 힌디어.
 
+::: fw react
+
 이 중 항상 들어 있는 것은 영어입니다. 나머지 열여덟은 `material-plus-ui/locales` 아래의 모듈이고, 태그 이름으로 내보냅니다. 하이픈이 들어가는 것은 카멜 케이스로 바뀝니다 — `ko`, `ja`, `zhHans`, `zhHant`, `pt`. 각각 자기 경로도 있습니다: `material-plus-ui/locales/zh-hant`. 등록하지 않은 태그는 오류가 아니라, 표가 아예 없는 태그와 똑같이 영어로 되돌아갑니다. 한 줄을 잊으면 단어를 잃을 뿐 렌더링이 깨지지는 않습니다.
+
+:::
+
+::: fw flutter
+
+이 중 항상 들어 있는 것은 영어입니다. 나머지 열여덟은 `package:material_plus_ui/locales.dart`에서 같은 이름의 상수로 내보냅니다 — `ko`, `ja`, `zhHans`, `zhHant`, `pt`. `mpLocales`는 그 전부를 담은 목록입니다. 등록하지 않은 태그는 오류가 아니라, 표가 아예 없는 태그와 똑같이 영어로 되돌아갑니다. 한 줄을 잊으면 단어를 잃을 뿐 빌드가 깨지지는 않습니다.
+
+:::
 
 태그는 넓은 쪽이 나중에 오도록 매칭됩니다. `pt-BR`은 `pt-br`을 먼저, 그다음 `pt`를 찾습니다. `zh-Hant-TW`는 `zh-hant`, `zh-tw`, `zh` 순입니다. 중국어는 지역이 아니라 **문자**로 키를 잡는데, 단어가 실제로 갈리는 축이 그것이기 때문입니다 — 타이베이에서 `zh-TW`를 요청하는 사람과 홍콩에서 `zh-HK`를 요청하는 사람은 같은 글자를 원합니다. 맨 `zh`는 간체로 해석됩니다.
 
@@ -163,11 +340,29 @@ const price = new Intl.NumberFormat(locale, { style: 'currency', currency: 'KRW'
 
 표를 읽는 모든 컴포넌트가 `labels` prop을 받고, override가 번역을 이기고, 번역이 영어를 이깁니다.
 
+::: fw react
+
 ```tsx
 <MPDatePicker locale="ko" labels={{ today: '오늘 날짜' }} />
 ```
 
 이 순서가 부분적인 답을 가능하게 합니다. 단어 하나를 지정한다고 나머지 열일곱을 잃지 않습니다. 그것들은 영어로 내려가는 대신 한국어로 남습니다.
+
+:::
+
+::: fw flutter
+
+```dart
+MPPagination(
+  locale: 'ko',
+  labels: const <String, String>{'next': '다음 쪽'},
+  // …페이지네이션 자신의 파라미터
+)
+```
+
+이 순서가 부분적인 답을 가능하게 합니다. 단어 하나를 지정한다고 나머지를 잃지 않습니다. 그것들은 영어로 내려가는 대신 한국어로 남습니다.
+
+:::
 
 `MPAlert`의 `closeLabel`도 같은 이유이고, 문자열이 하나뿐인 같은 물건입니다.
 
@@ -176,6 +371,8 @@ const price = new Intl.NumberFormat(locale, { style: 'currency', currency: 'KRW'
 몇 개는 소유되지 않고 공유됩니다. 다이얼로그, 드로어, 팝오버, 스낵바의 ×는 네 번 반복되는 _닫기_ 하나이고, 콤보박스의 지우기·열기 어도먼트, 칩과 파일의 제거 버튼, 로딩 중인 버튼 안의 스피너도 마찬가지입니다.
 
 이것들은 한 네임스페이스에서 오므로 번역이 스스로와 어긋날 수 없습니다. 해당 컴포넌트들은 각자 `locale`과 자신의 override prop을 함께 받습니다.
+
+::: fw react
 
 ```tsx
 <MPLocaleProvider locale="ko">
@@ -186,6 +383,26 @@ const price = new Intl.NumberFormat(locale, { style: 'currency', currency: 'KRW'
 ```
 
 무언가를 제거하는 버튼은 **무엇을** 제거하는지로 이름 지어집니다. 한국어로는 `report.pdf 제거`, 영어로는 `Remove report.pdf`입니다. "Remove"라고만 불리는 버튼 다섯 개가 늘어선 줄은 스크린 리더가 구분할 수 없는 줄이고, 이름이 들어갈 자리는 언어마다 같지 않기 때문입니다.
+
+:::
+
+::: fw flutter
+
+```dart
+MPLocaleProvider(
+  locale: 'ko',
+  child: Row(
+    children: <Widget>[
+      MPChip(onDelete: remove, child: const Text('report.pdf')), // 제거
+      MPButton(loading: true, onPressed: save, child: const Text('저장')), // 불러오는 중
+    ],
+  ),
+)
+```
+
+칩의 레이블은 위젯이라서 칩이 거기서 단어를 읽어 낼 수 없습니다. 그래서 제거 버튼의 이름은 읽는 사람의 언어로 된 _제거_ 한 단어뿐입니다. "제거"라고만 불리는 버튼 다섯 개가 늘어선 줄은 스크린 리더가 구분할 수 없으므로, `deleteLabel: 'report.pdf 제거'`로 각각 무엇을 제거하는지 이름을 붙이세요.
+
+:::
 
 만들어낸 문자열은 대부분 읽히기만 하고 그려지지는 않습니다. 페이지 버튼이 보여 주는 것은 숫자이고, 그 뒤의 단어는 숫자가 아무 말도 해 주지 않는 독자를 위한 것입니다. **그려지는** 쪽은 영어로 남겨 두는 것이 가장 용납되지 않는 것들이고, 다섯입니다. `MPEmpty`의 헤드라인, `MPSpoiler`의 덮개, `MPPageLayout`의 건너뛰기 링크, `MPTransfer`의 두 열 제목, `MPCommandPalette`의 플레이스홀더. 그리고 `MPColorPicker`의 트리거가 색을 고르기 전에 보여 주는 단어까지. 한국어 페이지의 빈 목록 한가운데에 "Nothing here"가 적혀 있어서는 안 됩니다.
 

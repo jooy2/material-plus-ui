@@ -16,6 +16,25 @@ order: 5
 
 Google has no supported web implementation of Expressive either. Material Web has been in maintenance mode since June 2024, and the specification's web page states that Expressive is not implemented on the web.
 
+::: fw flutter
+
+## The Flutter package
+
+The rows below were read off the React package. The Flutter package implements the same foundations with the same numbers: the 29 colour roles from one source colour, the same 13 type roles, the corner scale, elevation levels 0 to 5, the state-layer opacities and the standard and emphasized curves. A component it shares with the React package follows the same coverage, with the same variants, sizes and colour families. Each component's page says whether the Flutter package has it, and its "Differences from the React build" section lists what it spells or does differently.
+
+Four rows of the foundation tables describe CSS, and Flutter answers them another way:
+
+| Row | In Flutter |
+| --- | --- |
+| A whole scheme generated from one source colour | ✓ `MPTheme(sourceColor:)` |
+| Reads the page's own `--md-sys-color-*` tokens | — There is no page to read them from. Hand the roles across with `MPColorScheme.copyWith`; see [Colour](./color#coexisting-with-an-existing-material-setup) |
+| A different source colour or scheme for one subtree, in CSS | ✓ A nested `MPTheme` |
+| `rounded` and `sharp` corner presets for a subtree | ✓ `MPShapes.rounded` and `MPShapes.sharp`, given to `MPTheme` |
+
+`MPFlex`, `MPPortal` and `MPVisuallyHidden`, in the tables of components the specification does not name, are React-only. Flutter's `Row`, `Column`, `Wrap`, `OverlayPortal` and `Semantics` already answer them.
+
+:::
+
 ## Reading the tables
 
 The **Defined by** column says where a feature comes from.

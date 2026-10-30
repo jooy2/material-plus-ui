@@ -8,9 +8,19 @@ aside: false
 
 <p class="mp-lede">세 단계로 나뉜 Kestrel 가입 절차입니다. 다른 것을 다 걷어내고 라이브러리의 입력 컨트롤만 남긴 화면 — 폼이 물을 수 있는 모든 종류의 답과, 그 주변의 상태들입니다. <code>label</code>, <code>description</code>, <code>errorMessage</code>는 거의 모든 컨트롤에서 똑같은 세 자리입니다.</p>
 
-<Demo src="concepts/signup" :minHeight="660" />
+<Demo src="concepts/signup" :minHeight="660" :flutter="false" />
+
+::: fw flutter
+
+이 화면은 React 패키지로 만들었고 Flutter 버전은 없습니다. 아래 표는 그래도 각 블록이 어떤 컴포넌트로 이루어졌는지 보여 주고, 각 컴포넌트에 Flutter 쪽이 있는지는 그 컴포넌트 페이지에 있습니다.
+
+:::
+
+::: fw react
 
 소스는 파일 하나입니다: `docs/.vitepress/demos/concepts/signup.tsx`. 흐름은 실제로 동작합니다. 첫 단계를 채우면 계속 버튼이 켜집니다.
+
+:::
 
 ## 어떤 질문에 어떤 컨트롤인가
 
