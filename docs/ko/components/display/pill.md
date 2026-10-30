@@ -9,6 +9,8 @@ order: 13
 
 <Demo src="pill/hero" :minHeight="200" />
 
+::: fw react
+
 ```tsx
 import { MPPill } from 'material-plus-ui';
 
@@ -20,6 +22,24 @@ import { MPPill } from 'material-plus-ui';
   details="에이다, 그레이스 외 2명."
 />;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPPill(
+  title: const Text('통화 중'),
+  description: const Text('04:12'),
+  expanded: expanded,
+  onPressed: () => setState(() => expanded = !expanded),
+  details: const Text('에이다, 그레이스 외 2명.'),
+);
+```
+
+:::
 
 ## Props
 
@@ -39,13 +59,23 @@ MD3에는 이 모양이 없습니다. 라이브러리가 그래도 제공하는 
 
 `details`를 열면 모서리가 `corner-extra-large`로 옮겨 가고, 그 이동은 전환됩니다. 이것도 장식이 아닙니다. 여섯 줄로 자란 상자에서 `corner-full`은 높이의 3분의 1쯤 되는 모서리이고, 그러면 모든 줄의 첫 두 단어가 잘려 나갑니다. 필은 알약에서, 시트 사다리가 가진 가장 큰 모서리를 두른 둥근 사각형으로 변형됩니다. 그 크기에서라면 처음부터 그랬어야 할 모양입니다.
 
-두 값 모두 토큰이라서, [`data-mp-shape`](../../guide/getting-started#모양)로 척도를 옮긴 페이지에서는 이것들도 함께 움직입니다.
+두 값 모두 토큰이라서, 모양 척도를 옮긴 페이지에서는 이것들도 함께 움직입니다. React에서는 [`data-mp-shape`](../../guide/getting-started#모양)로, Flutter에서는 `MPTheme(shapes: …)`로 옮깁니다.
 
 ## 모든 variant가 그림자를 가집니다
 
 <Demo src="pill/variants" :minHeight="140">
 
+::: fw react
+
 <<< @/.vitepress/demos/pill/variants.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/pill/variants.dart
+
+:::
 
 </Demo>
 
@@ -55,13 +85,27 @@ MD3에는 이 모양이 없습니다. 라이브러리가 그래도 제공하는 
 
 ## details, 그리고 높이를 관찰하는 이유
 
+::: fw react
+
 `details`는 잰 높이를 애니메이션해서 드러납니다. [아코디언](../layout/accordion) 패널과 같은 방식이지만, 재는 쪽이 한 번만 재는 측정이 아니라 `ResizeObserver`입니다.
 
 살아 있는 정보는 화면에 있는 동안 바뀌는 종류의 내용입니다. 열린 뒤에 상세가 자란 필은 그러지 않으면 도착 당시의 높이에서 잘립니다.
 
 닫혀 있는 동안 패널은 `inert`입니다. 속성 하나로 그 안의 내용을 탭 순서에서, 접근성 트리에서, 그리고 페이지의 텍스트 선택에서 한꺼번에 빼냅니다. `aria-hidden`만으로는 스크린 리더가 없다고 들은 링크로 키보드 사용자가 탭해 들어가게 됩니다.
 
+:::
+
+::: fw flutter
+
+`details`는 [아코디언](../layout/accordion) 패널처럼 `short4` 동안 높이를 펼치며 드러납니다. 펼침은 상세가 가진 높이의 비율이라서, 열린 뒤에 상세가 자라면 잘리지 않고 함께 자랍니다.
+
+닫혀 있는 동안 패널은 포커스 순서와 의미 트리에서 빠지므로, 키보드 사용자가 보이지 않는 것으로 탭해 들어갈 일이 없습니다.
+
+:::
+
 ## 예시
+
+::: fw react
 
 ### position
 
@@ -87,16 +131,86 @@ MD3에는 이 모양이 없습니다. 라이브러리가 그래도 제공하는 
 
 [MPChip](./chip)이 쓰는 모양이고, 이유도 같은 둘입니다. 클릭 핸들러를 단 `<div>`는 키보드에 보이지 않고, `<button>` 안의 `<button>`은 브라우저가 파싱하면서 고쳐 쓰는 마크업입니다.
 
+:::
+
+::: fw flutter
+
+### 놓이는 자리
+
+필이 어디에 뜰지는 레이아웃이 정하므로 `position`이 없습니다. `Stack`과 `Positioned`, 또는 `Overlay` 항목으로 화면 위에 올리고, 가운데 정렬은 `Align`으로 합니다. auto 마진처럼 방향을 타지 않습니다.
+
+```dart
+Stack(children: <Widget>[
+  page,
+  const Positioned(
+    left: 0,
+    right: 0,
+    bottom: 12,
+    child: Center(child: MPPill(title: Text('녹음 중'), description: Text('00:42'))),
+  ),
+])
+```
+
+### onPressed와 endIcon
+
+`onPressed`를 넘기면 **가운데**가 버튼이 됩니다. 포커스 정류장 하나이고 포인터, <kbd>Enter</kbd>, <kbd>Space</kbd>로 눌립니다. `endIcon`은 그 바깥에 남아서 자기 컨트롤을 담을 수 있습니다.
+
+```dart
+MPPill(
+  title: const Text('통화 중'),
+  onPressed: expand,
+  endIcon: MPIconButton(
+    size: MPSize.xs,
+    variant: MPVariant.text,
+    icon: const MPIcon(icon: CloseGlyph()),
+    label: '통화 종료',
+    onPressed: hangUp,
+  ),
+)
+```
+
+[MPChip](./chip)이 쓰는 모양입니다. `endIcon`을 누르면 가운데가 아니라 그 자리의 컨트롤에 닿습니다.
+
+:::
+
 ### children
 
 `title`과 `description`으로 말할 수 없는 것을 가운데에 넣습니다 — 작은 수치 두 개, 살아 있는 카운터, 진행 표시. 그 아래, 같은 가운데 정렬 열에 그려집니다.
 
 ## 접근성
 
+::: fw react
+
 - 누를 수 있는 부분은 필 자신의 텍스트를 이름으로 가진 진짜 `<button>`이고, 두 번째 배경 대신 머터리얼의 state layer를 씁니다.
 - 버튼의 반지름이 `inherit`이라서 포커스 링이 알약 자신의 모서리를 따라갑니다.
 - 닫힌 `details` 패널은 `inert`이므로, 보이지 않는 동안 그 안의 무엇도 탭 대상이 되지 않습니다.
-- `fixed` 필은 live region이 아닙니다. 안의 정보가 바뀔 때 알릴 만하다면 그 알림을 `children`에 넣거나, 메시지를 위한 컴포넌트인 [스낵바](../feedback/snackbar)로 말하세요.
+
+:::
+
+::: fw flutter
+
+- 누를 수 있는 부분은 필 자신의 텍스트를 이름으로 가진 버튼 노드 하나이고, `details`가 보이는지 알리며, 두 번째 배경 대신 머터리얼의 state layer를 씁니다.
+- 포커스 링은 알약 자신의 모서리 바로 안쪽에 그립니다.
+- 닫힌 `details` 패널은 포커스와 의미 트리에서 빠집니다.
+
+:::
+
+- 떠 있는 필은 live region이 아닙니다. 안의 정보가 바뀔 때 알릴 만하다면 그 알림을 `children`에 넣거나, 메시지를 위한 컴포넌트인 [스낵바](../feedback/snackbar)로 말하세요.
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `position`, `side` | — | sticky와 fixed는 CSS 배치입니다. `Stack`과 `Positioned`, 또는 `Overlay`가 같은 말을 합니다. |
+| `onClick` | `onPressed` | Flutter의 이름입니다. |
+| 재고 관찰하는 높이 | 상세 자체 높이의 펼침 | Flutter는 매 프레임 상세를 자기 높이로 배치하므로 관찰할 것이 없습니다. |
+| 닫힌 동안의 `inert` | `ExcludeFocus`와 `ExcludeSemantics` | `inert`가 하는 일의 두 절반입니다. |
+| `children` | `child` | Flutter의 이름입니다. |
+| `className`, `style`, `ref` | — | 넘길 클래스 목록, style 속성, 엘리먼트가 없습니다. |
+
+:::
 
 ## 함께 보기
 
