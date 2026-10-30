@@ -9,6 +9,8 @@ order: 26
 
 <Demo src="mockup/hero" :minHeight="460" />
 
+::: fw react
+
 ```tsx
 import { MPMockup } from 'material-plus-ui';
 
@@ -16,6 +18,18 @@ import { MPMockup } from 'material-plus-ui';
   <YourScreen />
 </MPMockup>;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+const MPMockup(device: MPMockupDevice.mobile, width: 280, child: YourScreen());
+```
+
+:::
 
 ## Props
 
@@ -25,6 +39,8 @@ import { MPMockup } from 'material-plus-ui';
 
 `children`은 기기 자신의 해상도 — `md`인 폰이라면 CSS 픽셀 390×844 — 에 맞춰 배치되고, 그다음 기기가 축소됩니다. 그래서 안의 레이아웃은 그림이 들어간 상자가 아니라 그 기계에서 접히는 자리에서 접힙니다.
 
+::: fw react
+
 한 가지만 알고 계시면 됩니다. **미디어 쿼리는 여전히 창을 잽니다.** 노트북 위의 폰 목업 안에서 `@media (max-width: 600px)`는 거짓이고 앞으로도 그렇습니다. 페이지의 무엇도 창이 무엇인지를 바꿀 수 없습니다. 프레임 안에서 반응해야 하는 내용은 컨테이너 쿼리로 프레임을 재야 합니다.
 
 ```css
@@ -33,13 +49,31 @@ import { MPMockup } from 'material-plus-ui';
 }
 ```
 
+:::
+
+::: fw flutter
+
+Flutter는 페이지가 할 수 없는 일을 한 걸음 더 합니다. 화면에 기기 크기의 `MediaQuery`를 넘기므로, 안에서 창을 읽는 것(`MPGrid`, `MPShow`, 직접 쓴 `MediaQuery.sizeOf`)은 폰이 그려진 화면이 아니라 폰을 기준으로 답합니다. 윈도우 크기 클래스에서 바뀌는 레이아웃은 그 기계에서처럼 프레임 안에서 바뀝니다.
+
+:::
+
 ## 그 축소는 transform이고, 예외입니다
 
 이 라이브러리의 다른 모든 곳에서 지키는 규칙은 면을 옮기거나 키우지 않는다는 것입니다. 그건 **컨트롤**에 관한 규칙입니다. 크기가 바뀐 버튼은 눌린 그 순간에 글자가 다시 샘플링된 버튼입니다.
 
 여기서는 아무것도 눌리지 않고, 축소 비율은 상호작용으로 바뀌지 않습니다. 남은 자리에서 한 번 정해지고, 그 자리가 바뀔 때만 다시 정해집니다. 1/3 크기로 그려진 기기는 기기의 그림이고 그것이 요점이며, 390픽셀 페이지를 130픽셀 상자 안에 배치하는 다른 방법은 없습니다.
 
+::: fw react
+
 자리를 측정하기 전에는 축소 비율이 없으므로, 기기를 한 프레임 동안 원래 크기로 그리지 않고 숨깁니다. 서버에서 렌더링한 페이지에서는 하이드레이션이 끝날 때까지 그렇습니다. 그러니 페이지 상단에서 가장 큰 요소인 목업에는 픽셀 단위의 `width`나 `height`를 주세요. 그러면 축소 비율을 처음부터 알 수 있어 기기가 첫 페인트에 나옵니다.
+
+:::
+
+::: fw flutter
+
+축소는 기기를 원래 크기로 배치한 뒤 감싸는 `FittedBox`입니다. 그래서 원래 크기로 먼저 그려지는 프레임도 없고 숨길 것도 없습니다. `width`를 주든 주지 않든 기기는 첫 프레임부터 올바릅니다.
+
+:::
 
 ## 여기서 `size`가 뜻하는 것
 
@@ -52,6 +86,12 @@ import { MPMockup } from 'material-plus-ui';
 | `desktop` | 1024×640 | 1280×800 | 1440×900 | 1680×1050 | 1920×1200 |
 
 다섯 중에 원하는 기계가 없으면 `resolution`이 통째로 덮습니다.
+
+::: fw flutter
+
+Dart에서는 각 축이 열거형입니다. `MPMockupDevice.mobile`, `MPMockupOs.android`, `MPMockupBezel.none`, `MPMockupNotch.dynamicIsland`처럼 쓰고, 직접 정한 해상도는 `MPMockupResolution(375, 667)`입니다.
+
+:::
 
 ## 하드웨어는 사진이고, 소프트웨어는 페이지입니다
 
@@ -74,3 +114,16 @@ import { MPMockup } from 'material-plus-ui';
 ## 어긋난 조합은 거부하지 않고 바로잡습니다
 
 폰에 `os="macos"`를 준 것은 `device`를 바꾸고 다른 prop을 잊은 호출부이므로, 그 기기 자신의 시스템으로 떨어집니다. 390픽셀 화면을 가로지르는 데스크톱 메뉴 바가 아니라 폰이 쓸모 있는 답입니다.
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| 프레임 안의 미디어 쿼리는 여전히 창을 잼 | 화면에 기기 크기의 `MediaQuery`를 넘김 | Flutter는 서브트리에 창이 무엇인지 알려 줄 수 있고, 페이지는 그럴 수 없습니다. |
+| 자리를 측정할 때까지 숨김 | 첫 프레임부터 올바름 | 축소는 나중에 재는 것이 아니라 배치하는 것입니다. |
+| CSS 길이를 받는 `width`, `height` | 논리 픽셀 단위의 `double` | CSS 길이가 없습니다. |
+| `device="mobile"`, `notch="dynamic-island"` | `MPMockupDevice.mobile`, `MPMockupNotch.dynamicIsland` | 문자열 유니언은 Dart에서 열거형입니다. |
+
+:::
