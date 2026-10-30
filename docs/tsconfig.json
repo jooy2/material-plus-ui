@@ -14,8 +14,13 @@
     "resolveJsonModule": true,
     "types": ["vite/client"],
     "paths": {
-      "material-plus-ui": ["../src/index.ts"]
+      "material-plus-ui": ["../packages/react/src/index.ts"],
+      "material-plus-ui/locales": ["../packages/react/src/locales/index.ts"],
+      "react": ["./node_modules/@types/react"],
+      "react/*": ["./node_modules/@types/react/*"],
+      "react-dom": ["./node_modules/@types/react-dom"],
+      "react-dom/*": ["./node_modules/@types/react-dom/*"]
     }
   },
-  "include": [".vitepress/**/*.ts", ".vitepress/**/*.tsx"]
+  "include": [".vitepress/**/*.ts", ".vitepress/**/*.tsx", ".vitepress/**/*.d.ts"]
 }

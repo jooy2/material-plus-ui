@@ -3,10 +3,27 @@
   "configurations": [
     {
       "name": "docs",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["vitepress", "dev", "docs"],
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "docs",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "5173"
+      ],
       "port": 5173,
       "autoPort": true
+    },
+    {
+      "name": "docs-dist",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "cd docs && npx vitepress serve --port 4373"
+      ],
+      "port": 4373
     }
   ]
 }

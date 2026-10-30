@@ -10,7 +10,7 @@
  *    Unlayered is the point — every layered rule loses to every unlayered one,
  *    and VitePress ships its entire theme unlayered, so utilities inside a
  *    `utilities` layer would never win against `.vp-doc p`.
- * 3. The library's own tokens, then the docs chrome.
+ * 3. The library's own tokens, then the docs chrome, then the framework switch.
  *
  * Tailwind's Preflight is deliberately absent, exactly as it is from the
  * package's own standalone stylesheet: it would flatten the headings, lists and
@@ -23,9 +23,10 @@
 @import 'tailwindcss/theme.css' layer(theme);
 @import 'tailwindcss/utilities.css' source(none);
 
-@import '../../../../src/styles.css';
+@import '../../../../packages/react/src/styles.css';
 
 @import './docs.css';
+@import './framework.css';
 
 /*
  * Tailwind only emits classes it can see spelled out, and `source(none)` above
@@ -39,13 +40,13 @@
  *
  * So the sources are named, and these three are all of them.
  *
- * `src` has to be one of them, which is the surprise. `src/styles.css` above
+ * `packages/react/src` has to be one of them, which is the surprise. Its `styles.css` above
  * carries its own `@source '.'`, and that line does work — a consumer who
  * installs the package gets the components' utilities from it, through both the
  * Tailwind CLI and a `source(none)` of their own, which was checked rather than
  * assumed. What it does not survive is this file's relative `@import`: Vite
  * inlines that before `@tailwindcss/postcss` sees it, so the `.` resolves
- * against this directory instead of `src/`. Automatic detection used to cover
+ * against this directory instead of `packages/react/src/`. Automatic detection used to cover
  * that up. It no longer does, and without the line below every component on the
  * site renders unstyled.
  *
@@ -59,4 +60,4 @@
  */
 @source '../../demos';
 @source '../components';
-@source '../../../../src';
+@source '../../../../packages/react/src';
