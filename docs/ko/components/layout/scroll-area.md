@@ -9,6 +9,8 @@ order: 22
 
 <Demo src="scroll-area/hero" :minHeight="300" />
 
+::: fw react
+
 ```tsx
 import { MPScrollArea } from 'material-plus-ui';
 
@@ -16,6 +18,18 @@ import { MPScrollArea } from 'material-plus-ui';
   <MPList>…</MPList>
 </MPScrollArea>;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPScrollArea(maxHeight: 320, child: MPList(children: rows));
+```
+
+:::
 
 ## Props
 
@@ -25,11 +39,33 @@ import { MPScrollArea } from 'material-plus-ui';
 
 내용의 높이가 곧 자기 높이인 스크롤 영역은 결코 넘치지 않고 바도 보이지 않습니다. `maxHeight`가 그것을 말하는 보통 방법이고, `max-h-*`를 담은 `className`이나 크기를 제한하는 flex 부모가 나머지입니다.
 
+::: fw react
+
 그 제한은 바깥 엘리먼트가 아니라 **뷰포트**에 붙습니다. 선택자로 안을 들여다볼 생각이라면 알아 둘 만합니다. 루트에 `max-height`를 걸면 루트 자신의 높이는 `auto`로 남고, `height: 100%`를 요구하는 뷰포트는 `auto` 부모에게서 내용의 높이를 받습니다. 안에 든 것과 정확히 같은 높이라 결코 스크롤되지 않는 상자가 됩니다.
+
+:::
+
+::: fw flutter
+
+Flutter에서는 `maxHeight`, `height`, 또는 `Column` 안의 `Expanded`처럼 높이를 제한해 주는 부모가 상자를 묶습니다.
+
+:::
+
+::: fw react
 
 ## 여전히 진짜 스크롤 컨테이너입니다
 
 스크롤을 다시 구현한 것이 아니라 네이티브 바를 숨긴 것입니다. `wheel` 이벤트를 듣는 컴포넌트와 다른 지점이 그것입니다. 휠, 트랙패드, 터치 드래그, Page Up, Home과 End, 접힌 부분 아래로 옮겨 가는 키보드 포커스, 브라우저 자신의 스크롤 앵커링과 overscroll 동작이 전부 그대로입니다.
+
+:::
+
+::: fw flutter
+
+## 여전히 진짜 스크롤 뷰입니다
+
+안쪽은 평범한 `SingleChildScrollView`이므로, 휠, 트랙패드, 터치 드래그, 썸 끌기가 Flutter의 다른 곳에서처럼 동작합니다. 내용이 넘치는 동안 상자는 그 자체로 키보드 정지점이 되고, 브라우저가 스크롤되는 상자를 움직이듯 화살표 키는 한 줄, Page Up과 Page Down은 한 화면, Home과 End는 양 끝으로 옮깁니다. 내용이 들어맞는 상자는 포커스 순서에 아무것도 더하지 않습니다.
+
+:::
 
 ## 바는 내용 위에 겹칩니다
 
@@ -37,11 +73,23 @@ import { MPScrollArea } from 'material-plus-ui';
 
 대신 내용이 그 아래를 지나갈 수 있으므로, 내용이 가장자리까지 닿는 상자에는 약간의 좌우 여백이 필요합니다.
 
+::: fw react
+
 ## 스크롤할 것이 없으면 바도 없습니다
 
 넘침은 첫 렌더 뒤에 측정되고, 넘치지 않는 뷰포트에는 스크롤바가 DOM에 아예 없습니다. `persistent`가 마운트가 아니라 **불투명도**에 관한 것인 이유가 그것입니다. 이미 있는 바를 붙들어 둘 뿐, 딱 맞는 상자에 바를 만들어 내지는 않습니다.
 
 꺼 두면 오버레이 스크롤바처럼 굽니다. 스크롤 중이거나 포인터가 올라가 있을 때 그려지고 나머지 시간에는 사라집니다. 내용만 봐서는 스크롤된다는 것을 알기 어려운 패널에는 켜세요. 그런 곳에서 호버해야만 나타나는 바는 읽는 사람이 발견해야 하는 바입니다.
+
+:::
+
+::: fw flutter
+
+## 들어맞는 상자에는 썸이 없습니다
+
+내용이 들어맞는 상자에는 썸이 아예 그려지지 않습니다. 그래서 `persistent`는 이미 있는 바를 붙들어 둘 뿐, 딱 맞는 상자에 바를 만들어 내지는 않습니다. 꺼 두면 내용이 움직이거나 포인터가 상자 위에 있을 때 보이고 나머지 시간에는 흐려집니다. 내용만 봐서는 스크롤된다는 것을 알기 어려운 패널에는 켜세요.
+
+:::
 
 ## `axis`
 
@@ -50,3 +98,16 @@ import { MPScrollArea } from 'material-plus-ui';
 ## `size`는 바의 두께입니다
 
 여기서 `size`가 정하는 것은 그것뿐입니다. 스크롤바는 컨트롤이 아니라 사다리 위의 높이를 갖지 않습니다. 가진 것은 너비이고, 다섯 단이 6px에서 14px까지 갑니다. `md`는 10으로 macOS가 그리는 것에 가깝고 윈도우의 고전적인 17보다 훨씬 좁습니다. 어느 쪽을 흉내 내려는 것이 아니라 둘 다에서 같기 위한 것입니다.
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| CSS 길이를 받는 `maxHeight`, `height` | 논리 픽셀 단위의 `double` | CSS 길이가 없습니다. |
+| 포인터가 올라가면 썸이 56%로 짙어짐 | 썸은 38%를 유지 | 프레임워크의 `RawScrollbar`는 `material.dart` 없이는 호버에 색을 바꾸지 않습니다. |
+| 브라우저의 스크롤과 Base UI의 바 | `SingleChildScrollView`와 `RawScrollbar` | 같은 동작을 프레임워크의 부품으로 만듭니다. |
+| `aria-label` | `semanticLabel` | 키보드로 닿는 상자를 알리는 이름입니다. |
+
+:::
