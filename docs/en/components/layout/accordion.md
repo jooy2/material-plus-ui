@@ -9,6 +9,8 @@ order: 3
 
 <Demo src="accordion/hero" :minHeight="280" />
 
+::: fw react
+
 ```tsx
 import { MPAccordion, MPAccordionItem } from 'material-plus-ui';
 
@@ -21,6 +23,29 @@ import { MPAccordion, MPAccordionItem } from 'material-plus-ui';
   </MPAccordionItem>
 </MPAccordion>;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+const MPAccordion(
+  initialValue: <Object>['delivery'],
+  children: <Widget>[
+    MPAccordionItem(
+      value: 'delivery',
+      title: Text('Delivery'),
+      subtitle: Text('Three to five working days'),
+      child: Text('Standard delivery is included in the price.'),
+    ),
+    MPAccordionItem(value: 'returns', title: Text('Returns'), child: Text('Thirty days, postage paid.')),
+  ],
+);
+```
+
+:::
 
 ## Props
 
@@ -45,17 +70,27 @@ Set `multiple` when they are related enough to belong in one stack but the reade
 
 <Demo src="accordion/multiple" :minHeight="300">
 
+::: fw react
+
 <<< @/.vitepress/demos/accordion/multiple.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/accordion/multiple.dart
+
+:::
 
 </Demo>
 
-`onValueChange` reports the **whole open set** rather than the section that moved. That is what makes "close everything but this one" a single assignment rather than a diff.
+<Fw react="`onValueChange`" flutter="`onChanged`" /> reports the **whole open set** rather than the section that moved. That is what makes "close everything but this one" a single assignment rather than a diff.
 
 ## Where the shared values live
 
 `size`, `variant` and `dividers` are the **stack's**, not the section's.
 
-A section is a section _of_ something, so passing the rung per item would be a chance per item to get one wrong — with a silent failure: an accordion whose fourth section is a size bigger than the three above it. `MPAccordionItem` reads them from a context, which is also why a section still gets them when a caller `.map()`s their data or wraps one in a component of their own.
+A section is a section _of_ something, so passing the rung per item would be a chance per item to get one wrong — with a silent failure: an accordion whose fourth section is a size bigger than the three above it. `MPAccordionItem` reads them from <Fw react="a context" flutter="an inherited widget" />, which is also why a section still gets them when a caller builds the items from their data or wraps one in a widget of their own.
 
 What stays on the item is what is genuinely its own: its `value`, its slots, and its `disabled`.
 
@@ -63,7 +98,17 @@ What stays on the item is what is genuinely its own: its `value`, its slots, and
 
 <Demo src="accordion/dividers" :minHeight="360">
 
+::: fw react
+
 <<< @/.vitepress/demos/accordion/dividers.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/accordion/dividers.dart
+
+:::
 
 </Demo>
 
@@ -84,11 +129,21 @@ That is also why there is no `color`: nothing would read it. The sheet is neutra
 
 ## What moves
 
+::: fw react
+
 Each panel's height is animated from Base UI's own measurement, published as `--accordion-panel-height`. Nothing is transformed and no text is resampled — the panel is a window opening onto content that stays still. The duration and the curve are the specification's `short4` and `standard`, and the transition is dropped under `prefers-reduced-motion`.
 
-**The clip belongs to the animation, not to the panel.** `overflow: hidden` is what makes a body mid-open a window rather than a squashed copy of itself, and it is taken off the moment the height has arrived. A settled panel that went on clipping would cut the top off the first thing in it that draws outside its own box — a text field's floating label sits _on_ the field's top edge, which is the panel's top edge, so a form in an accordion arrived with its first label sliced in half and nothing in the console said so. A select's popup, a tooltip and a focus ring are the same bug with different pixels.
+:::
 
-Closing puts the clip back before the height moves rather than after, so a panel on its way down never draws outside a shrinking box. A section that starts open, and any section under `prefers-reduced-motion`, is unclipped from the first paint: there is no transition to wait for, and waiting for one would clip it for good.
+::: fw flutter
+
+Each panel is laid out at its full height and shown a growing share of it. Nothing is transformed and no text is resampled — the panel is a window opening onto content that stays still. The duration and the curve are the specification's `short4` and `standard`, and under `MediaQuery.disableAnimations` the panel cuts.
+
+:::
+
+**The clip belongs to the animation, not to the panel.** The clip is what makes a body mid-open a window rather than a squashed copy of itself, and it is taken off the moment the height has arrived. A settled panel that went on clipping would cut the top off the first thing in it that draws outside its own box — a text field's floating label sits _on_ the field's top edge, which is the panel's top edge, so a form in an accordion arrived with its first label sliced in half and nothing in the console said so. A select's popup, a tooltip and a focus ring are the same bug with different pixels.
+
+Closing puts the clip back before the height moves rather than after, so a panel on its way down never draws outside a shrinking box. A section that starts open, and any section with animations turned off, is unclipped from the first paint: there is no transition to wait for, and waiting for one would clip it for good.
 
 ## Examples
 
@@ -96,17 +151,36 @@ Closing puts the clip back before the height moves rather than after, so a panel
 
 A control pinned to the end of a header, **outside** the trigger:
 
+::: fw react
+
 ```tsx
 <MPAccordionItem value="address" title="Address" action={<MPButton variant="text">Edit</MPButton>}>
   12 Sejong-daero, Jung-gu, Seoul
 </MPAccordionItem>
 ```
 
-That is structural rather than cosmetic. A header that both folds and holds a button has two things to press, and a `<button>` inside a `<button>` is markup the browser rewrites on parse. Pressing the action does not fold the section it sits on.
+:::
+
+::: fw flutter
+
+```dart
+MPAccordionItem(
+  value: 'address',
+  title: const Text('Address'),
+  action: MPButton(variant: MPVariant.text, onPressed: edit, child: const Text('Edit')),
+  child: const Text('12 Sejong-daero, Jung-gu, Seoul'),
+);
+```
+
+:::
+
+That is structural rather than cosmetic. A header that both folds and holds a button has two things to press, and one inside the other would fold the section every time the button was pressed. Pressing the action does not fold the section it sits on.
 
 ### disabled
 
 On the stack it takes every section out at once; on a section it takes only that one, and the rest keep working:
+
+::: fw react
 
 ```tsx
 <MPAccordion disabled>…</MPAccordion>
@@ -114,7 +188,21 @@ On the stack it takes every section out at once; on a section it takes only that
 <MPAccordionItem value="b" title="Not yet" disabled>…</MPAccordionItem>
 ```
 
-### hiddenUntilFound
+:::
+
+::: fw flutter
+
+```dart
+MPAccordion(disabled: true, children: sections);
+
+MPAccordionItem(value: 'b', title: const Text('Not yet'), disabled: true, child: body);
+```
+
+:::
+
+### <Fw react="hiddenUntilFound" flutter="keepMounted" />
+
+::: fw react
 
 Leaves closed panels in the DOM as `hidden="until-found"`, so the browser's own page search can find the text and open the fold to show it. It overrides `keepMounted`, which already keeps the element for a different reason — content that is expensive to build, or that holds form state.
 
@@ -122,14 +210,52 @@ Leaves closed panels in the DOM as `hidden="until-found"`, so the browser's own 
 <MPAccordion hiddenUntilFound>…</MPAccordion>
 ```
 
+:::
+
+::: fw flutter
+
+Keeps closed panels built, for content that is expensive to build or that holds form state. A closed panel is out of the focus order and the semantics tree either way. There is no `hiddenUntilFound`, because Flutter has no browser page search for it to answer.
+
+```dart
+MPAccordion(keepMounted: true, children: sections);
+```
+
+:::
+
 ## Accessibility
 
+::: fw react
+
 - Each header is a real `<button>` inside a heading row, with `aria-expanded` and an `aria-controls` pointing at its panel — all wired by Base UI.
-- That heading is an `<h3>` unless `headingLevel` says otherwise. Set it to one below the heading the accordion sits under, so the page's outline does not skip a level: a screen reader moves through a page by its headings, and a search engine reads its structure from them.
-- Focus moves between headers with Tab rather than with the arrow keys. That follows [the APG's own revision](https://github.com/w3c/aria-practices/pull/3434), which removed roving focus from the accordion pattern; Base UI implements the current guidance and this component does not add a second one on top.
+
+:::
+
+::: fw flutter
+
+- Each header is one semantics node: a button that says whether it is expanded, announced as a heading.
+
+:::
+
+- That heading is <Fw react="an `<h3>`" flutter="level 3" /> unless `headingLevel` says otherwise. Set it to one below the heading the accordion sits under, so the page's outline does not skip a level: a screen reader moves through a page by its headings, and a search engine reads its structure from them.
+- Focus moves between headers with Tab rather than with the arrow keys. That follows [the APG's own revision](https://github.com/w3c/aria-practices/pull/3434), which removed roving focus from the accordion pattern, and both builds implement the current guidance.
 - `action` is outside the trigger, so a keyboard reader reaches the fold and the control on it as two separate stops.
 - Hover, focus and press are Material's state layer, so a header reads the same on all five surfaces.
 - The focus ring is drawn **inset** on a ruled accordion, because the sheet clips its children so the panels can be windows.
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `defaultValue` | `initialValue` | Flutter's word for a starting value the widget then keeps. |
+| `onValueChange` | `onChanged` | Flutter's name for a plain change of value. |
+| `(string \| number)[]` | `List<Object>` | Any value with a working `==` identifies a section. |
+| a generated `value` | the section itself | A section with no `value` is identified by its own state, which is enough for an accordion nobody drives from code. |
+| `hiddenUntilFound` | — | It answers the browser's own page search, which Flutter does not have. |
+| `children` | `children` / `child` | The accordion takes a list of sections; a section takes one body. |
+
+:::
 
 ## See also
 
