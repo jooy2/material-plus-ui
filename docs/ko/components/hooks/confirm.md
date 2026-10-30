@@ -9,9 +9,21 @@ order: 1
 
 <Demo src="confirm/hero" :minHeight="200">
 
+::: fw react
+
 <<< @/.vitepress/demos/confirm/hero.tsx
 
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/confirm/hero.dart
+
+:::
+
 </Demo>
+
+::: fw react
 
 ```tsx
 import { MPConfirmProvider, useMPConfirm } from 'material-plus-ui';
@@ -38,6 +50,43 @@ async function remove() {
 }
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+// 애플리케이션 안에서 한 번, 자기만의 Overlay 아래에
+WidgetsApp(
+  // …
+  builder: (BuildContext context, Widget? child) =>
+      Overlay.wrap(child: MPConfirmProvider(child: child!)),
+);
+
+// 그 아래 어디서든
+Future<void> remove(BuildContext context) async {
+  final bool sure = await MPConfirmProvider.of(context).confirm(
+    const MPConfirmOptions(
+      title: Text('Delete this project?'),
+      description: Text('Everything in it goes too, and it cannot be undone.'),
+      confirmLabel: Text('Delete'),
+      color: MPColor.error,
+    ),
+  );
+
+  if (sure) {
+    await api.delete(id);
+  }
+}
+```
+
+Flutter에는 훅이 없으므로 `MPConfirmProvider.of(context)`로 찾습니다. 돌려받는 것은 같은 두 메서드 `confirm`과 `alert`입니다. 콜백 안에서 쓰라고 만든 것이고, 불러도 프로바이더가 다시 그려질 때 위젯이 따라 다시 그려지지 않습니다.
+
+프로바이더는 앱을 감싸지 않고 앱 안에 둡니다. 앱 바깥에는 아직 `Directionality`가 없기 때문입니다. `builder` 안에서는 내비게이터와 그 `Overlay`보다 위에 놓이므로 자기만의 `Overlay`가 있어야 합니다. 없으면 첫 질문이 "No Overlay widget found"로 실패합니다.
+
+:::
+
 ## Props
 
 <PropsTable name="MPConfirmProvider" />
@@ -63,7 +112,15 @@ async function remove() {
 
 세 번째 결과가 없고 **promise는 절대 reject하지 않습니다**. 그래서 호출자는 `try`와 기본값이 아니라 `if` 하나를 씁니다. 모양이 boolean인 이유가 그것입니다 — 던지기도 하는 confirm은 모든 호출 지점이 두 번 처리해야 하는 confirm입니다.
 
+::: fw flutter
+
+시스템 뒤로 가기도 `false`로 답합니다. future가 오류로 끝나는 일은 없습니다.
+
+:::
+
 ## `alert`은 버튼 하나짜리입니다
+
+::: fw react
 
 ```tsx
 const { alert } = useMPConfirm();
@@ -71,9 +128,26 @@ const { alert } = useMPConfirm();
 await alert({ title: 'Saved', description: 'Your changes are on the server.' });
 ```
 
-확인되면 `void`로 resolve합니다. 승인에는 거절할 것이 없고, 아무도 바꿀 수 없는 boolean은 호출자가 무시하는 법을 배워야 하는 값입니다. 같은 이유로 Escape도 resolve합니다.
+:::
+
+::: fw flutter
+
+```dart
+await MPConfirmProvider.of(context).alert(
+  const MPConfirmOptions(
+    title: Text('Saved'),
+    description: Text('Your changes are on the server.'),
+  ),
+);
+```
+
+:::
+
+확인되면 <Fw react="`void`로" flutter="`Future<void>`로" /> resolve합니다. 승인에는 거절할 것이 없고, 아무도 바꿀 수 없는 boolean은 호출자가 무시하는 법을 배워야 하는 값입니다. 같은 이유로 Escape도 resolve합니다.
 
 ## 애플리케이션 전체의 기본값
+
+::: fw react
 
 ```tsx
 <MPConfirmProvider defaults={{ size: 'sm', cancelLabel: 'Not now' }}>
@@ -81,20 +155,53 @@ await alert({ title: 'Saved', description: 'Your changes are on the server.' });
 </MPConfirmProvider>
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+MPConfirmProvider(
+  defaults: const MPConfirmOptions(size: MPSize.sm, cancelLabel: Text('Not now')),
+  child: child!,
+);
+```
+
+`defaults`도 `MPConfirmOptions`입니다. 그 안의 `title`, `description`, `child`, `semanticLabel`은 쓰이지 않습니다. 질문은 한 가지를 묻고, 프로바이더는 그것이 무엇인지 모르기 때문입니다.
+
+:::
+
 각 호출은 필요한 것을 여전히 말하고, 그쪽이 이깁니다.
 
 ## 색은 기본값이 아니라 결정입니다
 
-`color`는 확인 버튼을 칠하고, `'error'`는 **파괴적인** 확인이 원하는 것입니다. 일부러 기본값이 아닙니다 — 대부분의 확인은 파괴적이지 않고, 전부에 빨간 버튼을 달면 그건 더 이상 경고가 아닙니다.
+`color`는 확인 버튼을 칠하고, <Fw react="`'error'`" flutter="`MPColor.error`" />는 **파괴적인** 확인이 원하는 것입니다. 일부러 기본값이 아닙니다 — 대부분의 확인은 파괴적이지 않고, 전부에 빨간 버튼을 달면 그건 더 이상 경고가 아닙니다.
 
 라벨도 같습니다. *Confirm*과 *Cancel*은 아무도 다르게 말하지 않을 때 그려지는 것이고 열여덟 개 언어로 번역돼 있습니다 — 다만 **Delete**라고 적힌 버튼은 읽는 사람에게 지금 무엇을 하려는지 말해 주고, *Confirm*이라고 적힌 버튼은 기억해 내라고 요구합니다.
 
 ## 날카로운 모서리
 
-- **위에 `MPConfirmProvider`가 필요합니다.** 없으면 훅이 **throw**합니다. 조용히 영원히 resolve되지 않는 함수를 돌려주지 않습니다. 끝내 정착하지 않는 promise는 프로바이더가 빠졌다는 사실을 알리는 가장 어려운 방법입니다.
-- **한 번에 하나입니다.** 하나가 열려 있는 동안 올린 두 번째 `confirm()`은 그것을 **대체**하고, 첫 번째 promise는 `false`로 resolve합니다. 일부러 큐가 아닙니다 — 큐는 읽는 사람이 이미 지나간 것에 대해 묻게 되고, 철 지난 질문의 답은 정보가 아닙니다.
+- **위에 `MPConfirmProvider`가 필요합니다.** 없으면 <Fw react="훅이" flutter="`MPConfirmProvider.of`가 `FlutterError`를" /> **throw**합니다. 조용히 영원히 resolve되지 않는 함수를 돌려주지 않습니다. 끝내 정착하지 않는 promise는 프로바이더가 빠졌다는 사실을 알리는 가장 어려운 방법입니다.
+- **한 번에 하나입니다.** 하나가 열려 있는 동안 올린 두 번째 <Fw react="`confirm()`" flutter="`confirm`" />은 그것을 **대체**하고, 첫 번째 promise는 `false`로 resolve합니다. 일부러 큐가 아닙니다 — 큐는 읽는 사람이 이미 지나간 것에 대해 묻게 되고, 철 지난 질문의 답은 정보가 아닙니다.
 - **`dismissible: false`는 나가는 길이 둘뿐인 다이얼로그**를 만들고, 둘 다 당신의 버튼입니다. 그 질문이 정말로 답해져야만 하는지 확인하세요.
-- **렌더 중에 `await`하지 마세요.** 클릭 핸들러의 도구입니다.
+- **<Fw react="렌더" flutter="`build`" /> 중에 `await`하지 마세요.** 클릭 핸들러의 도구입니다.
+
+::: fw flutter
+
+## 접근성
+
+- 화면 낭독기는 질문을 경고 대화상자(`SemanticsRole.alertDialog`)로 알립니다. WAI-ARIA에서 읽는 사람이 하던 일에 끼어들어 답을 기다리는 대화상자를 부르는 이름입니다. 이름은 제목이 정하고, 제목이 평범한 `Text`가 아니면 질문에 `semanticLabel`을 주세요.
+- 대화상자가 열리면 취소 버튼이 포커스를 잡습니다. 습관처럼 누른 Enter는 아니오로 답합니다. `alert`은 하나뿐인 버튼에 포커스를 둡니다. 열린 질문을 대체한 질문도 포커스를 다시 놓습니다.
+- 포커스는 대화상자 안에 머물고, 질문에 답하면 열리기 전에 있던 곳으로 돌아갑니다.
+
+## React 빌드와 다른 점
+
+- **`useMPConfirm()` 대신 `MPConfirmProvider.of(context)`입니다.** Flutter에는 훅이 없습니다. 찾으면 같은 `confirm`과 `alert`을 가진 `MPConfirmResult`가 돌아옵니다.
+- **질문은 경고 대화상자입니다.** React 빌드는 평범한 `role="dialog"`입니다. 여기서는 답을 기다리는 질문에 맞게 층을 `SemanticsRole.alertDialog`로 알립니다.
+- **첫 포커스는 언제나 취소 버튼입니다.** Base UI는 시트 안에서 포커스를 받을 수 있는 첫 요소에 포커스를 두므로, 질문의 `children`에 필드가 있으면 그 필드가 받습니다.
+- **트리에서 빠지는 프로바이더는 열린 질문에 `false`로 답합니다.** React에서는 promise가 대기 상태로 남습니다. Flutter에서 끝나지 않는 future를 기다리는 콜백은 `finally`를 영영 실행하지 않으므로, 경로가 바뀌면 버튼이 계속 돌고 있게 됩니다.
+- **`semanticLabel`이 추가됐습니다.** Flutter의 제목은 위젯이라서 평범한 `Text`가 아니면 넘겨줄 글자가 없습니다. 그럴 때 이것이 대화상자의 이름이 됩니다.
+
+:::
 
 ## 다음
 
