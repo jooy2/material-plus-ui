@@ -12,7 +12,8 @@
   "homepage": "https://material-plus.cdget.com",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jooy2/material-plus-ui.git"
+    "url": "git+https://github.com/jooy2/material-plus-ui.git",
+    "directory": "packages/react"
   },
   "bugs": {
     "url": "https://github.com/jooy2/material-plus-ui/issues"
@@ -26,13 +27,9 @@
     "prepare": "npm run build",
     "format": "prettier .",
     "format:fix": "prettier . --write",
-    "docs:changelog": "node scripts/copy-changelog.mjs",
-    "docs:dev": "npm run build && npm run docs:changelog && vitepress dev docs",
-    "docs:build": "npm run build && npm run docs:changelog && vitepress build docs",
-    "docs:serve": "npm run build && npm run docs:build && vitepress serve docs",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --project tsconfig.prod.json --noEmit && tsc --project test/tsconfig.json && tsc --project docs/tsconfig.json"
+    "typecheck": "tsc --project tsconfig.prod.json --noEmit && tsc --project test/tsconfig.json"
   },
   "engines": {
     "node": ">=22.0.0"
@@ -159,9 +156,6 @@
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.71.1",
     "vite": "^8.3.4",
-    "vitepress": "^1.6.4",
-    "vitepress-i18n": "^1.4.0",
-    "vitepress-sidebar": "^1.40.0",
     "vitest": "^5.0.3",
     "vitest-browser-react": "^2.3.0",
     "zod": "^3.25.76",

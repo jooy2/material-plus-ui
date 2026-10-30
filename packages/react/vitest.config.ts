@@ -137,6 +137,15 @@ export default defineConfig({
     // is what keeps the components and the test renderer sharing a React.
     dedupe: ['react', 'react-dom']
   },
+  server: {
+    fs: {
+      // The package and the documentation site's public folder, two levels up.
+      // A test that needs a real file on disk — a photograph for `MPImage`, the
+      // published A2UI catalog — reads the one the site already serves rather
+      // than a second copy kept under `test/`.
+      allow: [rootDir, resolve(rootDir, '../../docs/public')]
+    }
+  },
   optimizeDeps: {
     // Every Base UI entry point a component imports, named up front. Vite
     // pre-bundles CommonJS on discovery, and a discovery that happens *during* a

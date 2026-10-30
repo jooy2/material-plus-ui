@@ -23,3 +23,9 @@ declare module '*.css?raw' {
 
 /** A plain stylesheet import, for its side effect. See `test/setup.ts`. */
 declare module '*.css' {}
+
+/** A file's served address, for a test that has the browser fetch it. */
+declare module '*?url' {
+  const url: string;
+  export default url;
+}

@@ -4,7 +4,7 @@
  * `MP_A2UI_CATALOG_ID` is a URL, and a URL that answers nothing is a broken
  * promise: an agent told to target this catalog, or a developer wondering what is
  * in it, has one place to look and it is that address. So the schema is generated
- * into `docs/public/`, which the documentation site serves at the path the id
+ * into the repository's `docs/public/`, which the documentation site serves at the path the id
  * names — see `src/a2ui/catalog.ts`.
  *
  * ## Generated rather than written
@@ -71,7 +71,9 @@ if (host !== 'material-plus.cdget.com') {
   );
 }
 
-const out = resolve(root, 'docs/public', `.${pathname}`);
+// The documentation site sits at the repository root, two levels above this
+// package, and serves `docs/public` at `/`.
+const out = resolve(root, '../../docs/public', `.${pathname}`);
 
 /*
  * Where the protocol's common types are published, and the `$id` of the file

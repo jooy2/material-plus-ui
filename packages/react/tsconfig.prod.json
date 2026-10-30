@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.json",
+  "exclude": ["test", "eslint.config.ts", "vitest.config.ts"],
+  "compilerOptions": {
+    "rootDir": "./src"
+  }
+}

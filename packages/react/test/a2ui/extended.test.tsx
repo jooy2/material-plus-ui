@@ -8,7 +8,7 @@ import {
   MP_A2UI_EXTENDED_COMPONENTS,
   mpA2uiExtendedCatalog
 } from 'material-plus-ui/a2ui';
-import published from '../../docs/public/a2ui/v0_9/catalog.json';
+import published from '../../../../docs/public/a2ui/v0_9/catalog.json';
 
 /**
  * The five components this library adds to the protocol's vocabulary.

@@ -3,6 +3,8 @@ import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { renderToString } from 'react-dom/server';
 import { MPImage } from 'material-plus-ui';
+// A real photograph, served from the documentation site's public folder.
+import kiteWind from '../../../../../docs/public/samples/marks/kite-wind.webp?url';
 
 /**
  * Real files rather than a stubbed `Image`, because the thing worth asserting is
@@ -904,7 +906,7 @@ describe('MPImage', () => {
     });
 
     it('fetches the file once for the picture and its copy', async () => {
-      const src = `/docs/public/samples/marks/kite-wind.webp?letterbox=${Date.now()}`;
+      const src = `${kiteWind}?letterbox=${Date.now()}`;
 
       // The buffer holds 250 entries, and loading the suite has filled it.
       performance.clearResourceTimings();

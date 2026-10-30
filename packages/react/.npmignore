@@ -11,12 +11,7 @@ Thumbs.db
 # Project files
 src/
 test/
-docs/
-docs-dist/
 CHANGELOG.md
-CODE_OF_CONDUCT.md
-SECURITY.md
-CONTRIBUTING.md
 
 # For development
 #

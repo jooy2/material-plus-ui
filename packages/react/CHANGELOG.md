@@ -21,6 +21,8 @@
 
 ### Documentation
 
+- **The documentation covers Flutter too.** The same components now ship for Flutter as `material_plus_ui` on pub.dev, and every page on the site has a framework switch that shows the React or the Flutter half. This package now lives in `packages/react` of the repository; what is published to npm is unchanged.
+
 - **The A2UI guide follows SDK 0.12.** Its examples give `MessageProcessor` its type argument, it names `getRendererCapabilities` for the capabilities message, since `getClientCapabilities()` with no versions now throws, and the size table is measured again.
 
 ### Fixed

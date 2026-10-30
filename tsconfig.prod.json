@@ -1,7 +1,0 @@
-{
-  "extends": "./tsconfig.json",
-  "exclude": ["test", "docs-dist/*", "docs/.vitepress/*", "eslint.config.ts", "vitest.config.ts"],
-  "compilerOptions": {
-    "rootDir": "./src"
-  }
-}
