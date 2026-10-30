@@ -9,6 +9,8 @@ order: 13
 
 <Demo src="bottom-navigation/hero" :minHeight="140" />
 
+::: fw react
+
 ```tsx
 import { ICONS, MPBottomNavigation, MPBottomNavigationItem, MPIcon } from 'material-plus-ui';
 
@@ -22,6 +24,26 @@ import { ICONS, MPBottomNavigation, MPBottomNavigationItem, MPIcon } from 'mater
 </MPBottomNavigation>;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPBottomNavigation(
+  label: '주 메뉴',
+  value: page,
+  onChanged: (Object next) => setState(() => page = next),
+  children: const <Widget>[
+    MPBottomNavigationItem(value: 'home', label: '홈', icon: MPIcon(icon: HomeGlyph())),
+    MPBottomNavigationItem(value: 'search', label: '검색', icon: MPIcon(icon: SearchGlyph())),
+  ],
+)
+```
+
+:::
+
 목적지는 셋에서 다섯입니다. 셋보다 적으면 구멍이 뚫린 행이 되고, 다섯을 넘으면 이 컴포넌트가 유일하게 상정하는 입력 수단인 엄지로는 누를 수 없는 크기가 됩니다.
 
 ## Props
@@ -32,13 +54,23 @@ import { ICONS, MPBottomNavigation, MPBottomNavigationItem, MPIcon } from 'mater
 
 <PropsTable name="MPBottomNavigationItem" />
 
-## 탭 목록이 아니라 `<nav>`인 이유
+## 탭 목록이 아니라 내비게이션인 이유
 
 무엇을 약속할지에 대한 의도적인 선택입니다.
 
 탭 목록은 키보드 사용자에게 묶음 전체가 하나의 탭 스톱이라는 것과 그 안에서의 방향키를, 스크린 리더에게 탭마다의 패널을 빚집니다. 내비게이션 바는 한 화면의 어느 패널을 보여 줄지가 아니라 **페이지** 자체를 바꾸고, 동작 없이 role만 주장하는 것은 아무것도 주장하지 않는 것보다 나쁩니다. 사용자가 아무 일도 하지 않는 방향키에 손을 뻗게 되기 때문입니다.
 
+::: fw react
+
 대신 주장하는 것은 `aria-current="page"`이고, 그것이 정직한 진술입니다. 여기가 지금 있는 목적지입니다. 각 아이템은 탭 순서 안에 있는 평범한 버튼이나 링크이고, 버튼과 링크가 하는 일을 합니다.
+
+:::
+
+::: fw flutter
+
+대신 주장하는 것은 내비게이션 랜드마크(`SemanticsRole.navigation`)이고, 지금 있는 목적지에는 **선택됨**을 표시하며 다른 목적지는 선택 상태를 아예 주장하지 않습니다. 각 아이템은 저마다 포커스 스톱인 평범한 버튼이고, 버튼이 하는 일을 합니다.
+
+:::
 
 한 화면을 패널로 나누는 것이라면 그건 정말로 [MPTabs](./tabs)입니다.
 
@@ -46,7 +78,17 @@ import { ICONS, MPBottomNavigation, MPBottomNavigationItem, MPIcon } from 'mater
 
 <Demo src="bottom-navigation/labels" :minHeight="280">
 
+::: fw react
+
 <<< @/.vitepress/demos/bottom-navigation/labels.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/bottom_navigation/labels.dart
+
+:::
 
 </Demo>
 
@@ -59,6 +101,14 @@ import { ICONS, MPBottomNavigation, MPBottomNavigationItem, MPIcon } from 'mater
 `all`이 기본값이고, 애플리케이션을 처음 쓰는 사람에게 통하는 유일한 값입니다. 글리프 넷의 행은 첫 번에는 수수께끼이고 다섯 번째에야 습관입니다.
 
 **그려지지 않는 것이 말해지지 않는 것은 아닙니다.** 나머지 둘에서도 이름은 스크린 리더를 위해 문서에 남습니다. 글리프 하나에는 접근성 이름이 아예 없기 때문입니다.
+
+::: fw flutter
+
+Flutter에서 목적지의 이름이 자식 위젯이 아니라 `String`인 `label`인 이유가 이것입니다. `labels`가 그릴 때는 그려지고, 어느 설정에서든 목적지의 시맨틱 라벨입니다. 위젯은 둘을 겸할 수 없고, 그리지 않은 이름은 하나뿐인 접근성 텍스트까지 데리고 사라집니다.
+
+:::
+
+::: fw react
 
 ## href
 
@@ -86,9 +136,13 @@ import { ICONS, MPBottomNavigation, MPBottomNavigationItem, MPIcon } from 'mater
 
 `target`은 자기 `rel`을 데려옵니다 — `_blank`이면 `noopener noreferrer`입니다. 직접 준 `rel`은 그것을 덧붙이는 게 아니라 대체합니다.
 
+:::
+
 ## activeIcon
 
 MD3는 선택된 아이콘을 채우고 나머지는 외곽선으로 둡니다. 곁눈질로 봐도 살아남는 신호입니다.
+
+::: fw react
 
 ```tsx
 <MPBottomNavigationItem
@@ -99,6 +153,21 @@ MD3는 선택된 아이콘을 채우고 나머지는 외곽선으로 둡니다. 
   저장됨
 </MPBottomNavigationItem>
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+const MPBottomNavigationItem(
+  value: 'saved',
+  label: '저장됨',
+  icon: MPIcon(icon: BookmarkOutline()),
+  activeIcon: MPIcon(icon: BookmarkFilled()),
+)
+```
+
+:::
 
 없으면 `icon`으로 돌아가므로, 글리프가 하나뿐인 묶음도 그대로 동작합니다.
 
@@ -112,9 +181,21 @@ MD3는 선택된 아이콘을 채우고 나머지는 외곽선으로 둡니다. 
 
 ## position과 safeArea
 
+::: fw react
+
 기본값은 `fixed`입니다. 이 라이브러리의 다른 모든 것이 `static`인 것과 반대이지만, 그것이 바로 바텀 내비게이션이기 때문입니다. `static`은 흐름으로 되돌리는데, 미리보기나 문서 페이지가 원하는 값입니다.
 
 `safeArea`는 행 아래에 `env(safe-area-inset-bottom)`을 더해 목적지들이 휴대폰의 홈 인디케이터를 피하게 합니다. 컨테이너는 여전히 화면 맨 아래까지 닿고 행만 올라가므로, 표면이 인디케이터 아래로 이어지고 그 위에서 띠처럼 끊기지 않습니다.
+
+:::
+
+::: fw flutter
+
+`position`은 없습니다. 위젯이 어디에 놓일지는 레이아웃이 정할 일이므로, 바는 그냥 화면의 `Column`(또는 화면을 묶는 다른 위젯)의 마지막 자식입니다.
+
+`safeArea`는 행 아래에 창의 아래쪽 여백 `MediaQuery.paddingOf(context).bottom`을 더해 목적지들이 휴대폰의 홈 인디케이터를 피하게 합니다. 표면은 여전히 화면 맨 아래까지 닿고 행만 올라가므로, 표면이 인디케이터 아래로 이어지고 그 위에서 띠처럼 끊기지 않습니다. 켜 둔 채로 바를 `SafeArea`로 한 번 더 감싸지 마세요. 그러면 표면까지 가장자리에서 떨어집니다.
+
+:::
 
 ## color를 받지 않는 이유
 
@@ -132,10 +213,44 @@ MD3는 선택된 아이콘을 채우고 나머지는 외곽선으로 둡니다. 
 
 ## 접근성
 
+::: fw react
+
 - 바는 `<nav>` 랜드마크입니다. `label`을 주세요. 이름 없는 랜드마크는 스크린 리더가 그냥 "탐색"이라고 읽는 것이고, 그런 게 둘 있는 페이지에서는 도움이 되지 않습니다.
 - 지금 있는 목적지는 `aria-current="page"`로 표시되고, 선택 상태를 주장하는 것은 그 외에 없습니다.
 - 이름은 어떤 `labels` 설정에서도 문서에 남습니다.
 - 비활성 목적지는 바에 남고 계속 읽힙니다. 존재하지만 지금은 갈 수 없는 자리이고, 사라진 자리와는 다릅니다.
+
+:::
+
+::: fw flutter
+
+- 바는 내비게이션 랜드마크(`SemanticsRole.navigation`)입니다. `label`을 주세요. 이름 없는 랜드마크는 스크린 리더가 그냥 "탐색"이라고 읽고, 한 화면에 이름 없는 내비게이션 랜드마크가 둘 있으면 Flutter가 디버그 빌드에서 오류로 알립니다.
+- 지금 있는 목적지는 선택됨으로 표시되고, 선택 상태를 주장하는 것은 그 외에 없습니다.
+- 목적지마다 이름과 상태와 탭 동작을 지닌 버튼 노드 하나입니다. 안의 글리프와 그려진 이름은 제외되므로 같은 말을 두 번 읽지 않습니다.
+- 이름은 어떤 `labels` 설정에서도 시맨틱 트리에 남습니다.
+- 목적지마다 따로 포커스 스톱이라 <kbd>Tab</kbd>으로 닿고 <kbd>Enter</kbd>나 <kbd>Space</kbd>로 누릅니다. 포커스 링은 `secondary`이고, 목적지 안쪽에 키보드로 닿았을 때만 그려집니다.
+- 비활성 목적지는 바에 남고 계속 읽히지만 포커스 순서에서는 빠집니다. 존재하지만 지금은 갈 수 없는 자리이고, 사라진 자리와는 다릅니다.
+- 인디케이터는 200ms 동안 넓어지며 나타나고, 플랫폼이 움직임 줄이기를 요청하면 곧바로 자리에 옵니다.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| 아이템의 `children`(이름) | `String`인 `label` | 그려지기도 하고, 그려지지 않을 때도 시맨틱 라벨입니다. 위젯은 둘을 겸할 수 없습니다. |
+| `defaultValue` | `initialValue` | 위젯이 처음 갖는 값을 Flutter에서는 이렇게 부릅니다. |
+| `onValueChange` | `onChanged` | 값이 바뀌는 평범한 경우입니다. |
+| `string \| number` 값 | `MPBottomNavigationValue`, 곧 아무 `Object` | Dart에는 유니언 타입이 없습니다. `==`로 비교되는 값이면 됩니다. |
+| 아이템의 `onClick` | `onPressed` | 바에 알린 다음 호출되며, 라우터를 부르는 자리입니다. |
+| `href`, `target`, `rel`, `render` | — | 링크 엘리먼트가 없고 Flutter 앱을 따라가는 크롤러도 없습니다. `onChanged`나 `onPressed`에서 이동하세요. |
+| `position` | — | CSS의 개념입니다. 바는 레이아웃이 놓는 곳에 놓입니다. |
+| `aria-current="page"` | 선택됨 | Flutter 시맨틱에는 "현재"가 없어서, 목적지 하나의 선택됨이 가장 가까운 진술입니다. |
+| `className`, `style` | — | 넘길 클래스 목록도 style 속성도 없습니다. |
+
+:::
 
 ## 함께 보기
 
