@@ -9,9 +9,21 @@ order: 22
 
 <Demo src="stepper/hero" :minHeight="300">
 
+::: fw react
+
 <<< @/.vitepress/demos/stepper/hero.tsx
 
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/stepper/hero.dart
+
+:::
+
 </Demo>
+
+::: fw react
 
 ```tsx
 import { MPStep, MPStepper } from 'material-plus-ui';
@@ -25,6 +37,26 @@ const [step, setStep] = useState(0);
 </MPStepper>;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPStepper(
+  active: step,
+  onActiveChange: (int next) => setState(() => step = next),
+  children: const <Widget>[
+    MPStep(label: Text('Account'), child: AccountForm()),
+    MPStep(label: Text('Payment'), child: PaymentForm()),
+    MPStep(label: Text('Done'), child: Summary()),
+  ],
+)
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPStepper" />
@@ -35,7 +67,17 @@ const [step, setStep] = useState(0);
 
 ## `MPTimeline`과 무엇이 다른가
 
+::: fw react
+
 둘은 같은 표에서 같은 그림을 그립니다 — 불릿, 커넥터, 그것들이 놓인 사다리는 [`internal/step.ts`](https://github.com/jooy2/material-plus-ui/blob/main/src/internal/step.ts) 한 파일입니다. 두 개의 표가 지키는 그림은 둘 중 하나가 혼자 수정되는 순간 어긋나기 때문입니다.
+
+:::
+
+::: fw flutter
+
+둘은 같은 그림을 그립니다. 불릿, 커넥터, 그것들이 놓인 사다리는 React 빌드의 `internal/step.ts`에 있는 숫자를 새로 고르지 않고 그대로 옮긴 것입니다.
+
+:::
 
 둘이 별개인 이유는 하는 일이 둘이기 때문입니다.
 
@@ -54,6 +96,8 @@ const [step, setStep] = useState(0);
 
 *다음*이 무엇을 뜻하는지는 지금 스텝이 유효한지의 문제입니다. 그 버튼을 그리는 라이브러리는 그것을 추측하거나 스텝마다 validator를 요구해야 하는데, 그건 이미 쓴 폼을 두 번째 방식으로 다시 쓰는 일입니다. `onActiveChange`와 `MPButton` 두 개면 네 줄이고, 그 네 줄은 호출자가 읽을 수 있습니다.
 
+::: fw react
+
 ```tsx
 <MPButton variant="text" disabled={step === 0} onClick={() => setStep(step - 1)}>
   Back
@@ -63,21 +107,59 @@ const [step, setStep] = useState(0);
 </MPButton>
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+MPButton(
+  variant: MPVariant.text,
+  onPressed: step == 0 ? null : () => setState(() => step -= 1),
+  child: const Text('Back'),
+),
+MPButton(
+  onPressed: isValid ? () => setState(() => step += 1) : null,
+  child: const Text('Next'),
+),
+```
+
+:::
+
 ## 어디까지 갈 수 있는가
 
 `linear`가 누름이 닿을 수 있는 스텝을 정하고, 기본이 켜짐인 이유는 그게 바로 *순서*이기 때문입니다. 주소보다 결제를 먼저 누르게 하는 체크아웃은 완료할 수 없는 스텝을 내주는 셈입니다.
 
 **뒤로 가는 것은 언제나 허용됩니다.** 선형 스테퍼가 거절하는 것은 읽는 사람이 실제로 도달한 지점보다 앞으로 건너뛰는 것이고, "실제로 도달한"은 현재가 아니라 **가장 멀리** 간 스텝입니다. 3단계까지 갔다가 1단계로 돌아온 사람은 여전히 3단계로 갈 수 있습니다. `active`만 아는 스테퍼는 그 사람이 뒤를 돌아본 순간 그것을 빼앗았을 것입니다.
 
-`linear={false}`는 언제든 어디든 닿습니다 — 설정 마법사, 읽는 사람이 돌아다닐 수 있게 구획을 나눈 긴 폼.
+`linear`를 끄면 언제든 어디든 닿습니다 — 설정 마법사, 읽는 사람이 돌아다닐 수 있게 구획을 나눈 긴 폼.
+
+::: fw react
 
 닿을 수 없는 스텝은 탭 순서에서 빠지지 않고 버튼으로 남되, `aria-disabled`로 표시되고 누름을 받지 않습니다. 레일을 훑는 사람은 구멍을 발견하는 대신 _왜_ 열리지 않는지를 듣습니다.
+
+:::
+
+::: fw flutter
+
+닿을 수 없는 스텝은 포커스 순서에서 빠지지 않고 버튼이자 포커스 자리로 남되, 사용할 수 없는 것으로 읽히고 누름을 받지 않습니다. 레일을 훑는 사람은 구멍을 발견하는 대신 _왜_ 열리지 않는지를 듣습니다.
+
+:::
 
 ## 상태
 
 <Demo src="stepper/states" :minHeight="420">
 
+::: fw react
+
 <<< @/.vitepress/demos/stepper/states.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/stepper/states.dart
+
+:::
 
 </Demo>
 
@@ -85,19 +167,45 @@ const [step, setStep] = useState(0);
 
 `error`는 강조 색 계열을 바꾸고 **스텝을 순서 안에 그대로 둡니다**. 스텝이 순서의 어디에 있는지와 그것에 무슨 일이 있었는지는 서로 다른 두 질문이라서, 실패는 네 번째 상태가 아니라 색입니다 — 그리고 구멍 난 순서는 읽는 사람이 셀 수 없는 순서입니다.
 
-`optional`은 boolean이 아니라 노드이고, 이건 사소한 차이가 아닙니다. boolean이었다면 이 라이브러리가 *Optional*이라는 **단어**를 싣고, 일부 애플리케이션만 그리는 라벨을 위해 열여덟 개 언어의 번역을 갖게 됩니다. 그 단어는 이미 여러분의 카피에, 여러분의 언어로 있습니다.
+`optional`은 boolean이 아니라 노드(Flutter에서는 위젯)이고, 이건 사소한 차이가 아닙니다. boolean이었다면 이 라이브러리가 *Optional*이라는 **단어**를 싣고, 일부 애플리케이션만 그리는 라벨을 위해 열여덟 개 언어의 번역을 갖게 됩니다. 그 단어는 이미 여러분의 카피에, 여러분의 언어로 있습니다.
 
 ## 패널
+
+::: fw react
 
 활성 스텝의 `children`, 그리고 그것뿐입니다 — 속한 스텝 안이 아니라 리스트 **바깥**에 그려집니다. 폼 전체를 담은 `<li>`는 레일을 패널만큼 높게 만들고, 그러면 가로 레일은 스텝의 행이 아니라 열의 행이 됩니다.
 
 한 번에 하나의 패널만 마운트됩니다. 그게 스테퍼가 가지고 타임라인이 갖지 않는 절반이고, 폼에서 중요한 절반입니다. 나머지 패널을 마운트해 두면 숨겨진 필드가 여전히 제출됩니다.
+
+:::
+
+::: fw flutter
+
+활성 스텝의 `child`, 그리고 그것뿐입니다. 속한 스텝 안이 아니라 레일 **아래**에 그려집니다. 폼 전체를 담은 스텝은 레일을 패널만큼 높게 만들고, 그러면 가로 레일은 스텝의 행이 아니라 열의 행이 됩니다.
+
+한 번에 하나의 패널만 그려지고, 패널은 스텝별 키를 가집니다. 그래서 다음 스텝으로 넘어가면 앞 패널의 상태를 물려받지 않고 새로 만듭니다. 패널의 이름은 스텝의 라벨이라서, 패널에 들어온 사람은 그것이 어느 스텝의 패널인지 듣습니다.
+
+:::
 
 ## 날카로운 모서리
 
 - **스텝의 인덱스는 prop이 아니고, 될 수도 없습니다.** 스테퍼가 자식들을 걸으면서 번호를 매깁니다. [`MPTimelineItem`](./timeline.md)이 말하는 이유와 같습니다 — 자기가 목록의 어디인지 들어야 하는 스텝은 모든 호출자가 잘못 놓을 수 있는 스텝입니다.
 - **`horizontal`은 라벨이 짧은 동안만 정직합니다.** 레일은 너비를 균등하게 나누므로, 한 스텝의 다섯 단어짜리 라벨이 행 전체의 높이를 정합니다. 스텝마다 설명이 붙는 형태는 `vertical`입니다.
 - **패널 하나는 정말로 하나입니다.** 활성이 아닌 스텝 안의 상태는 그 스텝과 함께 언마운트됩니다. 걷는 동안 살아남아야 하는 것은 위로 올리세요.
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `defaultActive` | `initialActive` | 비제어 값의 시작점을 Flutter는 이렇게 부릅니다. |
+| 스텝의 `children`이 패널 | 스텝의 `child`가 패널 | Flutter 슬롯이 받는 대로 위젯 하나입니다. |
+| 스텝의 `aria-controls` | — | semantics 트리에는 한 노드가 다른 노드를 가리키는 수단이 없습니다. 스텝은 확장 플래그로 패널이 열렸는지 알립니다. |
+| `aria-current="step"` | 현재 스텝은 선택된 것으로 읽힘 | 프레임워크에서 가장 가까운 표현입니다. |
+| `className`, `style` | — | 넘길 클래스 목록도 style 속성도 없습니다. |
+
+:::
 
 ## 다음
 
