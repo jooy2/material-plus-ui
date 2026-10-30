@@ -9,6 +9,8 @@ order: 1
 
 <Demo src="text-link/hero" :minHeight="160" />
 
+::: fw react
+
 ```tsx
 import { MPTextLink } from 'material-plus-ui';
 
@@ -16,15 +18,61 @@ import { MPTextLink } from 'material-plus-ui';
 <MPTextLink href="https://m3.material.io" newTab>m3.material.io</MPTextLink>;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPTextLink(onPressed: openColours, child: const Text('색 문서'));
+MPTextLink(
+  href: 'https://m3.material.io',
+  newTab: true,
+  onPressed: () => launchUrl(Uri.parse('https://m3.material.io')),
+  child: const Text('m3.material.io'),
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPTextLink" />
+
+::: fw react
 
 모든 native `<a>` 속성이 그대로 전달되고, `ref`는 앵커에 닿습니다.
 
 ## 맨 `<a>`가 하지 않는 세 가지
 
 밑줄을 정해진 규칙대로 그리고, 새 탭을 여는 링크임을 눈에도 스크린 리더에도 알리고, `render`를 받아서 라우터가 주는 `Link`가 이 모든 것을 입을 수 있게 합니다.
+
+:::
+
+::: fw flutter
+
+## 어디로 가는 일은 `onPressed`가 합니다
+
+Flutter에는 주소 표시줄도 기본 내비게이션도 없어서 링크가 스스로 무언가를 열지 않습니다. 여는 일은 `onPressed`가 합니다. 라우트를 올리거나 주소를 `url_launcher`에 넘깁니다. `href`는 보조 기술에 알려 주는 주소이고, 웹에서는 엔진이 화면 낭독기용으로 그리는 링크에 들어갑니다.
+
+링크는 버튼이 아니라 링크로 읽히고, 웹의 링크처럼 포인터나 <kbd>Enter</kbd>로만 따라갑니다. 키보드 포커스를 받으면 `secondary` 링이 그려집니다.
+
+흐르는 글 안에서는 미리보기처럼 줄의 기준선에 맞춘 `WidgetSpan`에 넣습니다.
+
+```dart
+Text.rich(TextSpan(children: <InlineSpan>[
+  const TextSpan(text: '전체 표는 '),
+  WidgetSpan(
+    alignment: PlaceholderAlignment.baseline,
+    baseline: TextBaseline.alphabetic,
+    child: MPTextLink(onPressed: openColours, child: const Text('색 문서')),
+  ),
+  const TextSpan(text: '에 있습니다.'),
+]))
+```
+
+:::
 
 ## `color`와 `size`에는 기본값이 없습니다
 
@@ -38,7 +86,17 @@ import { MPTextLink } from 'material-plus-ui';
 
 <Demo src="text-link/underline">
 
+::: fw react
+
 <<< @/.vitepress/demos/text-link/underline.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/text_link/underline.dart
+
+:::
 
 </Demo>
 
@@ -50,7 +108,11 @@ import { MPTextLink } from 'material-plus-ui';
 
 ### newTab
 
-독자 아래에서 창이 바뀌는 것은 링크에 대해 미리 볼 수 없는 유일한 일입니다. 그래서 `newTab`은 세 가지를 한꺼번에 합니다.
+독자 아래에서 창이 바뀌는 것은 링크에 대해 미리 볼 수 없는 유일한 일입니다.
+
+::: fw react
+
+그래서 `newTab`은 세 가지를 한꺼번에 합니다.
 
 ```html
 <a href="…" target="_blank" rel="noopener noreferrer">
@@ -66,9 +128,19 @@ import { MPTextLink } from 'material-plus-ui';
 
 직접 준 `rel`은 기본값에 더해지는 것이 아니라 대체합니다. `rel="noopener noreferrer nofollow"`가 가능한 이유입니다.
 
+:::
+
+::: fw flutter
+
+그래서 `newTab`은 라벨 뒤에 상자를 벗어나는 화살표를 그리고, 화면 낭독기가 라벨 다음에 듣는 힌트로 "새 탭에서 열림"을 붙입니다. `newTabLabel`로 그 문구를 독자의 언어로 적습니다. 창을 열지는 않습니다. 앱이 어떻게 바깥으로 나가는지 아는 `onPressed`가 엽니다.
+
+:::
+
 ### icon
 
 생략하면 `newTab`을 따릅니다. 이것이 기본값 `false`인 평범한 불리언이 아닌 이유 전부입니다. 창을 가져가는 링크는 그렇다고 말해야 하고, 조용한 버전은 호출자가 요청해야 합니다.
+
+::: fw react
 
 ```tsx
 <MPTextLink href="…" newTab />                  // 상자를 벗어나는 화살표
@@ -94,9 +166,41 @@ import Link from 'next/link';
 
 그래서 색과 밑줄은 컴포넌트 자신의 클래스를 선택자에 두 번 넣어 두 클래스로 만든 뒤에 쓰입니다. `.prose` 블록 안에서 색과 선을 잃은 링크는 링크의 전부를 잃은 것입니다.
 
+:::
+
+::: fw flutter
+
+```dart
+MPTextLink(newTab: true, onPressed: open, child: label)              // 상자를 벗어나는 화살표
+MPTextLink(onPressed: open, child: label)                            // 없음
+MPTextLink(icon: true, onPressed: open, child: label)                // 사슬
+MPTextLink(icon: const MyMark(), onPressed: open, child: label)      // 직접
+MPTextLink(newTab: true, icon: false, onPressed: open, child: label) // 눈에는 조용하게, 화면 낭독기에는 그대로
+```
+
+Dart에는 유니언 타입이 없어 `icon`은 `Object?`로 받습니다. `bool`이나 위젯이어야 하며 디버그에서 확인합니다.
+
+:::
+
 ## `href`를 가진 버튼이 아닙니다
 
 [MPButton](../inputs/button)에는 일부러 `href`가 없고, 이것이 그 결정의 나머지 절반입니다. 링크는 링크로 읽히고, 가운데 버튼으로 새 탭에서 열리고, 상태 표시줄에 목적지를 보여줍니다. 버튼은 그중 어느 것도 하지 않고, 하는 척해서도 안 됩니다.
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| 페이지를 여는 `href` | 따라가는 일은 `onPressed` | Flutter에는 기본 내비게이션이 없습니다. `href`는 여전히 보조 기술에 알립니다. |
+| `target`, `rel` | — | 열 창도 닫을 opener도 없습니다. 앱이 바깥으로 나가는 방법은 `onPressed`가 정합니다. |
+| 숨긴 글자로 된 새 탭 안내 | 의미 트리의 힌트 | 숨긴 글자처럼 라벨 다음에 읽힙니다. |
+| `text-underline-offset`, `0.08em` 굵기 | 글꼴 자체의 밑줄을 조금 굵게 | Flutter는 글꼴이 정한 자리에 밑줄을 긋고, `em` 대신 글꼴의 굵기에 배율을 곱합니다. |
+| `render` | — | 엘리먼트를 바꿀 수 없습니다. 라우터의 이동은 `onPressed`에서 부릅니다. |
+| `children` | `child` | Flutter의 이름입니다. |
+| `className`, `style`, `ref` | — | 넘길 클래스 목록, style 속성, 엘리먼트가 없습니다. |
+
+:::
 
 ## 함께 보기
 
