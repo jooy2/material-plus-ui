@@ -9,6 +9,8 @@ order: 34
 
 <Demo src="bar-chart/hero" :minHeight="1420" />
 
+::: fw react
+
 ```tsx
 import { MPBarChart } from 'material-plus-ui';
 
@@ -17,6 +19,23 @@ import { MPBarChart } from 'material-plus-ui';
   series={[{ name: 'Sessions', data: [4820, 3110, 1940, 860] }]}
 />;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPBarChart(
+  categories: const <String>['Search', 'Direct', 'Social', 'Mail'],
+  series: const <MPChartSeries>[
+    MPChartSeries(name: 'Sessions', data: <num>[4820, 3110, 1940, 860]),
+  ],
+);
+```
+
+:::
 
 ## Props
 
@@ -36,6 +55,12 @@ A stack's inner segments sit on a wobbly floor and cannot be compared by eye —
 
 `stacked="percent"` fills every bar instead, so the totals leave the picture entirely and what is left is the **composition**. It answers "what is this made of" and refuses to answer "how much of it is there": a quarter of 1,200 and a quarter of 12 are drawn identically. Put the total somewhere else on the page when a reader needs it — a figure beside the chart, or a second chart.
 
+::: fw flutter
+
+In Dart `stacked` is an `MPChartStack`: `MPChartStack.none`, `MPChartStack.stacked` or `MPChartStack.percent`.
+
+:::
+
 A negative has no share of a whole, so a percent stack leaves it out, the way [MPPieChart](pie-chart) does. The table behind the chart still has the number, and the hover panel says both the value and its share.
 
 Hiding a series with the legend **widens** the survivors rather than leaving a hole in every category, because the band is divided between the series that are drawn.
@@ -49,6 +74,12 @@ Which end that is comes from the sign and the orientation together: a negative b
 ## Turn it sideways for long names
 
 `horizontal` gives every category a row of its own, which is what a set of names like "Onboarding flow" wants: a name in a row reads left to right at full size, and the bars beside it are still lengths being compared.
+
+::: fw flutter
+
+In Dart that is `horizontal: true`, and the walk follows the category axis, so the up and down arrow keys move between the bars.
+
+:::
 
 Upright, the axis turns the names instead of cutting them to a slot the width of one bar — 45° while that fits, upright past it. That is the better of the two answers a vertical chart has, and still the worse of the two on this page, because a turned name is read more slowly than a level one. Reach for `horizontal` when every name is long, and leave `xAxis.tickLabels` to the chart where one of them is.
 
@@ -66,10 +97,34 @@ So are **ticks**, as opposed to names. A value axis is a ruler: its labels are s
 
 The band a turned axis takes is capped at half the chart, and 120px whichever is smaller. Past the cap the names are cut again — a chart whose labels genuinely need more room wants a taller `height`, or a `thickness` of its own on the axis. `tickLabels="truncate"` goes back to cutting; `"rotate"` and `"vertical"` turn every label whether or not it needed it.
 
+::: fw flutter
+
+In Dart these are `MPChartTickLabels.auto`, `MPChartTickLabels.truncate`, `MPChartTickLabels.rotate` and `MPChartTickLabels.vertical`, on `MPChartAxis(tickLabels: …)`.
+
+:::
+
 ## Bars have a maximum thickness
 
 Two categories in a wide chart would otherwise be two slabs half the plot across. Past about forty pixels a bar stops reading as a measured length and starts reading as a block of colour, and the axis it is measured against gets no easier to use.
 
 ## Everything else is the frame
 
+::: fw react
+
 The hover layer, the crosshair, the keyboard walk, the clipped live region and the table behind the picture are the same on every chart here — and the arrow keys follow the category axis, so they run up and down when the chart is turned. [MPLineChart](line-chart) documents them.
+
+:::
+
+::: fw flutter
+
+The hover layer, the crosshair, the keyboard walk, the live region and the words behind the picture are the same on every chart here — and the arrow keys follow the category axis, so they run up and down when the chart is turned. [MPLineChart](line-chart) documents them.
+
+:::
+
+::: fw flutter
+
+## Differences from the React build
+
+The vocabulary every chart shares — `MPChartSeries`, `MPChartAxis`, `MPChartLegend`, `MPChartTooltip` and the rest — differs from React the way [MPLineChart lists](line-chart#differences-from-the-react-build).
+
+:::

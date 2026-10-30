@@ -9,6 +9,8 @@ order: 34
 
 <Demo src="bar-chart/hero" :minHeight="1420" />
 
+::: fw react
+
 ```tsx
 import { MPBarChart } from 'material-plus-ui';
 
@@ -17,6 +19,23 @@ import { MPBarChart } from 'material-plus-ui';
   series={[{ name: '세션', data: [4820, 3110, 1940, 860] }]}
 />;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPBarChart(
+  categories: const <String>['검색', '직접', '소셜', '메일'],
+  series: const <MPChartSeries>[
+    MPChartSeries(name: '세션', data: <num>[4820, 3110, 1940, 860]),
+  ],
+);
+```
+
+:::
 
 ## Props
 
@@ -36,6 +55,12 @@ import { MPBarChart } from 'material-plus-ui';
 
 `stacked="percent"`는 대신 모든 막대를 가득 채웁니다. 합계는 그림에서 완전히 사라지고 남는 것은 **구성**입니다. "이것이 무엇으로 이루어졌는가"에는 답하고 "얼마나 있는가"에는 답하지 않습니다. 1,200의 4분의 1과 12의 4분의 1이 똑같이 그려지니까요. 독자에게 합계가 필요하다면 지면의 다른 자리에 두십시오. 차트 옆의 숫자 하나이거나 두 번째 차트입니다.
 
+::: fw flutter
+
+Dart에서 `stacked`는 `MPChartStack`이고 `MPChartStack.none`, `MPChartStack.stacked`, `MPChartStack.percent` 중 하나입니다.
+
+:::
+
 음수는 전체에서 차지하는 몫이 없으므로 [MPPieChart](pie-chart)가 그러듯 빼 둡니다. 그 숫자는 차트 뒤의 표에 그대로 있고, 호버 패널은 값과 몫을 함께 말합니다.
 
 범례로 계열을 숨기면 모든 항목에 구멍이 남는 대신 남은 막대가 **넓어집니다**. 밴드를 그려지는 계열끼리 나누기 때문입니다.
@@ -49,6 +74,12 @@ import { MPBarChart } from 'material-plus-ui';
 ## 이름이 길면 눕히십시오
 
 `horizontal`은 모든 항목에 한 줄씩을 줍니다. "온보딩 플로우" 같은 이름들이 원하는 것이 그것입니다. 한 줄을 받은 이름은 제 크기로 왼쪽에서 오른쪽으로 읽히고, 그 옆의 막대는 여전히 견주어지는 길이입니다.
+
+::: fw flutter
+
+Dart에서는 `horizontal: true`이고, 화살표는 항목 축을 따라가므로 위아래 화살표가 막대 사이를 옮깁니다.
+
+:::
 
 세워 둔 채로는 축이 이름을 자르는 대신 기울입니다. 들어가는 동안은 45도이고, 그마저 좁아지면 세로로 세웁니다. 세로 차트가 가진 두 답 중에서는 이쪽이 낫고, 이 페이지의 두 답 중에서는 여전히 이쪽이 못합니다. 기울인 이름은 눕힌 이름보다 느리게 읽히기 때문입니다. 이름이 전부 길면 `horizontal`을, 하나만 길면 `xAxis.tickLabels`를 쓰십시오.
 
@@ -66,10 +97,34 @@ import { MPBarChart } from 'material-plus-ui';
 
 기울인 축이 가져가는 구역은 차트의 절반, 그리고 120픽셀 중 작은 쪽까지입니다. 그 한계를 넘으면 이름은 다시 잘립니다. 정말 더 필요한 차트는 `height`를 키우거나 축에 `thickness`를 주는 편이 낫습니다. `tickLabels="truncate"`는 자르던 방식으로 돌아가고, `"rotate"`와 `"vertical"`은 필요 여부와 무관하게 모든 레이블을 기울입니다.
 
+::: fw flutter
+
+Dart에서는 `MPChartAxis(tickLabels: …)`에 `MPChartTickLabels.auto`, `MPChartTickLabels.truncate`, `MPChartTickLabels.rotate`, `MPChartTickLabels.vertical` 중 하나를 줍니다.
+
+:::
+
 ## 막대에는 최대 두께가 있습니다
 
 그렇지 않으면 넓은 차트에 항목이 둘일 때 플롯 절반 너비의 판때기 두 장이 됩니다. 대략 40픽셀을 넘으면 막대는 재어 놓은 길이가 아니라 색 덩어리로 읽히기 시작하고, 그 막대를 대볼 축이 더 쓰기 좋아지지도 않습니다.
 
 ## 나머지는 프레임이 합니다
 
+::: fw react
+
 호버 레이어, 십자선, 키보드 이동, 잘린 라이브 영역, 그림 뒤의 표는 여기 모든 차트가 똑같습니다. 화살표는 항목 축을 따라가므로 차트를 눕히면 위아래로 움직입니다. [MPLineChart](line-chart)에 설명이 있습니다.
+
+:::
+
+::: fw flutter
+
+호버 레이어, 십자선, 키보드 이동, 라이브 영역, 그림 뒤의 문장은 여기 모든 차트가 똑같습니다. 화살표는 항목 축을 따라가므로 차트를 눕히면 위아래로 움직입니다. [MPLineChart](line-chart)에 설명이 있습니다.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+`MPChartSeries`, `MPChartAxis`, `MPChartLegend`, `MPChartTooltip` 같은 차트 공용 어휘가 React와 어떻게 다른지는 [MPLineChart에 정리해 두었습니다](line-chart#react-빌드와-다른-점).
+
+:::
