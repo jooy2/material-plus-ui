@@ -5,9 +5,11 @@ order: 6
 
 # MPCarousel
 
-<p class="mp-lede">A strip of slides, one of which is in view. Built on the browser's own scrolling with CSS snap points, so swiping, trackpad dragging and the arrow keys all work without a gesture handler.</p>
+<p class="mp-lede">A strip of slides, one of which is in view. Swiping, trackpad dragging and the arrow keys all move it, and it runs the other way under right-to-left text.</p>
 
 <Demo src="carousel/hero" :minHeight="260" />
+
+::: fw react
 
 ```tsx
 import { MPCarousel } from 'material-plus-ui';
@@ -18,9 +20,29 @@ import { MPCarousel } from 'material-plus-ui';
 </MPCarousel>;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+const MPCarousel(
+  label: 'Trails',
+  children: <Widget>[
+    Image(image: AssetImage('forest-trail.jpg'), semanticLabel: 'A path through tall trees'),
+    Image(image: AssetImage('snowy-cabin.jpg'), semanticLabel: 'A cabin in snow beside a frozen stream'),
+  ],
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPCarousel" />
+
+::: fw react
 
 ## Why it is a scroll container
 
@@ -33,17 +55,42 @@ Nearly everything good about this component follows from one choice: the strip i
 
 The motion is `scroll-behavior: smooth`, which means a reader who has asked for reduced motion gets an instant cut out of the same code path rather than out of a second one written to remember them.
 
-## Every top-level child is a slide
+:::
 
-There is no `MPCarouselSlide`. `<MPCarousel><img /><img /></MPCarousel>` is the whole API.
+::: fw flutter
 
-The wrapper the component puts around each child is what carries the snap point, the width and the `role="group"` / `aria-roledescription="slide"` pair a screen reader needs — none of which a caller should have to remember to put on a photograph. A `null` or a `false` left behind by a conditional slide is dropped, and everything that survives gets a stable key.
+## How the strip moves
+
+The slides sit side by side, each as wide as the frame, and the strip slides along under it. The frame is as tall as the tallest slide, so a carousel needs no height of its own.
+
+- **Swiping, trackpad dragging and mouse dragging** all move it. A quick flick carries it on to the next slide; a short, slow drag springs back.
+- **It runs the other way under RTL**, the drag and the arrow keys included.
+- **The arrow keys work** once the strip has the focus, following the writing direction, with <kbd>Home</kbd> and <kbd>End</kbd> for the ends.
+- **Nothing is transformed** but the strip under its frame, so this library's rule against moving a surface holds.
+
+With `MediaQuery.disableAnimations` set, every move is an instant cut.
+
+:::
+
+## Every <Fw react="top-level child" flutter="child" /> is a slide
+
+There is no `MPCarouselSlide`. <Fw react="`<MPCarousel><img /><img /></MPCarousel>`" flutter="`MPCarousel(children: <Widget>[photo, photo])`" /> is the whole API.
+
+The wrapper the component puts around each child is what carries the width and the name a screen reader needs — none of which a caller should have to remember to put on a photograph.
+
+::: fw react
+
+The wrapper also carries the snap point and the `role="group"` / `aria-roledescription="slide"` pair. A `null` or a `false` left behind by a conditional slide is dropped, and everything that survives gets a stable key.
 
 One consequence worth knowing: a **component** is one slide, whatever it renders inside. Three slides means three children, so a `.map()` returning an array is three and a `<Group />` that renders three is one.
+
+:::
 
 ## autoPlay is off, and pauses at every excuse
 
 A carousel that moves while it is being read is the most complained-about pattern on the web, so nothing here advances until it is asked to. When it is:
+
+::: fw react
 
 | It stops when                   | Why                                                         |
 | ------------------------------- | ----------------------------------------------------------- |
@@ -53,7 +100,21 @@ A carousel that moves while it is being read is the most complained-about patter
 | It is scrolled out of view      | A slide turned where nobody can see it is a slide missed    |
 | `prefers-reduced-motion` is set | The reader asked for exactly this not to happen             |
 
-The live region goes quiet at the same time. A region that announces a new slide's name every five seconds is what makes a screen reader unusable on a page that has one — so while `autoPlay` is on it is `aria-live="off"`, and the reader is told where they are only when they moved themselves.
+:::
+
+::: fw flutter
+
+| It stops when | Why |
+| --- | --- |
+| The pointer is over it | Somebody is looking at this one |
+| Anything inside it has focus | A keyboard reader has tabbed into a slide and is reading it |
+| The app is in the background | Nothing is being read at all |
+| Its tickers are muted, as off a route | A slide turned where nobody can see it is a slide missed |
+| `MediaQuery.disableAnimations` is set | The reader asked for exactly this not to happen |
+
+:::
+
+The live region goes quiet at the same time. A region that announces a new slide's name every five seconds is what makes a screen reader unusable on a page that has one — so while `autoPlay` is on it is <Fw react="`aria-live=&quot;off&quot;`" flutter="no longer a live region" />, and the reader is told where they are only when they moved themselves.
 
 ## The arrows sit at 85%
 
@@ -71,11 +132,21 @@ On by default. With it off the arrows go `disabled` at the ends instead of wrapp
 
 <Demo src="carousel/controlled" :minHeight="320">
 
+::: fw react
+
 <<< @/.vitepress/demos/carousel/controlled.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/carousel/controlled.dart
+
+:::
 
 </Demo>
 
-`onValueChange` fires for **every** way the index can move — an arrow, a mark, a drag that settled on a new snap point — so something beside the frame can stay in step with a gesture nobody wrote a handler for.
+<Fw react="`onValueChange`" flutter="`onChanged`" /> fires for **every** way the index can move — an arrow, a mark, a key, a drag that settled on a new slide — so something beside the frame can stay in step with a gesture nobody wrote a handler for.
 
 ## What this is, in MD3's terms
 
@@ -89,6 +160,8 @@ The other three are a per-item transform driven by scroll position, which is a d
 
 Anything can be a slide. A card, a form step, a chart:
 
+::: fw react
+
 ```tsx
 <MPCarousel variant="text" arrows={false} label="Setup">
   <MPCard title="Step one">…</MPCard>
@@ -96,23 +169,82 @@ Anything can be a slide. A card, a form step, a chart:
 </MPCarousel>
 ```
 
-`variant="text"` draws no frame at all, which is what to reach for when the slides already have edges of their own.
+:::
+
+::: fw flutter
+
+```dart
+const MPCarousel(
+  variant: MPVariant.text,
+  arrows: false,
+  label: 'Setup',
+  children: <Widget>[
+    MPCard(title: Text('Step one'), child: Text('…')),
+    MPCard(title: Text('Step two'), child: Text('…')),
+  ],
+);
+```
+
+:::
+
+<Fw react="`variant=&quot;text&quot;`" flutter="`MPVariant.text`" /> draws no frame at all, which is what to reach for when the slides already have edges of their own.
 
 ### slideLabel
 
 The sentence a screen reader hears, and the name on each mark. It takes the position and the count so it can be written in any language:
 
+::: fw react
+
 ```tsx
 <MPCarousel slideLabel={(index, count) => `${count}장 중 ${index}번째`}>…</MPCarousel>
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+MPCarousel(slideLabel: (int index, int count) => '$count장 중 $index번째', children: slides);
+```
+
+:::
+
 ## Accessibility
+
+::: fw react
 
 - The whole component is a `region` with `aria-roledescription="carousel"` and a name from `label`.
 - Every slide is a `group` with `aria-roledescription="slide"` and a name from `slideLabel`.
 - An off-screen slide is **not** `aria-hidden`. The strip is scrollable, so everything in it is genuinely reachable — and an `aria-hidden` subtree that is still in the tab order is the exact shape of the bug where a keyboard reader lands somewhere their screen reader refuses to describe.
 - The strip itself is focusable, so the arrow keys reach it. That is the browser's own scroll-container handling, which is already correct under RTL.
 - The marks are real buttons with names, and the current one carries `aria-current`.
+
+:::
+
+::: fw flutter
+
+- The whole component is one node named by `label`, and every slide is a node named by `slideLabel`.
+- An off-screen slide stays in the semantics tree. Every slide is built, so everything in it is genuinely reachable, and a subtree a screen reader refuses to describe that a keyboard can still reach is the bug hiding it would be.
+- The strip itself is a focus stop, so the arrow keys reach it, following the writing direction.
+- The arrows and the marks are buttons with names, and the current mark is announced as selected.
+
+:::
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| a scroll container with snap points | a strip the carousel drags itself | Flutter has no CSS scroll snapping; the strip measures, drags and settles on its own. |
+| `defaultValue` | `initialValue` | Flutter's word for a starting value the widget then keeps. |
+| `onValueChange` | `onChanged` | Flutter's name for a plain change of value. |
+| `interval` in milliseconds | `interval` as a `Duration` | Dart's type for a length of time. |
+| any children | `children: List<Widget>` | Every widget in the list is one slide. |
+| scrolled out of view | tickers muted | Flutter has no viewport observer; a carousel whose tickers are off is taken as unseen. |
+| `className`, `style` | — | There is no class list or style attribute to pass through. |
+
+:::
 
 ## See also
 
