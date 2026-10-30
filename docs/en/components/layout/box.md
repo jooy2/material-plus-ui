@@ -89,23 +89,21 @@ A box is as tall as what it holds, and its children bring their own typography. 
 
 The **corner** is not on the ladder either, and that is where this library and most others part company. In Material a radius is a statement about what kind of object something is rather than a size to taste: a text field is a well at `corner-extra-small`, a button is a pill at `corner-full`, a dialog is an object at `corner-extra-large`. A box is a sheet, so it is `corner-medium` at every rung — and moving the whole scale is [`data-mp-shape`](../../guide/getting-started#shape), which is a decision about the page rather than about one box.
 
+## What `elevation` does
+
+MD3 does not treat height as a free axis. An elevated surface is the low container tone under a level-1 shadow: the tone and the shadow are one decision, made together, because a raised surface catches more light. A prop that only cast a shadow would raise a `filled` box into a surface the specification has no name for. So `elevation` names both, from `0` to `5`, and the `elevated` variant is that decision made once, at level 1. Given a level, an `outlined` box keeps its hairline and nothing else of its variant paints.
+
 ::: fw react
 
-## Why there is no `elevation`
-
-There is no `elevation` prop anywhere in this library, and a box is where the absence is most tempting to fix.
-
-It stays absent because MD3 does not treat height as a free axis. An elevated surface is `surface-container-low` under a level-1 shadow — the tone and the shadow are one decision, made together, because a raised surface catches more light. A prop that raised a `filled` box would produce a surface the specification has no name for and no `on-` role to go with.
-
-`variant="elevated"` is that decision, made once.
+```tsx
+<MPBox variant="filled" elevation={2}>
+  Raised
+</MPBox>
+```
 
 :::
 
 ::: fw flutter
-
-## What `elevation` does
-
-MD3 does not treat height as a free axis. An elevated surface is `surfaceContainerLow` under a level-1 shadow: the tone and the shadow are one decision, made together, because a raised surface catches more light. So `elevation` names both, from `0` to `5`, and `variant: MPVariant.elevated` is that decision made once, at level 1. Given a level, an `outlined` box keeps its hairline and nothing else of its variant paints.
 
 ```dart
 const MPBox(variant: MPVariant.filled, elevation: 2, child: Text('Raised'))

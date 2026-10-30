@@ -130,10 +130,10 @@ Two ladders, and they are independent on purpose: how far the content sits from 
 
 ::: fw react
 
-`size="md"` is 16dp, MD3's compact margin. The specification widens it to 24dp from a medium window up, which here is `size="lg"`.
+`size="md"` is 16dp, MD3's compact margin. The specification widens it to 24dp from a medium window up, which here is `size="xl"`.
 
 ```tsx
-<MPContainer size="lg" maxWidth="lg">
+<MPContainer size="xl" maxWidth="lg">
   …
 </MPContainer>
 ```

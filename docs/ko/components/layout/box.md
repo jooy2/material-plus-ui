@@ -89,23 +89,21 @@ const MPBox(variant: MPVariant.elevated, child: Text('묶였고, 페이지에서
 
 **모서리**도 사다리에 없고, 여기서 이 라이브러리는 대부분의 다른 라이브러리와 갈라집니다. 머터리얼에서 반지름은 취향에 따른 크기가 아니라 이것이 어떤 종류의 물건인지에 대한 진술입니다. 텍스트 필드는 `corner-extra-small`의 우물, 버튼은 `corner-full`의 알약, 다이얼로그는 `corner-extra-large`의 물건입니다. 박스는 시트이므로 어느 단계에서나 `corner-medium`이고, 척도 전체를 옮기는 일은 [`data-mp-shape`](../../guide/getting-started#모양) — 박스 하나가 아니라 페이지에 대한 결정 — 입니다.
 
+## `elevation`이 하는 일
+
+MD3는 높이를 자유로운 축으로 다루지 않습니다. 올라간 표면은 레벨 1 그림자 아래의 낮은 컨테이너 톤이고, 톤과 그림자는 함께 내려지는 하나의 결정입니다. 올라간 면은 빛을 더 받기 때문입니다. 그림자만 드리우는 prop이라면 `filled` 박스를 명세에 이름이 없는 표면으로 들어 올리게 됩니다. 그래서 `elevation`은 `0`부터 `5`까지 둘을 함께 정하고, `elevated` variant는 그 결정을 레벨 1에서 한 번에 내린 것입니다. 레벨을 주면 `outlined` 박스는 실선만 남기고, variant의 나머지는 칠하지 않습니다.
+
 ::: fw react
 
-## `elevation`이 없는 이유
-
-이 라이브러리 어디에도 `elevation` prop은 없고, 그 부재를 가장 메우고 싶어지는 곳이 박스입니다.
-
-없는 채로 두는 이유는 MD3가 높이를 자유로운 축으로 다루지 않기 때문입니다. 올라간 표면은 레벨 1 그림자 아래의 `surface-container-low`입니다. 톤과 그림자는 함께 내려진 하나의 결정입니다. 올라간 면은 빛을 더 받기 때문입니다. `filled` 박스를 들어 올리는 prop은 명세에 이름도 없고 짝이 되는 `on-` 역할도 없는 표면을 만들어 냅니다.
-
-`variant="elevated"`가 그 결정을, 한 번에 내린 것입니다.
+```tsx
+<MPBox variant="filled" elevation={2}>
+  올라간 박스
+</MPBox>
+```
 
 :::
 
 ::: fw flutter
-
-## `elevation`이 하는 일
-
-MD3는 높이를 자유로운 축으로 다루지 않습니다. 올라간 표면은 레벨 1 그림자 아래의 `surfaceContainerLow`이고, 톤과 그림자는 함께 내려지는 하나의 결정입니다. 올라간 면은 빛을 더 받기 때문입니다. 그래서 `elevation`은 `0`부터 `5`까지 둘을 함께 정하고, `variant: MPVariant.elevated`는 그 결정을 레벨 1에서 한 번에 내린 것입니다. 레벨을 주면 `outlined` 박스는 실선만 남기고, variant의 나머지는 칠하지 않습니다.
 
 ```dart
 const MPBox(variant: MPVariant.filled, elevation: 2, child: Text('올라간 박스'))

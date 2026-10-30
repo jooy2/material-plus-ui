@@ -130,10 +130,10 @@ MPContainer(
 
 ::: fw react
 
-`size="md"`는 16dp로 MD3의 compact 여백입니다. 명세는 medium 윈도우부터 이를 24dp로 넓히는데, 여기서는 `size="lg"`입니다.
+`size="md"`는 16dp로 MD3의 compact 여백입니다. 명세는 medium 윈도우부터 이를 24dp로 넓히는데, 여기서는 `size="xl"`입니다.
 
 ```tsx
-<MPContainer size="lg" maxWidth="lg">
+<MPContainer size="xl" maxWidth="lg">
   …
 </MPContainer>
 ```

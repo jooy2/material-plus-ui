@@ -4523,6 +4523,14 @@ const componentTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'locale',
+      type: 'string',
+      description: {
+        ko: '기본 제목을 어느 언어로 쓸지. 생략하면 가장 가까운 `MPLocaleProvider`, 그다음 영어입니다. 이 라이브러리가 지어낸 말 가운데 화면에 그려지는 것은 이 제목뿐이라, 다른 컴포넌트보다 여기서 더 중요합니다',
+        en: 'Which language the default headline is written in. Falls back to the nearest `MPLocaleProvider`, then to English. It matters more here than elsewhere: this is the one string the library invents that is drawn rather than only read out'
+      }
+    },
+    {
       name: 'icon',
       type: `${NODE} | false`,
       description: {
@@ -7467,6 +7475,14 @@ const componentTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'live',
+      type: "'assertive' | 'polite' | 'off'",
+      description: {
+        ko: '얼마나 크게 알릴지. 생략하면 error 계열은 `assertive`, 나머지 세 계열은 `polite`입니다. 페이지가 열릴 때부터 있던 얼럿, 예를 들어 서버가 렌더링한 오류 요약에는 `off`를 줍니다',
+        en: 'How loudly it announces itself. Left out, `assertive` for the error family and `polite` for the other three; `off` for an alert that was on the page before the reader was, such as an error summary the server rendered'
+      }
+    },
+    {
       name: 'onClose',
       type: '(event: MouseEvent) => void',
       description: {
@@ -8862,8 +8878,8 @@ const componentTables: Record<string, PropRow[]> = {
     {
       ...size,
       description: {
-        ko: '여백의 단계. `md`는 16dp로 MD3 자신의 compact 여백이고, 명세가 medium 윈도우부터 넓히는 24dp는 여기서 `size="lg"`입니다. [MPBox](./box)에서처럼 높이도 타입 스케일도 정하지 않으며, `maxWidth`와는 독립적입니다',
-        en: 'The margin\'s rung. `md` is 16dp, MD3\'s own compact margin; the 24dp the specification uses from a medium window up is `size="lg"` here. As on [MPBox](./box) it sets no height and no type scale, and it is independent of `maxWidth`'
+        ko: '여백의 단계. `md`는 16dp로 MD3 자신의 compact 여백이고, 명세가 medium 윈도우부터 넓히는 24dp는 여기서 `size="xl"`입니다. [MPBox](./box)에서처럼 높이도 타입 스케일도 정하지 않으며, `maxWidth`와는 독립적입니다',
+        en: 'The margin\'s rung. `md` is 16dp, MD3\'s own compact margin; the 24dp the specification uses from a medium window up is `size="xl"` here. As on [MPBox](./box) it sets no height and no type scale, and it is independent of `maxWidth`'
       }
     },
     {

@@ -304,11 +304,11 @@ Time zones are the same problem, and no provider solves it. A `Date` is written 
 
 ::: fw react
 
-## Why this is the only provider in the library
+## Why the locale needs context
 
-Everything else a theme provider might carry here is already a CSS custom property: the colour roles, the type scale, the corners, the motion durations. Those reach a component through the cascade, which means a section of a page can differ from the rest of it without a second provider and without a re-render.
+Most of what a theme provider might carry here is already a CSS custom property: the colour roles, the type scale, the corners, the motion durations. Those reach a component through the cascade, which means a section of a page can differ from the rest of it without a provider and without a re-render.
 
-A locale cannot travel that way. It decides which **string** is rendered, not how one is painted. So it is the one thing left that genuinely needs React context, and this provider carries that and nothing else.
+A locale cannot travel that way. It decides which **string** is rendered, not how one is painted, so it needs React context. `MPLocaleProvider` carries that and nothing else, for a subtree that changes its language and nothing more. [`MPConfigProvider`](../guide/config) carries it too, beside the size, colour and density defaults, which need context for a reason of their own: a size resolves to Tailwind class names rather than to a custom property. The library's other providers, `MPSnackbarProvider`, `MPConfirmProvider` and `MPTooltipProvider`, hold a queue, a dialog or a shared delay for one kind of component, not any part of a theme.
 
 :::
 

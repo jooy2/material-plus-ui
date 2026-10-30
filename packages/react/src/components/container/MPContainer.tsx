@@ -33,7 +33,7 @@ export interface MPContainerProps extends React.ComponentPropsWithoutRef<'div'> 
   /**
    * The margin's rung. `md` is 16dp, which is MD3's own compact margin; the
    * specification widens it to 24dp from a medium window up, which here is
-   * `size="lg"`.
+   * `size="xl"`.
    *
    * As on [MPBox](./box) this is the size of the *sheet* — it never touches a
    * height or the type scale — and it is independent of `maxWidth`, which is how
