@@ -9,6 +9,8 @@ order: 25
 
 <Demo src="app-logo/hero" :minHeight="300" />
 
+::: fw react
+
 ```tsx
 import { MPAppLogo } from 'material-plus-ui';
 
@@ -17,19 +19,50 @@ import { MPAppLogo } from 'material-plus-ui';
 </MPAppLogo>;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPAppLogo(
+  name: 'Voltage',
+  shape: MPAppLogoShape.app,
+  href: '/',
+  onPressed: goHome,
+  showName: true,
+  child: const BoltGlyph(),
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPAppLogo" />
 
 ## 마크가 될 수 있는 것은 넷이고, 한 번에 하나입니다
 
-순서대로 `children`에 건넨 마크업, `src`의 이미지, 타일 위에 올린 `name`의 이니셜, 그리고 타일이 없을 때는 이름 자체를 로고타이프로 놓습니다.
+순서대로 `children`(Flutter에서는 `child`)에 건넨 마크업, `src`(`image`)의 이미지, 타일 위에 올린 `name`의 이니셜, 그리고 타일이 없을 때는 이름 자체를 로고타이프로 놓습니다.
 
 마지막 것이 이 컴포넌트의 존재 이유입니다. 아직 로고를 그리지 않은 제품도 로고를 가집니다.
+
+::: fw react
 
 ```tsx
 <MPAppLogo name="Voltage" />
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+const MPAppLogo(name: 'Voltage')
+```
+
+:::
 
 나중에 진짜 파일로 바꾸는 것은 prop 하나입니다.
 
@@ -49,19 +82,49 @@ import { MPAppLogo } from 'material-plus-ui';
 
 ### 파일이 오기 전 `bare` 마크의 너비
 
-`bare` 마크는 너비를 파일에서 가져오므로, 파일이 도착하기 전에는 너비가 없습니다. 마크는 0픽셀 너비로 그려지고, 그림이 들어오는 순간 옆의 이름과 헤더에서 로고 뒤에 있는 것이 모두 밀려납니다. `<img>`에 파일 자체의 크기를 주면 브라우저가 그 비율로 너비를 미리 잡아 둡니다.
+`bare` 마크는 너비를 파일에서 가져오므로, 파일이 도착하기 전에는 너비가 없습니다. 마크는 0픽셀 너비로 그려지고, 그림이 들어오는 순간 옆의 이름과 헤더에서 로고 뒤에 있는 것이 모두 밀려납니다.
+
+::: fw react
+
+`<img>`에 파일 자체의 크기를 주면 브라우저가 그 비율로 너비를 미리 잡아 둡니다.
 
 ```tsx
 <MPAppLogo src="/logo.svg" name="Voltage" showName imageProps={{ width: 160, height: 40 }} />
 ```
 
+:::
+
+::: fw flutter
+
+그림을 파일 자체의 크기를 준 `Image`로 만들어 `child`로 넘기면, 마크가 그 비율로 너비를 미리 잡아 둡니다.
+
+```dart
+const MPAppLogo(
+  name: 'Voltage',
+  showName: true,
+  child: Image(image: NetworkImage('/logo.png'), width: 160, height: 40),
+)
+```
+
+:::
+
 이 숫자는 비율만 정합니다. 높이는 여전히 `size`나 `height`가 요구하는 값이므로, 160×40 파일을 `md`로 그리면 너비 224픽셀이 잡힙니다. 타일에는 필요 없습니다. `app`과 `circle`은 파일이 어떻든 정사각형입니다.
 
 ## 들여쓰기는 타일의 padding이 아니라 아트워크의 비율입니다
 
+::: fw react
+
 이름을 마크 옆에 그리는 순간 이것이 문제가 됩니다. 퍼센트 padding은 containing block의 너비, 즉 락업 전체에 대해 계산됩니다. 그래서 같은 아이콘이 혼자 있을 때는 4px, "Voltage"가 옆에 붙으면 11px 들어가고, 이름이 길수록 더 들어갑니다.
 
 아트워크에 준 퍼센트 높이는 타일에 대해 계산됩니다. 실제로 가장자리에서 떨어뜨려 놓는 상자가 그것이고, `height`를 얼마로 주든 옳게 유지됩니다.
+
+:::
+
+::: fw flutter
+
+아트워크는 타일 옆에 무엇이 있든 타일 높이의 72%인 상자에 놓입니다. 그래서 옆에 이름을 그려도, `height`를 얼마로 주어도 들여쓰기가 같습니다.
+
+:::
 
 타일을 가득 채우도록 그려진 마크 — 파비콘, 사진 — 에서는 `padded`를 끄세요.
 
@@ -70,12 +133,26 @@ import { MPAppLogo } from 'material-plus-ui';
 어느 엘리먼트가 그것을 지니는지는 마크가 무엇으로 결정됐는지에 달렸습니다.
 
 - **로고타이프**는 그 자체가 이름입니다.
+
+::: fw react
+
 - **이미지**는 `alt`로 지닙니다.
 - **글리프**와 **이니셜**은 아무 말도 하지 않으므로, 잘려 숨겨진 사본이 필요한 경우가 그때입니다.
+
+:::
+
+::: fw flutter
+
+- **이미지**는 그 이름이 붙은 이미지 노드가 됩니다.
+- **글리프**와 **이니셜**에도 이름이 붙고, 그려진 내용은 의미 트리에서 빠집니다.
+
+:::
 
 그리고 `showName`으로 글자를 그리는 순간, 마크는 같은 것을 두 번 읽는 대신 장식이 됩니다. 읽어 준 "VE"는 두 글자이지 제품이 아닙니다.
 
 이름이 이미 로고 전부일 때 `showName`은 무시됩니다. 맨 로고타이프 옆에 이름을 또 그리는 것은 이름을 두 번 쓰는 것입니다.
+
+::: fw react
 
 ## 감싸는 대신 `href`
 
@@ -87,6 +164,20 @@ import { MPAppLogo } from 'material-plus-ui';
 <MPAppLogo name="Voltage" render={<Link to="/" />} />
 ```
 
+:::
+
+::: fw flutter
+
+## 감싸는 대신 `onPressed`
+
+헤더의 로고는 거의 언제나 첫 화면으로 돌아가는 길입니다. `onPressed`를 주면 락업 전체가 링크가 됩니다. 링크로 읽히고, 포인터나 <kbd>Enter</kbd>로 따라가며, 키보드 포커스를 받으면 `secondary` 링이 그려집니다. `href`는 보조 기술에 알려 주는 주소이고, 그곳으로 가는 일은 `onPressed`가 합니다.
+
+```dart
+MPAppLogo(name: 'Voltage', href: '/', onPressed: () => context.go('/'))
+```
+
+:::
+
 ## 지니지 않는 것
 
 태그라인도, 버전도, elevation도 없습니다.
@@ -94,3 +185,21 @@ import { MPAppLogo } from 'material-plus-ui';
 아래에 한 줄 글이 붙은 로고는 [MPTypography](./typography) 옆의 로고이고, 그것을 두 번째 방식으로 적으면 라이브러리에 같은 것이 둘이 됩니다.
 
 elevation은 더 분명한 이유로 빠졌습니다. 이 prop은 다른 어디서든 그림자와 함께 색조를 옮깁니다. MD3의 단계가 그런 것이기 때문입니다. 그런데 로고 타일의 색조는 강조 색이라 옮겨 갈 곳이 없습니다. 앱 아이콘은 페이지 위에 떠 있는 물체가 아니라 붙어 있는 스티커입니다.
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `src`, `srcSet` | `ImageProvider`인 `image` | Flutter의 사진은 모두 provider이고, 해상도 고르기는 provider가 맡습니다. |
+| `alt` | `semanticLabel` | 화면 낭독기가 읽는 이름을 Flutter에서 부르는 이름입니다. |
+| 링크로 만드는 `href` | 따라가는 일은 `onPressed` | Flutter에는 기본 내비게이션이 없습니다. `href`는 여전히 보조 기술에 알립니다. |
+| `target`, `rel` | — | 열 창도 닫을 opener도 없습니다. |
+| `imageProps` | `child`로 넘기는 `Image` | `Image`에 너비와 높이를 주면 `<img>` 속성처럼 비율을 잡아 둡니다. |
+| `render` | — | 엘리먼트를 바꿀 수 없습니다. 라우터는 `onPressed`에서 부릅니다. |
+| CSS 길이인 `height` | `double?` | CSS 길이가 없습니다. |
+| `children` | `child` | Flutter의 이름입니다. |
+| `className`, `style`, `ref` | — | 넘길 클래스 목록, style 속성, 엘리먼트가 없습니다. |
+
+:::
