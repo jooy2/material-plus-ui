@@ -9,6 +9,8 @@ order: 10
 
 <Demo src="rating/hero" :minHeight="140" />
 
+::: fw react
+
 ```tsx
 import { MPRating } from 'material-plus-ui';
 
@@ -16,6 +18,20 @@ const [score, setScore] = useState(0);
 
 <MPRating value={score} onValueChange={setScore} />;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+double score = 0;
+
+MPRating(value: score, onChanged: (double next) => setState(() => score = next));
+```
+
+:::
 
 ## Props
 
@@ -29,11 +45,27 @@ const [score, setScore] = useState(0);
 
 각각에는 "5점 만점에 3점" 같은 이름이 붙습니다. 그려지는 것은 도형이고, 이름 없는 라디오 다섯 개는 아무도 들을 수 없는 컨트롤이기 때문입니다.
 
+::: fw flutter
+
+Flutter에는 input이 없지만 모양은 같습니다. 줄 전체가 포커스 정지점 하나이고, 화살표 키가 점수를 옮기며, 고를 수 있는 점수마다 라디오 그룹 역할의 노드 안에서 "5점 만점에 3점" 같은 이름이 붙은 라디오가 됩니다. `value`와 `onChanged`로 controlled로 쓰거나, `initialValue`에서 시작해 점수를 스스로 들고 있게 둘 수 있습니다.
+
+:::
+
 ## precision
 
 <Demo src="rating/precision" :minHeight="320">
 
+::: fw react
+
 <<< @/.vitepress/demos/rating/precision.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/rating/precision.dart
+
+:::
 
 </Demo>
 
@@ -55,7 +87,11 @@ const [score, setScore] = useState(0);
 
 기본값은 켜짐입니다. 이미 선택된 점수를 다시 누르면 `0`으로 지워집니다.
 
+::: fw react
+
 이것은 change가 아니라 click 핸들러여야 하는데, 소스를 읽는다면 알아 둘 만합니다. 이미 체크된 라디오를 클릭하면 click만 발생하고 change는 전혀 발생하지 않는데, 바로 그 click이 여기서 듣고 있는 동작입니다.
+
+:::
 
 ## 별이 호박색이 아닌 이유
 
@@ -65,19 +101,50 @@ MD3는 강조 색 계열을 넷 정의합니다 — `primary`, `secondary`, `ter
 
 별이 반드시 금색이어야 하는 제품은 토큰을 설정하고 계열을 요청하면 됩니다.
 
+::: fw react
+
 ```css
 :root {
   --mp-sys-color-tertiary: #b58900;
 }
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+MPTheme(
+  colors: MPColorScheme.fromSource().copyWith(tertiary: const Color(0xFFB58900)),
+  child: const App(),
+);
+```
+
+:::
+
+::: fw react
+
 ```tsx
 <MPRating color="tertiary" />
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+const MPRating(color: MPColor.tertiary);
+```
+
+:::
+
 이 라이브러리가 다른 모든 곳에서 주는 답과 같습니다.
 
+:::: fw react
+
 ## 폼 안에서
+
+::: fw react
 
 ```tsx
 <form action={submit}>
@@ -86,11 +153,27 @@ MD3는 강조 색 계열을 넷 정의합니다 — `primary`, `secondary`, `ter
 </form>
 ```
 
+:::
+
 `name`이 값을 식별하고 `required`가 별을 고르기 전까지 제출을 막습니다. 둘 다 브라우저가 합니다. `name`이 없으면 하나가 생성되므로, 한 페이지의 별점 두 개가 실수로 같은 라디오 그룹을 공유하는 일은 없습니다.
+
+::::
+
+::: fw flutter
+
+## 폼 안에서
+
+Flutter에는 폼 제출이 없어서 `name`도 없습니다. `required`는 점수를 골라야 한다고 스크린 리더에 알리는 몫으로 남겨 두었고, 점수를 고를 때까지 폼을 붙잡아 두는 일은 폼이 맡습니다.
+
+:::
+
+:::: fw react
 
 ## structuredData
 
 점수는 검색 엔진이 결과 옆에 그려 주는 또 하나의 것이고, 그러려면 schema.org `Rating` 마크업이 필요합니다.
+
+::: fw react
 
 ```tsx
 <div itemScope itemType="https://schema.org/Product">
@@ -99,6 +182,8 @@ MD3는 강조 색 계열을 넷 정의합니다 — `primary`, `secondary`, `ter
   <meta itemProp="ratingCount" content="128" />
 </div>
 ```
+
+:::
 
 저 예시의 세 가지가 이 prop의 전부입니다.
 
@@ -110,12 +195,43 @@ MD3는 강조 색 계열을 넷 정의합니다 — `primary`, `secondary`, `ter
 
 `worstRating`은 기본값 1에 맡기지 않고 `0`으로 적습니다. 이 컨트롤의 바닥이 0이기 때문입니다. 1에서 시작하는 척도에서 "5점 만점에 1점"은 다른 뜻입니다.
 
+::::
+
 ## 접근성
+
+::: fw react
 
 - 로케일이 "별점"이라고 부르는 이름을 가진 `radiogroup`이고, 고를 수 있는 점수마다 라디오가 하나씩 있습니다.
 - 모든 라디오에 말로 된 이름이 있습니다. 그려지는 것이 숫자가 아니라 도형이기 때문입니다.
 - 읽기 전용은 점수를 이름으로 가진 `role="img"` 하나이고, 그 안에 포커스 가능한 것은 없습니다.
 - 호버 미리보기는 포인터 전용입니다. 키보드 사용자가 듣는 것은 언제나 점수이고, 포인터가 지금 약속하고 있는 값이 아닙니다.
+
+:::
+
+::: fw flutter
+
+- 라디오 그룹 역할의 노드이며, 로캘의 "별점" 단어로 이름이 붙고, 고를 수 있는 점수마다 이름이 붙은 라디오를 하나씩 담습니다.
+- 포커스 정지점은 하나입니다. 화살표 키가 점수를 한 단계씩 옮기고, 왼쪽과 오른쪽은 글이 흐르는 방향을 따릅니다. <kbd>Home</kbd>과 <kbd>End</kbd>는 지우지 않고 양 끝으로 갑니다. 포커스 링은 점수를 담은 별 둘레에 그려집니다.
+- 읽기 전용은 점수가 이름인 이미지 노드 하나이고, 안에 포커스를 받는 것이 없습니다.
+- 호버 미리보기는 포인터 전용입니다. 키보드 사용자가 듣는 것은 포인터가 지금 약속하는 점수가 아니라 실제 점수입니다.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `<input>`으로 만든 라디오 그룹 | 라디오 노드를 담은 포커스 정지점 하나 | 스크린 리더에는 같은 컨트롤이고, 숨길 input이 없습니다. |
+| `defaultValue` | `initialValue` | Flutter는 시작 값을 `initialX`로 부릅니다. |
+| `onValueChange` | `onChanged` | 컨트롤의 값이 바뀔 때 Flutter가 쓰는 이름입니다. |
+| `labels: Partial<MPRatingLabels>` | `labels: Map<String, String>` | 같은 키를 맵으로 받습니다. |
+| `name` | — | 참여할 폼 제출이 없습니다. |
+| `structuredData` | — | 마이크로데이터는 HTML의 것이고, Flutter 화면을 읽는 크롤러는 없습니다. |
+| `className`, `style` | — | 넘길 클래스 목록도 style 속성도 없습니다. |
+
+:::
 
 ## 함께 보기
 

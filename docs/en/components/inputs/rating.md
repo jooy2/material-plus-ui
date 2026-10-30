@@ -9,6 +9,8 @@ order: 10
 
 <Demo src="rating/hero" :minHeight="140" />
 
+::: fw react
+
 ```tsx
 import { MPRating } from 'material-plus-ui';
 
@@ -16,6 +18,20 @@ const [score, setScore] = useState(0);
 
 <MPRating value={score} onValueChange={setScore} />;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+double score = 0;
+
+MPRating(value: score, onChanged: (double next) => setState(() => score = next));
+```
+
+:::
 
 ## Props
 
@@ -29,11 +45,27 @@ The browser then hands over everything a rating needs and a row of `<button>`s w
 
 Each one is named — "3 out of 5" — because what is drawn is a shape, and five unlabelled radios is a control nobody can hear.
 
+::: fw flutter
+
+There are no inputs in Flutter, but the shape is the same: the row is one focus stop, the arrow keys move the score, and every score that can be chosen is a radio of its own to a screen reader, in a node with the radio group role, named "3 out of 5". Controlled with `value` and `onChanged`, or left to hold its own score from `initialValue`.
+
+:::
+
 ## precision
 
 <Demo src="rating/precision" :minHeight="320">
 
+::: fw react
+
 <<< @/.vitepress/demos/rating/precision.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/rating/precision.dart
+
+:::
 
 </Demo>
 
@@ -55,7 +87,11 @@ A product's average, a rating somebody else left. It becomes a different compone
 
 On by default: pressing the score that is already chosen clears it back to `0`.
 
+::: fw react
+
 It has to be a click handler rather than a change handler, and that is worth knowing if you are reading the source — clicking a radio that is already checked fires a click and no change at all, and that click is exactly the gesture being listened for.
+
+:::
 
 ## Why the stars are not amber
 
@@ -65,19 +101,50 @@ MD3 defines four accent families — `primary`, `secondary`, `tertiary` and `err
 
 A product whose stars must be gold sets the token and asks for the family:
 
+::: fw react
+
 ```css
 :root {
   --mp-sys-color-tertiary: #b58900;
 }
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+MPTheme(
+  colors: MPColorScheme.fromSource().copyWith(tertiary: const Color(0xFFB58900)),
+  child: const App(),
+);
+```
+
+:::
+
+::: fw react
+
 ```tsx
 <MPRating color="tertiary" />
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+const MPRating(color: MPColor.tertiary);
+```
+
+:::
+
 Which is the same answer this library gives everywhere else.
 
+:::: fw react
+
 ## In a form
+
+::: fw react
 
 ```tsx
 <form action={submit}>
@@ -86,11 +153,27 @@ Which is the same answer this library gives everywhere else.
 </form>
 ```
 
+:::
+
 `name` identifies the value, `required` stops the form submitting until a star has been chosen, and the browser does both. Without a `name` one is generated, so two ratings on a page never share a radio group by accident.
+
+::::
+
+::: fw flutter
+
+## In a form
+
+There is no form submission in Flutter, so there is no `name`. `required` is kept for what it says to a screen reader, that a score has to be chosen; holding a form back until one is chosen is the form's job.
+
+:::
+
+:::: fw react
 
 ## structuredData
 
 A score is the other thing a search engine will draw beside a result, and it wants schema.org `Rating` markup to do it.
+
+::: fw react
 
 ```tsx
 <div itemScope itemType="https://schema.org/Product">
@@ -99,6 +182,8 @@ A score is the other thing a search engine will draw beside a result, and it wan
   <meta itemProp="ratingCount" content="128" />
 </div>
 ```
+
+:::
 
 Three things about that example are the whole of this prop.
 
@@ -110,12 +195,43 @@ The **count is yours too**. `aggregateRating` needs a `ratingCount` or a `review
 
 `worstRating` is written out as `0` rather than left to default to 1, because this control's floor is nought — "1 out of 5" means something different on a scale that starts at 1.
 
+::::
+
 ## Accessibility
+
+::: fw react
 
 - A `radiogroup` named from the locale's word for "Rating", holding one radio per choosable score.
 - Every radio has a spoken name, because what is drawn is a shape rather than a number.
 - Read-only is one `role="img"` with the score as its name, and nothing focusable inside it.
 - The hover preview is pointer-only. What a keyboard reader hears is the score, never what the pointer is currently promising.
+
+:::
+
+::: fw flutter
+
+- A node with the radio group role, named from the locale's word for "Rating", holding one radio per choosable score, each with a spoken name.
+- One focus stop. The arrow keys move the score by one step, left and right following the writing direction; <kbd>Home</kbd> and <kbd>End</kbd> go to the ends without clearing. The focus ring is drawn round the star that holds the score.
+- Read-only is one image node with the score as its name, and nothing focusable inside it.
+- The hover preview is pointer-only. What a keyboard reader hears is the score, never what the pointer is currently promising.
+
+:::
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| A radio group of `<input>`s | One focus stop with radio nodes | The same thing to a screen reader, without inputs to hide. |
+| `defaultValue` | `initialValue` | `initialX` is the name Flutter gives a starting value. |
+| `onValueChange` | `onChanged` | Flutter’s name for a control’s value changing. |
+| `labels: Partial<MPRatingLabels>` | `labels: Map<String, String>` | The same keys, as a map. |
+| `name` | — | There is no form submission to be part of. |
+| `structuredData` | — | Microdata is HTML; there is no crawler reading a Flutter screen. |
+| `className`, `style` | — | There is no class list and no style attribute to pass through. |
+
+:::
 
 ## See also
 
