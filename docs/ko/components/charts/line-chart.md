@@ -9,6 +9,8 @@ order: 32
 
 <Demo src="line-chart/hero" :minHeight="1420" />
 
+::: fw react
+
 ```tsx
 import { MPLineChart } from 'material-plus-ui';
 
@@ -17,6 +19,23 @@ import { MPLineChart } from 'material-plus-ui';
   series={[{ name: '가입', data: [120, 138, 131, 164, 190] }]}
 />;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPLineChart(
+  categories: const <String>['월', '화', '수', '목', '금'],
+  series: const <MPChartSeries>[
+    MPChartSeries(name: '가입', data: <num>[120, 138, 131, 164, 190]),
+  ],
+);
+```
+
+:::
 
 ## Props
 
@@ -30,6 +49,12 @@ import { MPLineChart } from 'material-plus-ui';
 
 0이 정말 기준선이라면 `yAxis`에 `min: 0`을 주십시오. 선 아래의 양이 핵심이라면 [MPAreaChart](area-chart)를 쓰십시오. 채움은 0에서 재야 하니까요.
 
+::: fw flutter
+
+Dart에서는 `yAxis: const MPChartAxis(min: 0)`입니다.
+
+:::
+
 ## 구멍은 구멍입니다
 
 `null`은 아무것도 측정되지 않은 지점이고, 선은 거기서 끊깁니다. 이어 붙이지 않습니다. 아무도 가지고 있지 않은 값을 가로질러 그은 직선은 독자가 절대 의심하지 않는 종류의 조작이기 때문입니다. 나머지 선과 똑같이 생겼습니다.
@@ -38,11 +63,32 @@ import { MPLineChart } from 'material-plus-ui';
 
 끊는 것이 틀린 읽기인 경우가 둘 있고, `gaps`가 그것을 위한 prop입니다. `gaps="connect"`는 양쪽을 잇되 이은 구간을 **점선**으로 그립니다. 선은 이어지고, 그림은 어디까지가 측정한 값인지를 여전히 말합니다. `gaps="zero"`는 없는 값을 0으로 그리고 값 축을 0까지 넓힙니다. 빈 자리가 "하나도 일어나지 않았다"를 뜻할 때는 맞고, "아무도 세지 않았다"를 뜻할 때는 틀립니다.
 
+::: fw flutter
+
+Dart에서는 세 값이 `MPChartGaps.gap`, `MPChartGaps.connect`, `MPChartGaps.zero`입니다. `break`가 Dart의 예약어라 React의 `'break'`를 `gap`으로 씁니다.
+
+:::
+
 바뀌는 것은 그림뿐입니다. 호버 패널과 뒤에 놓인 표는 셋 다에서 빈 값을 빈 값으로 말합니다. 독자가 숫자 자체를 필요로 할 때 받는 사본이 그 둘이기 때문입니다.
 
 ## 기준선은 계열이 아닙니다
 
 `yAxis`에 준 기준선 하나 — `{ value: 300, label: 'SLO', color: 'error' }` — 는 300 자리에 점선을 긋고 그 끝에 이름을 씁니다. `to`까지 주면 선이 아니라 **띠**가 됩니다. 수치가 머물러야 할 범위, 무언가가 내려가 있던 구간 같은 것입니다. 양쪽 가장자리를 다 긋고 그 사이를 채웁니다.
+
+::: fw flutter
+
+Dart에서 기준선은 축의 `references` 목록에 넣는 `MPChartReference`입니다.
+
+```dart
+yAxis: const MPChartAxis(
+  references: <MPChartReference>[
+    MPChartReference(value: 300, label: 'SLO', color: MPColor.error),
+    MPChartReference(value: 280, to: 320, label: '목표'),
+  ],
+),
+```
+
+:::
 
 데이터가 아닙니다. 기준선은 독자가 들고 온 사실이라 팔레트 슬롯이 아니라 크롬의 잉크를 입고, 격자선과 헷갈리지 않도록 점선으로 그리며, 차트가 스스로 만들어 내는 일은 없습니다. `color`는 가질 값어치가 있는 한 경우를 위해 역할을 받습니다. 누군가 지켜보는 임계값이야말로 `error`가 있는 이유입니다.
 
@@ -52,7 +98,17 @@ import { MPLineChart } from 'material-plus-ui';
 
 기준선은 자기 `value`가 놓인 눈금을 가진 축에 속하고, 그 축과 직각으로 그려집니다. 그래서 같은 기준선이 세워 둔 차트에서는 가로선이고 눕힌 차트에서는 세로선입니다. 이름만 늘어선 축에는 두 항목 사이에 선이 있을 자리가 없으므로, 눈금을 가진 축만 이 값을 읽습니다. 값 축은 언제나, 항목 축은 [MPScatterChart](scatter-chart)처럼 숫자로 돌아갈 때만입니다. 날짜 축에서는 `value`에 `Date`를 줄 수 있습니다.
 
+::: fw react
+
 이름을 가진 기준선은 표 옆에서 차트와 함께 읽힙니다. 표에는 그것을 담을 열이 없기 때문입니다.
+
+:::
+
+::: fw flutter
+
+이름을 가진 기준선은 플롯의 의미 값에서 표 뒤에 이어 읽힙니다. 표에는 그것을 담을 열이 없기 때문입니다.
+
+:::
 
 ## 호버 레이어는 기본값입니다
 
@@ -60,9 +116,27 @@ import { MPLineChart } from 'material-plus-ui';
 
 적중 영역은 선이 아니라 **열 전체**입니다. 2픽셀짜리 선은 포인터에게 맞추라고 요구할 수 있는 대상이 아니고, 점 위쪽 빈 공간에 포인터를 올린 독자가 뜻하는 건 가장 가까운 항목입니다.
 
+::: fw react
+
 숫자를 읽을 다른 경로가 있을 때만 `tooltip={false}`를 쓰십시오. 아래의 표는 언제나 그 경로 중 하나입니다.
 
+:::
+
+::: fw flutter
+
+숫자를 읽을 다른 경로가 있을 때만 `tooltip: const MPChartTooltip(mode: MPChartTooltipMode.none)`을 쓰십시오. 그림 뒤의 문장이 언제나 그 경로 중 하나입니다.
+
+터치 화면에서는 한 번 누르면 패널이 **남고**, 같은 열을 다시 누르면 닫힙니다. 누르고 떼는 사이는 0.1초이고, 손을 뗄 때 사라지는 패널은 아무도 읽지 못합니다. 플롯 위로 손가락을 끌면 열을 차례로 훑습니다.
+
+:::
+
 `tooltip`에 준 `sort: 'value'`는 가장 큰 행을 맨 위에 둡니다. 계열이 여덟 개인 차트가 원하는 것이 그것입니다. 독자가 찾는 행은 대개 큰 쪽이고, 고정된 순서의 목록에서 그것을 뒤지는 일이야말로 패널이 덜어 주려던 일입니다. 기본값은 계열을 넘긴 순서입니다. 범례를 익힌 독자는 읽지 않고도 행을 찾습니다. 어느 쪽이든 값이 같으면 계열 순서를 지킵니다.
+
+::: fw flutter
+
+Dart에서는 `MPChartTooltip(sort: MPChartTooltipSort.value)`이고, 같은 객체에 `total: true`나 `total: false`를 줍니다. React의 `render`처럼 패널을 직접 그리려면 `builder`를 씁니다.
+
+:::
 
 **쌓기**에는 그 열이 얼마가 되는지를 말하는 행이 하나 더 붙습니다. 부분들과 선으로 나뉘고 견본은 달지 않습니다. 그 열의 높이가 이 모양의 전부인데, 부분만 늘어놓은 패널은 독자에게 덧셈을 시키기 때문입니다. 쌓지 않은 차트에는 붙지 않습니다. 그 계열들은 무언가의 부분이 아니고, 더하는 것은 패널이 없던 양을 만들어 내는 일입니다. percent 쌓기에도 붙지 않습니다. 답이 모든 항목에서 100%이니까요. `tooltip`의 `total`에 `false`나 `true`를 주면 둘 다 뒤집힙니다.
 
@@ -74,9 +148,29 @@ import { MPLineChart } from 'material-plus-ui';
 
 두 항목보다 좁은 드래그는 무시합니다. 항목 하나짜리 창에는 선이 지나온 거리가 남아 있지 않기 때문입니다. 플롯을 한 번 누른 것이 바로 그런 경우라 그대로 둡니다. `Escape`는 읽고 있던 값을 먼저 지우고 창을 그다음에 되돌립니다. 독자가 만든 순서가 그 순서입니다.
 
+::: fw react
+
 되돌아가는 길은 플롯 모서리에 놓인 **전체 보기** 컨트롤이고, 그림의 자식이 아니라 형제입니다. `role="img"`는 잎 역할이라 그 안의 버튼은 키보드가 닿을 수도 스크린 리더가 찾을 수도 없습니다. 이 라벨은 라이브러리가 싣는 모든 언어에 있습니다.
 
+:::
+
+::: fw flutter
+
+되돌아가는 길은 플롯 모서리에 놓인 **전체 보기** 컨트롤입니다. 플롯의 의미 노드 안이 아니라 옆에 놓이므로 키보드가 닿고 스크린 리더가 찾는 버튼이 따로 됩니다. 이 라벨은 라이브러리가 싣는 모든 언어에 있습니다.
+
+:::
+
+::: fw react
+
 창을 직접 쥐려면 객체를 넘기십시오. controlled로 쓰려면 `range`와 `onRangeChange`, 처음부터 열어 둘 창은 `defaultRange`, 두 항목보다 넓게 요구하려면 `min`입니다. 구간은 믿는 대신 데이터에 맞춰 자릅니다. 고를 때의 계열보다 오래 남은 구간은 그러지 않으면 전체로 돌아갈 길이 없는 빈 차트가 됩니다.
+
+:::
+
+::: fw flutter
+
+`MPChartZoom`을 넘기면 켜집니다. `const MPChartZoom()`이면 충분하고, 창을 직접 쥐려면 채워 넣으십시오. controlled로 쓰려면 `range`와 `onRangeChange`, 처음부터 열어 둘 창은 `initialRange`, 두 항목보다 넓게 요구하려면 `min`입니다. 구간은 첫 항목과 마지막 항목의 인덱스를 담은 레코드 `(2, 9)`이고, `range`를 다시 `null`로 두면 모든 항목을 보입니다. 구간은 믿는 대신 데이터에 맞춰 자릅니다. 고를 때의 계열보다 오래 남은 구간은 그러지 않으면 전체로 돌아갈 길이 없는 빈 차트가 됩니다.
+
+:::
 
 항목이 슬롯의 줄인 차트만 이 prop을 받습니다. [MPScatterChart](scatter-chart)는 값 축이 둘이라 자를 줄이 없어 `xAxis`와 `yAxis`로 잘라 내고, 파이에는 축 자체가 없습니다.
 
@@ -84,13 +178,43 @@ import { MPLineChart } from 'material-plus-ui';
 
 ## 포인터로 되는 건 키보드로도 됩니다
 
+::: fw react
+
 플롯은 탭 정지 하나입니다. 좌우 화살표로 열을 옮기고, `Home`과 `End`로 양 끝으로 가고, `Escape`로 읽던 것을 지웁니다. 각 열은 잘려서 보이지 않는 라이브 영역이 읽어 주는데, 이 영역은 그림의 자식이 아니라 **형제**입니다. `role="img"`는 잎 역할이라 그 안의 모든 것이 접근성 트리에서 잘려 나가고, 안에 둔 라이브 영역은 아무에게도 읽히지 않습니다.
+
+:::
+
+::: fw flutter
+
+플롯은 포커스 정지 하나입니다. 좌우 화살표로 열을 옮기고, Home과 End로 양 끝으로 가고, Escape로 읽던 것을 지웁니다. 각 열은 라이브 영역이 읽어 주는데, 이 영역은 플롯의 의미 노드 안이 아니라 **옆에** 있어서 포커스가 차트에 머문 채로 바뀔 때마다 읽힙니다. 읽던 것이 없을 때의 Escape는 차트를 감싼 쪽에 넘기므로, 시트나 대화 상자는 그대로 닫힙니다.
+
+:::
 
 ## 그림 뒤에는 항상 숫자가 있습니다
 
+::: fw react
+
 모든 차트가 데이터를 표로 렌더링해 두고 — 그리지 않고 잘라 둡니다 — `aria-describedby`로 가리킵니다. 플롯을 볼 수 없는 독자는 요약이 아니라 데이터 자체를 받고, 볼 수 있는 독자는 청하지도 않은 표를 지나쳐 스크롤하지 않아도 됩니다.
 
+:::
+
+::: fw flutter
+
+Flutter에는 노드를 설명할 요소가 없어서, 표는 플롯의 의미 **값**으로 전해집니다. 항목마다 각 계열의 이름과 그 자리의 값을 차례로 씁니다. "Jan: Organic 4,200, Referral 3,100. Feb: …" 같은 식입니다. 빈 값은 웹의 표 칸처럼 "데이터가 없습니다"로 읽힙니다. 플롯을 볼 수 없는 독자는 요약이 아니라 데이터 자체를 받고, 볼 수 있는 독자에게는 아무것도 더 보이지 않습니다.
+
+:::
+
+::: fw react
+
 `label`은 이 차트가 **무엇의** 차트인지입니다. 접근 가능한 이름이자 표의 캡션이라, 없어도 깨지지는 않지만 쓸 값어치가 있습니다.
+
+:::
+
+::: fw flutter
+
+`label`은 이 차트가 **무엇의** 차트인지입니다. 화면 낭독기가 그림 대신 읽는 이름이라, 없어도 깨지지는 않지만 쓸 값어치가 있습니다.
+
+:::
 
 ## 색은 개체를 따라갑니다
 
@@ -100,7 +224,17 @@ import { MPLineChart } from 'material-plus-ui';
 
 ## 범례는 컨트롤입니다
 
+::: fw react
+
 계열이 둘 이상이면 자동으로 그려지고, 각 항목은 진짜 버튼입니다. 누르면 해당 계열이 숨겨지고, 올려 두면 나머지가 흐려집니다. `aria-pressed`를 답니다. 키보드로 닿을 수 없는 필터는 독자 절반에게는 없는 필터입니다.
+
+:::
+
+::: fw flutter
+
+각 항목은 자기 계열이 보이는지를 의미 노드의 `toggled` 상태로 말하는 버튼입니다. 키보드로 닿을 수 없는 필터는 독자 절반에게는 없는 필터입니다.
+
+:::
 
 계열이 하나면 범례를 그리지 않습니다. 견본 하나짜리 범례는 제목을 되풀이할 뿐입니다.
 
@@ -110,14 +244,58 @@ import { MPLineChart } from 'material-plus-ui';
 
 `markers="auto"`는 점들이 각각 별개의 표식일 만한 여유가 있는 동안에만 이음매마다 점을 찍고, 선이 그보다 빽빽해지면 뺍니다. 3픽셀마다 찍힌 점은 점의 행렬이 아니라 그냥 두꺼운 선입니다.
 
+::: fw flutter
+
+Dart에서 `markers`는 `bool?`이고, `null`이 React의 `'auto'`입니다.
+
+:::
+
 활성 열의 점은 설정과 무관하게 남습니다. 십자선과 패널이 가리키는 자리이고, 아무것도 없는 십자선은 어느 선을 가로질렀는지를 독자가 직접 알아내게 만듭니다.
 
 ## 값 레이블은 선택이고, 선택적입니다
 
 `valueLabels="last"`는 각 계열의 마지막 숫자를, `"extremes"`는 최고와 최저를 씁니다. `"all"`은 점이 다섯 개뿐이라 정말 그게 답인 차트를 위한 것이고, 기본값이 아닌 이유는 모든 점 옆에 숫자를 붙이는 것이 차트를 읽을 수 없게 만드는 가장 확실한 방법이기 때문입니다.
 
+::: fw flutter
+
+Dart에서는 `MPChartValueLabels.last`, `MPChartValueLabels.extremes`, `MPChartValueLabels.all`입니다.
+
+:::
+
 쓰인 값은 보통 잉크를 입고, 계열 색을 지니는 것은 범례의 견본뿐입니다. `labelColor="series"`는 그 색을 글자로도 옮깁니다. 범례가 길고 플롯이 붐빌 때, 견본만으로 짝을 짓는 것보다 빠릅니다. 기본값이 아닌 이유는 잴 수 있습니다. 팔레트 여덟 칸은 표면 대비 3:1에 맞춰져 있고, 그것은 **표식**이 넘어야 하는 기준입니다. 작은 글자의 기준은 4.5:1입니다.
+
+::: fw flutter
+
+Dart에서는 `labelColor: MPChartLabelColor.series`입니다.
+
+:::
 
 ## 자기 표면을 가져오지 않습니다
 
 이 차트가 그리는 건 카드가 아니라 도형입니다. 표면이 필요하면 [MPBox](../layout/box)나 [MPCard](../layout/card)로 감싸십시오. 대시보드의 패널을 호출자의 결정으로 남겨 두는 편이, 여덟 개 컴포넌트가 각자 여백에 관해 의견을 갖는 것보다 낫습니다.
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `data: [120, null, { y: 3 }]` | `List<MPChartDatum>`: 각각 `num`, `null`, `MPChartPoint` 중 하나 | Dart에는 유니언 타입이 없습니다. `MPChartDatum`, `MPChartCategory`, `MPChartColor`는 `Object`의 별칭이라 계열은 여전히 `<num?>[120, 138, null]`로 씁니다. 숫자가 아닌 값은 빈 값으로 읽습니다. |
+| `color: 'primary'` 또는 CSS 색 | `MPColor` 또는 `Color` | 같은 선택을 Dart의 두 타입으로 씁니다. |
+| `Intl.NumberFormatOptions`인 `format` | `String Function(double value)`인 `format` | 프레임워크에 `Intl`이 없습니다. `format`이 없으면 어느 언어에서든 숫자를 영어식으로 자릿수 구분하고 만 단위부터 축약합니다. |
+| `locale`로 쓰는 날짜 | `dateNames` | 달 이름을 물어볼 `Intl`이 없습니다. 날짜 선택기처럼 로케일에 맞는 라이브러리 내장 표를 쓰고, `dateNames`로 직접 만든 `MPDateNames`를 넘기면 그것으로 바뀝니다. |
+| `legend={true}`, `legend={false}` | `MPChartLegend(visible: true)`, `MPChartLegend(visible: false)` | 매개변수 하나에 타입 하나입니다. |
+| `tooltip={false}` | `MPChartTooltip(mode: MPChartTooltipMode.none)` | 같은 이유입니다. |
+| `mode: 'index'` | `MPChartTooltipMode.column` | Dart의 모든 열거형에는 이미 `index`가 있습니다. |
+| `render` | `builder` | 위젯을 돌려주는 함수를 Flutter에서 부르는 이름입니다. |
+| `gaps="break"` | `MPChartGaps.gap` | `break`는 예약어입니다. |
+| `stacked={true}`, `stacked="percent"` | `MPChartStack.stacked`, `MPChartStack.percent` | 세 가지 답을 타입 하나로 씁니다. |
+| `zoom={true}`, `defaultRange` | `const MPChartZoom()`, `initialRange` | 같은 이유이고, 시작값을 Flutter에서 부르는 이름입니다. |
+| CSS 길이인 `height` | 픽셀인 `height` | 해석할 CSS 길이가 없습니다. |
+| `aria-describedby`가 가리키는 잘린 `<table>` | 플롯의 의미 값에 담긴 표 | Flutter에는 노드를 설명할 요소가 없습니다. |
+| `className`, `style` | — | 넘길 클래스 목록도 style 속성도 없습니다. |
+| — | `focusNode`, `autofocus` | Flutter의 포커스 정지는 모두 이 둘을 받습니다. |
+
+레이블 너비는 웹과 같은 추정치로 잽니다. 그래서 몇 개가 들어가는지, 언제 기울이는지가 쓰는 글꼴이 아니라 React 빌드와 같습니다.
+
+:::
