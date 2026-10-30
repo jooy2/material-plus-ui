@@ -9,6 +9,8 @@ order: 9
 
 <Demo src="grid/hero" :minHeight="260" />
 
+::: fw react
+
 ```tsx
 import { MPGrid, MPGridItem } from 'material-plus-ui';
 
@@ -18,6 +20,24 @@ import { MPGrid, MPGridItem } from 'material-plus-ui';
   <MPGridItem span={3}>그리고 4분의 1</MPGridItem>
 </MPGrid>;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+const MPGrid(
+  children: <Widget>[
+    MPGridItem(span: MPResponsive<MPGridSpan>(MPGridSpan(6)), child: Text('절반')),
+    MPGridItem(span: MPResponsive<MPGridSpan>(MPGridSpan(3)), child: Text('4분의 1')),
+    MPGridItem(span: MPResponsive<MPGridSpan>(MPGridSpan(3)), child: Text('그리고 4분의 1')),
+  ],
+);
+```
+
+:::
 
 ## Props
 
@@ -41,13 +61,42 @@ import { MPGrid, MPGridItem } from 'material-plus-ui';
 
 각 항목은 자기 클래스부터 **위로** 적용됩니다. 그래서 레이아웃 하나는 보통 다섯 개가 아니라 두 개면 끝나고, 적지 않은 클래스는 그 아래 클래스가 말한 값을 그대로 유지합니다.
 
+::: fw react
+
 ```tsx
 <MPGridItem span={{ compact: 12, medium: 6, expanded: 4 }} />
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+MPGridItem(
+  span: const MPResponsive<MPGridSpan>(
+    MPGridSpan(12),
+    medium: MPGridSpan(6),
+    expanded: MPGridSpan(4),
+  ),
+  child: card,
+)
+```
+
+:::
+
 휴대폰에서는 전체 폭, 600dp부터 절반, 840dp부터 3분의 1입니다.
 
+::: fw react
+
 **이건 일부러 Tailwind의 브레이크포인트가 아닙니다.** 그리고 직접 쓰는 유틸리티도 경쟁하는 대신 같은 사다리에 올라탈 수 있습니다 — `mp-medium:flex`, `mp-below-expanded:hidden`. 왜 이 사다리인지, 또 무엇이 이 사다리를 읽는지, 그리고 옮기는 방법은 [브레이크포인트](../../design/breakpoints)에 전부 있습니다.
+
+:::
+
+::: fw flutter
+
+Dart에서 반응형 값은 `MPResponsive`입니다. `MPResponsive<int>(4, medium: 12)`는 4열에 medium부터 12열이고, `MPResponsive<double>.from(expanded: 8)`은 바꾸는 클래스만 적으며 그 아래 클래스는 매개변수의 기본값을 따릅니다. span은 `MPGridSpan`입니다. `MPGridSpan(6)`, `MPGridSpan.grow`, `MPGridSpan.auto`처럼 씁니다. 클래스는 `MediaQuery`로 읽은 창의 것입니다.
+
+:::
 
 ## 머터리얼 자신의 그리드
 
@@ -55,7 +104,17 @@ compact 윈도우에서 4열에 16dp 간격, medium부터 12열에 24dp. 한 줄
 
 <Demo src="grid/responsive" :minHeight="320">
 
+::: fw react
+
 <<< @/.vitepress/demos/grid/responsive.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/grid/responsive.dart
+
+:::
 
 </Demo>
 
@@ -67,7 +126,17 @@ compact 윈도우에서 4열에 16dp 간격, medium부터 12열에 24dp. 한 줄
 
 <Demo src="grid/grow" :minHeight="300">
 
+::: fw react
+
 <<< @/.vitepress/demos/grid/grow.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/grid/grow.dart
+
+:::
 
 </Demo>
 
@@ -77,9 +146,24 @@ compact 윈도우에서 4열에 16dp 간격, medium부터 12열에 24dp. 한 줄
 
 다른 값과 마찬가지로 반응형입니다.
 
+::: fw react
+
 ```tsx
 <MPGridItem span={{ compact: 12, medium: 'grow' }} />
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+MPGridItem(
+  span: const MPResponsive<MPGridSpan>(MPGridSpan(12), medium: MPGridSpan.grow),
+  child: body,
+)
+```
+
+:::
 
 휴대폰에서는 전체 폭, 600dp부터는 행의 나머지입니다.
 
@@ -89,13 +173,25 @@ compact 윈도우에서 4열에 16dp 간격, medium부터 12열에 24dp. 한 줄
 
 <Demo src="grid/auto" :minHeight="240">
 
+::: fw react
+
 <<< @/.vitepress/demos/grid/auto.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/grid/auto.dart
+
+:::
 
 </Demo>
 
 크기가 실행 시점에 정해지는 묶음을 위한 값입니다. 플레이어의 컨트롤 바는 페이지가 무엇을 할 수 있느냐에 따라 아이콘 버튼을 하나에서 다섯 개까지 답니다. 12열 중 몇 열인지는 미리 적어 두어야 하므로, 그 숫자는 너무 작거나 너무 큽니다. 32px 버튼 네 개는 128px가 필요하고 768px 바에서 `large: 2`가 정확히 128px인데, 서브픽셀 반올림이 깎아 가는 1px 때문에 마지막 버튼이 다음 줄로 넘어가면서 바의 높이가 두 배가 됩니다. 같은 행에 버튼이 하나만 남으면 이번에는 빈 자리가 생깁니다.
 
 `'auto'`와 `'grow'`는 짝으로 쓰라고 있습니다. 한쪽은 필요한 만큼 가져가고 다른 쪽은 나머지를 가져가며, 어느 쪽도 숫자를 적지 않습니다.
+
+::: fw react
 
 ```tsx
 <MPGrid alignItems="center">
@@ -104,11 +200,42 @@ compact 윈도우에서 4열에 16dp 간격, medium부터 12열에 24dp. 한 줄
 </MPGrid>
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+const MPGrid(
+  alignItems: MPGridAlign.center,
+  children: <Widget>[
+    MPGridItem(span: MPResponsive<MPGridSpan>(MPGridSpan.grow), child: Text('재생 컨트롤')),
+    MPGridItem(span: MPResponsive<MPGridSpan>(MPGridSpan.auto), child: Text('그때그때 달라지는 버튼들')),
+  ],
+)
+```
+
+:::
+
 다른 값과 마찬가지로 반응형이고, 더 넓은 클래스에 적은 숫자가 그 위에 열 계산을 다시 덮어씁니다.
+
+::: fw react
 
 ```tsx
 <MPGridItem span={{ compact: 12, medium: 'auto' }} />
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+MPGridItem(
+  span: const MPResponsive<MPGridSpan>(MPGridSpan(12), medium: MPGridSpan.auto),
+  child: buttons,
+)
+```
+
+:::
 
 휴대폰에서는 전체 폭, 600dp부터는 내용의 폭입니다. `'auto'` 아이템은 줄어들지 않습니다. 이 그리드의 어떤 것도 줄어들지 않으므로, 행보다 넓은 내용은 옆에 있는 것을 밀어 좁히는 대신 그대로 넘칩니다.
 
@@ -118,7 +245,13 @@ compact 윈도우에서 4열에 16dp 간격, medium부터 12열에 24dp. 한 줄
 
 12열 행의 첫 번째에서 `offset={4}`에 `span={4}`면 가운데 3분의 1이 되고, 이미 4열을 가져간 아이템 뒤에서는 같은 offset이 4열을 더 건너뛰어 마지막 3분의 1에 놓입니다. `span`과 같은 방식으로 반응형입니다.
 
+::: fw react
+
 구현은 `margin-inline-start`이고, 그 선언은 offset을 실제로 요청한 아이템에만 쓰입니다. 이게 중요한 이유는 이 규칙들이 레이어 밖에 있고 Tailwind 유틸리티는 그렇지 않기 때문입니다. 모든 그리드의 모든 아이템에 대해 `0px`으로라도 마진을 항상 선언하던 `.mp-grid-item`은 소비자가 직접 준 `m-6`을 inline-start 쪽에서만 이겨서, 나머지 세 방향만 남는 마진을 만들었습니다. `offset`을 주면 마진은 라이브러리의 것이고, 주지 않으면 여러분의 것입니다. 명시적인 `offset={0}`은 요청한 것으로 세며, 이는 지금까지도 늘 같던 답입니다.
+
+:::
+
+::: fw react
 
 ## 폭이 진짜 CSS인 이유
 
@@ -129,6 +262,20 @@ Tailwind는 이 중 무엇도 표현할 수 없습니다. Tailwind는 소스 텍
 열 개수와 두 간격은 그리드에 선언되어 아이템에게 **상속**되며, React 컨텍스트로 전달되지 않습니다. 편법이 아닙니다. 미디어 쿼리는 React가 알지 못하는 사이에 상속된 커스텀 프로퍼티를 바꿀 수 있고, 그래서 아이템이 자신을 배치하는 기준이 되는 열 개수는 항상 지금 화면에 실제로 적용된 값입니다. 컨텍스트라면 같은 말을 하기 위해 윈도우 클래스가 바뀔 때마다 하위 트리를 다시 렌더해야 합니다.
 
 행보다 넓은 span은 넘치는 대신 행에 맞춰 잘립니다. `span={99}`가 의미한 것이 그것이기 때문입니다.
+
+:::
+
+::: fw flutter
+
+## 그리드가 자신을 배치하는 방식
+
+한 열은 `(폭 + 간격) * span / columns - 간격`이고, 그리드가 배치될 때 받은 폭을 기준으로 계산합니다. 그리드는 행을 쌓은 열이 아니라 렌더 객체 하나입니다. span 중 둘은 바깥에서 계산할 수 없기 때문입니다. `auto` 아이템은 어느 행에 들어갈지 정하기 전에 먼저 재야 하고, `grow` 아이템은 그 행이 남긴 폭을 가져갑니다. 행을 한곳에서 배치하면 아이템마다 자기 정렬을 가질 수 있고, 기준선 정렬도 여기에 포함됩니다.
+
+열 개수와 간격은 그리드를 만들 때 윈도우 크기 클래스에서 읽고, 창이 경계를 넘으면 다시 만듭니다. 행보다 넓은 span은 행에 맞춰 잘립니다.
+
+`MPGridItem`은 `Expanded`가 자기 `Row`의 자식이어야 하듯 그리드의 직접 자식이어야 합니다. 다른 곳에 놓인 아이템은 자기 자식만 그립니다.
+
+:::
 
 ## 그리드가 일부러 아닌 것들
 
@@ -142,7 +289,19 @@ Tailwind는 이 중 무엇도 표현할 수 없습니다. Tailwind는 소스 텍
 
 `MPGridItem` 안의 `MPGrid`이지, 아이템이면서 동시에 그리드인 것이 아닙니다. 안쪽 그리드는 자기 하위 트리에 대해 열 개수를 다시 선언하고, 그것을 감싼 아이템은 바깥 그리드가 준 폭을 그대로 유지합니다.
 
+::: fw react
+
 그리고 그리드는 `span`이 더 이상 아무 뜻도 갖지 않는 경계이기도 하며, 그렇게 말합니다. `.mp-grid`가 자신이 내려보내는 슬롯을 전부 — span, offset, grow, width — `initial`로 되돌립니다. 이 리셋이 없으면 `compact`만 선언한 안쪽 아이템이 compact 위의 모든 클래스에서 **바깥** 아이템의 `large`를 resolve하게 되어 — `span={12}`이 실제로 속한 행의 6분의 1로 나옵니다 — 슬롯이 상속되는 커스텀 프로퍼티이기 때문입니다. 쓸 것은 없고, 스타일시트에 들어 있습니다.
+
+:::
+
+::: fw flutter
+
+둘 사이에 새는 것은 없습니다. 그리드마다 자기 `columns`를 읽고, 아이템은 자신이 직접 속한 그리드를 기준으로 계산됩니다.
+
+:::
+
+::: fw react
 
 ```tsx
 <MPGrid>
@@ -155,11 +314,58 @@ Tailwind는 이 중 무엇도 표현할 수 없습니다. Tailwind는 소스 텍
 </MPGrid>
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+const MPGrid(
+  children: <Widget>[
+    MPGridItem(
+      span: MPResponsive<MPGridSpan>(MPGridSpan(6)),
+      child: MPGrid(
+        columns: MPResponsive<int>(2),
+        children: <Widget>[
+          MPGridItem(span: MPResponsive<MPGridSpan>(MPGridSpan(1)), child: Text('페이지의 4분의 1')),
+          MPGridItem(span: MPResponsive<MPGridSpan>(MPGridSpan(1)), child: Text('또 4분의 1')),
+        ],
+      ),
+    ),
+  ],
+)
+```
+
+:::
+
 ## 접근성
+
+::: fw react
 
 - 그리드는 레이아웃이므로 role을 갖지 않고 아무것도 알리지 않습니다. 알리는 것은 그 안의 내용입니다.
 - DOM 순서가 곧 읽히는 순서입니다. `offset`은 아이템을 문서에서 옮기지 않은 채 행 안에서만 밀어냅니다. 그게 핵심입니다 — 시각적으로만 존재하는 재배치는 스크린 리더가 결코 듣지 못하는 재배치입니다.
 - 배치 자체가 의미를 갖는 경우를 위해 `render`가 있습니다. 그리드에 `render={<ul />}`, 아이템에 `render={<li />}`를 주면 카드 목록이 실제로 목록이 됩니다.
+
+:::
+
+::: fw flutter
+
+- 그리드는 레이아웃이므로 시맨틱 트리에 아무것도 더하지 않습니다. 알리는 것은 그 안의 내용입니다.
+- `children`의 순서가 곧 읽히는 순서입니다. `offset`은 아이템을 그 순서에서 옮기지 않은 채 행 안에서만 밀어냅니다.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `span={6}`, `span="grow"`, `span="auto"` | `MPResponsive`에 담은 `MPGridSpan(6)`, `MPGridSpan.grow`, `MPGridSpan.auto` | Dart에는 숫자와 단어 둘, 또는 값과 맵을 합친 유니언이 없습니다. |
+| CSS 커스텀 프로퍼티와 미디어 쿼리로 정하는 폭 | `MediaQuery`를 읽어 배치 중에 계산하는 폭 | 스타일시트가 없고, 창의 크기는 첫 프레임부터 알 수 있습니다. |
+| `wrap={false}`면 페이지 밖으로 넘침 | `wrap: false`면 가로로 스크롤 | Flutter에서 넘친 행은 아무도 닿을 수 없는 행입니다. |
+| `render` | — | 바꿔 끼울 엘리먼트가 없습니다. |
+
+:::
 
 ## 함께 보기
 
