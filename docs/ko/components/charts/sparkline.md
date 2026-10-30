@@ -9,11 +9,25 @@ order: 31
 
 <Demo src="sparkline/hero" :minHeight="280" />
 
+::: fw react
+
 ```tsx
 import { MPSparkline } from 'material-plus-ui';
 
 <MPSparkline data={[12, 15, 14, 19, 22, 21, 27]} />;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPSparkline(data: const <double>[12, 15, 14, 19, 22, 21, 27]);
+```
+
+:::
 
 ## Props
 
@@ -35,6 +49,12 @@ import { MPSparkline } from 'material-plus-ui';
 
 끊는 것이 틀린 읽기인 두 경우를 위해 [MPLineChart](line-chart)와 같은 `gaps`를 받습니다. `gaps="connect"`는 양쪽을 점선으로 잇습니다. 모양은 이어지고, 어디까지가 측정한 값인지는 여전히 드러납니다. 영역이면 채움도 가로질러 닫힙니다. `gaps="zero"`는 없는 값을 0으로 읽고 눈금을 0까지 엽니다. 이쪽이 큰 차트에서보다 여기서 더 중요합니다. 스파크라인에는 바닥이 움직였다고 알려 줄 축이 없기 때문입니다.
 
+::: fw flutter
+
+Dart에서는 `MPChartGaps.connect`와 `MPChartGaps.zero`이고, React의 `'break'`는 `MPChartGaps.gap`입니다.
+
+:::
+
 `bar`에는 이을 선이 없습니다. 그래서 `zero`만 받고 `connect`는 `break`로 읽습니다. 셋 중 무엇을 고르든 이 도형을 읽어 주는 문장은 실제로 가진 값만 셉니다.
 
 ## 선은 조용하고 끝은 조용하지 않습니다
@@ -42,6 +62,12 @@ import { MPSparkline } from 'material-plus-ui';
 선은 흐리게 그려지고 끝점은 그렇지 않습니다. 지나온 것은 맥락이고 마지막 값이 요점이므로 `endDot`은 기본으로 켜져 있습니다. 그것이 없으면 읽는 사람이 어느 쪽 끝이 지금인지를 직접 알아내야 하는데, 그것이야말로 이 마크가 존재하는 이유입니다.
 
 `shape="bar"`는 같은 일을 불투명도로 합니다. 가장 최근 막대만 진하고 나머지는 그렇지 않습니다.
+
+::: fw flutter
+
+Dart에서 세 모양은 `MPSparklineShape.line`, `MPSparklineShape.area`, `MPSparklineShape.bar`입니다.
+
+:::
 
 ## `smooth`는 없는 골짜기를 만들지 않습니다
 
@@ -51,10 +77,44 @@ import { MPSparkline } from 'material-plus-ui';
 
 ## 상자는 늘어나고 획은 늘어나지 않습니다
 
+::: fw react
+
 도형은 고정된 viewBox 안에 그려져서 주어진 자리에 맞게 늘어납니다. 그래서 점 여덟 개와 백 개가 똑같이 폭을 채웁니다 — 시계열이 길어질수록 좁아지는 마크는 자기 길이로 의미가 바뀌는 마크입니다. 획과 끝점은 `non-scaling-stroke`이고, 그것이 늘어난 상자 안에서 2픽셀을 2픽셀로 지켜 줍니다.
 
+:::
+
+::: fw flutter
+
+도형은 주어진 크기 그대로 그려집니다. 그래서 점 여덟 개와 백 개가 똑같이 폭을 채웁니다. 시계열이 길어질수록 좁아지는 마크는 자기 길이로 의미가 바뀌는 마크입니다. 획과 끝점은 폭이 얼마든 픽셀 단위의 굵기를 지킵니다.
+
+:::
+
+::: fw react
+
 끝점이 `<circle>`이 아니라 길이 0짜리 둥근 끝 path인 이유도 같습니다. 반지름은 viewBox 단위라서, 늘어난 상자 안에서는 엘리먼트만큼 넓은 타원이 되어 버립니다.
+
+:::
+
+::: fw flutter
+
+`width`를 주지 않으면 받은 너비를 채웁니다. `Row`처럼 너비를 제한하지 않는 부모 안에서는 React 빌드의 viewBox 너비인 100픽셀을 씁니다.
+
+:::
 
 ## 두 개를 견주려면
 
 기본적으로 각 스파크라인은 자기 범위에 맞춰 스케일합니다. 그래서 나란히 놓인 둘은 서로에게 아무 말도 하지 않습니다 — 더 완만한 시계열이 더 가파른 것과 똑같이 극적으로 보입니다. 비교가 요점이라면 둘 다에 같은 `min`과 `max`를 주세요.
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| CSS 길이인 `width`, 기본값 `'100%'` | 픽셀인 `width`, 기본은 부모를 채움 | 해석할 CSS 길이가 없습니다. 제한이 없으면 100입니다. |
+| `MPColor` 또는 CSS 색인 `color` | `MPColor` 또는 `Color` | 같은 선택을 Dart의 두 타입으로 씁니다. |
+| `gaps="break"` | `MPChartGaps.gap` | `break`는 예약어입니다. |
+| `Intl`로 쓰는 문장 속 숫자 | 영어식 자릿수 구분 | 프레임워크에 `Intl`이 없습니다. 둘레의 단어는 `locale`을 따릅니다. |
+| `className`, `style` | — | 넘길 클래스 목록도 style 속성도 없습니다. |
+
+:::

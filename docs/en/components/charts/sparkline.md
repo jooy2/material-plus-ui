@@ -9,11 +9,25 @@ order: 31
 
 <Demo src="sparkline/hero" :minHeight="280" />
 
+::: fw react
+
 ```tsx
 import { MPSparkline } from 'material-plus-ui';
 
 <MPSparkline data={[12, 15, 14, 19, 22, 21, 27]} />;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPSparkline(data: const <double>[12, 15, 14, 19, 22, 21, 27]);
+```
+
+:::
 
 ## Props
 
@@ -35,6 +49,12 @@ An area breaks at the same place, for the same reason and over more of the pictu
 
 `gaps` is the same option [MPLineChart](line-chart) takes, for the two cases where breaking is the wrong reading. `gaps="connect"` joins the two sides with a dashed run, so the shape carries on and still says which part of it was measured; an area closes across the gap as well. `gaps="zero"` reads the missing point as a zero and opens the scale to hold it — which matters more here than on a full chart, since a sparkline has no axis to show that the floor has moved.
 
+::: fw flutter
+
+In Dart these are `MPChartGaps.connect` and `MPChartGaps.zero`, and React's `'break'` is `MPChartGaps.gap`.
+
+:::
+
 A `bar` has no line to join, so it takes `zero` and reads `connect` as `break`. The sentence the mark is read out as counts the readings it actually has whichever is chosen.
 
 ## The line is quiet and the end is not
@@ -42,6 +62,12 @@ A `bar` has no line to join, so it takes `zero` and reads `connect` as `break`. 
 The stroke is drawn faded and the end dot is not. The history is context and the last value is the point, so `endDot` is on by default: without it the reader has to work out which end is now, which is the one thing the mark is for.
 
 `shape="bar"` does the same thing by opacity — the newest bar is solid and the rest are not.
+
+::: fw flutter
+
+In Dart the three shapes are `MPSparklineShape.line`, `MPSparklineShape.area` and `MPSparklineShape.bar`.
+
+:::
 
 ## `smooth` never invents a dip
 
@@ -51,10 +77,44 @@ The smoothing is a monotone fit, so a run of rising values never turns back on i
 
 ## The box stretches and the stroke does not
 
+::: fw react
+
 The shape is drawn in a fixed viewBox and scaled to whatever room it is given, so eight points and a hundred both fill the width — a mark that got narrower as its series grew would change meaning with its own length. The stroke and the end dot are `non-scaling-stroke`, which is what keeps two pixels two pixels in a box that has been stretched.
 
+:::
+
+::: fw flutter
+
+The shape is drawn at the size it is given, so eight points and a hundred both fill the width — a mark that got narrower as its series grew would change meaning with its own length. The stroke and the end dot keep their weight in pixels whatever the width.
+
+:::
+
+::: fw react
+
 That is also why the dot is a zero-length round-capped path rather than a `<circle>`: a radius is in viewBox units, and in a stretched box it would come out an ellipse as wide as the element.
+
+:::
+
+::: fw flutter
+
+`width` left out fills the width the sparkline is given. Inside a parent that sets no limit, a `Row` for instance, it takes 100 pixels, the width of the React build's view box.
+
+:::
 
 ## Comparing two of them
 
 By default each sparkline scales to its own range, so two of them side by side say nothing to each other — the flatter series will look exactly as dramatic as the steeper one. Give both the same `min` and `max` when the comparison is the point.
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `width` as a CSS length, `'100%'` by default | `width` in pixels, filling the parent by default | There is no CSS length to parse. Unbounded, it takes 100. |
+| `color` as an `MPColor` or a CSS colour | an `MPColor` or a `Color` | The same choice, in Dart's two types. |
+| `gaps="break"` | `MPChartGaps.gap` | `break` is a reserved word. |
+| numbers in the sentence through `Intl` | grouped the English way | The framework has no `Intl`. The words around them follow `locale`. |
+| `className`, `style` | — | There is no class list or style attribute to pass through. |
+
+:::
