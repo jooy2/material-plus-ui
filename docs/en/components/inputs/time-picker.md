@@ -9,6 +9,8 @@ order: 4
 
 <Demo src="time-picker/hero" :minHeight="96" />
 
+::: fw react
+
 ```tsx
 import { MPTimePicker } from 'material-plus-ui';
 
@@ -16,6 +18,23 @@ const [startsAt, setStartsAt] = useState(null);
 
 <MPTimePicker label="Starts at" minuteStep={5} value={startsAt} onValueChange={setStartsAt} />;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPTimePicker(
+  label: const Text('Starts at'),
+  minuteStep: 5,
+  value: startsAt,
+  onChanged: (DateTime? next) => setState(() => startsAt = next),
+);
+```
+
+:::
 
 ## Props
 
@@ -27,13 +46,23 @@ The specification's time picker is a clock face. This is not one, and it is the 
 
 A dial is a **pointer control**. Reading it takes a glance at an analogue clock; setting it takes a drag. It has no keyboard path and no screen-reader path, which is exactly why MD3 also ships a separate _time input_ mode — two text fields — for those readers. That leaves a component with two implementations of the same question, of which the accessible one is the one nobody sees, and the two are reached by a toggle most applications never wire up.
 
-Columns answer both readers with one control. "Half past nine" is two glances; "any time at all, on the hour" is a column you never touch. Every row is a real option in a real listbox that the arrow keys already reach, and the library's own size ladder, corners and state layers do the rest of the work of looking like Material.
+Columns answer both readers with one control. "Half past nine" is two glances; "any time at all, on the hour" is a column you never touch. Every row is a real option that the arrow keys already reach, and the library's own size ladder, corners and state layers do the rest of the work of looking like Material.
 
 ## The bounds, at column granularity
 
 <Demo src="time-picker/bounds" :minHeight="420">
 
+::: fw react
+
 <<< @/.vitepress/demos/time-picker/bounds.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/time_picker/bounds.dart
+
+:::
 
 </Demo>
 
@@ -48,7 +77,7 @@ The naive check compares the whole candidate instant, hides the 9 entirely, and 
 
 ## Why the value is a `Date`
 
-Rather than a string, or a number of minutes since midnight.
+Rather than a string, or a number of minutes since midnight. In Flutter it is a `DateTime`, for the same reasons.
 
 Everything else in this library that carries a moment is a `Date`, and a bare time has nowhere to record which day it is on — which is what decides whether it crossed a daylight-saving boundary. `referenceDate` is the day a chosen time is written onto while there is no value yet.
 
@@ -78,14 +107,55 @@ Adds the seconds column, and adds the seconds to what the trigger writes and wha
 
 ### name
 
+::: fw react
+
 A hidden input in the shape `<input type="time">` submits — `HH:MM`, or `HH:MM:SS` when the seconds are shown. Local, not UTC.
+
+:::
+
+::: fw flutter
+
+Files the value with the [MPForm](./form) around the picker in the shape `<input type="time">` submits: `HH:MM`, or `HH:MM:SS` when the seconds are shown. Local, not UTC.
+
+:::
 
 ## Accessibility
 
+::: fw react
+
 - Each column is a `role="listbox"` with a name, because three unlabelled lists of numbers say nothing to a reader who is not looking at them.
+
+:::
+
+::: fw flutter
+
+- Each column is a group with a name, and each row is named by its number and its column (`09 Hour`), because three unlabelled lists of numbers say nothing to a reader who is not looking at them. A column is one stop for `Tab`, and the arrow keys, `PageUp`/`PageDown` and `Home`/`End` move inside it.
+
+:::
+
 - Under them is a live region that reads the whole time back as one sentence — "9:30 AM" — which is the thing the three columns actually add up to.
 - The chosen row in each column is scrolled into view once, on open. A column of sixty minutes that opened at `00` while the value was `45` would have hidden its own answer.
-- A blocked row keeps its place and is marked `aria-disabled` rather than removed, so the column does not renumber itself as the bounds change.
+- A blocked row keeps its place and is announced as unavailable rather than removed, so the column does not renumber itself as the bounds change.
+
+::: fw flutter
+
+## Differences from the React build
+
+Most of this page is the same in both packages. These are the places where it is not, and why.
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `onValueChange`, `defaultValue`, `defaultOpen` | `onChanged`, `initialValue`, `initialOpen` | Flutter's names. |
+| `format` (`Intl.DateTimeFormatOptions`) | `format` (`String Function(DateTime)`) | There is no `Intl` to hand options to. |
+| `hourStep`, `minuteStep`, `secondStep` as numbers | `int` | A step is a count of rows; it is held between 1 and the column's span in both. |
+| `locale` deciding the dial through `Intl` | `locale` deciding it through the package's own tables, and `names` | `en` reads a 12-hour dial and `de` a 24-hour one in both. See [localisation on MPDatePicker](./date-picker#localisation). |
+| the hidden input under `name` | `name` filing the value with an `MPForm` | Flutter has no native form; the string is the same. |
+| `listbox` and `option` roles | a named group of buttons, each announced as selected or not | Flutter's semantics have no listbox role. |
+| the raw DOM events, `id`, `className`, `style` | `onKeyEvent`, `onFocusChange`, `semanticLabel`, `focusNode`, `autofocus` | As on [MPDatePicker](./date-picker#differences-from-the-react-build). |
+
+The rest is matched deliberately: the columns rather than a dial, the bounds at column granularity, the held reference day, the Done button and the reveal on open.
+
+:::
 
 ## See also
 

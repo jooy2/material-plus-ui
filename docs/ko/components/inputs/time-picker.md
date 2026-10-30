@@ -9,6 +9,8 @@ order: 4
 
 <Demo src="time-picker/hero" :minHeight="96" />
 
+::: fw react
+
 ```tsx
 import { MPTimePicker } from 'material-plus-ui';
 
@@ -16,6 +18,23 @@ const [startsAt, setStartsAt] = useState(null);
 
 <MPTimePicker label="시작 시각" minuteStep={5} value={startsAt} onValueChange={setStartsAt} />;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPTimePicker(
+  label: const Text('시작 시각'),
+  minuteStep: 5,
+  value: startsAt,
+  onChanged: (DateTime? next) => setState(() => startsAt = next),
+);
+```
+
+:::
 
 ## Props
 
@@ -27,13 +46,23 @@ const [startsAt, setStartsAt] = useState(null);
 
 다이얼은 **포인터 컨트롤**입니다. 읽으려면 아날로그 시계를 한 번 봐야 하고, 맞추려면 끌어야 합니다. 키보드 경로도 스크린 리더 경로도 없고, 바로 그 때문에 MD3는 그런 사용자를 위해 별도의 _time input_ 모드 — 텍스트 필드 두 개 — 를 함께 내놓습니다. 결과적으로 하나의 질문에 두 벌의 구현을 가진 컴포넌트가 되고, 그중 접근 가능한 쪽은 아무도 못 보는 쪽이며, 둘을 오가는 토글은 대부분의 애플리케이션이 끝내 연결하지 않습니다.
 
-열은 하나의 컨트롤로 양쪽 모두에게 답합니다. "9시 30분"은 두 번의 시선이고, "정각이면 아무 때나"는 아예 건드리지 않는 열입니다. 모든 행은 화살표 키가 이미 닿는 진짜 listbox의 진짜 옵션이고, 머터리얼처럼 보이게 하는 나머지는 이 라이브러리 자신의 크기 사다리와 모서리와 state layer가 합니다.
+열은 하나의 컨트롤로 양쪽 모두에게 답합니다. "9시 30분"은 두 번의 시선이고, "정각이면 아무 때나"는 아예 건드리지 않는 열입니다. 모든 행은 화살표 키가 이미 닿는 진짜 옵션이고, 머터리얼처럼 보이게 하는 나머지는 이 라이브러리 자신의 크기 사다리와 모서리와 state layer가 합니다.
 
 ## 열 단위의 경계
 
 <Demo src="time-picker/bounds" :minHeight="420">
 
+::: fw react
+
 <<< @/.vitepress/demos/time-picker/bounds.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/time_picker/bounds.dart
+
+:::
 
 </Demo>
 
@@ -48,7 +77,7 @@ const [startsAt, setStartsAt] = useState(null);
 
 ## 값이 `Date`인 이유
 
-문자열도, 자정으로부터의 분 수도 아닙니다.
+문자열도, 자정으로부터의 분 수도 아닙니다. Flutter에서는 같은 이유로 `DateTime`입니다.
 
 이 라이브러리에서 순간을 담는 다른 모든 것이 `Date`이고, 시각만으로는 그게 어느 날인지 적어 둘 데가 없습니다. 서머타임 경계를 넘었는지를 결정하는 게 바로 그것입니다. `referenceDate`는 값이 아직 없을 때 고른 시각이 얹힐 날입니다.
 
@@ -78,14 +107,55 @@ const [startsAt, setStartsAt] = useState(null);
 
 ### name
 
+::: fw react
+
 `<input type="time">`이 제출하는 형식의 hidden input입니다 — `HH:MM`, 초를 보이면 `HH:MM:SS`. UTC가 아니라 로컬입니다.
+
+:::
+
+::: fw flutter
+
+피커를 감싼 [MPForm](./form)에 `<input type="time">`이 제출하는 형식으로 값을 등록합니다. `HH:MM`이고, 초를 보이면 `HH:MM:SS`입니다. UTC가 아니라 로컬입니다.
+
+:::
 
 ## 접근성
 
+::: fw react
+
 - 각 열은 이름이 붙은 `role="listbox"`입니다. 이름 없는 숫자 목록 셋은 보지 않고 읽는 사람에게 아무 말도 하지 않으니까요.
+
+:::
+
+::: fw flutter
+
+- 각 열은 이름이 붙은 묶음이고, 각 행은 숫자와 열 이름으로 읽힙니다(`09 시`). 이름 없는 숫자 목록 셋은 보지 않고 읽는 사람에게 아무 말도 하지 않으니까요. 열 하나가 `Tab`의 정류장 하나이고, 열 안에서는 화살표, `PageUp`/`PageDown`, `Home`/`End`로 움직입니다.
+
+:::
+
 - 그 아래에는 시각 전체를 한 문장으로 되읽어 주는 live region이 있습니다 — "오전 9시 30분" — 세 열이 실제로 합쳐서 만들어 낸 것이 그것입니다.
 - 각 열의 선택된 행은 열릴 때 한 번 화면 안으로 스크롤됩니다. 값이 `45`인데 `00`에서 열린 60행짜리 분 열은 자기 답을 스스로 감춘 셈입니다.
-- 막힌 행은 제거되지 않고 자리를 지키며 `aria-disabled`로 표시됩니다. 그래서 경계가 바뀔 때 열의 번호가 다시 매겨지지 않습니다.
+- 막힌 행은 제거되지 않고 자리를 지키며 쓸 수 없는 것으로 읽힙니다. 그래서 경계가 바뀔 때 열의 번호가 다시 매겨지지 않습니다.
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+이 페이지의 대부분은 두 패키지에서 같습니다. 아래는 같지 않은 지점과 그 이유입니다.
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `onValueChange`, `defaultValue`, `defaultOpen` | `onChanged`, `initialValue`, `initialOpen` | Flutter의 이름입니다. |
+| `format` (`Intl.DateTimeFormatOptions`) | `format` (`String Function(DateTime)`) | 옵션을 넘길 `Intl`이 없습니다. |
+| 숫자로 받는 `hourStep`, `minuteStep`, `secondStep` | `int` | 간격은 행의 개수이고, 두 패키지 모두 1과 열의 범위 사이로 묶습니다. |
+| `Intl`로 다이얼을 정하는 `locale` | 패키지의 표로 다이얼을 정하는 `locale`, 그리고 `names` | 두 패키지 모두 `en`은 12시간제, `de`는 24시간제입니다. [MPDatePicker의 현지화](./date-picker#현지화)를 보세요. |
+| `name` 아래의 hidden input | `MPForm`에 값을 등록하는 `name` | Flutter에는 native 폼이 없습니다. 문자열은 같습니다. |
+| `listbox`, `option` 역할 | 이름 붙은 버튼 묶음, 각 버튼은 선택 여부를 알림 | Flutter의 시맨틱에는 listbox 역할이 없습니다. |
+| 원시 DOM 이벤트, `id`, `className`, `style` | `onKeyEvent`, `onFocusChange`, `semanticLabel`, `focusNode`, `autofocus` | [MPDatePicker](./date-picker#react-빌드와-다른-점)와 같습니다. |
+
+나머지는 일부러 맞췄습니다. 다이얼이 아닌 열, 열 단위로 읽는 경계, 붙잡아 둔 기준일, 완료 버튼, 열릴 때 보여 주는 선택 행이 그렇습니다.
+
+:::
 
 ## 함께 보기
 
