@@ -7,7 +7,9 @@ order: 21
 
 <p class="mp-lede">Text for a screen reader and nobody else. The sentence behind a bare number, a lone glyph, or a sort arrow.</p>
 
-<Demo src="visually-hidden/hero" :minHeight="220" />
+::: fw react
+
+<Demo src="visually-hidden/hero" :minHeight="220" :flutter="false" />
 
 ```tsx
 import { MPVisuallyHidden } from 'material-plus-ui';
@@ -84,6 +86,27 @@ reads as _Sent on Tuesday_. Put it where the sentence belongs rather than at the
 - **A focusable thing inside this stays focusable**, and a reader tabbing into it lands somewhere they cannot see. Anything that can take focus wants `aria-label` on the control instead — which is what [`MPIconButton`](../inputs/icon-button.md) does, and why its `label` is required.
 - **It is not a live region.** Text swapped inside it is not announced unless the element also carries `aria-live` — which is passed straight through, and is how the components above use it.
 - **A `className` that sets `position` or `clip-path` undoes it.** Class names here are concatenated rather than merged, so a utility landing later in the stylesheet wins and the content comes back into view. See [Class names and styles](../../guide/getting-started.md#class-names-and-styles).
+
+:::
+
+::: fw flutter
+
+## React-only
+
+There is no Flutter `MPVisuallyHidden`, and it is not an omission. What it works around is a DOM problem: text that has to be in the accessibility tree and off the screen at once, when the accessibility tree is built from the same elements the screen is drawn from. Flutter's semantics tree is built beside the render tree, so naming something for a screen reader without drawing it is a line of framework code, `Semantics`:
+
+```dart
+Semantics(
+  label: 'Close this dialog',
+  button: true,
+  onTap: close,
+  child: const MPIcon(icon: CloseGlyph(), size: 20),
+)
+```
+
+Most of the time even that is done for you. A Material Plus widget that draws a mark with nothing to say takes the sentence as a parameter: `MPIconButton`'s `label`, `MPBadge`'s `label`, `MPIcon`'s `label`, the `semanticLabel` on everything else.
+
+:::
 
 ## Next
 

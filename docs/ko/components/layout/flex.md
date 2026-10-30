@@ -7,7 +7,38 @@ order: 10
 
 <p class="mp-lede">행, 또는 열, 그리고 둘 사이가 바뀌는 너비. 아무것도 그리지 않습니다. 면도 여백도 모서리도 없고, flex 컨테이너가 가진 다섯 속성뿐이며, 그 하나하나를 윈도우 크기 클래스별로 말할 수 있습니다.</p>
 
-<Demo src="flex/hero" :minHeight="300" />
+<Demo src="flex/hero" :flutter="false" :minHeight="300" />
+
+::: fw flutter
+
+이 컴포넌트는 React 전용이고, 빠뜨린 것이 아닙니다. `Row`, `Column`, `Wrap`은 이미 `package:flutter/widgets.dart`에 있고 이미 `spacing`을 받습니다. 그것을 감싸는 위젯은 Flutter 개발자라면 첫 화면부터 알던 세 가지에 붙는 네 번째 이름일 뿐입니다.
+
+```dart
+Row(
+  spacing: 16,
+  crossAxisAlignment: CrossAxisAlignment.center,
+  children: <Widget>[card, card],
+)
+```
+
+Dart에서 가질 만한 것은 윈도우 크기 클래스에서 바뀌는 방향이고, 그것은 위젯이 아니라 조건문입니다. 클래스를 `MPConfigProvider`로 읽으면 앱이 옮긴 경계까지 포함해 라이브러리의 나머지와 같은 자리에서 바뀝니다.
+
+```dart
+final MPWindowClass windowClass = MPConfigProvider.of(
+  context,
+).windowClassOf(MediaQuery.sizeOf(context).width);
+final List<Widget> cards = <Widget>[card, card];
+
+return windowClass == MPWindowClass.compact
+    ? Column(spacing: 16, children: cards)
+    : Row(spacing: 16, children: cards);
+```
+
+자식이 행의 몫을 나눠 갖는 배치라면 Flutter의 답은 모든 매개변수가 이미 반응형인 [MPGrid](./grid)입니다.
+
+:::
+
+::: fw react
 
 ```tsx
 import { MPFlex } from 'material-plus-ui';
@@ -77,3 +108,5 @@ CSS 자신의 단어입니다. 이것이 CSS 자신의 질문이기 때문입니
 flex 안의 flex는 바를 만드는 보통 방법입니다. 행 하나가 양 끝에 그룹을 하나씩 두고, 그 그룹이 각각 다시 행인 구조.
 
 안쪽은 바깥쪽의 반응형 값에 영향받지 않습니다. 당연해 보이지만 순진하게 구현하면 어긋나는 지점이 여기입니다. 슬롯은 상속되는 custom property라서, `direction="row"`를 받은 — `compact`에 슬롯 하나뿐인 — 안쪽 flex가 1200dp 위에서 부모의 `large` 항목을 풀어 노트북에서 열로 나오게 됩니다. 모든 `MPFlex`가 자기 위에서 그 집합 전체를 지우고, 그것이 이를 막습니다.
+
+:::

@@ -7,7 +7,38 @@ order: 10
 
 <p class="mp-lede">A row, or a column, and the width at which it changes from one to the other. It draws nothing — no surface, no padding, no corner — only the five properties a flex container has, each of which can be said per window size class.</p>
 
-<Demo src="flex/hero" :minHeight="300" />
+<Demo src="flex/hero" :flutter="false" :minHeight="300" />
+
+::: fw flutter
+
+This one is React-only, and it is not an omission. `Row`, `Column` and `Wrap` are already in `package:flutter/widgets.dart`, they already take a `spacing`, and a widget wrapping them would be a fourth name for three things every Flutter developer has known since their first screen.
+
+```dart
+Row(
+  spacing: 16,
+  crossAxisAlignment: CrossAxisAlignment.center,
+  children: <Widget>[card, card],
+)
+```
+
+The part worth having in Dart is the direction that changes at a window size class, and that is a condition rather than a widget. Reading the class through `MPConfigProvider` keeps the boundary where the rest of the library puts it, including one an app has moved:
+
+```dart
+final MPWindowClass windowClass = MPConfigProvider.of(
+  context,
+).windowClassOf(MediaQuery.sizeOf(context).width);
+final List<Widget> cards = <Widget>[card, card];
+
+return windowClass == MPWindowClass.compact
+    ? Column(spacing: 16, children: cards)
+    : Row(spacing: 16, children: cards);
+```
+
+For children that take a share of the row, the Flutter answer is [MPGrid](./grid), whose every parameter is already responsive.
+
+:::
+
+::: fw react
 
 ```tsx
 import { MPFlex } from 'material-plus-ui';
@@ -77,3 +108,5 @@ A number is pixels and a string is any CSS length — the one rule this library 
 A flex inside a flex is the normal way to build a bar: a row, holding a group at each end, each of which is a row of its own.
 
 The inner one is not affected by the outer one's responsive values, which sounds obvious and is the part that goes wrong in a naive implementation. The slots are inherited custom properties, so an inner flex told `direction="row"` — one slot, at `compact` — would otherwise resolve its parent's `large` entry above 1200dp and come out a column on a laptop. Every `MPFlex` clears the whole set on itself, which is what stops that.
+
+:::

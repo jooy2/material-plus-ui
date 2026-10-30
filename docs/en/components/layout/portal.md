@@ -7,7 +7,29 @@ order: 21
 
 <p class="mp-lede">Children rendered somewhere else in the DOM, usually the end of <code>&lt;body&gt;</code>. For a subtree that has to escape a clipping or stacking context its own position would trap it in.</p>
 
-<Demo src="portal/hero" :minHeight="220" />
+<Demo src="portal/hero" :flutter="false" :minHeight="220" />
+
+::: fw flutter
+
+This one is React-only. Flutter already has the answer in the framework: an `OverlayPortal` lifts a subtree out of where it was built and paints it in the nearest `Overlay`, over the rest of the app and past every clip on the way up, while it stays where it was written for everything inherited, so a theme or a provider above it still reaches it. The components here that need a layer (a dialog, a popover, a drawer) are built on it already.
+
+```dart
+final OverlayPortalController controller = OverlayPortalController();
+
+OverlayPortal(
+  controller: controller,
+  overlayChildBuilder: (BuildContext context) {
+    return const Positioned(left: 0, right: 0, bottom: 0, child: banner);
+  },
+  child: trigger,
+)
+```
+
+`controller.show()` and `controller.hide()` put the layer up and take it down. An `OverlayPortal` needs an `Overlay` above it, which a `WidgetsApp` with a navigator provides.
+
+:::
+
+::: fw react
 
 ```tsx
 import { MPPortal } from 'material-plus-ui';
@@ -67,3 +89,5 @@ A click inside a portal reaches an `onClick` on the element that rendered it, ev
 Changing it **remounts** the children, exactly as `{escape ? <MPPortal>{x}</MPPortal> : x}` would — React sees a portal and an inline subtree as different elements, and everything below loses its state, its scroll position and the focus in it.
 
 So decide once, per mount. The prop is there for the component that is portalled in one context and inline in another, not for something to toggle.
+
+:::

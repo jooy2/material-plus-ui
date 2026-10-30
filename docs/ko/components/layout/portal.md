@@ -7,7 +7,29 @@ order: 21
 
 <p class="mp-lede">자식을 DOM의 다른 곳에, 보통은 <code>&lt;body&gt;</code> 끝에 렌더합니다. 제자리에 있으면 갇히게 되는 잘림이나 쌓임 맥락에서 빠져나와야 하는 서브트리를 위한 것입니다.</p>
 
-<Demo src="portal/hero" :minHeight="220" />
+<Demo src="portal/hero" :flutter="false" :minHeight="220" />
+
+::: fw flutter
+
+이 컴포넌트는 React 전용입니다. Flutter에는 답이 이미 프레임워크에 있습니다. `OverlayPortal`은 서브트리를 만들어진 자리에서 들어 올려 가장 가까운 `Overlay`에 그리므로, 앱의 나머지 위에, 올라가는 길의 모든 잘라내기를 넘어서 보입니다. 상속되는 것에 대해서는 적힌 자리에 그대로 머물러서, 그 위의 테마나 프로바이더가 여전히 닿습니다. 여기서 레이어가 필요한 컴포넌트(다이얼로그, 팝오버, 드로어)는 이미 그 위에 만들어져 있습니다.
+
+```dart
+final OverlayPortalController controller = OverlayPortalController();
+
+OverlayPortal(
+  controller: controller,
+  overlayChildBuilder: (BuildContext context) {
+    return const Positioned(left: 0, right: 0, bottom: 0, child: banner);
+  },
+  child: trigger,
+)
+```
+
+`controller.show()`와 `controller.hide()`가 레이어를 올리고 내립니다. `OverlayPortal`은 위에 `Overlay`가 있어야 하고, 내비게이터를 가진 `WidgetsApp`이 그것을 줍니다.
+
+:::
+
+::: fw react
 
 ```tsx
 import { MPPortal } from 'material-plus-ui';
@@ -67,3 +89,5 @@ ref는 첫 렌더에 `null`이고 그 엘리먼트를 그리는 커밋 중에 �
 이 값을 바꾸면 자식이 **다시 마운트됩니다.** `{escape ? <MPPortal>{x}</MPPortal> : x}`와 똑같습니다. React는 포털과 인라인 서브트리를 다른 엘리먼트로 보고, 아래의 모든 것이 상태와 스크롤 위치와 그 안의 포커스를 잃습니다.
 
 그러니 마운트마다 한 번 정하세요. 이 prop은 어떤 맥락에서는 포털되고 다른 맥락에서는 인라인인 컴포넌트를 위한 것이지, 토글할 것이 아닙니다.
+
+:::

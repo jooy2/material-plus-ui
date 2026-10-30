@@ -7,7 +7,9 @@ order: 21
 
 <p class="mp-lede">화면 낭독기만 읽고 나머지는 보지 않는 텍스트. 맨숫자 뒤에, 홀로 있는 글리프 뒤에, 정렬 화살표 뒤에 있는 문장입니다.</p>
 
-<Demo src="visually-hidden/hero" :minHeight="220" />
+::: fw react
+
+<Demo src="visually-hidden/hero" :minHeight="220" :flutter="false" />
 
 ```tsx
 import { MPVisuallyHidden } from 'material-plus-ui';
@@ -84,6 +86,27 @@ clip-path: inset(50%);
 - **안에 있는 포커스 가능한 것은 그대로 포커스됩니다.** Tab으로 들어간 독자는 자기가 볼 수 없는 곳에 도착합니다. 포커스를 받을 수 있는 것에는 컨트롤 자체에 `aria-label`을 다세요 — [`MPIconButton`](../inputs/icon-button.md)이 그렇게 하고, 그래서 그쪽 `label`이 필수입니다.
 - **live region이 아닙니다.** 안의 텍스트를 바꿔도 엘리먼트가 `aria-live`를 함께 지니지 않는 한 안내되지 않습니다. `aria-live`는 그대로 통과하며, 위의 컴포넌트들이 그렇게 쓰고 있습니다.
 - **`position`이나 `clip-path`를 지정하는 `className`은 이걸 무효로 만듭니다.** 여기의 클래스 이름은 병합이 아니라 연결이라서 스타일시트에서 나중에 오는 유틸리티가 이기고, 내용이 도로 보이게 됩니다. [클래스 이름과 스타일](../../guide/getting-started.md#클래스와-스타일)을 보세요.
+
+:::
+
+::: fw flutter
+
+## React 전용
+
+Flutter에는 `MPVisuallyHidden`이 없고, 빠뜨린 것이 아닙니다. 이 컴포넌트가 해결하는 것은 DOM의 문제입니다. 접근성 트리가 화면을 그리는 바로 그 엘리먼트로 만들어지는데, 글자를 접근성 트리에는 두고 화면에서는 빼야 하는 문제입니다. Flutter의 의미 트리는 렌더 트리와 따로 만들어지므로, 그리지 않고 화면 낭독기에만 이름을 주는 일은 프레임워크 코드 한 줄, `Semantics`로 됩니다.
+
+```dart
+Semantics(
+  label: '이 대화 상자 닫기',
+  button: true,
+  onTap: close,
+  child: const MPIcon(icon: CloseGlyph(), size: 20),
+)
+```
+
+대개는 그것조차 직접 할 필요가 없습니다. 할 말이 없는 표시를 그리는 Material Plus 위젯은 그 문장을 인자로 받습니다. `MPIconButton`의 `label`, `MPBadge`의 `label`, `MPIcon`의 `label`, 그 밖의 위젯의 `semanticLabel`이 그것입니다.
+
+:::
 
 ## 다음
 
