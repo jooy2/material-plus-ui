@@ -9,6 +9,8 @@ order: 2
 
 <Demo src="button-group/hero" :minHeight="120" />
 
+::: fw react
+
 ```tsx
 import { MPButton, MPButtonGroup } from 'material-plus-ui';
 
@@ -18,9 +20,33 @@ import { MPButton, MPButtonGroup } from 'material-plus-ui';
 </MPButtonGroup>;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPButtonGroup(
+  variant: MPVariant.outlined,
+  children: <Widget>[
+    MPButton(onPressed: previous, child: const Text('Previous')),
+    MPButton(onPressed: next, child: const Text('Next')),
+  ],
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPButtonGroup" />
+
+::: fw flutter
+
+Each entry of `children` is one member of the run. The group wraps every member in a scope of its own, which is how an `MPButton`, an `MPIconButton` or an `MPToggle` reads the group's `variant`, `size`, `color` and `disabled` and learns which of its corners face a neighbour, wherever it ended up inside the entry.
+
+:::
 
 ## Two things are happening, and only one is visual
 
@@ -30,7 +56,17 @@ The other half is that `variant`, `size`, `color` and `disabled` are set once. A
 
 <Demo src="button-group/inheritance" :minHeight="200">
 
+::: fw react
+
 <<< @/.vitepress/demos/button-group/inheritance.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/button_group/inheritance.dart
+
+:::
 
 </Demo>
 
@@ -48,8 +84,34 @@ The difference is not stylistic. A row of buttons that remembers which one was p
 
 ## Accessibility
 
+::: fw react
+
 - The group carries `role="group"`. It does **not** carry a roving tab index — every button in it is its own tab stop, because every button in it is its own action.
 - The focus ring is drawn outside a button, so each child gets a stacking context and comes forward when focused. Without it the ring would be painted under whichever neighbour comes after it in the DOM.
+
+:::
+
+::: fw flutter
+
+- The group is one semantics node, named by `semanticLabel`, with each button a node of its own inside it. It does **not** take a roving focus: every button is its own stop, because every button is its own action.
+- The focus ring is drawn outside a button, so the group paints the member holding the focus over its neighbours. Without that the ring would be drawn under whichever button comes after it.
+- Under right-to-left the run starts at the right, and the corners that face a neighbour follow it.
+
+:::
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `role="group"` with `aria-label` | A container node with `semanticLabel` | Flutter has no group role; a named container is what a screen reader crosses into. |
+| A stacking context per child | The focused member painted last | There is no `z-index`; the run decides its own paint order. |
+| Inline-flex stretch | A vertical run stretched to its widest member | The same shape, done by the run’s own layout. |
+| Any `<div>` attribute | — | There is no element whose attributes the rest would land on. |
+| `className`, `ref` | — | There is no class list and no element. |
+
+:::
 
 ## See also
 
