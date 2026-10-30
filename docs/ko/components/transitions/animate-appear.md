@@ -9,6 +9,8 @@ order: 8
 
 <Demo src="animate-appear/hero" :minHeight="400" />
 
+::: fw react
+
 ```tsx
 import { MPAnimateAppear } from 'material-plus-ui';
 
@@ -19,17 +21,47 @@ import { MPAnimateAppear } from 'material-plus-ui';
 </MPAnimateAppear>;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPAnimateAppear(
+  layoutBuilder: (BuildContext context, List<Widget> children) => MPList(children: children),
+  children: [
+    for (final Person person in people)
+      MPListItem(key: ValueKey(person.id), child: Text(person.name)),
+  ],
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPAnimateAppear" />
 
 ## 애니메이션은 자식에게 직접 붙습니다
 
+::: fw react
+
 자식을 감싼 래퍼가 아니라요. `<li>` 행은 `<li>` 행 그대로이고, 그리드의 셀은 그리드 자신의 직계 자식으로 남으며, 목록에 애니메이션을 걸었다고 해서 레이아웃이 달라지지 않습니다.
 
 들리는 것보다 중요합니다. 자식을 하나씩 감싸는 컴포넌트는 자식이 무엇인지에 신경 쓰는 모든 레이아웃 — flex와 grid, `<ul>`/`<li>`, 테이블, 자기 자식을 훑는 Base UI 프리미티브 — 을 망가뜨리고, 잘 있던 목록에 누군가 애니메이션을 붙이는 그 순간에 조용히 망가뜨립니다.
 
 문자열 하나만은 붙일 요소가 없어서 `<span>`으로 감쌉니다.
+
+:::
+
+::: fw flutter
+
+각 자식은 `layoutBuilder`가 놓은 자리에 그려집니다. 자식이 들어갈 목록이나 행이나 그리드를 넘기면 자식은 그 레이아웃의 자식으로 남습니다. 자식마다 걸리는 효과는 그릴 때 적용하는 이동과 불투명도뿐이라서, 자리를 차지하지 않고 레이아웃이 자식을 재고 놓는 방식도 바꾸지 않습니다.
+
+위젯에 애니메이션을 써 넣을 스타일시트가 없으므로, 자식마다 위젯 하나가 둘러쌉니다. `Column`이나 `Wrap`이나 목록에는 보이지 않지만, 자식의 parent data를 읽는 부모에게는 보입니다. `Expanded`나 `Positioned`는 `Row`나 `Stack` 바로 아래에 있어야 하므로, 효과를 그 바깥이 아니라 안쪽에 두세요.
+
+:::
 
 ## 지연은 자식 단위입니다
 
@@ -41,15 +73,33 @@ import { MPAnimateAppear } from 'material-plus-ui';
 
 기본값은 `0.75rem` — 화면 밖에서의 등장이 아니라 자리잡음입니다. 긴 이동이 여덟 개짜리 목록에서 반복되면 블록 전체가 움직이는 것이 되고, 세 번째 행을 찾으려는 사람은 움직이는 과녁을 쫓게 됩니다.
 
+::: fw flutter
+
+Flutter의 기본값은 논리 픽셀 `12`입니다. `0.75rem`을 루트 글자 크기 16px로 환산한 값입니다.
+
+:::
+
 화면 밖에서 진짜로 들어오는 등장이 필요하고 대상이 하나라면 [MPAnimateSlide](./animate-slide)를 쓰세요.
 
 ## 예제
 
 <Demo src="animate-appear/grid" :minHeight="300">
 
+::: fw react
+
 <<< @/.vitepress/demos/animate-appear/grid.tsx
 
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/animate_appear/grid.dart
+
+:::
+
 </Demo>
+
+::: fw react
 
 ### render
 
@@ -59,6 +109,32 @@ import { MPAnimateAppear } from 'material-plus-ui';
 <MPAnimateAppear render={<ul />}>…</MPAnimateAppear>
 <MPAnimateAppear render={<div style={{ display: 'grid' }} />}>…</MPAnimateAppear>
 ```
+
+:::
+
+::: fw flutter
+
+### layoutBuilder
+
+이것이 실제 레이아웃 위에서 동작하게 만듭니다. 각자 진행에 감싸인 자식들을 받아서, 자식이 들어갈 것을 돌려줍니다.
+
+```dart
+MPAnimateAppear(
+  layoutBuilder: (BuildContext context, List<Widget> children) => MPList(children: children),
+  children: items,
+);
+
+MPAnimateAppear(
+  layoutBuilder: (BuildContext context, List<Widget> children) {
+    return Wrap(spacing: 12, runSpacing: 12, children: children);
+  },
+  children: tiles,
+);
+```
+
+비워 두면 자식들이 각자 제 너비로 세로로 쌓입니다.
+
+:::
 
 ### reverse
 
@@ -70,6 +146,8 @@ import { MPAnimateAppear } from 'material-plus-ui';
 
 ## 스크롤이 곧 시계입니다
 
+::: fw react
+
 `timeline="view"`는 애니메이션을 스톱워치가 아니라 읽는 사람의 스크롤에 넘깁니다. 진행도가 곧 요소가 스크롤포트를 지나는 진행도이고, `range`가 그 여정 중 어느 구간에 펼칠지를 말합니다.
 
 ```tsx
@@ -78,11 +156,49 @@ import { MPAnimateAppear } from 'material-plus-ui';
 
 `view`에서는 `duration`, `delay`, `repeat`, `trigger`가 의미를 잃고, 이 기능이 없는 브라우저는 시계로 되돌아가 한 번 재생합니다. 근거는 [MPAnimateFade](./animate-fade#스크롤이-곧-시계입니다)에 자세히 적혀 있습니다.
 
+:::
+
+::: fw flutter
+
+제공하지 않습니다. `timeline`과 `range`는 자식마다의 키프레임을 CSS의 `view()` 타임라인에 넘기는데, 여기에는 그에 대응하는 것이 없습니다. 가장 가까운 것은 `MPAnimateTrigger.visible`이고, 묶음이 스크롤해서 보이는 순간 전체를 시작합니다. 근거는 [MPAnimateFade](./animate-fade#스크롤이-곧-시계입니다)에 자세히 적혀 있습니다.
+
+:::
+
 ## 접근성
+
+::: fw react
 
 - `prefers-reduced-motion`에서는 아무것도 움직이지 않고 모든 자식이 그냥 거기 있습니다.
 - 모든 자식은 첫 프레임부터 레이아웃 안 최종 위치에 있습니다. 지연이 도는 동안 아무것도 다시 흐르지 않고, 스크린 리더는 한 항목씩이 아니라 목록 전체를 곧바로 읽습니다.
+
+:::
+
+::: fw flutter
+
+- 플랫폼이 애니메이션을 끄면(`MediaQuery.disableAnimations`) 아무것도 움직이지 않고, 모든 자식이 첫 프레임부터 완전한 불투명도로 그냥 거기 있습니다.
+- 모든 자식은 불투명도 `0`일 때도 첫 프레임부터 레이아웃 안 최종 위치에, 트리 안에 있습니다. 지연이 도는 동안 아무것도 다시 배치되지 않고, 스크린 리더는 한 항목씩이 아니라 목록 전체를 곧바로 읽습니다.
+
+:::
+
 - 전체 길이를 염두에 두세요. 스무 개짜리 목록의 마지막 자식은 첫 자식보다 `19 × stagger` 늦게 시작하고, 기본값이면 1.5초가 넘습니다. 긴 목록에서는 `stagger`를 낮추거나, 행이 아니라 페이지를 움직이세요.
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| 밀리초 숫자인 `stagger`, `duration`, `delay` | `Duration` | 프레임워크에 이미 그 타입이 있습니다. |
+| 픽셀 숫자나 CSS 길이인 `distance` | 논리 픽셀 단위의 `double` | `rem`을 환산할 루트 글자 크기가 없습니다. |
+| `easing="emphasized-decelerate"` | `MPEasing.emphasizedDecelerate` | 이름마다 `MPMotion`의 곡선 하나에 대응합니다. |
+| `repeat: number \| 'infinite'` | `null`이면 멈추지 않는 `int?`인 `MPAnimateRepeat` | Dart에는 숫자와 단어의 합집합 타입이 없습니다. |
+| `render` | `layoutBuilder` | 바꿔 끼울 엘리먼트가 없습니다. 위젯은 받은 것을 직접 놓아야 하므로, 레이아웃은 자식을 받는 빌더가 됩니다. |
+| 무엇이든 되는 React 노드인 `children`, 문자열은 `<span>`으로 감쌈 | 필수인 `List<Widget>` `children` | 자식이 이미 위젯이라서 애니메이션을 걸려고 감쌀 것이 없습니다. |
+| `IntersectionObserver`로 보는 `trigger="visible"` | 묶음 위의 모든 `Scrollable`을 지켜봅니다 | 옵저버가 없습니다. 위에 스크롤 영역이 없으면 바로 시작합니다. |
+| `timeline`, `range` | — | CSS의 `view()` 타임라인에 대응하는 것이 없습니다. |
+| `className`, `style` | — | 넘겨줄 클래스 목록이나 style 속성이 없습니다. |
+
+:::
 
 ## 함께 보기
 
