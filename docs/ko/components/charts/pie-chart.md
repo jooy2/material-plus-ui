@@ -9,11 +9,28 @@ order: 35
 
 <Demo src="pie-chart/hero" :minHeight="740" />
 
+::: fw react
+
 ```tsx
 import { MPPieChart } from 'material-plus-ui';
 
 <MPPieChart categories={['검색', '직접', '소셜']} data={[52, 31, 17]} />;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPPieChart(
+  categories: const <String>['검색', '직접', '소셜'],
+  data: const <num>[52, 31, 17],
+);
+```
+
+:::
 
 ## Props
 
@@ -53,6 +70,12 @@ import { MPPieChart } from 'material-plus-ui';
 
 `donut`은 가운데를 비우고, `center`가 거기에 들어갑니다. 합계이거나, 이 링이 둘러싸고 그려진 그 하나의 숫자입니다. 가운데가 빈 링은 한 입 베어 문 파이입니다.
 
+::: fw flutter
+
+Dart에서 모양은 `MPPieChartShape.pie`, `MPPieChartShape.donut`, `MPPieChartShape.semi`이고, `center`에는 아무 위젯이나 들어갑니다.
+
+:::
+
 `semi`는 아래로 열린 반쪽 링이고, 높이보다 폭이 넓은 대시보드 타일을 위한 것입니다. 둘 다 `startAngle`을 무시합니다. `semi`는 쓸 일이 없고, `pie`와 `donut`은 12시 방향에서 시계 방향으로 잰 각도로 받습니다.
 
 `hole`은 구멍이 반지름의 얼마를 차지하는지이고, `0`부터 `0.9`까지 받습니다. 기본값 `0.62`는 가운데에 숫자 하나와 단어 하나가 들어갈 자리를 남깁니다. `0.4`보다 얇으면 링으로 읽히지 않고, `0.8`을 넘으면 조각이 실선이 되어 각을 견줄 수 없게 됩니다. 각을 견주는 것이 이 차트의 유일한 쓸모였는데 말입니다. `donut`과 `semi`만 이 값을 읽습니다. `pie`는 구멍이 없는 모양을 가리키는 말입니다.
@@ -61,4 +84,18 @@ import { MPPieChart } from 'material-plus-ui';
 
 `valueLabels="all"`은 각 조각에 **몫**을 씁니다. 값이 아니라 몫입니다. 파이가 그리는 그림이 몫이고, 값은 호버 한 번 거리에 있습니다.
 
+::: fw flutter
+
+Dart에서는 모든 차트가 받는 타입 그대로 `valueLabels: MPChartValueLabels.all`입니다. `last`와 `extremes`는 조각에는 뜻이 없어 아무것도 쓰지 않습니다.
+
+:::
+
 레이블은 조각이 양옆 여백까지 담을 만큼 길 때만 나타납니다. 들어가지 않는 것은 잘리거나 옆 조각으로 넘치는 대신 빠집니다. 호버 패널과 표에는 그대로 있습니다.
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+`MPChartSeries`, `MPChartAxis`, `MPChartLegend`, `MPChartTooltip` 같은 차트 공용 어휘가 React와 어떻게 다른지는 [MPLineChart에 정리해 두었습니다](line-chart#react-빌드와-다른-점). 몫은 어느 언어에서든 소수점 이하 한 자리까지, 마침표를 소수점으로 써서 `33.3%`처럼 적습니다.
+
+:::

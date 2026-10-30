@@ -9,11 +9,28 @@ order: 35
 
 <Demo src="pie-chart/hero" :minHeight="740" />
 
+::: fw react
+
 ```tsx
 import { MPPieChart } from 'material-plus-ui';
 
 <MPPieChart categories={['Search', 'Direct', 'Social']} data={[52, 31, 17]} />;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPPieChart(
+  categories: const <String>['Search', 'Direct', 'Social'],
+  data: const <num>[52, 31, 17],
+);
+```
+
+:::
 
 ## Props
 
@@ -53,6 +70,12 @@ Two touching fills read as one shape, so each slice is outlined in the page's ow
 
 `donut` leaves a hole, and `center` is what goes in it — the total, or the one figure the chart was drawn around. A ring with nothing in the middle is a pie with a bite taken out of it.
 
+::: fw flutter
+
+In Dart the shapes are `MPPieChartShape.pie`, `MPPieChartShape.donut` and `MPPieChartShape.semi`, and `center` is any widget.
+
+:::
+
 `semi` is half a ring opened along the bottom, for a dashboard tile that is wider than it is tall. Both ignore `startAngle`, which `semi` has no use for and which `pie` and `donut` measure in degrees clockwise from twelve o'clock.
 
 `hole` is how much of the radius the hole takes, from `0` to `0.9`, and the default `0.62` leaves room in the middle for a figure and a word. Thinner than about `0.4` and the ring stops reading as a ring; past `0.8` the slices are a hairline and their angles stop being comparable, which was the one thing the chart was for. Only `donut` and `semi` read it — `pie` is the word for a shape with no hole in it.
@@ -61,4 +84,18 @@ Two touching fills read as one shape, so each slice is outlined in the page's ow
 
 `valueLabels="all"` writes each slice's **share** on it. The share and not the value, because a share is what a pie is a picture of and the value is one hover away.
 
+::: fw flutter
+
+In Dart that is `valueLabels: MPChartValueLabels.all`, the same type every chart takes. `last` and `extremes` mean nothing for a slice and write nothing.
+
+:::
+
 A label only appears where its slice is long enough to hold it with room either side. One that does not fit is left off rather than being clipped or spilled onto its neighbour — the hover panel and the table still have it.
+
+::: fw flutter
+
+## Differences from the React build
+
+The vocabulary every chart shares — `MPChartSeries`, `MPChartAxis`, `MPChartLegend`, `MPChartTooltip` and the rest — differs from React the way [MPLineChart lists](line-chart#differences-from-the-react-build). A share is written with at most one decimal and a full stop for the point, `33.3%`, in every locale.
+
+:::
