@@ -5,9 +5,11 @@ order: 7
 
 # MPList
 
-<p class="mp-lede">행을 쌓은 것입니다. 리스트가 면이고 행이 그 위에 놓인 것 — <code>size</code>와 <code>color</code>를 묶음에 한 번만 설정하는 이유이고, 이동하는 행이 진짜 링크인 이유입니다.</p>
+<p class="mp-lede">행을 쌓은 것입니다. 리스트가 면이고 행이 그 위에 놓인 것 — <code>size</code>와 <code>color</code>를 묶음에 한 번만 설정하는 이유입니다.</p>
 
 <Demo src="list/hero" :minHeight="260" />
+
+::: fw react
 
 ```tsx
 import { MPList, MPListItem } from 'material-plus-ui';
@@ -20,6 +22,23 @@ import { MPList, MPListItem } from 'material-plus-ui';
 </MPList>;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPList(
+  children: <Widget>[
+    MPListItem(description: const Text('디자인'), onPressed: open, child: const Text('홍길동')),
+    MPListItem(onPressed: () => router.go('/people/ada'), child: const Text('Ada Lovelace')),
+  ],
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPList" />
@@ -30,7 +49,7 @@ import { MPList, MPListItem } from 'material-plus-ui';
 
 ## 크기 사다리가 컨트롤 사다리에 정확히 맞습니다
 
-각 단계의 세로 패딩은 그 단계 본문 역할의 행간을 같은 이름의 컨트롤 높이에서 뺀 값입니다. `body-large`의 줄 상자는 24px이고, 24에 `py-4`를 더하면 56 — MD3 자신의 한 줄 리스트 항목이자 컨트롤 사다리의 `md`입니다.
+각 단계의 세로 패딩은 그 단계 본문 역할의 행간을 같은 이름의 컨트롤 높이에서 뺀 값입니다. `body-large`의 줄 상자는 24px이고, 24에 위아래 16씩을 더하면 56 — MD3 자신의 한 줄 리스트 항목이자 컨트롤 사다리의 `md`입니다.
 
 | `size` | 행의 타입 역할 | 한 줄 행 |
 | ------ | -------------- | -------- |
@@ -57,11 +76,23 @@ import { MPList, MPListItem } from 'material-plus-ui';
 
 `xs`는 두 단계에서 멈춰 24px에 머뭅니다. 그 아래로는 행이 손가락으로 누를 수 있는 것이 아니게 됩니다. [`density`](../../design/prop-conventions#density)를 보세요.
 
+::: fw react
+
 ```tsx
 <MPList density={-1}>
   <MPListItem>Inbox</MPListItem>
 </MPList>
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+const MPList(density: -1, children: <Widget>[MPListItem(child: Text('Inbox'))]);
+```
+
+:::
 
 ## `dividers`는 들리는 것보다 많은 것을 바꿉니다
 
@@ -69,13 +100,48 @@ import { MPList, MPListItem } from 'material-plus-ui';
 
 <Demo src="list/dividers">
 
+::: fw react
+
 <<< @/.vitepress/demos/list/dividers.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/list/dividers.dart
+
+:::
 
 </Demo>
 
+::: fw react
+
 이 선은 각 행의 클래스가 아니라 `> li + li`로 쓰여 있습니다. 그래야 행을 어떻게 구성했든 — `.map()`으로, 프래그먼트로, 호출자가 만든 컴포넌트로 — 그대로 유지됩니다.
 
-## 세 가지 모양, 그리고 무엇을 넘기느냐로 고릅니다
+:::
+
+::: fw flutter
+
+이 선은 각 행이 아니라 리스트가 자식 사이에 긋습니다. 그래야 행을 어떻게 만들었든 — 데이터를 도는 반복문으로, 호출자가 만든 위젯으로 감싸서 — 그대로 유지됩니다.
+
+:::
+
+## <Fw react="세 가지 모양" flutter="두 가지 모양" />, 그리고 무엇을 넘기느냐로 고릅니다
+
+::: fw flutter
+
+```dart
+const MPListItem(child: Text('가만히 있는 행'));                  // 내용만, 정지점 없음
+MPListItem(onPressed: open, child: const Text('누를 수 있는 행')); // 버튼
+```
+
+`onPressed`가 있는 행은 포커스 정지점 하나이고, 버튼으로 읽히며 포인터와 <kbd>Enter</kbd>, <kbd>Space</kbd>로 동작합니다. 이동하는 행은 `onPressed`에서 라우터를 부르세요. Flutter에는 행이 될 링크 엘리먼트가 없습니다.
+
+`action`은 누를 수 있는 영역 **바깥**에 있습니다. 이동도 하고 토글도 가진 행에는 누를 것이 둘이고, 하나가 다른 하나 안에 있으면 둘이 함께 동작합니다.
+
+:::
+
+::: fw react
 
 껍데기는 항상 `<li>`입니다. 그 안은 이렇습니다.
 
@@ -101,9 +167,21 @@ import { MPList, MPListItem } from 'material-plus-ui';
 
 `target`은 자기 `rel`을 데려옵니다 — `_blank`이면 `noopener noreferrer`입니다. 직접 준 `rel`은 그것을 덧붙이는 게 아니라 **대체**하므로, `nofollow`까지 필요한 행은 셋을 다 적습니다.
 
-## `selected`는 두 가지를 말합니다
+:::
 
-링크에서는 `aria-current="page"`, 버튼에서는 `"true"`입니다. 앞의 것은 "지금 보고 있는 페이지", 뒤의 것은 "이 중에서 고른 것"입니다. `aria-pressed`는 세 번째 것 — 토글 — 이고, 선택된 행은 토글이 아닙니다.
+## `selected`
+
+::: fw react
+
+`selected`는 두 가지를 말합니다. 링크에서는 `aria-current="page"`, 버튼에서는 `"true"`입니다. 앞의 것은 "지금 보고 있는 페이지", 뒤의 것은 "이 중에서 고른 것"입니다. `aria-pressed`는 세 번째 것 — 토글 — 이고, 선택된 행은 토글이 아닙니다.
+
+:::
+
+::: fw flutter
+
+선택된 행은 토글된 것이 아니라 선택된 것으로 읽힙니다. 선택된 행은 묶음 중에서 고른 하나이고, 토글은 다른 것입니다.
+
+:::
 
 보이는 모습은 MD3의 선택된 리스트 항목입니다. 계열의 container 색과 그 잉크. 다른 색도 아니고 더 굵은 글씨도 아닙니다.
 
@@ -117,7 +195,26 @@ import { MPList, MPListItem } from 'material-plus-ui';
 
 리스트는 복합 위젯이 아닙니다 — roving focus도, 선택 모델도, 자기 키보드 계약도 없습니다. 그것을 얻으려고 메뉴나 리스트박스 프리미티브를 꺼내 들면, 모든 사용자의 평범한 링크 목록에 메뉴의 의미를 쥐여주게 됩니다. 컴포넌트 라이브러리가 스크린 리더를 망가뜨리는 가장 흔한 방법 중 하나입니다.
 
+::: fw react
+
 대신 `role="list"`는 소리 내어 말합니다. 호스트 페이지의 reset이 모든 `<ul>`에서 불릿을 떼어낼 수 있고, 사파리는 그때 리스트 의미까지 함께 떼어냅니다.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `onClick` | `onPressed` | Flutter의 이름입니다. |
+| `href`, `target`, `rel` | — | Flutter에는 링크 엘리먼트가 없습니다. 이동하는 행은 `onPressed`에서 라우터를 부릅니다. |
+| 리스트와 행의 `render` | — | 바꿔 끼울 `<ol>`도, 렌더링할 라우터 `Link` 엘리먼트도 없습니다. |
+| `aria-current` | `selected` | 행은 선택된 것으로 읽힙니다. 대신 말할 "현재 페이지" 상태가 없습니다. |
+| `MPListItem`의 `children` | `child` | 라벨을 가리키는 Flutter의 이름입니다. |
+| `className`, `style` | — | 넘길 클래스 목록이나 style 속성이 없습니다. |
+
+:::
 
 ## 함께 보기
 
