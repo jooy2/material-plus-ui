@@ -9,17 +9,39 @@ order: 14
 
 <Demo src="animate-split/hero" :minHeight="360" />
 
+::: fw react
+
 ```tsx
 import { MPAnimateSplit } from 'material-plus-ui';
 
 <MPAnimateSplit>이번 분기에 만든 것</MPAnimateSplit>;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+const MPAnimateSplit(text: '이번 분기에 만든 것');
+
+const MPAnimateSplit(
+  text: '한 글자씩 차례로',
+  by: MPAnimateSplitBy.character,
+  stagger: Duration(milliseconds: 18),
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPAnimateSplit" />
 
 ## 조각은 읽는 사람이 자를 자리에서 잘립니다
+
+::: fw react
 
 `split(' ')`도 아니고 `[...text]`도 아닙니다.
 
@@ -29,17 +51,49 @@ import { MPAnimateSplit } from 'material-plus-ui';
 
 `Intl.Segmenter`는 두 경계를 다 알고, `internal/text.ts`가 이 라이브러리에서 그것을 묻는 유일한 자리입니다. [MPAnimateTyping](./animate-typing), [MPAnimateScramble](./animate-scramble)과 공유합니다. 사본이 셋이면 의견도 셋이 되기 때문입니다.
 
+:::
+
+::: fw flutter
+
+**글자**는 읽는 사람이 하나로 세는 단위인 그래핌입니다. `👩‍👩‍👧`는 zero-width joiner로 이어진 코드 포인트 일곱 개이고 국기는 두 개라서, 코드 단위로 자르면 조각마다 각자의 delay를 받고 깨진 글리프로 그려집니다. Dart의 `characters`가 이미 그래핌을 세므로 `by: MPAnimateSplitBy.character`는 이모지 하나에 조각 하나를 줍니다.
+
+**단어**는 공백에서 자르고, 공백은 앞 단어에 붙여 둡니다. 그래서 조각들은 넘겨받은 문자열로 다시 이어집니다. 물어볼 `Intl.Segmenter`가 없으므로, 공백 없이 쓰는 문자 — 일본어, 중국어, 태국어 — 로 된 문장은 `word` 모드에서 단어 하나입니다. 그럴 때는 `character`로 쪼개세요. 그 문자의 글자는 하나하나가 따로 조각이 되고, 그 언어의 본문이 그렇듯 어느 두 글자 사이에서도 줄이 바뀝니다.
+
+:::
+
 ## 스크린 리더가 받는 것
+
+::: fw react
 
 잘린 상자에서 나오는 온전한 한 줄, 한 번. 애니메이션되는 사본은 `aria-hidden`입니다.
 
 그것이 없으면 글자 단위로 쪼갠 줄은 **낱글자 목록**으로 읽히고, 효과를 볼 수 없는 독자는 문장이 무슨 말이었는지 알아내기 위해 그 공연을 끝까지 앉아 있어야 합니다. 페이지 내 찾기도 여전히 문장에 매치됩니다. 한 글자짜리 span 더미로는 그렇게 되지 않습니다.
 
+:::
+
+::: fw flutter
+
+온전한 한 줄, 한 번. 위젯은 `text`를 라벨로 단 `Semantics` 노드이고, 그 아래에서 움직이는 조각들은 시맨틱스에서 빠집니다.
+
+그것이 없으면 글자 단위로 쪼갠 줄은 **낱글자 목록**으로 읽히고, 효과를 볼 수 없는 독자는 문장이 무슨 말이었는지 알아내기 위해 그 공연을 끝까지 앉아 있어야 합니다.
+
+:::
+
 ## 글자는 자기 단어 안에 머뭅니다
+
+::: fw react
 
 조각이 움직이려면 `inline-block`이어야 합니다. transform은 대체되지 않은 인라인 상자에 아무 일도 하지 않기 때문입니다. 그런데 그것은 동시에 **줄바꿈 기회**를 만들어서, 글자로 쪼갠 줄은 단어 한가운데에서 줄이 바뀝니다.
 
 그래서 각 단어가 자기 inline-block이 되고 글자들은 그 안에 들어갑니다. 줄은 원래 바뀌던 자리에서 바뀝니다. 공백은 버리지 않고 단어에 붙여 두므로, 조각들은 여전히 넘겨받은 문자열로 다시 이어집니다.
+
+:::
+
+::: fw flutter
+
+줄은 `Wrap`이고, `character`로 쪼개면 단어마다 글자들을 그 안의 한 묶음으로 모아 둡니다. 그래서 줄은 단어 사이에서 바뀌고 단어 한가운데에서는 바뀌지 않습니다. 줄 전체보다 넓은 단어는 넘치지 않고 줄을 바꿉니다. 단어 하나를 담은 `Text`가 그렇게 하는 것과 같습니다. 줄이 넘칠 때 각 줄이 너비 안 어디에 놓일지는 `textAlign`이 정합니다.
+
+:::
 
 ## 예제
 
@@ -57,12 +111,53 @@ import { MPAnimateSplit } from 'material-plus-ui';
 
 ### timeline
 
+::: fw react
+
 `timeline="view"`는 모든 조각을 각자의 스크롤포트 여정에 올립니다. 그래서 줄은 시계가 아니라 독자가 거기 닿는 대로 완성됩니다. [스크롤이 곧 시계입니다](./animate-fade#스크롤이-곧-시계입니다)를 보세요.
+
+:::
+
+::: fw flutter
+
+제공하지 않습니다. CSS의 `view()` 타임라인에 대응하는 것이 없습니다. `MPAnimateTrigger.visible`은 줄이 스크롤해서 보이는 순간 시작하고, 거기서부터는 시계로 재생합니다. [스크롤이 곧 시계입니다](./animate-fade#스크롤이-곧-시계입니다)를 보세요.
+
+:::
 
 ## 접근성
 
+::: fw react
+
 - `prefers-reduced-motion`에서는 애니메이션이 빠지고 줄은 온전히 그냥 거기 있습니다.
 - **텍스트**만 쪼개집니다. 자식 중 요소는 텍스트만 남고 마크업은 빠집니다. 링크의 절반에 각자의 delay를 주는 정직한 방법은 없기 때문입니다.
+
+:::
+
+::: fw flutter
+
+- 플랫폼이 애니메이션을 끄면(`MediaQuery.disableAnimations`) 효과가 빠지고 줄은 첫 프레임부터 온전히 그냥 거기 있습니다.
+- **텍스트**만 쪼개집니다. 줄은 `String`입니다. 링크의 절반에 각자의 delay를 주는 정직한 방법은 없기 때문입니다.
+- 스크린 리더는 `text`를 한 번 듣고, 조각들은 시맨틱스에서 빠집니다.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `children`이나 `text`로 넘기는 줄 | 필수인 `text` | 텍스트만 쪼개지므로 `String`이 그것을 말합니다. 텍스트를 읽어 낼 엘리먼트 트리가 없습니다. |
+| 글자 크기를 주는 `style` | `TextStyle?`인 `style`과 `textAlign` | 글자 스타일은 물려받은 것 위에 합쳐지고, `Wrap`은 넘치는 줄의 각 줄이 어디에 놓일지를 들어야 합니다. |
+| `locale`과 `Intl.Segmenter` | — | 세그먼터가 없습니다. 그래핌은 Dart의 `characters`에서 오고, 단어는 공백에서 자르며, 공백 없는 문자는 `character`로 쪼갤 때 글자 사이에서 줄이 바뀝니다. |
+| 밀리초 숫자인 `duration`, `delay`, `stagger`, `durationStep` | `Duration` | 프레임워크에 이미 그 타입이 있습니다. |
+| CSS 길이인 `distance` | 논리 픽셀 `double` | 풀어낼 `rem`이 없습니다. |
+| `easing="emphasized-decelerate"` | `MPEasing.emphasizedDecelerate` | 이름마다 `MPMotion`의 곡선 하나에 대응합니다. |
+| `repeat: number \| 'infinite'` | `null`이면 멈추지 않는 `int?`인 `MPAnimateRepeat` | Dart에는 숫자와 단어의 합집합 타입이 없습니다. |
+| `IntersectionObserver`로 보는 `trigger="visible"` | 위젯 위의 모든 `Scrollable`을 지켜봅니다 | 옵저버가 없습니다. 위에 스크롤 영역이 없으면 바로 시작합니다. |
+| `timeline`, `range` | — | CSS의 `view()` 타임라인에 대응하는 것이 없습니다. |
+| `render`, `className` | — | 바꿔 끼울 엘리먼트도, 넘겨줄 클래스 목록도 없습니다. |
+
+:::
 
 ## 함께 보기
 
