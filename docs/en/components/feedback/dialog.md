@@ -9,6 +9,8 @@ order: 4
 
 <Demo src="dialog/hero" :minHeight="80" />
 
+::: fw react
+
 ```tsx
 import { MPButton, MPDialog, MPDialogClose } from 'material-plus-ui';
 
@@ -24,6 +26,35 @@ import { MPButton, MPDialog, MPDialogClose } from 'material-plus-ui';
   }
 />;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPDialog(
+  trigger: (BuildContext context, VoidCallback open) =>
+      MPButton(onPressed: open, child: const Text('Delete project')),
+  title: const Text('Delete “Aurora”?'),
+  description: const Text('Everything in it goes too.'),
+  actions: <Widget>[
+    MPDialogClose(
+      builder: (BuildContext context, VoidCallback close) =>
+          MPButton(variant: MPVariant.text, onPressed: close, child: const Text('Cancel')),
+    ),
+    MPDialogClose(
+      builder: (BuildContext context, VoidCallback close) =>
+          MPButton(color: MPColor.error, onPressed: close, child: const Text('Delete')),
+    ),
+  ],
+);
+```
+
+The dialog lifts itself into the nearest `Overlay`, which a `WidgetsApp` with a navigator provides.
+
+:::
 
 ## Props
 
@@ -45,7 +76,11 @@ From 95% rather than the specification's 80%. Growing is the one transition in t
 
 ## The scrim
 
-MD3's scrim at 32%, with a 2px blur that takes the edge off text directly under the sheet. The blur is the one part of it with a cost: a backdrop filter re-blurs the whole window behind it on every frame the scrim fades and every frame anything under it changes, which a low-end phone feels. `--mp-scrim-blur` turns it down or off for every dialog, drawer and command palette on the page, keeping the tint:
+MD3's scrim at 32%, with a 2px blur that takes the edge off text directly under the sheet.
+
+::: fw react
+
+The blur is the one part of it with a cost: a backdrop filter re-blurs the whole window behind it on every frame the scrim fades and every frame anything under it changes, which a low-end phone feels. `--mp-scrim-blur` turns it down or off for every dialog, drawer and command palette on the page, keeping the tint:
 
 ```css
 :root {
@@ -59,15 +94,36 @@ MD3's scrim at 32%, with a 2px blur that takes the edge off text directly under 
 }
 ```
 
+:::
+
 ## `MPDialogClose`
 
 An uncontrolled dialog has no `setOpen` for its Cancel button to call, and the alternative — making every dialog controlled — is a piece of state per dialog that exists only to answer a button.
+
+::: fw react
 
 ```tsx
 <MPDialogClose render={<MPButton variant="text">Cancel</MPButton>} />
 ```
 
 `render` is Base UI's own escape hatch, so a real Material Plus button dismisses rather than a bare one wearing dialog styling.
+
+:::
+
+::: fw flutter
+
+```dart
+MPDialogClose(
+  builder: (BuildContext context, VoidCallback close) =>
+      MPButton(variant: MPVariant.text, onPressed: close, child: const Text('Cancel')),
+)
+```
+
+`builder` is handed the call that closes the dialog round it, so a real Material Plus button dismisses. A controlled dialog hears the close through its `onOpenChange`, as it hears the ×. It closes whether or not the dialog is `dismissible`: that switch is about the ways out a reader stumbles into, and this is one the dialog offers.
+
+<PropsTable name="MPDialogClose" />
+
+:::
 
 ## Examples
 
@@ -77,7 +133,17 @@ A hero icon centres the header, which is MD3's own rule — and it is a real dis
 
 <Demo src="dialog/icon" :minHeight="80">
 
+::: fw react
+
 <<< @/.vitepress/demos/dialog/icon.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/dialog/icon.dart
+
+:::
 
 </Demo>
 
@@ -87,7 +153,17 @@ Only the body scrolls; the header and the actions stay put. Turn `dividers` on t
 
 <Demo src="dialog/scrolling" :minHeight="80">
 
+::: fw react
+
 <<< @/.vitepress/demos/dialog/scrolling.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/dialog/scrolling.dart
+
+:::
 
 </Demo>
 
@@ -99,7 +175,17 @@ Only the body scrolls; the header and the actions stay put. Turn `dividers` on t
 
 <Demo src="dialog/sizes" :minHeight="80">
 
+::: fw react
+
 <<< @/.vitepress/demos/dialog/sizes.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/dialog/sizes.dart
+
+:::
 
 </Demo>
 
@@ -111,9 +197,17 @@ On by default, which is the other way round from every other component in the li
 
 Fills the viewport edge to edge, for a phone-sized screen or an editor. `showClose` follows it, because a full-screen dialog has no scrim left to click.
 
+::: fw flutter
+
+The sheet runs under the system's bars and keeps its content out from under them, as a `SafeArea` does. Every other dialog keeps 16px clear of the bars, the notch and a soft keyboard.
+
+:::
+
 ### dismissible
 
 Turn it off for the dialog that has to be answered — and then give it actions that answer it, because there will be no other way out.
+
+::: fw react
 
 ```tsx
 <MPDialog
@@ -123,11 +217,54 @@ Turn it off for the dialog that has to be answered — and then give it actions 
 />
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+MPDialog(
+  open: expired,
+  dismissible: false,
+  title: const Text('Session expired'),
+  actions: <Widget>[MPButton(onPressed: signIn, child: const Text('Sign in again'))],
+);
+```
+
+Escape, the system back and a press on the scrim all stop working. While `modal` is on, the system back is refused rather than let through to the page under the dialog.
+
+:::
+
 ## Accessibility
+
+::: fw react
 
 - The title names the dialog and the description describes it, both wired by Base UI — there is no `aria-labelledby` to write.
 - Base UI owns the focus trap, the scroll lock, the inert page behind, and returning focus to the trigger on close.
 - Escape closes unless `dismissible` is off, in which case the reason for the change is cancelled rather than the key being swallowed — so a dialog inside a dialog still closes the right one.
+
+:::
+
+::: fw flutter
+
+- A screen reader announces the layer as a dialog (`SemanticsRole.dialog`) and as a route of its own, named by the title when the title is a plain `Text`, and by `semanticLabel` otherwise. The title is announced as a heading.
+- Focus goes into the sheet as it opens and Tab cannot leave it. When it closes, the focus goes back to whatever held it before, which is the trigger when the dialog was opened from the keyboard.
+- The page behind is taken off the semantics tree while the dialog is open, so a screen reader cannot reach it either.
+- Escape and the system back close the dialog unless `dismissible` is off. Only the dialog on top answers, so a dialog opened from a dialog closes alone.
+
+:::
+
+::: fw flutter
+
+## Differences from the React build
+
+- **`trigger` is a builder.** React's Base UI merges its click handler onto the element it is given. A Flutter widget cannot be reached into, so `trigger` is handed the call that opens the dialog, and `MPDialogClose` takes a `builder` in place of `render`.
+- **`modal` is a `bool`.** `false` is React's `'trap-focus'`: the page stays usable by pointer and the focus stays in the sheet. React's `false`, which lets the focus leave as well, has no counterpart here, because the layer is always a focus scope of its own.
+- **`width` is a number of logical pixels**, without React's CSS strings.
+- **The description is not wired as the dialog's description.** Flutter's semantics have no `aria-describedby`; a screen reader reads the description straight after the title instead.
+- **No scrim knob.** `--mp-scrim-blur` is a CSS custom property, and the blur here is fixed at 2px.
+- **No `classNames`, `className`, `style` or raw event props.** A key pressed inside the sheet reaches a `Focus` or `Shortcuts` the caller puts in the body.
+
+:::
 
 ## See also
 
