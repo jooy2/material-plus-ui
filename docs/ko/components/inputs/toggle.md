@@ -9,6 +9,8 @@ order: 11
 
 <Demo src="toggle/hero" :minHeight="200" />
 
+::: fw react
+
 ```tsx
 import { MPToggle, MPToggleGroup } from 'material-plus-ui';
 
@@ -18,9 +20,37 @@ import { MPToggle, MPToggleGroup } from 'material-plus-ui';
 </MPToggleGroup>;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+List<String> marks = <String>['bold'];
+
+MPToggleGroup(
+  multiple: true,
+  value: marks,
+  onChanged: (List<String> next) => setState(() => marks = next),
+  children: const <Widget>[
+    MPToggle(value: 'bold', semanticLabel: '굵게', startIcon: MPIcon(icon: BoldGlyph())),
+    MPToggle(value: 'italic', semanticLabel: '기울임', startIcon: MPIcon(icon: ItalicGlyph())),
+  ],
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPToggle" />
+
+::: fw flutter
+
+`pressed`와 `onChanged`로 controlled로 쓰거나, `initialPressed`에서 시작해 상태를 스스로 들고 있게 둘 수 있습니다. `MPToggleGroup` 안에서는 세트가 상태를 들고 있고, 토글은 `value`로 그 안에서 찾아집니다. 그룹의 `children` 항목 하나가 줄의 구성원 하나입니다.
+
+:::
 
 ## 셋 중 어느 것인지
 
@@ -44,7 +74,17 @@ import { MPToggle, MPToggleGroup } from 'material-plus-ui';
 
 <Demo src="toggle/variant" :minHeight="320">
 
+::: fw react
+
 <<< @/.vitepress/demos/toggle/variant.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/toggle/variant.dart
+
+:::
 
 </Demo>
 
@@ -58,9 +98,21 @@ import { MPToggle, MPToggleGroup } from 'material-plus-ui';
 
 자식이 없으면 토글은 글리프를 감싸 정사각형이 됩니다. [MPButton](./button)이 하는 것과 똑같고, `corner-full` 컨트롤에서 정사각형은 원이며, 그것이 MD3 자신의 toggle icon button입니다.
 
+::: fw react
+
 ```tsx
 <MPToggle aria-label="굵게" startIcon={<MPIcon icon={Bold} />} />
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+const MPToggle(semanticLabel: '굵게', startIcon: MPIcon(icon: BoldGlyph()));
+```
+
+:::
 
 별도의 `MPToggleIconButton`은 없습니다. [MPIconButton](./icon-button)의 근거를 뒤집은 것입니다. 아이콘 버튼이 더하는 것은 **이름**인데, 토글은 어차피 이름을 받아야 합니다.
 
@@ -68,7 +120,17 @@ import { MPToggle, MPToggleGroup } from 'material-plus-ui';
 
 <Demo src="toggle/group" :minHeight="280">
 
+::: fw react
+
 <<< @/.vitepress/demos/toggle/group.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/toggle/group.dart
+
+:::
 
 </Demo>
 
@@ -80,7 +142,7 @@ import { MPToggle, MPToggleGroup } from 'material-plus-ui';
 
 나머지 절반은 **세트가 값을 소유한다**는 것입니다. 토글들은 하나의 배열로 보고하고, `multiple`이 둘 이상이 켜질 수 있는지를 정하며, `variant`, `size`, `color`, `disabled`는 토글마다가 아니라 여기서 한 번 정해집니다. 네 번째 토글만 한 단 어긋난 행은 행이 아닙니다.
 
-로빙 탭 인덱스는 Base UI가 소유합니다. 세트 전체에 탭 정지 하나, 그 안에서는 방향키. 그래서 토글 여덟 개짜리 툴바가 여덟 번이 아니라 두 번의 키 입력 깊이가 됩니다.
+세트는 로빙 탭 인덱스를 씁니다. 세트 전체에 탭 정지 하나, 그 안에서는 방향키. 그래서 토글 여덟 개짜리 툴바가 여덟 번이 아니라 두 번의 키 입력 깊이가 됩니다. React에서는 Base UI가 이것을 맡고, Flutter에서는 세트가 포커스 노드 하나를 토글 사이로 옮깁니다.
 
 토글은 [MPButtonGroup](./button-group)의 컨텍스트도 읽습니다. 같은 컨텍스트이기 때문입니다. 버튼 그룹이 하지 않는 일은 값을 들고 있는 것입니다.
 
@@ -94,10 +156,39 @@ import { MPToggle, MPToggleGroup } from 'material-plus-ui';
 
 ## 접근성
 
+::: fw react
+
 - 토글은 `aria-pressed`를 단 `<button>`입니다. `aria-selected`도 `aria-checked`도 아닙니다. 눌린 채로 남는 컨트롤의 속성은 그것이고, Base UI가 소유합니다.
 - 아이콘만 있는 토글에는 `aria-label`이 필요합니다. 라벨 전체가 그림인 버튼에는 접근 가능한 이름이 아예 없습니다.
 - 그룹 안에서는 방향키가 토글 사이를 움직이고 Tab은 세트를 떠납니다. 모든 토글이 자기 탭 정지를 갖는 툴바는 키보드 사용자가 한 번에 하나씩 지나가야 하는 툴바입니다.
 - 비활성 토글은 명세의 처리를 받고 — 내용 38%, 컨테이너 12% — 상태 레이어를 잃습니다. 그 위의 워시는 무언가 쓸 수 있다고 말하기 때문입니다.
+
+:::
+
+::: fw flutter
+
+- 토글은 선택됨이나 체크됨이 아니라 켜짐과 꺼짐을 알리는 버튼입니다. 웹에서 `aria-pressed`가 하는 말과 같습니다.
+- 아이콘만 있는 토글에는 `semanticLabel`이 필요합니다. 라벨 전체가 그림인 버튼에는 이름이 없습니다.
+- 그룹에서는 줄 방향의 화살표 키가 토글 사이를 옮기고, <kbd>Home</kbd>과 <kbd>End</kbd>는 양 끝으로 가며, Tab은 세트를 떠납니다. 정지점은 처음 켜진 토글에, 없으면 처음 도달할 수 있는 토글에 있습니다.
+- 포커스가 있는 구성원은 이웃 위에 그려지므로, 링이 다음 토글 아래에 깔리지 않습니다.
+- 비활성 토글은 명세의 처리를 따릅니다. 내용은 38%, 컨테이너는 12%이고 스테이트 레이어는 사라집니다.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `defaultPressed` | `initialPressed` | Flutter는 시작 값을 `initialX`로 부릅니다. |
+| `onPressedChange` | `onChanged` | 컨트롤의 값이 바뀔 때 Flutter가 쓰는 이름입니다. |
+| `MPToggleGroup`의 `defaultValue`, `onValueChange` | `initialValue`, `onChanged` | 세트에도 같은 두 이름을 바꿨습니다. |
+| `aria-label` | `semanticLabel` | 토글과 세트 모두 Flutter의 이름을 씁니다. |
+| 그 밖의 버튼 속성 | — | 나머지 속성이 내려앉을 엘리먼트가 없습니다. |
+| `className`, `style`, `ref` | — | 클래스 목록도 style 속성도 엘리먼트도 없습니다. |
+
+:::
 
 ## 함께 보기
 

@@ -9,6 +9,8 @@ order: 11
 
 <Demo src="toggle/hero" :minHeight="200" />
 
+::: fw react
+
 ```tsx
 import { MPToggle, MPToggleGroup } from 'material-plus-ui';
 
@@ -18,9 +20,37 @@ import { MPToggle, MPToggleGroup } from 'material-plus-ui';
 </MPToggleGroup>;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+List<String> marks = <String>['bold'];
+
+MPToggleGroup(
+  multiple: true,
+  value: marks,
+  onChanged: (List<String> next) => setState(() => marks = next),
+  children: const <Widget>[
+    MPToggle(value: 'bold', semanticLabel: 'Bold', startIcon: MPIcon(icon: BoldGlyph())),
+    MPToggle(value: 'italic', semanticLabel: 'Italic', startIcon: MPIcon(icon: ItalicGlyph())),
+  ],
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPToggle" />
+
+::: fw flutter
+
+Controlled with `pressed` and `onChanged`, or left to hold its own state from `initialPressed`. Inside an `MPToggleGroup` the set holds the state, and the toggle is found in it by its `value`. Each entry of the group's `children` is one member of the run.
+
+:::
 
 ## Which of the three this is
 
@@ -44,7 +74,17 @@ It is also what leaves `color` meaning something. On a button the family says _w
 
 <Demo src="toggle/variant" :minHeight="320">
 
+::: fw react
+
 <<< @/.vitepress/demos/toggle/variant.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/toggle/variant.dart
+
+:::
 
 </Demo>
 
@@ -58,9 +98,21 @@ What does **not** change is the depth. A toggle that is on is not a toggle that 
 
 With no children the toggle goes square around its glyph, exactly as [MPButton](./button) does — which for a `corner-full` control is a circle, and is MD3's own toggle icon button.
 
+::: fw react
+
 ```tsx
 <MPToggle aria-label="Bold" startIcon={<MPIcon icon={Bold} />} />
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+const MPToggle(semanticLabel: 'Bold', startIcon: MPIcon(icon: BoldGlyph()));
+```
+
+:::
 
 There is no separate `MPToggleIconButton`, for [MPIconButton](./icon-button)'s reason inverted: what an icon button adds is the **name**, and a toggle already has to be given one.
 
@@ -68,7 +120,17 @@ There is no separate `MPToggleIconButton`, for [MPIconButton](./icon-button)'s r
 
 <Demo src="toggle/group" :minHeight="280">
 
+::: fw react
+
 <<< @/.vitepress/demos/toggle/group.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/toggle/group.dart
+
+:::
 
 </Demo>
 
@@ -80,7 +142,7 @@ The corners that face a neighbour are cut back to `corner-small` — MD3's conne
 
 The other half is that the **set owns the value**: the toggles report into one array, `multiple` decides whether more than one of them can be on, and `variant`, `size`, `color` and `disabled` are set once here rather than on every toggle. A run where the fourth toggle is a rung out is not a run.
 
-Base UI owns the roving tab index — one tab stop for the whole set, with the arrow keys moving inside it — which is what makes a toolbar of eight toggles two key presses deep instead of eight.
+The set takes a roving tab index — one tab stop for the whole set, with the arrow keys moving inside it — which is what makes a toolbar of eight toggles two key presses deep instead of eight. Base UI owns it in React; in Flutter the set moves one focus node between its toggles.
 
 A toggle reads an [MPButtonGroup](./button-group)'s context too, since it is the same context. What a button group does not do is hold a value.
 
@@ -94,10 +156,39 @@ A toggle group is for a **toolbar**: bold, italic, underline; grid, snap, rulers
 
 ## Accessibility
 
+::: fw react
+
 - A toggle is a `<button>` carrying `aria-pressed`, not `aria-selected` or `aria-checked`. That is the attribute for a control that stays down, and Base UI owns it.
 - An icon-only toggle needs an `aria-label`. A button whose whole label is a drawing has no accessible name at all.
 - In a group the arrow keys move between toggles and Tab leaves the set. A toolbar where every toggle is its own tab stop is a toolbar a keyboard reader walks through one press at a time.
 - A disabled toggle takes the spec's treatment — content at 38%, container at 12% — and loses its state layer, because a wash on top of it would say something is available.
+
+:::
+
+::: fw flutter
+
+- A toggle is a button announced as toggled on or off, which is what `aria-pressed` says on the web, rather than as selected or checked.
+- An icon-only toggle needs a `semanticLabel`. A button whose whole label is a drawing has no name at all.
+- In a group the arrow keys along the run move between toggles, <kbd>Home</kbd> and <kbd>End</kbd> go to the ends, and Tab leaves the set. The stop rests on the first toggle that is on, or the first that can be reached.
+- The focused member is painted over its neighbours, so its ring is not drawn under the next one.
+- A disabled toggle takes the spec's treatment — content at 38%, container at 12% — and loses its state layer.
+
+:::
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `defaultPressed` | `initialPressed` | `initialX` is the name Flutter gives a starting value. |
+| `onPressedChange` | `onChanged` | Flutter’s name for a control’s value changing. |
+| `MPToggleGroup` `defaultValue`, `onValueChange` | `initialValue`, `onChanged` | The same two renames, on the set. |
+| `aria-label` | `semanticLabel` | Flutter’s name, on a toggle and on the set. |
+| Any button attribute | — | There is no element whose attributes the rest would land on. |
+| `className`, `style`, `ref` | — | There is no class list, no style attribute and no element. |
+
+:::
 
 ## See also
 
