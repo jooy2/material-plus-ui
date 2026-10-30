@@ -1,22 +1,31 @@
 name: publish-documentation
 
 on:
-  # run every time a push occurs in the docs folder
+  # Every push that can change what the site shows: its own pages, either
+  # package's source (the React previews read it, the Flutter previews are
+  # built from it), or either changelog.
   push:
     branches: [main]
     paths:
       - docs/**
-      - src/**
+      - packages/react/src/**
+      - packages/react/CHANGELOG.md
+      - packages/react/package.json
+      - packages/flutter/lib/**
+      - packages/flutter/example/**
+      - packages/flutter/CHANGELOG.md
       - .github/workflows/publish-documentation.yml
-      - CHANGELOG.md
-      - package.json
-      - package-lock.json
   # trigger deployment manually
   workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: ./docs
 
 jobs:
   publish-documentation:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
       - uses: actions/checkout@v5
@@ -28,27 +37,31 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '26'
+          cache: npm
+          cache-dependency-path: |
+            docs/package-lock.json
+            packages/react/package-lock.json
 
-      # cache node_modules
-      - name: Cache dependencies
-        uses: actions/cache@v5
-        id: npm-cache
+      # The Flutter previews are the real package compiled for the web, which
+      # `npm run build` does through `scripts/build-flutter-demos.mjs`.
+      - uses: subosito/flutter-action@v2
         with:
-          path: |
-            **/node_modules
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-npm-
+          channel: stable
+          cache: true
 
-      # install dependencies if the cache did not hit
-      - name: Install dependencies
-        if: steps.npm-cache.outputs.cache-hit != 'true'
-        run: npm install
+      # The React previews read `packages/react/src`, whose imports resolve
+      # against that package's dependencies. Its build is not needed.
+      - name: Install the React package's dependencies
+        run: npm ci --ignore-scripts
+        working-directory: ./packages/react
 
-      # run build script — `docs:build` copies CHANGELOG.md into each locale
-      # itself, via `scripts/copy-changelog.mjs`
+      - name: Install the site's dependencies
+        run: npm ci
+
+      # `build` writes both changelogs into each locale, builds the Flutter
+      # gallery into `public/flutter`, then builds the site.
       - name: Build VitePress site
-        run: npm run docs:build
+        run: npm run build
 
       # please check out the docs of the workflow for more details
       # @see https://github.com/crazy-max/ghaction-github-pages

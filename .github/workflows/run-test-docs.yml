@@ -1,0 +1,54 @@
+name: run-test-docs
+
+# The site is otherwise only built after a merge, by the deploy job, so a broken
+# page, a props row the Flutter table cannot derive or a `{{` in a changelog
+# would first show up as a failed deploy on `main`.
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: ./docs
+
+jobs:
+  run-test-docs:
+    runs-on: ubuntu-latest
+    name: Typecheck, lint and build the documentation
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        name: Setup Node.js
+        with:
+          node-version: '26'
+          cache: npm
+          cache-dependency-path: |
+            docs/package-lock.json
+            packages/react/package-lock.json
+
+      # The Flutter previews are compiled for the web by `npm run build`.
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      # The typecheck follows the demos into `packages/react/src`, whose own
+      # imports resolve against that package's dependencies. Its build is not
+      # needed: the site reads the source.
+      - name: Install the React package's dependencies
+        run: npm ci --ignore-scripts
+        working-directory: ./packages/react
+      - run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Lint
+        run: npm run lint
+      - name: Check formatting
+        run: npx prettier . --check
+      - name: Build
+        run: npm run build

@@ -1,0 +1,91 @@
+name: run-test-flutter
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    paths:
+      - packages/flutter/**
+      - .github/workflows/run-test-flutter.yml
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: ./packages/flutter
+
+jobs:
+  run-test-flutter:
+    runs-on: ${{ matrix.os }}
+    name: Test Flutter ${{ matrix.flutter_version || 'stable' }} on ${{ matrix.os }}
+    # About twice the slowest run. A test that hangs prints nothing, and without
+    # a limit it runs to GitHub's 360 minutes.
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        # The floor the package declares, and whatever the channel is now.
+        # Nothing here imports Material or Cupertino, so a release that moves
+        # those out of the framework is not a version this has to be pinned
+        # away from.
+        #
+        # An empty version is how `flutter-action` is told "the channel's
+        # latest": the word `stable` belongs to `channel`, and giving it to
+        # `flutter-version` fails to resolve.
+        flutter_version: ['3.41.0', '']
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ matrix.flutter_version }}
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed lib test tool
+
+      # Includes `test/package/generated_test.dart`, which fails when the barrel
+      # or the gallery's demo registry was not regenerated after a change.
+      - name: Run tests
+        run: flutter test
+
+  analyze-example:
+    runs-on: ubuntu-latest
+    # The gallery is what the documentation site embeds, and its demo files are
+    # the Dart the docs quote verbatim, so a snippet that stopped compiling has
+    # to fail here rather than on the site.
+    name: Analyze and build the gallery
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: ./packages/flutter/example
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed lib
+
+      # `--no-tree-shake-icons` for the reason the documentation build passes
+      # it: the gallery ships no icon font, so the subset the shaker would
+      # compute is empty.
+      - name: Build for the web
+        run: flutter build web --release --no-tree-shake-icons

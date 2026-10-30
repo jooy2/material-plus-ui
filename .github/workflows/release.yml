@@ -1,19 +1,21 @@
 name: release
 
-# A GitHub release for every version tag, and nothing else. The package is
-# tagged by hand once the commit that cut its version is on `main`, and npm is
-# published by hand as well. What this adds is everything between the two: the
-# check that the tag names the version that was cut, the package packed the way
-# npm will take it, and the release written from that version's changelog
-# section with the tarball attached.
+# A GitHub release for every version tag, and nothing else. Each package is
+# tagged by hand once the commit that cut its version is on `main`, and both
+# registries are published by hand as well. What this adds is everything
+# between the two: the check that the tag names the version that was cut, the
+# package packed or validated the way its registry will take it, and the
+# release written from that version's changelog section.
 #
-# The tests are not run again here: the tag goes on a `main` commit whose CI has
-# already passed. `run-test` and `publish-documentation` filter their pushes by
-# branch, so a tag push does not start either of them and starts only this.
+# The two packages version independently, so a tag names the package:
+# `react-v1.12.0` or `flutter-v1.0.0`. The tests are not run again here: the tag
+# goes on a `main` commit whose CI has already passed. The test and deploy
+# workflows filter their pushes by branch, so a tag push starts only this.
 on:
   push:
     tags:
-      - 'v*'
+      - 'react-v*'
+      - 'flutter-v*'
 
 permissions:
   contents: write
@@ -24,10 +26,14 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  release:
+  react:
+    if: startsWith(github.ref_name, 'react-v')
     runs-on: ubuntu-latest
-    name: GitHub release
+    name: GitHub release of the React package
     timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: ./packages/react
 
     steps:
       - uses: actions/checkout@v5
@@ -36,7 +42,7 @@ jobs:
         with:
           node-version: '26'
           cache: npm
-          cache-dependency-path: package-lock.json
+          cache-dependency-path: packages/react/package-lock.json
 
       # The tag is typed by hand and the version is in two files; a tag pushed
       # onto the wrong commit would otherwise publish a release whose tarball
@@ -45,8 +51,8 @@ jobs:
         id: version
         run: |
           version=$(node -p "require('./package.json').version")
-          if [ "${GITHUB_REF_NAME}" != "v${version}" ]; then
-            echo "::error::The tag is ${GITHUB_REF_NAME} and package.json says ${version}. Tag the commit that cut v${version}."
+          if [ "${GITHUB_REF_NAME}" != "react-v${version}" ]; then
+            echo "::error::The tag is ${GITHUB_REF_NAME} and package.json says ${version}. Tag the commit that cut react-v${version}."
             exit 1
           fi
           echo "version=${version}" >> "$GITHUB_OUTPUT"
@@ -54,7 +60,7 @@ jobs:
       # First, so a tag on a commit whose changelog still says `vNext` fails in
       # seconds rather than after the build.
       - name: Write the release notes from CHANGELOG.md
-        run: node .github/scripts/release-notes.mjs "$GITHUB_REF_NAME" > "$RUNNER_TEMP/notes.md"
+        run: node ../../.github/scripts/release-notes.mjs "$GITHUB_REF_NAME" > "$RUNNER_TEMP/notes.md"
 
       # Without scripts: `prepare` is the build, and `npm pack` runs it below,
       # so installing with them would build twice.
@@ -65,8 +71,7 @@ jobs:
       # `measure-bundle.mjs`, which fails it when importing `MPButton` from the
       # barrel pulls in a module that importing it from
       # `material-plus-ui/components/button` does not, or the other way round.
-      # So a pack that succeeds has passed the one check this project runs on
-      # `dist/`. The tarball goes to `$RUNNER_TEMP`, outside the checkout.
+      # The tarball goes to `$RUNNER_TEMP`, outside the checkout.
       - name: Build and pack
         run: npm pack --pack-destination "$RUNNER_TEMP"
 
@@ -81,7 +86,7 @@ jobs:
         run: |
           tarball=$(ls "$RUNNER_TEMP"/*.tgz)
           notes="$RUNNER_TEMP/notes.md"
-          title="Material Plus ${VERSION}"
+          title="Material Plus for React ${VERSION}"
           if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
             gh release edit "$GITHUB_REF_NAME" --title "$title" --notes-file "$notes"
             gh release upload "$GITHUB_REF_NAME" "$tarball" --clobber
@@ -89,5 +94,61 @@ jobs:
             prerelease=""
             case "$VERSION" in *-*) prerelease="--prerelease" ;; esac
             gh release create "$GITHUB_REF_NAME" "$tarball" --verify-tag \
+              --title "$title" --notes-file "$notes" $prerelease
+          fi
+
+  flutter:
+    if: startsWith(github.ref_name, 'flutter-v')
+    runs-on: ubuntu-latest
+    name: GitHub release of the Flutter package
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: ./packages/flutter
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        name: Setup Node.js
+        with:
+          node-version: '26'
+
+      - name: Check the tag names the version in pubspec.yaml
+        id: version
+        run: |
+          version=$(sed -n 's/^version:[[:space:]]*//p' pubspec.yaml)
+          if [ "${GITHUB_REF_NAME}" != "flutter-v${version}" ]; then
+            echo "::error::The tag is ${GITHUB_REF_NAME} and pubspec.yaml says ${version}. Tag the commit that cut flutter-v${version}."
+            exit 1
+          fi
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+      - name: Write the release notes from CHANGELOG.md
+        run: node ../../.github/scripts/release-notes.mjs "$GITHUB_REF_NAME" > "$RUNNER_TEMP/notes.md"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      # pub has no command that writes its archive to a file, so nothing is
+      # attached; the dry run is the same validation `dart pub publish` runs.
+      - name: Validate the package for pub.dev
+        run: dart pub publish --dry-run
+
+      - name: Publish the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          notes="$RUNNER_TEMP/notes.md"
+          title="Material Plus for Flutter ${VERSION}"
+          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
+            gh release edit "$GITHUB_REF_NAME" --title "$title" --notes-file "$notes"
+          else
+            prerelease=""
+            case "$VERSION" in *-*) prerelease="--prerelease" ;; esac
+            gh release create "$GITHUB_REF_NAME" --verify-tag \
               --title "$title" --notes-file "$notes" $prerelease
           fi

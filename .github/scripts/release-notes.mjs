@@ -1,10 +1,11 @@
 /**
  * The body of a GitHub release, cut out of the package's `CHANGELOG.md`.
  *
- *   node .github/scripts/release-notes.mjs v1.9.0 > notes.md
+ *   node .github/scripts/release-notes.mjs react-v1.12.0 > notes.md
  *
- * A tag names the package as well as the version, by the prefixes in
- * `PACKAGES`: this repository holds one package, so `v1.9.0` is its 1.9.0. The
+ * The two packages version independently, so a tag names the package as well
+ * as the version, by the prefixes in `PACKAGES`: `react-v1.12.0` is the React
+ * package's 1.12.0 and `flutter-v1.0.0` the Flutter package's 1.0.0. The
  * version's own section is the body, whole, from the line under its heading to
  * the next `## `, with a pointer to the full history under it. A release is
  * refused rather than written from a section that is not ready: one still
@@ -24,7 +25,11 @@ import { fileURLToPath } from 'node:url';
  * `dir` holds the package's manifest and its `CHANGELOG.md`.
  */
 const PACKAGES = {
-  v: { dir: '.', manifest: 'package.json' }
+  'react-v': { dir: 'packages/react', manifest: 'package.json' },
+  'flutter-v': { dir: 'packages/flutter', manifest: 'pubspec.yaml' },
+  // The React package's tags before the repository held two packages, so the
+  // notes of an old release can still be written again.
+  v: { dir: 'packages/react', manifest: 'package.json' }
 };
 /** Where the docs site shows the changelog, under `homepage`; `null` for none. */
 const DOCS_CHANGELOG_PATH = '/changelog';

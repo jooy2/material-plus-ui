@@ -12,6 +12,24 @@ body:
         - Please create a separate issue for each type of issue.
         - For modular projects, make sure you're using the latest version of the module.
         - Please be as detailed as possible and write in English so that we can handle your issue quickly.
+  - type: dropdown
+    attributes:
+      label: Which package?
+      description: The two packages version independently, so a fix on one side is not a fix on the other.
+      options:
+        - 'React (npm: material-plus-ui)'
+        - 'Flutter (pub.dev: material_plus_ui)'
+        - 'Documentation site'
+        - 'Both packages'
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Package version
+      description: The version you are using, and the component it happens on if there is one.
+      placeholder: material-plus-ui 1.11.0, MPSelect
+    validations:
+      required: true
   - type: textarea
     attributes:
       label: Describe the bug
@@ -35,4 +53,10 @@ body:
       label: Your environment - Web Browser
       description: If relevant, please describe the web browser you are currently using.
       placeholder: Google Chrome, Microsoft Edge, Mozilla Firefox...
+    validations:
+  - type: input
+    attributes:
+      label: Your environment - Framework
+      description: The React or Flutter version you are running, and the framework around it if there is one.
+      placeholder: React 19.2 with Next.js 16, Flutter 3.44 (Dart 3.12)...
     validations:
