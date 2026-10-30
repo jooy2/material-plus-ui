@@ -9,15 +9,39 @@ order: 6
 
 <Demo src="color-picker/hero" :minHeight="100" />
 
+::: fw react
+
 ```tsx
 import { MPColorPicker } from 'material-plus-ui';
 
 <MPColorPicker label="태그 색" value={colour} onValueChange={setColour} />;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPColorPicker(
+  label: const Text('태그 색'),
+  value: colour,
+  onChanged: (String next) => setState(() => colour = next),
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPColorPicker" />
+
+::: fw flutter
+
+`value`를 주면 controlled 피커가 됩니다. `''`도 값이고, 색이 없다는 뜻입니다. `value`를 빼면 피커가 색을 직접 들고 있고 `initialValue`에서 시작합니다. React 패키지에서 넘어오지 않는 것은 [React 빌드와 다른 점](#react-빌드와-다른-점)에 있습니다.
+
+:::
 
 ## 이것은 테마가 아닙니다
 
@@ -39,13 +63,35 @@ picker는 스킴의 네 계열을 스와치로 제공하지도 않습니다. 그
 
 <Demo src="color-picker/format" :minHeight="220">
 
+::: fw react
+
 <<< @/.vitepress/demos/color-picker/format.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/color_picker/format.dart
+
+:::
 
 </Demo>
 
 `format`은 값이 어떤 표기로 나갈지 정합니다. `hex`는 불투명할 때 alpha 쌍을 떼고, 두 함수형 표기도 같은 이유로 네 번째 인자를 뗍니다 — `alpha`를 켠 적 없는 호출자가 세 채널만 쓴 컨트롤에서 `rgba(…, 1)`을 보게 되어서는 안 됩니다.
 
-`swatches`는 제품이 실제로 쓰는 몇 가지 색을 한 번의 클릭 거리에 둡니다. `false`면 그리지 않습니다.
+`swatches`는 제품이 실제로 쓰는 몇 가지 색을 한 번의 클릭 거리에 둡니다.
+
+::: fw react
+
+`false`면 그리지 않습니다.
+
+:::
+
+::: fw flutter
+
+빈 리스트면 그리지 않고, 빼 두면 기본 제공 색들을 그립니다.
+
+:::
 
 체크 표시는 견본 사이를 건너뛰는 대신 서서히 옮겨 갑니다. 견본을 고른다고 견본 자체가 달라지지는 않으므로, 표시가 움직이는 것이 피드백의 전부입니다. 한 프레임 만에 나타나는 표시는 선택이 아니라 깜빡임으로 읽힙니다. 포인터가 올라간 견본은 같은 200ms 동안 elevation 1로 떠오릅니다.
 
@@ -61,7 +107,17 @@ picker는 스킴의 네 계열을 스와치로 제공하지도 않습니다. 그
 
 <Demo src="color-picker/inline" :minHeight="320">
 
+::: fw react
+
 <<< @/.vitepress/demos/color-picker/inline.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/color_picker/inline.dart
+
+:::
 
 </Demo>
 
@@ -79,6 +135,8 @@ picker는 스킴의 네 계열을 스와치로 제공하지도 않습니다. 그
 
 그것들은 컴포넌트에 남는 기본값이 아니라 라이브러리 자신의 [메시지 표](../../design/localization)에 있습니다. 단어를 지어내는 모든 컴포넌트가 따르는 규칙입니다. `locale`이 번역을 가져오고, `MPLocaleProvider`가 애플리케이션 전체에 한 번에 그것을 주며, `labels`가 나머지를 맡습니다.
 
+::: fw react
+
 ```tsx
 // 번역된 것.
 <MPColorPicker locale="ko" … />
@@ -87,6 +145,20 @@ picker는 스킴의 네 계열을 스와치로 제공하지도 않습니다. 그
 <MPColorPicker locale="ko" labels={{ empty: '아직 없음' }} … />
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+// 번역된 것.
+MPColorPicker(locale: 'ko', …)
+
+// 그리고 그 위에 얹는 내 단어 하나.
+MPColorPicker(locale: 'ko', labels: const <String, String>{'empty': '아직 없음'}, …)
+```
+
+:::
+
 덮어쓰기가 번역보다 우선하고, 지정하지 않은 나머지는 번역된 채로 남습니다.
 
 ## 접근성
@@ -94,6 +166,31 @@ picker는 스킴의 네 계열을 스와치로 제공하지도 않습니다. 그
 - 사각형과 두 레일은 모두 slider이고 화살표 키로 움직입니다. Shift는 라이브러리의 다른 곳과 마찬가지로 열 칸씩 움직입니다.
 - 트리거는 [MPSelect](./select)와 똑같이 노치의 라벨로 이름이 붙습니다.
 - 고른 스와치 위의 체크는 검정이거나 흰색이고, 아래 스와치의 상대 휘도가 그것을 정합니다. 고정된 흰 체크는 노란색 위에서 사라집니다.
+
+::: fw flutter
+
+- 트리거는 버튼 노드 하나이고, 적힌 색을 값으로 갖고 팝업이 펼쳐졌는지 알립니다.
+- 팝업이 열리면 포커스가 사각형으로 들어갑니다. Tab으로 사각형, 레일, 값 필드, 스와치를 차례로 지나고, Escape나 바깥 누르기는 팝업을 닫고 포커스를 트리거로 돌려줍니다. Tab으로 패널을 벗어나도 팝업이 닫힙니다.
+- 레일은 Home과 End에도 답합니다. 화면 낭독기는 모든 slider를 한 칸씩 올리고 내릴 수 있고, 한 칸 움직이면 값이 무엇이 되는지 듣습니다.
+- 인라인 피커는 라벨로 이름이 붙은 그룹 하나입니다. 그래서 그 안의 slider들이 서로 구별되지 않는 "색조"와 "불투명도" 두 벌이 되지 않습니다.
+
+## React 빌드와 다른 점
+
+이 페이지의 대부분은 두 패키지에서 같습니다. 아래는 같지 않은 지점과 그 이유입니다.
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `onValueChange` | `onChanged` | 평범한 변경에 붙는 Flutter의 이름입니다. `onOpenChange`는 이름을 그대로 둡니다. |
+| `defaultValue`, `defaultOpen` | `initialValue`, `initialOpen` | Flutter의 이름입니다. |
+| `swatches={false}` | `swatches: const <String>[]` | 빈 리스트는 아무것도 그리지 않고, `null`이 기본 제공 색들을 요청합니다. |
+| `labels` (`Partial<MPColorPickerLabels>`) | `labels` (`Map<String, String>?`) | 같은 키를 맵으로 받습니다. |
+| `label`, `description`, `errorMessage` (`ReactNode`) | `Widget?` | 보통 `Text`입니다. |
+| `id`, `className`, `style` | — | 넘겨줄 대상이 없습니다. |
+| — | `semanticLabel`, `focusNode`, `autofocus` | 보이는 라벨이 없는 피커의 이름과, 밖에서 다루는 트리거의 포커스입니다. |
+
+나머지는 일부러 맞췄습니다. HSV 모델, 패널의 크기 단계, 세 가지 표기, 체커보드, 스와치 격자와 체크, 그리고 라벨과 함께 내려가는 견본이 그렇습니다.
+
+:::
 
 ## 함께 보기
 
