@@ -9,6 +9,8 @@ order: 5
 
 <Demo src="date-time-picker/hero" :minHeight="120" />
 
+::: fw react
+
 ```tsx
 import { MPDateTimePicker } from 'material-plus-ui';
 
@@ -23,6 +25,24 @@ const [starts, setStarts] = useState(null);
 />;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPDateTimePicker(
+  label: const Text('시작'),
+  minDate: DateTime.now(),
+  minuteStep: 15,
+  value: starts,
+  onChanged: (DateTime? next) => setState(() => starts = next),
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPDateTimePicker" />
@@ -31,7 +51,17 @@ const [starts, setStarts] = useState(null);
 
 달력의 격자와 시계의 열이 하나의 사다리를 공유하기 때문입니다.
 
+::: fw react
+
 `md`에서 날짜 칸은 40px이고, 일 뷰는 헤더까지 일곱 행이며, 시계의 각 열도 같은 숫자에 대해 `7 × cell` 높이로 그려집니다. 런타임에 무언가를 재는 부분은 없습니다. 둘 다 같은 `--_mp-cell` 길이를 읽으므로, 둘을 담은 팝업은 하나의 사각형이 됩니다.
+
+:::
+
+::: fw flutter
+
+`md`에서 날짜 칸은 40이고, 일 뷰는 헤더까지 일곱 행이며, 시계의 각 열도 같은 숫자에 맞춰 일곱 칸 높이로 그려집니다. 실행 중에 무언가를 재는 부분은 없습니다. 둘 다 크기 사다리에서 같은 칸 크기를 읽으므로, 둘을 담은 팝업은 하나의 사각형이 됩니다.
+
+:::
 
 이 정도의 조율은 값어치가 있습니다. 높이가 다른 두 패널을 붙여 놓는 것은, 결합형 피커가 조립된 물건처럼 보이게 되는 가장 흔한 경로입니다.
 
@@ -64,13 +94,31 @@ const [starts, setStarts] = useState(null);
 
 ### format
 
+::: fw react
+
 기본값은 `{ dateStyle: 'medium', timeStyle: 'short' }`에 `hour12`가 접혀 들어간 것이라, 트리거가 열이 그려진 다이얼과 같은 말을 합니다. `Intl`이 받는 것은 무엇이든 동작합니다.
 
 ```tsx
 <MPDateTimePicker format={{ dateStyle: 'full', timeStyle: 'medium' }} />
 ```
 
+:::
+
+::: fw flutter
+
+기본값은 로케일의 중간 길이 날짜와 짧은 시각을 로케일이 잇는 방식대로 이은 것이고, `hour12`도 반영합니다. 그래서 트리거가 열이 그려진 다이얼과 같은 말을 합니다. 다른 모양은 직접 쓴 함수로 넘깁니다.
+
+```dart
+MPDateTimePicker(
+  format: (DateTime value) => '${MPDateNames.english.spell(value)}, ${value.hour}:${value.minute.toString().padLeft(2, '0')}',
+)
+```
+
+:::
+
 ### name
+
+::: fw react
 
 `<input type="datetime-local">`이 제출하는 형식의 hidden input입니다.
 
@@ -78,11 +126,38 @@ const [starts, setStarts] = useState(null);
 <input type="hidden" name="starts" value="2026-07-15T09:05" />
 ```
 
+:::
+
+::: fw flutter
+
+피커를 감싼 [MPForm](./form)에 `<input type="datetime-local">`이 제출하는 형식으로 값을 등록합니다. `{'starts': '2026-07-15T09:05'}`처럼요.
+
+:::
+
 UTC가 아니라 로컬입니다. 서울에서 7월 15일 09:05를 뜻하는 `Date`에 `toISOString()`을 하면 `2026-07-15T00:05:00Z`가 나옵니다 — 순간 자체는 맞지만, 폼을 읽는 쪽이 틀리게 읽을 형식입니다.
 
 ## 접근성
 
-양쪽 절반이 각자 가진 것 전부가 그대로입니다. 달력의 roving tab stop과 키보드 어휘 전체, 시계의 이름 붙은 listbox들과 시각을 한 문장으로 되읽어 주는 live region. 둘 사이의 구분선은 장식이라 숨겨져 있습니다.
+양쪽 절반이 각자 가진 것 전부가 그대로입니다. 달력의 roving tab stop과 키보드 어휘 전체, 시계의 이름 붙은 열들과 시각을 한 문장으로 되읽어 주는 live region. 둘 사이의 구분선은 장식이라 숨겨져 있습니다.
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+이 페이지의 대부분은 두 패키지에서 같습니다. 아래는 같지 않은 지점과 그 이유입니다.
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `onValueChange`, `defaultValue`, `defaultOpen` | `onChanged`, `initialValue`, `initialOpen` | Flutter의 이름입니다. |
+| `format` (`Intl.DateTimeFormatOptions`) | `format` (`String Function(DateTime)`) | 옵션을 넘길 `Intl`이 없습니다. |
+| 숫자로 받는 `hourStep`, `minuteStep`, `secondStep` | `int` | 간격은 행의 개수이고, 두 패키지 모두 1과 열의 범위 사이로 묶습니다. |
+| `name` 아래의 hidden input | `MPForm`에 값을 등록하는 `name` | Flutter에는 native 폼이 없습니다. 문자열은 같습니다. |
+| `Intl`에 닿는 `locale` | 패키지의 표에 닿는 `locale`, 그리고 `names` | [MPDatePicker의 현지화](./date-picker#현지화)를 보세요. |
+| 원시 DOM 이벤트, `id`, `className`, `style` | `onKeyEvent`, `onFocusChange`, `semanticLabel`, `focusNode`, `autofocus` | [MPDatePicker](./date-picker#react-빌드와-다른-점)와 같습니다. |
+
+나머지는 일부러 맞췄습니다. 같은 높이의 두 패널, 전체 정밀도로 읽는 경계, 순서에 매이지 않는 선택, 완료 버튼, 글리프 하나가 그렇습니다.
+
+:::
 
 ## 함께 보기
 
