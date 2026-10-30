@@ -9,6 +9,8 @@ order: 5
 
 <Demo src="badge/hero" :minHeight="120" />
 
+::: fw react
+
 ```tsx
 import { MPBadge } from 'material-plus-ui';
 
@@ -17,11 +19,37 @@ import { MPBadge } from 'material-plus-ui';
 </MPBadge>;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPBadge(
+  content: 3,
+  label: '안 읽은 메시지 3개',
+  child: MPButton(onPressed: openInbox, child: const Text('받은 편지함')),
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPBadge" />
 
+::: fw react
+
 모든 native `<span>` 속성이 그대로 전달되고, `ref`는 표시에 닿습니다.
+
+:::
+
+::: fw flutter
+
+Dart에는 유니언 타입이 없어 `content`는 `Object?`로 받습니다. `int`나 `double`은 `max`와 `showZero`가 적용되는 개수이고, `String`은 낱말, 위젯은 그대로 그립니다. 그 밖의 값은 디버그에서 assert로 막습니다.
+
+:::
 
 ## `color`의 기본값은 `error`입니다
 
@@ -35,17 +63,29 @@ MD3에는 작은 배지(6dp 점)와 큰 배지(라벨이 있는 16dp)가 있고,
 
 <Demo src="badge/counts">
 
+::: fw react
+
 <<< @/.vitepress/demos/badge/counts.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/badge/counts.dart
+
+:::
 
 </Demo>
 
 ## 0은 소식이 아닙니다
 
-`content={0}`이면 배지가 숨습니다. 사라지지 않는 배지는 아무 뜻도 갖지 못하기 때문입니다. 정말 0을 읽어야 하는 계수기를 위해 `showZero`가 있습니다.
+`content`가 `0`이면 배지가 숨습니다. 사라지지 않는 배지는 아무 뜻도 갖지 못하기 때문입니다. 정말 0을 읽어야 하는 계수기를 위해 `showZero`가 있습니다.
 
 `invisible`은 숨기는 다른 방법이고 성질이 다릅니다. 표시가 자기 상자를 유지하므로 다시 보여줄 때 아래가 밀리지 않습니다.
 
 그리고 **자라 들어오고 줄어들어 나갑니다**. MD3가 배지에 정한 등장 방식이고, 그냥 나타나는 숫자는 아무도 바뀌는 것을 보지 못한 숫자입니다.
+
+::: fw react
 
 숨기는 일은 여전히 `visibility`가 합니다. 배율에 밀려난 것이 아니라 함께 쓰이는데, opacity가 할 수 없는 두 가지를 하기 때문입니다. `opacity: 0`으로 세워 둔 배지는 페이지 내 찾기에는 여전히 보이고, 아무 말도 하지 않는 표시가 "3" 검색에 걸려서는 안 됩니다. 또 `visibility`는 정확히 필요한 모양으로 보간됩니다. 들어올 때는 첫 프레임에서 보이게 되고, 나갈 때는 마지막 프레임까지 보인 채로 있습니다. 그래서 표시는 두 애니메이션 내내 그려지고, 어느 쪽에서도 사라져 있지 않습니다.
 
@@ -53,15 +93,35 @@ MD3에는 작은 배지(6dp 점)와 큰 배지(라벨이 있는 16dp)가 있고,
 
 숨은 배지는 글자를 전혀 갖고 있지 않습니다. 잘려 있는 상자에 남은 글자는 페이지 내 검색이 여전히 찾아내는 글자입니다.
 
+:::
+
+::: fw flutter
+
+배율과 페이드는 둘 다 `short4` 동안 움직이고, `MediaQuery.disableAnimations`가 켜져 있으면 움직이지 않습니다. 숨은 배지는 의미 트리에서 빠지고, 배지는 탭을 받지 않습니다. 배지 위의 탭은 배지가 붙은 대상의 것입니다. `invisible` 배지는 숫자를 그대로 들고 있어서 줄어들 크기와 다시 자라날 크기가 있습니다.
+
+:::
+
 ## `label`이 문장입니다
 
-종 아이콘 옆의 `content={3}`은 "3"으로 읽히고, 그것은 아무 뜻이 없습니다. `label`이 스크린 리더가 대신 듣는 문장이고, 눈에 보이는 숫자는 접근성 트리에서 감춰집니다. 둘이 연달아 읽히지 않게 하기 위해서입니다.
+종 아이콘 옆의 `content`가 `3`이면 "3"으로 읽히고, 그것은 아무 뜻이 없습니다. `label`이 스크린 리더가 대신 듣는 문장이고, 눈에 보이는 숫자는 접근성 트리에서 감춰집니다. 둘이 연달아 읽히지 않게 하기 위해서입니다.
+
+::: fw react
 
 ```tsx
 <MPBadge content={3} label="안 읽은 알림 3개">
   <BellIcon />
 </MPBadge>
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+const MPBadge(content: 3, label: '안 읽은 알림 3개', child: BellGlyph())
+```
+
+:::
 
 ## 버튼이 아니면서 알약인 유일한 것
 
@@ -72,6 +132,19 @@ MD3에는 작은 배지(6dp 점)와 큰 배지(라벨이 있는 16dp)가 있고,
 ## 아래에 프리미티브가 없습니다
 
 배지에는 상호작용도, 상태도, 키보드 계약도 없습니다. 표시입니다. 위젯 프리미티브에 연결하면 장식용 점 하나하나에 지킬 수 없는 역할을 쥐여주는 셈입니다.
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `ReactNode`인 `content` | `Object?` | Dart에는 유니언 타입이 없어 숫자, `String`, 위젯을 한 인자로 받고 디버그에서 확인합니다. |
+| 숨을 때의 `visibility` | `ExcludeSemantics` | 숨은 숫자를 감출 페이지 내 찾기가 없습니다. 숫자를 빼 두는 곳은 의미 트리입니다. |
+| `children` | `child` | Flutter의 이름입니다. |
+| `className`, `style`, `ref` | — | 넘길 클래스 목록, style 속성, 엘리먼트가 없습니다. |
+
+:::
 
 ## 함께 보기
 
