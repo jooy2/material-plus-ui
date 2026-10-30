@@ -9,6 +9,8 @@ order: 39
 
 <Demo src="timeline-chart/hero" :minHeight="620" />
 
+::: fw react
+
 ```tsx
 import { MPTimelineChart } from 'material-plus-ui';
 
@@ -20,13 +22,50 @@ import { MPTimelineChart } from 'material-plus-ui';
 />;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPTimelineChart(
+  series: <MPTimelineSeries>[
+    MPTimelineSeries(
+      name: 'Build',
+      data: <MPTimelineSpan>[
+        MPTimelineSpan(start: DateTime(2026, 3, 2), end: DateTime(2026, 3, 5)),
+      ],
+    ),
+    MPTimelineSeries(
+      name: 'Test',
+      data: <MPTimelineSpan>[
+        MPTimelineSpan(start: DateTime(2026, 3, 5), end: DateTime(2026, 3, 9)),
+      ],
+    ),
+  ],
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPTimelineChart" />
 
 ## A span has two ends
 
+::: fw react
+
 That is the whole reason this is a separate component. Every other chart here puts its marks at a single point on the value axis, and `MPChartPoint` has one place to put one — so a span is its own type, with `start` and `end` rather than an `end` bolted onto a point that would carry it and never read it.
+
+:::
+
+::: fw flutter
+
+That is the whole reason this is a separate component. Every other chart here puts its marks at a single point on the value axis, and `MPChartPoint` has one place to put one — so a span is its own type, `MPTimelineSpan`, with `start` and `end` rather than an `end` bolted onto a point that would carry it and never read it. Each end is a `DateTime` or a number of milliseconds.
+
+:::
 
 A span whose end is before its start is drawn either way round. One whose ends are not places on a number line is dropped, because a string is not an instant: letting it through would put a `NaN` in the path, which draws nothing and says nothing about why.
 
@@ -58,4 +97,26 @@ A bar grows from a baseline and has one data end worth softening. A span _is_ tw
 
 ## The table is one row per row
 
+::: fw react
+
 A grid cannot hold a variable number of spans, and a column per span would give the table as many columns as the busiest row has. So each row's cell writes out every span on it, in order.
+
+:::
+
+::: fw flutter
+
+A grid cannot hold a variable number of spans, so the words behind the picture give each row a line of its own and write out every span on it, in order: "Build: Mar 2 – Mar 5. Test: Mar 5 – Mar 9".
+
+:::
+
+::: fw flutter
+
+## Differences from the React build
+
+The vocabulary every chart shares — `MPChartSeries`, `MPChartAxis`, `MPChartLegend`, `MPChartTooltip` and the rest — differs from React the way [MPLineChart lists](line-chart#differences-from-the-react-build).
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| clock times in the locale's own form, `9:00 AM` | a 24-hour clock, `09:00` | There is no `Intl` to ask which one a reader uses, and the 24-hour clock is the one no reader misreads. Month names come from `dateNames`. |
+
+:::

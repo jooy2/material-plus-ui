@@ -9,6 +9,8 @@ order: 39
 
 <Demo src="timeline-chart/hero" :minHeight="620" />
 
+::: fw react
+
 ```tsx
 import { MPTimelineChart } from 'material-plus-ui';
 
@@ -20,13 +22,50 @@ import { MPTimelineChart } from 'material-plus-ui';
 />;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPTimelineChart(
+  series: <MPTimelineSeries>[
+    MPTimelineSeries(
+      name: '구현',
+      data: <MPTimelineSpan>[
+        MPTimelineSpan(start: DateTime(2026, 3, 2), end: DateTime(2026, 3, 5)),
+      ],
+    ),
+    MPTimelineSeries(
+      name: '테스트',
+      data: <MPTimelineSpan>[
+        MPTimelineSpan(start: DateTime(2026, 3, 5), end: DateTime(2026, 3, 9)),
+      ],
+    ),
+  ],
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPTimelineChart" />
 
 ## 구간에는 끝이 둘입니다
 
+::: fw react
+
 이것이 이 컴포넌트가 따로 있는 이유의 전부입니다. 여기 다른 모든 차트는 표식을 값 축의 한 지점에 놓고, `MPChartPoint`에는 그 하나를 놓을 자리가 하나뿐입니다. 그래서 구간은 자기 타입을 갖고, 나머지 일곱이 지고 다니면서 절대 읽지 않을 `end`를 점에 덧붙이는 대신 `start`와 `end`를 가집니다.
+
+:::
+
+::: fw flutter
+
+이것이 이 컴포넌트가 따로 있는 이유의 전부입니다. 여기 다른 모든 차트는 표식을 값 축의 한 지점에 놓고, `MPChartPoint`에는 그 하나를 놓을 자리가 하나뿐입니다. 그래서 구간은 `MPTimelineSpan`이라는 자기 타입을 갖고, 점에 `end`를 덧붙이는 대신 `start`와 `end`를 가집니다. 두 끝은 `DateTime`이거나 밀리초 수입니다.
+
+:::
 
 끝이 시작보다 앞선 구간은 뒤집어 그립니다. 끝이 수직선 위의 위치가 아닌 구간은 버립니다. 문자열은 시각이 아니고, 통과시키면 경로에 `NaN`이 들어가 아무것도 그리지 않으면서 이유도 말하지 않습니다.
 
@@ -58,4 +97,26 @@ import { MPTimelineChart } from 'material-plus-ui';
 
 ## 표는 행 하나에 한 줄입니다
 
+::: fw react
+
 격자는 개수가 달라지는 구간들을 담을 수 없고, 구간마다 열을 두면 가장 바쁜 행의 구간 수만큼 열이 생깁니다. 그래서 각 행의 칸에 그 행의 모든 구간을 순서대로 적습니다.
+
+:::
+
+::: fw flutter
+
+격자는 개수가 달라지는 구간들을 담을 수 없습니다. 그래서 그림 뒤의 문장은 행마다 한 줄을 주고 그 행의 모든 구간을 순서대로 적습니다. "구현: Mar 2 – Mar 5. 테스트: Mar 5 – Mar 9" 같은 식입니다.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+`MPChartSeries`, `MPChartAxis`, `MPChartLegend`, `MPChartTooltip` 같은 차트 공용 어휘가 React와 어떻게 다른지는 [MPLineChart에 정리해 두었습니다](line-chart#react-빌드와-다른-점).
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| 언어마다의 시각 표기, `9:00 AM` | 24시간제, `09:00` | 독자가 어느 쪽을 쓰는지 물어볼 `Intl`이 없고, 24시간제는 아무도 잘못 읽지 않습니다. 달 이름은 `dateNames`에서 옵니다. |
+
+:::
