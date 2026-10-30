@@ -9,6 +9,8 @@ order: 19
 
 <Demo src="stack/hero" :minHeight="360" />
 
+::: fw react
+
 ```tsx
 import { MPStack } from 'material-plus-ui';
 
@@ -19,9 +21,32 @@ import { MPStack } from 'material-plus-ui';
 </MPStack>;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPStack(
+  ring: true,
+  max: 4,
+  total: people.length,
+  overflow: (int hidden) => MPAvatar(initials: '+$hidden'),
+  children: <Widget>[
+    for (final Person person in people.take(4))
+      MPAvatar(key: ValueKey<String>(person.id), name: person.name, image: person.avatar),
+  ],
+);
+```
+
+:::
+
 ## Props
 
 <PropsTable name="MPStack" />
+
+::: fw react
 
 ## Replacing MPAvatarGroup
 
@@ -59,6 +84,25 @@ Set what your items share on [MPConfigProvider](../../guide/config) — which co
 </MPConfigProvider>
 ```
 
+:::
+
+::: fw flutter
+
+## Setting what the items share
+
+The stack does not know what its children are, so it sets nothing on them: `size` picks the default overlap and is not passed on. Set what the items share on an [MPConfigProvider](../../guide/config), and the rest on each item.
+
+```dart
+MPConfigProvider(
+  size: MPSize.sm,
+  child: MPStack(ring: true, children: faces),
+)
+```
+
+:::
+
+::: fw react
+
 ## Why the overlap is a margin and not a `translate`
 
 This is the detail nearly every implementation of a pile gets wrong, and it is invisible until something is put next to one.
@@ -75,17 +119,47 @@ A negative margin takes the space back, so the box is exactly the size of what i
 
 The margin is **logical**, so a horizontal pile overlaps the other way under RTL without being asked to.
 
+:::
+
+::: fw react
+
 ## Why `diagonal` is a horizontal flow
 
 Because a flow only overlaps items on the axis it flows along. `diagonal` is `flex-row` — the X advance is the flow's, exactly as it is for `horizontal` — and the vertical offset is written per item as a margin multiplied by that item's **index**.
 
 A fixed `margin-block-start` in a row does not accumulate. It puts every item at the same offset, and the fan does not happen.
 
+:::
+
+::: fw flutter
+
+## The box measures exactly what it draws
+
+The overlap is real layout rather than a `Transform`. A translated pile is laid out one item wide plus the full width of all the others, paints outside its own box, and everything after it is placed against a size the reader never sees. Flutter has no negative margin either, so the pile is laid out by a render object of its own, the one place the items' sizes are known. Five 32px items at a 10px overlap:
+
+| direction                     | box    |
+| ----------------------------- | ------ |
+| `MPStackDirection.horizontal` | 120×32 |
+| `MPStackDirection.vertical`   | 32×120 |
+| `MPStackDirection.diagonal`   | 120×72 |
+
+The overlap runs from the reader's start, so a horizontal pile overlaps the other way under right-to-left text. A straight pile centres items of different sizes across itself; a fanned one hangs them from the top.
+
+:::
+
 ## It is not 45°, and it does not pretend to be
 
 The horizontal advance is `item width − overlap`, and a library does not have the item's width: it is whatever you put in. So the vertical fall is a separate prop, `drop`, and its default is `overlap` — a shallow fan rather than a true diagonal.
 
 If you want 45° you know your item's width and can say `drop={width - overlap}`.
+
+::: fw flutter
+
+In Dart that is `drop: width - overlap`.
+
+:::
+
+::: fw react
 
 ## Two layers per item
 
@@ -97,13 +171,39 @@ The wrappers are also what keeps this off your children. Cloning them to add a `
 
 `ring` is the one exception and it is honest about the cost: it is a fixed-depth descendant selector, so it lands on the element this stack wrapped. A child that is itself a wrapper gets the ring on the wrapper, which for a circular avatar inside a `<span>` means a square ring.
 
+:::
+
+::: fw flutter
+
+## The depth sits under the entrance
+
+`scaleStep` and `opacityStep` are applied on a layer of their own under the entrance, so an entrance that scales an item does not overwrite the depth it rests at. Nothing is cloned or rewrapped onto your children beyond that: what you pass is what is laid out.
+
+`ring` is a spread shadow in the page's `surface` round each item, so it takes no part in the layout. It cannot read a child's shape, so it is fully round unless `ringRadius` says otherwise: give a pile of rounded cards their corner.
+
+```dart
+MPStack(ring: true, ringRadius: BorderRadius.circular(12), children: cards)
+```
+
+:::
+
 ## Examples
 
 ### front
 
 Which end of the pile is nearest the reader. `first` by default, so a pile read from the start is read front to back and the item it is _about_ comes first.
 
+::: fw react
+
 It is said with a `z-index` rather than left to the document, which paints later siblings on top. An implicit order would also hold only until something in the pile acquired a `z-index` of its own.
+
+:::
+
+::: fw flutter
+
+It is the order the items are painted and hit in, front to back, and nothing about the order a screen reader reads them in.
+
+:::
 
 ### scaleStep and opacityStep
 
@@ -117,9 +217,30 @@ An entrance for each item, from the same seven the `MPAnimate*` components run, 
 
 This is on the stack rather than composed from outside for one reason: the items are inside wrappers this component builds, so nothing outside can reach them.
 
+::: fw react
+
 It is also why `MPStack` is 2.1 kB rather than the 0.9 kB the layout alone would come to — it reads the same effect table `MPAnimateFade` does. That is a real cost and it is written down here rather than left to be found: a stack of four faces with no `transition` is paying for six effects it will never run.
 
+:::
+
+::: fw flutter
+
+In Dart it is an `MPAnimation`, with `duration`, `delay`, `easing`, `stagger`, `durationStep` and `reverse`, and the same `trigger`, `play`, `once`, `threshold` and `paused` the `MPAnimate*` widgets take. Each item arrives as React's does, from the stylesheet's own starting point: `grow` and `zoom` from a scale of 0.8, `rotate` from half a turn, `reveal` from the start edge, and `slide`, which the React pile gives no distance, as a fade. A reader who asked for less motion gets every item where it rests.
+
+```dart
+MPStack(
+  transition: MPAnimation.grow,
+  trigger: MPAnimateTrigger.manual,
+  play: dealt,
+  children: cards,
+)
+```
+
+:::
+
 ## Accessibility
+
+::: fw react
 
 - The stack has **no role**. A pile of faces beside a project's title is decoration for the sentence next to it; wrap it in something that names it when it is not.
 - The wrappers are plain `<span>`s with no semantics, so a list of links inside a stack is still a list of links.
@@ -132,6 +253,33 @@ It is also why `MPStack` is 2.1 kB rather than the 0.9 kB the layout alone would
   </MPStack>
 </div>
 ```
+
+:::
+
+::: fw flutter
+
+- The stack adds no node of its own unless `semanticLabel` names it, and then it is a container with that name and each item keeps its own node.
+- `front` changes the painting order and nothing about the reading order, so a screen reader reads the order you wrote.
+
+```dart
+MPStack(semanticLabel: 'On this project', ring: true, max: 4, total: 12, children: faces)
+```
+
+:::
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `overlap` and `drop` take a CSS length | `double`, logical pixels | There are no CSS lengths here. |
+| `ring` reads each item's own `border-radius` | `ring` plus `ringRadius`, fully round by default | Nothing in Flutter can read a child's shape. |
+| `timeline`, `range` | — | Scroll-driven animation is a browser feature. |
+| `transition` takes the object form | `transition` takes an `MPAnimation`, with `duration`, `delay` and `easing` beside it | The per-effect numbers belong to the `MPAnimate*` widgets. |
+| an `aria-label` on a wrapping element | `semanticLabel` | There is no element to put one on. |
+
+:::
 
 ## See also
 
