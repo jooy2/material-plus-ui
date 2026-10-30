@@ -1,0 +1,11 @@
+include: package:flutter_lints/flutter.yaml
+
+formatter:
+  page_width: 100
+
+analyzer:
+  errors:
+    unused_import: error
+  exclude:
+    - build/**
+    - web/**

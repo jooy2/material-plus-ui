@@ -1,0 +1,35 @@
+name: material_plus_ui_example
+description: >-
+  The Material Plus component gallery. Runs as an app on any platform, and
+  doubles as the renderer behind every Flutter preview on the documentation
+  site.
+publish_to: none
+version: 0.0.1
+
+environment:
+  sdk: ^3.11.0
+  flutter: '>=3.41.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  material_plus_ui:
+    path: ../
+  # Web only, and only for the docs bridge: the library itself has no
+  # dependencies at all. Reached through a conditional import so the gallery
+  # still builds for mobile and desktop.
+  web: ^1.1.1
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+
+flutter:
+  # See `assets/fonts/README.md`. The library sets no family of its own; this
+  # is the gallery supplying one, the way an app does.
+  fonts:
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Roboto-Medium.ttf
+          weight: 500
