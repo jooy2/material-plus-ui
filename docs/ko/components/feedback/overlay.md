@@ -9,6 +9,8 @@ order: 5
 
 <Demo src="overlay/hero" :minHeight="80" />
 
+::: fw react
+
 ```tsx
 import { MPOverlay, MPProgressCircular } from 'material-plus-ui';
 
@@ -16,6 +18,24 @@ import { MPOverlay, MPProgressCircular } from 'material-plus-ui';
   <MPProgressCircular size="lg" />
 </MPOverlay>;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPOverlay(
+  open: saving,
+  label: '저장 중',
+  child: const MPProgressCircular(size: MPSize.lg),
+);
+```
+
+오버레이는 트리 밖으로 들려 올라가므로 위쪽에 `Overlay`가 있어야 합니다. 내비게이터가 있는 `WidgetsApp`이 하나를 줍니다. 어디에 쓰든 상관없고, 쓴 자리는 차지하지 않습니다.
+
+:::
 
 ## Props
 
@@ -27,6 +47,12 @@ import { MPOverlay, MPProgressCircular } from 'material-plus-ui';
 
 무언가의 바깥 클릭을 받아내는 것이 일인 오버레이라면 켜세요.
 
+::: fw flutter
+
+`onOpenChange`는 `dismissible`이 켜져 있을 때만 불립니다. 그 밖에는 오버레이를 닫아 달라고 청할 수 있는 것이 없습니다. 꺼져 있고 `modal`이 켜져 있으면 시스템 뒤로 가기는 페이지로 넘어가지 않고 거절됩니다. 오버레이가 기다리는 일을 중간에 버리고 떠날 수 없게 하려는 것입니다.
+
+:::
+
 ## 예시
 
 ### tone
@@ -35,7 +61,17 @@ import { MPOverlay, MPProgressCircular } from 'material-plus-ui';
 
 <Demo src="overlay/tones" :minHeight="80">
 
+::: fw react
+
 <<< @/.vitepress/demos/overlay/tones.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/overlay/tones.dart
+
+:::
 
 </Demo>
 
@@ -50,7 +86,7 @@ import { MPOverlay, MPProgressCircular } from 'material-plus-ui';
 
 ### modal
 
-`'trap-focus'`는 페이지를 스크롤·클릭 가능하게 두면서 포커스만 안에 잡아 둡니다. `clear` 오버레이가 보통 원하는 쪽입니다.
+<Fw react="`'trap-focus'`는" flutter="`modal: false`는" /> 페이지를 스크롤·클릭 가능하게 두면서 포커스만 안에 잡아 둡니다. `clear` 오버레이가 보통 원하는 쪽입니다.
 
 ### align과 size
 
@@ -59,8 +95,25 @@ import { MPOverlay, MPProgressCircular } from 'material-plus-ui';
 ## 접근성
 
 - 오버레이는 `label`로 이름이 붙은 모달 영역입니다.
-- 포털, 스크롤 잠금, 안에 잡아 두는 포커스, 뒤 페이지의 inert 처리, 닫힐 때 원래 자리로 돌아가는 포커스는 Base UI가 가집니다.
+- <Fw react="포털, 스크롤 잠금, 안에 잡아 두는 포커스, 뒤 페이지의 inert 처리, 닫힐 때 원래 자리로 돌아가는 포커스는 Base UI가 가집니다." flutter="레이어가 자신만의 포커스 범위라서 포커스는 들어가면 안에 머물고, 뒤 페이지에는 포인터도 키보드도 화면 낭독기도 닿지 못합니다. 오버레이가 닫히면 포커스는 원래 가지고 있던 곳으로 돌아갑니다." />
 - `clear` 오버레이는 보이지 않을 뿐 없는 것이 아닙니다. 여전히 포인터를 막고 포커스를 가두므로, 뒤에 있는 것은 숨겨진 것이 아니라 실제로 닿을 수 없습니다.
+
+::: fw flutter
+
+- 레이어는 화면 낭독기에 대화상자(`SemanticsRole.dialog`)로 알려지고, 여는 경로의 이름을 `label`로 붙입니다. 화면 낭독기는 이것으로 화면이 바뀌었다는 것을 압니다.
+- 시스템 뒤로 가기(Android의 뒤로 버튼과 제스처, TalkBack의 뒤로, VoiceOver의 escape 문지르기)는 `dismissible` 오버레이를 <kbd>Escape</kbd>처럼 닫습니다. `modal: false`이면 뒤로 가기는 아직 쓰이는 페이지로 넘어갑니다.
+- 운영체제에서 애니메이션을 끄면 오버레이가 바로 나타나고 바로 사라집니다.
+
+## React 빌드와 다른 점
+
+- **`modal`은 `bool`입니다.** `false`가 React의 `'trap-focus'`에 해당합니다. 페이지는 포인터로 쓸 수 있고 포커스는 레이어 안에 남습니다. 포커스까지 내보내는 React의 `false`에 맞는 값은 없습니다. 이 레이어는 언제나 자신만의 포커스 범위이기 때문입니다.
+- **`defaultOpen`은 `initialOpen`**, `children`은 `child`입니다. Flutter의 이름입니다.
+- **`blur`는 채도를 올리지 않습니다.** React의 서리 유리는 `blur(14px) saturate(1.4)`인데, Flutter 레이어는 blur 하나만 받으므로 뒤 페이지는 자기 색을 그대로 둡니다.
+- **스크림 조절 값이 없습니다.** `--mp-scrim-blur`는 CSS 사용자 정의 속성이고, 여기서 스크림의 blur는 2px로 고정입니다.
+- **스크롤 잠금이 없습니다.** 잠글 문서가 없습니다. 장벽이 이미 포인터를 받아 내므로 뒤의 스크롤 영역에는 닿을 수 없습니다.
+- **`className`, `style`이 없습니다.** 넘겨줄 클래스 목록도 style 속성도 없습니다.
+
+:::
 
 ## 함께 보기
 
