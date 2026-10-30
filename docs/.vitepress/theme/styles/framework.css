@@ -1,0 +1,209 @@
+/**
+ * The framework switch.
+ *
+ * Every `::: fw` block, every `<Fw>` phrase and both props tables are in the
+ * document at once; this file is what displays one of them. Doing it in CSS
+ * rather than with `v-if` buys three things at the cost of some page weight:
+ *
+ * - **No flash.** The inline script in `<head>` writes `data-fw` on `<html>`
+ *   before the first paint, so the wrong half is never drawn. A `v-if` cannot
+ *   run before hydration.
+ * - **No hydration mismatch.** The server renders both halves, and so does the
+ *   client.
+ * - **Both halves are searchable.** The local search index is built from the
+ *   rendered page, so a reader looking up `onPressed` finds the button page
+ *   whichever framework they had selected.
+ *
+ * `data-fw` on a block holds a space-separated list, because a block that two
+ * frameworks want and a third does not is a real case. Hence `~=` rather than
+ * `=`.
+ */
+
+/*
+ * Written as "hide the other one" rather than "hide everything, then show this
+ * one", because the second shape has to name a `display` value to come back to,
+ * and a `::: fw` block is a `<div>`, an `<Fw>` phrase is a `<span>` or a
+ * `<code>`, and a props table is a `<div>` its own rule sets to `block`. The
+ * half that is displayed gets no `display` declaration from this file at all.
+ *
+ * The `:not()` also buys the specificity this needs: `.vp-doc .mp-props` would
+ * outrank a single class, and a hidden props table that stayed visible is the
+ * exact failure this file exists to prevent.
+ *
+ * One rule per framework; there is no way to write this once for a list.
+ */
+html[data-fw='react'] .mp-fw[data-fw]:not([data-fw~='react']),
+html[data-fw='flutter'] .mp-fw[data-fw]:not([data-fw~='flutter']) {
+  display: none;
+}
+
+/*
+ * The first block in a `::: fw` wrapper has the margin the paragraph above it
+ * already spent, so the wrapper must not add one of its own. It is a bracket
+ * around content, not a section.
+ */
+.vp-doc .mp-fw > :first-child {
+  margin-top: 0;
+}
+
+.vp-doc .mp-fw > :last-child {
+  margin-bottom: 0;
+}
+
+/* ---------------------------------------------------------------------------
+ * The switch itself, at the top of the sidebar
+ *
+ * Drawn from VitePress's own variables rather than the library's: it is part of
+ * the site's chrome and sits among the site's navigation, so it should look
+ * like the sidebar it is in rather than like the components it is about. The
+ * marks are the exception and carry their products' own colours; see
+ * `FrameworkMark.vue`.
+ * ------------------------------------------------------------------------- */
+
+/*
+ * Pinned to the top of the sidebar's own scroller.
+ *
+ * The menu is long and the switch decides what every entry in it will say, so a
+ * reader several groups down who wants the other framework should not have to
+ * scroll back to a control they can no longer see. It is the one thing in the
+ * sidebar that is not a link, which is also what makes it safe to pin.
+ *
+ * `top: 0` is the scrollport's own top, above the sidebar's top padding, so the
+ * switch comes to rest under the navbar. It needs an opaque background and a
+ * z-index over VitePress's `.curtain`, the sticky band already masking that
+ * padding. The gap under the rule is padding rather than margin, because a
+ * margin is transparent and the menu would slide through it.
+ */
+.mp-framework {
+  position: sticky;
+  z-index: 2;
+  top: 0;
+  padding: 12px 0 20px;
+  border-bottom: 1px solid var(--vp-c-divider);
+  background-color: var(--vp-sidebar-bg-color);
+}
+
+.mp-framework-title {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--vp-c-text-3);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* The options side by side, so both are always readable and the selected one is
+   a position rather than a word to go and find. */
+.mp-framework-track {
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 10px;
+  background-color: var(--vp-c-bg-alt);
+}
+
+.mp-framework-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 30px;
+  border-radius: 7px;
+  color: var(--vp-c-text-2);
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    color 0.16s,
+    background-color 0.16s,
+    box-shadow 0.16s;
+}
+
+/* Present to assistive technology and to the arrow keys, but not drawn: the
+   `<label>` around it is the control as far as the eye is concerned. */
+.mp-framework-option input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+.mp-framework-option:hover {
+  color: var(--vp-c-text-1);
+}
+
+/*
+ * The chosen option, read off `<html>` rather than off a class the component
+ * writes, for the same reason the blocks above are: `data-fw` is set by the
+ * head script before the first paint, and a class would only arrive with
+ * hydration, leaving the default highlighted until the bundle loads. See
+ * `FrameworkSelect.vue` for the half that keeps the radio itself right.
+ */
+html[data-fw='react'] .mp-framework-option[data-fw='react'],
+html[data-fw='flutter'] .mp-framework-option[data-fw='flutter'] {
+  background-color: var(--vp-c-bg);
+  color: var(--vp-c-text-1);
+  box-shadow:
+    0 0 0 1px var(--vp-c-divider),
+    0 1px 2px rgb(0 0 0 / 0.06);
+}
+
+/* On the label, because the input it belongs to has no box to draw one on. */
+.mp-framework-option:has(input:focus-visible) {
+  outline: 2px solid var(--vp-c-brand-1);
+  outline-offset: 2px;
+}
+
+/* Quiet on the option that is not chosen, so the row reads as one selected
+   thing rather than two competing ones. */
+.mp-framework-mark {
+  flex: none;
+  opacity: 0.5;
+  transition: opacity 0.16s;
+}
+
+html[data-fw='react'] .mp-framework-option[data-fw='react'] .mp-framework-mark,
+html[data-fw='flutter'] .mp-framework-option[data-fw='flutter'] .mp-framework-mark,
+.mp-framework-option:hover .mp-framework-mark {
+  opacity: 1;
+}
+
+/* ---------------------------------------------------------------------------
+ * When a page has nothing to say for the selected framework
+ * ------------------------------------------------------------------------- */
+
+.mp-fw-missing {
+  padding: 14px 16px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 10px;
+  background-color: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-2);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/*
+ * An outline entry for a heading the selected framework cannot see.
+ *
+ * Set by `Layout.vue`, the only thing that can match an outline link to the
+ * block its heading sits in: the outline is built from the Markdown, and the
+ * blocks only exist in the DOM.
+ */
+.mp-fw-hidden {
+  display: none;
+}
+
+/* What sits between the variants of an `<Fw>` phrase, for the search index to
+   read and for nobody to see. */
+.mp-fw-sep {
+  display: none;
+}

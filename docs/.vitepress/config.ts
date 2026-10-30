@@ -3,12 +3,21 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { withSidebar } from 'vitepress-sidebar';
-import packageJson from '../../package.json' with { type: 'json' };
-import { defineConfig, HeadConfig, SiteData, TransformContext, UserConfig } from 'vitepress';
+import container from 'markdown-it-container';
+import packageJson from '../../packages/react/package.json' with { type: 'json' };
+import {
+  defineConfig,
+  HeadConfig,
+  MarkdownRenderer,
+  SiteData,
+  TransformContext,
+  UserConfig
+} from 'vitepress';
 import { withI18n } from 'vitepress-i18n';
 import ReactPlugin from '@vitejs/plugin-react';
 import type { VitePressI18nOptions } from 'vitepress-i18n/types';
 import type { VitePressSidebarOptions } from 'vitepress-sidebar/types';
+import { DEFAULT_FRAMEWORK, FRAMEWORK_HEAD_SCRIPT, FRAMEWORK_IDS } from './data/frameworks';
 
 const vitePressDir = dirname(fileURLToPath(import.meta.url));
 const rootDir = resolve(vitePressDir, '../..');
@@ -29,6 +38,36 @@ const siteUrl = packageJson.homepage.replace(/\/+$/, '');
 const repoUrl = packageJson.repository.url.replace(/^git\+/, '').replace(/\.git$/, '');
 const editLinkPattern = `${repoUrl}/edit/main/docs/:path`;
 const npmUrl = `https://www.npmjs.com/package/${packageJson.name}`;
+
+/**
+ * The pub.dev page, read off the Flutter package's own manifest rather than
+ * written out. The two package names differ (`material-plus-ui` against
+ * `material_plus_ui`), and one of them being wrong in the navbar is exactly the
+ * kind of thing nobody notices. No YAML parser for one line.
+ */
+const pubUrl = `https://pub.dev/packages/${
+  readFileSync(resolve(rootDir, 'packages/flutter/pubspec.yaml'), 'utf8').match(
+    /^name:\s*(\S+)/m
+  )?.[1] ?? 'material_plus_ui'
+}`;
+
+/**
+ * Dart's own logo, for the pub.dev link in the navbar.
+ *
+ * A social link's icon is either a name VitePress ships or an SVG string, and
+ * there is no name for pub.dev. The mark is Dart's rather than Flutter's
+ * because the link goes to a package on a Dart registry, and the Flutter mark is
+ * already the sidebar switch's, where it means "the Flutter half of this page".
+ * `currentColor` is what lets the navbar hover it like the icons beside it.
+ */
+const dartIcon =
+  '<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">' +
+  '<title>pub.dev</title>' +
+  '<path fill="currentColor" d="M4.105 4.105S9.158 1.58 11.684.316a3.1 3.1 0 0 1 1.481-.315c.766.047 ' +
+  '1.677.788 1.677.788L24 9.948v9.789h-4.263V24H9.789l-9-9C.303 14.5 0 13.795 0 13.105c0-.319.18-.818' +
+  '.316-1.105zm.679.679v11.787c.002.543.021 1.024.498 1.508L10.204 23h8.533v-4.263zm12.055-.678c-.899' +
+  '-.896-1.809-1.78-2.74-2.643c-.302-.267-.567-.468-1.07-.462c-.37.014-.87.195-.87.195L6.341 4.105z"/>' +
+  '</svg>';
 
 /** A glob Vite can read on either platform — `resolve` gives Windows backslashes. */
 const glob = (pattern: string) => resolve(rootDir, pattern).replaceAll('\\', '/');
@@ -86,7 +125,7 @@ const vitePressSidebarConfig = [
   ...supportLocales.map((lang) => {
     return {
       ...commonSidebarConfig,
-      documentRootPath: `/docs/${lang}`,
+      documentRootPath: `/${lang}`,
       resolvePath: localeBase(lang),
       ...(defaultLocale === lang ? {} : { basePath: localeBase(lang) })
     };
@@ -113,14 +152,13 @@ const vitePressI18nConfig: VitePressI18nOptions = {
   /**
    * What the library is, in one paragraph.
    *
-   * The English one is `package.json`'s own, read rather than copied: npm shows
-   * that sentence on the package page and this shows it on the site, and two
-   * hand-kept copies of one paragraph is how the two end up describing
-   * different libraries. Every other locale is a translation of it.
+   * Written here rather than read from a manifest: `packages/react/package.json`
+   * and `packages/flutter/pubspec.yaml` each describe one package, and this site
+   * documents both. Every other locale is a translation of the English one.
    */
   description: {
-    ko: 'Material Design 3 사양에서 직접 옮기고, 사양이 멈춘 곳부터는 더 넓힌 React 컴포넌트 라이브러리입니다. 사양이 정의한 컴포넌트는 기능을 더 넓혔고, 사양에 없는 차트와 데이터 테이블과 커맨드 팔레트를 더했습니다. Base UI와 Tailwind CSS v4 기반이고, 테마를 CSS 커스텀 프로퍼티로 다루기 때문에 이미 머터리얼을 쓰는 프로젝트와 공존합니다. ESM 전용이며 타입 정의가 포함되어 있습니다.',
-    en: packageJson.description
+    ko: 'Material Design 3 사양에서 직접 옮기고, 사양이 멈춘 곳부터는 더 넓힌 React·Flutter 컴포넌트 라이브러리입니다. 사양이 정의한 컴포넌트는 기능을 더 넓혔고, 사양에 없는 차트와 데이터 테이블과 커맨드 팔레트를 더했습니다. 소스 색상 하나로 모든 색상 롤을 만들고, 같은 색이면 두 패키지에서 같은 스킴이 나옵니다. React 패키지는 Base UI와 Tailwind CSS v4 기반이고 CSS 커스텀 프로퍼티로 테마를 다룹니다. Flutter 패키지는 Flutter의 widgets 라이브러리만으로 만들었고 의존성이 없습니다.',
+    en: 'A component library for React and Flutter, written from the Material Design 3 specification and extended past it — wider versions of the components it names, and the charts, data table and command palette it does not. One source colour derives every colour role, and the same colour gives the same scheme in both packages. The React package is built on Base UI and Tailwind CSS v4 and themed with CSS custom properties; the Flutter package is built on Flutter’s widgets library alone and has no dependencies.'
   },
   themeConfig: {
     ko: { nav: navFor('ko', ['가이드', '디자인', '컴포넌트', '예제']) },
@@ -281,11 +319,11 @@ function structuredData(description: string, url: string) {
     url,
     image: `${siteUrl}/logo-large.png`,
     codeRepository: repoUrl,
-    programmingLanguage: 'TypeScript',
-    runtimePlatform: 'React',
+    programmingLanguage: ['TypeScript', 'Dart'],
+    runtimePlatform: ['React', 'Flutter'],
     license: 'https://opensource.org/licenses/MIT',
     author: { '@type': 'Organization', name: 'CDGet', url: 'https://cdget.com' },
-    sameAs: [repoUrl, npmUrl]
+    sameAs: [repoUrl, npmUrl, pubUrl]
   };
 }
 
@@ -360,6 +398,69 @@ function transformHead({ pageData, siteData, title, description }: TransformCont
   return head;
 }
 
+/* ---------------------------------------------------------------------------
+ * The framework switch, in the Markdown
+ * ------------------------------------------------------------------------- */
+
+/**
+ * The words a heading's `id` is made from.
+ *
+ * `markdown-it-anchor` reads the plain text and the inline code of a heading and
+ * nothing else, so a heading written as an `<Fw>` phrase, which is inline HTML,
+ * would have no words at all: an empty `id`, a `#` link pointing at the top of
+ * the page, and no entry in the outline. The phrase's default-framework variant
+ * is read in its place, so `### <Fw react="onClick" flutter="onPressed" />` is
+ * `#onclick` whichever framework the reader has chosen, and a link to it stays
+ * put when they switch.
+ */
+const fwVariant = new RegExp(`<Fw\\b[^>]*\\b${DEFAULT_FRAMEWORK}="([^"]*)"`);
+
+function headingText(tokens: { type: string; content: string }[]): string {
+  return tokens
+    .map((token) => {
+      if (token.type === 'text' || token.type === 'code_inline') {
+        return token.content;
+      }
+
+      return token.type === 'html_inline' ? (fwVariant.exec(token.content)?.[1] ?? '') : '';
+    })
+    .join('');
+}
+
+/**
+ * `::: fw react` … `:::`, the block only one framework sees.
+ *
+ * Both frameworks' blocks are in the document and `theme/styles/framework.css`
+ * displays one of them, which is what makes the switch instant and what keeps
+ * the two halves from being two pages that drift apart. It also puts both in
+ * the search index, so a reader looking up `onPressed` finds the button page
+ * whichever framework they had selected.
+ *
+ * `::: fw react flutter` is a block both want and a third framework would not.
+ * An id this site does not know is dropped rather than kept, so a typo hides
+ * the block from everyone instead of showing it to everyone.
+ */
+function frameworkBlocks(md: MarkdownRenderer): void {
+  md.use(container, 'fw', {
+    validate: (params: string) => /^fw(\s+\S+)+$/.test(params.trim()),
+    render(tokens: { nesting: number; info: string }[], index: number) {
+      const token = tokens[index];
+
+      if (token.nesting !== 1) {
+        return '</div>\n';
+      }
+
+      const wanted = token.info
+        .trim()
+        .split(/\s+/)
+        .slice(1)
+        .filter((id) => FRAMEWORK_IDS.includes(id));
+
+      return `<div class="mp-fw" data-fw="${wanted.join(' ')}">\n`;
+    }
+  });
+}
+
 // Ref: https://vitepress.dev/reference/site-config
 const vitePressConfig: UserConfig = {
   title: 'Material Plus',
@@ -398,7 +499,11 @@ const vitePressConfig: UserConfig = {
           .replace(/^-+|-+$/g, '')
           .replace(/^(\d)/, '_$1')
           .toLowerCase()
-          .normalize('NFC')
+          .normalize('NFC'),
+      getTokensText: headingText
+    },
+    config(md: MarkdownRenderer) {
+      frameworkBlocks(md);
     }
   },
   /**
@@ -461,7 +566,10 @@ const vitePressConfig: UserConfig = {
     ['meta', { property: 'og:image:height', content: '512' }],
     ['meta', { property: 'og:image:alt', content: 'Material Plus' }],
     ['meta', { name: 'twitter:image', content: `${siteUrl}/logo-large.png` }],
-    ['meta', { name: 'twitter:image:alt', content: 'Material Plus' }]
+    ['meta', { name: 'twitter:image:alt', content: 'Material Plus' }],
+    // Which framework's half of every page is displayed, applied to `<html>`
+    // before the first paint. See `data/frameworks.ts`.
+    ['script', {}, FRAMEWORK_HEAD_SCRIPT]
   ],
   sitemap: {
     hostname: packageJson.homepage
@@ -484,6 +592,16 @@ const vitePressConfig: UserConfig = {
         `Vue reads these as interpolations rather than as text, so the page ships without them. ` +
           `Write the prop out in words instead — a \`min\` on \`yAxis\`, not \`yAxis={{ min }}\`:\n` +
           interpolations.map((one) => `  ${one}`).join('\n')
+      );
+    }
+
+    const containers = misplacedContainers();
+
+    if (containers.length > 0) {
+      throw new Error(
+        `These containers do not open or close where the page means them to, so one ` +
+          `framework's half of the page swallows what follows it or never closes:\n` +
+          containers.map((one) => `  ${one}`).join('\n')
       );
     }
 
@@ -524,24 +642,36 @@ const vitePressConfig: UserConfig = {
     // incompatible. Drops when VitePress and the repo share one Vite.
     plugins: [ReactPlugin() as never],
     resolve: {
+      /*
+       * One copy of each, the docs' own. The components are read from
+       * `packages/react/src`, and a module there resolves its imports from
+       * `packages/react/node_modules` first, which holds a React of its own: two
+       * Reacts in one page is two renderers, and the first hook a component
+       * calls throws. Pinning them here makes every import land on the copy in
+       * `docs/node_modules`, whichever directory asked for it.
+       */
+      dedupe: ['react', 'react-dom', '@base-ui/react', 'lucide-react', 'highlight.js'],
       alias: [
         // Anchored, so `material-plus-ui/styles.css` is not rewritten into the
         // barrel too. Pointing at the source rather than `dist/` is what lets a
         // component edit show up in the docs without a rebuild.
-        { find: /^material-plus-ui$/, replacement: resolve(rootDir, 'src/index.ts') },
+        {
+          find: /^material-plus-ui$/,
+          replacement: resolve(rootDir, 'packages/react/src/index.ts')
+        },
         // The translations, which the package exports separately and no
         // component imports — see `src/locales/index.ts`. Anchored for the same
         // reason as above, and pointed at the source for the same reason.
         {
           find: /^material-plus-ui\/locales$/,
-          replacement: resolve(rootDir, 'src/locales/index.ts')
+          replacement: resolve(rootDir, 'packages/react/src/locales/index.ts')
         }
       ]
     },
     css: {
-      // VitePress's Vite root is `docs/`; the Tailwind plugin lives in the
-      // repository root's `postcss.config.mjs`.
-      postcss: rootDir
+      // VitePress's Vite root is `docs/`, and so is the `postcss.config.mjs`
+      // that runs Tailwind over the components' classes.
+      postcss: srcDir
     },
     optimizeDeps: {
       // Every one of these is only ever reached through a dynamic import inside
@@ -569,10 +699,22 @@ const vitePressConfig: UserConfig = {
       ]
     },
     server: {
+      fs: {
+        /*
+         * The components live in a sibling package.
+         *
+         * Vite's file-system allow-list defaults to the nearest workspace root,
+         * which since `docs/` gained a `package.json` of its own is this folder,
+         * so the dev server refuses every import of `packages/react/src/**`.
+         * Opening the repository root is the access the single-package layout
+         * had. The build reads files directly and was never affected.
+         */
+        allow: [rootDir]
+      },
       warmup: {
         // The library is behind a dynamic import too, so the dev server would
         // not transform a single file of it until the first preview asks.
-        clientFiles: [glob('src/**/*.{ts,tsx}')]
+        clientFiles: [glob('packages/react/src/**/*.{ts,tsx}')]
       }
     }
   },
@@ -603,8 +745,10 @@ const vitePressConfig: UserConfig = {
     editLink: {
       pattern: editLinkPattern
     },
+    // One per place the library is published, plus the source.
     socialLinks: [
       { icon: 'npm', link: npmUrl },
+      { icon: { svg: dartIcon }, link: pubUrl, ariaLabel: 'pub.dev' },
       { icon: 'github', link: repoUrl }
     ],
     footer: {
@@ -887,34 +1031,44 @@ if (sidebar) {
  */
 const llmsPreamble: Record<string, string[]> = {
   en: [
-    'Install with `npm install material-plus-ui`. ESM only, TypeScript declarations included.',
-    'Peer dependencies: `@base-ui/react` 1, and `react` with `react-dom` 18 or 19. `lucide-react` ships inside the package.',
-    'Setup is one stylesheet import — `material-plus-ui/styles.css`, or `material-plus-ui/tailwind.css` in a project already running Tailwind CSS v4 — and there is no provider to wrap the tree in.',
-    "Every component is a named export from the package root and carries an `MP` prefix: `import { MPTextField } from 'material-plus-ui'`.",
-    'Theming is plain CSS custom properties. `--mp-source-color` derives every colour role; `data-mp-scheme` selects light or dark and `data-mp-shape` moves the corner scale.',
-    "Each component page below carries that component's full props table, so it is the page to read before writing a prop name."
+    'Two packages, one set of component names: `material-plus-ui` for React on npm, and `material_plus_ui` for Flutter on pub.dev.',
+    'React: install with `npm install material-plus-ui`. ESM only, TypeScript declarations included.',
+    'React peer dependencies: `@base-ui/react` 1, and `react` with `react-dom` 18 or 19. `lucide-react` ships inside the package.',
+    'React setup is one stylesheet import — `material-plus-ui/styles.css`, or `material-plus-ui/tailwind.css` in a project already running Tailwind CSS v4 — and there is no provider to wrap the tree in.',
+    "React: every component is a named export from the package root and carries an `MP` prefix: `import { MPTextField } from 'material-plus-ui'`.",
+    'React theming is plain CSS custom properties. `--mp-source-color` derives every colour role; `data-mp-scheme` selects light or dark and `data-mp-shape` moves the corner scale.',
+    'Flutter: install with `flutter pub add material_plus_ui`. Requires Flutter 3.41 or newer (Dart 3.11). No dependencies, no assets, and no provider to wrap the app in.',
+    "Flutter: `import 'package:material_plus_ui/material_plus_ui.dart';` brings in every widget, with the same `MP` prefix: `MPButton(onPressed: save, child: const Text('Save'))`.",
+    'Flutter theming is a widget: `MPTheme(sourceColor: ..., brightness: ..., shapes: ..., child: ...)` themes the subtree under it. With no theme the colours follow `MediaQuery.platformBrightness`.',
+    "Each component page below carries that component's props table for each package that has it, so it is the page to read before writing a prop or parameter name."
   ],
   ko: [
-    '설치는 `npm install material-plus-ui`. ESM 전용이며 타입 선언이 함께 들어 있습니다.',
-    '피어 의존성은 `@base-ui/react` 1과 `react`·`react-dom` 18 또는 19입니다. `lucide-react`는 패키지에 포함되어 있습니다.',
-    '설정은 스타일시트 한 줄이 전부입니다 — `material-plus-ui/styles.css`, 이미 Tailwind CSS v4를 쓰는 프로젝트라면 `material-plus-ui/tailwind.css`. 트리를 감싸는 프로바이더는 없습니다.',
-    "모든 컴포넌트는 패키지 루트에서 `MP` 접두사가 붙은 이름으로 내보냅니다: `import { MPTextField } from 'material-plus-ui'`.",
-    '테마는 CSS 커스텀 프로퍼티입니다. `--mp-source-color` 하나로 모든 색 역할이 파생되고, `data-mp-scheme`가 라이트/다크를, `data-mp-shape`가 모서리 스케일을 바꿉니다.',
-    '아래 각 컴포넌트 문서에는 그 컴포넌트의 전체 props 표가 있습니다. prop 이름을 쓰기 전에 읽어야 할 페이지입니다.'
+    '패키지는 둘이고 컴포넌트 이름은 같습니다. React는 npm의 `material-plus-ui`, Flutter는 pub.dev의 `material_plus_ui`입니다.',
+    'React 설치는 `npm install material-plus-ui`. ESM 전용이며 타입 선언이 함께 들어 있습니다.',
+    'React의 피어 의존성은 `@base-ui/react` 1과 `react`·`react-dom` 18 또는 19입니다. `lucide-react`는 패키지에 포함되어 있습니다.',
+    'React 설정은 스타일시트 한 줄이 전부입니다 — `material-plus-ui/styles.css`, 이미 Tailwind CSS v4를 쓰는 프로젝트라면 `material-plus-ui/tailwind.css`. 트리를 감싸는 프로바이더는 없습니다.',
+    "React의 모든 컴포넌트는 패키지 루트에서 `MP` 접두사가 붙은 이름으로 내보냅니다: `import { MPTextField } from 'material-plus-ui'`.",
+    'React의 테마는 CSS 커스텀 프로퍼티입니다. `--mp-source-color` 하나로 모든 색 역할이 파생되고, `data-mp-scheme`가 라이트/다크를, `data-mp-shape`가 모서리 스케일을 바꿉니다.',
+    'Flutter 설치는 `flutter pub add material_plus_ui`. Flutter 3.41(Dart 3.11) 이상이 필요합니다. 의존성도, 에셋도, 앱을 감쌀 프로바이더도 없습니다.',
+    "Flutter는 `import 'package:material_plus_ui/material_plus_ui.dart';` 한 줄로 모든 위젯을 가져오며, 이름에 같은 `MP` 접두사가 붙습니다: `MPButton(onPressed: save, child: const Text('Save'))`.",
+    'Flutter의 테마는 위젯입니다. `MPTheme(sourceColor: ..., brightness: ..., shapes: ..., child: ...)`이 그 아래 서브트리에 테마를 적용합니다. 테마가 없으면 색은 `MediaQuery.platformBrightness`를 따릅니다.',
+    '아래 각 컴포넌트 문서에는 그 컴포넌트가 있는 패키지마다 props 표가 있습니다. prop이나 파라미터 이름을 쓰기 전에 읽어야 할 페이지입니다.'
   ]
 };
 
 /** The notes on the links that are not pages of this site. */
-const llmsLinkNotes: Record<string, { locale: string; repo: string; npm: string }> = {
+const llmsLinkNotes: Record<string, { locale: string; repo: string; npm: string; pub: string }> = {
   en: {
     locale: 'The same documentation in another language.',
     repo: 'The source of every component, its tests, and the issue tracker.',
-    npm: 'The published package.'
+    npm: 'The published React package.',
+    pub: 'The published Flutter package.'
   },
   ko: {
     locale: '같은 문서의 다른 언어판입니다.',
     repo: '모든 컴포넌트의 소스와 테스트, 이슈 트래커입니다.',
-    npm: '배포된 패키지입니다.'
+    npm: '배포된 React 패키지입니다.',
+    pub: '배포된 Flutter 패키지입니다.'
   }
 };
 
@@ -1022,6 +1176,7 @@ function llmsTxt(lang: string): string {
       ),
     `- [GitHub](${repoUrl}): ${notes.repo}`,
     `- [npm](${npmUrl}): ${notes.npm}`,
+    `- [pub.dev](${pubUrl}): ${notes.pub}`,
     ''
   ].join('\n');
 }
@@ -1085,6 +1240,99 @@ const MOVED_PAGES: Record<string, string> = {
 /* ------------------------------------------------- prose Vue would evaluate */
 
 /**
+ * Every `:::` container that will not open or close where the page means it to.
+ *
+ * Half of nearly every page is inside `::: fw react` or `::: fw flutter`, and
+ * three mistakes break one without failing the build:
+ *
+ * - **A container inside another with the same number of colons.**
+ *   `markdown-it-container` closes the outer one at the inner one's closing
+ *   fence, because it looks for the first fence long enough rather than for the
+ *   matching one. The outer block needs one more colon.
+ * - **A fence on the same line as prose.** Prettier joins a fence to the
+ *   paragraph it touches when there is no blank line between them, and
+ *   `text ::: fw react` is text.
+ * - **A page whose containers do not balance**, which is what either of the two
+ *   above leaves behind.
+ */
+function misplacedContainers(): string[] {
+  const found: string[] = [];
+  const container = /^(:{3,})\s*(\S.*)?$/;
+  const names = 'fw|tip|warning|info|danger|details|v-pre';
+  const gluedAfter = new RegExp(`\\S\\s+:{3,}\\s*(?:(?:${names})\\b.*)?$`);
+  const gluedBefore = new RegExp(`^:{3,}\\s+(?!(?:${names})\\b)\\S`);
+
+  const walk = (directory: string) => {
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      const path = resolve(directory, entry.name);
+
+      if (entry.isDirectory()) {
+        if (entry.name !== 'node_modules' && !entry.name.startsWith('.')) {
+          walk(path);
+        }
+      } else if (entry.name.endsWith('.md') && entry.name !== 'changelog.md') {
+        const where = path.slice(rootDir.length + 1);
+        const open: { colons: number; line: number }[] = [];
+        let fence: string | null = null;
+
+        readFileSync(path, 'utf8')
+          .split('\n')
+          .forEach((line, index) => {
+            const marker = /^\s{0,3}(`{3,}|~{3,})/.exec(line)?.[1]?.[0];
+
+            if (marker) {
+              fence = fence === null ? marker : fence === marker ? null : fence;
+
+              return;
+            }
+
+            if (fence !== null) {
+              return;
+            }
+
+            if (gluedAfter.test(line) || gluedBefore.test(line)) {
+              found.push(`${where}:${index + 1}  a fence shares its line with prose`);
+
+              return;
+            }
+
+            const match = container.exec(line);
+
+            if (!match) {
+              return;
+            }
+
+            const colons = match[1].length;
+
+            if (match[2]) {
+              const outer = open.at(-1);
+
+              if (outer && outer.colons <= colons) {
+                found.push(
+                  `${where}:${index + 1}  opens inside the container from line ${outer.line} ` +
+                    'with as many colons; give the outer one more'
+                );
+              }
+
+              open.push({ colons, line: index + 1 });
+            } else if (open.pop() === undefined) {
+              found.push(`${where}:${index + 1}  closes a container that was never opened`);
+            }
+          });
+
+        for (const left of open) {
+          found.push(`${where}:${left.line}  opens a container that is never closed`);
+        }
+      }
+    }
+  };
+
+  walk(srcDir);
+
+  return found;
+}
+
+/**
  * Prose that Vue reads as an interpolation instead of as text.
  *
  * A page here is a Vue template, and `{{ … }}` is a mustache wherever it
@@ -1115,7 +1363,12 @@ function interpolationsInProse(): string[] {
       const path = resolve(directory, entry.name);
 
       if (entry.isDirectory()) {
-        walk(path);
+        // The site has its own `package.json`, so its dependencies sit beside
+        // the pages. Their READMEs are not pages, and neither is anything under
+        // a dot-directory such as `.vitepress/cache`.
+        if (entry.name !== 'node_modules' && !entry.name.startsWith('.')) {
+          walk(path);
+        }
       } else if (entry.name.endsWith('.md') && entry.name !== 'changelog.md') {
         let fence: string | null = null;
 

@@ -95,6 +95,77 @@
    inline — it has to be per-preview, and it stays applied once the components
    are there so that reserving the space does not itself become a second jump. */
 
+/*
+ * The Flutter preview.
+ *
+ * The canvas gives its padding to the frame, because the gallery app inside
+ * draws its own: `MPCanvas` in `packages/flutter/example/lib/canvas.dart` paints
+ * the scheme's surface and leaves 32px above a demo, 24px beside it and 24px
+ * below. `Demo.vue` adds those to the height a frame holds before the gallery
+ * reports its own (`CANVAS_PADDING_Y`), so change the three together.
+ *
+ * The canvas keeps its background, which is what shows for the moment before
+ * the gallery's own `index.html` paints.
+ */
+.mp-demo-canvas--embedded {
+  padding: 0;
+}
+
+.mp-demo-frame {
+  display: block;
+  width: 100%;
+  border: 0;
+  /* The canvas sets `color-scheme: dark` on a dark preview, and a frame whose
+     scheme differs from its document's is given an opaque white backdrop by the
+     browser. `normal` matches the gallery's document, which declares none. */
+  color-scheme: normal;
+}
+
+/* Two classes, to outrank the margin `.vp-doc p` gives every paragraph. */
+.vp-doc .mp-demo-unbuilt {
+  margin: 24px;
+}
+
+/*
+ * Which framework drew this preview, in the corner opposite the theme switch.
+ *
+ * The switch that decides it is at the top of the sidebar, and a reader ten
+ * screens down has not seen it for a while, so each preview says for itself.
+ * It sits in the canvas's 32px top band, above where a demo starts, and is drawn
+ * in the canvas's own `currentColor` like the theme switch, so it flips with
+ * the preview rather than with the page.
+ *
+ * A `div` rather than a `p`: `.vp-doc p` sets a margin at two classes, which an
+ * absolutely positioned box would take as an offset.
+ */
+.mp-demo-badge {
+  position: absolute;
+  z-index: 2;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 22px;
+  margin: 0;
+  padding: 0 8px 0 7px;
+  border: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+  border-radius: 999px;
+  color: color-mix(in srgb, currentColor 60%, transparent);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  user-select: none;
+}
+
+/* One of these per framework, and `framework.css` hides the ones that are not
+   selected. The one left lays its mark and its name out as the badge's own
+   items, as if the wrapper were not there. */
+.mp-demo-badge > .mp-fw {
+  display: contents;
+}
+
 .mp-demo--plain .mp-demo-canvas {
   padding: 0;
   background: none;
