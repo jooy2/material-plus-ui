@@ -9,6 +9,8 @@ order: 1
 
 <Demo src="aspect-ratio/hero" :minHeight="220" />
 
+::: fw react
+
 ```tsx
 import { MPAspectRatio } from 'material-plus-ui';
 
@@ -16,6 +18,23 @@ import { MPAspectRatio } from 'material-plus-ui';
   <img src={cover} alt="" />
 </MPAspectRatio>;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPAspectRatio(
+  ratio: 16 / 9,
+  fit: MPAspectFit.cover,
+  rounded: true,
+  child: Image(image: cover),
+);
+```
+
+:::
 
 ## Props
 
@@ -29,11 +48,23 @@ Reserving the space is the fix, and it is a fix that costs nothing at runtime: t
 
 A row of thumbnails is also a row of one shape, which is the other half of why this exists.
 
+::: fw react
+
 ## Why the ratio is written the way CSS writes it
 
 `ratio={1.5}` and `ratio="16 / 9"` both reach `aspect-ratio` untouched.
 
 There is no `{ width: 16, height: 9 }` object and no `"16:9"` string to translate, because a caller who already knows the CSS has nothing to look up — and a caller who does not is one search away from a page that explains the real thing rather than this library's spelling of it.
+
+:::
+
+::: fw flutter
+
+## The ratio is a division
+
+`ratio: 16 / 9` is width over height, written the way Flutter's own `AspectRatio` takes it, so a caller who knows the framework has nothing to translate. The box is the right height before a byte of the picture has arrived, because the height is worked out from the width it was given.
+
+:::
 
 ## `fit`
 
@@ -41,15 +72,37 @@ The one convenience on top of the proportion. The media inside is stretched to t
 
 <Demo src="aspect-ratio/fit" :minHeight="200">
 
+::: fw react
+
 <<< @/.vitepress/demos/aspect-ratio/fit.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/aspect_ratio/fit.dart
+
+:::
 
 </Demo>
 
 The values are `object-fit`'s own — `cover`, `contain`, `fill`, `none`, `scale-down` — for the same reason the ratio is: inventing `fill-the-box` would only make a reader look up which CSS it maps to.
 
+::: fw react
+
 It reaches an `img`, a `video`, a `canvas`, an `svg`, a `picture` or an `iframe` that is a **direct child**. Anything else is laid out normally and the prop does not touch it, so a box holding a `<div>` of your own is simply a box with a proportion.
 
 `iframe` takes the sizing and not the fit: an embed lays its own content out, and `object-fit` has nothing to act on.
+
+:::
+
+::: fw flutter
+
+In Dart they are `MPAspectFit.cover` to `MPAspectFit.scaleDown`, and they land on Flutter's `BoxFit` one for one.
+
+**`fit` is `null` by default**, where React's is `cover`. A browser applies `object-fit` to an image or a video and leaves a box of text alone; Flutter has no such line, and a fit is a `FittedBox` round whatever the child is. A default that scaled a paragraph would be a default nobody wanted, so the fit is asked for. Left out, the child is laid out to the full box as it is, and an `Image` with its own `fit` needs nothing here.
+
+:::
 
 ## `rounded`
 
@@ -57,9 +110,11 @@ Off by default, because a layout component draws nothing and a photograph with i
 
 `md` lands on `corner-medium`, which is MD3's own card corner — a photograph inside a card should have the card's corner, not one of its own.
 
-`overflow-hidden` is always on, `rounded` or not. Without it a `cover` image spills out of the proportion it was just given, and the box would only be reserving space rather than holding anything to it.
+The box always clips what it holds, `rounded` or not. Without it a `cover` image spills out of the proportion it was just given, and the box would only be reserving space rather than holding anything to it.
 
 ## Examples
+
+::: fw react
 
 ### render
 
@@ -71,9 +126,13 @@ Base UI's escape hatch, so the box can be the element it semantically is:
 </MPAspectRatio>
 ```
 
+:::
+
 ### A card's cover
 
 The pattern this is used for most:
+
+::: fw react
 
 ```tsx
 <div className="rounded-mp-md bg-mp-surface-container overflow-hidden">
@@ -84,13 +143,56 @@ The pattern this is used for most:
 </div>
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+MPBox(
+  variant: MPVariant.tonal,
+  padded: false,
+  clipBehavior: Clip.antiAlias,
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: <Widget>[
+      MPAspectRatio(ratio: 16 / 9, fit: MPAspectFit.cover, child: Image(image: cover)),
+      const Padding(padding: EdgeInsets.all(16), child: Text('…')),
+    ],
+  ),
+)
+```
+
+:::
+
 Note that the box is _not_ `rounded` here — the surface around it already is, and two radii on the same corner is one too many.
 
 ## Accessibility
 
+::: fw react
+
 There is nothing to announce. The box is a `<div>` with a computed height, and it is deliberately not `role="img"`: what carries the meaning is whatever is inside, and its `alt` is where that belongs.
 
 An image that is decoration under a heading that already says the same thing takes `alt=""`, exactly as it would without this component.
+
+:::
+
+::: fw flutter
+
+There is nothing to announce. The box adds no node to the semantics tree: what carries the meaning is the picture inside, and its `semanticLabel` is where that belongs. A picture that is decoration under a heading that already says the same thing takes `excludeFromSemantics: true`.
+
+:::
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `ratio` as a number or a CSS ratio string | `double`, width over height | A division is how Flutter states a proportion everywhere else. |
+| `fit` defaults to `cover` and reaches media only | `fit` defaults to `null` and reaches any child | Flutter cannot tell an image from a box of text, and a default fit would scale text. |
+| `render` | — | There is no element to replace. |
+
+:::
 
 ## See also
 

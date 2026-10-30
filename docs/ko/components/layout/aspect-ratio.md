@@ -9,6 +9,8 @@ order: 1
 
 <Demo src="aspect-ratio/hero" :minHeight="220" />
 
+::: fw react
+
 ```tsx
 import { MPAspectRatio } from 'material-plus-ui';
 
@@ -16,6 +18,23 @@ import { MPAspectRatio } from 'material-plus-ui';
   <img src={cover} alt="" />
 </MPAspectRatio>;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPAspectRatio(
+  ratio: 16 / 9,
+  fit: MPAspectFit.cover,
+  rounded: true,
+  child: Image(image: cover),
+);
+```
+
+:::
 
 ## Props
 
@@ -29,11 +48,23 @@ import { MPAspectRatio } from 'material-plus-ui';
 
 썸네일이 한 줄로 늘어섰을 때 모두 같은 모양이 되는 것도, 이 컴포넌트가 있는 이유의 나머지 절반입니다.
 
+::: fw react
+
 ## 비율을 CSS가 쓰는 대로 쓰는 이유
 
 `ratio={1.5}`도 `ratio="16 / 9"`도 그대로 `aspect-ratio`로 갑니다.
 
 `{ width: 16, height: 9 }` 객체도, 번역해야 할 `"16:9"` 문자열도 없습니다. 이미 CSS를 아는 사람은 찾아볼 게 없고, 모르는 사람은 이 라이브러리의 표기법이 아니라 진짜 물건을 설명하는 문서까지 검색 한 번이면 닿기 때문입니다.
+
+:::
+
+::: fw flutter
+
+## 비율은 나눗셈입니다
+
+`ratio: 16 / 9`는 너비 나누기 높이입니다. Flutter의 `AspectRatio`가 받는 방식 그대로라서, 프레임워크를 아는 사람은 따로 옮겨 적을 것이 없습니다. 높이는 받은 너비에서 계산되므로, 사진의 첫 바이트가 오기 전에 상자는 이미 올바른 높이입니다.
+
+:::
 
 ## `fit`
 
@@ -41,15 +72,37 @@ import { MPAspectRatio } from 'material-plus-ui';
 
 <Demo src="aspect-ratio/fit" :minHeight="200">
 
+::: fw react
+
 <<< @/.vitepress/demos/aspect-ratio/fit.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/aspect_ratio/fit.dart
+
+:::
 
 </Demo>
 
 값은 `object-fit` 자신의 단어들 — `cover`, `contain`, `fill`, `none`, `scale-down` — 이고, 비율과 같은 이유입니다. `fill-the-box` 같은 걸 지어내 봐야 읽는 사람이 그게 어떤 CSS에 대응하는지 찾아보게 만들 뿐입니다.
 
+::: fw react
+
 **직계 자식**인 `img`, `video`, `canvas`, `svg`, `picture`, `iframe`에 닿습니다. 그 밖의 것은 평범하게 배치되고 이 prop이 건드리지 않으므로, 직접 만든 `<div>`를 담은 상자는 그냥 비율을 가진 상자입니다.
 
 `iframe`은 크기만 받고 fit은 받지 않습니다. 임베드는 자기 내용을 스스로 배치하므로 `object-fit`이 작용할 대상이 없습니다.
+
+:::
+
+::: fw flutter
+
+Dart에서는 `MPAspectFit.cover`부터 `MPAspectFit.scaleDown`까지이고, Flutter의 `BoxFit`에 하나씩 그대로 대응합니다.
+
+**`fit`의 기본값은 `null`입니다.** React의 기본값은 `cover`입니다. 브라우저는 `object-fit`을 이미지나 동영상에만 적용하고 글 상자는 건드리지 않지만, Flutter에는 그런 구분이 없어서 fit은 자식이 무엇이든 감싸는 `FittedBox`가 됩니다. 기본으로 켜 두면 글 한 단락까지 늘어나므로 직접 지정하게 했습니다. 지정하지 않으면 자식은 상자 전체에 그대로 배치되고, 자기 `fit`을 가진 `Image`라면 여기서 줄 것이 없습니다.
+
+:::
 
 ## `rounded`
 
@@ -57,9 +110,11 @@ import { MPAspectRatio } from 'material-plus-ui';
 
 `md`는 `corner-medium`에 놓입니다. MD3 자신의 카드 모서리이기도 합니다 — 카드 안의 사진은 자기만의 모서리가 아니라 카드의 모서리를 가져야 합니다.
 
-`overflow-hidden`은 `rounded` 여부와 상관없이 항상 켜져 있습니다. 그게 없으면 `cover` 이미지가 방금 받은 비율 밖으로 넘쳐 나가고, 상자는 공간만 잡아 둘 뿐 아무것도 붙들지 못합니다.
+상자는 `rounded` 여부와 상관없이 담은 것을 항상 잘라냅니다. 그게 없으면 `cover` 이미지가 방금 받은 비율 밖으로 넘쳐 나가고, 상자는 공간만 잡아 둘 뿐 아무것도 붙들지 못합니다.
 
 ## 예시
+
+::: fw react
 
 ### render
 
@@ -71,9 +126,13 @@ Base UI의 탈출구입니다. 상자가 의미상 맞는 엘리먼트가 될 �
 </MPAspectRatio>
 ```
 
+:::
+
 ### 카드의 커버
 
 가장 자주 쓰이는 형태입니다.
+
+::: fw react
 
 ```tsx
 <div className="rounded-mp-md bg-mp-surface-container overflow-hidden">
@@ -84,13 +143,56 @@ Base UI의 탈출구입니다. 상자가 의미상 맞는 엘리먼트가 될 �
 </div>
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+MPBox(
+  variant: MPVariant.tonal,
+  padded: false,
+  clipBehavior: Clip.antiAlias,
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: <Widget>[
+      MPAspectRatio(ratio: 16 / 9, fit: MPAspectFit.cover, child: Image(image: cover)),
+      const Padding(padding: EdgeInsets.all(16), child: Text('…')),
+    ],
+  ),
+)
+```
+
+:::
+
 여기서는 상자에 `rounded`를 주지 *않았다*는 점을 보세요. 감싸는 표면이 이미 둥글고, 같은 모서리에 반경이 둘이면 하나가 많습니다.
 
 ## 접근성
 
+::: fw react
+
 읽어 줄 것이 없습니다. 상자는 계산된 높이를 가진 `<div>`이고, 의도적으로 `role="img"`이 아닙니다. 의미를 지니는 건 안에 든 것이고, `alt`가 그것이 있어야 할 자리입니다.
 
 이미 같은 말을 하는 제목 아래에 놓인 장식용 이미지는, 이 컴포넌트가 없을 때와 똑같이 `alt=""`를 받습니다.
+
+:::
+
+::: fw flutter
+
+읽어 줄 것이 없습니다. 상자는 시맨틱 트리에 노드를 더하지 않습니다. 의미를 지니는 것은 안의 사진이고, 그 설명은 사진의 `semanticLabel`에 둡니다. 같은 말을 하는 제목 아래의 장식용 사진에는 `excludeFromSemantics: true`를 줍니다.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| 숫자나 CSS 비율 문자열을 받는 `ratio` | 너비 나누기 높이인 `double` | Flutter는 다른 곳에서도 비율을 나눗셈으로 씁니다. |
+| 기본값 `cover`, 미디어에만 적용되는 `fit` | 기본값 `null`, 어떤 자식에도 적용되는 `fit` | Flutter는 이미지와 글 상자를 구분하지 못하므로, 기본으로 켜 두면 글이 늘어납니다. |
+| `render` | — | 바꿔 끼울 엘리먼트가 없습니다. |
+
+:::
 
 ## 함께 보기
 
