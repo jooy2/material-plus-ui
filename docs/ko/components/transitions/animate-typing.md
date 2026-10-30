@@ -9,11 +9,25 @@ order: 13
 
 <Demo src="animate-typing/hero" :minHeight="200" />
 
+::: fw react
+
 ```tsx
 import { MPAnimateTyping } from 'material-plus-ui';
 
 <MPAnimateTyping text="anything you can name" repeat="infinite" erase />;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+const MPAnimateTyping(text: 'anything you can name', repeat: null, erase: true);
+```
+
+:::
 
 ## Props
 
@@ -21,13 +35,35 @@ import { MPAnimateTyping } from 'material-plus-ui';
 
 ## 사본이 둘인 이유
 
+::: fw react
+
 **스크린 리더를 위한 잘려 나간 사본**이 있고 — 문자열을 한 번 읽고 효과를 끝까지 앉아서 듣지 않습니다 — **눈에 보이는 사본**이 있습니다. 이쪽은 `aria-hidden`이고 애니메이션이 걸립니다.
 
 그래서 효과는 그것을 볼 수 없는 사람에게 아무 비용도 지우지 않고, 볼 수 있는 사람에게도 마찬가지입니다. 상자는 지금까지 도착한 글자들로 배치되지 않으므로, 주변 텍스트가 매 프레임 다시 흐르지 않습니다 — 순진하게 만든 타자기가 초당 스물네 번 문단에 하는 일이 바로 그것입니다.
 
+:::
+
+::: fw flutter
+
+위젯은 문자열 전체를 라벨로 단 `Semantics` 노드이고, 스크린 리더는 효과를 끝까지 앉아서 듣지 않고 그것을 한 번 읽습니다. 그 아래의 **눈에 보이는 사본**은 시맨틱스에서 빠지고 애니메이션이 걸립니다.
+
+그래서 효과는 그것을 볼 수 없는 사람에게 아무 비용도 지우지 않고, 볼 수 있는 사람에게도 마찬가지입니다. 상자는 첫 프레임부터 완성된 문자열에 맞춰 배치되므로, 주변의 무엇도 매 프레임 움직이지 않습니다 — 순진하게 만든 타자기가 초당 스물네 번 문단에 하는 일이 바로 그것입니다.
+
+:::
+
 ## 텍스트만 타이핑됩니다
 
+::: fw react
+
 문자열, 또는 문자열들을 넘기세요. 자식에 섞인 엘리먼트는 **텍스트만 남고 마크업은 빠집니다**. `<strong>`의 절반이나 링크의 절반을 드러낼 정직한 방법이 없기 때문입니다. 그 텍스트는 다른 글자와 똑같이 타이핑되고, 스크린 리더가 읽고, 서버가 렌더링한 마크업에도 들어갑니다.
+
+:::
+
+::: fw flutter
+
+`text`는 `String`이고, 타이핑되는 것은 그것이 전부입니다. 굵은 부분의 절반이나 링크의 절반을 드러낼 정직한 방법이 없기 때문입니다. 글자 스타일은 `style`로 주고, 물려받은 스타일 위에 합쳐집니다.
+
+:::
 
 줄의 일부가 굵어야 한다면 그 줄은 타자기가 아닙니다. 텍스트로 조판하고 [MPAnimateFade](./animate-fade)로 나타내세요.
 
@@ -35,7 +71,17 @@ import { MPAnimateTyping } from 'material-plus-ui';
 
 코드 포인트는 글자가 아닙니다. `👩‍👩‍👧`는 코드 포인트 일곱 개이고, 한국어 키보드로 친 `한`은 셋일 수 있습니다. 코드 포인트 단위로 나아가는 타자기는 그 자체로는 아무 뜻도 없는 조각들로 이모지를 조립하는 데 네 프레임을 쓰고, 한글에서는 음절이 아닌 낱자를 보여 줍니다.
 
+::: fw react
+
 `Intl.Segmenter`는 경계가 실제로 어디인지 압니다. 전개 연산자는 그것이 없는 런타임을 위한 대비책입니다.
+
+:::
+
+::: fw flutter
+
+Dart의 `characters`가 경계가 실제로 어디인지 알고, 타자기는 그 단위로 셉니다.
+
+:::
 
 ## `speed`, 그리고 `duration`이 이길 때
 
@@ -47,7 +93,17 @@ import { MPAnimateTyping } from 'material-plus-ui';
 
 <Demo src="animate-typing/terminal" :minHeight="240">
 
+::: fw react
+
 <<< @/.vitepress/demos/animate-typing/terminal.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/animate_typing/terminal.dart
+
+:::
 
 </Demo>
 
@@ -57,9 +113,25 @@ import { MPAnimateTyping } from 'material-plus-ui';
 
 `eraseSpeed`의 기본값은 `speed`의 두 배입니다. 사람이 실제로 하는 일이 그렇습니다.
 
+::: fw flutter
+
+끝나지 않는 루프는 `repeat: null`입니다. `MPAnimateRepeat`에서 _멈추지 않음_을 말하는 값이 `null`입니다.
+
+:::
+
 ### caret
 
+::: fw react
+
 텍스트 뒤에서 깜빡이는 블록이고 기본으로 켜져 있습니다. 페이드가 아니라 `step-end`로 도는데, 이징이 걸린 캐럿은 느리게 렌더링되는 캐럿처럼 보이기 때문입니다. `caretChar`로 다시 그릴 수 있습니다 — `'▌'`, `'_'`, 무엇이든.
+
+:::
+
+::: fw flutter
+
+텍스트 뒤에서 깜빡이는 블록이고 기본으로 켜져 있습니다. 페이드하지 않고 뚝 켜졌다 꺼지는데, 이징이 걸린 캐럿은 느리게 렌더링되는 캐럿처럼 보이기 때문입니다. `caretChar`로 다시 그릴 수 있습니다 — `'▌'`, `'_'`, 어떤 `String`이든.
+
+:::
 
 ### delay
 
@@ -67,10 +139,41 @@ import { MPAnimateTyping } from 'material-plus-ui';
 
 ## 접근성
 
+::: fw react
+
 - 문자열은 첫 프레임부터 **한 번에, 전부** 읽힙니다. 스크린 리더가 초당 스물네 번 갱신되는 라이브 영역을 따라가야 하는 일은 없습니다.
 - `prefers-reduced-motion`에서는 텍스트가 그냥 거기 있습니다 — "아무 일도 일어나지 않음"이 아니라, 컴포넌트가 실어 나르던 것을 여전히 전달하는 유일한 결과입니다. 캐럿도 깜빡임을 멈춥니다. 아무도 치고 있지 않은 텍스트 뒤의 커서는 틀린 말을 하기 때문입니다.
 - 시작되기 전까지 보이는 사본은 **끝난 상태가 아니라 빈 상태**입니다. 문자열 전체를 보여 주다가 화면에 들어온 순간 비우고 시작하는 타자기는 효과가 없느니만 못합니다.
 - 텍스트가 줄바꿈될 만큼 길다면 레이아웃에서 줄 높이를 미리 잡아 두세요. 그러지 않으면 첫 줄이 넘어가는 순간 아래 블록이 밀립니다.
+
+:::
+
+::: fw flutter
+
+- 문자열은 첫 프레임부터 **한 번에, 전부** 읽힙니다. 스크린 리더가 초당 스물네 번 바뀌는 라벨을 따라가야 하는 일은 없습니다.
+- 플랫폼이 애니메이션을 끄면(`MediaQuery.disableAnimations`) 텍스트가 그냥 거기 있습니다 — "아무 일도 일어나지 않음"이 아니라, 위젯이 실어 나르던 것을 여전히 전달하는 유일한 결과입니다. 캐럿도 가만히 있습니다. 아무도 치고 있지 않은 텍스트 뒤에서 깜빡이는 커서는 틀린 말을 하기 때문입니다.
+- 시작되기 전까지 보이는 사본은 **끝난 상태가 아니라 빈 상태**입니다. 문자열 전체를 보여 주다가 화면에 들어온 순간 비우고 시작하는 타자기는 효과가 없느니만 못합니다.
+- 상자는 첫 프레임부터 캐럿까지 포함한 완성된 문자열에 맞춰 배치됩니다. 그래서 줄바꿈될 만큼 긴 줄도 높이를 처음부터 갖고 있고, 아래 위젯이 밀리지 않습니다.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `children`이나 `text`로 넘기는 줄 | 필수인 `text` | 텍스트만 타이핑되므로 `String`이 그것을 말합니다. 텍스트를 읽어 낼 엘리먼트 트리가 없습니다. |
+| 글자 크기를 주는 `style` | `TextStyle?`인 `style` | 물려받은 글자 스타일 위에 합쳐집니다. |
+| `caretChar: ReactNode` | `String`인 `caretChar` | 캐럿은 줄 뒤에 글자로 그려집니다. |
+| 스크린 리더를 위한 잘린 사본 | 그려지는 사본 위의 `Semantics` 라벨 | 같은 답을 프레임워크의 말로 한 것입니다. |
+| 밀리초 숫자인 `duration`, `delay`, `hold` | `Duration` | 프레임워크에 이미 그 타입이 있습니다. |
+| `repeat: number \| 'infinite'` | `null`이면 멈추지 않는 `int?`인 `MPAnimateRepeat` | Dart에는 숫자와 단어의 합집합 타입이 없습니다. |
+| `IntersectionObserver`로 보는 `trigger="visible"` | 위젯 위의 모든 `Scrollable`을 지켜봅니다 | 옵저버가 없습니다. 위에 스크롤 영역이 없으면 바로 시작합니다. |
+| `render`, `className` | — | 바꿔 끼울 엘리먼트도, 넘겨줄 클래스 목록도 없습니다. |
+| 끝없는 루프와 캐럿이 화면 밖에서도 돕니다 | 조금도 보이지 않는 동안 쉽니다 | Flutter는 아무도 보지 못하는 애니메이션도 계속 그리므로, 끝나지 않는 루프는 화면 밖에서 멈춥니다. |
+
+:::
 
 ## 함께 보기
 
