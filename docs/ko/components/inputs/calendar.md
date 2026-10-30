@@ -9,6 +9,8 @@ order: 1
 
 <Demo src="calendar/hero" :minHeight="360" />
 
+::: fw react
+
 ```tsx
 import { MPCalendar } from 'material-plus-ui';
 
@@ -16,6 +18,21 @@ const [day, setDay] = useState(new Date());
 
 <MPCalendar value={day} onValueChange={setDay} />;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+MPCalendar(
+  value: day,
+  onChanged: (DateTime next) => setState(() => day = next),
+);
+```
+
+:::
 
 ## Props
 
@@ -35,7 +52,17 @@ const [day, setDay] = useState(new Date());
 
 <Demo src="calendar/surface" :minHeight="380">
 
+::: fw react
+
 <<< @/.vitepress/demos/calendar/surface.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/calendar/surface.dart
+
+:::
 
 </Demo>
 
@@ -51,15 +78,40 @@ const [day, setDay] = useState(new Date());
 
 직접 몰고 싶은 경우를 위해 `month`와 `onMonthChange`가 있습니다 — 한 달 간격으로 벌려 둔 달력 두 개, 직접 만든 "12월로 가기" 버튼:
 
+::: fw react
+
 ```tsx
 const [month, setMonth] = useState(new Date());
 
 <MPCalendar month={month} onMonthChange={setMonth} />;
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+MPCalendar(
+  month: month,
+  onMonthChange: (DateTime next) => setState(() => month = next),
+);
+```
+
+:::
+
 ## 고르는 것으로 비워지지는 않습니다
 
+::: fw react
+
 `onValueChange`는 `Date`를 건네고 `null`은 건네지 않습니다. `MPDatePicker`와 시그니처가 갈라지는 유일한 지점입니다.
+
+:::
+
+::: fw flutter
+
+`onChanged`는 `DateTime`을 건네고 `null`은 건네지 않습니다. `MPDatePicker`와 시그니처가 갈라지는 유일한 지점입니다.
+
+:::
 
 달력에는 ×가 없고, 고른 날을 한 번 더 눌러도 선택이 풀리지 않습니다. 두 번째 누름에 스스로 비워지는 컨트롤은 더블클릭 한 번에 값을 잃습니다 — 게다가 지우기 어포던스를 놓을 트리거가 있는 피커와 달리, 달력이 그걸 제공하려면 푸터가 자라야 합니다.
 
@@ -71,7 +123,17 @@ const [month, setMonth] = useState(new Date());
 
 <Demo src="calendar/booking" :minHeight="420">
 
+::: fw react
+
 <<< @/.vitepress/demos/calendar/booking.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/calendar/booking.dart
+
+:::
 
 </Demo>
 
@@ -81,13 +143,30 @@ const [month, setMonth] = useState(new Date());
 
 `precision`은 달력이 어느 뷰에서 멈출지를 정합니다. 피커에서와 똑같습니다.
 
+::: fw react
+
 ```tsx
 <MPCalendar precision="month" onValueChange={setBillingMonth} />
 ```
 
+:::
+
+::: fw flutter
+
+```dart
+MPCalendar(
+  precision: MPDatePrecision.month,
+  onChanged: (DateTime next) => setState(() => billingMonth = next),
+)
+```
+
+:::
+
 `month` 달력은 열두 달로 열리고 그 아래 날짜 격자로 내려갈 길이 없습니다. `year` 달력은 연도로 열립니다. 답은 물어본 단위로 잘려 나오므로 — 그 달의 1일, 또는 1월 1일 — *2026년 7월*이라고 말하는 값이 몰래 31일인 일은 없습니다.
 
 ## 폼 안에서
+
+::: fw react
 
 `name`을 주면 **로컬** 날짜를 `YYYY-MM-DD`로 실은 hidden input이 생기고, `precision`을 따라 `YYYY-MM`이나 `YYYY`로 줄어듭니다.
 
@@ -97,15 +176,56 @@ const [month, setMonth] = useState(new Date());
 </form>
 ```
 
-UTC가 아니라 로컬인 이유는 이 라이브러리 전체가 달력의 하루를 로컬로 다루는 이유와 같습니다. 서울의 7월 15일은 `toISOString()`에서 14일이고, 화면에 보이는 것보다 하루 앞선 날을 제출하는 폼은 지구의 정확히 절반에서 틀립니다. `name`이 없으면 hidden input 자체가 없습니다.
+:::
+
+::: fw flutter
+
+`name`을 주면 달력을 감싼 [MPForm](./form)에 **로컬** 날짜를 `YYYY-MM-DD`로 등록하고, `precision`을 따라 `YYYY-MM`이나 `YYYY`로 줄어듭니다.
+
+```dart
+MPForm(
+  onSubmit: (Map<String, Object?> values) => book(values['day']),
+  children: <Widget>[MPCalendar(name: 'day', initialValue: DateTime.now())],
+)
+```
+
+:::
+
+UTC가 아니라 로컬인 이유는 이 라이브러리 전체가 달력의 하루를 로컬로 다루는 이유와 같습니다. 서울의 7월 15일은 `toISOString()`에서 14일이고, 화면에 보이는 것보다 하루 앞선 날을 제출하는 폼은 지구의 정확히 절반에서 틀립니다. `name`이 없으면 달력은 폼에 아예 참여하지 않습니다.
 
 ## 날카로운 모서리
 
-- **마운트하면서 포커스를 가져가지 않습니다.** `autoFocus`는 `false`이며, 피커 안의 달력과 정반대입니다. 포커스를 채 가면 위쪽에서 입력 중이던 캐럿이 밀려납니다.
+- **마운트하면서 포커스를 가져가지 않습니다.** `autoFocus`(Flutter에서는 `autofocus`)는 `false`이며, 피커 안의 달력과 정반대입니다. 포커스를 채 가면 위쪽에서 입력 중이던 캐럿이 밀려납니다.
 - **범위 달력이 아닙니다.** 양 끝은 [MPDateRangePicker](./date-range-picker.md)의 질문입니다. 두 끝 사이에 그리는 띠는 절반만 고른 상태의 미리보기를 필요로 하는데, 값 하나로는 그걸 담을 자리가 없습니다.
 - **일정 달력도 아닙니다.** 칸별 렌더 훅이 없습니다. 아무 내용이나 담을 수 있는 칸은 40dp 타깃이기를 그만두고 레이아웃이 되기 때문입니다.
 - **격자의 탭 스톱은 하나입니다.** `Tab`은 마흔두 칸을 걸어가지 않고 달력을 떠납니다. 안에서 움직이는 것은 방향키입니다.
+
+::: fw react
+
 - **서버에서 렌더링한 페이지에서는 하이드레이션 뒤에 오늘을 표시합니다.** 서버의 시계는 읽는 사람의 시계가 아니고, 자정 전후 몇 시간 동안은 두 시계의 날짜가 다릅니다. 그래서 마크업에는 아무 날도 표시하지 않고, 페이지가 하이드레이션된 뒤 읽는 사람의 오늘을 표시합니다. 처음 여는 달은 여전히 렌더링하는 곳의 시계로 정해지므로, 월말에는 요청에서 읽은 `defaultMonth`를 넘겨 서버와 브라우저가 같은 달을 열게 하세요.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+이 페이지의 대부분은 두 패키지에서 같습니다. 아래는 같지 않은 지점과 그 이유입니다.
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `onValueChange` | `onChanged` | 단순한 변경에 쓰는 Flutter의 이름입니다. `onMonthChange`는 이름을 그대로 둡니다. |
+| `defaultValue` | `initialValue` | Flutter의 이름입니다. 부모가 바꾼 `value`는 `null`까지 포함해 달력이 들고 있던 날을 대신하고, 빼면 달력이 날을 직접 들고 있습니다. |
+| `autoFocus` | `autofocus` | Flutter의 이름입니다. |
+| `Intl`에 닿는 `locale` | 패키지의 표에 닿는 `locale`, 그리고 `names` | 프레임워크에 `Intl`이 없습니다. [MPDatePicker의 현지화](./date-picker#현지화)를 보세요. |
+| `weekStartsOn: 0`–`6` | `weekStartsOn: MPWeekday` | Dart의 번호 체계입니다. |
+| `name` 아래의 hidden input | `MPForm`에 값을 등록하는 `name` | Flutter에는 native 폼이 없습니다. 문자열은 같습니다. |
+| `id`, `className`, `style` | — | 넘겨줄 대상이 없습니다. |
+| 하이드레이션 뒤에 표시하는 오늘 | 빌드할 때마다 기기 시계에서 읽는 오늘 | Flutter 앱에는 어긋날 서버 렌더가 없습니다. |
+
+나머지는 일부러 맞췄습니다. 세 가지 뷰, 페이지 넘김, 하나뿐인 탭 스톱, 정밀도 규칙, 경계, 면 사다리가 그렇습니다.
+
+:::
 
 ## 다음
 
