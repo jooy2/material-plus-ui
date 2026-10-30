@@ -9,11 +9,25 @@ order: 14
 
 <Demo src="spoiler/hero" :minHeight="320" />
 
+::: fw react
+
 ```tsx
 import { MPSpoiler } from 'material-plus-ui';
 
 <MPSpoiler reversible>그 사람은 처음부터 그의 여동생이었습니다.</MPSpoiler>;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+const MPSpoiler(reversible: true, child: Text('그 사람은 처음부터 그의 여동생이었습니다.'));
+```
+
+:::
 
 ## Props
 
@@ -29,17 +43,29 @@ import { MPSpoiler } from 'material-plus-ui';
 
 ## 내용이 `inert`인 이유
 
+::: fw react
+
 가려져 있는 동안 내용은 탭으로 닿지 않고, 스크린 리더가 읽지 않으며, **페이지를 가로지르는 드래그로 선택되지도 않습니다**.
 
 셋 다 중요합니다. Ctrl-A로 뚫리는 스포일러는 스포일러가 아니고, `aria-hidden`만으로는 스크린 리더가 없다고 들은 링크로 키보드 사용자가 탭해 들어가게 됩니다. 속성 하나가 그 전부를 처리합니다.
+
+:::
+
+::: fw flutter
+
+가려져 있는 동안 내용은 포커스 순서와 시맨틱 트리와 포인터에서 빠지고, `SelectionArea`나 `SelectableRegion` 안에서는 **선택되지도 않습니다**.
+
+넷 다 중요합니다. 전체 선택으로 복사되어 나가는 스포일러는 스포일러가 아니고, 시맨틱 트리에서만 빼면 스크린 리더가 없다고 들은 링크로 키보드 사용자가 탭해 들어가게 됩니다. Flutter에는 이 전부를 처리하는 속성 하나가 없으므로 스포일러가 하나씩 빼고, 내용은 다시 돌아올 때 자기 상태를 그대로 가집니다.
+
+:::
 
 ## 상자는 움직이지 않습니다
 
 스포일러를 여는 것이 페이지를 밀어내지 않습니다. 예전에는 두 가지가 상자를 움직였고, 둘 다 옷만 다른 같은 실수입니다. 한쪽 상태에서만 그려지는 것이 있는데, 그것이 없는 쪽 상태가 그 자리 값을 치르지 않는 것입니다.
 
-`reversible` 시트의 되돌아가는 길은 **처음부터 자리를 잡고** 있고, 시트가 가려진 동안에는 보이지 않을 뿐입니다. `invisible`과 `inert`라서 접근성 트리에서도 탭 순서에서도 빠져 있습니다. 가려진 내용이 그런 것과 똑같습니다. 그 위를 덮개가 덮고 있으므로 들여다볼 빈 공간도 없습니다. 이것이 없을 때는 독자가 안쪽 버튼을 누르는 순간 시트가 버튼 하나와 패딩 한 칸만큼 자랐고, 되돌아갈 때 다시 줄었습니다.
+`reversible` 시트의 되돌아가는 길은 **처음부터 자리를 잡고** 있고, 시트가 가려진 동안에는 보이지 않을 뿐입니다. React에서는 `invisible`과 `inert`, Flutter에서는 크기를 지키는 `Visibility`와 `ExcludeFocus`라서 접근성 트리에서도 탭 순서에서도 빠져 있습니다. 가려진 내용이 그런 것과 똑같습니다. 그 위를 덮개가 덮고 있으므로 들여다볼 빈 공간도 없습니다. 이것이 없을 때는 독자가 안쪽 버튼을 누르는 순간 시트가 버튼 하나와 패딩 한 칸만큼 자랐고, 되돌아갈 때 다시 줄었습니다.
 
-덮개는 그 위에 얹은 `absolute` 상자가 아니라 **모든 행을 span하는 grid 항목**입니다. 이것은 위치가 아니라 크기에 대한 결정입니다. 절대 위치 요소는 컨테이너 높이에 아무것도 기여하지 않으므로, 짧은 한 줄을 두 줄짜리 안내문과 버튼으로 덮은 시트는 자기 덮개보다 작았습니다. 그리고 시트는 clip하므로, 독자에게 누르라고 내미는 그 버튼이 아래쪽 가장자리에서 잘려 나갔습니다.
+덮개는 그 위에 얹은 `absolute` 상자가 아니라 **모든 행을 span하는 grid 항목**입니다. 이것은 위치가 아니라 크기에 대한 결정입니다. Flutter에서는 같은 이유로 내용과 같은 `Stack`의 위치 없는 자식입니다. 절대 위치 요소는 컨테이너 높이에 아무것도 기여하지 않으므로, 짧은 한 줄을 두 줄짜리 안내문과 버튼으로 덮은 시트는 자기 덮개보다 작았습니다. 그리고 시트는 clip하므로, 독자에게 누르라고 내미는 그 버튼이 아래쪽 가장자리에서 잘려 나갔습니다.
 
 오버레이가 있는 다른 모든 것에 적용되는 일반 규칙: **오버레이가 자기가 덮는 것보다 커질 수 있으면 그것은 `absolute`가 아니라 항목입니다.** 그리고 한쪽 상태에서만 존재하는 컨트롤은 다른 쪽에서 자리를 예약해야 합니다.
 
@@ -47,10 +73,23 @@ import { MPSpoiler } from 'material-plus-ui';
 
 덮개는 이 라이브러리에서 컴포넌트 자신의 단어가 읽히기만 하는 것이 아니라 **그려지는** 유일한 자리입니다. 그래서 영어 기본값을 가진 prop이 아니라 [메시지 표](../../design/localization)에서 옵니다.
 
+::: fw react
+
 ```tsx
 <MPSpoiler locale="ko">가려진 내용</MPSpoiler>
 // "보기", "실수로 읽지 않도록 가려 두었습니다"
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+const MPSpoiler(locale: 'ko', child: Text('가려진 내용'));
+// "보기", "실수로 읽지 않도록 가려 두었습니다"
+```
+
+:::
 
 `locale`을 생략하면 가장 가까운 [`MPLocaleProvider`](../../design/localization)를 따릅니다. `label`, `hideLabel`, `description`은 기본 문구가 맞는 문구가 아닐 때를 위한 것입니다. 채용 공고의 스포일러가 원하는 말은 "실수로 읽지 않도록 가려 두었습니다"가 아니라 "연봉 범위"입니다.
 
@@ -58,7 +97,17 @@ import { MPSpoiler } from 'material-plus-ui';
 
 <Demo src="spoiler/clamped" :minHeight="420">
 
+::: fw react
+
 <<< @/.vitepress/demos/spoiler/clamped.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/spoiler/clamped.dart
+
+:::
 
 </Demo>
 
@@ -82,20 +131,65 @@ import { MPSpoiler } from 'material-plus-ui';
 
 누름이 아닌 다른 것 — 결제, 연령 확인, 권한 — 으로 열리는 스포일러를 위해 공개 버튼 전체를 대체합니다.
 
+::: fw react
+
 ```tsx
 <MPSpoiler revealed={unlocked} action={<MPButton onClick={verify}>연령 확인</MPButton>}>
   …
 </MPSpoiler>
 ```
 
-대체한 컨트롤은 직접 연결해야 합니다. `revealed`를 넘기고 자기 상태로 구동하세요. 이미 있는 버튼의 문구만 바꾸고 싶다면 훨씬 흔한 그 경우를 위한 prop이 `label`입니다.
+:::
+
+::: fw flutter
+
+```dart
+MPSpoiler(
+  revealed: unlocked,
+  action: MPButton(onPressed: verify, child: const Text('연령 확인')),
+  child: content,
+);
+```
+
+:::
+
+대체한 컨트롤은 직접 연결해야 합니다. `revealed`를 넘기고 자기 상태로 구동하세요. 기본 버튼의 변화도 받아야 한다면 `onRevealedChange`를 함께 넘깁니다. 이미 있는 버튼의 문구만 바꾸고 싶다면 훨씬 흔한 그 경우를 위한 prop이 `label`입니다.
 
 ## 접근성
+
+::: fw react
 
 - 공개 버튼은 `aria-expanded`와 내용을 가리키는 `aria-controls`를 가진 진짜 [MPButton](../inputs/button)입니다. 스크린 리더는 그 뒤에 무언가가 있고 지금은 닫혀 있다는 것을 듣습니다.
 - 가려진 내용은 `inert`이므로 탭으로도, 스크린 리더로도, 선택으로도 그 안의 무엇에도 닿지 않습니다.
 - 버튼 위의 안내는 평범한 텍스트라서, 읽는 사람은 결정하기 전에 무엇이 왜 가려져 있는지 읽을 수 있습니다.
 - 블러는 `filter` 전환이고 `prefers-reduced-motion`에서 사라집니다. 덮개 자체는 애니메이션되지 않는데, 천천히 사라지는 스포일러는 사라지는 동안 읽히는 스포일러이기 때문입니다.
+
+:::
+
+::: fw flutter
+
+- 공개 버튼은 접혀 있다고 말하는 진짜 [MPButton](../inputs/button)이고, 가리기 버튼은 펼쳐져 있다고 말합니다. 스크린 리더는 덮개 뒤에 무언가가 있다는 것과 지금 보이는지를 듣습니다.
+- 가려진 동안 내용은 포커스 순서, 시맨틱 트리, 포인터, 선택 어디에서도 닿지 않습니다.
+- 버튼 위의 안내는 평범한 텍스트라서, 읽는 사람은 결정하기 전에 무엇이 왜 가려져 있는지 읽을 수 있습니다.
+- 블러는 짧은 시간에 걸쳐 걷히고 `MediaQuery.disableAnimations`가 켜져 있으면 바로 사라집니다. 덮개 자체는 애니메이션되지 않는데, 천천히 사라지는 스포일러는 사라지는 동안 읽히는 스포일러이기 때문입니다.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `children` | `child` | Flutter의 이름입니다. |
+| `defaultRevealed` | `initialRevealed` | 비제어 위젯의 시작 상태를 부르는 Flutter의 이름입니다. |
+| `description={false}` | `showDescription: false` | Dart에는 `null`도 위젯도 아닌 값이 없습니다. |
+| `maxHeight`가 숫자나 아무 CSS 길이를 받습니다 | `maxHeight`는 논리 픽셀입니다 | CSS 길이가 없습니다. |
+| 버튼의 `aria-controls` | — | Flutter의 시맨틱에는 한 노드가 다른 노드를 가리키는 방법이 없습니다. 내용이 보이는지는 버튼이 여전히 말합니다. |
+| 내용이 `inert`입니다 | 포커스 순서, 시맨틱 트리, 포인터, 선택에서 하나씩 뺍니다 | 넷을 한꺼번에 처리하는 속성이 Flutter에는 없습니다. |
+| `className`, `style`, 네이티브 속성 | — | 넘겨줄 곳이 없습니다. |
+
+:::
 
 ## 함께 보기
 

@@ -9,11 +9,25 @@ order: 14
 
 <Demo src="spoiler/hero" :minHeight="320" />
 
+::: fw react
+
 ```tsx
 import { MPSpoiler } from 'material-plus-ui';
 
 <MPSpoiler reversible>She was his sister the whole time.</MPSpoiler>;
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+import 'package:material_plus_ui/material_plus_ui.dart';
+
+const MPSpoiler(reversible: true, child: Text('She was his sister the whole time.'));
+```
+
+:::
 
 ## Props
 
@@ -29,17 +43,29 @@ Blur alone is not cover, though. It takes a paragraph apart but leaves its colou
 
 ## Why the content is `inert`
 
+::: fw react
+
 While it is covered, the content is not tabbable, not readable by a screen reader, and **not selectable by a drag across the page**.
 
 All three matter. A spoiler that can be defeated by Ctrl-A is not a spoiler, and `aria-hidden` alone would leave a keyboard reader tabbing into a link their screen reader has been told is not there. One attribute does all of it.
+
+:::
+
+::: fw flutter
+
+While it is covered, the content is out of the focus order, off the semantics tree, out of the pointer's reach and, inside a `SelectionArea` or a `SelectableRegion`, **not selectable**.
+
+All four matter. A spoiler that a select-all copies out is not a spoiler, and taking it off the semantics tree alone would leave a keyboard reader tabbing into a link their screen reader has been told is not there. Flutter has no single attribute for it, so the spoiler takes the content out of each one, and the content keeps its state when it comes back.
+
+:::
 
 ## The box holds still
 
 Revealing a spoiler does not move the page. Two things used to move it, and both are the same mistake in different clothes: something drawn in one state and not in the other, without the state that lacks it paying for the space.
 
-A `reversible` sheet's way back out is **reserved from the start** and merely invisible while the sheet is covered — `invisible` and `inert`, so it is out of the accessibility tree and out of the tab order, exactly as the covered content is. The cover is over it, so there is no hole to look at. Without it the sheet grew by a button and a track of padding at the moment a reader pressed the button inside it, and shrank again on the way back.
+A `reversible` sheet's way back out is **reserved from the start** and merely invisible while the sheet is covered — `invisible` and `inert` in React, a `Visibility` that keeps its size and an `ExcludeFocus` in Flutter, so it is out of the accessibility tree and out of the tab order, exactly as the covered content is. The cover is over it, so there is no hole to look at. Without it the sheet grew by a button and a track of padding at the moment a reader pressed the button inside it, and shrank again on the way back.
 
-The cover is a **grid item spanning every row** rather than an `absolute` box over them, which is a sizing decision rather than a positioning one. An absolutely positioned element contributes nothing to its container's height, so a sheet covering one short line with two lines of notice and a button was shorter than its own cover — and the sheet clips, so the button a reader was being asked to press was cut off at the bottom edge.
+The cover is a **grid item spanning every row** rather than an `absolute` box over them, which is a sizing decision rather than a positioning one. In Flutter it is an unpositioned child of the same `Stack` as the content, for the same reason. An absolutely positioned element contributes nothing to its container's height, so a sheet covering one short line with two lines of notice and a button was shorter than its own cover — and the sheet clips, so the button a reader was being asked to press was cut off at the bottom edge.
 
 The general rule, for anything else with an overlay in it: **if the overlay can outgrow what it overlays, it is an item and not an `absolute`.** And a control that only exists in one state should reserve its place in the other.
 
@@ -47,10 +73,23 @@ The general rule, for anything else with an overlay in it: **if the overlay can 
 
 The cover is the one place in this library where a component's own words are **drawn** rather than only announced, so they come from the [message table](../../design/localization) rather than from a prop with an English default:
 
+::: fw react
+
 ```tsx
 <MPSpoiler locale="ko">가려진 내용</MPSpoiler>
 // "보기", "실수로 읽지 않도록 가려 두었습니다"
 ```
+
+:::
+
+::: fw flutter
+
+```dart
+const MPSpoiler(locale: 'ko', child: Text('가려진 내용'));
+// "보기", "실수로 읽지 않도록 가려 두었습니다"
+```
+
+:::
 
 `locale` follows the nearest [`MPLocaleProvider`](../../design/localization) when it is left out. `label`, `hideLabel` and `description` are there for the case where the default wording is not the right wording — a spoiler on a job listing wants "Salary range", not "Hidden so it is not read by accident".
 
@@ -58,7 +97,17 @@ The cover is the one place in this library where a component's own words are **d
 
 <Demo src="spoiler/clamped" :minHeight="420">
 
+::: fw react
+
 <<< @/.vitepress/demos/spoiler/clamped.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/spoiler/clamped.dart
+
+:::
 
 </Demo>
 
@@ -82,20 +131,65 @@ Off for content that should reach the edges — a picture, a video. The sheet's 
 
 Replaces the reveal button entirely, for a spoiler that is unlocked by something other than a press — a purchase, an age check, a permission:
 
+::: fw react
+
 ```tsx
 <MPSpoiler revealed={unlocked} action={<MPButton onClick={verify}>Verify your age</MPButton>}>
   …
 </MPSpoiler>
 ```
 
-The replacement is yours to wire up: pass `revealed` and drive it from your own state. `label` is the prop for the far commoner case of wanting different words on the button that is already there.
+:::
+
+::: fw flutter
+
+```dart
+MPSpoiler(
+  revealed: unlocked,
+  action: MPButton(onPressed: verify, child: const Text('Verify your age')),
+  child: content,
+);
+```
+
+:::
+
+The replacement is yours to wire up: pass `revealed` and drive it from your own state, with `onRevealedChange` if the default buttons should still report to you. `label` is the prop for the far commoner case of wanting different words on the button that is already there.
 
 ## Accessibility
+
+::: fw react
 
 - The reveal button is a real [MPButton](../inputs/button) carrying `aria-expanded` and an `aria-controls` pointing at the content, so a screen reader is told there is something behind it and that it is currently closed.
 - The covered content is `inert`, so nothing inside it is reachable — by tab, by screen reader, or by selection — while it is covered.
 - The notice above the button is ordinary text, so what is being covered and why is readable before the reader decides.
 - The blur is a `filter` transition and is dropped under `prefers-reduced-motion`; the cover itself is not animated, because a spoiler that fades away slowly is a spoiler that can be read while it fades.
+
+:::
+
+::: fw flutter
+
+- The reveal button is a real [MPButton](../inputs/button) that says it is collapsed, and the hide button says it is expanded, so a screen reader is told there is something behind the cover and whether it is showing.
+- The covered content is out of the focus order, the semantics tree, the pointer's reach and any selection while it is covered.
+- The notice above the button is ordinary text, so what is being covered and why is readable before the reader decides.
+- The blur eases away over a short duration and is dropped with `MediaQuery.disableAnimations`; the cover itself is not animated, because a spoiler that fades away slowly is a spoiler that can be read while it fades.
+
+:::
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `children` | `child` | Flutter's name. |
+| `defaultRevealed` | `initialRevealed` | Flutter's word for where an uncontrolled widget starts. |
+| `description={false}` | `showDescription: false` | Dart has no value that is neither `null` nor a widget. |
+| `maxHeight` takes a number or any CSS length | `maxHeight` is logical pixels | There are no CSS lengths. |
+| `aria-controls` on the buttons | — | Flutter's semantics have no way to point one node at another. The buttons still say whether the content is showing. |
+| the content is `inert` | it is taken out of the focus order, the semantics tree, the pointer and selection one by one | Flutter has no single attribute that does all four. |
+| `className`, `style`, native attributes | — | There is nothing to pass them through to. |
+
+:::
 
 ## See also
 
