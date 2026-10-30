@@ -2,6 +2,10 @@
 
 ## vNext (2026--)
 
+## 1.12.0 (2026-10-30)
+
+This release moves `material-plus-ui/a2ui` to version 0.12 of A2UI's SDK, which is its one breaking change and reaches only a project that imports that subpath. The dependencies are current, a disabled `MPAccordion` section and `MPCollapsible` look disabled on every Base UI version the package supports, and the documentation now covers `material_plus_ui`, the Flutter package, which starts at this same version number.
+
 ### Breaking changes
 
 - **`material-plus-ui/a2ui` needs A2UI's SDK at 0.12.** `@a2ui/react` and `@a2ui/web_core` are optional peers at `^0.12.0` now, because 0.12 changed the `Catalog` constructor the catalogs are built with; upgrade the two together. A project that does not import the subpath is not affected. Three things a project will notice come from the SDK rather than from this library:
