@@ -11823,6 +11823,14 @@ const componentTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'reserveSupportingText',
+      type: 'boolean',
+      description: {
+        ko: '설명이나 오류가 아직 없어도 모든 필드 아래에 한 줄을 남겨 둡니다. 나중에 도착한 오류가 아래 내용을 밀어내지 않습니다. 주지 않으면 위의 값을 물려받고, 위에도 없으면 `false`입니다',
+        en: 'Keeps a line under every field for its description or error whether or not there is one yet, so an error that arrives later does not push what is below it down. Left out, it inherits whatever is above it, and `false` with nothing above'
+      }
+    },
+    {
       name: 'children',
       type: NODE,
       description: { ko: '설정이 적용되는 트리', en: 'The tree the configuration applies to' }

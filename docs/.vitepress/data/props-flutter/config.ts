@@ -35,14 +35,7 @@ export default {
         en: 'Which way the text runs under it. Given, it puts a `Directionality` round the subtree; left out, the ambient direction stays in charge'
       }
     }),
-    {
-      name: 'reserveSupportingText',
-      type: 'bool?',
-      description: {
-        ko: '설명이나 오류가 아직 없어도 모든 필드 아래에 한 줄을 남겨 둡니다. 나중에 도착한 오류가 아래 내용을 밀어내지 않습니다',
-        en: 'Keeps a line under every field for its description or error whether or not there is one yet, so an error that arrives later does not push what is below it down'
-      }
-    },
+    from('MPConfigProvider', 'reserveSupportingText', { type: 'bool?' }),
     renamed('MPConfigProvider', 'children', 'child', { type: WIDGET, required: true })
   ],
   MPLocaleProvider: [
