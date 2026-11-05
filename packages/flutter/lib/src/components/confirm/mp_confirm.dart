@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:material_plus_ui/src/components/button/mp_button.dart';
 import 'package:material_plus_ui/src/components/dialog/mp_dialog.dart';
+import 'package:material_plus_ui/src/internal/back.dart';
 import 'package:material_plus_ui/src/internal/i18n.dart';
 import 'package:material_plus_ui/src/internal/messages.dart';
 import 'package:material_plus_ui/src/internal/portal.dart';
@@ -192,7 +193,10 @@ class MPConfirmProvider extends StatefulWidget {
   /// provider is missing.
   ///
   /// Meant for a callback. It does not make [context] depend on the provider,
-  /// which never changes what it hands back.
+  /// which never changes what it hands back. It does read the route [context]
+  /// is in: a provider above the navigator sits in no route, so the system back
+  /// is answered for the page the question was asked from, and closes the
+  /// question rather than that page.
   static MPConfirmResult of(BuildContext context) {
     final MPConfirmResult? result = maybeOf(context);
 
@@ -212,7 +216,11 @@ class MPConfirmProvider extends StatefulWidget {
 
   /// The same, or `null` when there is no provider above [context].
   static MPConfirmResult? maybeOf(BuildContext context) {
-    return context.getInheritedWidgetOfExactType<_MPConfirmScope>()?.result;
+    final _MPConfirmProviderState? provider = context
+        .getInheritedWidgetOfExactType<_MPConfirmScope>()
+        ?.provider;
+
+    return provider == null ? null : _AskedFrom(provider, ModalRoute.of(context));
   }
 
   @override
@@ -220,25 +228,46 @@ class MPConfirmProvider extends StatefulWidget {
 }
 
 class _MPConfirmScope extends InheritedWidget {
-  const _MPConfirmScope({required this.result, required super.child});
+  const _MPConfirmScope({required this.provider, required super.child});
 
-  final MPConfirmResult result;
+  final _MPConfirmProviderState provider;
 
   @override
-  bool updateShouldNotify(_MPConfirmScope oldWidget) => result != oldWidget.result;
+  bool updateShouldNotify(_MPConfirmScope oldWidget) => provider != oldWidget.provider;
+}
+
+/// The questions asked from one route.
+class _AskedFrom implements MPConfirmResult {
+  const _AskedFrom(this._provider, this._route);
+
+  final _MPConfirmProviderState _provider;
+  final ModalRoute<Object?>? _route;
+
+  @override
+  Future<bool> confirm(MPConfirmOptions options) {
+    return _provider._raise(options, acknowledge: false, route: _route);
+  }
+
+  @override
+  Future<void> alert(MPConfirmOptions options) {
+    return _provider._raise(options, acknowledge: true, route: _route);
+  }
 }
 
 /// One question, with what the provider's defaults added to it.
 class _Question {
-  const _Question({required this.options, required this.acknowledge});
+  const _Question({required this.options, required this.acknowledge, this.route});
 
   final MPConfirmOptions options;
 
   /// An acknowledgement draws one button and cannot be refused.
   final bool acknowledge;
+
+  /// The page it was asked from, whose system back closes it.
+  final ModalRoute<Object?>? route;
 }
 
-class _MPConfirmProviderState extends State<MPConfirmProvider> implements MPConfirmResult {
+class _MPConfirmProviderState extends State<MPConfirmProvider> {
   /// The question waiting for its answer, and `null` once it has one.
   _Question? _pending;
 
@@ -272,7 +301,11 @@ class _MPConfirmProviderState extends State<MPConfirmProvider> implements MPConf
     super.dispose();
   }
 
-  Future<bool> _raise(MPConfirmOptions options, {required bool acknowledge}) {
+  Future<bool> _raise(
+    MPConfirmOptions options, {
+    required bool acknowledge,
+    ModalRoute<Object?>? route,
+  }) {
     // A question already on screen is answered `false` before this one takes
     // its place. Its caller asked about something the reader has since moved
     // past, and no is the safe reading of that.
@@ -282,6 +315,7 @@ class _MPConfirmProviderState extends State<MPConfirmProvider> implements MPConf
     final _Question question = _Question(
       options: options._over(widget.defaults),
       acknowledge: acknowledge,
+      route: route,
     );
 
     _settle = settle;
@@ -308,67 +342,72 @@ class _MPConfirmProviderState extends State<MPConfirmProvider> implements MPConf
   }
 
   @override
-  Future<bool> confirm(MPConfirmOptions options) => _raise(options, acknowledge: false);
-
-  @override
-  Future<void> alert(MPConfirmOptions options) => _raise(options, acknowledge: true);
-
-  @override
   Widget build(BuildContext context) {
     final MPConfirmOptions? options = _shown?.options;
     final bool acknowledging = _shown?.acknowledge ?? false;
     final Map<String, String> labels = mpMessagesOf(context, mpConfirmMessages);
     final MPColor color = options?.color ?? MPColor.primary;
+    final bool dismissible = options?.dismissible ?? true;
+    // A provider in `WidgetsApp.builder` sits above the navigator, in no route,
+    // so the dialog's own guard has no back to take, and the back would pop
+    // the page under the question. The question takes the back of the page it
+    // was asked from instead. Inside a route, the dialog's guard already does.
+    final ModalRoute<Object?>? askedFrom = ModalRoute.of(context) == null ? _pending?.route : null;
 
     return _MPConfirmScope(
-      result: this,
+      provider: this,
       child: Stack(
         fit: StackFit.passthrough,
         children: <Widget>[
           widget.child,
-          MPLayerRole(
-            role: SemanticsRole.alertDialog,
-            child: MPDialog(
-              open: _pending != null,
-              // Reached by Escape, the system back and a press outside, and
-              // every one of them is no. An acknowledgement has no no, so it
-              // completes the way its one button does. The buttons settle the
-              // question themselves.
-              onOpenChange: (bool next) {
-                if (!next) {
-                  _answer(acknowledging);
-                }
-              },
-              icon: options?.icon,
-              title: options?.title,
-              description: options?.description,
-              semanticLabel: options?.semanticLabel,
-              size: options?.size ?? MPSize.md,
-              color: color,
-              dismissible: options?.dismissible ?? true,
-              actions: <Widget>[
-                if (!acknowledging)
+          MPBackGuard(
+            active: askedFrom != null,
+            route: askedFrom,
+            onBack: dismissible ? () => _answer(acknowledging) : null,
+            child: MPLayerRole(
+              role: SemanticsRole.alertDialog,
+              child: MPDialog(
+                open: _pending != null,
+                // Reached by Escape, the system back and a press outside, and
+                // every one of them is no. An acknowledgement has no no, so it
+                // completes the way its one button does. The buttons settle the
+                // question themselves.
+                onOpenChange: (bool next) {
+                  if (!next) {
+                    _answer(acknowledging);
+                  }
+                },
+                icon: options?.icon,
+                title: options?.title,
+                description: options?.description,
+                semanticLabel: options?.semanticLabel,
+                size: options?.size ?? MPSize.md,
+                color: color,
+                dismissible: dismissible,
+                actions: <Widget>[
+                  if (!acknowledging)
+                    MPButton(
+                      key: ValueKey<String>('cancel-$_turn'),
+                      variant: MPVariant.text,
+                      // The first focus, as the first button a React dialog
+                      // holds is: a confirmation exists to make somebody stop.
+                      autofocus: true,
+                      onPressed: () => _answer(false),
+                      child: options?.cancelLabel ?? Text(labels['cancel']!),
+                    ),
                   MPButton(
-                    key: ValueKey<String>('cancel-$_turn'),
+                    key: ValueKey<String>('confirm-$_turn'),
                     variant: MPVariant.text,
-                    // The first focus, as the first button a React dialog
-                    // holds is: a confirmation exists to make somebody stop.
-                    autofocus: true,
-                    onPressed: () => _answer(false),
-                    child: options?.cancelLabel ?? Text(labels['cancel']!),
+                    color: color,
+                    autofocus: acknowledging,
+                    onPressed: () => _answer(true),
+                    child:
+                        options?.confirmLabel ??
+                        Text(acknowledging ? labels['ok']! : labels['confirm']!),
                   ),
-                MPButton(
-                  key: ValueKey<String>('confirm-$_turn'),
-                  variant: MPVariant.text,
-                  color: color,
-                  autofocus: acknowledging,
-                  onPressed: () => _answer(true),
-                  child:
-                      options?.confirmLabel ??
-                      Text(acknowledging ? labels['ok']! : labels['confirm']!),
-                ),
-              ],
-              child: options?.child,
+                ],
+                child: options?.child,
+              ),
             ),
           ),
         ],

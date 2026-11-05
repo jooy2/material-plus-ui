@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -498,6 +500,82 @@ void main() {
 
       expect(find.text('The second question'), findsOneWidget);
       expect(find.text('The first question'), findsNothing);
+    });
+  });
+
+  group('the system back', () {
+    /// The provider where an app puts it, round the navigator, with a second
+    /// page pushed over the first: the back then has a page it could pop.
+    Future<NavigatorState> pumpPages(
+      WidgetTester tester,
+      List<Object> answers, {
+      MPConfirmOptions options = const MPConfirmOptions(title: Text('Delete this?')),
+    }) async {
+      final GlobalKey<NavigatorState> navigator = GlobalKey<NavigatorState>();
+
+      await _pump(
+        tester,
+        MPConfirmProvider(
+          child: Navigator(
+            key: navigator,
+            onGenerateRoute: (RouteSettings settings) => PageRouteBuilder<void>(
+              pageBuilder: (BuildContext context, _, _) => const Text('First page'),
+            ),
+          ),
+        ),
+      );
+      unawaited(
+        navigator.currentState!.push(
+          PageRouteBuilder<void>(
+            pageBuilder: (BuildContext context, _, _) => _Asker(answers: answers, options: options),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      return navigator.currentState!;
+    }
+
+    // What a `WidgetsApp` does with Android's back button and gesture.
+    Future<void> back(WidgetTester tester, NavigatorState navigator) async {
+      await navigator.maybePop();
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('answers a question asked from a page `no`, and leaves the page', (
+      WidgetTester tester,
+    ) async {
+      final List<Object> answers = <Object>[];
+      final NavigatorState navigator = await pumpPages(tester, answers);
+
+      await _press(tester, 'ask');
+      await back(tester, navigator);
+
+      expect(answers, <Object>[false]);
+      expect(find.text('Delete this?'), findsNothing);
+      expect(find.text('ask'), findsOneWidget);
+
+      await back(tester, navigator);
+
+      expect(find.text('First page'), findsOneWidget);
+    });
+
+    testWidgets('is taken and ignored while a question cannot be dismissed', (
+      WidgetTester tester,
+    ) async {
+      final List<Object> answers = <Object>[];
+      final NavigatorState navigator = await pumpPages(
+        tester,
+        answers,
+        options: const MPConfirmOptions(title: Text('Sure?'), dismissible: false),
+      );
+
+      await _press(tester, 'ask');
+      await back(tester, navigator);
+
+      expect(answers, isEmpty);
+      expect(find.text('Sure?'), findsOneWidget);
+      expect(find.text('ask'), findsOneWidget);
     });
   });
 

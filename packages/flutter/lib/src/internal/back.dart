@@ -29,10 +29,16 @@ import 'package:flutter/widgets.dart';
 /// A layer on a page something else has been pushed over is not asked, because
 /// the back pops the page on top. With no route above it at all, an app that
 /// has an [Overlay] and no [Navigator], there is no back to take, and the guard
-/// does nothing.
+/// does nothing, unless it is given a [route] to hold.
 class MPBackGuard extends StatefulWidget {
   /// Creates a guard.
-  const MPBackGuard({required this.active, required this.child, this.onBack, super.key});
+  const MPBackGuard({
+    required this.active,
+    required this.child,
+    this.onBack,
+    this.route,
+    super.key,
+  });
 
   /// Whether the layer takes the back now.
   final bool active;
@@ -43,6 +49,14 @@ class MPBackGuard extends StatefulWidget {
 
   /// The layer, which is drawn as it is.
   final Widget child;
+
+  /// The route to take the back from, in place of the one the guard sits in.
+  ///
+  /// For a layer drawn above the [Navigator], such as a provider's sheet in a
+  /// `WidgetsApp.builder`: it sits in no route, so it answers the back for the
+  /// page it was opened from. Without one, the back would pop that page from
+  /// under the layer and leave the layer up.
+  final ModalRoute<Object?>? route;
 
   @override
   State<MPBackGuard> createState() => _MPBackGuardState();
@@ -73,7 +87,7 @@ class _MPBackGuardState extends State<MPBackGuard> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _route = ModalRoute.of(context);
+    _route = widget.route ?? ModalRoute.of(context);
     _hold();
   }
 
@@ -81,15 +95,19 @@ class _MPBackGuardState extends State<MPBackGuard> {
   void didUpdateWidget(MPBackGuard oldWidget) {
     super.didUpdateWidget(oldWidget);
 
+    if (widget.route != oldWidget.route) {
+      _route = widget.route ?? ModalRoute.of(context);
+    }
+
     if (widget.active != oldWidget.active) {
       _taking.remove(this);
 
       if (widget.active) {
         _taking.add(this);
       }
-
-      _hold();
     }
+
+    _hold();
   }
 
   @override

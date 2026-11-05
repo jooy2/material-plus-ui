@@ -4,6 +4,10 @@ The Flutter package, `material_plus_ui`. The React package keeps its own history
 
 ## vNext (2026--)
 
+### Fixed
+
+- **The system back closes an `MPConfirmProvider` question instead of the page under it.** A provider in `WidgetsApp.builder`, where its documentation puts it, sits above the navigator and in no route, so Android's back button popped the page the question was asked from and left the question on screen. The back now answers the question `false`, as Escape does, and a question that is not `dismissible` keeps the back from doing anything.
+
 ## 1.12.0 (2026-10-30)
 
 The first release of Material Plus for Flutter: the components of the React package under the same names, the same parameter vocabulary and the same numbers, built on `package:flutter/widgets.dart` alone, with no dependencies.
