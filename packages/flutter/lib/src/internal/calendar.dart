@@ -21,6 +21,7 @@ library;
 
 import 'dart:math' as math;
 
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -629,19 +630,28 @@ class _MPCalendarGridState extends State<MPCalendarGrid> {
   Widget build(BuildContext context) {
     final double side = mpCalendarCell[widget.size]!;
 
+    // As wide as the grid, or as the header where the header needs more: a
+    // month as long as `September` beside its year does not fit seven cells at
+    // every rung, and cut to `Sept…` it is no longer a way to tell where you
+    // are. The React popup widens to its header the same way. The grid stays
+    // seven cells wide and sits in the middle.
     return MouseRegion(
       onExit: (PointerExitEvent event) => widget.onPreviewChange?.call(null),
-      child: SizedBox(
-        width: side * 7,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: _gap,
-          children: <Widget>[
-            _header(side),
-            // Seven rows of cells, whichever view is drawn into it.
-            SizedBox(height: side * 7, child: _grid()),
-          ],
+      child: ConstrainedBox(
+        constraints: BoxConstraints(minWidth: side * 7),
+        child: IntrinsicWidth(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: _gap,
+            children: <Widget>[
+              _header(side),
+              // Seven rows of cells, whichever view is drawn into it.
+              Center(
+                child: SizedBox(width: side * 7, height: side * 7, child: _grid()),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -784,12 +794,19 @@ class _MPCalendarGridState extends State<MPCalendarGrid> {
       // `2026년 7월`.
       MPCalendarView.day => SizedBox(
         height: side,
-        child: CustomMultiChildLayout(
+        child: _MonthYear(
           delegate: _MonthYearLayout(
             gap: _gap,
             // Visual order, left to right: the language's order, turned round
             // under right-to-left text as a `Row` would turn it.
             monthOnLeft: widget.names.monthBeforeYear != rtl,
+          ),
+          gap: _gap,
+          // The header asks for room for its longest month rather than the one
+          // on show, so the calendar does not change width as it pages.
+          reserve: _monthReserve(
+            _viewButtonSize[buttonSize]!,
+            widget.names.months[widget.month.month - 1],
           ),
           children: <Widget>[
             LayoutId(id: _MonthYearSlot.month, child: monthButton),
@@ -812,6 +829,33 @@ class _MPCalendarGridState extends State<MPCalendarGrid> {
         stepper(1, widget.showNextButton),
       ],
     );
+  }
+
+  /// How much wider than [shown] the longest month name is, drawn in the
+  /// header's month button at [size].
+  double _monthReserve(MPSize size, String shown) {
+    final TextStyle style = DefaultTextStyle.of(context).style
+        .merge(mpControlText(MPTheme.of(context).typescale, size).style())
+        .merge(const TextStyle(fontFeatures: <FontFeature>[FontFeature.tabularFigures()]));
+    final TextScaler scaler = MediaQuery.maybeTextScalerOf(context) ?? TextScaler.noScaling;
+
+    double widthOf(String text) {
+      final TextPainter painter = TextPainter(
+        text: TextSpan(text: text, style: style),
+        textDirection: Directionality.of(context),
+        textScaler: scaler,
+        maxLines: 1,
+      )..layout();
+      final double width = painter.width;
+
+      painter.dispose();
+
+      return width;
+    }
+
+    final double longest = widget.names.months.map(widthOf).reduce(math.max);
+
+    return math.max(0, longest - widthOf(shown));
   }
 
   Widget _grid() {
@@ -1826,6 +1870,82 @@ class _MPTimeGridState extends State<MPTimeGrid> {
 
 /// The two buttons in the day view's header.
 enum _MonthYearSlot { month, year }
+
+/// [_MonthYearLayout], with a width of its own to report: the two buttons
+/// side by side, plus [reserve] for a longer month than the one on show.
+///
+/// A `CustomMultiChildLayout` cannot say how wide it would like to be, and the
+/// calendar widens to what its header asks for.
+class _MonthYear extends CustomMultiChildLayout {
+  const _MonthYear({
+    required super.delegate,
+    required this.gap,
+    required this.reserve,
+    super.children,
+  });
+
+  final double gap;
+  final double reserve;
+
+  @override
+  RenderCustomMultiChildLayoutBox createRenderObject(BuildContext context) {
+    return _RenderMonthYear(delegate: delegate, gap: gap, reserve: reserve);
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderCustomMultiChildLayoutBox renderObject) {
+    super.updateRenderObject(context, renderObject);
+    (renderObject as _RenderMonthYear)
+      ..gap = gap
+      ..reserve = reserve;
+  }
+}
+
+class _RenderMonthYear extends RenderCustomMultiChildLayoutBox {
+  _RenderMonthYear({required super.delegate, required double gap, required double reserve})
+    : _gap = gap,
+      _reserve = reserve;
+
+  double _gap;
+  set gap(double value) {
+    if (value != _gap) {
+      _gap = value;
+      markNeedsLayout();
+    }
+  }
+
+  double _reserve;
+  set reserve(double value) {
+    if (value != _reserve) {
+      _reserve = value;
+      markNeedsLayout();
+    }
+  }
+
+  double _sum(double Function(RenderBox child) measure) {
+    double total = 0;
+    int count = 0;
+    RenderBox? child = firstChild;
+
+    while (child != null) {
+      total += measure(child);
+      count += 1;
+      child = childAfter(child);
+    }
+
+    return total + _gap * math.max(0, count - 1);
+  }
+
+  @override
+  double computeMinIntrinsicWidth(double height) {
+    return _sum((RenderBox child) => child.getMinIntrinsicWidth(height));
+  }
+
+  @override
+  double computeMaxIntrinsicWidth(double height) {
+    return _sum((RenderBox child) => child.getMaxIntrinsicWidth(height)) + _reserve;
+  }
+}
 
 /// Lays the month and the year buttons out side by side, centred, with the
 /// month giving way first.

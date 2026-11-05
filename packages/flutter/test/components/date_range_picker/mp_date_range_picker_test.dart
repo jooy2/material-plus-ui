@@ -132,6 +132,12 @@ void main() {
     testWidgets('move as a pair: the two panels are one calendar in two halves', (
       WidgetTester tester,
     ) async {
+      // Room for two panels whose headers are drawn in the test font, where
+      // every glyph is a square as wide as the type is tall.
+      tester.view.physicalSize = const Size(1200, 800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+
       await tester.pumpWidget(_picker());
       await _open(tester);
 

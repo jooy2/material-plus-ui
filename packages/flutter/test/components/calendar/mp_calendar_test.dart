@@ -7,6 +7,7 @@ import 'package:material_plus_ui/src/components/config/mp_config_provider.dart';
 import 'package:material_plus_ui/src/components/form/mp_form.dart';
 import 'package:material_plus_ui/src/components/icon_button/mp_icon_button.dart';
 import 'package:material_plus_ui/src/components/locale/mp_locale_provider.dart';
+import 'package:material_plus_ui/src/internal/calendar.dart';
 import 'package:material_plus_ui/src/internal/date_locales.dart';
 import 'package:material_plus_ui/src/internal/i18n.dart';
 import 'package:material_plus_ui/src/locales/ko.dart';
@@ -23,6 +24,25 @@ final DateTime _july7 = DateTime(2026, 7, 7);
 
 /// The cell a screen reader calls [label], by its whole date.
 Finder _cell(String label) => find.bySemanticsLabel(label);
+
+/// The seven-by-seven grid the cells are drawn in, which the header can be
+/// wider than.
+Size _gridOf(WidgetTester tester) {
+  return tester.getSize(
+    find
+        .descendant(
+          of: find.byType(MPCalendar),
+          matching: find.byWidgetPredicate(
+            (Widget widget) =>
+                widget is SizedBox &&
+                widget.width != null &&
+                widget.width == widget.height &&
+                widget.width! >= 7 * 28,
+          ),
+        )
+        .first,
+  );
+}
 
 /// The decoration of the cell whose day number is [day].
 BoxDecoration _decorationOf(WidgetTester tester, String day) {
@@ -109,12 +129,16 @@ void main() {
       await tester.pumpWidget(host(_calendar()));
 
       // The first stepper sits on the calendar's own corner, with no room
-      // round it, and seven cells of 40 are the whole width.
+      // round it, and the grid is seven cells of 40.
       expect(
         tester.getTopLeft(find.byType(MPIconButton).first),
         tester.getTopLeft(find.byType(MPCalendar)),
       );
-      expect(tester.getSize(find.byType(MPCalendar)).width, 280);
+      expect(_gridOf(tester).width, 280);
+      expect(
+        tester.getSize(find.byType(MPCalendar)).width,
+        tester.getSize(find.byType(MPCalendarGrid)).width,
+      );
     });
 
     testWidgets('paints one when asked, and takes the popup ladder for its room', (
@@ -129,7 +153,10 @@ void main() {
 
       expect((decoration.border! as Border).top.color, light.outlineVariant);
       expect(decoration.borderRadius, BorderRadius.circular(12));
-      expect(tester.getSize(find.byType(MPCalendar)).width, 280 + 10 * 2);
+      expect(
+        tester.getSize(find.byType(MPCalendar)).width,
+        tester.getSize(find.byType(MPCalendarGrid)).width + 10 * 2,
+      );
     });
 
     testWidgets('does not take the focus on mount', (WidgetTester tester) async {
@@ -147,13 +174,43 @@ void main() {
     });
   });
 
+  group('the header', () {
+    testWidgets('widens the calendar rather than cutting a long month short', (
+      WidgetTester tester,
+    ) async {
+      for (final MPSize size in MPSize.values) {
+        await tester.pumpWidget(host(_calendar(size: size, defaultMonth: DateTime(2026, 9))));
+
+        final RenderParagraph month = tester.renderObject<RenderParagraph>(find.text('September'));
+
+        expect(
+          month.size.width,
+          greaterThanOrEqualTo(month.getMaxIntrinsicWidth(double.infinity) - 0.5),
+          reason: '$size',
+        );
+      }
+    });
+
+    testWidgets('keeps one width from month to month', (WidgetTester tester) async {
+      await tester.pumpWidget(host(_calendar(defaultMonth: DateTime(2026, 5))));
+
+      final double may = tester.getSize(find.byType(MPCalendar)).width;
+
+      await tester.tap(find.bySemanticsLabel('Next month'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('June'), findsOneWidget);
+      expect(tester.getSize(find.byType(MPCalendar)).width, may);
+    });
+  });
+
   group('the size ladder', () {
     testWidgets('draws its cells at 28, 32, 40, 44, 48', (WidgetTester tester) async {
       final List<double> widths = <double>[];
 
       for (final MPSize size in MPSize.values) {
         await tester.pumpWidget(host(_calendar(size: size)));
-        widths.add(tester.getSize(find.byType(MPCalendar)).width / 7);
+        widths.add(_gridOf(tester).width / 7);
       }
 
       expect(widths, <double>[28, 32, 40, 44, 48]);
@@ -162,7 +219,7 @@ void main() {
     testWidgets('takes its size from an MPConfigProvider', (WidgetTester tester) async {
       await tester.pumpWidget(host(MPConfigProvider(size: MPSize.sm, child: _calendar())));
 
-      expect(tester.getSize(find.byType(MPCalendar)).width, 32 * 7);
+      expect(_gridOf(tester).width, 32 * 7);
     });
   });
 
