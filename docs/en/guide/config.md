@@ -344,6 +344,13 @@ Left out, nothing is rendered and nothing is claimed: a page that sets `dir` on 
 - **A font.** Arabic and Hebrew need one, and the library does not ship fonts.
 - **`MPSide` stays physical.** `top`/`right`/`bottom`/`left` on a popup are physical on purpose: a tooltip above its trigger is above it in every writing direction. `MPAlign` and `MPCorner` are the logical ones.
 
+### What keeps its own direction
+
+Two things are laid out in the direction they are written in rather than the page's, in both packages:
+
+- **A shortcut runs left to right.** `MPShortcut`'s caps and a menu row's `shortcut` put the key held first on the left, as Arabic and Hebrew write `Ctrl+C`.
+- **A date or a time a picker shows** runs in the direction of its first letter, as `<bdi>` decides it, and sits where the page's text starts. A Korean `2026. 11. 5.` on an Arabic page reads as written rather than `.5 .11 .2026`, and an Arabic date on an English page reads right to left.
+
 ### Sharp edges
 
 - **Mixed-direction pages need the provider where the direction changes**, not only at the root — the Base UI context follows the tree, and the CSS follows the DOM, so put them together.
