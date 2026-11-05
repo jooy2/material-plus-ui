@@ -205,10 +205,10 @@ jobs:
             *) echo "::error::pub.dev answered ${status} for ${NAME} ${VERSION}."; exit 1 ;;
           esac
 
-  # Validates the package, packs it in a job with no network and no token, and
-  # publishes the archive from a third job that holds the OIDC token and runs
-  # nothing of the package's. It sets up Flutter for the validation, since the
-  # package depends on the Flutter SDK.
+  # One job of the Dart team's, holding the OIDC token: it sets up Flutter,
+  # since the package depends on the Flutter SDK, validates the package with
+  # `dart pub publish --dry-run`, and publishes it. It keeps no copy of the
+  # archive it sends.
   flutter-publish:
     needs: flutter
     if: needs.flutter.outputs.published != 'true'
@@ -249,14 +249,23 @@ jobs:
       - name: Write the release notes from CHANGELOG.md
         run: node ../../.github/scripts/release-notes.mjs "$GITHUB_REF_NAME" > "$RUNNER_TEMP/notes.md"
 
-      # The archive pub.dev was given, left behind by the publish workflow. A
-      # re-run that published nothing has none, and the release keeps the one
-      # it was first given.
-      - uses: actions/download-artifact@v8
-        if: needs.flutter-publish.result == 'success'
-        with:
-          name: package-archive
-          path: ${{ runner.temp }}/archive
+      # The archive pub.dev holds for the version, which is the one every
+      # `flutter pub get` downloads. The publish job keeps no copy, so it is
+      # fetched back and checked against the SHA-256 pub.dev records for it. A
+      # version that was already out gets the same archive, so a re-run
+      # attaches it again. The retries cover the moments after a publish,
+      # before pub.dev answers for the new version.
+      - name: Download the archive from pub.dev
+        env:
+          NAME: ${{ needs.flutter.outputs.name }}
+          VERSION: ${{ needs.flutter.outputs.version }}
+        run: |
+          info=$(curl -sf --retry 10 --retry-delay 15 --retry-all-errors "https://pub.dev/api/packages/${NAME}/versions/${VERSION}")
+          url=$(jq -r '.archive_url' <<< "$info")
+          sha=$(jq -r '.archive_sha256' <<< "$info")
+          archive="$RUNNER_TEMP/${NAME}-${VERSION}.tar.gz"
+          curl -sfL --retry 3 -o "$archive" "$url"
+          echo "${sha}  ${archive}" | sha256sum -c -
 
       - name: Publish the GitHub release
         env:
@@ -266,20 +275,14 @@ jobs:
           VERSION: ${{ needs.flutter.outputs.version }}
         run: |
           notes="$RUNNER_TEMP/notes.md"
+          archive="$RUNNER_TEMP/${NAME}-${VERSION}.tar.gz"
           title="Material Plus for Flutter ${VERSION}"
-          archive=""
-          if [ -f "$RUNNER_TEMP/archive/package.tar.gz" ]; then
-            archive="$RUNNER_TEMP/${NAME}-${VERSION}.tar.gz"
-            mv "$RUNNER_TEMP/archive/package.tar.gz" "$archive"
-          fi
           if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
             gh release edit "$GITHUB_REF_NAME" --title "$title" --notes-file "$notes"
-            if [ -n "$archive" ]; then
-              gh release upload "$GITHUB_REF_NAME" "$archive" --clobber
-            fi
+            gh release upload "$GITHUB_REF_NAME" "$archive" --clobber
           else
             prerelease=""
             case "$VERSION" in *-*) prerelease="--prerelease" ;; esac
-            gh release create "$GITHUB_REF_NAME" $archive --verify-tag \
+            gh release create "$GITHUB_REF_NAME" "$archive" --verify-tag \
               --title "$title" --notes-file "$notes" $prerelease
           fi

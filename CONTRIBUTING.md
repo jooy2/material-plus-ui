@@ -165,7 +165,7 @@ A maintainer releases each package on its own, from a tag of its own. Pushing th
 1. **Tag that commit** with the package's prefix, `react-vX.Y.Z` or `flutter-vX.Y.Z`, and push the tag by name: `git tag react-v1.12.0`, then `git push origin react-v1.12.0`. `git push --tags` would push every local tag, so it is not used. The React package's releases from before the repository held two packages are tagged `vX.Y.Z`.
 1. **The workflow** checks that the tag names the version in the package's manifest and that its changelog has a dated section for it.
    - The React job packs the package with `npm pack`, which runs the build and its bundle check, publishes that tarball with `npm publish`, and attaches the same tarball to the GitHub release. npm adds a provenance statement on its own. A pre-release version goes out under the `next` dist-tag.
-   - The Flutter jobs hand the package to the Dart team's reusable workflow, `dart-lang/setup-dart/.github/workflows/publish.yml`, which validates it with Flutter set up, packs it in a job with no network, and publishes the archive from a job that runs none of the package's code. The GitHub release is written afterwards and carries that archive.
+   - The Flutter jobs hand the package to the Dart team's reusable workflow, `dart-lang/setup-dart/.github/workflows/publish.yml`, which sets up Flutter, validates the package with a dry run and publishes it. That workflow keeps no copy of the archive it sent, so the GitHub release is written afterwards with the archive pub.dev serves for the version, checked against the SHA-256 pub.dev records for it.
    - A version the registry already has is not published again, so pushing the tag a second time only brings the GitHub release up to date.
 
 ### Setting up the registries
