@@ -10,7 +10,7 @@ import { NUMBER_FIELD } from '../../internal/messages/number-field';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { MPSupportingText } from '../../internal/SupportingText';
 import { CONTROL_ICON, PROSE_TEXT, hasContent } from '../../internal/scale';
-import { useMPSize } from '../../internal/config';
+import { useMPFloatingLabel, useMPSize } from '../../internal/config';
 import type { MPControlEventProps, MPSize, MPStyleProps } from '../../types';
 
 /**
@@ -107,6 +107,7 @@ export interface MPNumberFieldProps extends MPStyleProps, MPControlEventProps<HT
    * a field with a label and one without no longer sit at the same height in a
    * form until both are filled. A `startIcon` — or `steppers="split"`, whose
    * minus sits in the same place — holds the label up regardless.
+   * Left out, the nearest `MPConfigProvider`'s `floatingLabel` decides.
    * @default true
    */
   floatingLabel?: boolean;
@@ -178,7 +179,7 @@ export function MPNumberField({
   incrementLabel,
   decrementLabel,
   label,
-  floatingLabel = true,
+  floatingLabel: floatingLabelProp,
   description,
   errorMessage,
   placeholder,
@@ -194,6 +195,7 @@ export function MPNumberField({
   style
 }: MPNumberFieldProps) {
   const size = useMPSize(sizeProp);
+  const floatingLabel = useMPFloatingLabel(floatingLabelProp);
   /*
    * The steppers' names come from the same `locale` the number does.
    *

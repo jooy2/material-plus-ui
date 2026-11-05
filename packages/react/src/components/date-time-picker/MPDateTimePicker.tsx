@@ -30,7 +30,7 @@ import {
   withTime,
   type MPTimeUnit
 } from '../../internal/date';
-import { useMPColor, useMPSize } from '../../internal/config';
+import { useMPColor, useMPSize, useMPWeekStart } from '../../internal/config';
 import type { MPWeekday } from '../../types';
 
 export interface MPDateTimePickerProps extends MPPickerShellProps {
@@ -152,7 +152,7 @@ export const MPDateTimePicker = React.forwardRef<HTMLButtonElement, MPDateTimePi
     const color = useMPColor(colorProp);
     const locale = useMPLocale(localeProp);
     const labels = useMPMessages(PICKER, locale, labelOverrides);
-    const firstDay = weekStartsOn ?? localeWeekStart(locale);
+    const firstDay = useMPWeekStart(weekStartsOn) ?? localeWeekStart(locale);
     const hour12 = hour12Prop ?? isHour12(locale);
 
     const [uncontrolledValue, setUncontrolledValue] = React.useState<Date | null>(

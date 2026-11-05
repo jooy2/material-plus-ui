@@ -14,7 +14,7 @@ import { MPSupportingText } from '../../internal/SupportingText';
 import { CONTROL_ICON, PROSE_TEXT, hasContent } from '../../internal/scale';
 import { MARK_MOTION_KEPT } from '../../internal/mark';
 import { FADE, PORTAL_LAYER } from '../../internal/surface';
-import { useMPSize } from '../../internal/config';
+import { useMPFloatingLabel, useMPSize } from '../../internal/config';
 import { occurrenceKeys } from '../../internal/occurrence';
 import type {
   MPColor,
@@ -205,6 +205,7 @@ export interface MPComboboxProps<Multiple extends boolean | undefined = false>
    * `false` pins it in the notch, which is the one thing a floating label costs:
    * a combobox with a label and one without no longer sit at the same height in
    * a form until both are answered. A `startIcon` holds the label up regardless.
+   * Left out, the nearest `MPConfigProvider`'s `floatingLabel` decides.
    * @default true
    */
   floatingLabel?: boolean;
@@ -385,7 +386,7 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
   chipColor,
   placeholder,
   label,
-  floatingLabel = true,
+  floatingLabel: floatingLabelProp,
   description,
   errorMessage,
   startIcon,
@@ -409,6 +410,7 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
   style
 }: MPComboboxProps<Multiple>) {
   const size = useMPSize(sizeProp);
+  const floatingLabel = useMPFloatingLabel(floatingLabelProp);
   const locale = useMPLocale(localeProp);
   const messages = useMPMessages(COMMON, locale);
   const words = useMPMessages(COMBOBOX, locale);

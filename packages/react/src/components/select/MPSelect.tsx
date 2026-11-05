@@ -9,7 +9,7 @@ import { MPSupportingText } from '../../internal/SupportingText';
 import { CONTROL_ICON, PROSE_TEXT, hasContent } from '../../internal/scale';
 import { MARK_MOTION_KEPT } from '../../internal/mark';
 import { FADE, PORTAL_LAYER } from '../../internal/surface';
-import { useMPSize } from '../../internal/config';
+import { useMPFloatingLabel, useMPSize } from '../../internal/config';
 import type { MPControlEventProps, MPSize, MPSlots, MPStyleProps } from '../../types';
 
 /**
@@ -108,6 +108,7 @@ export interface MPSelectProps extends MPStyleProps, MPControlEventProps<HTMLBut
    * a select with a label and one without no longer sit at the same height in a
    * form until both are answered. A `startIcon` holds the label up regardless —
    * the icon is already standing where the resting label would be.
+   * Left out, the nearest `MPConfigProvider`'s `floatingLabel` decides.
    * @default true
    */
   floatingLabel?: boolean;
@@ -189,7 +190,7 @@ export const MPSelect = React.forwardRef<HTMLButtonElement, MPSelectProps>(funct
     onContextMenu,
     placeholder,
     label,
-    floatingLabel = true,
+    floatingLabel: floatingLabelProp,
     description,
     errorMessage,
     startIcon,
@@ -207,6 +208,7 @@ export const MPSelect = React.forwardRef<HTMLButtonElement, MPSelectProps>(funct
   ref
 ) {
   const size = useMPSize(sizeProp);
+  const floatingLabel = useMPFloatingLabel(floatingLabelProp);
   const invalid = hasContent(errorMessage);
   const scale = TRIGGER[size];
   const generatedId = React.useId();

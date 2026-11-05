@@ -10,6 +10,7 @@ import { MPStateLayer } from './StateLayer';
 import { MPSupportingText } from './SupportingText';
 import { MPWidthSizer } from './WidthSizer';
 import { displaySamples } from './date';
+import { useMPFloatingLabel } from './config';
 import { useMPMessages } from './locale';
 import { COMMON } from './messages/common';
 import { CONTROL_ICON, hasContent, PROSE_TEXT } from './scale';
@@ -138,6 +139,7 @@ export interface MPPickerShellProps extends MPStyleProps, MPControlEventProps<HT
    * where a resting label would — so in practice this only takes effect on a
    * picker asked for without one, `startIcon={null}`. Two things cannot share a
    * spot, and of the two the glyph is what says the trigger opens a calendar.
+   * Left out, the nearest `MPConfigProvider`'s `floatingLabel` decides.
    * @default true
    */
   floatingLabel?: boolean;
@@ -239,7 +241,7 @@ export function MPPickerShell({
   color = 'primary',
   fullWidth = false,
   label,
-  floatingLabel = true,
+  floatingLabel: floatingLabelProp,
   description,
   errorMessage,
   startIcon,
@@ -272,6 +274,7 @@ export function MPPickerShell({
   triggerRef
 }: InternalShellProps) {
   const common = useMPMessages(COMMON, locale);
+  const floatingLabel = useMPFloatingLabel(floatingLabelProp);
   const invalid = hasContent(errorMessage);
   const scale = TRIGGER[size];
   const generatedId = React.useId();

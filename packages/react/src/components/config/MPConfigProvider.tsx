@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { MPConfigContext, useMPConfig, type MPConfigValue } from '../../internal/config';
-import { MPLocaleContext, useMPLocale } from '../../internal/locale';
+import type { MPMessages, MPPartialMessages } from '../../internal/i18n';
+import { MPLocaleContext, useMPLocale, useServerLocale } from '../../internal/locale';
 import { WINDOW_CLASSES } from '../../internal/window-class';
-import type { MPColor, MPDensity, MPSize, MPWindowClass } from '../../types';
+import type { MPColor, MPDensity, MPSize, MPWeekday, MPWindowClass } from '../../types';
 
 export interface MPConfigProviderProps {
   /**
@@ -67,6 +68,47 @@ export interface MPConfigProviderProps {
    * carried here so an application needs one provider rather than two.
    */
   locale?: string;
+  /**
+   * The tag dates and numbers are written in on the server and while the page
+   * hydrates, when no `locale` is known — the same value `MPLocaleProvider`
+   * takes, for the same reason `locale` is here.
+   *
+   * Ignored when this provider or one above it names a `locale`, which already
+   * agrees on both sides.
+   */
+  serverLocale?: string;
+  /**
+   * The words the library says on its own behalf, by namespace, over whatever
+   * the locale's table says: `{ common: { close: 'Dismiss' } }`.
+   *
+   * A partial. Whatever is not in it stays as the locale has it, so renaming one
+   * button does not mean supplying the other words. A component's own `labels`
+   * prop still beats it, and nested providers merge a word at a time.
+   *
+   * It is the same shape `registerMPMessages` takes, and the two are for
+   * different jobs. A registered table is a language, for the whole page and
+   * keyed by tag. This is the application's own wording, for this subtree, in
+   * whatever language is in force.
+   */
+  labels?: MPPartialMessages;
+  /**
+   * Whether every field's label rests on the field's line until there is
+   * something in it, then rises into the notch. `false` keeps all of them in the
+   * notch from the start.
+   *
+   * `true` unless set, which is each field's own default. A field's own
+   * `floatingLabel` still wins, and a `startIcon` holds a label up whatever this
+   * says.
+   */
+  floatingLabel?: boolean;
+  /**
+   * Which day the weeks start on, in every calendar and date picker under this.
+   *
+   * Left out, each one asks its locale, which is right for most applications. A
+   * product whose weeks start on Monday wherever its readers are says so here.
+   * A calendar's own `weekStartsOn` still wins.
+   */
+  weekStartsOn?: MPWeekday;
   /**
    * Which way the text runs, for everything under it.
    *
@@ -139,6 +181,12 @@ export interface MPConfigProviderProps {
  * three are the axes a whole product is usually set on together — and because
  * `density` resolves to class strings for the same reason `size` does.
  *
+ * The rest of what it carries passes the same test. `floatingLabel` and
+ * `weekStartsOn` are decisions about a product's forms and calendars rather
+ * than about one field, and neither can be a custom property. `locale`,
+ * `serverLocale` and `labels` decide which *string* is rendered, which the
+ * cascade cannot do at all.
+ *
  * ## Why `variant` is not here
  *
  * Because there is no such thing as *the* default variant. `MPAccordion` starts
@@ -176,12 +224,27 @@ export function MPConfigProvider({
   density,
   breakpoints,
   locale,
+  serverLocale,
+  labels,
+  floatingLabel,
+  weekStartsOn,
   dir,
   reserveSupportingText,
   children
 }: MPConfigProviderProps) {
   const outer = useMPConfig();
   const outerLocale = useMPLocale();
+  const unsetLocale = useServerLocale(serverLocale);
+
+  // The words by what they say, for the reason `ladder` below exists: `labels`
+  // is written inline, and a memo keyed on a new object every render would hand
+  // every component that says a word a new table every render.
+  const wording = labels === undefined ? '' : JSON.stringify(labels);
+  const mergedLabels = React.useMemo(
+    () => mergeLabels(outer.labels, labels),
+    // `wording` stands in for `labels`, by value rather than by identity.
+    [outer.labels, wording]
+  );
 
   /*
    * The boundaries as one string, so that the memo below can depend on what they
@@ -210,7 +273,10 @@ export function MPConfigProvider({
       // `useWindowMins` can return the shared ladder untouched.
       breakpoints:
         breakpoints || outer.breakpoints ? { ...outer.breakpoints, ...breakpoints } : undefined,
-      reserveSupportingText: reserveSupportingText ?? outer.reserveSupportingText
+      reserveSupportingText: reserveSupportingText ?? outer.reserveSupportingText,
+      floatingLabel: floatingLabel ?? outer.floatingLabel,
+      weekStartsOn: weekStartsOn ?? outer.weekStartsOn,
+      labels: mergedLabels
     }),
     // `ladder` stands in for the two breakpoint maps, by value rather than by
     // identity — which is the whole of why it exists. See above.
@@ -219,15 +285,22 @@ export function MPConfigProvider({
       color,
       density,
       reserveSupportingText,
+      floatingLabel,
+      weekStartsOn,
       outer.size,
       outer.color,
       outer.density,
       outer.reserveSupportingText,
+      outer.floatingLabel,
+      outer.weekStartsOn,
+      mergedLabels,
       ladder
     ]
   );
 
-  const resolvedLocale = locale ?? outerLocale;
+  // A locale named here or above wins in every render, so `serverLocale` only
+  // fills the case where nobody knows the reader's language on the server.
+  const resolvedLocale = locale ?? outerLocale ?? unsetLocale;
 
   const content = (
     <MPConfigContext.Provider value={value}>
@@ -251,6 +324,28 @@ export function MPConfigProvider({
       </div>
     </DirectionProvider>
   );
+}
+
+/**
+ * Two providers' words, the inner one's on top, a namespace and then a word at
+ * a time. A nested provider that renames `common.close` keeps the outer one's
+ * `common.clear` and the whole of its `picker`.
+ */
+function mergeLabels(
+  outer: MPPartialMessages | undefined,
+  inner: MPPartialMessages | undefined
+): MPPartialMessages | undefined {
+  if (!outer || !inner) {
+    return inner ?? outer;
+  }
+
+  const merged: Record<string, object | undefined> = { ...outer };
+
+  for (const name of Object.keys(inner) as (keyof MPMessages)[]) {
+    merged[name] = { ...outer[name], ...inner[name] };
+  }
+
+  return merged as MPPartialMessages;
 }
 
 /**

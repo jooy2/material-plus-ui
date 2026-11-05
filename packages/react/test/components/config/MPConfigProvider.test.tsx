@@ -1,11 +1,14 @@
 import { useState } from 'react';
-import { describe, expect, it } from 'vitest';
+import { renderToString } from 'react-dom/server';
+import { afterEach, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 import {
+  MPAlert,
   MPBadge,
   MPBox,
   MPButton,
   MPButtonGroup,
+  MPCalendar,
   MPChip,
   MPConfigProvider,
   MPDatePicker,
@@ -13,6 +16,7 @@ import {
   MPForm,
   MPLocaleProvider,
   MPContainer,
+  MPPagination,
   MPShow,
   MPTextField,
   MPTooltip,
@@ -20,6 +24,7 @@ import {
   useMPLocale,
   useMPWindowClass
 } from 'material-plus-ui';
+import { cleanupHydrated, hydrateFromServer } from '../../support/hydrate';
 
 /**
  * `data-mp-size` rather than a class name, for the reason the animation tests
@@ -358,6 +363,194 @@ describe('MPConfigProvider', () => {
       );
 
       expect(screen.getByTestId('locale').element().textContent).toBe('ja');
+    });
+  });
+
+  describe('serverLocale', () => {
+    afterEach(cleanupHydrated);
+
+    function Reader() {
+      return <output>{useMPLocale() ?? 'none'}</output>;
+    }
+
+    it('is what the server renders with when no locale is known', () => {
+      const html = renderToString(
+        <MPConfigProvider serverLocale="de-DE">
+          <Reader />
+        </MPConfigProvider>
+      );
+
+      expect(html).toContain('>de-DE<');
+    });
+
+    it('hydrates in it, then hands over to the platform default', async () => {
+      const { container, errors } = await hydrateFromServer(
+        <MPConfigProvider serverLocale="de-DE">
+          <Reader />
+        </MPConfigProvider>
+      );
+
+      expect(errors).toEqual([]);
+      expect(container.querySelector('output')!.textContent).toBe('none');
+    });
+
+    it('gives way to a locale named above it, on both sides', async () => {
+      const node = (
+        <MPConfigProvider locale="ja">
+          <MPConfigProvider serverLocale="de-DE">
+            <Reader />
+          </MPConfigProvider>
+        </MPConfigProvider>
+      );
+
+      expect(renderToString(node)).toContain('>ja<');
+
+      const { container } = await hydrateFromServer(node);
+
+      expect(container.querySelector('output')!.textContent).toBe('ja');
+    });
+  });
+
+  describe('labels', () => {
+    it('renames a word for everything under it', async () => {
+      const screen = await render(
+        <MPConfigProvider labels={{ alert: { dismiss: 'Hide' } }}>
+          <MPAlert onClose={() => {}}>Saved</MPAlert>
+        </MPConfigProvider>
+      );
+
+      await expect.element(screen.getByRole('button', { name: 'Hide' })).toBeInTheDocument();
+    });
+
+    it('leaves the words it does not name as they were', async () => {
+      const screen = await render(
+        <MPConfigProvider labels={{ pagination: { next: 'Forward' } }}>
+          <MPPagination count={5} defaultPage={3} />
+        </MPConfigProvider>
+      );
+
+      await expect.element(screen.getByRole('button', { name: 'Forward' })).toBeInTheDocument();
+      await expect
+        .element(screen.getByRole('button', { name: 'Previous page' }))
+        .toBeInTheDocument();
+    });
+
+    it('is beaten by a component’s own labels', async () => {
+      const screen = await render(
+        <MPConfigProvider labels={{ pagination: { next: 'Forward' } }}>
+          <MPPagination count={5} defaultPage={3} labels={{ next: 'Onward' }} />
+        </MPConfigProvider>
+      );
+
+      await expect.element(screen.getByRole('button', { name: 'Onward' })).toBeInTheDocument();
+    });
+
+    it('merges a word at a time when providers nest', async () => {
+      const screen = await render(
+        <MPConfigProvider labels={{ alert: { dismiss: 'Hide' }, pagination: { next: 'Forward' } }}>
+          <MPConfigProvider labels={{ pagination: { previous: 'Back' } }}>
+            <MPAlert onClose={() => {}}>Saved</MPAlert>
+            <MPPagination count={5} defaultPage={3} />
+          </MPConfigProvider>
+        </MPConfigProvider>
+      );
+
+      // The inner provider named one pagination word. The outer one's other
+      // pagination word and its whole alert namespace are still in force.
+      await expect.element(screen.getByRole('button', { name: 'Hide' })).toBeInTheDocument();
+      await expect.element(screen.getByRole('button', { name: 'Forward' })).toBeInTheDocument();
+      await expect.element(screen.getByRole('button', { name: 'Back' })).toBeInTheDocument();
+    });
+  });
+
+  describe('floatingLabel', () => {
+    /** Whether the empty, unfocused field's label has risen into the notch. */
+    function shrunk(screen: { container: Element }) {
+      return screen.container.querySelector('label')!.hasAttribute('data-mp-shrunk');
+    }
+
+    it('rests the label by default', async () => {
+      const screen = await render(<MPTextField value="" label="Email" />);
+
+      expect(shrunk(screen)).toBe(false);
+    });
+
+    it('pins every label in the notch when it is false', async () => {
+      const screen = await render(
+        <MPConfigProvider floatingLabel={false}>
+          <MPTextField value="" label="Email" />
+        </MPConfigProvider>
+      );
+
+      expect(shrunk(screen)).toBe(true);
+    });
+
+    it('is beaten by the field’s own prop', async () => {
+      const screen = await render(
+        <MPConfigProvider floatingLabel={false}>
+          <MPTextField value="" label="Email" floatingLabel />
+        </MPConfigProvider>
+      );
+
+      expect(shrunk(screen)).toBe(false);
+    });
+
+    it('reaches a picker, which resolves it in its shell', async () => {
+      // `startIcon={null}`, because a picker's own glyph holds the label up
+      // whatever this says.
+      const screen = await render(
+        <MPConfigProvider floatingLabel={false}>
+          <MPDatePicker label="Date" startIcon={null} />
+        </MPConfigProvider>
+      );
+
+      expect(shrunk(screen)).toBe(true);
+    });
+  });
+
+  describe('weekStartsOn', () => {
+    const JULY = new Date(2026, 6, 1);
+
+    /** The long name on the first column of the weekday header, wherever it is. */
+    function firstWeekday() {
+      return document.querySelector('[role="columnheader"]')?.getAttribute('aria-label');
+    }
+
+    it('leaves the locale to decide when nobody says', async () => {
+      await render(<MPCalendar locale="en-US" defaultMonth={JULY} />);
+
+      expect(firstWeekday()).toBe('Sunday');
+    });
+
+    it('moves the first day for every calendar under it', async () => {
+      await render(
+        <MPConfigProvider weekStartsOn={1}>
+          <MPCalendar locale="en-US" defaultMonth={JULY} />
+        </MPConfigProvider>
+      );
+
+      expect(firstWeekday()).toBe('Monday');
+    });
+
+    it('is beaten by the calendar’s own prop', async () => {
+      await render(
+        <MPConfigProvider weekStartsOn={1}>
+          <MPCalendar locale="en-US" defaultMonth={JULY} weekStartsOn={6} />
+        </MPConfigProvider>
+      );
+
+      expect(firstWeekday()).toBe('Saturday');
+    });
+
+    it('reaches a date picker', async () => {
+      // The calendar is in a popup portalled to `<body>`, hence the document.
+      await render(
+        <MPConfigProvider weekStartsOn={1}>
+          <MPDatePicker label="Date" locale="en-US" defaultMonth={JULY} defaultOpen />
+        </MPConfigProvider>
+      );
+
+      await expect.poll(firstWeekday).toBe('Monday');
     });
   });
 

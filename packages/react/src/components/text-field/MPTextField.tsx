@@ -6,7 +6,7 @@ import { MPSupportingText } from '../../internal/SupportingText';
 import { VisibilityIcon, VisibilityOffIcon } from '../../constants/icons';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { TEXT_FIELD } from '../../internal/messages/text-field';
-import { useMPSize } from '../../internal/config';
+import { useMPFloatingLabel, useMPSize } from '../../internal/config';
 import type { MPMessages } from '../../internal/i18n';
 import type { MPControlEventProps, MPSize, MPStyleProps } from '../../types';
 
@@ -110,6 +110,7 @@ export interface MPTextFieldProps
    *
    * A `startIcon` holds the label up regardless. The icon is already standing
    * where the resting label would be, and the two cannot share the spot.
+   * Left out, the nearest `MPConfigProvider`'s `floatingLabel` decides.
    * @default true
    */
   floatingLabel?: boolean;
@@ -299,7 +300,7 @@ export const MPTextField = React.forwardRef<
     autoComplete,
     label,
     'aria-label': ariaLabel,
-    floatingLabel = true,
+    floatingLabel: floatingLabelProp,
     onChange,
     onFormReset,
     onSubmit,
@@ -331,6 +332,7 @@ export const MPTextField = React.forwardRef<
   ref
 ) {
   const size = useMPSize(sizeProp);
+  const floatingLabel = useMPFloatingLabel(floatingLabelProp);
   const locale = useMPLocale(localeProp);
   const messages = useMPMessages(TEXT_FIELD, locale, passwordLabels);
   const inputRef = React.useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);

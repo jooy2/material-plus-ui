@@ -27,6 +27,7 @@
  * is the way out for a page that cannot know its reader's language on the server.
  */
 import * as React from 'react';
+import { MPConfigContext } from './config';
 import { resolveNamespace, type MPMessages, type MPNamespace } from './i18n';
 
 /**
@@ -47,13 +48,43 @@ export function useMPLocale(locale?: string): string | undefined {
   return locale ?? inherited;
 }
 
+/** Nothing ever changes, so there is nothing to listen to. */
+function subscribeToNothing(): () => void {
+  return () => {};
+}
+
+/** In a browser past hydration: the platform's own locale. */
+function platformLocale(): undefined {
+  return undefined;
+}
+
+/**
+ * `serverLocale` for the server render and the hydration, then `undefined` — the
+ * platform's own — once the page has hydrated.
+ *
+ * `useSyncExternalStore` because it is the one API with a server snapshot, and
+ * React reads that snapshot on the server and again in the browser while it
+ * hydrates. So both renders format in `serverLocale`, and the render after
+ * hydration formats in the reader's. A component mounted later, on the client
+ * alone, reads the reader's from the start.
+ *
+ * Shared by `MPLocaleProvider` and `MPConfigProvider`, which take the same
+ * `serverLocale` so that an application needs only one of them.
+ */
+export function useServerLocale(serverLocale: string | undefined): string | undefined {
+  return React.useSyncExternalStore(subscribeToNothing, platformLocale, () => serverLocale);
+}
+
 /**
  * A namespace's strings with a caller's overrides on top.
  *
- * The overrides win over the translation, which wins over English. That order is
- * what makes an unsupported language a partial answer rather than a dead end: a
- * caller supplies the handful of words they care about and everything else is
- * still translated, or still English, rather than blank.
+ * The overrides win over the `labels` of the nearest `MPConfigProvider`, which
+ * win over the translation, which wins over English. That order is what makes an
+ * unsupported language a partial answer rather than a dead end: a caller
+ * supplies the handful of words they care about and everything else is still
+ * translated, or still English, rather than blank. The provider is the same
+ * answer for a whole application at once, and the prop is still the last word
+ * for one component.
  *
  * The namespace is passed as the object from `internal/messages/`, not as its
  * name: it carries English with it, which is what lets a component that says one
@@ -85,6 +116,10 @@ export function useMPMessages<Name extends keyof MPMessages>(
   overrides?: Partial<MPMessages[Name]>
 ): MPMessages[Name] {
   const key = overrides === undefined ? '' : JSON.stringify(overrides);
+  // Compared by identity, unlike `overrides`: `MPConfigProvider` already keys its
+  // merged `labels` on what they say, so this object changes only when a word
+  // in it does.
+  const provided = React.useContext(MPConfigContext).labels?.[namespace.name];
 
   // `key` is the whole of the dependency on `overrides`: it is what the object
   // amounts to, and it is read from the render the key belongs to, so the two
@@ -92,6 +127,10 @@ export function useMPMessages<Name extends keyof MPMessages>(
   return React.useMemo(() => {
     const messages = resolveNamespace(namespace, locale);
 
-    return overrides ? { ...messages, ...overrides } : messages;
-  }, [namespace, locale, key]);
+    if (!provided && !overrides) {
+      return messages;
+    }
+
+    return { ...messages, ...provided, ...overrides };
+  }, [namespace, locale, provided, key]);
 }

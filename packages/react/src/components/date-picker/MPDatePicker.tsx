@@ -26,7 +26,7 @@ import {
   withPlaceholder,
   type MPDatePrecision
 } from '../../internal/date';
-import { useMPColor, useMPSize } from '../../internal/config';
+import { useMPColor, useMPSize, useMPWeekStart } from '../../internal/config';
 import type { MPWeekday } from '../../types';
 
 /**
@@ -111,7 +111,10 @@ export interface MPDatePickerProps extends MPPickerShellProps {
    * own.
    */
   locale?: string;
-  /** Which day the week starts on. Defaults to whatever the locale says. */
+  /**
+   * Which day the week starts on. Left out, the nearest `MPConfigProvider`'s
+   * `weekStartsOn`, then whatever the locale says.
+   */
   weekStartsOn?: MPWeekday;
   /**
    * How the trigger writes the chosen date. Passed straight to `Intl`, so
@@ -225,7 +228,7 @@ export const MPDatePicker = React.forwardRef<HTMLButtonElement, MPDatePickerProp
     const color = useMPColor(colorProp);
     const locale = useMPLocale(localeProp);
     const labels = useMPMessages(PICKER, locale, labelOverrides);
-    const firstDay = weekStartsOn ?? localeWeekStart(locale);
+    const firstDay = useMPWeekStart(weekStartsOn) ?? localeWeekStart(locale);
     const display = format ?? TRIGGER_FORMAT[precision];
 
     const [uncontrolledValue, setUncontrolledValue] = React.useState<Date | null>(

@@ -15,7 +15,7 @@ import {
   today,
   type MPDatePrecision
 } from '../../internal/date';
-import { useMPColor, useMPSize } from '../../internal/config';
+import { useMPColor, useMPSize, useMPWeekStart } from '../../internal/config';
 import type { MPPickerLabels } from '../../internal/Calendar';
 import type { MPColor, MPSize, MPVariant, MPWeekday } from '../../types';
 
@@ -77,7 +77,10 @@ export interface MPCalendarProps extends Omit<
    * `MPLocaleProvider`, then to the platform's own.
    */
   locale?: string;
-  /** Which day the week starts on. Defaults to whatever the locale says. */
+  /**
+   * Which day the week starts on. Left out, the nearest `MPConfigProvider`'s
+   * `weekStartsOn`, then whatever the locale says.
+   */
   weekStartsOn?: MPWeekday;
   /**
    * Draws the leading and trailing days belonging to the neighbouring months.
@@ -212,7 +215,7 @@ export const MPCalendar = React.forwardRef<HTMLDivElement, MPCalendarProps>(func
   const color = useMPColor(colorProp);
   const locale = useMPLocale(localeProp);
   const labels = useMPMessages(PICKER, locale, labelOverrides);
-  const firstDay = weekStartsOn ?? localeWeekStart(locale);
+  const firstDay = useMPWeekStart(weekStartsOn) ?? localeWeekStart(locale);
 
   const [uncontrolledValue, setUncontrolledValue] = React.useState<Date | null>(
     defaultValue ?? null

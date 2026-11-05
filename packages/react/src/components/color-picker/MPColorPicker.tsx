@@ -5,7 +5,7 @@ import { MPIcon } from '../icon/MPIcon';
 import { CheckIcon, CloseIcon } from '../../constants/icons';
 import { MPFieldLabel, MPFieldOutline, useFloatingLabel } from '../../internal/FieldOutline';
 import { MPFieldValue } from '../../internal/FieldValue';
-import { useMPSize } from '../../internal/config';
+import { useMPFloatingLabel, useMPSize } from '../../internal/config';
 import type { MPMessages } from '../../internal/i18n';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { COMMON } from '../../internal/messages/common';
@@ -86,6 +86,7 @@ export interface MPColorPickerProps extends MPStyleProps {
    * rather than holding the label out of it.
    *
    * Ignored when `inline`, which has no trigger for a label to rest on.
+   * Left out, the nearest `MPConfigProvider`'s `floatingLabel` decides.
    * @default true
    */
   floatingLabel?: boolean;
@@ -718,7 +719,7 @@ export const MPColorPicker = React.forwardRef<HTMLDivElement, MPColorPickerProps
       inline = false,
       editable = true,
       label,
-      floatingLabel = true,
+      floatingLabel: floatingLabelProp,
       description,
       errorMessage,
       required = false,
@@ -740,6 +741,7 @@ export const MPColorPicker = React.forwardRef<HTMLDivElement, MPColorPickerProps
     ref
   ) {
     const size = useMPSize(sizeProp);
+    const floatingLabel = useMPFloatingLabel(floatingLabelProp);
     const locale = useMPLocale(localeProp);
     const labels = useMPMessages(COLOR_PICKER, locale, labelOverrides);
     const common = useMPMessages(COMMON, locale);

@@ -2,6 +2,14 @@
 
 ## vNext (2026--)
 
+### Added
+
+- **`MPConfigProvider` takes `labels`, for the words the library says on its own behalf.** It is keyed by namespace, the same shape `registerMPMessages` takes, and is a partial: `labels={{ alert: { dismiss: 'Hide' } }}` renames one button for the whole subtree and leaves every other word as the locale has it. A component's own `labels` still wins, and nested providers merge a word at a time.
+
+- **`MPConfigProvider` takes `floatingLabel` and `weekStartsOn`.** `floatingLabel={false}` keeps the label of every field under it in the notch from the start, in `MPTextField`, `MPSelect`, `MPCombobox`, `MPNumberField`, `MPColorPicker`, `MPTreeSelect` and the date and time pickers. `weekStartsOn` sets the first day of the week in `MPCalendar`, `MPDatePicker`, `MPDateRangePicker` and `MPDateTimePicker` instead of asking the locale. A component's own prop still wins over both.
+
+- **`MPConfigProvider` takes `serverLocale`**, the same value `MPLocaleProvider` takes, so a server-rendered application that already has one provider does not need the other for it. It is ignored when the provider or one above it names a `locale`.
+
 ## 1.13.0 (2026-11-05)
 
 This release comes out of running the library in `examples/electron`, a desktop app now in the repository that puts every component on real screens. A string `shortcut` on a menu row is written in `MPShortcut`'s notation, the one change a project will notice without having met a bug. The rest are fixes from those screens: components that ran past the edge of a phone, a floated field label that wrapped over its border, an `MPTour` card and an `MPTabs` indicator that stayed behind, and shortcuts, dates and times that a right-to-left page reordered.

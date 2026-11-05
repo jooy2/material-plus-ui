@@ -1,10 +1,12 @@
 /**
  * The prop defaults an application can move for the whole page.
  *
- * `size`, `color` and `density` are the only axes where every component that has
- * them starts from the *same* answer — `md`, `primary` and `0` — which is what
- * makes a single app-wide default meaningful for them and meaningless for
- * anything else.
+ * `size`, `color` and `density` are axes where every component that has them
+ * starts from the *same* answer — `md`, `primary` and `0` — which is what makes a
+ * single app-wide default meaningful for them. `floatingLabel` is the same kind:
+ * every field starts at `true`. `weekStartsOn` starts from the locale on every
+ * calendar, and a provider's value replaces that question rather than one
+ * component's answer.
  * A `variant` default is per component by design (`MPAccordion` is `outlined`,
  * `MPAlert` is `tonal`, `MPBadge` is `filled`), so one global value would be
  * overwriting six considered decisions with one arbitrary one.
@@ -27,7 +29,8 @@
  * has to reach every call site is exactly what context is for.
  */
 import * as React from 'react';
-import type { MPColor, MPDensity, MPSize, MPWindowClass } from '../types';
+import type { MPPartialMessages } from './i18n';
+import type { MPColor, MPDensity, MPSize, MPWeekday, MPWindowClass } from '../types';
 
 /** What an `MPConfigProvider` can set. Anything unset is inherited, then default. */
 export interface MPConfigValue {
@@ -44,6 +47,16 @@ export interface MPConfigValue {
   breakpoints?: Partial<Record<MPWindowClass, number>>;
   /** Whether a field keeps a line under itself for a message it has not got yet. */
   reserveSupportingText?: boolean;
+  /** Whether a field's label rests on its line until there is something in it. */
+  floatingLabel?: boolean;
+  /** Which day the calendars' weeks start on, when the locale should not decide. */
+  weekStartsOn?: MPWeekday;
+  /**
+   * The words the library says, by namespace, over whatever the locale's table
+   * says. Merged a word at a time with the providers above, so a nested provider
+   * that renames one button keeps every other word the application chose.
+   */
+  labels?: MPPartialMessages;
 }
 
 /**
@@ -94,4 +107,28 @@ export function useMPDensity(density: MPDensity | undefined): MPDensity {
   const config = React.useContext(MPConfigContext);
 
   return density ?? config.density ?? 0;
+}
+
+/**
+ * Whether a field's label floats, which is a decision about the product's forms
+ * rather than about any one field: a product whose labels always sit in the
+ * notch wants all of them there.
+ */
+export function useMPFloatingLabel(floatingLabel: boolean | undefined): boolean {
+  const config = React.useContext(MPConfigContext);
+
+  return floatingLabel ?? config.floatingLabel ?? true;
+}
+
+/**
+ * The day a calendar's week starts on, or `undefined` for "ask the locale".
+ *
+ * It stops short of the locale on purpose. The locale's answer is in
+ * `internal/date.ts`, and importing that here would put the date code into the
+ * module every sized component already imports.
+ */
+export function useMPWeekStart(weekStartsOn: MPWeekday | undefined): MPWeekday | undefined {
+  const config = React.useContext(MPConfigContext);
+
+  return weekStartsOn ?? config.weekStartsOn;
 }

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { MPLocaleContext, useMPLocale } from '../../internal/locale';
+import { MPLocaleContext, useMPLocale, useServerLocale } from '../../internal/locale';
 
 export interface MPLocaleProviderProps {
   /**
@@ -66,20 +66,10 @@ export interface MPLocaleProviderProps {
  * showing a Japanese listing's dates is two providers, and the inner one does
  * not have to restate anything: there is only the one value.
  */
-/** Nothing ever changes, so there is nothing to listen to. */
-const subscribe = () => () => {};
-/** In a browser past hydration: the platform's own locale. */
-const platform = () => undefined;
-
 export function MPLocaleProvider({ locale, serverLocale, children }: MPLocaleProviderProps) {
-  /*
-   * `useSyncExternalStore` because it is the one API with a server snapshot,
-   * and React reads that snapshot on the server and again in the browser while
-   * it hydrates — so both renders format in `serverLocale`, and the render after
-   * hydration formats in the reader's. A component mounted later, on the client
-   * alone, reads the reader's from the start.
-   */
-  const unset = React.useSyncExternalStore(subscribe, platform, () => serverLocale);
+  // `serverLocale` while the server renders and the page hydrates, the
+  // platform's own after that. See `useServerLocale`.
+  const unset = useServerLocale(serverLocale);
 
   return <MPLocaleContext.Provider value={locale ?? unset}>{children}</MPLocaleContext.Provider>;
 }
