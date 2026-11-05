@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderToString } from 'react-dom/server';
 import { render } from 'vitest-browser-react';
-import { MPPill } from 'material-plus-ui';
+import { MPPill, MPProgressCircular } from 'material-plus-ui';
 import { cleanupHydrated, hydrateFromServer } from '../../support/hydrate';
 
 describe('MPPill', () => {
@@ -27,6 +27,39 @@ describe('MPPill', () => {
       await expect.element(screen.getByTestId('glyph')).toBeInTheDocument();
       await expect.element(screen.getByTestId('readout')).toBeInTheDocument();
       await expect.element(screen.getByRole('button', { name: 'Stop' })).toBeInTheDocument();
+    });
+
+    it('scales a progress ring down into the leading slot instead of cropping it', async () => {
+      // The slot of a medium pill is a 20px glyph, and the smallest ring is 24px
+      // across: drawn as it was, the circle the slot is clipped to kept 0.5px of
+      // its stroke.
+      const screen = await render(
+        <MPPill title="Uploading" startIcon={<MPProgressCircular size="xs" />} />
+      );
+      const root = screen.container.querySelector('.mp-progress-circular')!;
+      // The track: the circle the stroke is drawn along.
+      const track = root.querySelector('circle')!.getBoundingClientRect();
+      const slot = root.parentElement!.getBoundingClientRect();
+
+      expect(slot.width).toBe(20);
+      expect(root.querySelector('svg')!.getBoundingClientRect().width).toBe(20);
+      expect(track.left).toBeGreaterThanOrEqual(slot.left);
+      expect(track.top).toBeGreaterThanOrEqual(slot.top);
+      expect(track.right).toBeLessThanOrEqual(slot.right);
+      expect(track.bottom).toBeLessThanOrEqual(slot.bottom);
+    });
+
+    it('draws a glyph that fits the leading slot at its own size', async () => {
+      const screen = await render(
+        <MPPill
+          title="Recording"
+          startIcon={<svg data-testid="dot" width={10} height={10} viewBox="0 0 10 10" />}
+        />
+      );
+      const dot = screen.getByTestId('dot').element().getBoundingClientRect();
+
+      expect(dot.width).toBe(10);
+      expect(dot.height).toBe(10);
     });
 
     it('publishes the rung and the variant it was drawn at', async () => {

@@ -171,9 +171,15 @@ const POSITION: Record<MPPillPosition, Record<'top' | 'bottom', string>> = {
  * `CONTROL_ICON` rather than a ladder of its own, because that table already
  * answers the same question — how big is a glyph riding beside a label — and the
  * leading slot of a pill is exactly that.
+ *
+ * Something drawn larger than a glyph, such as a progress ring at its smallest
+ * size, is held to the box rather than cropped to the sliver of it the circle
+ * leaves: its outer element and its `<svg>` are capped at the box, and the
+ * `viewBox` scales the drawing down with them. A glyph that already fits is
+ * drawn at its own size.
  */
 const MEDIA =
-  'flex shrink-0 items-center justify-center overflow-hidden rounded-mp-full [&_img]:size-full [&_img]:object-cover';
+  'flex shrink-0 items-center justify-center overflow-hidden rounded-mp-full [&>*]:max-h-full [&>*]:max-w-full [&_svg]:max-h-full [&_svg]:max-w-full [&_img]:size-full [&_img]:object-cover';
 
 /**
  * The description under the title.
