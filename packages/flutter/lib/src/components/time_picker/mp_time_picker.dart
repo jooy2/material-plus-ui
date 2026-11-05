@@ -85,7 +85,7 @@ class MPTimePicker extends StatefulWidget {
     this.size,
     this.color,
     this.label,
-    this.floatingLabel = true,
+    this.floatingLabel,
     this.description,
     this.errorMessage,
     this.startIcon = const MPPickerDefaultIcon(),
@@ -207,7 +207,9 @@ class MPTimePicker extends StatefulWidget {
 
   /// Whether the label rests on the trigger's line while there is nothing to
   /// make room for. Only takes effect with `startIcon: null`.
-  final bool floatingLabel;
+  ///
+  /// `true` unless an [MPConfigProvider] says otherwise.
+  final bool? floatingLabel;
 
   /// The line under the control.
   final Widget? description;
@@ -361,7 +363,7 @@ class _MPTimePickerState extends State<MPTimePicker> {
       onClear: () => _commit(null),
       clearLabel: labels['clear']!,
       label: widget.label,
-      floatingLabel: widget.floatingLabel,
+      floatingLabel: widget.floatingLabel ?? config?.floatingLabel ?? true,
       description: widget.description,
       errorMessage: widget.errorMessage,
       startIcon: mpPickerStartIcon(widget.startIcon, MPGlyphShape.clock, size),

@@ -83,7 +83,7 @@ class MPTextField extends StatefulWidget {
     this.autofillHints,
     this.label,
     this.semanticLabel,
-    this.floatingLabel = true,
+    this.floatingLabel,
     this.required = false,
     this.disabled = false,
     this.autofocus = false,
@@ -147,12 +147,13 @@ class MPTextField extends StatefulWidget {
 
   /// Whether the label rests on the field's line while there is nothing to make
   /// room for, and rises into the notch on focus or on the first character.
+  /// `true` unless an [MPConfigProvider] says otherwise.
   ///
   /// `false` pins it in the notch, which is the one thing a floating label
   /// costs: a field with a label and one without no longer sit at the same
   /// height in a form until both are filled. A [startIcon] holds the label up
   /// regardless, since the icon stands where the resting label would be.
-  final bool floatingLabel;
+  final bool? floatingLabel;
 
   /// Marks the field required, to a screen reader and with an asterisk on the
   /// label. Inside an `MPForm` an empty required field holds the submit back.
@@ -290,6 +291,9 @@ class _MPTextFieldState extends State<MPTextField> {
   bool get _multiline => widget.rows != null;
 
   MPSize get _size => widget.size ?? MPConfigProvider.maybeOf(context)?.size ?? MPSize.md;
+
+  bool get _floatingLabel =>
+      widget.floatingLabel ?? MPConfigProvider.maybeOf(context)?.floatingLabel ?? true;
 
   @override
   void initState() {
@@ -463,6 +467,7 @@ class _MPTextFieldState extends State<MPTextField> {
   Widget build(BuildContext context) {
     final MPThemeData theme = MPTheme.of(context);
     final MPSize size = _size;
+    final bool floatingLabel = _floatingLabel;
     final MPFieldMetrics metrics = MPFieldMetrics.of(size);
     final bool disabled = _disabled;
     final bool multiline = _multiline;
@@ -493,7 +498,7 @@ class _MPTextFieldState extends State<MPTextField> {
               ? null
               : ExcludeSemantics(excluding: widget.semanticLabel != null, child: widget.label!),
           required: widget.required,
-          floating: widget.floatingLabel,
+          floating: floatingLabel,
           filled: value.text.isNotEmpty,
           pinned: widget.startIcon != null,
           invalid: invalid,

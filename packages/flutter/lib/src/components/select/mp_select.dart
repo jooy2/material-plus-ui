@@ -101,7 +101,7 @@ class MPSelect extends StatefulWidget {
     this.onChanged,
     this.placeholder,
     this.label,
-    this.floatingLabel = true,
+    this.floatingLabel,
     this.description,
     this.errorMessage,
     this.startIcon,
@@ -160,10 +160,11 @@ class MPSelect extends StatefulWidget {
 
   /// Whether the label rests on the trigger's line while there is nothing to
   /// make room for, and rises into the notch on focus or on the first choice.
+  /// `true` unless an [MPConfigProvider] says otherwise.
   ///
   /// `false` pins it in the notch. A [startIcon] holds it up regardless: the
   /// icon is already standing where the resting label would be.
-  final bool floatingLabel;
+  final bool? floatingLabel;
 
   /// The line under the select. Replaced by [errorMessage] when there is one.
   final Widget? description;
@@ -257,6 +258,9 @@ class _MPSelectState extends State<MPSelect> {
   MPSelectValue? get _value => _controlled ? widget.value : _own;
 
   MPSize get _size => widget.size ?? MPConfigProvider.maybeOf(context)?.size ?? MPSize.md;
+
+  bool get _floatingLabel =>
+      widget.floatingLabel ?? MPConfigProvider.maybeOf(context)?.floatingLabel ?? true;
 
   bool get _disabled => widget.disabled || MPFieldsetScope.disabledOf(context);
 
@@ -484,7 +488,7 @@ class _MPSelectState extends State<MPSelect> {
       placeholder: widget.placeholder,
       samples: widget.fullWidth ? const <String>[] : _samples(),
       label: widget.label,
-      floatingLabel: widget.floatingLabel,
+      floatingLabel: _floatingLabel,
       description: widget.description,
       errorMessage: error,
       startIcon: widget.startIcon,
@@ -512,7 +516,7 @@ class _MPSelectState extends State<MPSelect> {
     return <String>[
       for (final MPSelectOption option in widget.items) _spoken(option),
       mpTextWithin(widget.placeholder),
-      if (widget.floatingLabel) mpTextWithin(widget.label),
+      if (_floatingLabel) mpTextWithin(widget.label),
     ].where((String sample) => sample.isNotEmpty).toList();
   }
 

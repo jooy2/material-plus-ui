@@ -141,7 +141,8 @@ class MPCalendar extends StatefulWidget {
   /// carry.
   final MPDateNames? names;
 
-  /// Which day the week starts on. Defaults to whatever the locale says.
+  /// Which day the week starts on. Left out, the nearest [MPConfigProvider]'s,
+  /// then whatever the locale says.
   final MPWeekday? weekStartsOn;
 
   /// Draws the leading and trailing days belonging to the neighbouring months.
@@ -269,7 +270,7 @@ class _MPCalendarState extends State<MPCalendar> {
       color: color,
       names: names,
       labels: labels,
-      weekStartsOn: widget.weekStartsOn ?? names.firstDayOfWeek,
+      weekStartsOn: widget.weekStartsOn ?? config?.weekStartsOn ?? names.firstDayOfWeek,
       month: _month,
       onMonthChange: _changeMonth,
       selected: <DateTime?>[_value],

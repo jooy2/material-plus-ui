@@ -173,7 +173,7 @@ class MPCombobox extends StatefulWidget {
     this.chipColor,
     this.placeholder,
     this.label,
-    this.floatingLabel = true,
+    this.floatingLabel,
     this.description,
     this.errorMessage,
     this.startIcon,
@@ -221,7 +221,7 @@ class MPCombobox extends StatefulWidget {
     this.chipColor,
     this.placeholder,
     this.label,
-    this.floatingLabel = true,
+    this.floatingLabel,
     this.description,
     this.errorMessage,
     this.startIcon,
@@ -353,7 +353,9 @@ class MPCombobox extends StatefulWidget {
   /// Whether the label rests on the field's line while there is nothing to
   /// make room for, and rises on focus, on the first character or on the
   /// first chip. `false` pins it in the notch.
-  final bool floatingLabel;
+  ///
+  /// `true` unless an [MPConfigProvider] says otherwise.
+  final bool? floatingLabel;
 
   /// The line under the field. Replaced by [errorMessage] when there is one.
   final Widget? description;
@@ -526,6 +528,9 @@ class _MPComboboxState extends State<MPCombobox> {
       widget.focusNode ?? (_ownFocus ??= FocusNode(debugLabel: 'MPCombobox'));
 
   MPSize get _size => widget.size ?? MPConfigProvider.maybeOf(context)?.size ?? MPSize.md;
+
+  bool get _floatingLabel =>
+      widget.floatingLabel ?? MPConfigProvider.maybeOf(context)?.floatingLabel ?? true;
 
   bool get _disabled => widget.disabled || MPFieldsetScope.disabledOf(context);
 
@@ -1311,6 +1316,7 @@ class _MPComboboxState extends State<MPCombobox> {
   Widget build(BuildContext context) {
     final MPThemeData theme = MPTheme.of(context);
     final MPSize size = _size;
+    final bool floatingLabel = _floatingLabel;
     final MPFieldMetrics metrics = MPFieldMetrics.of(size);
     final bool disabled = _disabled;
 
@@ -1343,7 +1349,7 @@ class _MPComboboxState extends State<MPCombobox> {
               ? null
               : ExcludeSemantics(excluding: widget.semanticLabel != null, child: widget.label!),
           required: widget.required,
-          floating: widget.floatingLabel,
+          floating: floatingLabel,
           // Typed text counts as content as much as a chosen row does: the
           // label cannot sit on top of what is being typed under it.
           filled: _chosen.isNotEmpty || value.text.isNotEmpty,

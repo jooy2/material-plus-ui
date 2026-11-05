@@ -4,6 +4,15 @@ The Flutter package, `material_plus_ui`. The React package keeps its own history
 
 ## vNext (2026--)
 
+### Breaking changes
+
+- **A field's `floatingLabel` is a `bool?` now.** It was a `bool` that defaulted to `true`, and it is `null` when left out so that `MPConfigProvider` can decide it. Passing a value works as it did. Code that reads the field off a widget, such as `field.floatingLabel`, reads `field.floatingLabel ?? true` instead. The widgets are `MPTextField`, `MPSelect`, `MPCombobox`, `MPNumberField`, `MPColorPicker`, `MPTreeSelect`, `MPDatePicker`, `MPDateRangePicker`, `MPDateTimePicker` and `MPTimePicker`.
+
+### Added
+
+- **`MPConfigProvider` takes `labels`, for the words the components say on their own behalf.** It is keyed by namespace and then by key, the shape `registerMPMessages` takes, and is a partial: `{'alert': {'dismiss': 'Hide'}}` renames one button for the whole subtree and leaves every other word as the locale has it. A component's own `labels` still wins, and nested providers merge a word at a time.
+- **`MPConfigProvider` takes `floatingLabel` and `weekStartsOn`.** `floatingLabel: false` keeps the label of every field under it in the notch from the start, and `weekStartsOn` sets the first day of the week in `MPCalendar`, `MPDatePicker`, `MPDateRangePicker` and `MPDateTimePicker` instead of taking it from the date names. A component's own parameter still wins over both.
+
 ## 1.13.0 (2026-11-05)
 
 This release comes out of running the package on iPhone, iOS Simulator and Android emulator screens in `examples/flutter`, an app now in the repository with every component in it. A menu row's `shortcut` is written in `MPShortcut`'s notation, the one change an app will notice without having met a bug. The rest are fixes from those screens: the system back closed the page under an `MPConfirmProvider` question rather than the question, popups ran off the edge of the screen, a calendar cut the name of its month short, components ran past the edge of a phone, and shortcuts, dates and times were reordered under a right-to-left page.

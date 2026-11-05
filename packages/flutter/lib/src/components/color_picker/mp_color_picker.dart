@@ -139,7 +139,7 @@ class MPColorPicker extends StatefulWidget {
     this.inline = false,
     this.editable = true,
     this.label,
-    this.floatingLabel = true,
+    this.floatingLabel,
     this.description,
     this.errorMessage,
     this.required = false,
@@ -197,7 +197,9 @@ class MPColorPicker extends StatefulWidget {
   /// and rises on focus or on the first colour. The swatch comes down with it:
   /// it is the value drawn, and with no colour it would be an empty ring.
   /// Ignored when [inline].
-  final bool floatingLabel;
+  ///
+  /// `true` unless an [MPConfigProvider] says otherwise.
+  final bool? floatingLabel;
 
   /// The line under the control. Replaced by [errorMessage] when there is one.
   final Widget? description;
@@ -302,6 +304,9 @@ class _MPColorPickerState extends State<MPColorPicker> {
   String get _written => formatColor(_model.hsv, widget.alpha ? _model.alpha : 1, widget.format);
 
   MPSize get _size => widget.size ?? MPConfigProvider.maybeOf(context)?.size ?? MPSize.md;
+
+  bool get _floatingLabel =>
+      widget.floatingLabel ?? MPConfigProvider.maybeOf(context)?.floatingLabel ?? true;
 
   bool get _disabled => widget.disabled || MPFieldsetScope.disabledOf(context);
 
@@ -452,6 +457,7 @@ class _MPColorPickerState extends State<MPColorPicker> {
   @override
   Widget build(BuildContext context) {
     final MPSize size = _size;
+    final bool floatingLabel = _floatingLabel;
     final bool disabled = _disabled;
     final Map<String, String> words = mpMessagesOf(
       context,
@@ -512,10 +518,10 @@ class _MPColorPickerState extends State<MPColorPicker> {
       samples: <String>[
         _widest(widget.format, widget.alpha),
         words['empty']!,
-        if (widget.floatingLabel) mpTextWithin(widget.label),
+        if (floatingLabel) mpTextWithin(widget.label),
       ].where((String sample) => sample.isNotEmpty).toList(),
       label: widget.label,
-      floatingLabel: widget.floatingLabel,
+      floatingLabel: floatingLabel,
       description: widget.description,
       errorMessage: error,
       startIcon: _Preview(size: 20, color: shown),

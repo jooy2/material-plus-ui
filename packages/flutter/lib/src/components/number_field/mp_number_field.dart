@@ -162,7 +162,7 @@ class MPNumberField extends StatefulWidget {
     this.incrementLabel,
     this.decrementLabel,
     this.label,
-    this.floatingLabel = true,
+    this.floatingLabel,
     this.description,
     this.errorMessage,
     this.placeholder,
@@ -264,7 +264,9 @@ class MPNumberField extends StatefulWidget {
   /// Whether the label rests on the field's line while there is nothing to make
   /// room for. `false` pins it in the notch. A [startIcon], or split steppers
   /// whose minus stands in the same place, holds it up regardless.
-  final bool floatingLabel;
+  ///
+  /// `true` unless an [MPConfigProvider] says otherwise.
+  final bool? floatingLabel;
 
   /// The line under the field. Replaced by [errorMessage] when there is one.
   final Widget? description;
@@ -384,6 +386,9 @@ class _MPNumberFieldState extends State<MPNumberField> {
   bool get _editable => !widget.readOnly && !_disabled;
 
   MPSize get _size => widget.size ?? MPConfigProvider.maybeOf(context)?.size ?? MPSize.md;
+
+  bool get _floatingLabel =>
+      widget.floatingLabel ?? MPConfigProvider.maybeOf(context)?.floatingLabel ?? true;
 
   @override
   void initState() {
@@ -739,6 +744,7 @@ class _MPNumberFieldState extends State<MPNumberField> {
   Widget build(BuildContext context) {
     final MPThemeData theme = MPTheme.of(context);
     final MPSize size = _size;
+    final bool floatingLabel = _floatingLabel;
     final MPFieldMetrics metrics = MPFieldMetrics.of(size);
     final bool disabled = _disabled;
     final bool showSteppers =
@@ -764,7 +770,7 @@ class _MPNumberFieldState extends State<MPNumberField> {
               ? null
               : ExcludeSemantics(excluding: widget.semanticLabel != null, child: widget.label!),
           required: widget.required,
-          floating: widget.floatingLabel,
+          floating: floatingLabel,
           filled: value.text.isNotEmpty,
           pinned: widget.startIcon != null || split,
           invalid: invalid,

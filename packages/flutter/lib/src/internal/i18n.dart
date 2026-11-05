@@ -61,8 +61,8 @@ final Map<String, Map<String, String>> _resolved = <String, Map<String, String>>
 ///
 /// Call it once, at startup, before anything renders. Registering a tag that is
 /// already registered replaces it, which is how one word is corrected without
-/// forking a table, although a component's own `labels` parameter is the
-/// lighter tool for that.
+/// forking a table, although a component's own `labels` parameter, or an
+/// [MPConfigProvider]'s for a whole subtree, is the lighter tool for that.
 void registerMPMessages(Iterable<MPLocale> locales) {
   for (final MPLocale entry in locales) {
     _registry[entry.locale.toLowerCase()] = entry.messages;
@@ -184,10 +184,13 @@ String? mpLocaleOf(BuildContext context, [String? locale]) {
       Localizations.maybeLocaleOf(context)?.toLanguageTag();
 }
 
-/// One namespace's strings at [context], in [locale] if one is given, with a
-/// caller's [overrides] on top.
+/// One namespace's strings at [context], in [locale] if one is given, with the
+/// nearest [MPConfigProvider]'s `labels` for it and then a caller's
+/// [overrides] on top.
 ///
-/// The overrides win over the translation, which wins over English.
+/// The overrides win over the provider's words, which win over the
+/// translation, which wins over English. The provider is looked up even when
+/// [locale] is given, so a component rebuilds when the words above it change.
 Map<String, String> mpMessagesOf(
   BuildContext context,
   MPNamespace namespace, {
@@ -195,10 +198,14 @@ Map<String, String> mpMessagesOf(
   Map<String, String>? overrides,
 }) {
   final Map<String, String> messages = mpResolveNamespace(namespace, mpLocaleOf(context, locale));
+  final MPConfigValue? config = MPConfigProvider.maybeOf(context);
+  final Map<String, String>? configured = config?.labels?[namespace.name];
+  final bool hasConfigured = configured != null && configured.isNotEmpty;
+  final bool hasOverrides = overrides != null && overrides.isNotEmpty;
 
-  if (overrides == null || overrides.isEmpty) {
+  if (!hasConfigured && !hasOverrides) {
     return messages;
   }
 
-  return <String, String>{...messages, ...overrides};
+  return <String, String>{...messages, ...?configured, ...?overrides};
 }

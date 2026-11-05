@@ -166,7 +166,7 @@ class MPTreeSelect extends StatefulWidget {
     this.format,
     this.labels,
     this.label,
-    this.floatingLabel = true,
+    this.floatingLabel,
     this.description,
     this.errorMessage,
     this.startIcon,
@@ -259,7 +259,9 @@ class MPTreeSelect extends StatefulWidget {
 
   /// Whether the label rests on the trigger's line while nothing is chosen.
   /// `false` pins it in the notch; a [startIcon] holds it up regardless.
-  final bool floatingLabel;
+  ///
+  /// `true` unless an [MPConfigProvider] says otherwise.
+  final bool? floatingLabel;
 
   /// The line under the trigger. Replaced by [errorMessage] when there is one.
   final Widget? description;
@@ -347,6 +349,9 @@ class _MPTreeSelectState extends State<MPTreeSelect> {
   bool get _open => widget.open ?? _ownOpen;
 
   MPSize get _size => widget.size ?? MPConfigProvider.maybeOf(context)?.size ?? MPSize.md;
+
+  bool get _floatingLabel =>
+      widget.floatingLabel ?? MPConfigProvider.maybeOf(context)?.floatingLabel ?? true;
 
   bool get _disabled => widget.disabled || MPFieldsetScope.disabledOf(context);
 
@@ -538,7 +543,7 @@ class _MPTreeSelectState extends State<MPTreeSelect> {
       display: chosen.isEmpty ? null : Text(written),
       placeholder: widget.placeholder,
       label: widget.label,
-      floatingLabel: widget.floatingLabel,
+      floatingLabel: _floatingLabel,
       description: widget.description,
       errorMessage: error,
       startIcon: widget.startIcon,

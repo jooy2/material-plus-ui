@@ -89,7 +89,7 @@ class MPDatePicker extends StatefulWidget {
     this.size,
     this.color,
     this.label,
-    this.floatingLabel = true,
+    this.floatingLabel,
     this.description,
     this.errorMessage,
     this.startIcon = const MPPickerDefaultIcon(),
@@ -166,7 +166,8 @@ class MPDatePicker extends StatefulWidget {
   /// library's own table for [locale].
   final MPDateNames? names;
 
-  /// Which day the week starts on. Defaults to whatever the locale says.
+  /// Which day the week starts on. Left out, the nearest [MPConfigProvider]'s,
+  /// then whatever the locale says.
   final MPWeekday? weekStartsOn;
 
   /// How the trigger writes the chosen day.
@@ -214,7 +215,9 @@ class MPDatePicker extends StatefulWidget {
   /// make room for. The picker's own glyph stands where a resting label would,
   /// so this only takes effect on a picker asked for without one, `startIcon:
   /// null`.
-  final bool floatingLabel;
+  ///
+  /// `true` unless an [MPConfigProvider] says otherwise.
+  final bool? floatingLabel;
 
   /// The line under the control. Replaced by [errorMessage] when there is one.
   final Widget? description;
@@ -399,7 +402,7 @@ class _MPDatePickerState extends State<MPDatePicker> {
       onClear: () => _commit(null),
       clearLabel: labels['clear']!,
       label: widget.label,
-      floatingLabel: widget.floatingLabel,
+      floatingLabel: widget.floatingLabel ?? config?.floatingLabel ?? true,
       description: widget.description,
       errorMessage: widget.errorMessage,
       startIcon: mpPickerStartIcon(widget.startIcon, MPGlyphShape.calendar, size),
@@ -424,7 +427,7 @@ class _MPDatePickerState extends State<MPDatePicker> {
             color: color,
             names: names,
             labels: labels,
-            weekStartsOn: widget.weekStartsOn ?? names.firstDayOfWeek,
+            weekStartsOn: widget.weekStartsOn ?? config?.weekStartsOn ?? names.firstDayOfWeek,
             month: _month,
             onMonthChange: (DateTime next) => setState(() => _month = next),
             selected: <DateTime?>[value],

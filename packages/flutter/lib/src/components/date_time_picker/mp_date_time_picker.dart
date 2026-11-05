@@ -76,7 +76,7 @@ class MPDateTimePicker extends StatefulWidget {
     this.size,
     this.color,
     this.label,
-    this.floatingLabel = true,
+    this.floatingLabel,
     this.description,
     this.errorMessage,
     this.startIcon = const MPPickerDefaultIcon(),
@@ -143,7 +143,8 @@ class MPDateTimePicker extends StatefulWidget {
   /// [locale].
   final MPDateNames? names;
 
-  /// Which day the week starts on. Defaults to whatever the locale says.
+  /// Which day the week starts on. Left out, the nearest [MPConfigProvider]'s,
+  /// then whatever the locale says.
   final MPWeekday? weekStartsOn;
 
   /// How the trigger writes the chosen moment. Left out, a medium date and a
@@ -203,7 +204,9 @@ class MPDateTimePicker extends StatefulWidget {
 
   /// Whether the label rests on the trigger's line while there is nothing to
   /// make room for. Only takes effect with `startIcon: null`.
-  final bool floatingLabel;
+  ///
+  /// `true` unless an [MPConfigProvider] says otherwise.
+  final bool? floatingLabel;
 
   /// The line under the control.
   final Widget? description;
@@ -380,7 +383,7 @@ class _MPDateTimePickerState extends State<MPDateTimePicker> {
       onClear: () => _commit(null),
       clearLabel: labels['clear']!,
       label: widget.label,
-      floatingLabel: widget.floatingLabel,
+      floatingLabel: widget.floatingLabel ?? config?.floatingLabel ?? true,
       description: widget.description,
       errorMessage: widget.errorMessage,
       startIcon: mpPickerStartIcon(widget.startIcon, MPGlyphShape.calendar, size),
@@ -410,7 +413,7 @@ class _MPDateTimePickerState extends State<MPDateTimePicker> {
                   color: color,
                   names: names,
                   labels: labels,
-                  weekStartsOn: widget.weekStartsOn ?? names.firstDayOfWeek,
+                  weekStartsOn: widget.weekStartsOn ?? config?.weekStartsOn ?? names.firstDayOfWeek,
                   month: _month,
                   onMonthChange: (DateTime next) => setState(() => _month = next),
                   selected: <DateTime?>[value],
