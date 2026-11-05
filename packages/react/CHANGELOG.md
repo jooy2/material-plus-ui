@@ -2,6 +2,10 @@
 
 ## vNext (2026--)
 
+## 1.13.0 (2026-11-05)
+
+This release comes out of running the library in `examples/electron`, a desktop app now in the repository that puts every component on real screens. A string `shortcut` on a menu row is written in `MPShortcut`'s notation, the one change a project will notice without having met a bug. The rest are fixes from those screens: components that ran past the edge of a phone, a floated field label that wrapped over its border, an `MPTour` card and an `MPTabs` indicator that stayed behind, and shortcuts, dates and times that a right-to-left page reordered.
+
 ### Changed
 
 - **A string `shortcut` on a menu row is written in `MPShortcut`'s notation.** `MPMenuItem`, `MPMenuCheckboxItem` and `MPMenuRadioItem` printed a string as it was given, so the `Mod+N` the documentation's menubar wrote, which `MPCommandPalette` already reads that way, came out as the letters `Mod+N`. A string now reads `⌘N` on a Mac and `Ctrl+N` everywhere else, as text rather than key caps, and is read out by the names of its keys; one with no key name in it, such as `⌘C`, is drawn as it is, and a node is drawn as it always was.
