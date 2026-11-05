@@ -43,7 +43,7 @@ export default {
     }),
     from('MPTreeSelect', 'placeholder', { type: `${WIDGET}?` }),
     from('MPTreeSelect', 'label', { type: `${WIDGET}?` }),
-    from('MPTreeSelect', 'floatingLabel', { type: 'bool', default: 'true' }),
+    from('MPTreeSelect', 'floatingLabel', { type: 'bool?', default: 'true' }),
     from('MPTreeSelect', 'description', { type: `${WIDGET}?` }),
     from('MPTreeSelect', 'errorMessage', { type: `${WIDGET}?` }),
     from('MPTreeSelect', 'startIcon', { type: `${WIDGET}?` }),

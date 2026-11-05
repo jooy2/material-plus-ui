@@ -256,6 +256,78 @@ With no locale anywhere above it, a Flutter component follows the app's own `Loc
 
 :::
 
+::: fw react
+
+`serverLocale` comes with it for the same reason. A server-rendered page that follows the reader's browser cannot tell their language on the server, so it names the tag the server and the hydration both write in, and the reader's own default takes over once the page has hydrated:
+
+```tsx
+<MPConfigProvider size="sm" serverLocale="en-US">
+  <App />
+</MPConfigProvider>
+```
+
+It is ignored when this provider or one above it names a `locale`, which already agrees on both sides. [Localization](../design/localization.md) has the whole of why the two renders have to agree.
+
+:::
+
+## The words it says
+
+`labels` changes the words the library says on its own behalf, such as the name on an alert's dismiss button or a pagination's steppers, for everything under the provider. It is keyed by namespace, the same shape a translation is registered in, and it is a partial: a word it does not name stays as the locale has it.
+
+::: fw react
+
+```tsx
+<MPConfigProvider labels={{ alert: { dismiss: 'Hide' }, pagination: { next: 'Forward' } }}>
+  <App />
+</MPConfigProvider>
+```
+
+:::
+
+::: fw flutter
+
+```dart
+const MPConfigProvider(
+  labels: <String, Map<String, String>>{
+    'alert': <String, String>{'dismiss': 'Hide'},
+    'pagination': <String, String>{'next': 'Forward'},
+  },
+  child: App(),
+)
+```
+
+:::
+
+The order is a component's own `labels`, then this, then the locale's table, then English. Nested providers merge a word at a time, so a section that renames one button keeps every other word the application chose.
+
+Registering a table and setting `labels` are different jobs. A registered table is a language, for the whole page, chosen by the locale. `labels` is the application's own wording for one subtree, in whatever language is in force, so it does not change when the locale does.
+
+## Labels and weeks
+
+Two more defaults are decisions about a product's forms and calendars rather than about any one of them.
+
+`floatingLabel` decides whether every field under the provider rests its label on the field's line until there is something in it. Each field defaults to `true`; a product whose labels always sit in the notch says `false` once. A field's own `floatingLabel` still wins, and a `startIcon` holds a label up whatever the provider says.
+
+`weekStartsOn` decides which day the weeks start on in every calendar and date picker under the provider, with `0` for Sunday. Left out, each one asks its locale, which is right for most applications. A product whose weeks start on Monday wherever its readers are sets it here, and a calendar's own `weekStartsOn` still wins.
+
+::: fw react
+
+```tsx
+<MPConfigProvider floatingLabel={false} weekStartsOn={1}>
+  <App />
+</MPConfigProvider>
+```
+
+:::
+
+::: fw flutter
+
+```dart
+const MPConfigProvider(floatingLabel: false, weekStartsOn: MPWeekday.monday, child: App())
+```
+
+:::
+
 ## Reading it back
 
 ::: fw react
@@ -313,11 +385,19 @@ const MPConfigProvider(textDirection: TextDirection.rtl, child: App())
 
 Every padding, margin, corner and icon slot in this library is already a **logical** property — `ps`/`pe` rather than `pl`/`pr`, `startIcon`/`endIcon` rather than left and right, `MPCorner`'s `top-start` rather than `top-left`. So the stylesheet half of RTL has always worked from a `dir` anywhere above a component, and a `dir="rtl"` section inside an otherwise LTR page is a supported arrangement rather than an accident.
 
-What was missing was the other half.
+What was missing was the other half, and the provider supplies it. On a page that sets `dir="rtl"` on `<html>`, a provider with no `dir` reads the direction off the document and needs nothing more:
+
+```tsx
+<MPConfigProvider>
+  <App />
+</MPConfigProvider>
+```
+
+A subtree that runs the other way from the page around it is the one that says so:
 
 ```tsx
 <MPConfigProvider dir="rtl">
-  <App />
+  <ArabicListing />
 </MPConfigProvider>
 ```
 
@@ -336,7 +416,9 @@ The slider is where it showed. Its thumb is placed with `inset-inline-start` and
 
 `dir` sets both. The attribute goes on a `display: contents` element, which takes part in no layout at all, so the provider does not become a box between a flex container and its children. The same value goes into Base UI's own `DirectionProvider`.
 
-Left out, nothing is rendered and nothing is claimed: a page that sets `dir` on `<html>` and never mounts this still gets the CSS half and not the other one.
+Left out, no element is rendered and the Base UI half is **read off the document**: its computed direction, so a `direction: rtl` in a stylesheet counts as well as the attribute, and followed when it changes. A provider nested in one that was given a `dir` keeps that one instead, and so does a provider under a Base UI `DirectionProvider` that says `rtl`. A page that never mounts a provider still gets the CSS half and not the other one.
+
+A server has no document, so a server render says left to right, which is what Base UI says with no provider at all. The client turns it over straight after hydration. The context changes behaviour rather than markup, so the server render and the hydration still agree.
 
 ### What still belongs to you
 
@@ -353,7 +435,8 @@ Two things are laid out in the direction they are written in rather than the pag
 
 ### Sharp edges
 
-- **Mixed-direction pages need the provider where the direction changes**, not only at the root — the Base UI context follows the tree, and the CSS follows the DOM, so put them together.
+- **Mixed-direction pages need the provider where the direction changes**, not only at the root — the Base UI context follows the tree, and the CSS follows the DOM, so put them together. A plain `<div dir="ltr">` inside a right-to-left document is not enough for a provider below it with no `dir`, because what it reads is the document.
+- **A Base UI `DirectionProvider` of your own that says `ltr` is not visible to it.** Base UI answers `ltr` with no provider too, and gives no way to tell the two apart, so under a right-to-left document this provider reads the document instead. Give it `dir="ltr"`.
 - **`display: contents` renders an element.** It participates in no layout, but it is in the DOM: a `> *` selector of your own counts it.
 
 :::

@@ -44,7 +44,7 @@ export default {
     from('MPCombobox', 'chipColor', { type: `${COLOR}?` }),
     from('MPCombobox', 'placeholder', { type: 'String?' }),
     from('MPCombobox', 'label', { type: `${WIDGET}?` }),
-    from('MPCombobox', 'floatingLabel', { type: 'bool', default: 'true' }),
+    from('MPCombobox', 'floatingLabel', { type: 'bool?', default: 'true' }),
     from('MPCombobox', 'description', { type: `${WIDGET}?` }),
     from('MPCombobox', 'errorMessage', { type: `${WIDGET}?` }),
     from('MPCombobox', 'startIcon', { type: `${WIDGET}?` }),

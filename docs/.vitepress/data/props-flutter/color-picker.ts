@@ -35,7 +35,7 @@ export default {
     from('MPColorPicker', 'inline', { type: 'bool', default: 'false' }),
     from('MPColorPicker', 'editable', { type: 'bool', default: 'true' }),
     from('MPColorPicker', 'label', { type: `${WIDGET}?` }),
-    from('MPColorPicker', 'floatingLabel', { type: 'bool', default: 'true' }),
+    from('MPColorPicker', 'floatingLabel', { type: 'bool?', default: 'true' }),
     from('MPColorPicker', 'description', { type: `${WIDGET}?` }),
     from('MPColorPicker', 'errorMessage', { type: `${WIDGET}?` }),
     sizeRow('MPColorPicker'),

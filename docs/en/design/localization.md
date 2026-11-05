@@ -296,6 +296,8 @@ Where the server cannot know it, `serverLocale` names the language the server pa
 </MPLocaleProvider>
 ```
 
+`MPConfigProvider` takes the same `serverLocale`, so an application that already has one for its `size` does not need a second provider for this.
+
 A server that formats with neither writes one warning to its log, the first time it happens.
 
 Time zones are the same problem, and no provider solves it. A `Date` is written in the runtime's time zone, so a chart category at midnight UTC is one day on a server in UTC and the day before in a browser in Los Angeles. Where the server's zone may not be the reader's, pass chart categories as the strings you want shown rather than as `Date` objects.
@@ -367,6 +369,8 @@ That order is what makes a partial answer possible. Supplying one word does not 
 :::
 
 `MPAlert` takes `closeLabel` for the same reason, which is the same thing with one string.
+
+To change a word everywhere rather than on one component, give it to [`MPConfigProvider`](../guide/config.md#the-words-it-says) as `labels`, keyed by namespace. The order is then the component's own `labels`, the provider's, the translation, and English.
 
 ### The words that are not any one component's
 

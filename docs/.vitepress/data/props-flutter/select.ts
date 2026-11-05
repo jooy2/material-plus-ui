@@ -28,7 +28,7 @@ export default {
     renamed('MPSelect', 'onValueChange', 'onChanged', { type: 'ValueChanged<MPSelectValue?>?' }),
     from('MPSelect', 'placeholder', { type: `${WIDGET}?` }),
     from('MPSelect', 'label', { type: `${WIDGET}?` }),
-    from('MPSelect', 'floatingLabel', { type: 'bool', default: 'true' }),
+    from('MPSelect', 'floatingLabel', { type: 'bool?', default: 'true' }),
     from('MPSelect', 'description', { type: `${WIDGET}?` }),
     from('MPSelect', 'errorMessage', { type: `${WIDGET}?` }),
     from('MPSelect', 'startIcon', { type: `${WIDGET}?` }),

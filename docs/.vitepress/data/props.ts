@@ -517,8 +517,8 @@ const pickerWeekStartsOn: PropRow = {
   name: 'weekStartsOn',
   type: '0 | 1 | 2 | 3 | 4 | 5 | 6',
   description: {
-    ko: '주를 어느 요일부터 그릴지. `0`이 일요일이며, 생략하면 로케일이 말하는 값을 씁니다',
-    en: 'Which day the week starts on — `0` is Sunday. Defaults to whatever the locale says'
+    ko: '주를 어느 요일부터 그릴지. `0`이 일요일입니다. 생략하면 가장 가까운 `MPConfigProvider`의 `weekStartsOn`을, 그것도 없으면 로케일이 말하는 값을 씁니다',
+    en: 'Which day the week starts on — `0` is Sunday. Left out, the nearest `MPConfigProvider`’s `weekStartsOn`, then whatever the locale says'
   }
 };
 
@@ -11783,11 +11783,43 @@ const componentTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'serverLocale',
+      type: 'string',
+      description: {
+        ko: '아무도 `locale`을 정하지 않았을 때 서버 렌더와 하이드레이션 동안 날짜와 숫자를 쓰는 태그. `MPLocaleProvider`가 받는 그 값입니다. 이 프로바이더나 위의 프로바이더가 `locale`을 정하면 무시됩니다',
+        en: 'The tag dates and numbers are written in on the server and while the page hydrates, when nobody named a `locale` — the same value `MPLocaleProvider` takes. Ignored when this provider or one above it names a `locale`'
+      }
+    },
+    {
+      name: 'labels',
+      type: 'MPPartialMessages',
+      description: {
+        ko: "라이브러리가 스스로 하는 말을 네임스페이스별로 바꿉니다. 예: `{ alert: { dismiss: '숨기기' } }`. 로케일의 표 위에 덮이고, 적지 않은 말은 그대로 남습니다. 컴포넌트 자신의 `labels`가 이기고, 중첩된 프로바이더는 말 하나 단위로 병합됩니다",
+        en: "The words the library says on its own behalf, by namespace, over the locale's table: `{ alert: { dismiss: 'Hide' } }`. Whatever is not named stays as it was. A component's own `labels` wins, and nested providers merge a word at a time"
+      }
+    },
+    {
+      name: 'floatingLabel',
+      type: 'boolean',
+      description: {
+        ko: '아래의 모든 필드가 비어 있는 동안 라벨을 필드 줄에 내려둘지 여부. `false`면 모든 라벨이 처음부터 홈에 있습니다. 주지 않으면 각 필드의 기본값인 `true`이고, 필드 자신의 `floatingLabel`이 이깁니다',
+        en: "Whether every field under this rests its label on the field's line while it is empty. `false` keeps all of them in the notch from the start. Left out, it is each field's own default, `true`, and a field's own `floatingLabel` wins"
+      }
+    },
+    {
+      name: 'weekStartsOn',
+      type: '0 | 1 | 2 | 3 | 4 | 5 | 6',
+      description: {
+        ko: '아래의 모든 달력과 날짜 피커에서 주가 시작하는 요일. `0`이 일요일입니다. 주지 않으면 각자 로케일에 묻고, 컴포넌트 자신의 `weekStartsOn`이 이깁니다',
+        en: "Which day the weeks start on in every calendar and date picker under this — `0` is Sunday. Left out, each one asks its locale, and a component's own `weekStartsOn` wins"
+      }
+    },
+    {
       name: 'dir',
       type: "'ltr' | 'rtl'",
       description: {
-        ko: '아래의 글이 흐르는 방향. 여기서 유일하게 **두** 시스템에 닿는 prop입니다 — 스타일시트는 DOM의 `dir`을 읽고(패딩·마진·모서리가 전부 논리 속성이라 예전부터 동작했습니다), Base UI는 React 컨텍스트를 읽는데 그걸 넣어 주는 것이 없었습니다. 이걸 주면 `display: contents` 엘리먼트에 속성이 붙고 같은 값이 Base UI의 `DirectionProvider`로 들어갑니다. 주지 않으면 아무것도 렌더하지 않습니다',
-        en: "Which way the text runs below. The one prop here that reaches **two** systems: the stylesheet reads the DOM's `dir` — every padding, margin and corner is already logical, so that half always worked — and Base UI reads a React context that nothing was putting there. Given, the attribute goes on a `display: contents` element and the same value goes into Base UI's own `DirectionProvider`. Left out, nothing is rendered"
+        ko: '아래의 글이 흐르는 방향. 여기서 유일하게 **두** 시스템에 닿는 prop입니다 — 스타일시트는 DOM의 `dir`을 읽고(패딩·마진·모서리가 전부 논리 속성이라 예전부터 동작했습니다), Base UI는 React 컨텍스트를 읽습니다. 이걸 주면 `display: contents` 엘리먼트에 속성이 붙고 같은 값이 Base UI의 `DirectionProvider`로 들어갑니다. 주지 않으면 엘리먼트는 렌더하지 않고 **문서의 방향을 읽어** Base UI에 넘깁니다. 그러니 주변 페이지와 반대로 흐르는 영역에만 주면 됩니다',
+        en: "Which way the text runs below. The one prop here that reaches **two** systems: the stylesheet reads the DOM's `dir` — every padding, margin and corner is already logical, so that half always worked — and Base UI reads a React context. Given, the attribute goes on a `display: contents` element and the same value goes into Base UI's own `DirectionProvider`. Left out, no element is rendered and the direction is **read off the document** for Base UI, so set it only for a subtree that runs the other way from the page around it"
       }
     },
     {

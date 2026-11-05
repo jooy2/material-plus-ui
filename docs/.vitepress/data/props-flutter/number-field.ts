@@ -47,7 +47,7 @@ export default {
     from('MPNumberField', 'incrementLabel', { type: 'String?' }),
     from('MPNumberField', 'decrementLabel', { type: 'String?' }),
     from('MPNumberField', 'label', { type: `${WIDGET}?` }),
-    from('MPNumberField', 'floatingLabel', { type: 'bool', default: 'true' }),
+    from('MPNumberField', 'floatingLabel', { type: 'bool?', default: 'true' }),
     {
       name: 'description',
       type: `${WIDGET}?`,

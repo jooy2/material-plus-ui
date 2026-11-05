@@ -13,6 +13,21 @@ export default {
       }
     }),
     from('MPConfigProvider', 'locale', { type: 'String?' }),
+    from('MPConfigProvider', 'labels', {
+      type: 'Map<String, Map<String, String>>?',
+      description: {
+        ko: "라이브러리가 스스로 하는 말을 네임스페이스와 키별로 바꿉니다. 예: `{'alert': {'dismiss': '숨기기'}}`. 등록된 번역 위에 덮이고, 적지 않은 말은 그대로 남습니다. 컴포넌트 자신의 `labels`가 이기고, 중첩된 프로바이더는 말 하나 단위로 병합됩니다",
+        en: "The words the library says on its own behalf, by namespace and key, over the registered translation: `{'alert': {'dismiss': 'Hide'}}`. Whatever is not named stays as it was. A component's own `labels` wins, and nested providers merge a word at a time"
+      }
+    }),
+    from('MPConfigProvider', 'floatingLabel', { type: 'bool?' }),
+    from('MPConfigProvider', 'weekStartsOn', {
+      type: 'MPWeekday?',
+      description: {
+        ko: '아래의 모든 달력과 날짜 피커에서 주가 시작하는 요일. 주지 않으면 각자 날짜 이름 표에 묻고, 컴포넌트 자신의 `weekStartsOn`이 이깁니다',
+        en: "Which day the weeks start on in every calendar and date picker under this. Left out, each one asks its date names, and a component's own `weekStartsOn` wins"
+      }
+    }),
     renamed('MPConfigProvider', 'dir', 'textDirection', {
       type: 'TextDirection?',
       description: {

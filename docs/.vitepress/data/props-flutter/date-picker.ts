@@ -40,8 +40,8 @@ export function weekStartsOnRow(component: string): PropRow {
   return from(component, 'weekStartsOn', {
     type: 'MPWeekday?',
     description: {
-      ko: '주가 시작하는 요일. 빼면 로케일의 표가 정합니다',
-      en: "Which day the week starts on. Left out, the locale's table decides"
+      ko: '주가 시작하는 요일. 빼면 가장 가까운 `MPConfigProvider`의 `weekStartsOn`을, 그것도 없으면 로케일의 표가 정합니다',
+      en: "Which day the week starts on. Left out, the nearest `MPConfigProvider`'s `weekStartsOn`, then the locale's table decides"
     }
   });
 }
@@ -92,7 +92,7 @@ export function openRows(component: string): PropRow[] {
 export function shellRows(component: string, glyph: { ko: string; en: string }): PropRow[] {
   return [
     from(component, 'label', { type: `${WIDGET}?` }),
-    from(component, 'floatingLabel', { type: 'bool', default: 'true' }),
+    from(component, 'floatingLabel', { type: 'bool?', default: 'true' }),
     from(component, 'description', { type: `${WIDGET}?` }),
     from(component, 'errorMessage', { type: `${WIDGET}?` }),
     from(component, 'startIcon', {

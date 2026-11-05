@@ -256,6 +256,78 @@ const MPConfigProvider(size: MPSize.sm, locale: 'ko', child: App())
 
 :::
 
+::: fw react
+
+같은 이유로 `serverLocale`도 함께 옵니다. 독자의 브라우저 언어를 따르는 서버 렌더 페이지는 서버에서 그 언어를 알 수 없습니다. 그래서 서버 렌더와 하이드레이션이 함께 쓸 태그를 정해 두고, 하이드레이션이 끝나면 독자의 기본값으로 넘어갑니다.
+
+```tsx
+<MPConfigProvider size="sm" serverLocale="en-US">
+  <App />
+</MPConfigProvider>
+```
+
+이 프로바이더나 위의 프로바이더가 `locale`을 정하면 무시됩니다. 그 값은 이미 양쪽에서 같기 때문입니다. 두 렌더가 왜 같아야 하는지는 [현지화](../design/localization.md)에 있습니다.
+
+:::
+
+## 라이브러리가 하는 말
+
+`labels`는 알림의 닫기 버튼 이름이나 페이지네이션의 이전·다음 버튼처럼 라이브러리가 스스로 하는 말을 프로바이더 아래 전체에서 바꿉니다. 번역을 등록할 때와 같은 모양으로 네임스페이스를 키로 쓰고, 일부만 적어도 됩니다. 적지 않은 말은 로케일이 정한 대로 남습니다.
+
+::: fw react
+
+```tsx
+<MPConfigProvider labels={{ alert: { dismiss: '숨기기' }, pagination: { next: '앞으로' } }}>
+  <App />
+</MPConfigProvider>
+```
+
+:::
+
+::: fw flutter
+
+```dart
+const MPConfigProvider(
+  labels: <String, Map<String, String>>{
+    'alert': <String, String>{'dismiss': '숨기기'},
+    'pagination': <String, String>{'next': '앞으로'},
+  },
+  child: App(),
+)
+```
+
+:::
+
+순서는 컴포넌트 자신의 `labels`, 이 값, 로케일의 표, 영어입니다. 중첩된 프로바이더는 말 하나 단위로 병합되므로, 버튼 하나의 이름만 바꾼 구역도 애플리케이션이 고른 나머지 말을 그대로 씁니다.
+
+번역 표를 등록하는 것과 `labels`를 주는 것은 하는 일이 다릅니다. 등록한 표는 언어이고, 페이지 전체에 걸리며 로케일이 고릅니다. `labels`는 한 서브트리에서 쓰는 애플리케이션 자신의 표현이라, 로케일이 바뀌어도 그대로입니다.
+
+## 라벨과 주
+
+폼과 달력에 대한 결정 두 가지도 여기서 정합니다. 둘 다 컴포넌트 하나가 아니라 제품 전체의 결정입니다.
+
+`floatingLabel`은 프로바이더 아래의 모든 필드가 내용이 생기기 전까지 라벨을 필드 줄에 내려둘지 정합니다. 필드마다 기본값은 `true`이고, 라벨을 늘 홈에 두는 제품은 여기에 `false`를 한 번 주면 됩니다. 필드 자신의 `floatingLabel`이 여전히 이기고, `startIcon`이 있으면 프로바이더가 뭐라 하든 라벨은 올라가 있습니다.
+
+`weekStartsOn`은 프로바이더 아래의 모든 달력과 날짜 피커에서 주가 시작하는 요일을 정합니다. `0`이 일요일입니다. 주지 않으면 각자 로케일에 묻고, 대부분의 애플리케이션에는 그게 맞습니다. 독자가 어디에 있든 월요일부터 주를 그리는 제품은 여기서 정하고, 달력 자신의 `weekStartsOn`이 여전히 이깁니다.
+
+::: fw react
+
+```tsx
+<MPConfigProvider floatingLabel={false} weekStartsOn={1}>
+  <App />
+</MPConfigProvider>
+```
+
+:::
+
+::: fw flutter
+
+```dart
+const MPConfigProvider(floatingLabel: false, weekStartsOn: MPWeekday.monday, child: App())
+```
+
+:::
+
 ## 되읽기
 
 ::: fw react
@@ -313,11 +385,19 @@ const MPConfigProvider(textDirection: TextDirection.rtl, child: App())
 
 이 라이브러리의 패딩·마진·모서리·아이콘 슬롯은 전부 이미 **논리** 속성입니다 — `pl`/`pr`이 아니라 `ps`/`pe`, 왼쪽·오른쪽이 아니라 `startIcon`/`endIcon`, `top-left`가 아니라 `MPCorner`의 `top-start`. 그래서 RTL의 스타일시트 쪽은 컴포넌트 위 어디든 `dir`만 있으면 예전부터 동작했고, LTR 페이지 속 `dir="rtl"` 구역도 사고가 아니라 지원되는 배치입니다.
 
-없던 것은 나머지 절반이었습니다.
+없던 것은 나머지 절반이었고, 그것을 프로바이더가 채웁니다. `<html>`에 `dir="rtl"`을 건 페이지라면 `dir` 없는 프로바이더가 문서에서 방향을 읽으므로 더 할 것이 없습니다.
+
+```tsx
+<MPConfigProvider>
+  <App />
+</MPConfigProvider>
+```
+
+주변 페이지와 반대로 흐르는 서브트리만 방향을 적습니다.
 
 ```tsx
 <MPConfigProvider dir="rtl">
-  <App />
+  <ArabicListing />
 </MPConfigProvider>
 ```
 
@@ -336,7 +416,9 @@ Base UI의 일곱 부품이 그 컨텍스트를 봅니다 — 슬라이더·메�
 
 `dir`은 둘 다 설정합니다. 속성은 `display: contents` 엘리먼트에 붙어 레이아웃에 전혀 참여하지 않으므로, 프로바이더가 flex 컨테이너와 그 자식들 사이의 상자가 되지 않습니다. 같은 값이 Base UI 자신의 `DirectionProvider`로 들어갑니다.
 
-주지 않으면 아무것도 렌더하지 않고 아무것도 주장하지 않습니다. `<html>`에 `dir`을 걸고 이것을 마운트하지 않은 페이지는 여전히 CSS 절반만 얻습니다.
+주지 않으면 엘리먼트를 렌더하지 않고, Base UI 쪽 방향은 **문서에서 읽습니다.** 계산된 방향을 읽으므로 속성뿐 아니라 스타일시트의 `direction: rtl`도 반영되고, 문서의 방향이 바뀌면 따라갑니다. `dir`을 받은 프로바이더 안에 중첩된 프로바이더는 그 값을 지키고, `rtl`이라고 말하는 Base UI `DirectionProvider` 아래의 프로바이더도 그 값을 지킵니다. 프로바이더를 하나도 마운트하지 않은 페이지는 여전히 CSS 절반만 얻습니다.
+
+서버에는 문서가 없으므로 서버 렌더는 왼쪽에서 오른쪽입니다. 프로바이더가 없을 때 Base UI가 말하는 값과 같습니다. 클라이언트는 하이드레이션 직후 방향을 뒤집습니다. 이 컨텍스트는 마크업이 아니라 동작을 바꾸므로 서버 렌더와 하이드레이션은 여전히 일치합니다.
 
 ### 여전히 당신 몫인 것
 
@@ -353,7 +435,8 @@ Base UI의 일곱 부품이 그 컨텍스트를 봅니다 — 슬라이더·메�
 
 ### 날카로운 모서리
 
-- **방향이 섞인 페이지는 방향이 바뀌는 지점마다 프로바이더가 필요합니다.** 루트에만이 아니라요 — Base UI 컨텍스트는 트리를 따르고 CSS는 DOM을 따르므로 둘을 같이 두세요.
+- **방향이 섞인 페이지는 방향이 바뀌는 지점마다 프로바이더가 필요합니다.** 루트에만이 아니라요 — Base UI 컨텍스트는 트리를 따르고 CSS는 DOM을 따르므로 둘을 같이 두세요. 오른쪽에서 왼쪽으로 흐르는 문서 안의 평범한 `<div dir="ltr">`만으로는 그 아래 `dir` 없는 프로바이더에 닿지 않습니다. 프로바이더가 읽는 것은 문서이기 때문입니다.
+- **`ltr`이라고 말하는 직접 둔 Base UI `DirectionProvider`는 보이지 않습니다.** 프로바이더가 없을 때도 Base UI는 `ltr`이라고 답하고 둘을 구분할 방법을 주지 않습니다. 그래서 오른쪽에서 왼쪽으로 흐르는 문서에서는 이 프로바이더가 문서를 읽습니다. `dir="ltr"`을 주세요.
 - **`display: contents`도 엘리먼트를 렌더합니다.** 레이아웃에는 참여하지 않지만 DOM에는 있습니다. 직접 쓴 `> *` 셀렉터는 이걸 셉니다.
 
 :::

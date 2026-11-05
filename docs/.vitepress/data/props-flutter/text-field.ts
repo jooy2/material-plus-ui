@@ -6,7 +6,7 @@ export default {
     renamed('MPTextField', 'onChange', 'onChanged', { type: 'ValueChanged<String>?' }),
     from('MPTextField', 'label', { type: `${WIDGET}?` }),
     renamed('MPTextField', 'aria-label', 'semanticLabel', { type: 'String?' }),
-    from('MPTextField', 'floatingLabel', { type: 'bool', default: 'true' }),
+    from('MPTextField', 'floatingLabel', { type: 'bool?', default: 'true' }),
     from('MPTextField', 'type', {
       type: 'MPTextFieldType',
       default: 'MPTextFieldType.text',
