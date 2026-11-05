@@ -8,17 +8,16 @@ import { MPBox, MPButton, MPFlex, MPPortal, MPTypography } from 'material-plus-u
  * rendered in place and the box cuts it off; the second is in a portal, so it is
  * no longer inside the box at all and reaches the bottom of the page.
  */
-function Notice({ label, tone }: { label: string; tone: string }) {
+function Notice({ label }: { label: string }) {
   return (
     <div
+      className="bg-mp-error-container text-mp-on-error-container"
       style={{
         position: 'absolute',
         insetInlineStart: 12,
         bottom: -20,
         padding: '4px 10px',
         borderRadius: 8,
-        background: `var(--mp-sys-color-${tone})`,
-        color: `var(--mp-sys-color-on-${tone})`,
         fontSize: 12,
         whiteSpace: 'nowrap'
       }}
@@ -42,19 +41,18 @@ export default function PortalHero() {
           This box clips. Both notices below are drawn from inside it.
         </MPTypography>
 
-        {shown ? <Notice label="in place — cut off by the box" tone="error-container" /> : null}
+        {shown ? <Notice label="in place — cut off by the box" /> : null}
 
         {shown ? (
           <MPPortal>
             <div
+              className="bg-mp-tertiary-container text-mp-on-tertiary-container"
               style={{
                 position: 'fixed',
                 insetInlineStart: 16,
                 bottom: 16,
                 padding: '4px 10px',
                 borderRadius: 8,
-                background: 'var(--mp-sys-color-tertiary-container)',
-                color: 'var(--mp-sys-color-on-tertiary-container)',
                 fontSize: 12
               }}
             >
