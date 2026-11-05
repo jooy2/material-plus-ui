@@ -33,22 +33,24 @@ describe('MPPill', () => {
       // The slot of a medium pill is a 20px glyph, and the smallest ring is 24px
       // across: drawn as it was, the circle the slot is clipped to kept 0.5px of
       // its stroke.
+      //
+      // A ring with a value, which stands still: an indeterminate one turns, and
+      // a box measured while it turns is the box round it at that angle, a little
+      // wider than the slot or a lot, depending on when it was read.
       const screen = await render(
-        <MPPill title="Uploading" startIcon={<MPProgressCircular size="xs" />} />
+        <MPPill title="Uploading" startIcon={<MPProgressCircular size="xs" value={40} />} />
       );
       const root = screen.container.querySelector('.mp-progress-circular')!;
       // The track: the circle the stroke is drawn along.
       const track = root.querySelector('circle')!.getBoundingClientRect();
       const slot = root.parentElement!.getBoundingClientRect();
 
-      // To within a pixel: WebKit on Windows lays the slot out a third of a
-      // pixel wider. Unfixed, the ring is 24px and its track runs 2px out of it.
-      expect(slot.width).toBeCloseTo(20, 0);
-      expect(root.querySelector('svg')!.getBoundingClientRect().width).toBeCloseTo(slot.width, 0);
-      expect(track.left).toBeGreaterThanOrEqual(slot.left - 0.5);
-      expect(track.top).toBeGreaterThanOrEqual(slot.top - 0.5);
-      expect(track.right).toBeLessThanOrEqual(slot.right + 0.5);
-      expect(track.bottom).toBeLessThanOrEqual(slot.bottom + 0.5);
+      expect(slot.width).toBe(20);
+      expect(root.querySelector('svg')!.getBoundingClientRect().width).toBeCloseTo(20, 1);
+      expect(track.left).toBeGreaterThanOrEqual(slot.left);
+      expect(track.top).toBeGreaterThanOrEqual(slot.top);
+      expect(track.right).toBeLessThanOrEqual(slot.right);
+      expect(track.bottom).toBeLessThanOrEqual(slot.bottom);
     });
 
     it('draws a glyph that fits the leading slot at its own size', async () => {
