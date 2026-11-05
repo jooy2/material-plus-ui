@@ -1969,12 +1969,7 @@ const GROUPS: Group[] = [
         },
         path: '/components/layout/container',
         preview: (
-          <div
-            style={{
-              width: '100%',
-              outline: '1px dashed var(--mp-sys-color-outline-variant)'
-            }}
-          >
+          <div className="outline-mp-outline-variant w-full outline-1 outline-dashed">
             <MPContainer maxWidth="xs" size="sm">
               <div className="bg-mp-surface-container-highest text-mp-on-surface-variant text-mp-label-small rounded-mp-xs flex h-12 items-center justify-center">
                 maxWidth=&quot;xs&quot;

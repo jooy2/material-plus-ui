@@ -9,7 +9,7 @@ import { MPContainer, MPTypography } from 'material-plus-ui';
  */
 export default function ContainerHero() {
   return (
-    <div style={{ width: '100%', outline: '1px dashed var(--mp-sys-color-outline-variant)' }}>
+    <div className="outline-mp-outline-variant w-full outline-1 outline-dashed">
       <MPContainer maxWidth="sm">
         <MPTypography level="h5" gutter>
           Held off the edge
