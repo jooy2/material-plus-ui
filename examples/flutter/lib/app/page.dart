@@ -78,7 +78,6 @@ class ScreenScroll extends StatelessWidget {
     required this.children,
     this.subtitle,
     this.action,
-    this.bottomInset = 0,
     this.controller,
     super.key,
   });
@@ -95,9 +94,6 @@ class ScreenScroll extends StatelessWidget {
   /// What the screen holds, top to bottom.
   final List<Widget> children;
 
-  /// Room held under the content, for a bar over it.
-  final double bottomInset;
-
   /// Drives the scroll position.
   final ScrollController? controller;
 
@@ -107,7 +103,7 @@ class ScreenScroll extends StatelessWidget {
 
     return ListView(
       controller: controller,
-      padding: EdgeInsets.fromLTRB(16, safe.top + 12, 16, safe.bottom + bottomInset + 24),
+      padding: EdgeInsets.fromLTRB(16, safe.top + 12, 16, safe.bottom + 24),
       children: <Widget>[
         Center(
           child: ConstrainedBox(
@@ -158,32 +154,41 @@ class PushedScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final EdgeInsets safe = MediaQuery.paddingOf(context);
+    final MediaQueryData media = MediaQuery.of(context);
+    final EdgeInsets safe = media.padding;
 
+    // Ends where the keyboard begins, as a `Scaffold` does, so a field at the
+    // bottom of the screen stays above it.
     return Ground(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Padding(
-            padding: EdgeInsetsDirectional.fromSTEB(8, safe.top + 4, 8, 4),
-            child: Row(
-              spacing: 4,
-              children: <Widget>[
-                MPIconButton(
-                  label: 'Back',
-                  variant: MPVariant.text,
-                  onPressed: () => Navigator.of(context).maybePop(),
-                  icon: const Directional(child: MPIcon(icon: ChevronStartGlyph())),
+      child: Padding(
+        padding: EdgeInsets.only(bottom: media.viewInsets.bottom),
+        child: MediaQuery(
+          data: media.removeViewInsets(removeBottom: true),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(8, safe.top + 4, 8, 4),
+                child: Row(
+                  spacing: 4,
+                  children: <Widget>[
+                    MPIconButton(
+                      label: 'Back',
+                      variant: MPVariant.text,
+                      onPressed: () => Navigator.of(context).maybePop(),
+                      icon: const Directional(child: MPIcon(icon: ChevronStartGlyph())),
+                    ),
+                    Expanded(child: MPTypography(title, level: MPTypographyLevel.h6, lines: 1)),
+                    ...?actions,
+                  ],
                 ),
-                Expanded(child: MPTypography(title, level: MPTypographyLevel.h6, lines: 1)),
-                ...?actions,
-              ],
-            ),
+              ),
+              Expanded(
+                child: MediaQuery.removePadding(context: context, removeTop: true, child: child),
+              ),
+            ],
           ),
-          Expanded(
-            child: MediaQuery.removePadding(context: context, removeTop: true, child: child),
-          ),
-        ],
+        ),
       ),
     );
   }

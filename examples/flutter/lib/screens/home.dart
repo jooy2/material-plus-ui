@@ -69,10 +69,7 @@ const List<MPSegment> _periodSegments = <MPSegment>[
 /// The first screen: the figures, the charts, and what happened lately.
 class HomeScreen extends StatefulWidget {
   /// Creates the screen.
-  const HomeScreen({required this.bottomInset, super.key});
-
-  /// Room held under the content for the bottom bar.
-  final double bottomInset;
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -90,7 +87,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return ScreenScroll(
       title: 'Good morning',
       subtitle: 'Here is how the shop is doing.',
-      bottomInset: widget.bottomInset,
       action: MPBadge(
         content: unread,
         label: '$unread unread messages',

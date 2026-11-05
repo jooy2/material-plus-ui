@@ -98,6 +98,13 @@ void defineFlows({required Shot shot}) {
     expect(find.text('3 new messages'), findsOneWidget);
     await shot(tester, 'home-snackbar');
 
+    // Above the bottom bar on a phone, as MD3 has it, rather than over it.
+    final Finder bar = find.byType(MPBottomNavigation);
+
+    if (bar.evaluate().isNotEmpty) {
+      expect(tester.getRect(find.text('3 new messages')).bottom, lessThan(tester.getRect(bar).top));
+    }
+
     await _press(tester, 'Week');
     expect(find.text('£12,840'), findsOneWidget);
     await shot(tester, 'home-week');
@@ -132,11 +139,20 @@ void defineFlows({required Shot shot}) {
 
     final Finder reply = find.byType(EditableText).last;
 
+    // A keyboard over the bottom of the screen, which the reply field sits
+    // above rather than behind.
+    tester.view.viewInsets = const FakeViewPadding(bottom: 300);
+    await settle(tester);
+    expect(tester.getRect(reply).bottom, lessThanOrEqualTo(_screen(tester).height - 300));
+
     await _type(tester, reply, 'On my way');
     tester.state<EditableTextState>(reply).performAction(TextInputAction.done);
     await settle(tester);
     expect(find.text('On my way'), findsOneWidget);
     await shot(tester, 'thread-sent');
+
+    tester.view.resetViewInsets();
+    await settle(tester);
 
     await _unfocus(tester);
     await _back(tester);

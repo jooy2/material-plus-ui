@@ -20,10 +20,7 @@ const List<MPComboboxOption> _cities = <MPComboboxOption>[
 /// A travel request in three steps: who, where and when, and a last look.
 class RequestScreen extends StatefulWidget {
   /// Creates the screen.
-  const RequestScreen({required this.bottomInset, super.key});
-
-  /// Room held under the content for the bottom bar.
-  final double bottomInset;
+  const RequestScreen({super.key});
 
   @override
   State<RequestScreen> createState() => _RequestScreenState();
@@ -45,6 +42,7 @@ class _RequestScreenState extends State<RequestScreen> {
   List<String> _seat = <String>['aisle'];
   List<MPFile> _files = <MPFile>[];
   bool _agree = false;
+  bool _agreeMissing = false;
   bool _notify = true;
   double _rating = 0;
   String? _sent;
@@ -59,9 +57,7 @@ class _RequestScreenState extends State<RequestScreen> {
 
   void _send() {
     if (!_agree) {
-      MPSnackbarProvider.of(
-        context,
-      ).add(const MPSnackbarOptions(message: Text('Agree to the travel policy first')));
+      setState(() => _agreeMissing = true);
 
       return;
     }
@@ -208,8 +204,12 @@ class _RequestScreenState extends State<RequestScreen> {
           children: <Widget>[
             MPCheckbox(
               checked: _agree,
-              onChanged: (bool next) => setState(() => _agree = next),
+              onChanged: (bool next) => setState(() {
+                _agree = next;
+                _agreeMissing = false;
+              }),
               label: const Text('I have read the travel policy'),
+              errorMessage: _agreeMissing ? const Text('Agree to the travel policy first') : null,
             ),
             MPSwitch(
               checked: _notify,
@@ -234,7 +234,6 @@ class _RequestScreenState extends State<RequestScreen> {
     return ScreenScroll(
       title: 'Request',
       subtitle: 'Ask for a trip to be booked',
-      bottomInset: widget.bottomInset,
       children: <Widget>[
         MPCard(
           child: MPStepper(

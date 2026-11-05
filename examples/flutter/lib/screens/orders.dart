@@ -14,10 +14,7 @@ const Map<OrderStatus, MPColor> _statusColors = <OrderStatus, MPColor>{
 /// The orders in a table, filtered from a drawer, each with a menu of actions.
 class OrdersScreen extends StatefulWidget {
   /// Creates the screen.
-  const OrdersScreen({required this.bottomInset, super.key});
-
-  /// Room held under the content for the bottom bar.
-  final double bottomInset;
+  const OrdersScreen({super.key});
 
   @override
   State<OrdersScreen> createState() => _OrdersScreenState();
@@ -135,7 +132,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
           child: ScreenScroll(
             title: 'Orders',
             subtitle: '${visible.length} shown',
-            bottomInset: widget.bottomInset,
             action: MPButton(
               variant: MPVariant.tonal,
               onPressed: () => setState(() => _filtersOpen = true),

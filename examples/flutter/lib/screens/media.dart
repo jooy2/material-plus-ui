@@ -70,15 +70,17 @@ class _MediaScreenState extends State<MediaScreen> {
         ),
         const MPTypography('Gallery', level: MPTypographyLevel.h6),
         MPGrid(
-          columns: const MPResponsive<int>(2, expanded: 4),
           children: <Widget>[
             for (final (String file, String alt) in _photos)
-              MPImage(
-                image: _asset(file),
-                semanticLabel: alt,
-                ratio: 1,
-                preview: true,
-                previewImage: _asset(file),
+              MPGridItem(
+                span: const MPResponsive<MPGridSpan>(MPGridSpan(6), expanded: MPGridSpan(3)),
+                child: MPImage(
+                  image: _asset(file),
+                  semanticLabel: alt,
+                  ratio: 1,
+                  preview: true,
+                  previewImage: _asset(file),
+                ),
               ),
           ],
         ),

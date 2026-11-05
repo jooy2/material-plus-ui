@@ -13,10 +13,7 @@ const List<MPSegment> _boxes = <MPSegment>[
 /// The conversations, a search over them, and the way into each one.
 class InboxScreen extends StatefulWidget {
   /// Creates the screen.
-  const InboxScreen({required this.bottomInset, super.key});
-
-  /// Room held under the content for the bottom bar.
-  final double bottomInset;
+  const InboxScreen({super.key});
 
   @override
   State<InboxScreen> createState() => _InboxScreenState();
@@ -46,7 +43,6 @@ class _InboxScreenState extends State<InboxScreen> {
     return ScreenScroll(
       title: 'Inbox',
       subtitle: '${conversations.length} conversations',
-      bottomInset: widget.bottomInset,
       children: <Widget>[
         MPTextField(
           type: MPTextFieldType.search,

@@ -18,6 +18,41 @@ const Map<String, String> _destinations = <String, String>{
 /// How tall the bottom bar is over the content, above the system's own inset.
 const double _barHeight = 80;
 
+/// The screens, ending where the keyboard begins, as a `Scaffold`'s body does.
+///
+/// [bar] is room held at the bottom for a bar over them, given to the screens
+/// as padding, so a list scrolls clear of it and a snackbar shown from them
+/// sits above it, as MD3 has it. Behind the keyboard the bar is out of sight,
+/// and so is the room.
+class _Screens extends StatelessWidget {
+  const _Screens({required this.bar, required this.child});
+
+  final double bar;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final MediaQueryData media = MediaQuery.of(context);
+    final double keyboard = media.viewInsets.bottom;
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: keyboard),
+      child: MediaQuery(
+        data: media
+            .removeViewInsets(removeBottom: true)
+            .copyWith(
+              padding: media.padding.copyWith(
+                bottom: media.padding.bottom + (keyboard > 0 ? 0 : bar),
+              ),
+            ),
+        child: bar == 0
+            ? child
+            : MPSnackbarProvider(position: MPSnackbarPosition.bottomCenter, child: child),
+      ),
+    );
+  }
+}
+
 /// The five destinations: a bottom bar on a phone and a sidebar on a tablet.
 class Shell extends StatefulWidget {
   /// Creates the shell.
@@ -30,16 +65,16 @@ class Shell extends StatefulWidget {
 class _ShellState extends State<Shell> {
   String _where = 'home';
 
-  Widget _screen(double bottomInset) {
+  Widget _screen() {
     return IndexedStack(
       sizing: StackFit.expand,
       index: _destinations.keys.toList().indexOf(_where),
-      children: <Widget>[
-        HomeScreen(bottomInset: bottomInset),
-        InboxScreen(bottomInset: bottomInset),
-        OrdersScreen(bottomInset: bottomInset),
-        RequestScreen(bottomInset: bottomInset),
-        MoreScreen(bottomInset: bottomInset),
+      children: const <Widget>[
+        HomeScreen(),
+        InboxScreen(),
+        OrdersScreen(),
+        RequestScreen(),
+        MoreScreen(),
       ],
     );
   }
@@ -75,7 +110,7 @@ class _ShellState extends State<Shell> {
                   ),
                 ),
               ),
-              Expanded(child: _screen(0)),
+              Expanded(child: _Screens(bar: 0, child: _screen())),
             ],
           ),
         ),
@@ -85,7 +120,9 @@ class _ShellState extends State<Shell> {
     return Ground(
       child: Stack(
         children: <Widget>[
-          Positioned.fill(child: _screen(_barHeight)),
+          Positioned.fill(
+            child: _Screens(bar: _barHeight, child: _screen()),
+          ),
           Positioned(
             left: 0,
             right: 0,

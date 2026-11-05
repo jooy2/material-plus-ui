@@ -20,10 +20,7 @@ const List<MPSegment> _themes = <MPSegment>[
 /// The settings, and the way to the other screens.
 class MoreScreen extends StatelessWidget {
   /// Creates the screen.
-  const MoreScreen({required this.bottomInset, super.key});
-
-  /// Room held under the content for the bottom bar.
-  final double bottomInset;
+  const MoreScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +30,6 @@ class MoreScreen extends StatelessWidget {
 
     return ScreenScroll(
       title: 'More',
-      bottomInset: bottomInset,
       children: <Widget>[
         MPList(
           dividers: true,
