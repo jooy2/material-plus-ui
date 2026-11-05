@@ -75,6 +75,10 @@ void main() {
         // network is waiting for.
         await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: _settleMs)));
         await tester.pump(const Duration(milliseconds: 16));
+        // A picture that arrived in the wait fades in from the frame it is
+        // first drawn in, so it gets the time to finish before the shot.
+        await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 350)));
+        await tester.pump(const Duration(milliseconds: 16));
         await saveShot(tester, '$_theme-$name');
         await tester.pumpWidget(const SizedBox());
       }, ignoreImages: _offline);
