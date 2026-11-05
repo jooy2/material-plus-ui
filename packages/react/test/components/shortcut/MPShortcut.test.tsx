@@ -48,6 +48,20 @@ describe('MPShortcut', () => {
     });
   });
 
+  describe('on a right-to-left page', () => {
+    it('keeps the keys left to right, held first on the left', async () => {
+      const screen = await render(
+        <div dir="rtl">
+          <MPShortcut keys="Ctrl+Shift+P" os="windows" data-testid="shortcut" />
+        </div>
+      );
+      const caps = Array.from(screen.getByTestId('shortcut').element().querySelectorAll('kbd'));
+      const lefts = caps.map((key) => key.getBoundingClientRect().left);
+
+      expect(lefts).toEqual([...lefts].sort((a, b) => a - b));
+    });
+  });
+
   describe('Mod', () => {
     it('is Command on a Mac', async () => {
       // A shortcut written as `Ctrl+K` is wrong for every Mac reader.

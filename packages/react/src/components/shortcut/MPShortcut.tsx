@@ -341,6 +341,10 @@ export const MPShortcut = React.forwardRef<HTMLSpanElement, MPShortcutProps>(fun
   return (
     <span
       ref={ref}
+      // Left to right on a right-to-left page too. A shortcut names keys in the
+      // order they are held, and Arabic and Hebrew write `Ctrl+C` left to right
+      // as Latin text runs; laid out the page's way, the caps came out `C + Ctrl`.
+      dir="ltr"
       data-mp-size={size}
       data-mp-variant={variant}
       className={[

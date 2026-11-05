@@ -18,6 +18,8 @@
 
 - **A horizontal `MPNavigationMenu` wider than its room scrolls along.** Three items with panels ran past the edge of a phone. The bar scrolls sideways now, with its scrollbar hidden as `MPScrollZone`'s is, and an item the keyboard reaches is scrolled into view; the scroller reaches past the bar by the focus ring's width, so a ring at the edge is not cut off, and a bar that fits takes the room it took before.
 
+- **A shortcut reads left to right on a right-to-left page.** `MPShortcut` laid its caps out the page's way, so `Ctrl+Shift+P` came out `P + Shift + Ctrl`, and a menu row's `⌘⇧P` came out `P⇧⌘`, while `Ctrl+Shift+P` written as text stayed as it was. Both are isolated left to right now, as Arabic and Hebrew write a shortcut.
+
 - **An `MPTour` card moves to each step's target.** Base UI reads a function `anchor` once, when the popup opens, and the tour's popup stays open from the first step to the last, so every card hung from the first step's target, or from the middle of the window when the first step had none, while the hole in the dimming moved on without it. The card now hangs from the target of the step it shows.
 
 - **`MPTabs` keeps its indicator under the chosen tab when `MPConfigProvider`'s `dir` changes.** The indicator's place is measured, and Base UI measured it again only when a tab changed size. Turning the page round moves every tab and resizes none, so the indicator stayed on the far side of the bar until something else moved it. The bar's overflow fade is measured again at the same moment.

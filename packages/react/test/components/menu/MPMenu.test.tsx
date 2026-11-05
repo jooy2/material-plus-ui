@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, onTestFinished, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { detectOS } from '../../../src/internal/keys';
 import {
@@ -226,6 +226,41 @@ describe('MPMenu', () => {
       expect(shown).toBe(mac ? '⌘⇧Z' : 'Ctrl+Shift+Z');
       expect(row.textContent).not.toContain('Mod');
       expect(row.textContent).toContain(mac ? 'Command Shift Z' : 'Ctrl Shift Z');
+    });
+  });
+
+  describe('on a right-to-left page', () => {
+    it('writes a shortcut left to right, as MPShortcut does', async () => {
+      // On the document, because the popup is portalled to `<body>` and takes
+      // its direction from there.
+      document.documentElement.dir = 'rtl';
+      onTestFinished(() => {
+        document.documentElement.dir = '';
+      });
+
+      const screen = await render(
+        <MPMenu trigger={<MPButton>Edit</MPButton>}>
+          <MPMenuItem shortcut="Mod+Shift+Z">Redo</MPMenuItem>
+        </MPMenu>
+      );
+
+      await open(screen, 'Edit');
+
+      const row = screen.getByRole('menuitem', { name: /Redo/ }).element();
+      const shown = [...row.querySelectorAll('[aria-hidden="true"]')].find(
+        (part) => part.textContent
+      )!.firstChild!;
+      const range = document.createRange();
+      const left = (index: number) => {
+        range.setStart(shown, index);
+        range.setEnd(shown, index + 1);
+
+        return range.getBoundingClientRect().left;
+      };
+      const last = shown.textContent!.length - 1;
+
+      // The modifier the shortcut starts with is on the left, the Z on the right.
+      expect(left(0)).toBeLessThan(left(last));
     });
   });
 

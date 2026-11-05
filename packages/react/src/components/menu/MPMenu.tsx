@@ -387,15 +387,18 @@ function RowMeta({ shortcut }: { shortcut: React.ReactNode }) {
 function ShortcutText({ keys }: { keys: string }) {
   const { shown, spoken } = shortcutText(keys, useDetectedOS());
 
+  // Left to right on a right-to-left page too, as `MPShortcut` is: `⌘⇧P` is a
+  // run of symbols with no direction of its own, and the page's would put the
+  // P first.
   if (shown === spoken) {
-    return shown;
+    return <span dir="ltr">{shown}</span>;
   }
 
   return (
-    <>
+    <span dir="ltr">
       <span aria-hidden="true">{shown}</span>
       <span className={VISUALLY_HIDDEN}>{spoken}</span>
-    </>
+    </span>
   );
 }
 
