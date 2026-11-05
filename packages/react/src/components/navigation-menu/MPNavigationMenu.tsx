@@ -427,7 +427,9 @@ export const MPNavigationMenu = React.forwardRef<HTMLElement, MPNavigationMenuPr
           delay={delay}
           closeDelay={closeDelay}
           data-mp-size={size}
-          className={['mp-navigation-menu', className ?? ''].filter(Boolean).join(' ')}
+          // `flow-root`, so the scroller's negative margins stay inside the bar
+          // rather than collapsing through it and making it taller.
+          className={['mp-navigation-menu flow-root', className ?? ''].filter(Boolean).join(' ')}
           style={{ ...accentSlots(color), ...style }}
           {...props}
         >
@@ -435,8 +437,15 @@ export const MPNavigationMenu = React.forwardRef<HTMLElement, MPNavigationMenuPr
             className={[
               // Base UI renders a `<ul>`, which arrives with a margin, an indent and
               // a marker on every item.
-              'm-0 flex list-none items-center p-0',
-              orientation === 'vertical' ? 'flex-col items-stretch' : 'flex-row',
+              'flex list-none items-center',
+              orientation === 'vertical'
+                ? 'm-0 flex-col items-stretch p-0'
+                : // A bar wider than the room it is given scrolls along rather
+                  // than running past the edge, as three items do on a phone.
+                  // The scroller reaches 4px past the bar on every side, the
+                  // focus ring's reach, and gives the room back, so a ring on an
+                  // item at the edge is not cut off and nothing else moves.
+                  '-m-1 flex-row overflow-x-auto overflow-y-hidden p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
               CONTROL_GAP[size]
             ].join(' ')}
           >

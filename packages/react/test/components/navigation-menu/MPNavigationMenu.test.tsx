@@ -220,6 +220,36 @@ describe('MPNavigationMenu', () => {
     });
   });
 
+  describe('a bar wider than its room', () => {
+    it('scrolls along rather than running past the edge', async () => {
+      const screen = await render(
+        <div style={{ width: 120 }}>
+          <Nav />
+        </div>
+      );
+      const nav = screen.getByRole('navigation').element().getBoundingClientRect();
+      const list = screen.getByRole('navigation').element().querySelector('ul')!;
+
+      expect(nav.width).toBe(120);
+      expect(list.scrollWidth).toBeGreaterThan(list.clientWidth);
+      expect(getComputedStyle(list).overflowX).toBe('auto');
+      // The scroller reaches past the bar by the focus ring's reach, no further.
+      expect(list.getBoundingClientRect().right).toBeCloseTo(nav.right + 4, 0);
+    });
+
+    it('takes the room it took before where it fits', async () => {
+      const screen = await render(<Nav />);
+      const nav = screen.getByRole('navigation').element().getBoundingClientRect();
+      const first = screen
+        .getByRole('button', { name: 'Product' })
+        .element()
+        .getBoundingClientRect();
+
+      expect(first.left).toBeCloseTo(nav.left, 0);
+      expect(nav.height).toBeCloseTo(first.height, 0);
+    });
+  });
+
   describe('orientation', () => {
     it('runs across the page by default and down it when told to', async () => {
       const across = await render(<Nav />);
