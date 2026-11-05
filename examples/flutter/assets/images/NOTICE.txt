@@ -1,0 +1,14 @@
+Sample pictures
+===============
+
+The faces, photographs and the product mark the example app puts on screen.
+They are stand-in content, the way an app's own pictures would be, and none of
+it is part of the library.
+
+Each file is a copy of the picture of the same name under `docs/public/samples`
+in this repository: the portraits from `people/`, the photographs from
+`photos/thumbs/` and the mark from `marks/`. That folder's README says where
+they came from: resized WebP files of assets in sample-assets
+(https://github.com/jooy2/sample-assets), which is released under the MIT
+license with the same copyright as this repository. The portraits are of wholly
+fictional people, and the photographs are generated and are not of a real place.

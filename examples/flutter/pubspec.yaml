@@ -1,0 +1,31 @@
+name: material_plus_showcase
+description: >-
+  A small app built with Material Plus, used to try the library on phones,
+  tablets, simulators and emulators.
+publish_to: none
+version: 0.0.1
+
+environment:
+  sdk: ^3.11.0
+  flutter: '>=3.41.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  material_plus_ui:
+    path: ../../packages/flutter
+  # The component demos, which are the same files the documentation quotes, and
+  # the Roboto font that comes with them.
+  material_plus_ui_example:
+    path: ../../packages/flutter/example
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+
+flutter:
+  assets:
+    - assets/images/
