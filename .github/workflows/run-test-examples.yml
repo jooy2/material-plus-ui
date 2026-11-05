@@ -1,0 +1,80 @@
+name: run-test-examples
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    paths:
+      - examples/**
+      - packages/**
+      - docs/.vitepress/demos/**
+      - docs/public/samples/**
+      - .github/workflows/run-test-examples.yml
+  workflow_dispatch:
+
+jobs:
+  flutter:
+    runs-on: ubuntu-latest
+    name: Test the Flutter example
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: ./examples/flutter
+
+      - name: Analyze
+        run: flutter analyze
+        working-directory: ./examples/flutter
+
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed lib test integration_test test_driver
+        working-directory: ./examples/flutter
+
+      # The flows at a phone's and a tablet's size, and every demo at three
+      # widths. The same flows run on a device with `flutter drive`, which CI
+      # does not have.
+      - name: Run tests
+        run: flutter test
+        working-directory: ./examples/flutter
+
+  electron:
+    runs-on: ubuntu-latest
+    name: Test the Electron example
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '26'
+
+      - name: Build the package
+        run: npm ci --ignore-scripts && npm run build
+        working-directory: ./packages/react
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./examples/electron
+
+      - name: Typecheck
+        run: npm run typecheck
+        working-directory: ./examples/electron
+
+      # Ubuntu 24.04 keeps unprivileged user namespaces from AppArmor-confined
+      # programs, which is what Chromium's sandbox needs, and the window runs
+      # with `sandbox: true`. Electron also needs a display to start, even with
+      # its window hidden.
+      - name: Allow the Chromium sandbox
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+
+      - name: Run tests
+        run: xvfb-run --auto-servernum npm test
+        working-directory: ./examples/electron
