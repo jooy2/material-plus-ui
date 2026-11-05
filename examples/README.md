@@ -34,7 +34,7 @@ On the host, which is what CI runs:
 flutter test
 ```
 
-`test/app_test.dart` runs the flows in `integration_test/flows.dart` at the size of a phone and of a tablet. `test/demos_test.dart` lays out every demo at three screen widths and fails on any overflow, any exception, and any picture named by a path a phone cannot load. A demo of a pattern for a wide window, listed in `integration_test/support.dart`, is held to that only at the tablet's width.
+`test/app_test.dart` runs the flows in `integration_test/flows.dart` at the size of a phone and of a tablet. `test/demos_test.dart` lays out every demo at three screen widths and fails on any overflow, any exception, and any picture named by a path a phone cannot load.
 
 On a simulator or an emulator, which is what shows how the device's own renderer draws them:
 

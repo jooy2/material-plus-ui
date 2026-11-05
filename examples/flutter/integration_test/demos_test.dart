@@ -83,9 +83,7 @@ void main() {
         await tester.pumpWidget(const SizedBox());
       }, ignoreImages: _offline);
 
-      final bool narrow = tester.view.physicalSize.width / tester.view.devicePixelRatio < wideWidth;
-
-      if (errors.isNotEmpty && !(narrow && wideOnlyDemos.contains(name))) {
+      if (errors.isNotEmpty) {
         failures[name] = errors;
       }
     }

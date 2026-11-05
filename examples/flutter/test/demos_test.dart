@@ -8,7 +8,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_plus_ui_example/demos/registry.dart';
 
-import '../integration_test/support.dart' show wideOnlyDemos, wideWidth;
 import 'support/demo_host.dart';
 
 const Map<String, Size> _screens = <String, Size>{
@@ -36,10 +35,6 @@ void main() {
             await tester.pumpWidget(const SizedBox());
             await tester.pump(const Duration(seconds: 10));
           });
-
-          if (size.width < wideWidth && wideOnlyDemos.contains(name)) {
-            return;
-          }
 
           expect(errors, isEmpty);
         });

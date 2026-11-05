@@ -13,15 +13,6 @@ import 'package:flutter_test/flutter_test.dart';
 /// copy them off a simulator, an emulator or a phone afterwards.
 final Directory shotDirectory = Directory('${Directory.systemTemp.path}/mp-shots');
 
-/// Demos of a pattern for a wide window, whose layout is checked only on a
-/// screen at least [wideWidth] across: a navigation menu along the top of a
-/// page, and a drawer that pushes the page aside rather than covering it.
-/// Material puts neither on a phone, and on one both run out of room.
-const Set<String> wideOnlyDemos = <String>{'navigation-menu/hero', 'drawer/standard'};
-
-/// Where MD3's medium window class starts.
-const double wideWidth = 600;
-
 /// Writes what the screen shows now to [name] in [shotDirectory].
 ///
 /// Reads the layer tree rather than asking the platform, so it needs no plugin
