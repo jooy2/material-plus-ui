@@ -281,7 +281,10 @@ class _MPPaginationState extends State<MPPagination> {
               constraints: BoxConstraints.tightFor(
                 height: mpControlHeight[size],
               ).copyWith(minWidth: mpControlHeight[size]),
+              // As wide as a cell and no wider, in a line that would let it
+              // take the whole width.
               child: Center(
+                widthFactor: 1,
                 child: Text(
                   '…',
                   style: mpControlText(theme.typescale, size).style(colors.onSurfaceVariant),
@@ -313,12 +316,21 @@ class _MPPaginationState extends State<MPPagination> {
         ),
     ];
 
-    final Widget row = Row(
-      mainAxisSize: widget.fullWidth ? MainAxisSize.max : MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
+    // A wrap rather than a row, so a pagination wider than what holds it, as
+    // eleven cells are on a phone, goes on to a second line instead of running
+    // past the edge. Every line is centred, and on one line it is the row it
+    // always was.
+    Widget row = Wrap(
+      alignment: WrapAlignment.center,
+      crossAxisAlignment: WrapCrossAlignment.center,
       spacing: _rowGap[size]!,
+      runSpacing: _rowGap[size]!,
       children: cells,
     );
+
+    if (widget.fullWidth) {
+      row = SizedBox(width: double.infinity, child: row);
+    }
 
     // A named region a screen reader can skip, which says where the reader is
     // as a sentence: the filled cell says which page is chosen, the sentence

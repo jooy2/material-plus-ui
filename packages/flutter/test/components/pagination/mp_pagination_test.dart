@@ -249,6 +249,34 @@ void main() {
     expect(heights, <double>[32, 40, 56, 64, 72]);
   });
 
+  testWidgets('goes on to a second line rather than past the edge of a narrow parent', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      host(
+        const SizedBox(
+          width: 300,
+          child: MPPagination(count: 20, page: 5, showEdges: true, size: MPSize.sm),
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+
+    final Rect parent = tester.getRect(find.byType(MPPagination));
+    final Rect first = tester.getRect(find.text('1'));
+    final Rect last = tester.getRect(find.text('20'));
+
+    expect(last.top, greaterThan(first.bottom));
+    expect(parent.right, lessThanOrEqualTo(300 + parent.left));
+  });
+
+  testWidgets('keeps one line where there is room for it', (WidgetTester tester) async {
+    await tester.pumpWidget(host(const MPPagination(count: 20, page: 5, showEdges: true)));
+
+    expect(tester.getTopLeft(find.text('20')).dy, tester.getTopLeft(find.text('1')).dy);
+  });
+
   testWidgets('points the steppers the other way under right-to-left', (WidgetTester tester) async {
     final SemanticsHandle semantics = tester.ensureSemantics();
 
