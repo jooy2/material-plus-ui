@@ -140,10 +140,15 @@ void defineFlows({required Shot shot}) {
     final Finder reply = find.byType(EditableText).last;
 
     // A keyboard over the bottom of the screen, which the reply field sits
-    // above rather than behind.
-    tester.view.viewInsets = const FakeViewPadding(bottom: 300);
-    await settle(tester);
-    expect(tester.getRect(reply).bottom, lessThanOrEqualTo(_screen(tester).height - 300));
+    // above rather than behind. Only on the host: a device's window reports
+    // its own keyboard, and a simulator with a hardware keyboard shows none.
+    final bool host = tester.binding is! LiveTestWidgetsFlutterBinding;
+
+    if (host) {
+      tester.view.viewInsets = const FakeViewPadding(bottom: 300);
+      await settle(tester);
+      expect(tester.getRect(reply).bottom, lessThanOrEqualTo(_screen(tester).height - 300));
+    }
 
     await _type(tester, reply, 'On my way');
     tester.state<EditableTextState>(reply).performAction(TextInputAction.done);
@@ -151,8 +156,10 @@ void defineFlows({required Shot shot}) {
     expect(find.text('On my way'), findsOneWidget);
     await shot(tester, 'thread-sent');
 
-    tester.view.resetViewInsets();
-    await settle(tester);
+    if (host) {
+      tester.view.resetViewInsets();
+      await settle(tester);
+    }
 
     await _unfocus(tester);
     await _back(tester);
