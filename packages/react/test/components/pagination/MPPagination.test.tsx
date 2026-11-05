@@ -202,6 +202,30 @@ describe('MPPagination', () => {
     expect(onPageChange).not.toHaveBeenCalled();
   });
 
+  it('goes on to a second line rather than past the edge of a narrow parent', async () => {
+    const screen = await render(
+      <div style={{ width: 300 }}>
+        <MPPagination count={20} page={5} showEdges size="sm" />
+      </div>
+    );
+    const parent = screen.container.firstElementChild!.getBoundingClientRect();
+    const first = screen.getByText('1', { exact: true }).element().getBoundingClientRect();
+    const last = screen.getByText('20', { exact: true }).element().getBoundingClientRect();
+
+    expect(last.top).toBeGreaterThan(first.bottom);
+    expect(screen.container.querySelector('ul')!.getBoundingClientRect().right).toBeLessThanOrEqual(
+      parent.right
+    );
+  });
+
+  it('keeps one line where there is room for it', async () => {
+    const screen = await render(<MPPagination count={20} page={5} showEdges />);
+    const first = screen.getByText('1', { exact: true }).element().getBoundingClientRect();
+    const last = screen.getByText('20', { exact: true }).element().getBoundingClientRect();
+
+    expect(last.top).toBe(first.top);
+  });
+
   it('publishes the rung it was drawn at', async () => {
     const screen = await render(<MPPagination count={5} size="sm" id="pages" />);
     const nav = screen.container.querySelector('.mp-pagination')!;

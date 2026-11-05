@@ -408,7 +408,10 @@ export const MPPagination = React.forwardRef<HTMLElement, MPPaginationProps>(fun
         // may take the markers off every `<ul>`, and Safari takes the list
         // semantics off with them.
         role="list"
-        className={`m-0 flex list-none items-center p-0 ${ROW_GAP[size]}`}
+        // Wrapping, so a pagination wider than what holds it, as eleven cells are
+        // on a phone, goes on to a second line instead of running past the edge.
+        // Every line is centred, and on one line it is the row it always was.
+        className={`m-0 flex list-none flex-wrap items-center justify-center p-0 ${ROW_GAP[size]}`}
       >
         {showEdges
           ? cell('first', 1, disabled || atStart, false, messages.first, stepper(ChevronsLeftIcon))
