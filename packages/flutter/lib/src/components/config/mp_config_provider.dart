@@ -245,7 +245,11 @@ class MPConfigValue {
     size,
     color,
     density,
-    Object.hashAll(breakpoints.entries.map((MapEntry<MPWindowClass, double> e) => e.value)),
+    // Unordered and keyed, as `_sameBreakpoints` reads them: two maps that hold
+    // the same boundaries in another order are equal, so they hash alike.
+    Object.hashAllUnordered(
+      breakpoints.entries.map((MapEntry<MPWindowClass, double> e) => Object.hash(e.key, e.value)),
+    ),
     locale,
     reserveSupportingText,
     floatingLabel,

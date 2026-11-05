@@ -569,4 +569,30 @@ void main() {
       const MPConfigValue(floatingLabel: false, weekStartsOn: MPWeekday.monday),
     );
   });
+
+  test('hashes the breakpoints the way it compares them, whatever their order', () {
+    // `==` reads the boundaries by class, so two maps that hold the same ones
+    // in another order are equal, and two equal values have to hash alike.
+    const MPConfigValue ascending = MPConfigValue(
+      breakpoints: <MPWindowClass, double>{
+        MPWindowClass.compact: 0,
+        MPWindowClass.medium: 700,
+        MPWindowClass.expanded: 840,
+        MPWindowClass.large: 1200,
+        MPWindowClass.extraLarge: 1600,
+      },
+    );
+    const MPConfigValue descending = MPConfigValue(
+      breakpoints: <MPWindowClass, double>{
+        MPWindowClass.extraLarge: 1600,
+        MPWindowClass.large: 1200,
+        MPWindowClass.expanded: 840,
+        MPWindowClass.medium: 700,
+        MPWindowClass.compact: 0,
+      },
+    );
+
+    expect(descending, ascending);
+    expect(descending.hashCode, ascending.hashCode);
+  });
 }
