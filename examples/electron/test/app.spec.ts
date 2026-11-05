@@ -251,11 +251,21 @@ test('Settings changes the theme natively, the direction, the density and the la
   await shot('settings-rtl');
 
   // The indicator is measured, so it is the part of the bar a change of
-  // direction can leave behind.
-  const tab = await page.getByRole('tab', { name: 'General' }).boundingBox();
-  const indicator = await page.locator('.mp-tabs__indicator').boundingBox();
+  // direction can leave behind. What is compared is the measurement it slides
+  // to, not where it is now: the slide is a transition, and a hidden window on
+  // a virtual display does not always draw the frames that run one.
+  const offset = await page.evaluate(() => {
+    const indicator = document.querySelector<HTMLElement>('.mp-tabs__indicator')!;
+    const list = indicator.parentElement!;
+    const tab = list.querySelector('[role="tab"][aria-selected="true"]')!;
+    const measured = parseFloat(getComputedStyle(indicator).getPropertyValue('--active-tab-left'));
 
-  expect(Math.abs(tab!.x + tab!.width / 2 - (indicator!.x + indicator!.width / 2))).toBeLessThan(2);
+    return Math.abs(
+      tab.getBoundingClientRect().left - list.getBoundingClientRect().left + list.scrollLeft - measured
+    );
+  });
+
+  expect(offset).toBeLessThan(2);
 
   const calendar = page.locator('.mp-date-picker__popup');
 
