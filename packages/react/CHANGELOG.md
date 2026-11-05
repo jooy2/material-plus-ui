@@ -10,6 +10,10 @@
 
 - **`MPConfigProvider` takes `serverLocale`**, the same value `MPLocaleProvider` takes, so a server-rendered application that already has one provider does not need the other for it. It is ignored when the provider or one above it names a `locale`.
 
+### Changed
+
+- **`MPConfigProvider` with no `dir` reads the direction off the document.** It gave Base UI no direction at all, so on a page with `dir="rtl"` on `<html>` the slider's handle sat one handle-width off its value and the arrow keys of the menus, the select and the slider ran left to right until `dir="rtl"` was also given to the provider. It now passes the document's computed direction to Base UI and follows it when it changes, and still renders no element. A provider nested in one that was given a `dir` keeps that one, and so does one under a Base UI `DirectionProvider` that says `rtl`. A subtree that has to run left to right inside a right-to-left document gives the provider `dir="ltr"`.
+
 ## 1.13.0 (2026-11-05)
 
 This release comes out of running the library in `examples/electron`, a desktop app now in the repository that puts every component on real screens. A string `shortcut` on a menu row is written in `MPShortcut`'s notation, the one change a project will notice without having met a bug. The rest are fixes from those screens: components that ran past the edge of a phone, a floated field label that wrapped over its border, an `MPTour` card and an `MPTabs` indicator that stayed behind, and shortcuts, dates and times that a right-to-left page reordered.

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { renderToString } from 'react-dom/server';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, onTestFinished } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { DirectionProvider, useDirection } from '@base-ui/react/direction-provider';
 import {
   MPAlert,
   MPBadge,
@@ -551,6 +552,82 @@ describe('MPConfigProvider', () => {
       );
 
       await expect.poll(firstWeekday).toBe('Monday');
+    });
+  });
+
+  describe('dir', () => {
+    /** What Base UI is told, which is the half of the direction CSS cannot set. */
+    function Direction() {
+      return <output data-testid="direction">{useDirection()}</output>;
+    }
+
+    function setDocumentDirection(dir: string) {
+      document.documentElement.dir = dir;
+      onTestFinished(() => {
+        document.documentElement.dir = '';
+      });
+    }
+
+    it('reads the document when it is not given one', async () => {
+      setDocumentDirection('rtl');
+
+      const screen = await render(
+        <MPConfigProvider>
+          <Direction />
+        </MPConfigProvider>
+      );
+
+      await expect.element(screen.getByTestId('direction')).toHaveTextContent('rtl');
+    });
+
+    it('follows the document when it turns over', async () => {
+      const screen = await render(
+        <MPConfigProvider>
+          <Direction />
+        </MPConfigProvider>
+      );
+
+      await expect.element(screen.getByTestId('direction')).toHaveTextContent('ltr');
+
+      setDocumentDirection('rtl');
+
+      await expect.element(screen.getByTestId('direction')).toHaveTextContent('rtl');
+    });
+
+    it('keeps an island a provider above was told about', async () => {
+      setDocumentDirection('rtl');
+
+      const screen = await render(
+        <MPConfigProvider dir="ltr">
+          <MPConfigProvider size="sm">
+            <Direction />
+          </MPConfigProvider>
+        </MPConfigProvider>
+      );
+
+      await expect.element(screen.getByTestId('direction')).toHaveTextContent('ltr');
+    });
+
+    it('keeps a Base UI provider above it that says rtl', async () => {
+      const screen = await render(
+        <DirectionProvider direction="rtl">
+          <MPConfigProvider>
+            <Direction />
+          </MPConfigProvider>
+        </DirectionProvider>
+      );
+
+      await expect.element(screen.getByTestId('direction')).toHaveTextContent('rtl');
+    });
+
+    it('says left to right on the server, which has no document to read', () => {
+      const html = renderToString(
+        <MPConfigProvider>
+          <Direction />
+        </MPConfigProvider>
+      );
+
+      expect(html).toContain('>ltr<');
     });
   });
 

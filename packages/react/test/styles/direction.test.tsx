@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, onTestFinished } from 'vitest';
 import { render } from 'vitest-browser-react';
 import {
   MPConfigProvider,
@@ -290,6 +290,27 @@ describe('under RTL', () => {
 
         expect(centreFromStart(frame, handle, true)).toBe(fillEnd(frame));
       }
+    });
+
+    it('puts it on the value under a provider given no `dir`, on an RTL document', async () => {
+      // The provider reads the document's direction, so a page that wrote
+      // `dir="rtl"` on `<html>` does not have to say it a second time.
+      document.documentElement.dir = 'rtl';
+      onTestFinished(() => {
+        document.documentElement.dir = '';
+      });
+
+      const screen = await render(
+        <Rtl>
+          <MPConfigProvider>
+            <MPSlider value={25} />
+          </MPConfigProvider>
+        </Rtl>
+      );
+      const frame = screen.container.querySelector('div[dir]') as HTMLElement;
+      const handle = frame.querySelector('.mp-slider__handle') as HTMLElement;
+
+      await expect.poll(() => centreFromStart(frame, handle, true)).toBe(fillEnd(frame));
     });
   });
 

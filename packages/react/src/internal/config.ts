@@ -57,6 +57,13 @@ export interface MPConfigValue {
    * that renames one button keeps every other word the application chose.
    */
   labels?: MPPartialMessages;
+  /**
+   * The direction a provider was **told**, as opposed to the one read off the
+   * document. Kept so that a provider nested inside an explicit `dir="ltr"`
+   * island keeps running left to right instead of asking a right-to-left
+   * document and getting the page's answer rather than the island's.
+   */
+  dir?: 'ltr' | 'rtl';
 }
 
 /**

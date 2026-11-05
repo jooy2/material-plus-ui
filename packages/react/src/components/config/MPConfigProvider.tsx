@@ -1,6 +1,7 @@
 import * as React from 'react';
-import { DirectionProvider } from '@base-ui/react/direction-provider';
+import { DirectionProvider, useDirection } from '@base-ui/react/direction-provider';
 import { MPConfigContext, useMPConfig, type MPConfigValue } from '../../internal/config';
+import { useDocumentDirection } from '../../internal/direction';
 import type { MPMessages, MPPartialMessages } from '../../internal/i18n';
 import { MPLocaleContext, useMPLocale, useServerLocale } from '../../internal/locale';
 import { WINDOW_CLASSES } from '../../internal/window-class';
@@ -127,9 +128,20 @@ export interface MPConfigProviderProps {
    *
    * Given here, both are set: the attribute goes on a `display: contents`
    * element, which takes part in no layout at all, and the same value goes into
-   * Base UI's own `DirectionProvider`. Left out, nothing is rendered and nothing
-   * is claimed — a page that sets `dir` on `<html>` and never mounts this still
-   * gets the CSS half and not the other one.
+   * Base UI's own `DirectionProvider`.
+   *
+   * Left out, no element is rendered and the direction is **read off the
+   * document**: a page with `dir="rtl"` on `<html>` gets the Base UI half from
+   * this provider without saying so twice, and a document whose direction
+   * changes later is followed. A provider nested in one that was given a `dir`
+   * keeps that one, and a Base UI `DirectionProvider` above this that says
+   * `rtl` is kept as well. So set it only for a subtree that runs the other way
+   * from the page around it.
+   *
+   * A server has no document and renders left to right, which is what Base UI
+   * says with no provider at all. The client turns it over straight after
+   * hydration, and since this changes behaviour rather than markup, the server
+   * render and the hydration agree.
    */
   dir?: 'ltr' | 'rtl';
   /**
@@ -235,6 +247,21 @@ export function MPConfigProvider({
   const outer = useMPConfig();
   const outerLocale = useMPLocale();
   const unsetLocale = useServerLocale(serverLocale);
+  const above = useDirection();
+
+  /*
+   * Where the Base UI half of the direction comes from, nearest first: this
+   * provider's `dir`, one above that was given a `dir`, a provider above that
+   * already said `rtl`, and only then the document.
+   *
+   * `rtl` from above is trusted and `ltr` is not, because Base UI answers `ltr`
+   * with no provider at all and gives no way to tell the two apart. So a Base UI
+   * `DirectionProvider` saying `ltr` inside a right-to-left document is the one
+   * arrangement this reads as the document's; a `dir` on this provider is the
+   * way to say it.
+   */
+  const told = dir ?? outer.dir ?? (above === 'rtl' ? 'rtl' : undefined);
+  const documentDirection = useDocumentDirection(told === undefined);
 
   // The words by what they say, for the reason `ladder` below exists: `labels`
   // is written inline, and a memo keyed on a new object every render would hand
@@ -276,7 +303,8 @@ export function MPConfigProvider({
       reserveSupportingText: reserveSupportingText ?? outer.reserveSupportingText,
       floatingLabel: floatingLabel ?? outer.floatingLabel,
       weekStartsOn: weekStartsOn ?? outer.weekStartsOn,
-      labels: mergedLabels
+      labels: mergedLabels,
+      dir: dir ?? outer.dir
     }),
     // `ladder` stands in for the two breakpoint maps, by value rather than by
     // identity — which is the whole of why it exists. See above.
@@ -287,12 +315,14 @@ export function MPConfigProvider({
       reserveSupportingText,
       floatingLabel,
       weekStartsOn,
+      dir,
       outer.size,
       outer.color,
       outer.density,
       outer.reserveSupportingText,
       outer.floatingLabel,
       outer.weekStartsOn,
+      outer.dir,
       mergedLabels,
       ladder
     ]
@@ -308,8 +338,10 @@ export function MPConfigProvider({
     </MPConfigContext.Provider>
   );
 
+  // No element of its own: the document, or the provider above, already put the
+  // attribute where the stylesheet reads it.
   if (!dir) {
-    return content;
+    return <DirectionProvider direction={told ?? documentDirection}>{content}</DirectionProvider>;
   }
 
   // `display: contents` rather than a plain wrapper, so that one prop can set
