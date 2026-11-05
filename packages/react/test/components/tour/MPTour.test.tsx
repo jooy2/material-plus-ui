@@ -226,6 +226,54 @@ describe('MPTour', () => {
     });
   });
 
+  describe('where the card stands', () => {
+    /*
+     * Base UI resolves a function `anchor` once, when the popup opens, and the
+     * popup stays open from one step to the next — so every step's card hung
+     * from the first step's target, or from the middle of the window when the
+     * first step had none.
+     */
+    function Spread(props: Record<string, unknown>) {
+      return (
+        <>
+          <MPButton id="one">One</MPButton>
+          <div style={{ marginTop: 300, marginLeft: 600 }}>
+            <MPButton id="two">Two</MPButton>
+          </div>
+          <MPTour locale="en-US" defaultOpen scrollIntoView={false} {...props} steps={STEPS} />
+        </>
+      );
+    }
+
+    const under = (selector: string) => {
+      const target = document.querySelector(selector)!.getBoundingClientRect();
+      const sheet = (card() as HTMLElement).getBoundingClientRect();
+
+      return {
+        below: sheet.top >= target.bottom && sheet.top - target.bottom < 40,
+        centred: Math.abs(sheet.left + sheet.width / 2 - (target.left + target.width / 2)) < 2
+      };
+    };
+
+    it('moves to the next step’s target', async () => {
+      const screen = await render(<Spread />);
+
+      await vi.waitFor(() => expect(under('#one').below).toBe(true));
+      await screen.getByRole('button', { name: 'Next' }).click();
+
+      await vi.waitFor(() => expect(under('#two')).toEqual({ below: true, centred: true }));
+    });
+
+    it('leaves the middle of the window for a target after a step that had none', async () => {
+      const screen = await render(<Spread defaultStep={2} />);
+
+      await vi.waitFor(() => expect(card()?.textContent).toContain('The last'));
+      await screen.getByRole('button', { name: 'Back' }).click();
+
+      await vi.waitFor(() => expect(under('#two')).toEqual({ below: true, centred: true }));
+    });
+  });
+
   describe('the ways out', () => {
     it('is not ended by a press on the page it is pointing at', async () => {
       // Using the page is exactly what a tour is for.

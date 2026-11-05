@@ -6,6 +6,7 @@ import { CloseIcon } from '../../constants/icons';
 import { accentSlots } from '../../internal/accent';
 import { useMPColor, useMPSize } from '../../internal/config';
 import { fillMessage } from '../../internal/i18n';
+import { useBrowserLayoutEffect } from '../../internal/layout-effect';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { COMMON } from '../../internal/messages/common';
 import { TOUR } from '../../internal/messages/tour';
@@ -141,6 +142,21 @@ const BUTTON_SIZE: Record<MPSize, MPSize> = {
   md: 'sm',
   lg: 'sm',
   xl: 'md'
+};
+
+type Anchor = React.ComponentProps<typeof Popover.Positioner>['anchor'];
+
+/**
+ * A point in the middle of the window, for a step that points at nothing.
+ *
+ * Nothing is not the same as no preference: Base UI has no anchor to measure
+ * against, so it holds the popup at the top-left corner at `opacity: 0`, and a
+ * welcome step drawn that way is a step nobody sees. A zero-size rect is the one
+ * anchor that needs no element, and the card hangs from the centre line of the
+ * window. Read when the card is placed, so it follows the window's size.
+ */
+const CENTRE: NonNullable<Anchor> = {
+  getBoundingClientRect: () => new DOMRect(window.innerWidth / 2, window.innerHeight / 2, 0, 0)
 };
 
 /**
@@ -349,6 +365,29 @@ export function MPTour({
   const padding = current?.padding ?? 6;
 
   /**
+   * What the card hangs from on this step: the target, or the middle of the
+   * window when there is none.
+   *
+   * A value rather than a getter. Base UI calls a getter once, when the popup
+   * opens, and a tour's popup stays open from the first step to the last — so
+   * every card hung from the first step's anchor, under a hole cut around a
+   * different control. A value is compared on every render, and a new one moves
+   * the card.
+   *
+   * Found in a layout effect rather than during the render, because the target
+   * is usually a sibling that is not in the document yet on the tour's first
+   * render; the effect's update lands before the paint, so no frame shows the
+   * card at the last step's anchor.
+   */
+  const [anchor, setAnchor] = React.useState<Anchor>(CENTRE);
+
+  useBrowserLayoutEffect(() => {
+    if (running) {
+      setAnchor((selector && document.querySelector(selector)) || CENTRE);
+    }
+  }, [running, selector]);
+
+  /**
    * Where the current target is, re-read every frame the tour is up.
    *
    * **Nothing in the platform reports that an element has moved.** A
@@ -483,25 +522,7 @@ export function MPTour({
           align={current?.align ?? 'center'}
           sideOffset={selector ? 10 : 0}
           collisionPadding={12}
-          /*
-           * A getter rather than an element: the target is found on whatever the
-           * page looks like right now, and it is a different element every step.
-           *
-           * A step with no `target` gets a **point in the middle of the window**
-           * rather than nothing. Nothing is not the same as no preference — Base
-           * UI has no anchor to measure against, so it holds the popup at the
-           * top-left corner at `opacity: 0`, and a welcome step drawn that way is
-           * a step nobody sees. A zero-size rect is the one anchor that needs no
-           * element, and the card hangs from the centre line of the window.
-           */
-          anchor={() =>
-            selector
-              ? document.querySelector(selector)
-              : {
-                  getBoundingClientRect: () =>
-                    new DOMRect(window.innerWidth / 2, window.innerHeight / 2, 0, 0)
-                }
-          }
+          anchor={anchor}
         >
           <Popover.Popup
             data-mp-size={size}
