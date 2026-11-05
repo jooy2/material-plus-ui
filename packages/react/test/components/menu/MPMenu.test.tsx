@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { detectOS } from '../../../src/internal/keys';
 import {
   MPButton,
   MPChip,
@@ -205,6 +206,26 @@ describe('MPMenu', () => {
       await open(screen);
 
       expect(screen.getByRole('menuitem', { name: /Cut/ }).element().textContent).toContain('⌘X');
+    });
+
+    it('writes a shortcut in MPShortcut’s notation the way the platform does', async () => {
+      const screen = await render(
+        <MPMenu trigger={<MPButton>Edit</MPButton>}>
+          <MPMenuItem shortcut="Mod+Shift+Z">Redo</MPMenuItem>
+        </MPMenu>
+      );
+
+      await open(screen, 'Edit');
+
+      const mac = detectOS() === 'mac';
+      const row = screen.getByRole('menuitem', { name: /Redo/ }).element();
+      const shown = [...row.querySelectorAll('[aria-hidden="true"]')]
+        .map((part) => part.textContent)
+        .find(Boolean);
+
+      expect(shown).toBe(mac ? '⌘⇧Z' : 'Ctrl+Shift+Z');
+      expect(row.textContent).not.toContain('Mod');
+      expect(row.textContent).toContain(mac ? 'Command Shift Z' : 'Ctrl Shift Z');
     });
   });
 

@@ -2,6 +2,10 @@
 
 ## vNext (2026--)
 
+### Changed
+
+- **A string `shortcut` on a menu row is written in `MPShortcut`'s notation.** `MPMenuItem`, `MPMenuCheckboxItem` and `MPMenuRadioItem` printed a string as it was given, so the `Mod+N` the documentation's menubar wrote, which `MPCommandPalette` already reads that way, came out as the letters `Mod+N`. A string now reads `⌘N` on a Mac and `Ctrl+N` everywhere else, as text rather than key caps, and is read out by the names of its keys; one with no key name in it, such as `⌘C`, is drawn as it is, and a node is drawn as it always was.
+
 ### Fixed
 
 - **A progress ring shows whole in the leading slot of an `MPPill`.** The slot is a glyph's size, 20px on a medium pill, and the smallest `MPProgressCircular` is 24px across, so the circle the slot is clipped to kept half a pixel of the ring's stroke. A child larger than the slot, and the `<svg>` inside it, are now held to the slot and drawn smaller, and a glyph that fits is drawn at its own size.

@@ -200,6 +200,24 @@ function labelFor(token: string, os: ResolvedOS): KeyLabel {
 }
 
 /**
+ * A shortcut as one line of text rather than a row of key caps: what a menu row
+ * sets at its end, where MD3 has trailing text and no caps. The keys are named
+ * as a cap names them on [os], and joined the way that platform joins them.
+ * `shown` is drawn, and `spoken` is what a screen reader reads in its place.
+ */
+export function shortcutText(
+  keys: string | string[],
+  os: ResolvedOS
+): { shown: string; spoken: string } {
+  const labels = tokenizeShortcut(keys).map((token) => labelFor(token, os));
+
+  return {
+    shown: labels.map((label) => label.symbol).join(os === 'mac' ? '' : '+'),
+    spoken: labels.map((label) => label.name).join(' ')
+  };
+}
+
+/**
  * A key cap's height, and the same call `MPChip` makes: a token inside a line of
  * text is not a control the line lines up against. `md` is 32px, which is where
  * a two-character cap has a square of its own without becoming a button.

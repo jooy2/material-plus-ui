@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
 import { ContextMenu } from '@base-ui/react/context-menu';
 import { MPIcon } from '../icon/MPIcon';
+import { shortcutText } from '../shortcut/MPShortcut';
 import { CheckIcon, ChevronRightIcon } from '../../constants/icons';
 import { linkRel } from '../../internal/link';
 import { MPMenuContext } from '../../internal/menu';
@@ -11,6 +12,8 @@ import { CONTROL_ICON, META_TEXT, hasContent } from '../../internal/scale';
 import { DOT_MOTION, MARK_MOTION } from '../../internal/mark';
 import { FADE, PORTAL_LAYER } from '../../internal/surface';
 import { useMPColor, useMPSize } from '../../internal/config';
+import { useDetectedOS } from '../../internal/keys';
+import { VISUALLY_HIDDEN } from '../../internal/visually-hidden';
 import type { MPAlign, MPColor, MPSide, MPSize } from '../../types';
 
 /**
@@ -136,6 +139,10 @@ export interface MPMenuItemProps {
   /**
    * The keystroke that does the same thing, set at the end of the row and muted.
    * Text only — the row does not bind it, the application does.
+   *
+   * A string is written the way [MPShortcut](../display/shortcut) writes keys, so
+   * `'Mod+N'` reads `⌘N` on a Mac and `Ctrl+N` everywhere else, and a string with
+   * no key name in it, such as `'⌘C'`, is drawn as it is.
    */
   shortcut?: React.ReactNode;
   /** A second line under the label, one step down the type scale and muted. */
@@ -368,8 +375,27 @@ function RowMeta({ shortcut }: { shortcut: React.ReactNode }) {
 
   return (
     <span className={`text-mp-on-surface-variant relative ms-2 shrink-0 ${META_TEXT}`}>
-      {shortcut}
+      {typeof shortcut === 'string' ? <ShortcutText keys={shortcut} /> : shortcut}
     </span>
+  );
+}
+
+/**
+ * A string shortcut in the platform's spelling, as text: `⌘N` on a Mac and
+ * `Ctrl+N` elsewhere. The glyphs are read out by the names of their keys.
+ */
+function ShortcutText({ keys }: { keys: string }) {
+  const { shown, spoken } = shortcutText(keys, useDetectedOS());
+
+  if (shown === spoken) {
+    return shown;
+  }
+
+  return (
+    <>
+      <span aria-hidden="true">{shown}</span>
+      <span className={VISUALLY_HIDDEN}>{spoken}</span>
+    </>
   );
 }
 
