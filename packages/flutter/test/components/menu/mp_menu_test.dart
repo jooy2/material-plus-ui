@@ -1,5 +1,6 @@
 import 'dart:ui' show CheckedState, Tristate;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -482,6 +483,39 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(pressed, 0);
+    });
+
+    testWidgets('writes a shortcut in MPShortcut’s notation the way the platform does', (
+      WidgetTester tester,
+    ) async {
+      // Reset before the body ends, which is when the framework checks it.
+      try {
+        Future<void> pumpOn(TargetPlatform platform) async {
+          debugDefaultTargetPlatformOverride = platform;
+          await tester.pumpWidget(
+            host(
+              menu(<MPMenuEntry>[
+                MPMenuItem(label: 'Redo', shortcut: 'Mod+Shift+Z', onPressed: () {}),
+              ]),
+              overlay: true,
+            ),
+          );
+          await openMenu(tester);
+        }
+
+        await pumpOn(TargetPlatform.macOS);
+
+        expect(find.text('⌘⇧Z'), findsOneWidget);
+        expect(tester.widget<Text>(find.text('⌘⇧Z')).semanticsLabel, 'Command Shift Z');
+
+        await tester.pumpWidget(const SizedBox());
+        await pumpOn(TargetPlatform.windows);
+
+        expect(find.text('Ctrl+Shift+Z'), findsOneWidget);
+        expect(find.textContaining('Mod'), findsNothing);
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
     });
 
     testWidgets('washes the row the pointer is on in its own ink', (WidgetTester tester) async {

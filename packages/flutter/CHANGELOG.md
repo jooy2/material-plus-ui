@@ -4,6 +4,10 @@ The Flutter package, `material_plus_ui`. The React package keeps its own history
 
 ## vNext (2026--)
 
+### Changed
+
+- **A `shortcut` on a menu row is written in `MPShortcut`'s notation.** `MPMenuItem`, `MPMenuCheckboxItem` and `MPMenuRadioItem` printed the string as they were given it, so the `Mod+N` the documentation's menubar wrote, which `MPCommandPalette` already reads that way, came out as the letters `Mod+N`. It now reads `⌘N` on a Mac and `Ctrl+N` everywhere else, as text rather than key caps, and is read out by the names of its keys; a string with no key name in it, such as `⌘C`, is drawn as it is.
+
 ### Documentation
 
 - **The Flutter snippets name their pictures by a full address.** They named them by the documentation site's own path, `/samples/...`, which only resolves on that site, so a snippet copied into an app on a phone or a desktop drew an empty box where the picture should be.

@@ -13,6 +13,7 @@ import 'package:material_plus_ui/src/internal/icons.dart';
 import 'package:material_plus_ui/src/internal/interaction.dart';
 import 'package:material_plus_ui/src/internal/menu_bar.dart';
 import 'package:material_plus_ui/src/internal/scale.dart';
+import 'package:material_plus_ui/src/internal/shortcut_keys.dart';
 import 'package:material_plus_ui/src/internal/surface.dart';
 import 'package:material_plus_ui/src/theme/color_scheme.dart';
 import 'package:material_plus_ui/src/theme/theme.dart';
@@ -81,6 +82,10 @@ final class MPMenuItem extends MPMenuEntry {
 
   /// The keystroke that does the same thing, set at the end of the row and
   /// muted. Text only: the row does not bind it, the app does.
+  ///
+  /// Written the way `MPShortcut` writes keys, so `'Mod+N'` reads `⌘N` on a
+  /// Mac and `Ctrl+N` everywhere else, and a string with no key name in it,
+  /// such as `'⌘C'`, is drawn as it is.
   final String? shortcut;
 
   /// A second line under the label, one step down the type scale and muted.
@@ -1533,7 +1538,7 @@ class _MPMenuState extends State<MPMenu> {
         if (shortcut != null)
           Padding(
             padding: const EdgeInsetsDirectional.only(start: 8),
-            child: Text(shortcut, maxLines: 1, style: meta),
+            child: _ShortcutText(keys: shortcut, style: meta),
           ),
         if (entry is MPMenuSubmenu)
           // Pointing at the end of the line rather than at the right, so it
@@ -1709,6 +1714,27 @@ class _Mark extends StatelessWidget {
         curve: MPMotion.standard,
         child: child,
       ),
+    );
+  }
+}
+
+/// A shortcut in the platform's spelling, as text: `⌘N` on a Mac and `Ctrl+N`
+/// elsewhere. The glyphs are read out by the names of their keys.
+class _ShortcutText extends StatelessWidget {
+  const _ShortcutText({required this.keys, required this.style});
+
+  final String keys;
+  final TextStyle style;
+
+  @override
+  Widget build(BuildContext context) {
+    final ({String shown, String spoken}) text = mpShortcutText(keys);
+
+    return Text(
+      text.shown,
+      maxLines: 1,
+      style: style,
+      semanticsLabel: text.shown == text.spoken ? null : text.spoken,
     );
   }
 }

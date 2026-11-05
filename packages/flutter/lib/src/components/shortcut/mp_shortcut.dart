@@ -1,11 +1,10 @@
 /// A keyboard key, or a combination of them.
 library;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:material_plus_ui/src/components/config/mp_config_provider.dart';
-import 'package:material_plus_ui/src/internal/keys.dart';
+import 'package:material_plus_ui/src/internal/shortcut_keys.dart';
 import 'package:material_plus_ui/src/theme/color_scheme.dart';
 import 'package:material_plus_ui/src/theme/theme.dart';
 import 'package:material_plus_ui/src/theme/tokens.dart';
@@ -26,93 +25,6 @@ enum MPShortcutOS {
   /// key.
   linux,
 }
-
-/// What a key is called, and what it is drawn as.
-///
-/// `symbol` is what a sighted reader sees and `name` is what a screen reader
-/// says. They differ on exactly the keys macOS draws as glyphs: `⌘` announced
-/// by its Unicode name is "place of interest sign", which is not a key anybody
-/// has on their keyboard.
-typedef _KeyLabel = ({String symbol, String name});
-
-_KeyLabel _word(String text) => (symbol: text, name: text);
-
-/// One entry per key spelled differently somewhere, keyed by the canonical
-/// token `mpCanonicalKey` gives.
-///
-/// `mod` is the entry the rest exist for. It is the only token whose *meaning*
-/// changes with the platform rather than only its spelling: the modifier a
-/// shortcut is built on, Command on a Mac and Control everywhere else.
-final Map<String, Map<MPShortcutOS, _KeyLabel>> _keyLabels = <String, Map<MPShortcutOS, _KeyLabel>>{
-  'mod': <MPShortcutOS, _KeyLabel>{
-    MPShortcutOS.mac: (symbol: '⌘', name: 'Command'),
-    MPShortcutOS.windows: _word('Ctrl'),
-    MPShortcutOS.linux: _word('Ctrl'),
-  },
-  'meta': <MPShortcutOS, _KeyLabel>{
-    MPShortcutOS.mac: (symbol: '⌘', name: 'Command'),
-    MPShortcutOS.windows: _word('Win'),
-    MPShortcutOS.linux: _word('Super'),
-  },
-  'ctrl': <MPShortcutOS, _KeyLabel>{
-    MPShortcutOS.mac: (symbol: '⌃', name: 'Control'),
-    MPShortcutOS.windows: _word('Ctrl'),
-    MPShortcutOS.linux: _word('Ctrl'),
-  },
-  'alt': <MPShortcutOS, _KeyLabel>{
-    MPShortcutOS.mac: (symbol: '⌥', name: 'Option'),
-    MPShortcutOS.windows: _word('Alt'),
-    MPShortcutOS.linux: _word('Alt'),
-  },
-  'shift': <MPShortcutOS, _KeyLabel>{
-    MPShortcutOS.mac: (symbol: '⇧', name: 'Shift'),
-    MPShortcutOS.windows: _word('Shift'),
-    MPShortcutOS.linux: _word('Shift'),
-  },
-  'enter': <MPShortcutOS, _KeyLabel>{
-    MPShortcutOS.mac: (symbol: '↩', name: 'Enter'),
-    MPShortcutOS.windows: _word('Enter'),
-    MPShortcutOS.linux: _word('Enter'),
-  },
-  'tab': <MPShortcutOS, _KeyLabel>{
-    MPShortcutOS.mac: (symbol: '⇥', name: 'Tab'),
-    MPShortcutOS.windows: _word('Tab'),
-    MPShortcutOS.linux: _word('Tab'),
-  },
-  'escape': <MPShortcutOS, _KeyLabel>{
-    MPShortcutOS.mac: (symbol: '⎋', name: 'Escape'),
-    MPShortcutOS.windows: _word('Esc'),
-    MPShortcutOS.linux: _word('Esc'),
-  },
-  'backspace': <MPShortcutOS, _KeyLabel>{
-    MPShortcutOS.mac: (symbol: '⌫', name: 'Backspace'),
-    MPShortcutOS.windows: _word('Backspace'),
-    MPShortcutOS.linux: _word('Backspace'),
-  },
-  'delete': <MPShortcutOS, _KeyLabel>{
-    MPShortcutOS.mac: (symbol: '⌦', name: 'Delete'),
-    MPShortcutOS.windows: _word('Del'),
-    MPShortcutOS.linux: _word('Del'),
-  },
-  'capslock': <MPShortcutOS, _KeyLabel>{
-    MPShortcutOS.mac: (symbol: '⇪', name: 'Caps Lock'),
-    MPShortcutOS.windows: _word('Caps Lock'),
-    MPShortcutOS.linux: _word('Caps Lock'),
-  },
-};
-
-/// The keys drawn as arrows on every platform. An arrow is not a Mac
-/// convention: it is what is printed on the key.
-const Map<String, _KeyLabel> _arrowLabels = <String, _KeyLabel>{
-  'up': (symbol: '↑', name: 'Arrow up'),
-  'down': (symbol: '↓', name: 'Arrow down'),
-  'left': (symbol: '←', name: 'Arrow left'),
-  'right': (symbol: '→', name: 'Arrow right'),
-  'arrowup': (symbol: '↑', name: 'Arrow up'),
-  'arrowdown': (symbol: '↓', name: 'Arrow down'),
-  'arrowleft': (symbol: '←', name: 'Arrow left'),
-  'arrowright': (symbol: '→', name: 'Arrow right'),
-};
 
 /// A key cap's height, the same call `MPChip` makes: a token inside a line of
 /// text is not a control the line lines up against. `md` is 32px, where a
@@ -228,53 +140,15 @@ class MPShortcut extends StatelessWidget {
   /// Which accent family a filled or tonal cap reads.
   final MPColor color;
 
-  /// The platform `auto` resolves to.
-  static MPShortcutOS get _platform {
-    if (mpModIsMeta) {
-      return MPShortcutOS.mac;
-    }
-
-    return defaultTargetPlatform == TargetPlatform.windows
-        ? MPShortcutOS.windows
-        : MPShortcutOS.linux;
-  }
-
-  List<String> get _tokens {
-    final Object raw = keys;
-    final List<String> parts = raw is List<String> ? raw : (raw as String).split('+');
-
-    return parts.map((String part) => part.trim()).where((String part) => part.isNotEmpty).toList();
-  }
-
-  static _KeyLabel _labelFor(String token, MPShortcutOS os) {
-    final String canonical = mpCanonicalKey(token);
-    final _KeyLabel? arrow = _arrowLabels[canonical];
-
-    if (arrow != null) {
-      return arrow;
-    }
-
-    final Map<MPShortcutOS, _KeyLabel>? known = _keyLabels[canonical];
-
-    if (known != null) {
-      return known[os]!;
-    }
-
-    // Everything else is printed as it was written, with the one courtesy that
-    // a single letter is capitalised: `mod+k` should draw a K, because that is
-    // what is on the key.
-    return _word(token.length == 1 ? token.toUpperCase() : token);
-  }
-
   @override
   Widget build(BuildContext context) {
     final MPThemeData theme = MPTheme.of(context);
     final MPColorScheme colors = theme.colors;
     final MPSize size = this.size ?? MPConfigProvider.maybeOf(context)?.size ?? MPSize.md;
-    final MPShortcutOS resolved = os == MPShortcutOS.auto ? _platform : os;
-    final List<_KeyLabel> labels = _tokens
-        .map((String token) => _labelFor(token, resolved))
-        .toList();
+    final MPShortcutOS resolved = os == MPShortcutOS.auto ? mpShortcutPlatform() : os;
+    final List<MPKeyLabel> labels = mpShortcutTokens(
+      keys,
+    ).map((String token) => mpKeyLabel(token, resolved)).toList();
     final _CapPaint paint = _paintFor(colors, colors.accent(color), variant);
     final MPTypeRole role = _textRole(theme.typescale, size);
     final double height = _height[size]!;
@@ -284,7 +158,7 @@ class MPShortcut extends StatelessWidget {
     // the other two join theirs with a `+`. A caller who passes one gets theirs.
     final Widget? joiner = separator ?? (resolved == MPShortcutOS.mac ? null : const Text('+'));
 
-    Widget cap(_KeyLabel label) {
+    Widget cap(MPKeyLabel label) {
       return Container(
         constraints: BoxConstraints(minWidth: height, minHeight: height, maxHeight: height),
         padding: EdgeInsets.symmetric(horizontal: _padX[size]!),
@@ -332,7 +206,7 @@ class MPShortcut extends StatelessWidget {
     // "place of interest sign".
     return Semantics(
       container: true,
-      label: labels.map((_KeyLabel label) => label.name).join(' '),
+      label: labels.map((MPKeyLabel label) => label.name).join(' '),
       child: ExcludeSemantics(child: row),
     );
   }
