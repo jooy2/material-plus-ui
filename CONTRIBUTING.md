@@ -14,7 +14,9 @@ The repository holds one design system and three things built out of it:
 | `packages/flutter` | The pub.dev package, `material_plus_ui` | `cd packages/flutter && flutter pub get`, then `flutter test`, `flutter analyze`     |
 | `docs`             | The documentation site, shared by both  | `cd docs && npm install`, then `npm run dev`                                         |
 
-There is no install at the repository root, and no root `package.json`. Each of the three is entered and run on its own.
+Two apps sit beside them, in `examples/`, for trying the libraries the way a consumer uses them: `examples/flutter` runs on an iOS or Android device, simulator or emulator, and `examples/electron` on the desktop. [examples/README.md](examples/README.md) says how to run and test each.
+
+There is no install at the repository root, and no root `package.json`. Each of these is entered and run on its own.
 
 ### The React package
 
