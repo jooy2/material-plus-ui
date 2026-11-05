@@ -21,8 +21,12 @@ class ImageHero extends StatelessWidget {
               children: <Widget>[
                 MPTypography('loaded — and previewable', level: MPTypographyLevel.overline),
                 MPImage(
-                  image: NetworkImage('/samples/photos/thumbs/alpine-lake-dawn.webp'),
-                  previewImage: NetworkImage('/samples/photos/alpine-lake-dawn.webp'),
+                  image: NetworkImage(
+                    'https://material-plus.cdget.com/samples/photos/thumbs/alpine-lake-dawn.webp',
+                  ),
+                  previewImage: NetworkImage(
+                    'https://material-plus.cdget.com/samples/photos/alpine-lake-dawn.webp',
+                  ),
                   semanticLabel: 'A still lake below a low sun, with snow on the peaks behind it',
                   ratio: 16 / 9,
                   preview: true,
@@ -37,7 +41,9 @@ class ImageHero extends StatelessWidget {
               children: <Widget>[
                 MPTypography('failed', level: MPTypographyLevel.overline),
                 MPImage(
-                  image: NetworkImage('/this-file-does-not-exist.png'),
+                  image: NetworkImage(
+                    'https://material-plus.cdget.com/this-file-does-not-exist.png',
+                  ),
                   semanticLabel: 'A photo that never arrived',
                   ratio: 16 / 9,
                 ),

@@ -4,6 +4,10 @@ The Flutter package, `material_plus_ui`. The React package keeps its own history
 
 ## vNext (2026--)
 
+### Documentation
+
+- **The Flutter snippets name their pictures by a full address.** They named them by the documentation site's own path, `/samples/...`, which only resolves on that site, so a snippet copied into an app on a phone or a desktop drew an empty box where the picture should be.
+
 ### Fixed
 
 - **A progress ring shows whole in the leading slot of an `MPPill`.** The slot is a glyph's size, 20px on a medium pill, and the smallest `MPProgressCircular` is 24px across, so an upload pill overflowed its slot and the circle the slot is clipped to kept half a pixel of the ring. Anything larger than the slot is scaled down to it now, and a glyph that fits is drawn at its own size.

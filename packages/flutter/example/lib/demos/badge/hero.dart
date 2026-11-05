@@ -40,7 +40,10 @@ class BadgeHero extends StatelessWidget {
           overlap: MPBadgeOverlap.circle,
           placement: MPCorner.bottomEnd,
           label: 'Online',
-          child: MPAvatar(image: NetworkImage('/samples/people/sam-arden.webp'), name: 'Sam Arden'),
+          child: MPAvatar(
+            image: NetworkImage('https://material-plus.cdget.com/samples/people/sam-arden.webp'),
+            name: 'Sam Arden',
+          ),
         ),
         const MPBadge(content: 'NEW', variant: MPVariant.tonal, color: MPColor.primary),
       ],

@@ -14,19 +14,19 @@ class AspectRatioHero extends StatelessWidget {
         (
           1,
           '1 / 1',
-          '/samples/photos/thumbs/misty-tea-terraces-sunrise.webp',
+          'https://material-plus.cdget.com/samples/photos/thumbs/misty-tea-terraces-sunrise.webp',
           'Tea terraces under a low sun',
         ),
         (
           4 / 3,
           '4 / 3',
-          '/samples/photos/thumbs/red-umbrella-autumn-path.webp',
+          'https://material-plus.cdget.com/samples/photos/thumbs/red-umbrella-autumn-path.webp',
           'A red umbrella left open on a wet path of autumn leaves',
         ),
         (
           16 / 9,
           '16 / 9',
-          '/samples/photos/thumbs/snowy-cabin-frozen-stream.webp',
+          'https://material-plus.cdget.com/samples/photos/thumbs/snowy-cabin-frozen-stream.webp',
           'A cabin in snow beside a frozen stream',
         ),
       ];

@@ -13,10 +13,10 @@ class StackHero extends StatefulWidget {
 
 class _StackHeroState extends State<StackHero> {
   static const List<(String, String)> _people = <(String, String)>[
-    ('Anya Sol', '/samples/people/anya-sol.webp'),
-    ('Lucas Adebayo', '/samples/people/lucas-adebayo.webp'),
-    ('Noa Marin', '/samples/people/noa-marin.webp'),
-    ('Helen Voss', '/samples/people/helen-voss.webp'),
+    ('Anya Sol', 'https://material-plus.cdget.com/samples/people/anya-sol.webp'),
+    ('Lucas Adebayo', 'https://material-plus.cdget.com/samples/people/lucas-adebayo.webp'),
+    ('Noa Marin', 'https://material-plus.cdget.com/samples/people/noa-marin.webp'),
+    ('Helen Voss', 'https://material-plus.cdget.com/samples/people/helen-voss.webp'),
   ];
 
   bool _dealt = true;

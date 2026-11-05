@@ -60,7 +60,9 @@ class _Screen extends StatelessWidget {
             media: const SizedBox(
               height: 72,
               child: Image(
-                image: NetworkImage('/samples/photos/thumbs/lakeside-observatory-blue-hour.webp'),
+                image: NetworkImage(
+                  'https://material-plus.cdget.com/samples/photos/thumbs/lakeside-observatory-blue-hour.webp',
+                ),
                 semanticLabel: 'A small observatory beside a lake at dusk',
                 fit: BoxFit.cover,
                 width: double.infinity,

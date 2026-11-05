@@ -7,7 +7,7 @@ class ChatBubbleHero extends StatelessWidget {
   /// One picture, shared by the two rows the same person sent.
   static const Widget _nadia = MPAvatar(
     size: MPSize.sm,
-    image: NetworkImage('/samples/people/nadia-rowan.webp'),
+    image: NetworkImage('https://material-plus.cdget.com/samples/people/nadia-rowan.webp'),
     name: 'Nadia Rowan',
   );
 

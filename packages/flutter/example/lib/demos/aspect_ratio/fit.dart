@@ -12,7 +12,8 @@ import 'package:material_plus_ui/material_plus_ui.dart';
 class AspectRatioFit extends StatelessWidget {
   const AspectRatioFit({super.key});
 
-  static const String _photo = '/samples/photos/thumbs/red-umbrella-autumn-path.webp';
+  static const String _photo =
+      'https://material-plus.cdget.com/samples/photos/thumbs/red-umbrella-autumn-path.webp';
 
   @override
   Widget build(BuildContext context) {

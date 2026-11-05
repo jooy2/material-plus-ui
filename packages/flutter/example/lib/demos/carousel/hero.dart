@@ -6,15 +6,15 @@ class CarouselHero extends StatelessWidget {
 
   static const List<(String, String)> _slides = <(String, String)>[
     (
-      '/samples/photos/thumbs/forest-trail-sunbeams.webp',
+      'https://material-plus.cdget.com/samples/photos/thumbs/forest-trail-sunbeams.webp',
       'A path through tall trees with sunbeams coming down between them',
     ),
     (
-      '/samples/photos/thumbs/lakeside-observatory-blue-hour.webp',
+      'https://material-plus.cdget.com/samples/photos/thumbs/lakeside-observatory-blue-hour.webp',
       'A small observatory beside a lake at dusk',
     ),
     (
-      '/samples/photos/thumbs/snowy-cabin-frozen-stream.webp',
+      'https://material-plus.cdget.com/samples/photos/thumbs/snowy-cabin-frozen-stream.webp',
       'A cabin in snow beside a frozen stream',
     ),
   ];

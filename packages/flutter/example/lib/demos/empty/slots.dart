@@ -41,7 +41,9 @@ class EmptySlots extends StatelessWidget {
             icon: ClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: const Image(
-                image: NetworkImage('/samples/illustrations/thumbs/fox-reading-under-tree.webp'),
+                image: NetworkImage(
+                  'https://material-plus.cdget.com/samples/illustrations/thumbs/fox-reading-under-tree.webp',
+                ),
                 width: 132,
                 height: 132,
                 fit: BoxFit.cover,

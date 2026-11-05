@@ -25,7 +25,9 @@ class _ToolbarHeroState extends State<ToolbarHero> {
           divider: true,
           start: const MPAppLogo(
             name: 'Voltage',
-            image: NetworkImage('/samples/marks/magnet-lightning.webp'),
+            image: NetworkImage(
+              'https://material-plus.cdget.com/samples/marks/magnet-lightning.webp',
+            ),
             size: MPSize.sm,
           ),
           end: Row(

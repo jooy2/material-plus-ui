@@ -19,7 +19,9 @@ class AvatarSizes extends StatelessWidget {
             for (final MPSize size in MPSize.values)
               MPAvatar(
                 size: size,
-                image: const NetworkImage('/samples/people/helen-voss.webp'),
+                image: const NetworkImage(
+                  'https://material-plus.cdget.com/samples/people/helen-voss.webp',
+                ),
                 name: 'Helen Voss',
               ),
           ],

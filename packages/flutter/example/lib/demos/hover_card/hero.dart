@@ -33,7 +33,9 @@ class HoverCardHero extends StatelessWidget {
                       spacing: 12,
                       children: <Widget>[
                         MPAvatar(
-                          image: NetworkImage('/samples/people/farah-wells.webp'),
+                          image: NetworkImage(
+                            'https://material-plus.cdget.com/samples/people/farah-wells.webp',
+                          ),
                           name: 'Farah Wells',
                         ),
                         Expanded(
@@ -59,7 +61,9 @@ class HoverCardHero extends StatelessWidget {
                 trigger: MouseRegion(
                   cursor: SystemMouseCursors.click,
                   child: MPAvatar(
-                    image: NetworkImage('/samples/people/victor-saye.webp'),
+                    image: NetworkImage(
+                      'https://material-plus.cdget.com/samples/people/victor-saye.webp',
+                    ),
                     name: 'Victor Saye',
                   ),
                 ),

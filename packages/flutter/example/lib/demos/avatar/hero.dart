@@ -14,15 +14,21 @@ class AvatarHero extends StatelessWidget {
       runSpacing: 16,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: <Widget>[
-        MPAvatar(image: NetworkImage('/samples/people/anya-sol.webp'), name: 'Anya Sol'),
-        MPAvatar(image: NetworkImage('/samples/people/lucas-adebayo.webp'), name: 'Lucas Adebayo'),
         MPAvatar(
-          image: NetworkImage('/samples/people/noa-marin.webp'),
+          image: NetworkImage('https://material-plus.cdget.com/samples/people/anya-sol.webp'),
+          name: 'Anya Sol',
+        ),
+        MPAvatar(
+          image: NetworkImage('https://material-plus.cdget.com/samples/people/lucas-adebayo.webp'),
+          name: 'Lucas Adebayo',
+        ),
+        MPAvatar(
+          image: NetworkImage('https://material-plus.cdget.com/samples/people/noa-marin.webp'),
           name: 'Noa Marin',
           shape: MPAvatarShape.square,
         ),
         MPAvatar(
-          image: NetworkImage('/this-file-does-not-exist.png'),
+          image: NetworkImage('https://material-plus.cdget.com/this-file-does-not-exist.png'),
           name: 'Farah Wells',
           color: MPColor.tertiary,
         ),

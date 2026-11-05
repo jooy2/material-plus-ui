@@ -71,25 +71,33 @@ class AppLogoHero extends StatelessWidget {
           section('A file, which brings its own colour', <Widget>[
             MPAppLogo(
               name: 'Voltage',
-              image: const NetworkImage('/samples/marks/magnet-lightning.webp'),
+              image: const NetworkImage(
+                'https://material-plus.cdget.com/samples/marks/magnet-lightning.webp',
+              ),
               href: '#',
               onPressed: () {},
               showName: true,
             ),
             const MPAppLogo(
               name: 'Truenorth',
-              image: NetworkImage('/samples/marks/compass-navigation.webp'),
+              image: NetworkImage(
+                'https://material-plus.cdget.com/samples/marks/compass-navigation.webp',
+              ),
             ),
             const MPAppLogo(
               name: 'Lanternpeak',
-              image: NetworkImage('/samples/marks/lantern-mountain.webp'),
+              image: NetworkImage(
+                'https://material-plus.cdget.com/samples/marks/lantern-mountain.webp',
+              ),
               shape: MPAppLogoShape.circle,
               variant: MPVariant.tonal,
               color: MPColor.tertiary,
             ),
             const MPAppLogo(
               name: 'Solarfield',
-              image: NetworkImage('/samples/marks/solar-panel-sun.webp'),
+              image: NetworkImage(
+                'https://material-plus.cdget.com/samples/marks/solar-panel-sun.webp',
+              ),
               size: MPSize.sm,
             ),
           ]),

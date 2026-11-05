@@ -13,8 +13,12 @@ class ListHero extends StatefulWidget {
 class _ListHeroState extends State<ListHero> {
   /// The third has no picture, which is the row a real directory always has.
   static const List<(String, String, String?)> _people = <(String, String, String?)>[
-    ('Anya Sol', 'Design', '/samples/people/anya-sol.webp'),
-    ('Joon Mercer', 'Engineering', '/samples/people/joon-mercer.webp'),
+    ('Anya Sol', 'Design', 'https://material-plus.cdget.com/samples/people/anya-sol.webp'),
+    (
+      'Joon Mercer',
+      'Engineering',
+      'https://material-plus.cdget.com/samples/people/joon-mercer.webp',
+    ),
     ('홍길동', 'Research', null),
   ];
 

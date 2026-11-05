@@ -40,7 +40,9 @@ class _ImageFitState extends State<ImageFit> {
           ),
         ),
         MPImage(
-          image: const NetworkImage('/samples/photos/thumbs/lakeside-observatory-blue-hour.webp'),
+          image: const NetworkImage(
+            'https://material-plus.cdget.com/samples/photos/thumbs/lakeside-observatory-blue-hour.webp',
+          ),
           semanticLabel: 'A small lit observatory on the shore of a mountain lake at dusk',
           height: 360,
           fit: fit,

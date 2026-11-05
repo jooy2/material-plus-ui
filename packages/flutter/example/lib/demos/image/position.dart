@@ -25,7 +25,9 @@ class ImagePosition extends StatelessWidget {
               spacing: 8,
               children: <Widget>[
                 MPImage(
-                  image: const NetworkImage('/samples/photos/thumbs/red-umbrella-autumn-path.webp'),
+                  image: const NetworkImage(
+                    'https://material-plus.cdget.com/samples/photos/thumbs/red-umbrella-autumn-path.webp',
+                  ),
                   semanticLabel:
                       'A red umbrella lying closed on a wet stone path among autumn leaves',
                   height: 140,

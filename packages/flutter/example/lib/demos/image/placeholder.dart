@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:material_plus_ui/material_plus_ui.dart';
 
-const String _photo = '/samples/photos/forest-trail-sunbeams.webp';
+const String _photo = 'https://material-plus.cdget.com/samples/photos/forest-trail-sunbeams.webp';
 
 class ImagePlaceholder extends StatefulWidget {
   const ImagePlaceholder({super.key});
@@ -34,7 +34,9 @@ class _ImagePlaceholderState extends State<ImagePlaceholder> {
                 'A dirt trail through a forest of tall trees, with sunlight between the trunks',
             ratio: 3 / 2,
             placeholder: const MPImagePlaceholder(
-              image: NetworkImage('/samples/photos/tiny/forest-trail-sunbeams.webp'),
+              image: NetworkImage(
+                'https://material-plus.cdget.com/samples/photos/tiny/forest-trail-sunbeams.webp',
+              ),
               blur: 20,
             ),
           ),

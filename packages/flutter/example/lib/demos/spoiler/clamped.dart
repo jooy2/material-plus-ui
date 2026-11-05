@@ -39,7 +39,9 @@ class SpoilerClamped extends StatelessWidget {
             padded: false,
             description: Text('Contains flashing images'),
             child: Image(
-              image: NetworkImage('/samples/photos/thumbs/rainy-city-crosswalk-reflections.webp'),
+              image: NetworkImage(
+                'https://material-plus.cdget.com/samples/photos/thumbs/rainy-city-crosswalk-reflections.webp',
+              ),
               width: double.infinity,
               height: 120,
               fit: BoxFit.cover,

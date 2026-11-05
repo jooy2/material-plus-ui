@@ -13,7 +13,9 @@ class CardMedia extends StatelessWidget {
         title: const Text('Sunrise over the terraces'),
         subtitle: const Text('05:41, from the top of the ridge'),
         media: const MPImage(
-          image: NetworkImage('/samples/photos/thumbs/misty-tea-terraces-sunrise.webp'),
+          image: NetworkImage(
+            'https://material-plus.cdget.com/samples/photos/thumbs/misty-tea-terraces-sunrise.webp',
+          ),
           semanticLabel: 'Rows of tea terraces in low mist, with the sun just over the hills',
           ratio: 16 / 9,
         ),

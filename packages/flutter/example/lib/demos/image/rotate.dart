@@ -50,8 +50,12 @@ class _ImageRotateState extends State<ImageRotate> {
         SizedBox(
           width: 240,
           child: MPImage(
-            image: const NetworkImage('/samples/photos/thumbs/rowboat-misty-pond-sunrise.webp'),
-            previewImage: const NetworkImage('/samples/photos/rowboat-misty-pond-sunrise.webp'),
+            image: const NetworkImage(
+              'https://material-plus.cdget.com/samples/photos/thumbs/rowboat-misty-pond-sunrise.webp',
+            ),
+            previewImage: const NetworkImage(
+              'https://material-plus.cdget.com/samples/photos/rowboat-misty-pond-sunrise.webp',
+            ),
             semanticLabel: 'A rowboat on a still pond in morning mist',
             width: 480,
             height: 320,

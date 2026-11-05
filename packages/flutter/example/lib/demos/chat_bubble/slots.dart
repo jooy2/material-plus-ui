@@ -18,7 +18,7 @@ class ChatBubbleSlots extends StatelessWidget {
           MPChatBubble(
             avatar: const MPAvatar(
               size: MPSize.sm,
-              image: NetworkImage('/samples/people/theo-quinn.webp'),
+              image: NetworkImage('https://material-plus.cdget.com/samples/people/theo-quinn.webp'),
               name: 'Theo Quinn',
             ),
             name: const Text('Theo'),
@@ -32,7 +32,9 @@ class ChatBubbleSlots extends StatelessWidget {
             media: const SizedBox(
               height: 120,
               child: Image(
-                image: NetworkImage('/samples/photos/thumbs/rainy-city-crosswalk-reflections.webp'),
+                image: NetworkImage(
+                  'https://material-plus.cdget.com/samples/photos/thumbs/rainy-city-crosswalk-reflections.webp',
+                ),
                 semanticLabel: 'A city crossing in the rain, the lights running down the wet road',
                 fit: BoxFit.cover,
               ),
@@ -52,7 +54,7 @@ class ChatBubbleSlots extends StatelessWidget {
                 'variants.',
               ),
               image: const NetworkImage(
-                '/samples/illustrations/thumbs/layered-mountains-rising-sun.webp',
+                'https://material-plus.cdget.com/samples/illustrations/thumbs/layered-mountains-rising-sun.webp',
               ),
             ),
             child: const Text('This is the page I meant.'),
