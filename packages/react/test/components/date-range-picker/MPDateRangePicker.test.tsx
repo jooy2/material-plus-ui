@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { drawnOrder } from '../../support/bidi';
 import { MPDateRangePicker } from 'material-plus-ui';
 import type { MPDateRange } from 'material-plus-ui';
 
@@ -37,6 +38,30 @@ function Controlled({
 }
 
 describe('MPDateRangePicker', () => {
+  describe('on a right-to-left page', () => {
+    it('draws each end left to right, the start on the right', async () => {
+      const screen = await render(
+        <div dir="rtl">
+          <MPDateRangePicker
+            label="Stay"
+            locale="ko"
+            value={{ start: new Date(2026, 10, 5), end: new Date(2026, 10, 9) }}
+          />
+        </div>
+      );
+      const start = screen.getByText(/2026\. 11\. 5\./).element();
+      const end = screen.getByText(/2026\. 11\. 9\./).element();
+
+      for (const half of [start, end]) {
+        expect(drawnOrder(half).replace(/\s/g, '')).toBe(
+          (half.textContent ?? '').replace(/\s/g, '')
+        );
+      }
+
+      expect(start.getBoundingClientRect().left).toBeGreaterThan(end.getBoundingClientRect().left);
+    });
+  });
+
   describe('the trigger', () => {
     it('is a button named by the label in the notch', async () => {
       const screen = await render(<Controlled />);

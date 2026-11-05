@@ -263,7 +263,8 @@ export const MPDateRangePicker = React.forwardRef<HTMLButtonElement, MPDateRange
 
     const write = (date: Date | null, fallback: React.ReactNode) =>
       isValidDate(date) ? (
-        formatDate(date, locale, format)
+        // Isolated, as the single pickers' value is: see `MPPickerShell`.
+        <bdi>{formatDate(date, locale, format)}</bdi>
       ) : (
         <span className="text-mp-on-surface-variant">{fallback ?? ''}</span>
       );

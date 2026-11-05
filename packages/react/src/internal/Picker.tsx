@@ -371,7 +371,17 @@ export function MPPickerShell({
                 {/* Withheld while a floating label is resting in the same
                     place: what a picker shows when it is empty is a hint, and
                     two greyed strings in one box is not a hint. */}
-                {empty && !shrunk ? null : display}
+                {empty && !shrunk ? null : typeof display === 'string' ? (
+                  // Isolated, in the direction of what it says: a date written in
+                  // one language on a page laid out in the other is otherwise
+                  // reordered, `2026. 11. 5.` reading `.5 .11 .2026` on an
+                  // Arabic page and `3:30 PM` reading `PM 3:30`. `<bdi>` takes
+                  // its direction from its first letter and leaves the field's
+                  // alignment to the page.
+                  <bdi>{display}</bdi>
+                ) : (
+                  display
+                )}
               </span>
               <MPWidthSizer samples={samples ?? []} />
             </span>

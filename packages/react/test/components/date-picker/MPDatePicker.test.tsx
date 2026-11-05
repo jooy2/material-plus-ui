@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { drawnOrder } from '../../support/bidi';
 import { MPDatePicker, MPLocaleProvider } from 'material-plus-ui';
 
 /**
@@ -130,6 +131,22 @@ describe('MPDatePicker', () => {
 
       expect(screen.getByRole('button', { name: 'Due date' }).element().tagName).toBe('BUTTON');
       expect(screen.container.querySelector('.mp-date-picker input[type="text"]')).toBeNull();
+    });
+  });
+
+  describe('on a right-to-left page', () => {
+    it('draws a date written in a left-to-right language left to right', async () => {
+      const screen = await render(
+        <div dir="rtl">
+          <MPDatePicker label="Due date" locale="ko" value={new Date(2026, 10, 5)} />
+        </div>
+      );
+      const value = screen.getByText(/2026\. 11\. 5\./).element();
+
+      // Laid out the page's way it read `.5 .11 .2026`.
+      expect(drawnOrder(value).replace(/\s/g, '')).toBe(
+        (value.textContent ?? '').replace(/\s/g, '')
+      );
     });
   });
 

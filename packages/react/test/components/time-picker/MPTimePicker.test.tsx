@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { drawnOrder } from '../../support/bidi';
 import { MPLocaleProvider, MPTimePicker } from 'material-plus-ui';
 
 /**
@@ -36,6 +37,22 @@ function Controlled({
 }
 
 describe('MPTimePicker', () => {
+  describe('on a right-to-left page', () => {
+    it('draws a time written in a left-to-right language left to right', async () => {
+      const screen = await render(
+        <div dir="rtl">
+          <MPTimePicker label="Start" locale="en-US" value={new Date(2026, 10, 5, 15, 30)} />
+        </div>
+      );
+      const value = screen.getByText(/3:30/).element();
+
+      // Laid out the page's way it read `PM 3:30`.
+      expect(drawnOrder(value).replace(/\s/g, '')).toBe(
+        (value.textContent ?? '').replace(/\s/g, '')
+      );
+    });
+  });
+
   describe('the trigger', () => {
     it('is a button named by the label in the notch', async () => {
       const screen = await render(<Controlled />);
