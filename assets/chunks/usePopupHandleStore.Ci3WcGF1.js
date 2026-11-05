@@ -1,0 +1,1 @@
+import{r as t}from"./index.CKsxLMuf.js";import{s as u}from"./index.iwerJaWv.js";import{N as i}from"./useRenderElement.B0BJt_3M.js";function n(r){const s=t.useCallback(e=>r===void 0?i:r.subscribeStore(e),[r]),o=t.useCallback(()=>r===void 0?void 0:r.store,[r]);return u.useSyncExternalStore(s,o,()=>r==null?void 0:r.serverStore)}export{n as u};
