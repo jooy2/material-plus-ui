@@ -4,6 +4,10 @@ The Flutter package, `material_plus_ui`. The React package keeps its own history
 
 ## vNext (2026--)
 
+## 1.13.0 (2026-11-05)
+
+This release comes out of running the package on iPhone, iOS Simulator and Android emulator screens in `examples/flutter`, an app now in the repository with every component in it. A menu row's `shortcut` is written in `MPShortcut`'s notation, the one change an app will notice without having met a bug. The rest are fixes from those screens: the system back closed the page under an `MPConfirmProvider` question rather than the question, popups ran off the edge of the screen, a calendar cut the name of its month short, components ran past the edge of a phone, and shortcuts, dates and times were reordered under a right-to-left page.
+
 ### Changed
 
 - **A `shortcut` on a menu row is written in `MPShortcut`'s notation.** `MPMenuItem`, `MPMenuCheckboxItem` and `MPMenuRadioItem` printed the string as they were given it, so the `Mod+N` the documentation's menubar wrote, which `MPCommandPalette` already reads that way, came out as the letters `Mod+N`. It now reads `⌘N` on a Mac and `Ctrl+N` everywhere else, as text rather than key caps, and is read out by the names of its keys; a string with no key name in it, such as `⌘C`, is drawn as it is.
