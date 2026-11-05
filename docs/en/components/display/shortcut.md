@@ -126,6 +126,10 @@ Anything not in the table is printed as it was written, with the one courtesy th
 
 Omit it for the platform's own convention: a `+` on Windows and Linux, and nothing at all on macOS, where a shortcut is written as a run of symbols — `⇧⌘P`, never `⇧+⌘+P`.
 
+## On a right-to-left page
+
+The keys still run left to right, the first one held on the left. A shortcut names keys in the order they are pressed, and Arabic and Hebrew write `Ctrl+C` as a left-to-right run of Latin text; laid out the page's way, the caps would read `C + Ctrl`. A menu row's `shortcut`, which is written in the same notation, runs the same way.
+
 ::: fw react
 
 ## The keys are real `<kbd>` elements
