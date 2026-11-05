@@ -1,0 +1,36 @@
+{
+  "name": "material-plus-showcase-electron",
+  "private": true,
+  "version": "0.0.0",
+  "description": "A desktop app built with Material Plus, used to try the library in Electron.",
+  "type": "module",
+  "main": "main/main.mjs",
+  "scripts": {
+    "postinstall": "node node_modules/electron/install.js",
+    "samples": "node scripts/copy-samples.mjs",
+    "dev": "npm run samples && node scripts/dev.mjs",
+    "build": "npm run samples && vite build",
+    "start": "electron .",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run build && playwright test"
+  },
+  "dependencies": {
+    "@base-ui/react": "^1.9.0",
+    "lucide-react": "^1.54.0",
+    "material-plus-ui": "file:../../packages/react",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.0",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/node": "^26.6.4",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "electron": "^45.2.3",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^6.0.3",
+    "vite": "^8.3.4"
+  }
+}

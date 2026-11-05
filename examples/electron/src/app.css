@@ -1,0 +1,27 @@
+@import 'tailwindcss';
+@import 'material-plus-ui/tailwind.css';
+
+/* The utilities the documentation's demos write in their own `className`s. */
+@source '../../../docs/.vitepress/demos';
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+/* The library styles no page, so the page's own surface and typeface are set here. */
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: Roboto, system-ui, sans-serif;
+}
+
+.title-bar {
+  -webkit-app-region: drag;
+}
+
+.title-bar button,
+.title-bar input {
+  -webkit-app-region: no-drag;
+}
