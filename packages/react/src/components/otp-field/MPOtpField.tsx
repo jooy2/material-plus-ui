@@ -184,6 +184,10 @@ export const MPOtpField = React.forwardRef<HTMLDivElement, MPOtpFieldProps>(func
   const slotClasses = [
     'rounded-mp-xs border bg-transparent text-center font-[inherit]',
     SLOT[size],
+    // Allowed under its rung where the row would not fit otherwise: six medium
+    // slots are 328px wide, which is more than a 360px phone leaves inside its
+    // margins. A slot keeps its height and holds its width wherever there is room.
+    'min-w-0',
     SLOT_TEXT[size],
     'transition-[border-color,color] duration-(--mp-sys-motion-duration-short4)',
     // `focus` rather than `focus-visible`: a slot is put in focus by clicking it
@@ -216,7 +220,9 @@ export const MPOtpField = React.forwardRef<HTMLDivElement, MPOtpFieldProps>(func
       className={[
         'mp-otp-field flex-col align-top',
         STACK_GAP[size],
-        fullWidth ? 'flex w-full' : 'inline-flex w-fit',
+        // Never wider than what it sits in, so a narrow parent narrows the slots
+        // rather than the row running past its edge.
+        fullWidth ? 'flex w-full' : 'inline-flex w-fit max-w-full',
         className ?? ''
       ]
         .filter(Boolean)

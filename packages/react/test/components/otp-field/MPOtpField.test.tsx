@@ -195,6 +195,38 @@ describe('MPOtpField', () => {
       }
     });
 
+    it('narrows its slots to fit a row too small for them, and keeps them level', async () => {
+      // Six medium slots and their gaps are 328 wide: more than a 360 phone
+      // leaves inside 24px margins.
+      const screen = await render(
+        <div style={{ width: 312 }}>
+          <MPOtpField label="Code" groupSize={3} />
+        </div>
+      );
+      const box = screen.container.firstElementChild!.getBoundingClientRect();
+      const drawn = slots().map((slot) => slot.getBoundingClientRect());
+
+      expect(drawn.at(-1)!.right).toBeLessThanOrEqual(box.right);
+      expect(drawn[0].width).toBeLessThan(48);
+      for (const slot of drawn) {
+        expect(slot.width).toBeCloseTo(drawn[0].width, 1);
+        expect(slot.height).toBe(drawn[0].height);
+      }
+    });
+
+    it('keeps its slots at their rung where there is room', async () => {
+      await render(
+        <div style={{ width: 600 }}>
+          <MPOtpField label="Code" />
+        </div>
+      );
+
+      const box = slots()[0].getBoundingClientRect();
+
+      // 48 plus whatever border and padding the page leaves on an `<input>`.
+      expect(box.width).toBeGreaterThanOrEqual(48);
+    });
+
     it('draws a slot narrower than it is tall', async () => {
       // What makes a row read as places for one character each rather than as a
       // row of tiny fields.

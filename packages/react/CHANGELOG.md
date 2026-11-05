@@ -6,6 +6,8 @@
 
 - **A progress ring shows whole in the leading slot of an `MPPill`.** The slot is a glyph's size, 20px on a medium pill, and the smallest `MPProgressCircular` is 24px across, so the circle the slot is clipped to kept half a pixel of the ring's stroke. A child larger than the slot, and the `<svg>` inside it, are now held to the slot and drawn smaller, and a glyph that fits is drawn at its own size.
 
+- **An `MPOtpField` fits a phone.** Its slots kept the width of their rung, so six medium slots, 328px wide, ran past the edge of a 360px phone with 24px margins, and a grouped code further still. The field is never wider than its parent now, and the slots narrow to fit, all by the same amount, keeping their height.
+
 ## 1.12.0 (2026-10-30)
 
 This release moves `material-plus-ui/a2ui` to version 0.12 of A2UI's SDK, which is its one breaking change and reaches only a project that imports that subpath. The dependencies are current, a disabled `MPAccordion` section and `MPCollapsible` look disabled on every Base UI version the package supports, and the documentation now covers `material_plus_ui`, the Flutter package, which starts at this same version number.
