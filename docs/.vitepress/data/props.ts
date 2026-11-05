@@ -6950,8 +6950,8 @@ const componentTables: Record<string, PropRow[]> = {
       name: 'shortcut',
       type: NODE,
       description: {
-        ko: '같은 일을 하는 키 조합. 행 끝에 흐리게 놓입니다. 텍스트일 뿐이고 — 바인딩하는 것은 행이 아니라 애플리케이션입니다',
-        en: 'The keystroke that does the same thing, set at the end of the row and muted. Text only — the row does not bind it, the application does'
+        ko: "같은 일을 하는 키 조합. 행 끝에 흐리게 놓입니다. 텍스트일 뿐이고 — 바인딩하는 것은 행이 아니라 애플리케이션입니다. 문자열은 [MPShortcut](../display/shortcut)의 표기를 따르므로 `'Mod+N'`은 Mac에서 `⌘N`, 그 밖에서는 `Ctrl+N`으로 쓰이고, 키 이름이 없는 `'⌘C'` 같은 문자열은 그대로 쓰입니다",
+        en: "The keystroke that does the same thing, set at the end of the row and muted. Text only — the row does not bind it, the application does. A string is written the way [MPShortcut](../display/shortcut) writes keys, so `'Mod+N'` reads `⌘N` on a Mac and `Ctrl+N` everywhere else, and a string with no key name in it, such as `'⌘C'`, is drawn as it is"
       }
     },
     {
@@ -7038,7 +7038,10 @@ const componentTables: Record<string, PropRow[]> = {
     {
       name: 'shortcut',
       type: NODE,
-      description: { ko: '행 끝의 키 조합', en: 'The keystroke at the end of the row' }
+      description: {
+        ko: '행 끝의 키 조합. `MPMenuItem`의 `shortcut`과 같은 표기입니다',
+        en: 'The keystroke at the end of the row, written as `MPMenuItem`’s `shortcut` is'
+      }
     },
     {
       name: 'description',
@@ -7076,7 +7079,10 @@ const componentTables: Record<string, PropRow[]> = {
     {
       name: 'shortcut',
       type: NODE,
-      description: { ko: '행 끝의 키 조합', en: 'The keystroke at the end of the row' }
+      description: {
+        ko: '행 끝의 키 조합. `MPMenuItem`의 `shortcut`과 같은 표기입니다',
+        en: 'The keystroke at the end of the row, written as `MPMenuItem`’s `shortcut` is'
+      }
     },
     {
       name: 'description',
