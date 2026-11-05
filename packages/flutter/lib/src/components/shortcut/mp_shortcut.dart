@@ -207,7 +207,13 @@ class MPShortcut extends StatelessWidget {
     return Semantics(
       container: true,
       label: labels.map((MPKeyLabel label) => label.name).join(' '),
-      child: ExcludeSemantics(child: row),
+      // Left to right under a right-to-left page too. A shortcut names keys in
+      // the order they are held, and Arabic and Hebrew write `Ctrl+C` left to
+      // right as Latin text runs; laid out the page's way, the caps came out
+      // `C + Ctrl`.
+      child: ExcludeSemantics(
+        child: Directionality(textDirection: TextDirection.ltr, child: row),
+      ),
     );
   }
 }

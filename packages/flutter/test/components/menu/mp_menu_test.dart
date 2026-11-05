@@ -518,6 +518,30 @@ void main() {
       }
     });
 
+    testWidgets('writes a shortcut left to right under a right-to-left page', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        host(
+          menu(<MPMenuEntry>[
+            MPMenuItem(label: 'Redo', shortcut: 'Ctrl+Shift+Z', onPressed: () {}),
+          ]),
+          overlay: true,
+          textDirection: TextDirection.rtl,
+        ),
+      );
+      await openMenu(tester);
+
+      expect(
+        tester
+            .renderObject<RenderParagraph>(
+              find.descendant(of: find.text('Ctrl+Shift+Z'), matching: find.byType(RichText)),
+            )
+            .textDirection,
+        TextDirection.ltr,
+      );
+    });
+
     testWidgets('washes the row the pointer is on in its own ink', (WidgetTester tester) async {
       await tester.pumpWidget(
         host(

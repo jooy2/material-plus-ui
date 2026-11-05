@@ -1730,10 +1730,14 @@ class _ShortcutText extends StatelessWidget {
   Widget build(BuildContext context) {
     final ({String shown, String spoken}) text = mpShortcutText(keys);
 
+    // Left to right under a right-to-left page too, as `MPShortcut` is: `⌘⇧P`
+    // is a run of symbols with no direction of its own, and the page's would
+    // put the P first.
     return Text(
       text.shown,
       maxLines: 1,
       style: style,
+      textDirection: TextDirection.ltr,
       semanticsLabel: text.shown == text.spoken ? null : text.spoken,
     );
   }

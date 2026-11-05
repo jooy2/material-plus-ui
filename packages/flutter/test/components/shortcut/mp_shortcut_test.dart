@@ -88,6 +88,21 @@ void main() {
     });
   });
 
+  group('under a right-to-left page', () {
+    testWidgets('keeps the keys left to right, held first on the left', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        host(
+          const MPShortcut(keys: 'Ctrl+Shift+P', os: MPShortcutOS.windows),
+          textDirection: TextDirection.rtl,
+        ),
+      );
+
+      expect(tester.getCenter(find.text('Ctrl')).dx, lessThan(tester.getCenter(find.text('P')).dx));
+    });
+  });
+
   group('the joiner', () {
     testWidgets('is a plus off a Mac, and nothing on one', (WidgetTester tester) async {
       await tester.pumpWidget(host(const MPShortcut(keys: 'Mod+K', os: MPShortcutOS.windows)));
