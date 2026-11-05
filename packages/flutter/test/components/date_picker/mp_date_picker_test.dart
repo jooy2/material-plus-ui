@@ -199,6 +199,35 @@ void main() {
       expect(find.text('07.07.2026'), findsOneWidget);
     });
 
+    testWidgets('draws a date written left to right left to right under a right-to-left page', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        host(
+          overlay: true,
+          textDirection: TextDirection.rtl,
+          Align(
+            alignment: Alignment.topCenter,
+            child: MPDatePicker(label: const Text('Due date'), initialValue: _july7, locale: 'ko'),
+          ),
+        ),
+      );
+
+      final RenderParagraph value = tester.renderObject<RenderParagraph>(
+        find.descendant(of: find.text('2026. 7. 7.'), matching: find.byType(RichText)),
+      );
+      final String text = value.text.toPlainText();
+      double leftOf(int index) {
+        return value
+            .getBoxesForSelection(TextSelection(baseOffset: index, extentOffset: index + 1))
+            .first
+            .left;
+      }
+
+      // Laid out the page's way it read `.7 .7 .2026`: the year was on the right.
+      expect(leftOf(0), lessThan(leftOf(text.length - 1)));
+    });
+
     testWidgets('takes a format of its own', (WidgetTester tester) async {
       await tester.pumpWidget(
         _picker(initialValue: _july7, format: (DateTime value) => '${value.day}/${value.month}'),

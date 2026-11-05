@@ -4,6 +4,7 @@ library;
 import 'package:flutter/widgets.dart';
 
 import 'package:material_plus_ui/src/components/config/mp_config_provider.dart';
+import 'package:material_plus_ui/src/internal/bidi.dart';
 import 'package:material_plus_ui/src/internal/calendar.dart';
 import 'package:material_plus_ui/src/internal/date.dart';
 import 'package:material_plus_ui/src/internal/fieldset.dart';
@@ -384,7 +385,7 @@ class _MPDatePickerState extends State<MPDatePicker> {
       open: _open,
       onOpenChange: _setOpen,
       formValue: value == null ? '' : toIsoUnit(value, precision),
-      display: written == null ? null : Text(written),
+      display: written == null ? null : MPValueText(written),
       semanticValue: written,
       placeholder: widget.placeholder,
       // Every date the trigger could write, so choosing the 1st after the 28th

@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:material_plus_ui/src/components/button/mp_button.dart';
 import 'package:material_plus_ui/src/components/config/mp_config_provider.dart';
+import 'package:material_plus_ui/src/internal/bidi.dart';
 import 'package:material_plus_ui/src/internal/calendar.dart';
 import 'package:material_plus_ui/src/internal/date.dart';
 import 'package:material_plus_ui/src/internal/field.dart';
@@ -452,7 +453,7 @@ class _MPDateRangePickerState extends State<MPDateRangePicker> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             if (date != null)
-              Text(write(date))
+              MPValueText(write(date))
             else
               Text(
                 placeholder ?? '',

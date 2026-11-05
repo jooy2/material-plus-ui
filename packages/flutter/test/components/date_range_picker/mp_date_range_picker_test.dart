@@ -63,6 +63,23 @@ BoxDecoration _decoration(WidgetTester tester, String label) {
   return box.decoration! as BoxDecoration;
 }
 
+/// Whether [finder]'s text is drawn with its first character left of its last.
+bool _readsLeftToRight(WidgetTester tester, Finder finder) {
+  final RenderParagraph value = tester.renderObject<RenderParagraph>(
+    find.descendant(of: finder, matching: find.byType(RichText)),
+  );
+  final int last = value.text.toPlainText().length - 1;
+
+  double leftOf(int index) {
+    return value
+        .getBoxesForSelection(TextSelection(baseOffset: index, extentOffset: index + 1))
+        .first
+        .left;
+  }
+
+  return leftOf(0) < leftOf(last);
+}
+
 void main() {
   final MPColorScheme light = MPColorScheme.fromSource();
 
@@ -106,6 +123,31 @@ void main() {
 
       expect(find.text('Jul 3, 2026'), findsOneWidget);
       expect(find.text('Jul 9, 2026'), findsOneWidget);
+    });
+  });
+
+  group('under a right-to-left page', () {
+    testWidgets('draws each end left to right, the start on the right', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        host(
+          overlay: true,
+          textDirection: TextDirection.rtl,
+          MPDateRangePicker(
+            label: const Text('Stay'),
+            locale: 'ko',
+            initialValue: MPDateRange(start: DateTime(2026, 11, 5), end: DateTime(2026, 11, 9)),
+          ),
+        ),
+      );
+
+      final Finder start = find.text('2026. 11. 5.');
+      final Finder end = find.text('2026. 11. 9.');
+
+      expect(_readsLeftToRight(tester, start), isTrue);
+      expect(_readsLeftToRight(tester, end), isTrue);
+      expect(tester.getCenter(start).dx, greaterThan(tester.getCenter(end).dx));
     });
   });
 

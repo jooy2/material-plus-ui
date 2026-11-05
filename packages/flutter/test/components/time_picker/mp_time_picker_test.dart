@@ -94,8 +94,44 @@ Future<void> _press(WidgetTester tester, String column, String text) async {
   await tester.pumpAndSettle();
 }
 
+/// Whether [finder]'s text is drawn with its first character left of its last.
+bool _readsLeftToRight(WidgetTester tester, Finder finder) {
+  final RenderParagraph value = tester.renderObject<RenderParagraph>(
+    find.descendant(of: finder, matching: find.byType(RichText)),
+  );
+  final int last = value.text.toPlainText().length - 1;
+
+  double leftOf(int index) {
+    return value
+        .getBoxesForSelection(TextSelection(baseOffset: index, extentOffset: index + 1))
+        .first
+        .left;
+  }
+
+  return leftOf(0) < leftOf(last);
+}
+
 void main() {
   final MPColorScheme light = MPColorScheme.fromSource();
+
+  group('under a right-to-left page', () {
+    testWidgets('draws a time written left to right left to right', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        host(
+          overlay: true,
+          textDirection: TextDirection.rtl,
+          MPTimePicker(
+            label: const Text('Start'),
+            initialValue: DateTime(2026, 7, 7, 15, 30),
+            hour12: true,
+          ),
+        ),
+      );
+
+      // Laid out the page's way it read `PM 3:30`.
+      expect(_readsLeftToRight(tester, find.textContaining('3:30')), isTrue);
+    });
+  });
 
   group('the trigger', () {
     testWidgets('is a button named by the label in the notch', (WidgetTester tester) async {

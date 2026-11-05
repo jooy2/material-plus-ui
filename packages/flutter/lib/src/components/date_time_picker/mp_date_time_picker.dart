@@ -4,6 +4,7 @@ library;
 import 'package:flutter/widgets.dart';
 
 import 'package:material_plus_ui/src/components/config/mp_config_provider.dart';
+import 'package:material_plus_ui/src/internal/bidi.dart';
 import 'package:material_plus_ui/src/internal/calendar.dart';
 import 'package:material_plus_ui/src/internal/date.dart';
 import 'package:material_plus_ui/src/internal/fieldset.dart';
@@ -371,7 +372,7 @@ class _MPDateTimePickerState extends State<MPDateTimePicker> {
       open: _open,
       onOpenChange: _setOpen,
       formValue: value == null ? '' : toIsoDateTime(value, seconds: widget.showSeconds),
-      display: written == null ? null : Text(written),
+      display: written == null ? null : MPValueText(written),
       semanticValue: written,
       placeholder: widget.placeholder,
       samples: _samples.of((names, widget.format, hour12), (DateTime date) => write(date)),
