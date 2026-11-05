@@ -11,6 +11,7 @@ The Flutter package, `material_plus_ui`. The React package keeps its own history
 ### Fixed
 
 - **A progress ring shows whole in the leading slot of an `MPPill`.** The slot is a glyph's size, 20px on a medium pill, and the smallest `MPProgressCircular` is 24px across, so an upload pill overflowed its slot and the circle the slot is clipped to kept half a pixel of the ring. Anything larger than the slot is scaled down to it now, and a glyph that fits is drawn at its own size.
+- **An `MPOtpField` fits a phone.** Its slots kept the width of their rung, so six medium slots, 328 wide, ran past the edge of a 360 phone with 24px margins, and a grouped code further still. The slots narrow to fit a row too small for them now, all by the same amount, and keep their height.
 - **The system back closes an `MPConfirmProvider` question instead of the page under it.** A provider in `WidgetsApp.builder`, where its documentation puts it, sits above the navigator and in no route, so Android's back button popped the page the question was asked from and left the question on screen. The back now answers the question `false`, as Escape does, and a question that is not `dismissible` keeps the back from doing anything.
 
 ## 1.12.0 (2026-10-30)

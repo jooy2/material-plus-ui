@@ -505,25 +505,31 @@ class _MPOtpFieldState extends State<MPOtpField> {
           : colors.outline;
 
       row.add(
-        ExcludeSemantics(
-          // Sized outside the animation: the colours ease, the box does not, so
-          // a field given a new size takes it at once.
-          child: SizedBox.fromSize(
-            size: box,
-            child: AnimatedContainer(
-              duration: duration,
-              curve: MPMotion.standard,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(theme.shapes.extraSmall),
-                // The second pixel of the ring is inside the slot rather than a
-                // thicker box, so the slot does not grow as the focus arrives.
-                border: Border.all(color: edge, width: active ? 2 : 1),
-              ),
-              child: Text(
-                index < characters.length ? (widget.mask ? '•' : characters[index]) : '',
-                style: type.style(MPFieldPaint.value(colors, disabled: disabled)),
-                textAlign: TextAlign.center,
+        // Flexible, and so narrower than its rung where the row would not fit
+        // otherwise: six medium slots are 328 wide, which is more than a 360
+        // phone leaves inside its margins. The slot keeps its height and holds
+        // its width wherever there is room for it.
+        Flexible(
+          child: ExcludeSemantics(
+            // Sized outside the animation: the colours ease, the box does not, so
+            // a field given a new size takes it at once.
+            child: SizedBox.fromSize(
+              size: box,
+              child: AnimatedContainer(
+                duration: duration,
+                curve: MPMotion.standard,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(theme.shapes.extraSmall),
+                  // The second pixel of the ring is inside the slot rather than a
+                  // thicker box, so the slot does not grow as the focus arrives.
+                  border: Border.all(color: edge, width: active ? 2 : 1),
+                ),
+                child: Text(
+                  index < characters.length ? (widget.mask ? '•' : characters[index]) : '',
+                  style: type.style(MPFieldPaint.value(colors, disabled: disabled)),
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
           ),

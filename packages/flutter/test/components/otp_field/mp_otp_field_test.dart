@@ -272,6 +272,40 @@ void main() {
       expect(heights, <double>[32, 40, 56, 64, 72]);
     });
 
+    testWidgets('narrows its slots to fit a row too small for them, and keeps them level', (
+      WidgetTester tester,
+    ) async {
+      // Six medium slots and their gaps are 328 wide: more than a 360 phone
+      // leaves inside 24px margins.
+      await tester.pumpWidget(
+        host(const SizedBox(width: 312, child: MPOtpField(label: Text('Code'), groupSize: 3))),
+      );
+
+      expect(tester.takeException(), isNull);
+
+      final Rect field = tester.getRect(find.byType(MPOtpField));
+      final List<Rect> slots = <Rect>[
+        for (final Element slot in find.byType(AnimatedContainer).evaluate())
+          tester.getRect(find.byWidget(slot.widget)),
+      ];
+
+      expect(slots.last.right, lessThanOrEqualTo(field.right));
+      expect(slots.first.width, lessThan(48));
+      for (final Rect slot in slots) {
+        expect(slot.width, moreOrLessEquals(slots.first.width));
+      }
+
+      expect(slots.first.height, 56);
+    });
+
+    testWidgets('keeps its slots at their rung where there is room', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        host(const SizedBox(width: 600, child: MPOtpField(label: Text('Code')))),
+      );
+
+      expect(tester.getSize(find.byType(AnimatedContainer).first), const Size(48, 56));
+    });
+
     testWidgets('draws a slot narrower than it is tall', (WidgetTester tester) async {
       await tester.pumpWidget(host(const MPOtpField(label: Text('Code'))));
 
