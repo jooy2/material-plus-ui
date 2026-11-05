@@ -192,11 +192,14 @@ export function MPFieldOutline({ label, required = false, notched = true }: MPFi
          */
         <legend
           className={[
-            'text-mp-body-small invisible float-none block h-[11px] w-auto overflow-hidden p-0',
+            'text-mp-body-small invisible float-none block h-[11px] w-auto overflow-hidden p-0 whitespace-nowrap',
             'leading-none',
             'ease-mp-standard transition-[max-width,padding]',
             'duration-(--mp-sys-motion-duration-short4)',
-            notched ? 'max-w-full px-1' : 'max-w-0 px-0'
+            // Cut where the label it makes room for is cut, 2rem short of the
+            // field: the fieldset's padding takes 1rem of that, and its border
+            // the two pixels given back.
+            notched ? 'max-w-[calc(100%-1rem+2px)] px-1' : 'max-w-0 px-0'
           ].join(' ')}
         >
           {labelContent(label, required)}
@@ -294,7 +297,10 @@ export function MPFieldLabel({
         'pointer-events-none absolute -translate-y-1/2 px-1 leading-none',
         LABEL_INSET[size],
         shrunk
-          ? 'text-mp-body-small top-0 max-w-none'
+          ? // One line, cut short where the outline ends, as the resting label is
+            // and as a Flutter field's is. Wrapped, a label longer than its field
+            // stacked two or three lines over the border it was meant to sit in.
+            'text-mp-body-small top-0 max-w-[calc(100%-2rem)] truncate'
           : [
               PROSE_TEXT[size],
               // Kept clear of the trailing adornment a resting label would

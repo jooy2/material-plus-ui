@@ -14,6 +14,8 @@
 
 - **An `MPPagination` too wide for what holds it goes on to a second line.** Eleven cells, which a long list with its edges shown has, ran past the edge of a phone. The cells wrap now, every line centred.
 
+- **A floated field label longer than its field stays on one line.** In an `MPSelect` as wide as its value, or any outlined field narrower than its label, the label that had risen to the border wrapped into two or three lines over it. It is cut short with an ellipsis now, as the resting label already was and as a Flutter field's is, and the gap in the border is cut to the same width.
+
 - **An `MPTour` card moves to each step's target.** Base UI reads a function `anchor` once, when the popup opens, and the tour's popup stays open from the first step to the last, so every card hung from the first step's target, or from the middle of the window when the first step had none, while the hole in the dimming moved on without it. The card now hangs from the target of the step it shows.
 
 - **`MPTabs` keeps its indicator under the chosen tab when `MPConfigProvider`'s `dir` changes.** The indicator's place is measured, and Base UI measured it again only when a tab changed size. Turning the page round moves every tab and resizes none, so the indicator stayed on the far side of the bar until something else moved it. The bar's overflow fade is measured again at the same moment.

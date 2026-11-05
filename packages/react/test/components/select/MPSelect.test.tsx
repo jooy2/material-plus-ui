@@ -83,6 +83,29 @@ describe('MPSelect', () => {
       expect(document.querySelector('.mp-select fieldset legend')?.textContent).toContain('City');
     });
 
+    it('keeps a floated label longer than the field to one line, cut short inside the outline', async () => {
+      // A field as wide as its value, under a label several times longer.
+      await render(
+        <MPSelect
+          items={[{ value: 'en', label: 'English' }]}
+          label="Language of the built-in labels"
+          value="en"
+        />
+      );
+
+      const field = document.querySelector('.mp-select')!.getBoundingClientRect();
+      const label = document.querySelector('.mp-select label')!;
+      const legend = document.querySelector('.mp-select fieldset legend')!.getBoundingClientRect();
+      const box = label.getBoundingClientRect();
+      const line = parseFloat(getComputedStyle(label).fontSize) * 1.5;
+
+      expect(box.height).toBeLessThan(line);
+      expect(box.right).toBeLessThanOrEqual(field.right);
+      expect(label.scrollWidth).toBeGreaterThan(label.clientWidth);
+      // The notch is as wide as the label it makes room for.
+      expect(legend.width).toBeCloseTo(box.width, 0);
+    });
+
     it('renders a leading adornment before the value', async () => {
       const screen = await render(
         <ControlledSelect startIcon={<span data-testid="flag">KR</span>} />
