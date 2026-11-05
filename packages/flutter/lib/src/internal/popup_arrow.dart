@@ -8,8 +8,11 @@
 /// talking to itself.
 library;
 
+import 'dart:math' as math;
+
 import 'package:flutter/widgets.dart';
 
+import 'package:material_plus_ui/src/internal/anchored.dart';
 import 'package:material_plus_ui/src/types.dart';
 
 /// How wide the wedge is at each rung, for a popover and a hover card.
@@ -84,6 +87,11 @@ class MPPopupArrow extends StatelessWidget {
       MPAlign.end => 1.0,
     };
 
+    // A popup that slid back on to the screen moves its wedge the other way,
+    // so it still points at the anchor, as far as the sheet's corners allow.
+    final Offset slide = MPAnchorSlide.of(context);
+    final double back = vertical ? -slide.dx : -slide.dy;
+
     final Widget wedge = CustomPaint(
       size: vertical ? Size(size, size / 2) : Size(size / 2, size),
       painter: _WedgePainter(side: side, color: color),
@@ -98,8 +106,13 @@ class MPPopupArrow extends StatelessWidget {
           padding: vertical
               ? EdgeInsets.symmetric(horizontal: inset)
               : EdgeInsets.symmetric(vertical: inset),
-          child: Align(
-            alignment: vertical ? AlignmentDirectional(along, 0) : Alignment(0, along),
+          child: CustomSingleChildLayout(
+            delegate: _WedgeLayout(
+              alignment: (vertical ? AlignmentDirectional(along, 0) : Alignment(0, along)).resolve(
+                Directionality.of(context),
+              ),
+              shift: vertical ? Offset(back, 0) : Offset(0, back),
+            ),
             child: wedge,
           ),
         ),
@@ -118,6 +131,33 @@ class MPPopupArrow extends StatelessWidget {
     };
 
     return Stack(clipBehavior: Clip.none, children: <Widget>[child, placed]);
+  }
+}
+
+/// Puts the wedge where its alignment says, moved by [shift] and kept inside
+/// the slot.
+class _WedgeLayout extends SingleChildLayoutDelegate {
+  const _WedgeLayout({required this.alignment, required this.shift});
+
+  final Alignment alignment;
+  final Offset shift;
+
+  @override
+  BoxConstraints getConstraintsForChild(BoxConstraints constraints) => constraints.loosen();
+
+  @override
+  Offset getPositionForChild(Size size, Size childSize) {
+    final Offset at = alignment.alongOffset(size - childSize as Offset) + shift;
+
+    return Offset(
+      at.dx.clamp(0, math.max(0, size.width - childSize.width)),
+      at.dy.clamp(0, math.max(0, size.height - childSize.height)),
+    );
+  }
+
+  @override
+  bool shouldRelayout(_WedgeLayout oldDelegate) {
+    return alignment != oldDelegate.alignment || shift != oldDelegate.shift;
   }
 }
 

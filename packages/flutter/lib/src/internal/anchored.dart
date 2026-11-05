@@ -27,6 +27,29 @@ enum MPAnchorWidth {
   exact,
 }
 
+/// How near the edge of the screen a popup that slid back on to it stops.
+const double _screenEdge = 8;
+
+/// How far the popup under it was moved along the edge it hangs from, to stay
+/// on the screen, so an arrow drawn on it can be moved back to point at the
+/// anchor.
+class MPAnchorSlide extends InheritedWidget {
+  /// Hands [slide] to the popup in [child].
+  const MPAnchorSlide({required this.slide, required super.child, super.key});
+
+  /// The move, along the popup's edge: horizontal above or below its anchor,
+  /// vertical beside it.
+  final Offset slide;
+
+  /// The move of the popup [context] is in, and nothing outside one.
+  static Offset of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<MPAnchorSlide>()?.slide ?? Offset.zero;
+  }
+
+  @override
+  bool updateShouldNotify(MPAnchorSlide oldWidget) => slide != oldWidget.slide;
+}
+
 /// A popup lifted out of the tree and hung off an anchor.
 ///
 /// What a `MPTooltip` and a `MPSelect`'s list have in common: the lift into the
@@ -38,12 +61,13 @@ enum MPAnchorWidth {
 /// scrolls: the follower is positioned by the compositor off the leader's own
 /// layer, so nothing has to notice that the anchor moved.
 ///
-/// Collision handling is a **flip and not a slide**. When the side that was
-/// asked for has no room the popup goes to the opposite one; it never shifts
-/// along the edge it is on. Sliding needs the popup's position recomputed
-/// against the viewport every frame, which is the thing the layer link exists to
-/// avoid, and a popup that creeps sideways as its anchor nears the edge is a
-/// popup whose arrow no longer points at anything.
+/// Collision handling is a **flip first**. When the side that was asked for has
+/// no room the popup goes to the opposite one. A popup that would still run off
+/// the screen along the edge it is on, as a centred popup over a button at the
+/// side of a phone does, slides back on to it, to [_screenEdge] from the edge,
+/// and its arrow, read through [MPAnchorSlide], keeps pointing at the anchor.
+/// The slide is decided when the side is and never on a scroll, so a popup does
+/// not creep sideways as its anchor moves.
 ///
 /// The side is decided as the popup opens, and again whenever the screen
 /// changes size, the popup's own size changes, or a relayout moves or resizes
@@ -183,6 +207,9 @@ class _MPAnchoredPortalState extends State<MPAnchoredPortal> with SingleTickerPr
   /// The side the popup is on, which is the one asked for until there is no room
   /// for it there.
   late MPSide _side = widget.side;
+
+  /// How far the popup is moved along the edge it is on to stay on the screen.
+  Offset _slide = Offset.zero;
 
   /// How wide the anchor is, for a popup that has to match it.
   double? _anchorWidth;
@@ -333,6 +360,7 @@ class _MPAnchoredPortalState extends State<MPAnchoredPortal> with SingleTickerPr
       // until the measure below says otherwise.
       if (!_portal.isShowing) {
         _side = widget.side;
+        _slide = Offset.zero;
         _placed = null;
         _hidden = true;
         _fromAnchor();
@@ -522,11 +550,18 @@ class _MPAnchoredPortalState extends State<MPAnchoredPortal> with SingleTickerPr
     final size = widget.fitWidth ? Size(placed.own!, popup.size.height) : popup.size;
     final side = _fit(box, size, room.size);
     final space = widget.fitWidth ? _roomOn(side, box, room.size) : null;
+    // A popup held to its room already stops at the edge.
+    final slide = widget.fitWidth ? Offset.zero : _slideFor(side, box, size, room.size);
 
-    if (_hidden || side != _side || anchor.size.width != _anchorWidth || space != _room) {
+    if (_hidden ||
+        side != _side ||
+        slide != _slide ||
+        anchor.size.width != _anchorWidth ||
+        space != _room) {
       setState(() {
         _hidden = false;
         _side = side;
+        _slide = slide;
         _anchorWidth = anchor.size.width;
         _room = space;
       });
@@ -563,6 +598,41 @@ class _MPAnchoredPortalState extends State<MPAnchoredPortal> with SingleTickerPr
     };
   }
 
+  /// How far a popup of [popup] size on [side] of [anchor] has to move along
+  /// that side to stay on a screen of [room], and nothing for one that is on it.
+  ///
+  /// It is brought back to [_screenEdge] from the edge it crossed, inside the
+  /// screen's padding. One longer than the screen is put at its start.
+  Offset _slideFor(MPSide side, Rect anchor, Size popup, Size room) {
+    final (target, follower, standoff) = _anchorsOn(side, Directionality.of(context));
+    final Rect at =
+        (anchor.topLeft + target.alongSize(anchor.size) - follower.alongSize(popup) + standoff) &
+        popup;
+    final EdgeInsets safe = MediaQuery.maybePaddingOf(context) ?? EdgeInsets.zero;
+
+    double into(double start, double end, double from, double to) {
+      if (start >= 0 && end <= to + from) {
+        return 0;
+      }
+
+      final double first = from + _screenEdge;
+      final double last = to - _screenEdge;
+
+      if (end - start > last - first || start < first) {
+        return first - start;
+      }
+
+      return math.min(0, last - end);
+    }
+
+    return switch (side) {
+      MPSide.top ||
+      MPSide.bottom => Offset(into(at.left, at.right, safe.left, room.width - safe.right), 0),
+      MPSide.left ||
+      MPSide.right => Offset(0, into(at.top, at.bottom, safe.top, room.height - safe.bottom)),
+    };
+  }
+
   /// How wide a popup on [side] of [anchor] can be before it runs off a screen
   /// of [room]: from where it hangs to the edge it runs towards, as
   /// [_anchors] places it.
@@ -594,13 +664,18 @@ class _MPAnchoredPortalState extends State<MPAnchoredPortal> with SingleTickerPr
   /// here because the follower takes a resolved alignment. Along a side edge
   /// they are the top and the bottom in either direction.
   (Alignment, Alignment, Offset) _anchors(TextDirection direction) {
+    return _anchorsOn(_side, direction);
+  }
+
+  /// [_anchors], for a popup on [side].
+  (Alignment, Alignment, Offset) _anchorsOn(MPSide side, TextDirection direction) {
     final along = switch (widget.align) {
       MPAlign.start => -1.0,
       MPAlign.center => 0.0,
       MPAlign.end => 1.0,
     };
 
-    return switch (_side) {
+    return switch (side) {
       MPSide.top => (
         AlignmentDirectional(along, -1).resolve(direction),
         AlignmentDirectional(along, 1).resolve(direction),
@@ -669,7 +744,10 @@ class _MPAnchoredPortalState extends State<MPAnchoredPortal> with SingleTickerPr
           behavior: widget.onDismiss != null
               ? HitTestBehavior.opaque
               : HitTestBehavior.deferToChild,
-          child: KeyedSubtree(key: _popupKey, child: widget.popup),
+          child: KeyedSubtree(
+            key: _popupKey,
+            child: MPAnchorSlide(slide: _slide, child: widget.popup),
+          ),
         ),
       ),
     );
@@ -681,7 +759,7 @@ class _MPAnchoredPortalState extends State<MPAnchoredPortal> with SingleTickerPr
       showWhenUnlinked: false,
       targetAnchor: targetAnchor,
       followerAnchor: followerAnchor,
-      offset: standoff,
+      offset: standoff + _slide,
       child: popup,
     );
 

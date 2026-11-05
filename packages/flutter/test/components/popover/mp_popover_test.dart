@@ -631,6 +631,50 @@ void main() {
       expect(_sheetRect(tester).left - centred, 20);
     });
 
+    testWidgets('slides back on to the screen from a trigger at its edge, arrow on the trigger', (
+      WidgetTester tester,
+    ) async {
+      // A centred popup wider than twice the room to the left of its trigger's
+      // middle, as one over a button at the side of a phone is.
+      await _pump(
+        tester,
+        Align(
+          alignment: Alignment.topLeft,
+          child: MPPopover(
+            trigger: _button('Rate'),
+            initialOpen: true,
+            arrow: true,
+            child: const SizedBox(width: 240, child: Text(_body)),
+          ),
+        ),
+      );
+
+      final Rect trigger = tester.getRect(find.byType(MPButton));
+      final Rect sheet = _sheetRect(tester);
+      final Rect wedge = tester.getRect(
+        find.descendant(of: find.byType(MPPopupArrow), matching: find.byType(CustomPaint)).last,
+      );
+
+      expect(sheet.left, 8);
+      expect(wedge.center.dx, moreOrLessEquals(trigger.center.dx, epsilon: 0.5));
+    });
+
+    testWidgets('stays centred on a trigger with room either side', (WidgetTester tester) async {
+      await _pump(
+        tester,
+        MPPopover(
+          trigger: _button('Rate'),
+          initialOpen: true,
+          child: const SizedBox(width: 240, child: Text(_body)),
+        ),
+      );
+
+      expect(
+        _sheetRect(tester).center.dx,
+        moreOrLessEquals(tester.getRect(find.byType(MPButton)).center.dx, epsilon: 0.5),
+      );
+    });
+
     testWidgets('lines its start up with the trigger’s, under RTL as well', (
       WidgetTester tester,
     ) async {
