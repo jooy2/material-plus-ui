@@ -41,12 +41,14 @@ describe('MPPill', () => {
       const track = root.querySelector('circle')!.getBoundingClientRect();
       const slot = root.parentElement!.getBoundingClientRect();
 
-      expect(slot.width).toBe(20);
-      expect(root.querySelector('svg')!.getBoundingClientRect().width).toBe(20);
-      expect(track.left).toBeGreaterThanOrEqual(slot.left);
-      expect(track.top).toBeGreaterThanOrEqual(slot.top);
-      expect(track.right).toBeLessThanOrEqual(slot.right);
-      expect(track.bottom).toBeLessThanOrEqual(slot.bottom);
+      // To within a pixel: WebKit on Windows lays the slot out a third of a
+      // pixel wider. Unfixed, the ring is 24px and its track runs 2px out of it.
+      expect(slot.width).toBeCloseTo(20, 0);
+      expect(root.querySelector('svg')!.getBoundingClientRect().width).toBeCloseTo(slot.width, 0);
+      expect(track.left).toBeGreaterThanOrEqual(slot.left - 0.5);
+      expect(track.top).toBeGreaterThanOrEqual(slot.top - 0.5);
+      expect(track.right).toBeLessThanOrEqual(slot.right + 0.5);
+      expect(track.bottom).toBeLessThanOrEqual(slot.bottom + 0.5);
     });
 
     it('draws a glyph that fits the leading slot at its own size', async () => {
