@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { MPTab, MPTabPanel, MPTabs } from 'material-plus-ui';
+import { MPConfigProvider, MPTab, MPTabPanel, MPTabs } from 'material-plus-ui';
 import { userEvent } from 'vitest/browser';
 
 function Bar(props: React.ComponentProps<typeof MPTabs>) {
@@ -218,6 +218,36 @@ describe('MPTabs', () => {
     expect(indicator.height).toBe('2px');
     expect(indicator.borderTopLeftRadius).toBe('0px');
     expect(Number.parseFloat(indicator.width)).toBeCloseTo(tab.width, 0);
+  });
+
+  it('keeps the indicator under the chosen tab when the direction changes', async () => {
+    // The indicator is measured, and Base UI measures again only when a tab
+    // changes size. Turning the page round moves every tab and resizes none,
+    // so the bar stayed where the chosen tab had been.
+    const screen = await render(
+      <MPConfigProvider dir="ltr">
+        <Bar defaultValue="overview" variant="secondary" />
+      </MPConfigProvider>
+    );
+    const under = () => {
+      const indicator = screen.container.querySelector('.mp-tabs__indicator')!;
+      const tab = screen.container.querySelector('.mp-tabs__tab')!;
+
+      return Math.round(indicator.getBoundingClientRect().left - tab.getBoundingClientRect().left);
+    };
+
+    expect(under()).toBe(0);
+    // Past the observers' first report, which would otherwise measure again by
+    // coincidence.
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    await screen.rerender(
+      <MPConfigProvider dir="rtl">
+        <Bar defaultValue="overview" variant="secondary" />
+      </MPConfigProvider>
+    );
+
+    await vi.waitFor(() => expect(under()).toBe(0));
   });
 
   it('stacks a primary tab’s glyph and inlines a secondary one’s', async () => {

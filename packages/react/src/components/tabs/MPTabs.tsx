@@ -1,6 +1,8 @@
 import * as React from 'react';
+import { useDirection } from '@base-ui/react/direction-provider';
 import { Tabs } from '@base-ui/react/tabs';
 import { accentSlots } from '../../internal/accent';
+import { useBrowserLayoutEffect } from '../../internal/layout-effect';
 import { MPStateLayer } from '../../internal/StateLayer';
 import { CONTROL_GAP, hasContent, SHEET_GAP } from '../../internal/scale';
 import { useMPColor, useMPSize } from '../../internal/config';
@@ -451,6 +453,35 @@ export const MPTabs = React.forwardRef<HTMLDivElement, MPTabsProps>(function MPT
       mutation?.disconnect();
     };
   }, [measure]);
+
+  /*
+   * Measured again when the page turns round.
+   *
+   * Where the indicator sits is a measurement Base UI takes while it renders,
+   * and it takes another only when a tab changes size. A change of direction
+   * moves every tab and resizes none, so the indicator stayed where the chosen
+   * tab had been, on the far side of the bar. The overflow answer above is a
+   * measurement too and went stale the same way.
+   *
+   * A layout effect, because that is the first moment the `dir` that came with
+   * the change is in the document: a render here re-renders the indicator, which
+   * measures again against the bar as it now runs, before anything is painted.
+   * The direction is the one `MPConfigProvider` hands Base UI, which is what
+   * keeps Base UI's half of RTL in step with the stylesheet's.
+   */
+  const direction = useDirection();
+  const shownDirection = React.useRef(direction);
+  const [, remeasure] = React.useReducer((count: number) => count + 1, 0);
+
+  useBrowserLayoutEffect(() => {
+    if (shownDirection.current === direction) {
+      return;
+    }
+
+    shownDirection.current = direction;
+    measure();
+    remeasure();
+  }, [direction, measure]);
 
   // Once a frame at most while the bar scrolls, for the reason the observers
   // above exist: each measure is a layout read, and `scroll` fires faster than

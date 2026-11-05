@@ -12,6 +12,8 @@
 
 - **An `MPTour` card moves to each step's target.** Base UI reads a function `anchor` once, when the popup opens, and the tour's popup stays open from the first step to the last, so every card hung from the first step's target, or from the middle of the window when the first step had none, while the hole in the dimming moved on without it. The card now hangs from the target of the step it shows.
 
+- **`MPTabs` keeps its indicator under the chosen tab when `MPConfigProvider`'s `dir` changes.** The indicator's place is measured, and Base UI measured it again only when a tab changed size. Turning the page round moves every tab and resizes none, so the indicator stayed on the far side of the bar until something else moved it. The bar's overflow fade is measured again at the same moment.
+
 ## 1.12.0 (2026-10-30)
 
 This release moves `material-plus-ui/a2ui` to version 0.12 of A2UI's SDK, which is its one breaking change and reaches only a project that imports that subpath. The dependencies are current, a disabled `MPAccordion` section and `MPCollapsible` look disabled on every Base UI version the package supports, and the documentation now covers `material_plus_ui`, the Flutter package, which starts at this same version number.
