@@ -11,13 +11,16 @@ import { MPButton, MPDrawer, MPList, MPListItem, MPTypography } from 'material-p
  *
  * Both modes are one component precisely so that a sidebar becoming a hamburger
  * at a breakpoint is one prop rather than a swap.
+ *
+ * Held to 168px, a rail of section names, so the page beside it still has room
+ * on a phone.
  */
 export default function DrawerStandard() {
   const [open, setOpen] = useState(true);
 
   return (
     <div style={{ display: 'flex', height: 220, width: '100%', gap: 16 }}>
-      <MPDrawer mode="standard" open={open} size="xs" title="Sections">
+      <MPDrawer mode="standard" open={open} size="xs" extent={168} title="Sections">
         <MPList variant="text" size="sm">
           <MPListItem selected onClick={() => {}}>
             Overview
@@ -28,7 +31,7 @@ export default function DrawerStandard() {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12, flex: 1, minWidth: 0 }}>
         <MPButton variant="outlined" onClick={() => setOpen((current) => !current)}>
-          {open ? 'Collapse the sidebar' : 'Show the sidebar'}
+          {open ? 'Hide the panel' : 'Show the panel'}
         </MPButton>
         <MPTypography level="body">
           The page is laid out around the panel rather than under it.

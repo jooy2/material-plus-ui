@@ -23,6 +23,9 @@ class _DrawerStandardState extends State<DrawerStandard> {
             mode: MPDrawerMode.standard,
             open: _open,
             size: MPSize.xs,
+            // A rail of section names, so the page beside it still has room on
+            // a phone.
+            extent: 168,
             title: const Text('Sections'),
             child: MPList(
               variant: MPVariant.text,
@@ -41,7 +44,7 @@ class _DrawerStandardState extends State<DrawerStandard> {
                 MPButton(
                   variant: MPVariant.outlined,
                   onPressed: () => setState(() => _open = !_open),
-                  child: Text(_open ? 'Collapse the sidebar' : 'Show the sidebar'),
+                  child: Text(_open ? 'Hide the panel' : 'Show the panel'),
                 ),
                 const MPTypography('The page is laid out around the panel rather than under it.'),
               ],
