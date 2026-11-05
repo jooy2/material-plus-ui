@@ -205,7 +205,17 @@ class _MPPillState extends State<MPPill> with SingleTickerProviderStateMixin {
               dimension: icon,
               child: IconTheme.merge(
                 data: IconThemeData(color: paint.ink, size: icon),
-                child: Center(child: widget.startIcon),
+                // Something drawn larger than a glyph, such as a progress ring
+                // at its smallest size, is scaled down to the slot rather than
+                // cropped to the sliver of it the circle leaves. A glyph or a
+                // picture that already fits is drawn as it is.
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints.loose(Size.square(icon * 2)),
+                    child: widget.startIcon,
+                  ),
+                ),
               ),
             ),
           ),

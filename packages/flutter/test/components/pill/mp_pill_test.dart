@@ -2,6 +2,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_plus_ui/src/components/pill/mp_pill.dart';
+import 'package:material_plus_ui/src/components/progress_circular/mp_progress_circular.dart';
+import 'package:material_plus_ui/src/internal/scale.dart';
 import 'package:material_plus_ui/src/theme/color_scheme.dart';
 import 'package:material_plus_ui/src/theme/tokens.dart';
 import 'package:material_plus_ui/src/types.dart';
@@ -58,6 +60,43 @@ void main() {
         tester.getCenter(find.byKey(const Key('end'))).dx,
         greaterThan(tester.getCenter(find.text('Uploading')).dx),
       );
+    });
+
+    testWidgets('scales a progress ring down into the leading slot instead of cropping it', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        host(
+          const MPPill(
+            title: Text('Uploading'),
+            startIcon: MPProgressCircular(key: Key('ring'), size: MPSize.xs),
+          ),
+        ),
+      );
+
+      // The slot of a medium pill is a 20px glyph, and the smallest ring is 24px
+      // across: drawn as it was, it overflowed and the circle kept 0.5px of it.
+      expect(tester.takeException(), isNull);
+
+      final Rect ring = tester.getRect(find.byKey(const Key('ring')));
+
+      expect(ring.width, moreOrLessEquals(mpControlIcon[MPSize.md]!));
+      expect(ring.height, moreOrLessEquals(mpControlIcon[MPSize.md]!));
+    });
+
+    testWidgets('draws a glyph that fits the leading slot at its own size', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        host(
+          const MPPill(
+            title: Text('Recording'),
+            startIcon: SizedBox(key: Key('dot'), width: 10, height: 10),
+          ),
+        ),
+      );
+
+      expect(tester.getSize(find.byKey(const Key('dot'))), const Size(10, 10));
     });
 
     testWidgets('lines up with a button of the same size', (WidgetTester tester) async {
