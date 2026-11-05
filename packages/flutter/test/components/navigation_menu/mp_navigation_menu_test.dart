@@ -413,6 +413,61 @@ void main() {
     });
   });
 
+  group('a bar wider than its room', () {
+    testWidgets('scrolls along rather than running past the edge', (WidgetTester tester) async {
+      await tester.pumpWidget(host(SizedBox(width: 160, child: navigation()), overlay: true));
+
+      expect(tester.takeException(), isNull);
+      expect(tester.getSize(find.byType(MPNavigationMenu)).width, 160);
+
+      final double before = tester.getTopLeft(find.text('Pricing')).dx;
+
+      await tester.drag(find.text('Product'), const Offset(-200, 0));
+      await tester.pumpAndSettle();
+
+      expect(tester.getTopLeft(find.text('Pricing')).dx, lessThan(before));
+    });
+
+    testWidgets('takes the room it took before where it fits', (WidgetTester tester) async {
+      await tester.pumpWidget(host(navigation(), overlay: true));
+
+      final Rect bar = tester.getRect(find.byType(MPNavigationMenu));
+      final Rect first = tester.getRect(
+        find.ancestor(of: find.text('Product'), matching: find.byType(MPInteractive)).first,
+      );
+
+      // The room kept for the focus ring is drawn over the bar's edges, not
+      // added to them.
+      expect(first.left, bar.left);
+      expect(bar.height, first.height);
+    });
+
+    testWidgets('scrolls an item the arrows reach into view', (WidgetTester tester) async {
+      final FocusNode before = FocusNode(debugLabel: 'before');
+      addTearDown(before.dispose);
+
+      await tester.pumpWidget(
+        // Room for any one item in the test font, where every glyph is a
+        // square, and not for all three.
+        host(afterFocusStop(before, SizedBox(width: 260, child: navigation())), overlay: true),
+      );
+      before.requestFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pumpAndSettle();
+
+      final Rect bar = tester.getRect(find.byType(MPNavigationMenu));
+      final Rect pricing = tester.getRect(
+        find.ancestor(of: find.text('Pricing'), matching: find.byType(MPInteractive)).first,
+      );
+
+      expect(pricing.right, lessThanOrEqualTo(bar.right + 0.5));
+      expect(pricing.left, greaterThanOrEqualTo(bar.left - 0.5));
+    });
+  });
+
   group('orientation', () {
     testWidgets('runs across by default and down when told to, opening beside a rail', (
       WidgetTester tester,

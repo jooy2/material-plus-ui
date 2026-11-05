@@ -4,7 +4,7 @@ library;
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:flutter/semantics.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -537,7 +537,23 @@ class _MPNavigationMenuState extends State<MPNavigationMenu> {
             spacing: gap,
             children: row,
           )
-        : Row(mainAxisSize: MainAxisSize.min, spacing: gap, children: row);
+        // A bar wider than the room it is given scrolls along rather than
+        // running past the edge, as three items do on a phone. It scrolls a
+        // box the focus ring's reach larger on every side and takes only its
+        // own room, so a ring on an item at the edge is not cut off.
+        : _Bleed(
+            bleed: _ringReach,
+            child: ScrollConfiguration(
+              behavior: ScrollConfiguration.of(
+                context,
+              ).copyWith(scrollbars: false, overscroll: false),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.all(_ringReach),
+                child: Row(mainAxisSize: MainAxisSize.min, spacing: gap, children: row),
+              ),
+            ),
+          );
 
     return Semantics(
       container: true,
@@ -555,6 +571,41 @@ class _MPNavigationMenuState extends State<MPNavigationMenu> {
   }
 
   Widget _item(int index, {required int open}) {
+    final Widget built = _itemOf(index, open: open);
+
+    if (widget.orientation == MPOrientation.vertical) {
+      return built;
+    }
+
+    // An item reached from the keyboard is scrolled into the bar, which a focus
+    // moved by the arrow keys is not on its own.
+    return Builder(
+      builder: (BuildContext context) => Focus(
+        canRequestFocus: false,
+        skipTraversal: true,
+        includeSemantics: false,
+        onFocusChange: (bool focused) {
+          if (!focused) {
+            return;
+          }
+
+          // The ring as well as the item, so the ring is not left at the edge.
+          final RenderObject? box = context.findRenderObject();
+
+          if (box is RenderBox && box.hasSize) {
+            box.showOnScreen(
+              rect: (Offset.zero & box.size).inflate(_ringReach),
+              duration: MPMotion.short4,
+              curve: MPMotion.standard,
+            );
+          }
+        },
+        child: built,
+      ),
+    );
+  }
+
+  Widget _itemOf(int index, {required int open}) {
     final MPNavigationMenuItem item = widget.items[index];
     final bool isOpen = index == open;
     final bool rtl = Directionality.of(context) == TextDirection.rtl;
@@ -936,5 +987,91 @@ class _Link extends StatelessWidget {
         );
       },
     );
+  }
+}
+
+/// How far a focus ring reaches past the item it is drawn round.
+const double _ringReach = focusRingOffset + focusRingWidth;
+
+/// Lays [child] out [bleed] larger on every side than the room it is given and
+/// takes only that room, drawing the rest over its edges.
+class _Bleed extends SingleChildRenderObjectWidget {
+  const _Bleed({required this.bleed, super.child});
+
+  final double bleed;
+
+  @override
+  _RenderBleed createRenderObject(BuildContext context) => _RenderBleed(bleed);
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderBleed renderObject) {
+    renderObject.bleed = bleed;
+  }
+}
+
+class _RenderBleed extends RenderShiftedBox {
+  _RenderBleed(this._bleed) : super(null);
+
+  double _bleed;
+  set bleed(double value) {
+    if (value != _bleed) {
+      _bleed = value;
+      markNeedsLayout();
+    }
+  }
+
+  double get _both => _bleed * 2;
+
+  BoxConstraints _inner(BoxConstraints constraints) {
+    double grow(double extent) => extent.isFinite ? extent + _both : extent;
+
+    return BoxConstraints(
+      minWidth: constraints.minWidth + _both,
+      maxWidth: grow(constraints.maxWidth),
+      minHeight: constraints.minHeight + _both,
+      maxHeight: grow(constraints.maxHeight),
+    );
+  }
+
+  @override
+  double computeMinIntrinsicWidth(double height) {
+    return math.max(0, (child?.getMinIntrinsicWidth(height + _both) ?? 0) - _both);
+  }
+
+  @override
+  double computeMaxIntrinsicWidth(double height) {
+    return math.max(0, (child?.getMaxIntrinsicWidth(height + _both) ?? 0) - _both);
+  }
+
+  @override
+  double computeMinIntrinsicHeight(double width) {
+    return math.max(0, (child?.getMinIntrinsicHeight(width + _both) ?? 0) - _both);
+  }
+
+  @override
+  double computeMaxIntrinsicHeight(double width) {
+    return math.max(0, (child?.getMaxIntrinsicHeight(width + _both) ?? 0) - _both);
+  }
+
+  @override
+  Size computeDryLayout(BoxConstraints constraints) {
+    final Size inner = child?.getDryLayout(_inner(constraints)) ?? Size.zero;
+
+    return constraints.constrain(Size(inner.width - _both, inner.height - _both));
+  }
+
+  @override
+  void performLayout() {
+    final RenderBox? child = this.child;
+
+    if (child == null) {
+      size = constraints.smallest;
+
+      return;
+    }
+
+    child.layout(_inner(constraints), parentUsesSize: true);
+    (child.parentData! as BoxParentData).offset = Offset(-_bleed, -_bleed);
+    size = constraints.constrain(Size(child.size.width - _both, child.size.height - _both));
   }
 }
