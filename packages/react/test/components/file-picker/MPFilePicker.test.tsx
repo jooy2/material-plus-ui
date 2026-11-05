@@ -145,7 +145,10 @@ describe('MPFilePicker', () => {
       );
 
       expect(screen.container.querySelector('form')!.checkValidity()).toBe(false);
-      // And the browser can reach the control to say so.
+      // And the browser can reach the control to say so. The frame the test
+      // runs in is given the focus first: run before anything else had put the
+      // focus in a frame, Firefox left it on the body.
+      window.focus();
       fileInput().focus();
       expect(document.activeElement).toBe(fileInput());
     });
