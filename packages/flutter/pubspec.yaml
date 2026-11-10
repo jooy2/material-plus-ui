@@ -3,7 +3,7 @@ description: >-
   Material Design 3 for Flutter, written from the specification and extended
   past it: over 120 components, charts, a data table and a command palette
   included, themed from one source colour. No dependencies.
-version: 1.13.0
+version: 1.14.0
 repository: https://github.com/jooy2/material-plus-ui
 homepage: https://material-plus.cdget.com
 issue_tracker: https://github.com/jooy2/material-plus-ui/issues

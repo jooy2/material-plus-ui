@@ -144,7 +144,7 @@ packages:
       path: "../../packages/flutter"
       relative: true
     source: path
-    version: "1.13.0"
+    version: "1.14.0"
   material_plus_ui_example:
     dependency: "direct main"
     description:

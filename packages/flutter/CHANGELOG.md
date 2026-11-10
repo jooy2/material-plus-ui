@@ -4,6 +4,10 @@ The Flutter package, `material_plus_ui`. The React package keeps its own history
 
 ## vNext (2026--)
 
+## 1.14.0 (2026-11-10)
+
+This release makes `MPConfigProvider` the place to set the components' own words, the floating label and the first day of the week for everything under it, which is why a field's `floatingLabel` is a `bool?` now, the one change an app may have to answer. The rest are fixes: focus rings and floated labels that a scroll view cut off, in `MPDialog`, `MPDrawer`, `MPCollapsible` and `MPScrollZone`, a placeholder that flashed over its rising label, and two equal `MPConfigValue`s that hashed apart.
+
 ### Breaking changes
 
 - **A field's `floatingLabel` is a `bool?` now.** It was a `bool` that defaulted to `true`, and it is `null` when left out so that `MPConfigProvider` can decide it. Passing a value works as it did. Code that reads the field off a widget, such as `field.floatingLabel`, reads `field.floatingLabel ?? true` instead. The widgets are `MPTextField`, `MPSelect`, `MPCombobox`, `MPNumberField`, `MPColorPicker`, `MPTreeSelect`, `MPDatePicker`, `MPDateRangePicker`, `MPDateTimePicker` and `MPTimePicker`.
