@@ -135,6 +135,8 @@ It has to be one, or a reader with no pointer cannot move it at all. And a tab s
 
 Everything the buttons can do, the keyboard can do too. In `hold` mode that includes the hold itself: Enter or Space held on the button travels for as long as it is down, which is the half a pointer-only implementation forgets.
 
+A child that takes the focus keeps its whole ring. The scroller reaches 4px past the zone on every side, the ring's reach, and pads the room back, so nothing moves. A child that a press of the buttons, a snap or the focus brings into view lands against that padding, clear of the clip.
+
 :::
 
 ::: fw flutter
@@ -142,6 +144,8 @@ Everything the buttons can do, the keyboard can do too. In `hold` mode that incl
 ## The strip is a focus stop with a name
 
 While it has somewhere to scroll it is a focus stop of its own, or a reader with no pointer could not move a strip with nothing focusable in it: the arrow keys along it move it a line, Page Up and Page Down a screen, Home and End to its ends. It is a semantics container with a name either way: `label` is what is _in_ the strip, "Categories", "Recent files", and without it the fallback says what it is in the language `locale` names.
+
+A child that takes the focus keeps its whole ring. The strip is painted 4px past its box on every side, the ring's reach, so a ring on a child against an edge is not cut off, and nothing moves to make the room.
 
 :::
 
