@@ -210,8 +210,14 @@ export const MPCollapsible = React.forwardRef<HTMLDivElement, MPCollapsibleProps
         data-mp-variant={variant}
         className={[
           // `overflow-hidden` is what makes the panel a window rather than
-          // something that spills past the sheet's own corners while it moves.
-          'mp-collapsible rounded-mp-md flex w-full flex-col overflow-hidden',
+          // something that spills past the sheet's own corners while it moves,
+          // and what keeps the default header's state layer inside the corners.
+          //
+          // Not under a trigger of the caller's own. That trigger sits against
+          // the sheet's edges, and a clip there took its whole focus ring away,
+          // which is drawn outside it. The panel takes over the corners instead.
+          'mp-collapsible rounded-mp-md flex w-full flex-col',
+          trigger ? '' : 'overflow-hidden',
           containerSurface(variant, elevation),
           'text-mp-on-surface',
           className ?? ''
@@ -295,7 +301,15 @@ export const MPCollapsible = React.forwardRef<HTMLDivElement, MPCollapsibleProps
           ref={panel.attach}
           hiddenUntilFound={hiddenUntilFound}
           keepMounted={keepMounted}
-          className={[PANEL, panel.settled ? PANEL_SETTLED : ''].filter(Boolean).join(' ')}
+          className={[
+            PANEL,
+            panel.settled ? PANEL_SETTLED : '',
+            // The sheet's lower corners, so the clip while the panel moves
+            // follows them when the sheet itself does not clip.
+            trigger ? 'rounded-b-[inherit]' : ''
+          ]
+            .filter(Boolean)
+            .join(' ')}
           onTransitionEnd={panel.onTransitionEnd}
         >
           <div
@@ -308,7 +322,11 @@ export const MPCollapsible = React.forwardRef<HTMLDivElement, MPCollapsibleProps
               // owes only the space below it — otherwise a closed collapsible
               // would look padded along its bottom edge. A caller's own `trigger`
               // has paid for nothing, so there the panel owes both.
-              padded ? (trigger ? padY : PANEL_PAD_BOTTOM[size]) : ''
+              padded ? (trigger ? padY : PANEL_PAD_BOTTOM[size]) : '',
+              // Content with no padding reaches the sheet's corners, which crop
+              // it. The sheet does that itself unless there is a trigger of the
+              // caller's own, and then this does.
+              !padded && trigger ? 'overflow-hidden rounded-b-[inherit]' : ''
             ]
               .filter(Boolean)
               .join(' ')}

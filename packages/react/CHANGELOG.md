@@ -26,6 +26,8 @@
 
 - **An `MPScrollArea` shows a focus ring when the box itself takes the focus.** The box is a tab stop, so it can be scrolled from the keyboard, but it had no ring of its own. The browser's ring sat just outside it, where the area clips, so none of it showed. The ring is now drawn 2px outside the box, where the Flutter package draws it. Firefox before 121 still draws none.
 
+- **A trigger of your own on an `MPCollapsible` shows its focus ring.** The sheet clipped everything in it, and a trigger handed to `trigger` sits against the sheet's edges, so the ring drawn outside the trigger was cut off on all four sides. Under a trigger of your own the sheet no longer clips. The panel follows the sheet's lower corners while it opens and closes, and still crops content with `padded={false}` at those corners. A trigger that paints its own square background is no longer cropped to the sheet's corners. The default header is unchanged.
+
 ## 1.13.0 (2026-11-05)
 
 This release comes out of running the library in `examples/electron`, a desktop app now in the repository that puts every component on real screens. A string `shortcut` on a menu row is written in `MPShortcut`'s notation, the one change a project will notice without having met a bug. The rest are fixes from those screens: components that ran past the edge of a phone, a floated field label that wrapped over its border, an `MPTour` card and an `MPTabs` indicator that stayed behind, and shortcuts, dates and times that a right-to-left page reordered.

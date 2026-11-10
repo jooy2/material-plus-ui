@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { userEvent } from 'vitest/browser';
 import { MPButton, MPCollapsible } from 'material-plus-ui';
+import { clipEdges } from '../../support/layout';
 
 describe('MPCollapsible', () => {
   describe('rendering', () => {
@@ -236,6 +238,60 @@ describe('MPCollapsible', () => {
       );
 
       expect(getComputedStyle(panel()).overflow).toBe('visible');
+    });
+
+    it('draws the whole focus ring of a trigger of the caller’s own', async () => {
+      // The sheet clipped, and a trigger of the caller's own sits against its
+      // edges, so the ring drawn outside the trigger was cut off on all sides.
+      const screen = await render(
+        <MPCollapsible
+          variant="text"
+          trigger={<MPButton variant="text">Show the details</MPButton>}
+        >
+          The detail.
+        </MPCollapsible>
+      );
+
+      await userEvent.tab();
+
+      const button = screen.getByRole('button', { name: 'Show the details' }).element();
+      const box = button.getBoundingClientRect();
+      const edges = clipEdges(button);
+
+      expect(document.activeElement).toBe(button);
+      // MPButton's ring: a 2px outline 2px out from the box.
+      expect(box.top - edges.top).toBeGreaterThanOrEqual(4);
+      expect(edges.bottom - box.bottom).toBeGreaterThanOrEqual(4);
+    });
+
+    it('still keeps the default header inside the sheet’s corners', async () => {
+      await render(<MPCollapsible title="Account">Body</MPCollapsible>);
+
+      expect(
+        getComputedStyle(document.querySelector('.mp-collapsible') as HTMLElement).overflow
+      ).toBe('hidden');
+    });
+
+    it('crops unpadded content at the sheet’s lower corners under a trigger of the caller’s own', async () => {
+      await render(
+        <MPCollapsible
+          defaultOpen
+          padded={false}
+          variant="tonal"
+          trigger={<MPButton variant="text">Show the photo</MPButton>}
+        >
+          <div style={{ height: 120 }}>Photo</div>
+        </MPCollapsible>
+      );
+
+      const sheet = getComputedStyle(document.querySelector('.mp-collapsible') as HTMLElement);
+      const content = getComputedStyle(panel().firstElementChild as HTMLElement);
+
+      expect(content.overflow).toBe('hidden');
+      expect(content.borderBottomLeftRadius).toBe(sheet.borderBottomLeftRadius);
+      expect(content.borderBottomRightRadius).toBe(sheet.borderBottomRightRadius);
+      // And the panel's own clip, while it moves, follows the same corners.
+      expect(getComputedStyle(panel()).borderBottomLeftRadius).toBe(sheet.borderBottomLeftRadius);
     });
   });
 });
