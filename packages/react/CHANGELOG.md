@@ -2,6 +2,10 @@
 
 ## vNext (2026--)
 
+## 1.14.0 (2026-11-10)
+
+This release moves `material-plus-ui/a2ui` to version 1.0 of the A2UI protocol, on its SDK at 0.15, which is its one breaking change and reaches only a project that imports that subpath; the catalog also draws what v1.0 added and loads media only from addresses a page should load. `MPConfigProvider` sets the library's own words, the floating label, the first day of the week and the server locale for everything under it, and reads the direction off the document, and `MPDialog` and `MPDrawer` take a class for the part that scrolls. The rest are fixes: focus rings and floated labels that a scroll container cut off, in `MPDialog`, `MPDrawer`, `MPScrollArea`, `MPCollapsible` and `MPScrollZone`, and a placeholder that flashed over its rising label.
+
 ### Breaking changes
 
 - **`material-plus-ui/a2ui` speaks version 1.0 of A2UI, on the SDK at 0.15.** `@a2ui/react` and `@a2ui/web_core` are optional peers at `^0.15.0` now; upgrade the two together. A project that does not import the subpath is not affected. What a project and its agent will notice:
