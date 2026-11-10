@@ -42,6 +42,8 @@
 
 ### Fixed
 
+- **A field's placeholder no longer flashes over its rising label.** The placeholder appeared the moment an empty field with a floating label took the focus, while the label was still on its line for the first few frames of its rise, so the two were drawn over each other for about 55ms. The placeholder now waits 100ms, half the label's transition, by which time the label is clear of the line, and goes the moment the label starts back down. This holds for `MPTextField`, `MPNumberField`, `MPCombobox`, `MPSelect`, `MPColorPicker`, `MPTreeSelect` and the date and time pickers. A field whose label starts up, or that has none, shows its placeholder at once as before.
+
 - **A field at the top of an `MPDialog` body shows its floated label whole, and a button at its top or bottom shows its focus ring whole.** The body is a scroll container, so it clips at its edges, and it kept no room inside them. A label that has risen to the border sits half above its field, so the body cut off 6px of it, and it cut off the whole of a focus ring at its top and bottom. It now keeps room for both, and the gaps around it give that room back, so nothing on the sheet moves.
 
 - **A field at the top of an `MPDrawer` body shows its floated label whole.** The body kept 4px inside its edges for a focus ring, and a label that has risen to the border rises 6px above its field, so the top 2px were cut off. It now keeps room for the label as well, and the gaps around it give that room back, so nothing on the panel moves.

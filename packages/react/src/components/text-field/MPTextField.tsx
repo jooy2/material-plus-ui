@@ -345,7 +345,7 @@ export const MPTextField = React.forwardRef<
   const invalid = errorMessage.length > 0;
   const scale = SIZES[size];
   const shown = isComposing ? innerValue : value;
-  const { shrunk, focusProps } = useFloatingLabel({
+  const { shrunk, hinted, focusProps } = useFloatingLabel({
     floating: floatingLabel && !!label,
     filled: shown.length > 0,
     pinned: !!startIcon
@@ -482,7 +482,7 @@ export const MPTextField = React.forwardRef<
           autoComplete={autoComplete}
           // Withheld while a floating label is resting in the same place. It
           // comes back with focus, which is also when it is of any use.
-          placeholder={shrunk ? placeholder : undefined}
+          placeholder={hinted ? placeholder : undefined}
           maxLength={maxLength}
           value={shown}
           ref={setInputRef as React.Ref<HTMLElement>}

@@ -227,7 +227,7 @@ export const MPSelect = React.forwardRef<HTMLButtonElement, MPSelectProps>(funct
   const [chosen, setChosen] = React.useState<MPSelectValue | null>(defaultValue ?? null);
   const [open, setOpen] = React.useState(false);
   const current = value === undefined ? chosen : value;
-  const { shrunk, focusProps } = useFloatingLabel({
+  const { shrunk, hinted, focusProps } = useFloatingLabel({
     floating: floatingLabel && hasContent(label),
     filled: current !== null && current !== '',
     pinned: open || !!startIcon
@@ -322,7 +322,7 @@ export const MPSelect = React.forwardRef<HTMLButtonElement, MPSelectProps>(funct
                 .filter(Boolean)
                 .join(' ')}
               // Withheld while a floating label is resting in the same place.
-              placeholder={shrunk ? placeholder : undefined}
+              placeholder={hinted ? placeholder : undefined}
             />
 
             <Select.Icon

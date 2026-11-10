@@ -802,7 +802,7 @@ export const MPColorPicker = React.forwardRef<HTMLDivElement, MPColorPickerProps
     const showClear = clearable && !inert && !empty;
     // The open panel keeps the label up: focus moves into the popup, so the
     // trigger blurs the instant it appears.
-    const { shrunk, focusProps } = useFloatingLabel({
+    const { shrunk, hinted, focusProps } = useFloatingLabel({
       floating: floatingLabel && hasContent(label),
       filled: !empty,
       pinned: isOpen
@@ -956,7 +956,7 @@ export const MPColorPicker = React.forwardRef<HTMLDivElement, MPColorPickerProps
             >
               {/* The swatch is the value drawn, so an empty one has nothing to
                   say and gives its place up to the resting label. */}
-              {empty && !shrunk ? null : preview}
+              {empty && !hinted ? null : preview}
               <span
                 className={[
                   'min-w-0 flex-1 truncate text-start',
@@ -965,7 +965,7 @@ export const MPColorPicker = React.forwardRef<HTMLDivElement, MPColorPickerProps
                   .filter(Boolean)
                   .join(' ')}
               >
-                {empty ? (shrunk ? labels.empty : null) : written}
+                {empty ? (hinted ? labels.empty : null) : written}
               </span>
             </Popover.Trigger>
 

@@ -285,7 +285,9 @@ describe('MPSelect', () => {
 
       await open(screen);
 
-      expect(screen.getByRole('combobox').element().textContent).toContain('Pick one');
+      // Once the label has risen past the line it shares with the placeholder,
+      // which takes it a few frames.
+      await expect.element(screen.getByRole('combobox')).toHaveTextContent('Pick one');
     });
   });
 

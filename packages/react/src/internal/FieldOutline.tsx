@@ -329,6 +329,13 @@ export interface MPFloatingLabel {
   /** Whether the label is up in the notch right now. */
   shrunk: boolean;
   /**
+   * Whether a placeholder, or any hint drawn on the line the resting label
+   * sits on, may show. It follows `shrunk`, except that it waits
+   * `HINT_DELAY_MS` after the label starts to rise, so the two are never drawn
+   * over each other while the label is on its way up.
+   */
+  hinted: boolean;
+  /**
    * Spread on the element the control sits inside — the `Field.Root`, or the
    * shell `<div>` under it. Anything focusable within it counts as the field
    * being focused, which is what a reader tabbing onto a password toggle or a
@@ -357,6 +364,22 @@ export interface MPFloatingLabelOptions {
 }
 
 /**
+ * How long a placeholder waits for a rising label to clear the line they share.
+ *
+ * The label moves over `--mp-sys-motion-duration-short4`, 200ms, and the
+ * placeholder used to appear the moment the field was focused. Measured frame
+ * by frame in Chromium, the label is still on the input's line for the first
+ * three or four frames of that, about 55ms, so for that long the two were drawn
+ * over each other. Half the transition leaves the label clear by a margin.
+ *
+ * A delay rather than an animation of the placeholder's opacity, because
+ * Firefox does not animate `::placeholder`, and because a select's and a
+ * picker's hint are elements rather than a placeholder at all: one rule covers
+ * every field that has a floating label.
+ */
+const HINT_DELAY_MS = 100;
+
+/**
  * Which of its two places the label is in, and how the field learns it moved.
  *
  * Focus is tracked here rather than read from Base UI's `data-focused` because
@@ -377,9 +400,35 @@ export function useFloatingLabel({
   pinned = false
 }: MPFloatingLabelOptions): MPFloatingLabel {
   const [focused, setFocused] = React.useState(false);
+  const shrunk = !floating || filled || focused || pinned;
+  /*
+   * Up from the first render when the label starts up, so a field that mounts
+   * focused, filled or with no label to rest shows its placeholder at once.
+   * Only a label that has to travel makes the placeholder wait.
+   */
+  const [risen, setRisen] = React.useState(shrunk);
+
+  React.useEffect(() => {
+    if (!shrunk) {
+      setRisen(false);
+
+      return undefined;
+    }
+
+    if (risen) {
+      return undefined;
+    }
+
+    const timer = window.setTimeout(() => setRisen(true), HINT_DELAY_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [shrunk, risen]);
 
   return {
-    shrunk: !floating || filled || focused || pinned,
+    shrunk,
+    // `shrunk` as well, so the hint goes in the same render the label starts
+    // down, rather than one render after it.
+    hinted: shrunk && risen,
     focusProps: {
       onFocusCapture: () => setFocused(true),
       onBlurCapture: (event) => {

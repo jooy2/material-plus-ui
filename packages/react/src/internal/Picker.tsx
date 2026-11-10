@@ -286,7 +286,7 @@ export function MPPickerShell({
   // The open popup is here for the reason `MPSelect`'s is: focus moves into the
   // calendar, so the trigger blurs the instant it appears and the label would
   // fall back down over a picker that is plainly being answered.
-  const { shrunk, focusProps } = useFloatingLabel({
+  const { shrunk, hinted, focusProps } = useFloatingLabel({
     floating: floatingLabel && hasContent(label),
     filled: !empty,
     pinned: open || hasContent(startIcon)
@@ -374,7 +374,7 @@ export function MPPickerShell({
                 {/* Withheld while a floating label is resting in the same
                     place: what a picker shows when it is empty is a hint, and
                     two greyed strings in one box is not a hint. */}
-                {empty && !shrunk ? null : typeof display === 'string' ? (
+                {empty && !hinted ? null : typeof display === 'string' ? (
                   // Isolated, in the direction of what it says: a date written in
                   // one language on a page laid out in the other is otherwise
                   // reordered, `2026. 11. 5.` reading `.5 .11 .2026` on an

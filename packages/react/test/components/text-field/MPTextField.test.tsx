@@ -282,10 +282,43 @@ describe('MPTextField', () => {
 
     it('withholds the placeholder until the label is out of its way', async () => {
       const screen = await render(<MPTextField value="" label="Email" placeholder="you@example" />);
+      const input = screen.getByRole('textbox').element() as HTMLInputElement;
 
-      expect(screen.getByRole('textbox').element()).not.toHaveAttribute('placeholder');
+      expect(input).not.toHaveAttribute('placeholder');
 
-      await screen.getByRole('textbox').click();
+      input.focus();
+      // React commits a focus in a microtask of its own, which runs before this.
+      await Promise.resolve();
+
+      // Not in the same frame the label starts up in: for its first few frames
+      // the label is still on the line the placeholder is drawn on, and the two
+      // were drawn over each other.
+      expect(shrunk()).toBe(true);
+      expect(input).not.toHaveAttribute('placeholder');
+
+      await expect.element(input).toHaveAttribute('placeholder', 'you@example');
+    });
+
+    it('takes the placeholder away in the same frame the label comes back down', async () => {
+      const screen = await render(<MPTextField value="" label="Email" placeholder="you@example" />);
+      const input = screen.getByRole('textbox').element() as HTMLInputElement;
+
+      input.focus();
+      await expect.element(input).toHaveAttribute('placeholder', 'you@example');
+
+      input.blur();
+      await Promise.resolve();
+
+      expect(shrunk()).toBe(false);
+      expect(input).not.toHaveAttribute('placeholder');
+    });
+
+    it('shows the placeholder at once when the label starts up', async () => {
+      // Nothing has to travel, so nothing is waited for: a field that mounts
+      // filled, focused or with its label pinned shows its hint straight away.
+      const screen = await render(
+        <MPTextField value="" label="Email" placeholder="you@example" floatingLabel={false} />
+      );
 
       expect(screen.getByRole('textbox').element()).toHaveAttribute('placeholder', 'you@example');
     });

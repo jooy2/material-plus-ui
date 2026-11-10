@@ -445,7 +445,7 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
   // Typed text counts as content as much as a chosen row does: the label cannot
   // sit on top of what is being typed under it, and in single mode Base UI puts
   // the chosen option's own label into the input anyway.
-  const { shrunk, focusProps } = useFloatingLabel({
+  const { shrunk, hinted, focusProps } = useFloatingLabel({
     floating: floatingLabel && hasContent(label),
     filled: selection.length > 0 || query !== '',
     pinned: !!startIcon
@@ -594,7 +594,7 @@ export function MPCombobox<Multiple extends boolean | undefined = false>({
       ref={inputRef}
       id={fieldId}
       // Withheld while a floating label is resting in the same place.
-      placeholder={shrunk ? placeholder : undefined}
+      placeholder={hinted ? placeholder : undefined}
       // The caller's, on the input rather than on the field: a keystroke that
       // landed on the chevron or on a chip's × is not one that landed in the
       // query. Base UI still answers the keys it owns — the arrows that walk the

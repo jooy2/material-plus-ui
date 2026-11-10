@@ -233,7 +233,7 @@ export function MPNumberField({
    */
   const [entered, setEntered] = React.useState<number | null>(defaultValue ?? null);
   const current = value === undefined ? entered : value;
-  const { shrunk, focusProps } = useFloatingLabel({
+  const { shrunk, hinted, focusProps } = useFloatingLabel({
     floating: floatingLabel && hasContent(label),
     filled: current !== null,
     pinned: !!startIcon || (showSteppers && steppers === 'split')
@@ -337,7 +337,7 @@ export function MPNumberField({
 
             <NumberField.Input
               // Withheld while a floating label is resting in the same place.
-              placeholder={shrunk ? placeholder : undefined}
+              placeholder={hinted ? placeholder : undefined}
               // The caller's handlers, on the input rather than on the shell
               // around it: a keystroke that landed on a stepper is not one that
               // landed in the number.
