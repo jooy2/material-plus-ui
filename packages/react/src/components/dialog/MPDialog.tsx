@@ -7,7 +7,7 @@ import { cssLength } from '../../internal/length';
 import { useMPLocale, useMPMessages } from '../../internal/locale';
 import { COMMON } from '../../internal/messages/common';
 import { MPStateLayer } from '../../internal/StateLayer';
-import { SHEET_GAP, hasContent } from '../../internal/scale';
+import { SHEET_BODY_ROOM, SHEET_GAP, hasContent } from '../../internal/scale';
 import { FADE, PORTAL_LAYER, SCRIM, SHEET_MOTION } from '../../internal/surface';
 import { useMPSize } from '../../internal/config';
 import type { MPColor, MPControlEventProps, MPSize, MPSlots } from '../../types';
@@ -494,7 +494,12 @@ export function MPDialog({
                   'min-h-0 flex-1 overflow-y-auto overscroll-contain',
                   BODY[size],
                   section,
-                  dividers && (hasHeader || withClose) ? rule : ''
+                  dividers && (hasHeader || withClose) ? rule : '',
+                  // Room for a focus ring and for a floated label at the body's
+                  // edges, which the scroll container would otherwise clip. See
+                  // `SHEET_BODY_ROOM`. A ruled body carries the full `PAD`,
+                  // which is room enough.
+                  dividers ? '' : SHEET_BODY_ROOM
                 ]
                   .filter(Boolean)
                   .join(' ')}

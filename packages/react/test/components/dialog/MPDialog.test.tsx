@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { userEvent } from 'vitest/browser';
-import { MPButton, MPDialog, MPDialogClose } from 'material-plus-ui';
+import { MPButton, MPDialog, MPDialogClose, MPTextField } from 'material-plus-ui';
+import type { MPSize } from 'material-plus-ui';
+import { clipEdges } from '../../support/layout';
 import { scaled } from '../../support/style';
 
 function ControlledDialog(props: Record<string, unknown>) {
@@ -242,6 +244,65 @@ describe('MPDialog', () => {
       const sheet = document.querySelector('.mp-dialog') as HTMLElement;
 
       expect(sheet.style.getPropertyValue('--_mp-accent')).toBe('var(--_mp-color-error)');
+    });
+  });
+
+  describe('the body', () => {
+    /** The sheet, once the grow has finished and the layout is where it ends. */
+    async function settledSheet(): Promise<HTMLElement> {
+      const sheet = await vi.waitFor(() => {
+        const found = document.querySelector('.mp-dialog');
+
+        expect(found).not.toBeNull();
+
+        return found as HTMLElement;
+      });
+
+      await expect.poll(() => getComputedStyle(sheet).scale).toBe('none');
+
+      return sheet;
+    }
+
+    for (const size of ['xs', 'sm', 'md', 'lg', 'xl'] as MPSize[]) {
+      it(`draws a floated label at its top whole, without moving the field, at ${size}`, async () => {
+        // The body scrolls, so it clips at its padding box. A label in the
+        // notch is centred on the field's top edge and rises half its height
+        // above it, which the body used to cut off.
+        const screen = await render(
+          <MPDialog open size={size} title="Save template" description="Pick a name">
+            <MPTextField size={size} label="Name" value="Draft" fullWidth />
+          </MPDialog>
+        );
+        const sheet = await settledSheet();
+        const label = sheet.querySelector('label[data-mp-shrunk]')!;
+        const field = sheet.querySelector('.mp-text-field')!;
+        const header = screen.getByText('Pick a name').element().parentElement!.parentElement!;
+
+        expect(label.getBoundingClientRect().top).toBeGreaterThanOrEqual(clipEdges(label).top);
+        // The room is handed back, so the field is still one gap under the
+        // header.
+        expect(
+          field.getBoundingClientRect().top - header.getBoundingClientRect().bottom
+        ).toBeCloseTo(parseFloat(getComputedStyle(sheet).rowGap), 0);
+      });
+    }
+
+    it('leaves room for a focus ring at its top and bottom', async () => {
+      const screen = await render(
+        <MPDialog open title="Save template" actions={<MPButton>Save</MPButton>}>
+          <MPButton>Inside</MPButton>
+        </MPDialog>
+      );
+
+      await settledSheet();
+
+      const button = screen.getByRole('button', { name: 'Inside' }).element();
+      const box = button.getBoundingClientRect();
+      const edges = clipEdges(button);
+
+      // MPButton's ring: a 2px outline 2px out from the box.
+      expect(box.top - edges.top).toBeGreaterThanOrEqual(4);
+      expect(edges.bottom - box.bottom).toBeGreaterThanOrEqual(4);
     });
   });
 

@@ -214,6 +214,31 @@ export const SHEET_GAP: Record<MPSize, string> = {
   xl: 'gap-4'
 };
 
+/**
+ * The room a sheet's scrolling body keeps inside its own edges, for an unruled
+ * sheet. A negative margin of the same size hands it straight back, so nothing
+ * on the sheet moves.
+ *
+ * A scroll container clips at its padding box, and two things a body can hold
+ * are drawn past the box of the control that owns them. A focus ring sits 4px
+ * outside its control. A label floated into a field's notch is centred on the
+ * field's top edge, so half of it rises above the field: 6px at the default
+ * `body-small`, which is what the label is set in. A dialog's body had no room
+ * at all, which cut a floated label in half and every focus ring at its top and
+ * bottom. A drawer's 4px covered the ring and still cut 2px off the label.
+ *
+ * The top is whichever of the two is larger, and it is written against the
+ * label's own token, so a theme that sets `body-small` larger still clears it.
+ * The bottom needs only the ring, because nothing in a field reaches past its
+ * bottom edge. The gaps on either side absorb the negative margin: the smallest
+ * is `xs`'s 6px, which is exactly the default top.
+ */
+export const SHEET_BODY_ROOM = [
+  'pt-[max(0.25rem,var(--mp-sys-typescale-body-small-size)/2)]',
+  '-mt-[max(0.25rem,var(--mp-sys-typescale-body-small-size)/2)]',
+  '-mb-1 pb-1'
+].join(' ');
+
 /** The gap between a control and the text stacked above or below it. */
 export const STACK_GAP: Record<MPSize, string> = {
   xs: 'gap-0.5',
