@@ -22,8 +22,8 @@
  * button in the corner.
  */
 import * as React from 'react';
-import { createComponentImplementation } from '@a2ui/react/v0_9';
-import { ModalApi } from '@a2ui/web_core/v0_9';
+import { createComponentImplementation } from '@a2ui/react';
+import { ModalApi } from '@a2ui/web_core/v1_0';
 import { MPDialog } from '../../components/dialog/MPDialog';
 import { asText, weightStyle } from '../internal/common';
 

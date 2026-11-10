@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { A2uiSurface, type ReactComponentImplementation } from '@a2ui/react/v0_9';
-import type { A2uiMessage } from '@a2ui/web_core/v0_9';
-import { MessageProcessor } from '@a2ui/web_core/v0_9';
+import { A2uiSurface, type ReactComponentImplementation } from '@a2ui/react';
+import type { AgentToRendererMessage } from '@a2ui/web_core/v1_0';
+import { MessageProcessor } from '@a2ui/web_core/v1_0';
 import {
   MP_A2UI_CATALOG_ID,
   MP_A2UI_EXTENDED_COMPONENTS,
   mpA2uiExtendedCatalog
 } from 'material-plus-ui/a2ui';
-import published from '../../../../docs/public/a2ui/v0_9/catalog.json';
+import published from '../../../../docs/public/a2ui/v1_0/catalog.json';
 
 /**
  * The five components this library adds to the protocol's vocabulary.
@@ -28,15 +28,15 @@ function surfaceOf(components: Record<string, unknown>[], data?: Record<string, 
 
   processor.processMessages([
     {
-      version: 'v0.9',
+      version: '1.0',
       createSurface: {
         surfaceId: SURFACE,
         catalogId: MP_A2UI_CATALOG_ID,
         sendDataModel: true
       }
     },
-    { version: 'v0.9', updateComponents: { surfaceId: SURFACE, components } }
-  ] as A2uiMessage[]);
+    { version: '1.0', updateComponents: { surfaceId: SURFACE, components } }
+  ] as AgentToRendererMessage[]);
 
   const surface = processor.model.surfacesMap.get(SURFACE);
 
@@ -84,23 +84,38 @@ describe('the extended catalog', () => {
       // so when it is not. An agent reading a stale catalog asks for props the
       // renderer no longer has, and nothing on either side reports it.
       expect(published.catalogId).toBe(MP_A2UI_CATALOG_ID);
+      expect(published.protocolVersion).toBe('1.0');
       expect(Object.keys(published.components).sort()).toEqual(
         [...mpA2uiExtendedCatalog.components.keys()].sort()
       );
     });
 
     it('publishes no reference that does not resolve', () => {
-      // Every `$ref` has to be the protocol's own definition file, by its full
-      // address: a relative one resolves beside the published file, where the
-      // site serves nothing. A pointer into the document itself is what the SDK's
-      // conversion emits and what the generator rewrites, because the published
-      // file has no `$defs` for it to name.
-      const refs = JSON.stringify(published).match(/"\$ref":"[^"]*"/g) ?? [];
+      // Every `$ref` is either the protocol's own definition file, by its full
+      // address, or a pointer into this document that lands on something. A
+      // relative `common_types.json` would resolve beside the published file,
+      // where the site serves nothing.
+      const refs = [...JSON.stringify(published).matchAll(/"\$ref":"([^"]*)"/g)].map(
+        ([, ref]) => ref
+      );
+      const COMMON_TYPES = 'https://a2ui.org/specification/v1_0/common_types.json#/$defs/';
 
       expect(refs.length).toBeGreaterThan(0);
 
       for (const ref of refs) {
-        expect(ref).toContain('"https://a2ui.org/specification/v0_9/common_types.json#/$defs/');
+        if (ref.startsWith('#/')) {
+          const target = ref
+            .slice(2)
+            .split('/')
+            .reduce<unknown>(
+              (node, key) => (node as Record<string, unknown> | undefined)?.[key],
+              published
+            );
+
+          expect(target, ref).toBeDefined();
+        } else {
+          expect(ref.startsWith(COMMON_TYPES), ref).toBe(true);
+        }
       }
     });
   });
@@ -125,7 +140,7 @@ describe('the extended catalog', () => {
       const screen = await render(
         <A2uiSurface
           surface={surfaceOf(
-            [{ id: 'root', component: 'DataTable', columns: COLUMNS, rows: { path: '/rows' } }],
+            [{ id: 'root', component: 'DataTable', columns: COLUMNS, rows: { '@path': '/rows' } }],
             { '/rows': ROWS }
           )}
         />
@@ -143,7 +158,7 @@ describe('the extended catalog', () => {
           rows: ROWS,
           rowKey: 'city',
           selection: 'multiple',
-          selectedKeys: { path: '/picked' }
+          selectedKeys: { '@path': '/picked' }
         }
       ]);
       const screen = await render(<A2uiSurface surface={surface} />);
@@ -161,7 +176,7 @@ describe('the extended catalog', () => {
       const screen = await render(
         <A2uiSurface
           surface={surfaceOf(
-            [{ id: 'root', component: 'DataTable', columns: COLUMNS, rows: { path: '/rows' } }],
+            [{ id: 'root', component: 'DataTable', columns: COLUMNS, rows: { '@path': '/rows' } }],
             { '/rows': [{ city: { name: 'Seoul' }, orders: null }] }
           )}
         />
@@ -180,7 +195,7 @@ describe('the extended catalog', () => {
               {
                 id: 'root',
                 component: 'BarChart',
-                series: { path: '/series' },
+                series: { '@path': '/series' },
                 categories: ['Jan', 'Feb'],
                 label: 'Orders by month'
               }
@@ -229,7 +244,14 @@ describe('the extended catalog', () => {
       const screen = await render(
         <A2uiSurface
           surface={surfaceOf(
-            [{ id: 'root', component: 'BarChart', series: { path: '/series' }, label: 'Pending' }],
+            [
+              {
+                id: 'root',
+                component: 'BarChart',
+                series: { '@path': '/series' },
+                label: 'Pending'
+              }
+            ],
             // What a half-written data model looks like: the agent said it would
             // put a series here and has not yet.
             { '/series': 'later' }
@@ -265,6 +287,27 @@ describe('the extended catalog', () => {
       // headline figure unless the agent asks for `compact: false`.
       await expect.element(screen.getByText('12.4K')).toBeInTheDocument();
       await expect.element(screen.getByText('+24%')).toBeInTheDocument();
+    });
+
+    it('takes the accessibility the envelope carries, as the basic components do', async () => {
+      // From v1.0 `accessibility` belongs to the component envelope rather than
+      // to each schema. A strict schema that left it out would refuse this
+      // payload if the SDK did not take it off first.
+      const screen = await render(
+        <A2uiSurface
+          surface={surfaceOf([
+            {
+              id: 'root',
+              component: 'Statistic',
+              label: 'Revenue',
+              value: 12400,
+              accessibility: { label: 'Revenue this month' }
+            }
+          ])}
+        />
+      );
+
+      expect(screen.container.querySelector('[aria-label="Revenue this month"]')).not.toBeNull();
     });
 
     it('draws a value that is a string as it was written', async () => {

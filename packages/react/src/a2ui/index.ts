@@ -9,8 +9,8 @@
  * Material Plus on the other end with nothing changed at its end.
  *
  * ```tsx
- * import { A2uiSurface, type ReactComponentImplementation } from '@a2ui/react/v0_9';
- * import { MessageProcessor } from '@a2ui/web_core/v0_9';
+ * import { A2uiSurface, type ReactComponentImplementation } from '@a2ui/react';
+ * import { MessageProcessor } from '@a2ui/web_core/v1_0';
  * import { mpA2uiCatalog } from 'material-plus-ui/a2ui';
  * import 'material-plus-ui/styles.css';
  *
@@ -57,7 +57,9 @@
  * - **Text is text.** Markdown is rendered only when the application has
  *   configured a renderer through `@a2ui/react`'s Markdown context, whose contract
  *   requires it to sanitize; with none configured, an agent's string is drawn as
- *   the characters it contains. See `components/MPA2uiText.tsx`.
+ *   the characters it contains. The one exception is a text that is a single
+ *   heading line, `## Like this`, whose words are drawn as a heading, still as
+ *   text. See `components/MPA2uiText.tsx`.
  * - **URLs are the agent's.** `Image`, `Video` and `AudioPlayer` load what the
  *   payload names them, so a surface from an agent you do not control belongs
  *   behind a Content Security Policy that says where media may come from.

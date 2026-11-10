@@ -6,8 +6,8 @@
  * what a screen reader announces. `validationErrors` draws under it, as the
  * component's own error line, which is also what turns the box red.
  */
-import { createComponentImplementation } from '@a2ui/react/v0_9';
-import { CheckBoxApi } from '@a2ui/web_core/v0_9';
+import { createComponentImplementation } from '@a2ui/react';
+import { CheckBoxApi } from '@a2ui/web_core/v1_0';
 import { MPCheckbox } from '../../components/checkbox/MPCheckbox';
 import { weightStyle } from '../internal/common';
 

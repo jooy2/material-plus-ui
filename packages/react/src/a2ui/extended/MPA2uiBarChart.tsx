@@ -7,7 +7,7 @@
  * Everything else — the palette, the axes' own ticks, the hover panel, the legend's
  * behaviour — is the component's, and an agent has no business deciding any of it.
  */
-import { createComponentImplementation } from '@a2ui/react/v0_9';
+import { createComponentImplementation } from '@a2ui/react';
 import { MPBarChart } from '../../components/bar-chart/MPBarChart';
 import { BarChartApi } from './api';
 import { toAxis, toCategories, toSeries } from './chart';

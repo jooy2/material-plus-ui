@@ -7,7 +7,7 @@
  * A catalog cannot stop an agent drawing a bad chart, but it can tell it which
  * chart is bad for what.
  */
-import { createComponentImplementation } from '@a2ui/react/v0_9';
+import { createComponentImplementation } from '@a2ui/react';
 import { MPPieChart } from '../../components/pie-chart/MPPieChart';
 import { PieChartApi } from './api';
 import { toCategories, toData } from './chart';

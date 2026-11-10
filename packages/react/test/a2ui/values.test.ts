@@ -96,7 +96,7 @@ describe('asText', () => {
     // The binder resolves a nested binding before a component sees it. If one
     // ever arrives unresolved, the label is missing rather than `[object Object]`.
     expect(asText('Sign in')).toBe('Sign in');
-    expect(asText({ path: '/label' })).toBeUndefined();
+    expect(asText({ '@path': '/label' })).toBeUndefined();
     expect(asText(undefined)).toBeUndefined();
   });
 });

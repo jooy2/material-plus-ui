@@ -7,7 +7,7 @@
  * that arrives as a number is passed as one, and a string is passed through
  * untouched for the figure that is not arithmetic (`4.8 / 5`, `A+`).
  */
-import { createComponentImplementation } from '@a2ui/react/v0_9';
+import { createComponentImplementation } from '@a2ui/react';
 import { MPStatistic } from '../../components/statistic/MPStatistic';
 import { StatisticApi } from './api';
 import { accessibilityAttributes, weightStyle } from '../internal/common';

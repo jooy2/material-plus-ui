@@ -2,7 +2,21 @@
 
 ## vNext (2026--)
 
+### Breaking changes
+
+- **`material-plus-ui/a2ui` speaks version 1.0 of A2UI, on the SDK at 0.15.** `@a2ui/react` and `@a2ui/web_core` are optional peers at `^0.15.0` now; upgrade the two together. A project that does not import the subpath is not affected. What a project and its agent will notice:
+  - `A2UI_BASIC_CATALOG_ID` is `https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json` and `MP_A2UI_CATALOG_ID` is `https://material-plus.cdget.com/a2ui/v1_0/catalog.json`, and both catalogs declare protocol version `1.0`. The agent sends `"version": "1.0"` on every message, binds a value with `{ "@path": "/…" }` and calls a function with `{ "@call": "…" }`. A v0.9 payload is refused.
+  - `Text` has no `h1` to `h5` variants. A heading is a line of Markdown, `## Like this`, and is drawn as that heading of the type scale with or without a Markdown renderer.
+  - `TextField` has no `validationRegexp`. A pattern is a `regex` check among the field's `checks`.
+  - Code of your own imports the SDK from `@a2ui/react` and `@a2ui/web_core/v1_0`, and types a message as `AgentToRendererMessage`, as the examples in the guide do.
+  - The SDK cannot be loaded outside a browser. `@a2ui/react` 0.15 defines a custom element as it loads, so a server render that imports the subpath throws `HTMLElement is not defined`. Load the module that renders surfaces on the client alone, such as with `dynamic(…, { ssr: false })` in Next.js.
+  - The SDK is heavier. The basic catalog with the SDK is 148.3 kB gzipped against 95.3 on 0.12, and with the five components of this library's own 173.1 against 120.3. The catalog's own part is 40.5 kB.
+
+  The schema published at `MP_A2UI_CATALOG_ID` is now the document the SDK writes with `Catalog.toJson()`, the same one `getRendererCapabilities` sends an agent, and it names the protocol's common types by their full address. The v0.9 document stays at its old address for the releases that name it.
+
 ### Added
+
+- **The A2UI catalog draws what v1.0 added to the basic components.** `TextField` shows `placeholder` once its label has risen, `Video` shows `posterUrl` before it plays, and `Slider` with `steps` stops only on those steps and draws a tick at each. `accessibility` carries `live` and `hidden` through as `aria-live` and `aria-hidden`.
 
 - **`MPConfigProvider` takes `labels`, for the words the library says on its own behalf.** It is keyed by namespace, the same shape `registerMPMessages` takes, and is a partial: `labels={{ alert: { dismiss: 'Hide' } }}` renames one button for the whole subtree and leaves every other word as the locale has it. A component's own `labels` still wins, and nested providers merge a word at a time.
 
@@ -16,7 +30,7 @@
 
 ### Changed
 
-- **The dependencies are current.** `lucide-react` moves to 1.70, `playwright` to 1.65, `vite` to 8.3.7, `vitest` to 5.1, `@vitejs/plugin-react` to 6.3, `typescript-eslint` to 8.72.2, React to 19.3.1, Tailwind to 4.3.5, and the rest of the toolchain to its newest. A2UI's SDK moves on its own, with the protocol version the catalog speaks. The Base UI peer range stays `^1.7.0`.
+- **The dependencies are current.** `lucide-react` moves to 1.70, A2UI's SDK to 0.15, `playwright` to 1.65, `vite` to 8.3.7, `vitest` to 5.1, `@vitejs/plugin-react` to 6.3, `typescript-eslint` to 8.72.2, React to 19.3.1, Tailwind to 4.3.5, and the rest of the toolchain to its newest. The Base UI peer range stays `^1.7.0`.
 
   None of it moves this library's own figures. `MPButton` is still 3.8 kB and every export 139.5 kB, and `lucide-react` 1.70 costs nothing measurable. The whole stylesheet is 175.9 kB where it was 176.1 on Tailwind 4.3.3, and still 23.9 kB compressed.
 

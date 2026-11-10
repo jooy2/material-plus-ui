@@ -8,8 +8,8 @@
  * a name this catalog knows or a payload that got past validation, and neither
  * case is improved by inventing a picture for it.
  */
-import { createComponentImplementation } from '@a2ui/react/v0_9';
-import { IconApi } from '@a2ui/web_core/v0_9';
+import { createComponentImplementation } from '@a2ui/react';
+import { IconApi } from '@a2ui/web_core/v1_0';
 import { MPIcon } from '../../components/icon/MPIcon';
 import { A2UI_ICONS } from '../internal/icons';
 import { asText, weightStyle } from '../internal/common';
@@ -28,13 +28,22 @@ export const MPA2uiIcon = createComponentImplementation(IconApi, ({ props }) => 
    * The agent's own artwork. `MPIcon` takes an element as readily as a component,
    * so a path arrives as the one element it describes — `currentColor`, so it
    * takes the colour of whatever it was placed in, exactly as a named glyph does.
+   *
+   * From v1.0 the path may be bound to the data model, so it is read as text:
+   * one that resolved to anything else draws nothing, as an unknown name does.
    */
   if (name && typeof name === 'object' && 'svgPath' in name) {
+    const path = asText(name.svgPath);
+
+    if (!path) {
+      return null;
+    }
+
     return (
       <MPIcon
         icon={
           <svg viewBox="0 0 24 24" width={24} height={24} fill="currentColor">
-            <path d={String(name.svgPath)} />
+            <path d={path} />
           </svg>
         }
         {...shared}

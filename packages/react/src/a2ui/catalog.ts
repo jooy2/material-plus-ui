@@ -18,8 +18,8 @@
  * is for exactly that: mint a URI you control, add your implementations, and the
  * eighteen here come along.
  */
-import type { ReactComponentImplementation } from '@a2ui/react/v0_9';
-import { BASIC_FUNCTIONS, Catalog } from '@a2ui/web_core/v0_9';
+import type { ReactComponentImplementation } from '@a2ui/react';
+import { BASIC_FUNCTIONS, Catalog } from '@a2ui/web_core/v1_0';
 import { MPA2uiBarChart } from './extended/MPA2uiBarChart';
 import { MPA2uiDataTable } from './extended/MPA2uiDataTable';
 import { MPA2uiLineChart } from './extended/MPA2uiLineChart';
@@ -47,17 +47,30 @@ import { MPA2uiVideo } from './components/MPA2uiVideo';
 /**
  * The id of A2UI's basic catalog, which is the contract this package implements.
  *
- * The path says `v0_9` and holds the v0.9.1 schemas, which is the protocol's own
- * spelling rather than a mistake here. Written out rather than imported, because
- * the only module that exports it is the one that also registers the reference
- * renderer's eighteen custom elements as a side effect of being loaded.
+ * The path says `v1_0` and the document there declares protocol version `1.0`;
+ * the underscore is the protocol's own spelling. Written out rather than
+ * imported, because the SDK names it only as the `id` of its own `basicCatalog`,
+ * and reading it from there would put the reference renderer's eighteen Lit
+ * elements in every bundle that imports this module.
  *
  * Exported because an agent has to send this exact string for a surface to
  * resolve, and a client has to announce it in `supportedCatalogIds`. A URI that
  * has to match in two places is not a string to retype in either of them.
  */
 export const A2UI_BASIC_CATALOG_ID =
-  'https://a2ui.org/specification/v0_9/catalogs/basic/catalog.json';
+  'https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json';
+
+/**
+ * Where the protocol's common types are published, by the address their own
+ * document gives as its `$id`.
+ *
+ * A catalog document names `DynamicString`, `Child` and the rest by reference,
+ * and the SDK writes those references against a relative `common_types.json`
+ * unless it is told otherwise. Relative to a document served at
+ * `MP_A2UI_CATALOG_ID`, or sent inline in a client's capabilities, that is an
+ * address nothing answers, so the catalogs here give the full one.
+ */
+const A2UI_COMMON_TYPES_URI = 'https://a2ui.org/specification/v1_0/common_types.json';
 
 /** The eighteen implementations, in the order the specification lists them. */
 export const MP_A2UI_COMPONENTS: ReactComponentImplementation[] = [
@@ -96,7 +109,7 @@ export const MP_A2UI_COMPONENTS: ReactComponentImplementation[] = [
  * draw, and saying otherwise with the basic id would be a promise to any other
  * renderer that it could.
  */
-export const MP_A2UI_CATALOG_ID = 'https://material-plus.cdget.com/a2ui/v0_9/catalog.json';
+export const MP_A2UI_CATALOG_ID = 'https://material-plus.cdget.com/a2ui/v1_0/catalog.json';
 
 /**
  * The components this library adds to the protocol's vocabulary: a table, three
@@ -143,11 +156,12 @@ export const createMPA2uiCatalog = ({
   new Catalog<ReactComponentImplementation>(
     id,
     // The protocol version the schemas above are written against, spelled the
-    // way the SDK's own v0.9 catalog spells it. The processor refuses a
-    // `createSurface` that names a version this one is not compatible with.
-    '0.9',
+    // way the SDK's own v1.0 catalog and the wire spell it. The processor refuses
+    // a `createSurface` that names a version this one is not compatible with.
+    '1.0',
     [...MP_A2UI_COMPONENTS, ...components],
-    functions
+    functions,
+    { commonTypesUri: A2UI_COMMON_TYPES_URI }
   );
 
 /**

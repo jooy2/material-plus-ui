@@ -13,8 +13,8 @@
  * the precision that was asked for: a date picker stores `2026-03-01` and never a
  * midnight that a time zone can move to the day before.
  */
-import { createComponentImplementation } from '@a2ui/react/v0_9';
-import { DateTimeInputApi } from '@a2ui/web_core/v0_9';
+import { createComponentImplementation } from '@a2ui/react';
+import { DateTimeInputApi } from '@a2ui/web_core/v1_0';
 import { MPDatePicker } from '../../components/date-picker/MPDatePicker';
 import { MPDateTimePicker } from '../../components/date-time-picker/MPDateTimePicker';
 import { MPTimePicker } from '../../components/time-picker/MPTimePicker';

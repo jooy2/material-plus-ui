@@ -13,10 +13,10 @@
  * reader picks another, and lets the reader's pick survive the list growing.
  */
 import * as React from 'react';
-import { createComponentImplementation } from '@a2ui/react/v0_9';
-import { TabsApi } from '@a2ui/web_core/v0_9';
+import { createComponentImplementation } from '@a2ui/react';
+import { TabsApi } from '@a2ui/web_core/v1_0';
 import { MPTab, MPTabPanel, MPTabs, type MPTabValue } from '../../components/tabs/MPTabs';
-import { asText, weightStyle } from '../internal/common';
+import { accessibilityAttributes, asText, weightStyle } from '../internal/common';
 
 export const MPA2uiTabs = createComponentImplementation(TabsApi, ({ props, buildChild }) => {
   const tabs = props.tabs ?? [];
@@ -29,9 +29,8 @@ export const MPA2uiTabs = createComponentImplementation(TabsApi, ({ props, build
     <MPTabs
       value={value}
       onValueChange={setChosen}
-      aria-label={asText(props.accessibility?.label)}
-      title={asText(props.accessibility?.description)}
       style={weightStyle(props.weight)}
+      {...accessibilityAttributes(props.accessibility)}
     >
       {tabs.map((tab, index) => (
         <MPTab key={`tab-${tab.child}-${index}`} value={tab.child}>

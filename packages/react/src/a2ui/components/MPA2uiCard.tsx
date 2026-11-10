@@ -6,8 +6,8 @@
  * surface with a corner and padding. A card of several things is a card holding
  * a `Column`, which is what the schema tells the agent to send.
  */
-import { createComponentImplementation } from '@a2ui/react/v0_9';
-import { CardApi } from '@a2ui/web_core/v0_9';
+import { createComponentImplementation } from '@a2ui/react';
+import { CardApi } from '@a2ui/web_core/v1_0';
 import { MPCard } from '../../components/card/MPCard';
 import { accessibilityAttributes, weightStyle } from '../internal/common';
 

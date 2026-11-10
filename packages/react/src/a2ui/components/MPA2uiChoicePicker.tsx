@@ -26,8 +26,8 @@
  * than a control that shows two things chosen and a schema that said it could not
  * happen.
  */
-import { createComponentImplementation } from '@a2ui/react/v0_9';
-import { ChoicePickerApi } from '@a2ui/web_core/v0_9';
+import { createComponentImplementation } from '@a2ui/react';
+import { ChoicePickerApi } from '@a2ui/web_core/v1_0';
 import { MPCheckbox } from '../../components/checkbox/MPCheckbox';
 import { MPChip } from '../../components/chip/MPChip';
 import { MPCombobox, type MPComboboxOption } from '../../components/combobox/MPCombobox';

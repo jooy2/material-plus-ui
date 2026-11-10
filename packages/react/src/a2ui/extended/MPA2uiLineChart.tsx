@@ -6,7 +6,7 @@
  * a step says it held and then jumped. Drawing a price as a smooth curve is
  * drawing prices that never existed, which is the agent's decision to get right.
  */
-import { createComponentImplementation } from '@a2ui/react/v0_9';
+import { createComponentImplementation } from '@a2ui/react';
 import { MPLineChart } from '../../components/line-chart/MPLineChart';
 import { LineChartApi } from './api';
 import { toAxis, toCategories, toSeries } from './chart';

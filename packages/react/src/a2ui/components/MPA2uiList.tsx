@@ -22,8 +22,8 @@
  * dropped it in 0.12 to match the specification; a payload that still sends it
  * no longer passes the schema.
  */
-import { createComponentImplementation } from '@a2ui/react/v0_9';
-import { ListApi } from '@a2ui/web_core/v0_9';
+import { createComponentImplementation } from '@a2ui/react';
+import { ListApi } from '@a2ui/web_core/v1_0';
 import { MPFlex } from '../../components/flex/MPFlex';
 import { childNodes } from '../internal/children';
 import { FLEX_ALIGN, accessibilityAttributes, weightStyle } from '../internal/common';

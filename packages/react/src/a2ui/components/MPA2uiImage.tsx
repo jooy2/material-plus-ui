@@ -12,8 +12,8 @@
  * one: a box, and a fit where the box has a shape of its own to fill.
  */
 import type * as React from 'react';
-import { createComponentImplementation } from '@a2ui/react/v0_9';
-import { ImageApi } from '@a2ui/web_core/v0_9';
+import { createComponentImplementation } from '@a2ui/react';
+import { ImageApi } from '@a2ui/web_core/v1_0';
 import { MPImage, type MPImageFit } from '../../components/image/MPImage';
 import { accessibilityAttributes, weightStyle } from '../internal/common';
 

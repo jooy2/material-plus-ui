@@ -6,8 +6,8 @@
  * reader can see it — as a caption, in the type scale — instead of being hidden
  * in an attribute.
  */
-import { createComponentImplementation } from '@a2ui/react/v0_9';
-import { AudioPlayerApi } from '@a2ui/web_core/v0_9';
+import { createComponentImplementation } from '@a2ui/react';
+import { AudioPlayerApi } from '@a2ui/web_core/v1_0';
 import { MPFlex } from '../../components/flex/MPFlex';
 import { MPTypography } from '../../components/typography/MPTypography';
 import { asText, weightStyle } from '../internal/common';

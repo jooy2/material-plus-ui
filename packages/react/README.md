@@ -56,7 +56,7 @@ pnpm add material-plus-ui
 | ------------------------------- | -------- | -------------------------------- |
 | `@base-ui/react`                | 1        | Yes                              |
 | `react`, `react-dom`            | 18 or 19 | Yes                              |
-| `@a2ui/react`, `@a2ui/web_core` | 0.11     | Only for `material-plus-ui/a2ui` |
+| `@a2ui/react`, `@a2ui/web_core` | 0.15     | Only for `material-plus-ui/a2ui` |
 
 `@base-ui/react` is a peer rather than a dependency because it carries React context: a `Form` of yours has to be able to see a field of ours, and that only works with one copy in the tree.
 

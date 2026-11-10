@@ -1,8 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
+import { userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
-import { A2uiSurface, MarkdownContext, type ReactComponentImplementation } from '@a2ui/react/v0_9';
-import type { ActionListener, A2uiMessage } from '@a2ui/web_core/v0_9';
-import { MessageProcessor } from '@a2ui/web_core/v0_9';
+import { A2uiSurface, MarkdownContext, type ReactComponentImplementation } from '@a2ui/react';
+import type { ActionListener, AgentToRendererMessage } from '@a2ui/web_core/v1_0';
+import { MessageProcessor } from '@a2ui/web_core/v1_0';
 import { A2UI_BASIC_CATALOG_ID, MP_A2UI_COMPONENTS, mpA2uiCatalog } from 'material-plus-ui/a2ui';
 
 /**
@@ -24,15 +25,15 @@ function surfaceOf(components: Record<string, unknown>[], onAction?: ActionListe
 
   processor.processMessages([
     {
-      version: 'v0.9',
+      version: '1.0',
       createSurface: {
         surfaceId: SURFACE,
         catalogId: A2UI_BASIC_CATALOG_ID,
         sendDataModel: true
       }
     },
-    { version: 'v0.9', updateComponents: { surfaceId: SURFACE, components } }
-  ] as A2uiMessage[]);
+    { version: '1.0', updateComponents: { surfaceId: SURFACE, components } }
+  ] as AgentToRendererMessage[]);
 
   const surface = processor.model.surfacesMap.get(SURFACE);
 
@@ -82,6 +83,13 @@ describe('the A2UI catalog', () => {
     it('exports the same list it registers', () => {
       expect(MP_A2UI_COMPONENTS).toHaveLength(mpA2uiCatalog.components.size);
     });
+
+    it('speaks version 1.0 of the protocol', () => {
+      // The id names the v1.0 catalog, and the version is what the processor
+      // compares a `createSurface` against.
+      expect(A2UI_BASIC_CATALOG_ID).toContain('/v1_0/');
+      expect(mpA2uiCatalog.protocolVersion).toBe('1.0');
+    });
   });
 
   describe('what it draws', () => {
@@ -90,7 +98,7 @@ describe('the A2UI catalog', () => {
         <A2uiSurface
           surface={surfaceOf([
             { id: 'root', component: 'Column', children: ['title', 'submit'] },
-            { id: 'title', component: 'Text', text: 'Sign in', variant: 'h2' },
+            { id: 'title', component: 'Text', text: '## Sign in' },
             {
               id: 'submit',
               component: 'Button',
@@ -122,6 +130,72 @@ describe('the A2UI catalog', () => {
       expect(screen.container.textContent).not.toContain('search');
     });
 
+    it('draws a Markdown heading line as a heading of the type scale', async () => {
+      // v1.0 has no heading variants: an agent writes `## Departures`, and no
+      // Markdown renderer is configured here, so the `#` signs must not show.
+      const screen = await render(
+        <A2uiSurface
+          surface={surfaceOf([
+            { id: 'root', component: 'Column', children: ['title', 'tag', 'note'] },
+            { id: 'title', component: 'Text', text: '## Departures' },
+            { id: 'tag', component: 'Text', text: '#travel' },
+            { id: 'note', component: 'Text', text: '# Not a heading', variant: 'caption' }
+          ])}
+        />
+      );
+      const heading = screen.getByRole('heading', { name: 'Departures' });
+
+      await expect.element(heading).toBeInTheDocument();
+      expect(heading.element().tagName).toBe('H2');
+      expect(screen.container.textContent).not.toContain('## ');
+      // A word with a `#` in front of it is not a heading, and a caption is
+      // never read as Markdown at all.
+      await expect.element(screen.getByText('#travel')).toBeInTheDocument();
+      await expect.element(screen.getByText('# Not a heading')).toBeInTheDocument();
+      expect(screen.container.querySelectorAll('h1, h2, h3, h4, h5, h6')).toHaveLength(1);
+    });
+
+    it('gives a video the poster the agent named', async () => {
+      const screen = await render(
+        <A2uiSurface
+          surface={surfaceOf([
+            { id: 'root', component: 'Video', url: '/tour.mp4', posterUrl: '/tour.png' }
+          ])}
+        />
+      );
+
+      expect(screen.container.querySelector('video')?.getAttribute('poster')).toBe('/tour.png');
+    });
+
+    it('says what the agent asked of assistive technology', async () => {
+      const screen = await render(
+        <A2uiSurface
+          surface={surfaceOf([
+            {
+              id: 'root',
+              component: 'Column',
+              children: ['status', 'flourish'],
+              accessibility: { label: 'Status', live: 'polite' }
+            },
+            { id: 'status', component: 'Text', text: 'Boarding' },
+            {
+              id: 'flourish',
+              component: 'Text',
+              text: 'Decoration',
+              accessibility: { hidden: true }
+            }
+          ])}
+        />
+      );
+
+      const column = screen.container.querySelector('[aria-label="Status"]');
+
+      expect(column?.getAttribute('aria-live')).toBe('polite');
+      expect(screen.getByText('Decoration').element().getAttribute('aria-hidden')).toBe('true');
+      // `off` is what an element without the attribute already does.
+      expect(screen.getByText('Boarding').element().hasAttribute('aria-live')).toBe(false);
+    });
+
     it('gives a list the element that makes it a list', async () => {
       const screen = await render(
         <A2uiSurface
@@ -144,7 +218,7 @@ describe('the A2UI catalog', () => {
           id: 'root',
           component: 'TextField',
           label: 'Username',
-          value: { path: '/username' }
+          value: { '@path': '/username' }
         }
       ]);
       const screen = await render(<A2uiSurface surface={surface} />);
@@ -157,13 +231,55 @@ describe('the A2UI catalog', () => {
       expect(surface.dataModel.get('/username')).toBe('ada');
     });
 
+    it('shows the placeholder a field was given once its label has risen', async () => {
+      const surface = surfaceOf([
+        {
+          id: 'root',
+          component: 'TextField',
+          label: 'Email',
+          placeholder: 'name@example.com',
+          value: { '@path': '/email' }
+        }
+      ]);
+      const screen = await render(<A2uiSurface surface={surface} />);
+      const field = screen.getByRole('textbox', { name: 'Email' });
+
+      await field.click();
+
+      await expect.element(field).toHaveAttribute('placeholder', 'name@example.com');
+    });
+
+    it('moves a slider in the steps the agent divided it into', async () => {
+      const surface = surfaceOf([
+        {
+          id: 'root',
+          component: 'Slider',
+          label: 'Bags',
+          min: 0,
+          max: 10,
+          steps: 5,
+          value: { '@path': '/bags' }
+        }
+      ]);
+
+      surface.dataModel.set('/bags', 4);
+
+      const screen = await render(<A2uiSurface surface={surface} />);
+
+      (screen.getByRole('slider', { name: 'Bags' }).element() as HTMLElement).focus();
+      await userEvent.keyboard('{ArrowRight}');
+
+      // Five steps over ten is two a step, so one press goes from 4 to 6.
+      expect(surface.dataModel.get('/bags')).toBe(6);
+    });
+
     it('checks a checkbox in the data model, not only on the screen', async () => {
       const surface = surfaceOf([
         {
           id: 'root',
           component: 'CheckBox',
           label: 'Remember me',
-          value: { path: '/remember' }
+          value: { '@path': '/remember' }
         }
       ]);
       const screen = await render(<A2uiSurface surface={surface} />);
@@ -182,7 +298,9 @@ describe('the A2UI catalog', () => {
             id: 'submit',
             component: 'Button',
             child: 'label',
-            action: { event: { name: 'login_submitted', context: { user: { path: '/username' } } } }
+            action: {
+              event: { name: 'login_submitted', context: { user: { '@path': '/username' } } }
+            }
           },
           { id: 'label', component: 'Text', text: 'Sign in' }
         ],
@@ -214,7 +332,7 @@ describe('the A2UI catalog', () => {
           label: 'Size',
           variant: 'mutuallyExclusive',
           displayStyle: 'chips',
-          value: { path: '/size' },
+          value: { '@path': '/size' },
           options: [
             { label: 'Small', value: 's' },
             { label: 'Large', value: 'l' }
@@ -341,7 +459,7 @@ describe('the A2UI catalog', () => {
                 'day'
               ]
             },
-            { id: 'text', component: 'Text', text: 'Booking', variant: 'h3' },
+            { id: 'text', component: 'Text', text: '### Booking' },
             { id: 'picture', component: 'Image', url: '/logo.png', description: 'The mark' },
             { id: 'glyph', component: 'Icon', name: 'calendarToday' },
             { id: 'clip', component: 'Video', url: '/tour.mp4' },
@@ -368,36 +486,36 @@ describe('the A2UI catalog', () => {
               id: 'field',
               component: 'TextField',
               label: 'Name',
-              value: { path: '/name' }
+              value: { '@path': '/name' }
             },
             {
               id: 'number',
               component: 'TextField',
               label: 'Guests',
               variant: 'number',
-              value: { path: '/guests' }
+              value: { '@path': '/guests' }
             },
-            { id: 'agree', component: 'CheckBox', label: 'Agree', value: { path: '/agree' } },
+            { id: 'agree', component: 'CheckBox', label: 'Agree', value: { '@path': '/agree' } },
             {
               id: 'choose',
               component: 'ChoicePicker',
               label: 'Class',
               options: [{ label: 'Economy', value: 'y' }],
-              value: { path: '/class' }
+              value: { '@path': '/class' }
             },
             {
               id: 'amount',
               component: 'Slider',
               label: 'Nights',
               max: 14,
-              value: { path: '/nights' }
+              value: { '@path': '/nights' }
             },
             {
               id: 'day',
               component: 'DateTimeInput',
               label: 'Departure',
               enableDate: true,
-              value: { path: '/departure' }
+              value: { '@path': '/departure' }
             }
           ])}
         />

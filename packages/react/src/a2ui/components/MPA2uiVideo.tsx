@@ -10,21 +10,24 @@
  *
  * `controls` is not optional. A player an agent can place and a reader cannot
  * pause is not a player, and the protocol gives the agent no way to ask for one.
+ *
+ * `posterUrl` is the picture shown before the video plays. Without one the
+ * browser shows the first frame, once it has fetched it.
  */
-import { createComponentImplementation } from '@a2ui/react/v0_9';
-import { VideoApi } from '@a2ui/web_core/v0_9';
-import { asText, weightStyle } from '../internal/common';
+import { createComponentImplementation } from '@a2ui/react';
+import { VideoApi } from '@a2ui/web_core/v1_0';
+import { accessibilityAttributes, asText, weightStyle } from '../internal/common';
 
 export const MPA2uiVideo = createComponentImplementation(VideoApi, ({ props }) => (
   <video
     src={props.url}
+    poster={asText(props.posterUrl) || undefined}
     controls
     // `preload="metadata"` rather than the browser's default of the whole file:
     // a surface may hold several of these and none of them has been asked for
     // yet, so what is fetched up front is the duration and the poster frame.
     preload="metadata"
-    aria-label={asText(props.accessibility?.label)}
-    title={asText(props.accessibility?.description)}
+    {...accessibilityAttributes(props.accessibility)}
     style={{
       display: 'block',
       width: '100%',

@@ -1,11 +1,19 @@
 /**
  * `Text` — the protocol's only way to say words, drawn as `MPTypography`.
  *
- * The variants map one for one onto the type scale: `h1` through `h5` are the
- * headings, `caption` is the small print, and `body` is everything else. So an
- * agent that asks for a heading gets MD3's `headline-large` rather than a
- * browser's `<h1>`, which is the whole point of pointing a catalog at a design
- * system.
+ * The two variants map onto the type scale: `caption` is the small print, and
+ * `body` is everything else.
+ *
+ * ## Headings are Markdown
+ *
+ * v1.0 took the `h1`–`h5` variants out of the schema. An agent writes a heading
+ * as Markdown instead, `## Sign in`, which is how every example the specification
+ * ships does it. A text that is one heading line and nothing else is drawn as
+ * that heading of the type scale, so an agent asking for one gets MD3's
+ * `headline-large` rather than a browser's `<h1>` or the characters `##` — with
+ * or without a renderer, and before one has answered. Only the words go in, as
+ * text, so this reads no Markdown beyond the line's leading `#` signs and trusts
+ * nothing.
  *
  * ## Markdown, and why it is off until a project turns it on
  *
@@ -23,30 +31,62 @@
  * That is the same fallback the protocol's reference renderer takes.
  */
 import * as React from 'react';
-import { createComponentImplementation, useMarkdownRenderer } from '@a2ui/react/v0_9';
-import { TextApi } from '@a2ui/web_core/v0_9';
+import { createComponentImplementation, useMarkdownRenderer } from '@a2ui/react';
+import { TextApi } from '@a2ui/web_core/v1_0';
 import { MPTypography, type MPTypographyLevel } from '../../components/typography/MPTypography';
 import { accessibilityAttributes, weightStyle } from '../internal/common';
 
-/** The protocol's seven variants, in this library's words for the same things. */
+/** The protocol's two variants, in this library's words for the same things. */
 const LEVEL: Record<string, MPTypographyLevel> = {
-  h1: 'h1',
-  h2: 'h2',
-  h3: 'h3',
-  h4: 'h4',
-  h5: 'h5',
   caption: 'caption',
   body: 'body'
 };
 
+/** A Markdown heading's depth, as the type scale's heading of that rank. */
+const HEADING_LEVELS: MPTypographyLevel[] = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+
+const isBlank = (character: string | undefined) => character === ' ' || character === '\t';
+
 /**
- * The variants markdown is never applied to.
+ * The heading a text is, or `null` for a text that is not one heading line.
  *
- * A heading is a line of text, and a caption is a note about one. Neither is
- * prose, and running a block parser over either produces a paragraph inside a
- * heading — which is what the protocol's own renderer avoids the same way.
+ * One to six `#`, a space, the words, and an optional closing run of `#` after
+ * a space, as CommonMark writes an ATX heading. `#tag` is not a heading, and a
+ * text with a second line is prose.
+ *
+ * Read a character at a time rather than with one pattern, because the text is
+ * an agent's: a pattern that tries every split between the words and a closing
+ * run backtracks over a long line of spaces in time that grows with its square.
  */
-const PLAIN = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'caption']);
+const headingOf = (text: string): { level: MPTypographyLevel; words: string } | null => {
+  const line = text.trim();
+  let depth = 0;
+
+  while (line[depth] === '#') {
+    depth += 1;
+  }
+
+  if (depth === 0 || depth > HEADING_LEVELS.length || !isBlank(line[depth])) {
+    return null;
+  }
+
+  if (line.includes('\n') || line.includes('\r')) {
+    return null;
+  }
+
+  let words = line.slice(depth).trim();
+  let end = words.length;
+
+  while (words[end - 1] === '#') {
+    end -= 1;
+  }
+
+  if (end < words.length && isBlank(words[end - 1])) {
+    words = words.slice(0, end).trim();
+  }
+
+  return words === '' ? null : { level: HEADING_LEVELS[depth - 1], words };
+};
 
 /**
  * The text as sanitized HTML, or `null` while there is no renderer to sanitize
@@ -99,16 +139,36 @@ const useMarkdownHtml = (text: string, enabled: boolean) => {
 export const MPA2uiText = createComponentImplementation(TextApi, ({ props }) => {
   const variant = props.variant ?? 'body';
   const text = typeof props.text === 'string' ? props.text : String(props.text ?? '');
-  const html = useMarkdownHtml(text, !PLAIN.has(variant));
+  /*
+   * A caption is a note about something rather than prose, so Markdown is never
+   * applied to it, and a heading is a line the type scale already draws. Running
+   * a block parser over either would put a paragraph or a browser heading inside
+   * an `MPTypography` that is already one.
+   */
+  const heading = variant === 'caption' ? null : headingOf(text);
+  const html = useMarkdownHtml(text, variant !== 'caption' && heading === null);
   const shared = {
-    level: LEVEL[variant] ?? 'body',
     style: weightStyle(props.weight),
     ...accessibilityAttributes(props.accessibility)
   };
 
-  if (html === null) {
-    return <MPTypography {...shared}>{text}</MPTypography>;
+  if (heading) {
+    return (
+      <MPTypography level={heading.level} {...shared}>
+        {heading.words}
+      </MPTypography>
+    );
   }
 
-  return <MPTypography {...shared} dangerouslySetInnerHTML={{ __html: html }} />;
+  const level = LEVEL[variant] ?? 'body';
+
+  if (html === null) {
+    return (
+      <MPTypography level={level} {...shared}>
+        {text}
+      </MPTypography>
+    );
+  }
+
+  return <MPTypography level={level} {...shared} dangerouslySetInnerHTML={{ __html: html }} />;
 });

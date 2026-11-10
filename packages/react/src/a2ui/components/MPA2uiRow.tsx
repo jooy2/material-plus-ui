@@ -9,8 +9,8 @@
  * keeps its proportions here.
  */
 import * as React from 'react';
-import { createComponentImplementation } from '@a2ui/react/v0_9';
-import { RowApi } from '@a2ui/web_core/v0_9';
+import { createComponentImplementation } from '@a2ui/react';
+import { RowApi } from '@a2ui/web_core/v1_0';
 import { MPFlex } from '../../components/flex/MPFlex';
 import { childNodes } from '../internal/children';
 import { FLEX_ALIGN, FLEX_JUSTIFY, accessibilityAttributes, weightStyle } from '../internal/common';

@@ -5,8 +5,8 @@
  * own: a vertical rule stretches to the row it divides without being given a
  * height, which is exactly what a divider between two things in a `Row` needs.
  */
-import { createComponentImplementation } from '@a2ui/react/v0_9';
-import { DividerApi } from '@a2ui/web_core/v0_9';
+import { createComponentImplementation } from '@a2ui/react';
+import { DividerApi } from '@a2ui/web_core/v1_0';
 import { MPDivider } from '../../components/divider/MPDivider';
 import { accessibilityAttributes, weightStyle } from '../internal/common';
 

@@ -20,7 +20,7 @@
  * this particular reader, and sorting is how they make it answer the question
  * they actually have.
  */
-import { createComponentImplementation } from '@a2ui/react/v0_9';
+import { createComponentImplementation } from '@a2ui/react';
 import { MPDataTable } from '../../components/data-table/MPDataTable';
 import type { MPDataTableColumn } from '../../components/data-table/MPDataTable';
 import { DataTableApi } from './api';

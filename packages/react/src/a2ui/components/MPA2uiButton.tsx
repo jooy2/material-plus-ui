@@ -15,9 +15,13 @@
  * event name and its payload — so there is nothing to build here and nothing to
  * validate. A button with no action is a button that does nothing, and that is
  * the agent's to answer for.
+ *
+ * It is called with nothing rather than handed to `onClick`. Its one parameter
+ * is the metadata the action is dispatched with, and as a click handler it would
+ * be given the click event in that place.
  */
-import { createComponentImplementation } from '@a2ui/react/v0_9';
-import { ButtonApi } from '@a2ui/web_core/v0_9';
+import { createComponentImplementation } from '@a2ui/react';
+import { ButtonApi } from '@a2ui/web_core/v1_0';
 import { MPButton } from '../../components/button/MPButton';
 import type { MPVariant } from '../../types';
 import { accessibilityAttributes, weightStyle } from '../internal/common';
@@ -32,7 +36,9 @@ const VARIANT: Record<string, MPVariant> = {
 export const MPA2uiButton = createComponentImplementation(ButtonApi, ({ props, buildChild }) => (
   <MPButton
     variant={VARIANT[props.variant ?? 'default'] ?? 'outlined'}
-    onClick={props.action}
+    onClick={() => {
+      void props.action?.();
+    }}
     /*
      * `isValid` is only ever present on a component the agent attached `checks`
      * to, and the binder keeps it up to date as the data those checks read

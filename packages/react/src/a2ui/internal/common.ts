@@ -12,7 +12,9 @@
  *   number in the payload and a `style` here, because no component in this
  *   library has a prop for how much of a parent's main axis it should claim —
  *   `MPFlex` distributes, and the claim belongs to the child.
- * - `accessibility` carries a label and a description for assistive technology.
+ * - `accessibility` carries a label and a description for assistive technology,
+ *   and from v1.0 whether its updates are announced and whether it is hidden
+ *   from assistive technology altogether.
  *
  * The rest of this file is the vocabulary gap. A2UI writes `spaceBetween` where
  * `MPFlex` writes `space-between`, and its date and time values are ISO 8601
@@ -24,28 +26,32 @@ import type { MPGridAlign, MPGridJustify } from '../../components/grid/MPGrid';
 /**
  * What an agent can say about a component to a screen reader.
  *
- * `unknown` rather than `string`, and that is the SDK's type rather than a
- * looseness of ours. Its binder resolves a data binding wherever one appears,
- * however deeply — so both of these are strings by the time a component runs —
- * but the *type* it publishes only resolves the props at the top level. Anything
- * one object further in keeps the `string | DataBinding | FunctionCall` union the
- * schema declared, so what a component receives is wider than what it gets.
+ * `unknown` rather than `string`. The SDK's binder resolves a data binding
+ * wherever one appears, however deeply, and its types say the result is a
+ * string — but a binding resolves to whatever the data model holds at that
+ * path, and nothing checks that against the schema. So a label bound to a path
+ * can arrive as a number, an object or nothing at all.
  *
- * `asText` is the one place that difference is handled.
+ * `asText` and the checks in `accessibilityAttributes` are where that is
+ * handled.
  */
 export interface MPA2uiAccessibility {
   /** The accessible name. */
   label?: unknown;
   /** The longer form, for what the name cannot carry. */
   description?: unknown;
+  /** Whether a change to the element is announced, and how urgently. */
+  live?: unknown;
+  /** Whether the element and everything in it is hidden from assistive technology. */
+  hidden?: unknown;
 }
 
 /**
  * A resolved dynamic value, as the string it is.
  *
  * For the nested props described above: a `title`, an option's `label`, the two
- * `accessibility` entries. Anything that is not a string is dropped rather than
- * coerced, because the alternative is `String({ path: 'user.name' })` — the words
+ * `accessibility` strings. Anything that is not a string is dropped rather than
+ * coerced, because the alternative is `String({ name: 'Ada' })` — the words
  * `[object Object]` drawn in an interface, which is worse than the missing label
  * it would be standing in for.
  */
@@ -75,15 +81,29 @@ export const weightStyle = (weight?: number): React.CSSProperties | undefined =>
  * screen reader in use and shows as a tooltip besides, which is the closer
  * reading of what an agent means by a description.
  *
+ * `live` is `aria-live`, left off for `off`, which is what an element without it
+ * already does, and `hidden` is `aria-hidden` only when it is `true`.
+ *
  * Spread onto the element a component owns. It is *not* spread onto a labelled
  * control — a text field, a checkbox, a slider — because those carry a `label`
  * of their own from the payload, and an `aria-label` beside it replaces the
  * label the reader can see with one they cannot.
  */
-export const accessibilityAttributes = (accessibility?: MPA2uiAccessibility) => ({
-  'aria-label': asText(accessibility?.label),
-  title: asText(accessibility?.description)
-});
+export const accessibilityAttributes = (
+  accessibility?: MPA2uiAccessibility
+): Pick<
+  React.HTMLAttributes<HTMLElement>,
+  'aria-label' | 'aria-live' | 'aria-hidden' | 'title'
+> => {
+  const live = accessibility?.live;
+
+  return {
+    'aria-label': asText(accessibility?.label),
+    'aria-live': live === 'polite' || live === 'assertive' ? live : undefined,
+    'aria-hidden': accessibility?.hidden === true ? true : undefined,
+    title: asText(accessibility?.description)
+  };
+};
 
 /**
  * A2UI's main-axis words, in `MPFlex`'s spelling.

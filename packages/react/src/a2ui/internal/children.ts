@@ -15,7 +15,7 @@
  * rows is five children of the same id, and keying on the id alone would make
  * them one child that React re-mounts as the data moves.
  */
-import type { ResolvedChildRef } from '@a2ui/web_core/v0_9';
+import type { ResolvedChildRef } from '@a2ui/web_core/v1_0';
 import type * as React from 'react';
 
 /** What a component implementation is handed to resolve an id with. */
