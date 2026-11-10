@@ -10,6 +10,7 @@ import {
   hasContent,
   META_TEXT,
   PROSE_TEXT,
+  SHEET_BODY_ROOM,
   SHEET_GAP,
   SHEET_PAD_X,
   SHEET_PAD_Y,
@@ -479,12 +480,11 @@ export function MPDrawer({
             'min-h-0 flex-1 overflow-y-auto overscroll-contain',
             section,
             dividers && (hasHeader || withClose) ? RULE : '',
-            // A scroll container clips at its padding box and a focus ring is
-            // drawn outside the control that owns it, so a field at the top or
-            // bottom of an unruled body would have its ring sliced off. The
-            // padding is room for the ring and the negative margin hands the
-            // space straight back, so nothing on the sheet moves.
-            dividers ? '' : '-my-1 py-1'
+            // Room for a focus ring and for a floated label at the body's edges,
+            // which a scroll container would otherwise clip. See
+            // `SHEET_BODY_ROOM`. A ruled body carries the sheet's own padding,
+            // which is room enough.
+            dividers ? '' : SHEET_BODY_ROOM
           ]
             .filter(Boolean)
             .join(' ')}

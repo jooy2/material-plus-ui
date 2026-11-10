@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { MPButton, MPDrawer, MPDrawerClose } from 'material-plus-ui';
+import { MPButton, MPDrawer, MPDrawerClose, MPTextField } from 'material-plus-ui';
+import type { MPSize } from 'material-plus-ui';
+import { clipEdges } from '../../support/layout';
 import { translation } from '../../support/style';
 
 describe('MPDrawer', () => {
@@ -329,6 +331,50 @@ describe('MPDrawer', () => {
 
       // Between header and body, and between body and actions.
       expect(screen.container.querySelectorAll('.mp-drawer .border-t')).toHaveLength(2);
+    });
+  });
+
+  describe('the body', () => {
+    for (const size of ['xs', 'sm', 'md', 'lg', 'xl'] as MPSize[]) {
+      it(`draws a floated label at its top whole, without moving the field, at ${size}`, async () => {
+        // The body kept 4px for a focus ring, which still cut 2px off a label
+        // in the notch: it is centred on the field's top edge and rises half
+        // of its 12px above it.
+        await render(
+          <MPDrawer open size={size} title="Filters" description="Narrow the list">
+            <MPTextField size={size} label="Name" value="Draft" fullWidth />
+          </MPDrawer>
+        );
+
+        const panel = document.querySelector('.mp-drawer') as HTMLElement;
+
+        await expect.poll(() => getComputedStyle(panel).translate).toBe('none');
+
+        const label = panel.querySelector('label[data-mp-shrunk]')!;
+        const field = panel.querySelector('.mp-text-field')!;
+        const header = panel.firstElementChild!;
+
+        expect(label.getBoundingClientRect().top).toBeGreaterThanOrEqual(clipEdges(label).top);
+        // The room is handed back, so the field is still one gap under the
+        // header.
+        expect(
+          field.getBoundingClientRect().top - header.getBoundingClientRect().bottom
+        ).toBeCloseTo(parseFloat(getComputedStyle(panel).rowGap), 0);
+      });
+    }
+
+    it('leaves room for a focus ring at its top and bottom', async () => {
+      const screen = await render(
+        <MPDrawer open title="Filters" actions={<MPButton>Apply</MPButton>}>
+          <MPButton>Inside</MPButton>
+        </MPDrawer>
+      );
+      const button = screen.getByRole('button', { name: 'Inside' }).element();
+      const box = button.getBoundingClientRect();
+      const edges = clipEdges(button);
+
+      expect(box.top - edges.top).toBeGreaterThanOrEqual(4);
+      expect(edges.bottom - box.bottom).toBeGreaterThanOrEqual(4);
     });
   });
 

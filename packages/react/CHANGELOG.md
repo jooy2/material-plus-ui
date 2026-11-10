@@ -18,6 +18,8 @@
 
 - **A field at the top of an `MPDialog` body shows its floated label whole, and a button at its top or bottom shows its focus ring whole.** The body is a scroll container, so it clips at its edges, and it kept no room inside them. A label that has risen to the border sits half above its field, so the body cut off 6px of it, and it cut off the whole of a focus ring at its top and bottom. It now keeps room for both, and the gaps around it give that room back, so nothing on the sheet moves.
 
+- **A field at the top of an `MPDrawer` body shows its floated label whole.** The body kept 4px inside its edges for a focus ring, and a label that has risen to the border rises 6px above its field, so the top 2px were cut off. It now keeps room for the label as well, and the gaps around it give that room back, so nothing on the panel moves.
+
 ## 1.13.0 (2026-11-05)
 
 This release comes out of running the library in `examples/electron`, a desktop app now in the repository that puts every component on real screens. A string `shortcut` on a menu row is written in `MPShortcut`'s notation, the one change a project will notice without having met a bug. The rest are fixes from those screens: components that ran past the edge of a phone, a floated field label that wrapped over its border, an `MPTour` card and an `MPTabs` indicator that stayed behind, and shortcuts, dates and times that a right-to-left page reordered.
