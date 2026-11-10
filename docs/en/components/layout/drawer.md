@@ -298,7 +298,7 @@ It works in a `standard` drawer too, where it closes the panel as the × does.
 
 :::
 
-- The body is the only part that scrolls, so the heading and the actions never leave the screen. Without `dividers` it carries a little padding and gives the space straight back, which is room for a focus ring the scroll container would otherwise clip.
+- The body is the only part that scrolls, so the heading and the actions never leave the screen. Without `dividers` it carries a little padding and gives the space straight back, which is room for a focus ring and for a field label floated into the border, both of which the scroll container would otherwise clip.
 
 ::: fw flutter
 
