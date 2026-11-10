@@ -57,8 +57,10 @@ describe('MPFlex', () => {
     );
     const style = styleOf(screen);
 
-    expect(style.justifyContent).toBe('flex-end');
-    expect(style.alignItems).toBe('flex-start');
+    // Chromium 158 reads a computed `flex-end` back as `flow-end`, and lays it
+    // out the same. Firefox and WebKit still read it back as it was written.
+    expect(['flex-end', 'flow-end']).toContain(style.justifyContent);
+    expect(['flex-start', 'flow-start']).toContain(style.alignItems);
   });
 
   it('reads a length as pixels and a string as itself', async () => {

@@ -312,7 +312,11 @@ describe('MPGrid', () => {
 
     expect(grid.justifyContent).toBe('space-between');
     expect(grid.alignItems).toBe('center');
-    expect(getComputedStyle(screen.container.querySelector('.cell')!).alignSelf).toBe('flex-end');
+    // Chromium 158 reads a computed `flex-end` back as `flow-end`, and lays it
+    // out the same. Firefox and WebKit still read it back as it was written.
+    expect(['flex-end', 'flow-end']).toContain(
+      getComputedStyle(screen.container.querySelector('.cell')!).alignSelf
+    );
   });
 
   it('paints no surface of its own', async () => {
