@@ -593,6 +593,8 @@ class _MPScrollZoneState extends State<MPScrollZone> with TickerProviderStateMix
       key: _viewportKey,
       controller: _scroll,
       scrollDirection: _horizontal ? Axis.horizontal : Axis.vertical,
+      // Clipped just outside its box instead, below.
+      clipBehavior: Clip.none,
       child: _horizontal
           ? Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -607,6 +609,12 @@ class _MPScrollZoneState extends State<MPScrollZone> with TickerProviderStateMix
               children: track,
             ),
     );
+
+    // The strip is drawn 4px past its box on every side, the focus ring's reach,
+    // so a ring on a child against an edge is not cut off, and nothing moves to
+    // make the room. React's scroller reaches past the zone by the same room
+    // and pads it back.
+    strip = ClipRect(clipper: const _RingRoom(), child: strip);
 
     if (widget.scrollbar) {
       strip = RawScrollbar(
@@ -708,4 +716,15 @@ class _MPScrollZoneState extends State<MPScrollZone> with TickerProviderStateMix
       ],
     );
   }
+}
+
+/// The strip's box with a focus ring's reach added on every side.
+class _RingRoom extends CustomClipper<Rect> {
+  const _RingRoom();
+
+  @override
+  Rect getClip(Size size) => (Offset.zero & size).inflate(focusRingOffset + focusRingWidth);
+
+  @override
+  bool shouldReclip(_RingRoom oldClipper) => false;
 }

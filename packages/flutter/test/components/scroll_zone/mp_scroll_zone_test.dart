@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_plus_ui/src/components/button/mp_button.dart';
 import 'package:material_plus_ui/src/components/scroll_zone/mp_scroll_zone.dart';
+import 'package:material_plus_ui/src/internal/scale.dart';
 import 'package:material_plus_ui/src/types.dart';
 
 import '../../support/host.dart';
@@ -57,6 +58,43 @@ void main() {
 
     expect(tester.getTopLeft(find.byKey(const Key('item1'))), first + const Offset(0, 108));
     expect(tester.getTopLeft(find.byKey(const Key('item2'))), first + const Offset(108, 0));
+  });
+
+  testWidgets('paints the whole focus ring of a child against its edges, without moving it', (
+    WidgetTester tester,
+  ) async {
+    // The scroll view clipped at its children's own edges once the strip
+    // overflowed, so a ring painted outside a button in it was cut off at the
+    // top, at the bottom and at the end it was against.
+    await _pump(
+      tester,
+      MPScrollZone(
+        buttons: MPScrollZoneButtons.none,
+        controller: scroll,
+        children: <Widget>[
+          for (int index = 0; index < 8; index += 1)
+            MPButton(onPressed: () {}, child: Text('Button $index')),
+        ],
+      ),
+    );
+
+    final Finder view = find.byType(SingleChildScrollView);
+    final Rect viewport = tester.getRect(view);
+    final ClipRect clip = tester.widget<ClipRect>(
+      find.ancestor(of: view, matching: find.byType(ClipRect)).first,
+    );
+    final Rect drawn = clip.clipper!.getClip(viewport.size).shift(viewport.topLeft);
+    final Rect button = tester.getRect(find.widgetWithText(MPButton, 'Button 0'));
+    final Rect ring = button.inflate(focusRingOffset + focusRingWidth);
+
+    expect(tester.widget<SingleChildScrollView>(view).clipBehavior, Clip.none);
+    expect(ring.top, greaterThanOrEqualTo(drawn.top));
+    expect(ring.bottom, lessThanOrEqualTo(drawn.bottom));
+    expect(ring.left, greaterThanOrEqualTo(drawn.left));
+    // Nothing moved to make the room: the strip is as tall as the buttons, and
+    // the first one starts at its edge.
+    expect(viewport.height, button.height);
+    expect(button.left, viewport.left);
   });
 
   testWidgets('draws no buttons while everything fits', (WidgetTester tester) async {
