@@ -31,16 +31,18 @@ What it costs a project that does is measured in the build, beside every other f
 
 | Bundle                  | This library | With the SDK |
 | ----------------------- | ------------ | ------------ |
-| `mpA2uiCatalog`         | 39.9 kB      | 95.0 kB      |
-| `mpA2uiExtendedCatalog` | 65.0 kB      | 120.0 kB     |
+| `mpA2uiCatalog`         | 40.5 kB      | 148.3 kB     |
+| `mpA2uiExtendedCatalog` | 65.5 kB      | 173.1 kB     |
 
 Gzipped, with React and Base UI external. The difference between the two rows is the data table and the three charts, which is why the basic catalog is its own export rather than a subset of the other: import the one you register and the rest is dropped.
+
+The SDK runs in a browser only. `@a2ui/react` defines a custom element as it loads, so a server cannot even import it, and neither can it import this subpath. Under a framework that renders on the server, load the module that renders surfaces on the client alone, as Next.js does with `dynamic(() => import('./Surfaces'), { ssr: false })`.
 
 ## Render a surface
 
 ```tsx
-import { A2uiSurface, type ReactComponentImplementation } from '@a2ui/react/v0_9';
-import { MessageProcessor } from '@a2ui/web_core/v0_9';
+import { A2uiSurface, type ReactComponentImplementation } from '@a2ui/react';
+import { MessageProcessor } from '@a2ui/web_core/v1_0';
 import { mpA2uiCatalog } from 'material-plus-ui/a2ui';
 import 'material-plus-ui/styles.css';
 
@@ -66,19 +68,19 @@ The catalog id the agent has to send is exported, so it does not have to be rety
 
 ```ts
 import { A2UI_BASIC_CATALOG_ID } from 'material-plus-ui/a2ui';
-// 'https://a2ui.org/specification/v0_9/catalogs/basic/catalog.json'
+// 'https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json'
 ```
 
-A client announces the same string in `supportedCatalogIds`, and `processor.getRendererCapabilities({ versions: ['v0.9'] })` produces that for you.
+A client announces the same string in `supportedCatalogIds`, and `processor.getRendererCapabilities({ versions: ['1.0'] })` produces that for you. The catalogs speak version 1.0 of the protocol, so every message the agent sends carries `"version": "1.0"`, and a value bound to the data model is written `{ "@path": "/user/name" }`.
 
 ## What each component draws
 
 | A2UI | Drawn as | Notes |
 | --- | --- | --- |
-| `Text` | `MPTypography` | `h1`–`h5` are the type scale's headings, `caption` its small print |
+| `Text` | `MPTypography` | A heading line, `## Like this`, is a heading of the type scale; `caption` is its small print |
 | `Image` | `MPImage` | `variant` is a box; a loading and an error state come with it |
 | `Icon` | `MPIcon` | The protocol's 59 names, mapped to lucide glyphs |
-| `Video` | `<video controls>` | The browser's player, with Material's corner |
+| `Video` | `<video controls>` | The browser's player, with Material's corner and the `posterUrl` picture |
 | `AudioPlayer` | `<audio controls>` | The same, with the description drawn above it |
 | `Row`, `Column` | `MPFlex` | An 8px gap, which the agent cannot set |
 | `List` | `MPFlex` as `<ul>` | A real list element, unmarked, and `<li>` per child |
@@ -87,13 +89,13 @@ A client announces the same string in `supportedCatalogIds`, and `processor.getR
 | `Modal` | `MPDialog` | Scrim, focus trap, Escape, focus restored |
 | `Divider` | `MPDivider` | Both axes |
 | `Button` | `MPButton` | `primary` filled, `default` outlined, `borderless` text |
-| `TextField` | `MPTextField`, `MPNumberField` | `number` is the numeric field, with steppers |
+| `TextField` | `MPTextField`, `MPNumberField` | `number` is the numeric field, with steppers; `placeholder` shows once the label has risen |
 | `CheckBox` | `MPCheckbox` | Label tied to the box |
 | `ChoicePicker` | `MPCombobox`, `MPRadioGroup`, `MPCheckbox`, `MPChip` | See below |
-| `Slider` | `MPSlider` | The value is always shown |
+| `Slider` | `MPSlider` | The value is always shown; `steps` makes it discrete, with ticks |
 | `DateTimeInput` | `MPDatePicker`, `MPTimePicker`, `MPDateTimePicker` | Chosen by the two switches |
 
-Every component also carries the protocol's two shared props. `weight` becomes a flex share inside a `Row` or a `Column`, and `accessibility` becomes the element's accessible name and its `title` — except on a labelled control, where the payload's own `label` is what the reader sees and an `aria-label` beside it would replace the visible label with an invisible one.
+Every component also carries the protocol's two shared props. `weight` becomes a flex share inside a `Row` or a `Column`, and `accessibility` becomes the element's accessible name and its `title` — except on a labelled control, where the payload's own `label` is what the reader sees and an `aria-label` beside it would replace the visible label with an invisible one. Its `live` becomes `aria-live`, and `hidden: true` becomes `aria-hidden`.
 
 ### ChoicePicker is four controls
 
@@ -106,6 +108,10 @@ The protocol describes one component along three axes — one choice or several,
 ### Dates keep their day
 
 `DateTimeInput` carries ISO 8601 strings and every picker here works in `Date`, so the two are converted at that boundary — by hand, rather than through `new Date(value)`. The reason is the shape an agent sends most: `new Date('2026-03-01')` is midnight in Greenwich, which is the 28th of February anywhere west of it, and a calendar that opens on the wrong day is a bug nobody can explain. The value is written back at the precision that was asked for, as a local wall clock, so reading it and writing it never moves it.
+
+### Headings are Markdown
+
+Version 1.0 of the protocol has no heading variants. An agent writes a heading as a line of Markdown, `## Departures`, and a `Text` that is one such line and nothing else is drawn as that heading of the type scale, from `#` for `h1` to `######` for `h6`. That holds with no Markdown renderer configured and with one, because the line is read for its `#` signs and its words alone, and the words go in as text. A `caption` is never read for headings.
 
 ### Markdown is off until you turn it on
 
@@ -143,7 +149,7 @@ const processor = new MessageProcessor<ReactComponentImplementation>([
 ]);
 ```
 
-Register both and the agent chooses per surface: the basic id for anything another renderer might also have to draw, and `MP_A2UI_CATALOG_ID` when the surface is a table or a chart. Its schema is published at that id — [material-plus.cdget.com/a2ui/v0_9/catalog.json](https://material-plus.cdget.com/a2ui/v0_9/catalog.json) — generated from the same Zod schemas the renderer enforces, so the description an agent reads and the contract a payload is checked against cannot drift apart.
+Register both and the agent chooses per surface: the basic id for anything another renderer might also have to draw, and `MP_A2UI_CATALOG_ID` when the surface is a table or a chart. Its schema is published at that id — [material-plus.cdget.com/a2ui/v1_0/catalog.json](https://material-plus.cdget.com/a2ui/v1_0/catalog.json) — written by the SDK from the same Zod schemas the renderer enforces, so the description an agent reads and the contract a payload is checked against cannot drift apart. It is the document `getRendererCapabilities` sends an agent when asked to include inline catalogs.
 
 ### The data lives in the data model
 
@@ -153,7 +159,7 @@ A table's `rows` and a chart's `series` take a literal array or a path, like eve
 {
   "id": "sales",
   "component": "BarChart",
-  "series": { "path": "/monthly" },
+  "series": { "@path": "/monthly" },
   "categories": ["Jan", "Feb", "Mar"],
   "label": "Orders by month"
 }
@@ -186,4 +192,4 @@ The eighteen come along, and a name given twice is the later one — so passing 
 
 Twenty-three components of a hundred and thirty. The command palette, the calendar, the tour, the animations and the rest are not reachable from a payload, because an agent can only ask for what a catalog names — and a component becomes nameable by being given a schema an agent can fill in from JSON alone, which is a decision per component rather than a switch.
 
-The protocol is also young: v0.9.1 is current, v1.0 is a candidate, and the SDK is at 0.11. This subpath targets v0.9 and will follow the breaking changes the protocol makes; the components it draws with will not move underneath it.
+The protocol is also young: v1.0 is current and the SDK is at 0.15. This subpath targets v1.0 and will follow the breaking changes the protocol makes; the components it draws with will not move underneath it.

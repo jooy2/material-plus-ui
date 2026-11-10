@@ -31,16 +31,18 @@ optional인 이유는 둘이 가볍지 않기 때문입니다. Lit, signals, Zod
 
 | 번들                    | 이 라이브러리 | SDK 포함 |
 | ----------------------- | ------------- | -------- |
-| `mpA2uiCatalog`         | 39.9 kB       | 95.0 kB  |
-| `mpA2uiExtendedCatalog` | 65.0 kB       | 120.0 kB |
+| `mpA2uiCatalog`         | 40.5 kB       | 148.3 kB |
+| `mpA2uiExtendedCatalog` | 65.5 kB       | 173.1 kB |
 
 gzip이고, React와 Base UI는 external입니다. 두 줄의 차이가 데이터 테이블과 차트 세 개입니다. basic 카탈로그를 별도 export로 둔 이유가 그것입니다. 등록할 쪽만 import하면 나머지는 떨어져 나갑니다.
+
+SDK는 브라우저에서만 돌아갑니다. `@a2ui/react`는 불러오는 순간 커스텀 엘리먼트를 정의하므로 서버에서는 import조차 되지 않고, 이 서브패스도 마찬가지입니다. 서버에서 렌더하는 프레임워크라면 서피스를 그리는 모듈을 클라이언트에서만 불러오세요. Next.js라면 `dynamic(() => import('./Surfaces'), { ssr: false })`로 그렇게 합니다.
 
 ## 서피스 그리기
 
 ```tsx
-import { A2uiSurface, type ReactComponentImplementation } from '@a2ui/react/v0_9';
-import { MessageProcessor } from '@a2ui/web_core/v0_9';
+import { A2uiSurface, type ReactComponentImplementation } from '@a2ui/react';
+import { MessageProcessor } from '@a2ui/web_core/v1_0';
 import { mpA2uiCatalog } from 'material-plus-ui/a2ui';
 import 'material-plus-ui/styles.css';
 
@@ -66,19 +68,19 @@ function Surfaces() {
 
 ```ts
 import { A2UI_BASIC_CATALOG_ID } from 'material-plus-ui/a2ui';
-// 'https://a2ui.org/specification/v0_9/catalogs/basic/catalog.json'
+// 'https://a2ui.org/specification/v1_0/catalogs/basic/catalog.json'
 ```
 
-클라이언트는 같은 문자열을 `supportedCatalogIds`로 알리고, 그 값은 `processor.getRendererCapabilities({ versions: ['v0.9'] })`가 만들어 줍니다.
+클라이언트는 같은 문자열을 `supportedCatalogIds`로 알리고, 그 값은 `processor.getRendererCapabilities({ versions: ['1.0'] })`가 만들어 줍니다. 카탈로그는 프로토콜 1.0으로 말하므로, 에이전트가 보내는 메시지에는 모두 `"version": "1.0"`이 붙고 데이터 모델에 묶는 값은 `{ "@path": "/user/name" }`으로 씁니다.
 
 ## 컴포넌트별로 무엇이 그려지는가
 
 | A2UI | 그려지는 것 | 메모 |
 | --- | --- | --- |
-| `Text` | `MPTypography` | `h1`–`h5`는 타입 스케일의 제목, `caption`은 작은 글씨 |
+| `Text` | `MPTypography` | `## 이렇게` 쓴 제목 줄은 타입 스케일의 제목, `caption`은 작은 글씨 |
 | `Image` | `MPImage` | `variant`는 상자이고, 로딩·실패 상태가 함께 옵니다 |
 | `Icon` | `MPIcon` | 프로토콜의 이름 59개를 lucide 글리프에 대응 |
-| `Video` | `<video controls>` | 브라우저의 플레이어에 Material의 모서리 |
+| `Video` | `<video controls>` | 브라우저의 플레이어에 Material의 모서리, 그리고 `posterUrl`의 그림 |
 | `AudioPlayer` | `<audio controls>` | 같고, 설명은 위에 그립니다 |
 | `Row`, `Column` | `MPFlex` | 간격은 8px이고 에이전트가 정할 수 없습니다 |
 | `List` | `<ul>`로 그린 `MPFlex` | 표시 기호 없는 진짜 목록 요소, 자식마다 `<li>` |
@@ -87,13 +89,13 @@ import { A2UI_BASIC_CATALOG_ID } from 'material-plus-ui/a2ui';
 | `Modal` | `MPDialog` | 스크림, 포커스 트랩, Escape, 포커스 복귀 |
 | `Divider` | `MPDivider` | 두 방향 모두 |
 | `Button` | `MPButton` | `primary`는 filled, `default`는 outlined, `borderless`는 text |
-| `TextField` | `MPTextField`, `MPNumberField` | `number`는 스테퍼가 있는 숫자 필드 |
+| `TextField` | `MPTextField`, `MPNumberField` | `number`는 스테퍼가 있는 숫자 필드이고, `placeholder`는 라벨이 올라간 뒤 보입니다 |
 | `CheckBox` | `MPCheckbox` | 라벨이 상자에 연결됩니다 |
 | `ChoicePicker` | `MPCombobox`, `MPRadioGroup`, `MPCheckbox`, `MPChip` | 아래를 참고하세요 |
-| `Slider` | `MPSlider` | 값을 항상 보여 줍니다 |
+| `Slider` | `MPSlider` | 값을 항상 보여 주고, `steps`를 주면 눈금이 있는 단계형이 됩니다 |
 | `DateTimeInput` | `MPDatePicker`, `MPTimePicker`, `MPDateTimePicker` | 스위치 두 개로 고릅니다 |
 
-모든 컴포넌트는 프로토콜의 공용 prop 두 개도 함께 받습니다. `weight`는 `Row`나 `Column` 안에서 flex 지분이 되고, `accessibility`는 요소의 접근 가능한 이름과 `title`이 됩니다. 라벨이 있는 컨트롤은 예외입니다. 그쪽에서는 페이로드의 `label`이 읽는 사람에게 보이는 것이고, 그 옆의 `aria-label`은 보이는 라벨을 보이지 않는 라벨로 바꿔 버립니다.
+모든 컴포넌트는 프로토콜의 공용 prop 두 개도 함께 받습니다. `weight`는 `Row`나 `Column` 안에서 flex 지분이 되고, `accessibility`는 요소의 접근 가능한 이름과 `title`이 됩니다. 라벨이 있는 컨트롤은 예외입니다. 그쪽에서는 페이로드의 `label`이 읽는 사람에게 보이는 것이고, 그 옆의 `aria-label`은 보이는 라벨을 보이지 않는 라벨로 바꿔 버립니다. `live`는 `aria-live`가 되고, `hidden: true`는 `aria-hidden`이 됩니다.
 
 ### ChoicePicker는 컨트롤 네 개입니다
 
@@ -106,6 +108,10 @@ import { A2UI_BASIC_CATALOG_ID } from 'material-plus-ui/a2ui';
 ### 날짜는 날짜를 지킵니다
 
 `DateTimeInput`은 ISO 8601 문자열을 담고 이 라이브러리의 피커는 모두 `Date`로 동작하므로, 그 경계에서 변환합니다. `new Date(value)`에 맡기지 않고 직접 합니다. 이유는 에이전트가 가장 많이 보내는 형태입니다. `new Date('2026-03-01')`은 그리니치의 자정이고, 그보다 서쪽에서는 2월 28일입니다. 잘못된 날에 열리는 달력은 아무도 이유를 설명하지 못하는 버그입니다. 값은 요청된 정밀도로, 로컬 벽시계로 다시 씁니다. 그래서 읽고 쓰기를 반복해도 값이 움직이지 않습니다.
+
+### 제목은 마크다운으로 씁니다
+
+프로토콜 1.0에는 제목 variant가 없습니다. 에이전트는 제목을 마크다운 한 줄, `## 출발편`처럼 쓰고, 그런 줄 하나만 담긴 `Text`는 타입 스케일의 해당 제목으로 그려집니다. `#`는 `h1`, `######`는 `h6`입니다. 마크다운 렌더러가 있든 없든 똑같습니다. 그 줄에서는 `#` 기호와 낱말만 읽고, 낱말은 텍스트로 넣기 때문입니다. `caption`에서는 제목을 읽지 않습니다.
 
 ### 마크다운은 켜기 전까지 꺼져 있습니다
 
@@ -143,7 +149,7 @@ const processor = new MessageProcessor<ReactComponentImplementation>([
 ]);
 ```
 
-둘을 등록하면 에이전트가 화면마다 고릅니다. 다른 렌더러도 그려야 할 수 있는 것에는 basic id를, 표나 차트인 화면에는 `MP_A2UI_CATALOG_ID`를 씁니다. 스키마는 그 id에 게시됩니다 — [material-plus.cdget.com/a2ui/v0_9/catalog.json](https://material-plus.cdget.com/a2ui/v0_9/catalog.json). 렌더러가 검증하는 것과 같은 Zod 스키마에서 생성하므로, 에이전트가 읽는 설명과 페이로드가 검증되는 계약이 서로 어긋날 수 없습니다.
+둘을 등록하면 에이전트가 화면마다 고릅니다. 다른 렌더러도 그려야 할 수 있는 것에는 basic id를, 표나 차트인 화면에는 `MP_A2UI_CATALOG_ID`를 씁니다. 스키마는 그 id에 게시됩니다 — [material-plus.cdget.com/a2ui/v1_0/catalog.json](https://material-plus.cdget.com/a2ui/v1_0/catalog.json). 렌더러가 검증하는 것과 같은 Zod 스키마로 SDK가 쓰므로, 에이전트가 읽는 설명과 페이로드가 검증되는 계약이 서로 어긋날 수 없습니다. 인라인 카탈로그를 포함하라고 하면 `getRendererCapabilities`가 에이전트에게 보내는 문서도 이것입니다.
 
 ### 데이터는 데이터 모델에 둡니다
 
@@ -153,7 +159,7 @@ const processor = new MessageProcessor<ReactComponentImplementation>([
 {
   "id": "sales",
   "component": "BarChart",
-  "series": { "path": "/monthly" },
+  "series": { "@path": "/monthly" },
   "categories": ["Jan", "Feb", "Mar"],
   "label": "Orders by month"
 }
@@ -186,4 +192,4 @@ const catalog = createMPA2uiCatalog({
 
 130개 중 23개입니다. 커맨드 팔레트, 캘린더, 투어, 애니메이션 같은 것에는 페이로드가 닿지 못합니다. 에이전트는 카탈로그가 이름 붙인 것만 요청할 수 있고, 어떤 컴포넌트가 이름을 얻는 일은 JSON만으로 채울 수 있는 스키마를 받는 일이어서 스위치 하나가 아니라 컴포넌트마다의 결정입니다.
 
-프로토콜도 아직 어립니다. v0.9.1이 현행이고 v1.0이 후보이며 SDK는 0.11입니다. 이 서브패스는 v0.9를 겨냥하고, 프로토콜이 만드는 깨지는 변경을 따라갑니다. 대신 그것이 그리는 컴포넌트는 발밑에서 움직이지 않습니다.
+프로토콜도 아직 어립니다. v1.0이 현행이고 SDK는 0.15입니다. 이 서브패스는 v1.0을 겨냥하고, 프로토콜이 만드는 깨지는 변경을 따라갑니다. 대신 그것이 그리는 컴포넌트는 발밑에서 움직이지 않습니다.
