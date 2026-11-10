@@ -22,16 +22,30 @@
  * has no markdown parser and no sanitizer — adding either would put a parser in
  * everybody's bundle and make this package responsible for the escaping.
  *
- * So the protocol's own arrangement is used. `@a2ui/react` has a context for a
- * markdown renderer, whose contract states that an implementation *must*
- * sanitize what it returns; a project that wants formatted text provides one
- * (`@a2ui/markdown-it`, or its own), and the text is then set as HTML. With no
- * renderer configured there is nothing to trust and nothing is trusted: the
- * string is rendered as text, `**like this**`, which is wrong-looking and safe.
- * That is the same fallback the protocol's reference renderer takes.
+ * So the protocol's own arrangement is used. `@a2ui/react` has two contexts
+ * for it, and a project that wants formatted text provides one:
+ *
+ * - `MarkdownComponentContext` holds a React component that is handed the
+ *   Markdown and renders it. It renders inside the application's tree, so it
+ *   reads the application's own context, and it wins when both are given, as it
+ *   does in the SDK's own `Text`.
+ * - `MarkdownContext` holds a function that returns HTML, whose contract states
+ *   that an implementation *must* sanitize it (`@a2ui/markdown-it`, or your
+ *   own). The text is then set as HTML.
+ *
+ * Either way the result is block content — paragraphs, lists — so it is drawn
+ * in a `<div>` carrying the type scale, where a `<p>` would hold a paragraph
+ * inside a paragraph. With neither configured there is nothing to trust and
+ * nothing is trusted: the string is rendered as text, `**like this**`, which is
+ * wrong-looking and safe. That is the same fallback the protocol's reference
+ * renderer takes.
  */
 import * as React from 'react';
-import { createComponentImplementation, useMarkdownRenderer } from '@a2ui/react';
+import {
+  createComponentImplementation,
+  MarkdownComponentContext,
+  useMarkdownRenderer
+} from '@a2ui/react';
 import { TextApi } from '@a2ui/web_core/v1_0';
 import { MPTypography, type MPTypographyLevel } from '../../components/typography/MPTypography';
 import { accessibilityAttributes, weightStyle } from '../internal/common';
@@ -146,7 +160,10 @@ export const MPA2uiText = createComponentImplementation(TextApi, ({ props }) => 
    * an `MPTypography` that is already one.
    */
   const heading = variant === 'caption' ? null : headingOf(text);
-  const html = useMarkdownHtml(text, variant !== 'caption' && heading === null);
+  const prose = variant !== 'caption' && heading === null;
+  const MarkdownComponent = React.useContext(MarkdownComponentContext);
+  // The renderer function is not asked at all while a component will draw it.
+  const html = useMarkdownHtml(text, prose && !MarkdownComponent);
   const shared = {
     style: weightStyle(props.weight),
     ...accessibilityAttributes(props.accessibility)
@@ -162,6 +179,14 @@ export const MPA2uiText = createComponentImplementation(TextApi, ({ props }) => 
 
   const level = LEVEL[variant] ?? 'body';
 
+  if (prose && MarkdownComponent) {
+    return (
+      <MPTypography level={level} render={<div />} {...shared}>
+        <MarkdownComponent markdown={text} />
+      </MPTypography>
+    );
+  }
+
   if (html === null) {
     return (
       <MPTypography level={level} {...shared}>
@@ -170,5 +195,12 @@ export const MPA2uiText = createComponentImplementation(TextApi, ({ props }) => 
     );
   }
 
-  return <MPTypography level={level} {...shared} dangerouslySetInnerHTML={{ __html: html }} />;
+  return (
+    <MPTypography
+      level={level}
+      render={<div />}
+      {...shared}
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  );
 });

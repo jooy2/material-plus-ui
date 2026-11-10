@@ -1,7 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
 import { userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
-import { A2uiSurface, MarkdownContext, type ReactComponentImplementation } from '@a2ui/react';
+import {
+  A2uiSurface,
+  MarkdownComponentContext,
+  MarkdownContext,
+  type MarkdownComponentProps,
+  type ReactComponentImplementation
+} from '@a2ui/react';
 import type { ActionListener, AgentToRendererMessage } from '@a2ui/web_core/v1_0';
 import { MessageProcessor } from '@a2ui/web_core/v1_0';
 import { A2UI_BASIC_CATALOG_ID, MP_A2UI_COMPONENTS, mpA2uiCatalog } from 'material-plus-ui/a2ui';
@@ -426,8 +432,40 @@ describe('the A2UI catalog', () => {
       await expect.element(screen.getByText('42')).toBeInTheDocument();
       expect(screen.container.querySelector('strong')).not.toBeNull();
       // And it is still drawn in the type scale, which is the whole point of
-      // pointing the catalog at a design system.
-      expect(screen.container.querySelector('.mp-typography')).not.toBeNull();
+      // pointing the catalog at a design system — in a `<div>`, because what a
+      // renderer returns is paragraphs, and a `<p>` cannot hold one.
+      expect(screen.container.querySelector('div.mp-typography strong')).not.toBeNull();
+    });
+
+    it('draws through the component the application provides, ahead of a renderer function', async () => {
+      const Emphasis = ({ markdown }: MarkdownComponentProps) => (
+        <em data-testid="markdown">{markdown.replace(/\*\*/g, '')}</em>
+      );
+      const html = vi.fn(async (markdown: string) => `<strong>${markdown}</strong>`);
+      const screen = await render(
+        <MarkdownContext.Provider value={html}>
+          <MarkdownComponentContext.Provider value={Emphasis}>
+            <A2uiSurface
+              surface={surfaceOf([
+                { id: 'root', component: 'Column', children: ['total', 'title'] },
+                { id: 'total', component: 'Text', text: 'Total: **42**' },
+                { id: 'title', component: 'Text', text: '## Summary' }
+              ])}
+            />
+          </MarkdownComponentContext.Provider>
+        </MarkdownContext.Provider>
+      );
+
+      // The component wins, as it does in the SDK's own `Text`, and the
+      // function is never asked.
+      await expect.element(screen.getByTestId('markdown')).toHaveTextContent('Total: 42');
+      expect(screen.container.querySelector('div.mp-typography em')).not.toBeNull();
+      expect(screen.container.querySelector('strong')).toBeNull();
+      expect(html).not.toHaveBeenCalled();
+      // A heading line is still the type scale's own heading.
+      await expect
+        .element(screen.getByRole('heading', { name: 'Summary', level: 2 }))
+        .toBeInTheDocument();
     });
   });
 

@@ -18,6 +18,8 @@
 
 - **The A2UI catalog draws what v1.0 added to the basic components.** `TextField` shows `placeholder` once its label has risen, `Video` shows `posterUrl` before it plays, and `Slider` with `steps` stops only on those steps and draws a tick at each. `accessibility` carries `live` and `hidden` through as `aria-live` and `aria-hidden`.
 
+- **An A2UI `Text` draws its Markdown through `MarkdownComponentContext`.** A React component given to `@a2ui/react`'s `MarkdownComponentContext` is handed the text and renders it inside the application's own tree, so it reads the application's context. It wins over a function in `MarkdownContext`, as it does in the SDK's own `Text`. Formatted text of either kind is drawn in a `<div>` carrying the type scale rather than a `<p>`, which held the renderer's paragraphs inside a paragraph.
+
 - **`MPConfigProvider` takes `labels`, for the words the library says on its own behalf.** It is keyed by namespace, the same shape `registerMPMessages` takes, and is a partial: `labels={{ alert: { dismiss: 'Hide' } }}` renames one button for the whole subtree and leaves every other word as the locale has it. A component's own `labels` still wins, and nested providers merge a word at a time.
 
 - **`MPConfigProvider` takes `floatingLabel` and `weekStartsOn`.** `floatingLabel={false}` keeps the label of every field under it in the notch from the start, in `MPTextField`, `MPSelect`, `MPCombobox`, `MPNumberField`, `MPColorPicker`, `MPTreeSelect` and the date and time pickers. `weekStartsOn` sets the first day of the week in `MPCalendar`, `MPDatePicker`, `MPDateRangePicker` and `MPDateTimePicker` instead of asking the locale. A component's own prop still wins over both.
