@@ -115,9 +115,22 @@ Version 1.0 of the protocol has no heading variants. An agent writes a heading a
 
 ### Markdown is off until you turn it on
 
-The specification says `body` text may carry simple Markdown. Rendering Markdown means turning a string an agent wrote into HTML, and this library ships no parser and no sanitizer. So the protocol's own arrangement is used: configure a renderer through `@a2ui/react`'s Markdown context — `@a2ui/markdown-it`, or your own — and formatted text renders. With none configured, an agent's string is drawn as the characters it contains, `**like this**`.
+The specification says `body` text may carry simple Markdown. Rendering Markdown means turning a string an agent wrote into HTML, and this library ships no parser and no sanitizer. So the protocol's own arrangement is used, and `@a2ui/react` offers it two ways:
 
-That is the safe default rather than the tidy one. A renderer's contract is that it must sanitize what it returns, and until there is one to hold to that, nothing is treated as HTML.
+- **`MarkdownComponentContext`** takes a React component, which is handed the text as `markdown` and renders it inside your own tree, so it reads your application's context.
+- **`MarkdownContext`** takes a function that returns HTML — `@a2ui/markdown-it`, or your own.
+
+```tsx
+import { MarkdownComponentContext } from '@a2ui/react';
+
+<MarkdownComponentContext.Provider value={({ markdown }) => <YourMarkdown source={markdown} />}>
+  <Surfaces />
+</MarkdownComponentContext.Provider>;
+```
+
+Given both, the component wins, as it does in the SDK's own `Text`. Either way the formatted text is drawn in a `<div>` carrying the type scale, since what comes back is paragraphs and lists. With neither configured, an agent's string is drawn as the characters it contains, `**like this**`.
+
+That is the safe default rather than the tidy one. A renderer function's contract is that it must sanitize what it returns, and until there is one to hold to that, nothing is treated as HTML.
 
 ## What the agent can and cannot do
 

@@ -115,9 +115,22 @@ import { A2UI_BASIC_CATALOG_ID } from 'material-plus-ui/a2ui';
 
 ### 마크다운은 켜기 전까지 꺼져 있습니다
 
-명세는 `body` 텍스트가 간단한 마크다운을 담을 수 있다고 말합니다. 마크다운을 렌더한다는 것은 에이전트가 쓴 문자열을 HTML로 바꾼다는 뜻이고, 이 라이브러리에는 파서도 새니타이저도 없습니다. 그래서 프로토콜 자신의 방식을 씁니다. `@a2ui/react`의 마크다운 context로 렌더러를 넣으면 — `@a2ui/markdown-it`이든 직접 만든 것이든 — 서식이 그려집니다. 넣지 않으면 에이전트의 문자열은 있는 문자 그대로, `**이렇게**` 그려집니다.
+명세는 `body` 텍스트가 간단한 마크다운을 담을 수 있다고 말합니다. 마크다운을 렌더한다는 것은 에이전트가 쓴 문자열을 HTML로 바꾼다는 뜻이고, 이 라이브러리에는 파서도 새니타이저도 없습니다. 그래서 프로토콜 자신의 방식을 씁니다. `@a2ui/react`는 두 가지 길을 줍니다.
 
-깔끔한 기본값이 아니라 안전한 기본값입니다. 렌더러의 계약은 반환하는 HTML을 반드시 새니타이즈하는 것이고, 그 계약을 지킬 렌더러가 없는 동안에는 아무것도 HTML로 취급하지 않습니다.
+- **`MarkdownComponentContext`**는 React 컴포넌트를 받습니다. 컴포넌트는 텍스트를 `markdown`으로 넘겨받아 애플리케이션의 트리 안에서 그리므로, 애플리케이션의 context를 읽습니다.
+- **`MarkdownContext`**는 HTML을 돌려주는 함수를 받습니다. `@a2ui/markdown-it`이든 직접 만든 것이든 됩니다.
+
+```tsx
+import { MarkdownComponentContext } from '@a2ui/react';
+
+<MarkdownComponentContext.Provider value={({ markdown }) => <YourMarkdown source={markdown} />}>
+  <Surfaces />
+</MarkdownComponentContext.Provider>;
+```
+
+둘 다 주면 SDK의 `Text`와 마찬가지로 컴포넌트가 이깁니다. 어느 쪽이든 서식이 들어간 텍스트는 타입 스케일을 입힌 `<div>` 안에 그립니다. 돌아오는 것이 문단과 목록이기 때문입니다. 둘 다 넣지 않으면 에이전트의 문자열은 있는 문자 그대로, `**이렇게**` 그려집니다.
+
+깔끔한 기본값이 아니라 안전한 기본값입니다. 렌더러 함수의 계약은 반환하는 HTML을 반드시 새니타이즈하는 것이고, 그 계약을 지킬 렌더러가 없는 동안에는 아무것도 HTML로 취급하지 않습니다.
 
 ## 에이전트가 할 수 있는 것과 할 수 없는 것
 
