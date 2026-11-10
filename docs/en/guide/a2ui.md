@@ -31,8 +31,8 @@ What it costs a project that does is measured in the build, beside every other f
 
 | Bundle                  | This library | With the SDK |
 | ----------------------- | ------------ | ------------ |
-| `mpA2uiCatalog`         | 40.5 kB      | 148.3 kB     |
-| `mpA2uiExtendedCatalog` | 65.5 kB      | 173.1 kB     |
+| `mpA2uiCatalog`         | 40.6 kB      | 148.3 kB     |
+| `mpA2uiExtendedCatalog` | 65.6 kB      | 173.2 kB     |
 
 Gzipped, with React and Base UI external. The difference between the two rows is the data table and the three charts, which is why the basic catalog is its own export rather than a subset of the other: import the one you register and the rest is dropped.
 

@@ -31,8 +31,8 @@ optional인 이유는 둘이 가볍지 않기 때문입니다. Lit, signals, Zod
 
 | 번들                    | 이 라이브러리 | SDK 포함 |
 | ----------------------- | ------------- | -------- |
-| `mpA2uiCatalog`         | 40.5 kB       | 148.3 kB |
-| `mpA2uiExtendedCatalog` | 65.5 kB       | 173.1 kB |
+| `mpA2uiCatalog`         | 40.6 kB       | 148.3 kB |
+| `mpA2uiExtendedCatalog` | 65.6 kB       | 173.2 kB |
 
 gzip이고, React와 Base UI는 external입니다. 두 줄의 차이가 데이터 테이블과 차트 세 개입니다. basic 카탈로그를 별도 export로 둔 이유가 그것입니다. 등록할 쪽만 import하면 나머지는 떨어져 나갑니다.
 

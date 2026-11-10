@@ -64,7 +64,7 @@ What that means for a page:
 - A block that colours TypeScript fetches the core and TypeScript, not the other thirty-three.
 - The block draws plain on the first frame and colours itself when the chunk lands. There is never a blank space where the code should be.
 
-`npm run measure` prints that cost separately for the same reason — the whole library is 49.7 kB lighter before a block has coloured anything.
+`npm run measure` prints that cost separately for the same reason — the whole library is 49.6 kB lighter before a block has coloured anything.
 
 ### A language the set does not have
 

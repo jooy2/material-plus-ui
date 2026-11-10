@@ -10,7 +10,7 @@
   - `TextField` has no `validationRegexp`. A pattern is a `regex` check among the field's `checks`.
   - Code of your own imports the SDK from `@a2ui/react` and `@a2ui/web_core/v1_0`, and types a message as `AgentToRendererMessage`, as the examples in the guide do.
   - The SDK cannot be loaded outside a browser. `@a2ui/react` 0.15 defines a custom element as it loads, so a server render that imports the subpath throws `HTMLElement is not defined`. Load the module that renders surfaces on the client alone, such as with `dynamic(…, { ssr: false })` in Next.js.
-  - The SDK is heavier. The basic catalog with the SDK is 148.3 kB gzipped against 95.3 on 0.12, and with the five components of this library's own 173.1 against 120.3. The catalog's own part is 40.5 kB.
+  - The SDK is heavier. The basic catalog with the SDK is 148.3 kB gzipped against 95.3 on 0.12, and with the five components of this library's own 173.2 against 120.3. The catalog's own part is 40.6 kB.
 
   The schema published at `MP_A2UI_CATALOG_ID` is now the document the SDK writes with `Catalog.toJson()`, the same one `getRendererCapabilities` sends an agent, and it names the protocol's common types by their full address. The v0.9 document stays at its old address for the releases that name it.
 
