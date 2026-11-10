@@ -47,6 +47,7 @@ Tailwind CSS v4는 등록된 커스텀 프로퍼티에 기대기 때문에 자�
 | [`MPAnimateCounter`](./components/transitions/animate-counter)의 숫자 세기 | 128 미만 Firefox | 숫자가 세어 올라가지 않고 값으로 바로 바뀝니다 |
 | [`MPAnimateLighting`](./components/transitions/animate-lighting)의 움직이는 빛 | 128 미만 Firefox, Safari 16.4 | 빛은 그려지지만 테두리를 따라 움직이지 않습니다 |
 | [`MPRating`](./components/inputs/rating)의 포커스 링 | 121 미만 Firefox | 키보드로 도착한 별뿐 아니라 포인터로 누른 별에도 링이 그려집니다 |
+| [`MPScrollArea`](./components/layout/scroll-area)의 포커스 링 | 121 미만 Firefox | 상자가 포커스를 받고 키보드로 스크롤되지만, 둘레에 링이 그려지지 않습니다 |
 | 텍스트 효과가 글자와 단어를 나누는 방식 | 125 미만 Firefox | 코드 포인트와 공백으로 나누므로, 합쳐진 이모지가 쪼개지고 공백 없는 문장은 한 단어로 취급됩니다 |
 | [`MPPill`](./components/display/pill)의 한 단계 옅은 설명 | 17 미만 Safari | 설명이 제목과 같은 색으로 그려집니다 |
 | 스크롤 기반 애니메이션, [Animate 컴포넌트](./components/transitions/animate-fade#스크롤이-곧-시계입니다)의 `timeline="view"` | 115 미만 Chrome·Edge, Firefox, 26 미만 Safari | 효과가 시간 기준으로 한 번 재생됩니다 |

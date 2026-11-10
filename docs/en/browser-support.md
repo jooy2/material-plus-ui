@@ -47,6 +47,7 @@ Everything on this list keeps working. It looks or moves differently, and only i
 | Counting in [`MPAnimateCounter`](./components/transitions/animate-counter) | Firefox before 128 | The number jumps to its value instead of counting up to it |
 | The travelling light in [`MPAnimateLighting`](./components/transitions/animate-lighting) | Firefox before 128, Safari 16.4 | The glow is drawn but does not travel |
 | The focus ring in [`MPRating`](./components/inputs/rating) | Firefox before 121 | A star clicked with a pointer is ringed too, not only one reached from the keyboard |
+| The focus ring in [`MPScrollArea`](./components/layout/scroll-area) | Firefox before 121 | The box takes the focus and can be scrolled from the keyboard, but no ring is drawn around it |
 | Splitting text into letters and words for the text effects | Firefox before 125 | Text splits on code points and on spaces, so a combined emoji comes apart and a sentence with no spaces counts as one word |
 | The quieter description in [`MPPill`](./components/display/pill) | Safari before 17 | The description is drawn in the title's colour |
 | Scroll-driven animations, `timeline="view"` on the [Animate components](./components/transitions/animate-fade#scrolling-is-a-clock) | Chrome and Edge before 115, Firefox, Safari before 26 | The effect plays once on the clock |
