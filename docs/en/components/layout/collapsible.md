@@ -212,6 +212,7 @@ Two different reasons to leave a closed panel in the DOM, and they are not inter
 - `action` is outside the trigger, so a keyboard reader reaches the fold and the control on it as two separate stops rather than finding one nested inside the other.
 - Hover, focus and press are Material's state layer — a translucent wash of the content colour — so the header reads the same on all five surfaces.
 - The focus ring is drawn **inset**. The sheet clips its children so the panel can be a window, and `overflow: hidden` would shave an offset ring off a trigger that fills the top of the sheet.
+- A `trigger` of your own keeps the ring it draws outside itself. Under it the sheet does not clip, and the panel crops to the sheet's lower corners instead.
 
 :::
 
@@ -222,6 +223,7 @@ Two different reasons to leave a closed panel in the DOM, and they are not inter
 - `action` is outside the trigger, so a keyboard reader reaches the fold and the control on it as two separate stops rather than finding one nested inside the other.
 - Hover, focus and press are Material's state layer, so the header reads the same on all five surfaces.
 - The focus ring is drawn **inset**, and only on keyboard focus. The sheet clips so the panel can be a window, and an offset ring on a trigger that fills the top of the sheet would be shaved off.
+- A trigger from `triggerBuilder` keeps the ring it paints outside itself. Under it only the panel is clipped, to the sheet's lower corners.
 
 :::
 
