@@ -139,7 +139,7 @@ A surface is JSON from a language model, so the boundary is worth stating plainl
 - **The catalog is the allowlist.** A component name the registered catalog does not hold never resolves, and no payload can reach a component of yours unless you put it there.
 - **Props are validated against the schemas** by the SDK's binder before anything is drawn, so a malformed surface is refused rather than rendered halfway.
 - **Text is text**, unless you configured a Markdown renderer, as above.
-- **URLs are the agent's.** `Image`, `Video` and `AudioPlayer` load what the payload names, so a surface from an agent you do not control belongs behind a Content Security Policy that says where media may come from.
+- **URLs are checked, and hosts are yours to limit.** `Image`, `Video` and `AudioPlayer` load what the payload names if it is an `http:` or `https:` address, a relative path or a `data:` URL, the SDK's own rule. Anything else, such as `javascript:`, `blob:` or `file:`, is dropped and the element is drawn with no source. Which hosts an address may name is not something a check can know, so a surface from an agent you do not control still belongs behind a Content Security Policy that says where media may come from.
 
 ## This library's own catalog
 
