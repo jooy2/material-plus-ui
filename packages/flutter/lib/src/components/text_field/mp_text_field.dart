@@ -639,7 +639,7 @@ class _MPTextFieldState extends State<MPTextField> {
             child: IgnorePointer(
               child: ExcludeSemantics(
                 child: Visibility(
-                  visible: empty && status.shrunk,
+                  visible: empty && status.hinted,
                   maintainState: true,
                   maintainAnimation: true,
                   maintainSize: true,

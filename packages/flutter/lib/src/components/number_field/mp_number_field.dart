@@ -936,7 +936,7 @@ class _MPNumberFieldState extends State<MPNumberField> {
             child: IgnorePointer(
               child: ExcludeSemantics(
                 child: Visibility(
-                  visible: empty && status.shrunk,
+                  visible: empty && status.hinted,
                   maintainState: true,
                   maintainAnimation: true,
                   maintainSize: true,

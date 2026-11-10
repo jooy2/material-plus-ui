@@ -26,9 +26,10 @@
 ///   disabled: disabled,
 ///   onTap: focusTheControl,         // a press on the padding
 ///   builder: (BuildContext context, MPFieldStatus status) {
-///     // `status.shrunk` says whether the label is up, which is when a
-///     // placeholder may show; `status.focused` and `status.hovered` are
-///     // there for anything else that answers them.
+///     // `status.hinted` says whether a placeholder may show, which is once
+///     // the label is up and clear of the control's line; `status.shrunk`,
+///     // `status.focused` and `status.hovered` are there for anything else
+///     // that answers them.
 ///     return Padding(
 ///       padding: EdgeInsets.symmetric(horizontal: MPFieldMetrics.of(size).padX),
 ///       child: Row(children: <Widget>[
@@ -275,16 +276,37 @@ abstract final class MPFieldPaint {
   static Color selection(MPColorScheme colors) => colors.primary.withValues(alpha: 0.4);
 }
 
+/// How far a label has to have risen, as a fraction of the way to the notch,
+/// before a placeholder is drawn beside it.
+///
+/// The label is still on the control's line for the first part of its rise,
+/// and a placeholder that appeared the moment the field took the focus was
+/// drawn over it for those frames. `0.875` is where [MPMotion.standard] stands
+/// half way through [MPMotion.short4], which is when the React package shows
+/// the placeholder, and the label is clear of the line by then.
+const double _hintFrom = 0.875;
+
 /// What a field's builder is told about the shell around it.
 @immutable
 class MPFieldStatus {
   /// Creates a status.
-  const MPFieldStatus({required this.shrunk, required this.focused, required this.hovered});
+  const MPFieldStatus({
+    required this.shrunk,
+    required this.hinted,
+    required this.focused,
+    required this.hovered,
+  });
 
   /// Whether the label is up in the notch rather than resting on the
-  /// control's line. A placeholder is withheld while it is not: two greyed
-  /// strings in one box is not a hint, it is a collision.
+  /// control's line.
   final bool shrunk;
+
+  /// Whether a placeholder, or any hint drawn on the control's line, may show.
+  ///
+  /// It follows [shrunk], except that it waits for a rising label to clear
+  /// the line first: two greyed strings in one box is not a hint, it is a
+  /// collision, and the label spends the first part of its rise on that line.
+  final bool hinted;
 
   /// Whether anything inside the shell has the focus: the control, or a button
   /// beside it, which a reader on the keyboard is still in the field for.
@@ -403,6 +425,12 @@ class _MPFieldShellState extends State<MPFieldShell> with SingleTickerProviderSt
   /// the notch.
   late final AnimationController _rise;
 
+  /// Whether the label has risen as far as [_hintFrom], so a hint can share
+  /// the box with it. Set from [_rise] rather than from the state, because a
+  /// label that has been told to rise is still on the control's line for the
+  /// first part of the way.
+  late bool _risen;
+
   /// The label's width, written as it is laid out and read as the outline is
   /// painted, which happens after every layout in the same frame. A rebuild
   /// would be a frame late, and the notch would be the wrong width until it
@@ -419,7 +447,16 @@ class _MPFieldShellState extends State<MPFieldShell> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
-    _rise = AnimationController(vsync: this, value: _shrunk ? 1 : 0);
+    _rise = AnimationController(vsync: this, value: _shrunk ? 1 : 0)..addListener(_onRise);
+    _risen = _rise.value >= _hintFrom;
+  }
+
+  void _onRise() {
+    final bool risen = _rise.value >= _hintFrom;
+
+    if (risen != _risen) {
+      setState(() => _risen = risen);
+    }
   }
 
   @override
@@ -479,7 +516,14 @@ class _MPFieldShellState extends State<MPFieldShell> with SingleTickerProviderSt
 
     Widget row = widget.builder(
       context,
-      MPFieldStatus(shrunk: _shrunk, focused: focused, hovered: _hovered),
+      // `_shrunk` as well, so the hint goes in the same frame the label starts
+      // down, rather than once it has fallen past the line's edge.
+      MPFieldStatus(
+        shrunk: _shrunk,
+        hinted: _shrunk && _risen,
+        focused: focused,
+        hovered: _hovered,
+      ),
     );
 
     // A single-line control is the rung's height; a multiline one is measured

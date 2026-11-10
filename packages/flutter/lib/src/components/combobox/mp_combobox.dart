@@ -1482,7 +1482,7 @@ class _MPComboboxState extends State<MPCombobox> {
             child: IgnorePointer(
               child: ExcludeSemantics(
                 child: Visibility(
-                  visible: empty && status.shrunk,
+                  visible: empty && status.hinted,
                   maintainState: true,
                   maintainAnimation: true,
                   maintainSize: true,

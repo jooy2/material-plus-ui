@@ -290,6 +290,72 @@ void main() {
       expect(placeholder().visible, isTrue);
     });
 
+    testWidgets('waits for the rising label to clear the line before it shows the placeholder', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        host(const MPTextField(label: Text('Email'), value: '', placeholder: 'you@example.com')),
+      );
+
+      Visibility placeholder() => tester.widget<Visibility>(
+        find.ancestor(of: find.text('you@example.com'), matching: find.byType(Visibility)),
+      );
+
+      await tester.tap(find.byType(EditableText));
+      await tester.pump();
+
+      // The label has been told to rise and is still on the line: for the
+      // first part of its way up the two were drawn over each other.
+      expect(placeholder().visible, isFalse);
+
+      await tester.pump(const Duration(milliseconds: 40));
+
+      expect(placeholder().visible, isFalse);
+
+      await tester.pump(const Duration(milliseconds: 80));
+
+      expect(placeholder().visible, isTrue);
+
+      await tester.pumpAndSettle();
+
+      expect(placeholder().visible, isTrue);
+    });
+
+    testWidgets('takes the placeholder away while the label is on its way down', (
+      WidgetTester tester,
+    ) async {
+      final FocusNode focus = FocusNode();
+      addTearDown(focus.dispose);
+
+      await tester.pumpWidget(
+        host(
+          MPTextField(
+            label: const Text('Email'),
+            value: '',
+            placeholder: 'you@example.com',
+            focusNode: focus,
+          ),
+        ),
+      );
+
+      Visibility placeholder() => tester.widget<Visibility>(
+        find.ancestor(of: find.text('you@example.com'), matching: find.byType(Visibility)),
+      );
+
+      focus.requestFocus();
+      await tester.pumpAndSettle();
+
+      expect(placeholder().visible, isTrue);
+
+      focus.unfocus();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 16));
+
+      // Gone before the label is back on the line, rather than once it is.
+      expect(_labelStyle(tester, 'Email').fontSize, lessThan(16));
+      expect(placeholder().visible, isFalse);
+    });
+
     testWidgets('shows the placeholder at once with no label to rest', (WidgetTester tester) async {
       await tester.pumpWidget(
         host(const MPTextField(value: '', semanticLabel: 'Email', placeholder: 'you@example.com')),

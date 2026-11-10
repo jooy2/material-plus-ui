@@ -539,7 +539,7 @@ class _MPPickerShellState extends State<MPPickerShell> {
     // not a hint.
     final Widget shown = !empty
         ? widget.display ?? const SizedBox.shrink()
-        : !status.shrunk
+        : !status.hinted
         ? const SizedBox.shrink()
         : widget.emptyDisplay ??
               (widget.placeholder == null ? const SizedBox.shrink() : Text(widget.placeholder!));

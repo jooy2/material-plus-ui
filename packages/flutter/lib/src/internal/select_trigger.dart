@@ -361,7 +361,7 @@ class _MPSelectTriggerState extends State<MPSelectTrigger> {
       // the trigger's name when there is no label to.
       shown = ExcludeSemantics(
         child: Visibility(
-          visible: status.shrunk && widget.placeholder != null,
+          visible: status.hinted && widget.placeholder != null,
           maintainState: true,
           maintainAnimation: true,
           maintainSize: true,
