@@ -16,12 +16,12 @@
  */
 import { createComponentImplementation } from '@a2ui/react';
 import { VideoApi } from '@a2ui/web_core/v1_0';
-import { accessibilityAttributes, asText, weightStyle } from '../internal/common';
+import { accessibilityAttributes, mediaUrl, weightStyle } from '../internal/common';
 
 export const MPA2uiVideo = createComponentImplementation(VideoApi, ({ props }) => (
   <video
-    src={props.url}
-    poster={asText(props.posterUrl) || undefined}
+    src={mediaUrl(props.url)}
+    poster={mediaUrl(props.posterUrl)}
     controls
     // `preload="metadata"` rather than the browser's default of the whole file:
     // a surface may hold several of these and none of them has been asked for

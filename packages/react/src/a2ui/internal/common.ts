@@ -21,6 +21,7 @@
  * strings where every picker in this library works in `Date`.
  */
 import type * as React from 'react';
+import { sanitizeMediaUrl } from '@a2ui/web_core/v1_0';
 import type { MPGridAlign, MPGridJustify } from '../../components/grid/MPGrid';
 
 /**
@@ -57,6 +58,19 @@ export interface MPA2uiAccessibility {
  */
 export const asText = (value: unknown): string | undefined =>
   typeof value === 'string' ? value : undefined;
+
+/**
+ * A URL an agent named for a picture, a video or a sound, or `undefined` for one
+ * the page should not load.
+ *
+ * The SDK's own rule, the one its reference renderer applies to the same three
+ * components: an `http:` or `https:` address, a path relative to the page, or a
+ * `data:` URL. Anything else, such as `javascript:`, `blob:` or `file:`, is
+ * dropped, and so is an address that starts `//`. The element is then drawn
+ * with no source. A Content Security Policy still decides which hosts media may
+ * come from; this decides which kinds of address get as far as asking.
+ */
+export const mediaUrl = (value: unknown): string | undefined => sanitizeMediaUrl(value);
 
 /**
  * `weight` as the declaration a flex child needs.

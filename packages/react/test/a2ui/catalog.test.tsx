@@ -173,6 +173,37 @@ describe('the A2UI catalog', () => {
       expect(screen.container.querySelector('video')?.getAttribute('poster')).toBe('/tour.png');
     });
 
+    it('loads no media from an address of a kind a page should not load', async () => {
+      const screen = await render(
+        <A2uiSurface
+          surface={surfaceOf([
+            { id: 'root', component: 'Column', children: ['picture', 'clip', 'sound', 'kept'] },
+            { id: 'picture', component: 'Image', url: 'javascript:alert(1)', description: 'Bad' },
+            {
+              id: 'clip',
+              component: 'Video',
+              url: '//elsewhere.example/a.mp4',
+              posterUrl: 'file:///x'
+            },
+            { id: 'sound', component: 'AudioPlayer', url: 'blob:https://example.com/1' },
+            { id: 'kept', component: 'Image', url: '/logo.png', description: 'Kept' }
+          ])}
+        />
+      );
+
+      // The element is still drawn, as the protocol's own renderer draws it,
+      // with no source to fetch.
+      expect(
+        screen.container.querySelector('img[alt="Bad"]')?.getAttribute('src') ?? null
+      ).toBeNull();
+      expect(screen.container.innerHTML).not.toContain('javascript:');
+      expect(screen.container.querySelector('video')?.hasAttribute('src')).toBe(false);
+      expect(screen.container.querySelector('video')?.hasAttribute('poster')).toBe(false);
+      expect(screen.container.querySelector('audio')?.hasAttribute('src')).toBe(false);
+      // A relative path is the page's own, and loads.
+      await expect.element(screen.getByAltText('Kept')).toHaveAttribute('src', '/logo.png');
+    });
+
     it('says what the agent asked of assistive technology', async () => {
       const screen = await render(
         <A2uiSurface

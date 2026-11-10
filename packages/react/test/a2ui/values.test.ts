@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { asText, formatIsoValue, parseIsoValue } from '../../src/a2ui/internal/common';
+import { asText, formatIsoValue, mediaUrl, parseIsoValue } from '../../src/a2ui/internal/common';
 
 /**
  * The conversions between the protocol's values and this library's.
@@ -98,5 +98,33 @@ describe('asText', () => {
     expect(asText('Sign in')).toBe('Sign in');
     expect(asText({ '@path': '/label' })).toBeUndefined();
     expect(asText(undefined)).toBeUndefined();
+  });
+});
+
+describe('mediaUrl', () => {
+  it('keeps an address a page may load media from', () => {
+    expect(mediaUrl('https://example.com/a.png')).toBe('https://example.com/a.png');
+    expect(mediaUrl('http://example.com/a.mp3')).toBe('http://example.com/a.mp3');
+    expect(mediaUrl('/logo.png')).toBe('/logo.png');
+    expect(mediaUrl('photos/a.jpg')).toBe('photos/a.jpg');
+    expect(mediaUrl('data:image/png;base64,AAAA')).toBe('data:image/png;base64,AAAA');
+  });
+
+  it('drops any other kind of address, and anything that is not a string', () => {
+    // The SDK's own rule, which its reference renderer applies to the same
+    // three components.
+    for (const url of [
+      'javascript:alert(1)',
+      ' JavaScript:alert(1)',
+      'blob:https://example.com/1',
+      'file:///etc/hosts',
+      '//elsewhere.example/a.png',
+      ''
+    ]) {
+      expect(mediaUrl(url), url).toBeUndefined();
+    }
+
+    expect(mediaUrl({ '@path': '/url' })).toBeUndefined();
+    expect(mediaUrl(undefined)).toBeUndefined();
   });
 });

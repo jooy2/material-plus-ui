@@ -61,8 +61,11 @@
  *   heading line, `## Like this`, whose words are drawn as a heading, still as
  *   text. See `components/MPA2uiText.tsx`.
  * - **URLs are the agent's.** `Image`, `Video` and `AudioPlayer` load what the
- *   payload names them, so a surface from an agent you do not control belongs
- *   behind a Content Security Policy that says where media may come from.
+ *   payload names them, once it passes the SDK's own check: an `http:` or
+ *   `https:` address, a relative path or a `data:` URL, and nothing else. Which
+ *   hosts those may be is not something a check can know, so a surface from an
+ *   agent you do not control still belongs behind a Content Security Policy
+ *   that says where media may come from. See `internal/common.ts`.
  *
  * ## Two catalogs, and where they stop
  *

@@ -15,7 +15,7 @@ import type * as React from 'react';
 import { createComponentImplementation } from '@a2ui/react';
 import { ImageApi } from '@a2ui/web_core/v1_0';
 import { MPImage, type MPImageFit } from '../../components/image/MPImage';
-import { accessibilityAttributes, weightStyle } from '../internal/common';
+import { accessibilityAttributes, mediaUrl, weightStyle } from '../internal/common';
 
 /** The protocol's five fits, one of which is spelled differently in CSS. */
 const FIT: Record<string, MPImageFit> = {
@@ -51,7 +51,7 @@ export const MPA2uiImage = createComponentImplementation(ImageApi, ({ props }) =
 
   return (
     <MPImage
-      src={props.url}
+      src={mediaUrl(props.url)}
       // The protocol's `description` is the picture's accessible name, and an
       // empty string is the right answer for one that has none: it marks the
       // picture decorative rather than leaving a screen reader to read the URL.

@@ -32,6 +32,8 @@
 
 ### Changed
 
+- **An A2UI `Image`, `Video` or `AudioPlayer` loads only an `http:`, `https:`, relative or `data:` address.** The URL a payload names, and a video's `posterUrl`, go through the SDK's own `sanitizeMediaUrl`, the rule the protocol's reference renderer applies to the same components. A `javascript:`, `blob:` or `file:` address, or one that starts `//`, is dropped and the element is drawn with no source. An application that binds its own `blob:` URL into a surface hands it a `data:` URL instead. A Content Security Policy is still what limits the hosts.
+
 - **The dependencies are current.** `lucide-react` moves to 1.70, A2UI's SDK to 0.15, `playwright` to 1.65, `vite` to 8.3.7, `vitest` to 5.1, `@vitejs/plugin-react` to 6.3, `typescript-eslint` to 8.72.2, React to 19.3.1, Tailwind to 4.3.5, and the rest of the toolchain to its newest. The Base UI peer range stays `^1.7.0`.
 
   None of it moves this library's own figures. `MPButton` is still 3.8 kB and every export 139.5 kB, and `lucide-react` 1.70 costs nothing measurable. The whole stylesheet is 175.9 kB where it was 176.1 on Tailwind 4.3.3, and still 23.9 kB compressed.

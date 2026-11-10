@@ -10,14 +10,14 @@ import { createComponentImplementation } from '@a2ui/react';
 import { AudioPlayerApi } from '@a2ui/web_core/v1_0';
 import { MPFlex } from '../../components/flex/MPFlex';
 import { MPTypography } from '../../components/typography/MPTypography';
-import { asText, weightStyle } from '../internal/common';
+import { asText, mediaUrl, weightStyle } from '../internal/common';
 
 export const MPA2uiAudioPlayer = createComponentImplementation(AudioPlayerApi, ({ props }) => (
   <MPFlex direction="column" gap={4} style={weightStyle(props.weight)}>
     {props.description ? <MPTypography level="caption">{props.description}</MPTypography> : null}
 
     <audio
-      src={props.url}
+      src={mediaUrl(props.url)}
       controls
       preload="metadata"
       aria-label={asText(props.accessibility?.label) ?? props.description}
