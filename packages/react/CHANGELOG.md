@@ -16,6 +16,10 @@
 
 ### Changed
 
+- **The dependencies are current.** `lucide-react` moves to 1.70, `playwright` to 1.65, `vite` to 8.3.7, `vitest` to 5.1, `@vitejs/plugin-react` to 6.3, `typescript-eslint` to 8.72.2, React to 19.3.1, Tailwind to 4.3.5, and the rest of the toolchain to its newest. A2UI's SDK moves on its own, with the protocol version the catalog speaks. The Base UI peer range stays `^1.7.0`.
+
+  None of it moves this library's own figures. `MPButton` is still 3.8 kB and every export 139.5 kB, and `lucide-react` 1.70 costs nothing measurable. The whole stylesheet is 175.9 kB where it was 176.1 on Tailwind 4.3.3, and still 23.9 kB compressed.
+
 - **`MPConfigProvider` with no `dir` reads the direction off the document.** It gave Base UI no direction at all, so on a page with `dir="rtl"` on `<html>` the slider's handle sat one handle-width off its value and the arrow keys of the menus, the select and the slider ran left to right until `dir="rtl"` was also given to the provider. It now passes the document's computed direction to Base UI and follows it when it changes, and still renders no element. A provider nested in one that was given a `dir` keeps that one, and so does one under a Base UI `DirectionProvider` that says `rtl`. A subtree that has to run left to right inside a right-to-left document gives the provider `dir="ltr"`.
 
 ### Fixed
