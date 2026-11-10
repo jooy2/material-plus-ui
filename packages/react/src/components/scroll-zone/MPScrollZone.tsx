@@ -361,14 +361,21 @@ export const MPScrollZone = React.forwardRef<HTMLDivElement, MPScrollZoneProps>(
         return [];
       }
 
-      const rtl = horizontal && getComputedStyle(el).direction === 'rtl';
+      const style = getComputedStyle(el);
+      const rtl = horizontal && style.direction === 'rtl';
       const edge = horizontal ? (rtl ? 'right' : 'left') : 'top';
       const sign = rtl ? -1 : 1;
+      // Measured from inside the scroller's padding, the room it keeps for a
+      // focus ring, so a press lands the next child where the first one rests
+      // rather than flush against the clip.
+      const inset = parseFloat(
+        horizontal ? (rtl ? style.paddingRight : style.paddingLeft) : style.paddingTop
+      );
       const origin = el.getBoundingClientRect()[edge];
       const starts: number[] = [];
 
       for (const child of Array.from(track.children)) {
-        const start = Math.round((child.getBoundingClientRect()[edge] - origin) * sign);
+        const start = Math.round((child.getBoundingClientRect()[edge] - origin) * sign - inset);
 
         if (!starts.includes(start)) {
           starts.push(start);
@@ -751,12 +758,21 @@ export const MPScrollZone = React.forwardRef<HTMLDivElement, MPScrollZoneProps>(
             // all, and a horizontal strip would come out flat.
             'min-h-0 min-w-0 grow',
             horizontal ? 'overflow-x-auto overflow-y-hidden' : 'overflow-y-auto overflow-x-hidden',
+            // The scroller reaches 4px past the zone on every side, the focus
+            // ring's reach, and gives the room back as padding, so a ring on a
+            // child against an edge is not cut off and nothing else moves. The
+            // same room as scroll padding is what a snap, a focus scrolled into
+            // view and a press of the buttons all land a child against.
+            '-m-1 p-1 scroll-p-1',
             snap ? (horizontal ? 'snap-x snap-mandatory' : 'snap-y snap-mandatory') : '',
             scrollbar ? '' : '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
             drag && (reach.back || reach.forward)
               ? 'cursor-grab data-dragging:cursor-grabbing'
               : '',
-            'outline-mp-secondary focus-visible:outline-2 focus-visible:-outline-offset-2',
+            // Inset by the room as well as by its own width, so the strip's ring
+            // sits on the zone's edge, where it was before the scroller reached
+            // past it.
+            'outline-mp-secondary focus-visible:outline-2 focus-visible:-outline-offset-6',
             'focus-visible:outline-solid outline-none'
           ]
             .filter(Boolean)

@@ -8,7 +8,12 @@
  * computed style rather than off a class name, because the claim is about what
  * the browser does and not about how it was asked.
  */
-export function clipEdges(element: Element): { top: number; bottom: number } {
+export function clipEdges(element: Element): {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+} {
   let node = element.parentElement;
 
   while (node && getComputedStyle(node).overflowY === 'visible') {
@@ -16,10 +21,12 @@ export function clipEdges(element: Element): { top: number; bottom: number } {
   }
 
   if (!node) {
-    return { top: -Infinity, bottom: Infinity };
+    return { top: -Infinity, bottom: Infinity, left: -Infinity, right: Infinity };
   }
 
-  const top = node.getBoundingClientRect().top + node.clientTop;
+  const rect = node.getBoundingClientRect();
+  const top = rect.top + node.clientTop;
+  const left = rect.left + node.clientLeft;
 
-  return { top, bottom: top + node.clientHeight };
+  return { top, bottom: top + node.clientHeight, left, right: left + node.clientWidth };
 }

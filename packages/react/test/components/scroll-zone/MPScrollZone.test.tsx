@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { MPScrollZone } from 'material-plus-ui';
+import { userEvent } from 'vitest/browser';
+import { MPButton, MPScrollZone } from 'material-plus-ui';
+import { clipEdges } from '../../support/layout';
 
 /** Wide enough that four of them cannot fit in the box below. */
 const Item = ({ children }: { children: React.ReactNode }) => (
@@ -234,6 +236,53 @@ describe('MPScrollZone', () => {
     await screen.rerender(<Strip scrollbar />);
 
     expect(getComputedStyle(scroller()).scrollbarWidth).not.toBe('none');
+  });
+
+  it('keeps room for a focus ring round a child against its edges, without moving it', async () => {
+    // The scroller clipped at the children's own edges, so a ring drawn
+    // outside a button in the strip was cut off at the top, at the bottom and
+    // at whichever end it was against.
+    const screen = await render(
+      <div style={{ width: 300 }}>
+        <MPScrollZone buttons="none" data-testid="zone">
+          {['A', 'B', 'C', 'D', 'E', 'F'].map((name) => (
+            <MPButton key={name} variant="outlined">
+              Button {name}
+            </MPButton>
+          ))}
+        </MPScrollZone>
+      </div>
+    );
+    const zone = screen.getByTestId('zone').element().getBoundingClientRect();
+    const first = screen.getByRole('button', { name: 'Button A' }).element();
+    const box = first.getBoundingClientRect();
+    const edges = clipEdges(first);
+
+    // MPButton's ring: a 2px outline 2px out from the box.
+    expect(box.top - edges.top).toBeGreaterThanOrEqual(4);
+    expect(edges.bottom - box.bottom).toBeGreaterThanOrEqual(4);
+    expect(box.left - edges.left).toBeGreaterThanOrEqual(4);
+    // The room is handed back: the strip is as tall as the buttons, and the
+    // first one still starts at the zone's own edge.
+    expect(zone.height).toBe(box.height);
+    expect(box.left).toBe(zone.left);
+    // And the strip's own ring stays on the zone's edge.
+    await userEvent.tab();
+
+    expect(document.activeElement).toBe(scroller());
+    expect(getComputedStyle(scroller()).outlineOffset).toBe('-6px');
+  });
+
+  it('lands a child a press brings in clear of the clip', async () => {
+    const screen = await render(<Strip />);
+
+    await settled();
+    await screen.getByRole('button', { name: 'Scroll forward' }).click();
+    await landsOn(1);
+
+    const second = track().children[1];
+
+    expect(second.getBoundingClientRect().left - clipEdges(second).left).toBeCloseTo(4, 0);
   });
 
   it('snaps the children to the leading edge when asked', async () => {
