@@ -192,7 +192,7 @@ While the field is empty and unfocused the label rests on the field's own line, 
 
 Three things hold the label up: focus, content, and a `startIcon`. The icon is already standing where the resting label would be and the two cannot share the spot, so a field with a leading glyph keeps its label in the notch — the third field above.
 
-The `placeholder` is withheld for as long as the label is resting in its place, and comes back with focus, which is also when it is of any use. Two greyed strings in one box is not a hint.
+The `placeholder` is withheld for as long as the label is resting in its place, and comes back with focus, which is also when it is of any use. It waits a moment for the rising label to clear the line first, so the two are not drawn over each other on the label's way up either. Two greyed strings in one box is not a hint.
 
 ::: fw react
 
