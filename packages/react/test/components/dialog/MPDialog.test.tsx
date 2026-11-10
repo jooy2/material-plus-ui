@@ -287,6 +287,20 @@ describe('MPDialog', () => {
       });
     }
 
+    it('takes a class of its own on the part that scrolls', async () => {
+      const screen = await render(
+        <MPDialog open title="Terms" classNames={{ body: 'terms-body' }}>
+          Clause 1
+        </MPDialog>
+      );
+      const body = screen.getByText('Clause 1').element();
+
+      expect(body.classList).toContain('terms-body');
+      expect(getComputedStyle(body).overflowY).toBe('auto');
+      // Added to the body's own classes rather than in place of them.
+      expect(body.classList).toContain('overscroll-contain');
+    });
+
     it('leaves room for a focus ring at its top and bottom', async () => {
       const screen = await render(
         <MPDialog open title="Save template" actions={<MPButton>Save</MPButton>}>

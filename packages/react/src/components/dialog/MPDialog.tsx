@@ -144,8 +144,12 @@ export interface MPDialogProps extends MPControlEventProps<HTMLElement> {
    * - `backdrop` — the scrim behind the sheet. It is a sibling of the dialog
    *   rather than a child, and both render at the end of `<body>`, so nothing
    *   written against the root reaches it.
+   * - `body` — the part that scrolls, which holds `children`. Its padding, its
+   *   scrolling and the room it keeps at its edges belong to it rather than to
+   *   anything passed in, and a selector against the root could only find it by
+   *   the shape of the markup.
    */
-  classNames?: MPSlots<'backdrop'>;
+  classNames?: MPSlots<'backdrop' | 'body'>;
 }
 
 export type MPDialogCloseProps = React.ComponentProps<typeof Dialog.Close>;
@@ -499,7 +503,8 @@ export function MPDialog({
                   // edges, which the scroll container would otherwise clip. See
                   // `SHEET_BODY_ROOM`. A ruled body carries the full `PAD`,
                   // which is room enough.
-                  dividers ? '' : SHEET_BODY_ROOM
+                  dividers ? '' : SHEET_BODY_ROOM,
+                  classNames?.body ?? ''
                 ]
                   .filter(Boolean)
                   .join(' ')}
