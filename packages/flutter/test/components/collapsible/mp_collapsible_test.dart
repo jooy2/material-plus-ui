@@ -295,6 +295,59 @@ void main() {
       expect(find.text('Hide'), findsOneWidget);
       expect(find.text('Body'), findsOneWidget);
     });
+
+    testWidgets('leaves a trigger of its own unclipped, so its focus ring shows on every side', (
+      WidgetTester tester,
+    ) async {
+      // The sheet used to clip round everything in it, and a trigger of the
+      // caller's own sits against its edges: the ring painted outside the
+      // trigger was cut off all the way round.
+      await tester.pumpWidget(
+        host(
+          width: 400,
+          MPCollapsible(
+            initialOpen: true,
+            triggerBuilder: (BuildContext context, bool open, VoidCallback toggle) =>
+                GestureDetector(onTap: toggle, child: const Text('Show')),
+            child: const Text('Body'),
+          ),
+        ),
+      );
+
+      Finder clipsAround(String text) => find.ancestor(
+        of: find.text(text),
+        matching: find.descendant(of: find.byType(MPCollapsible), matching: find.byType(ClipRRect)),
+      );
+
+      expect(clipsAround('Show'), findsNothing);
+      // The panel still crops to the sheet's lower corners, and only those.
+      final ClipRRect panel = tester.widget<ClipRRect>(clipsAround('Body'));
+      final BorderRadius corners = panel.borderRadius as BorderRadius;
+
+      expect(corners.topLeft, Radius.zero);
+      expect(corners.topRight, Radius.zero);
+      expect(corners.bottomLeft.x, greaterThan(0));
+      expect(corners.bottomRight.x, greaterThan(0));
+    });
+
+    testWidgets('still clips round the default header, for its state layer', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        host(width: 400, const MPCollapsible(title: Text('Delivery'), child: Text('Body'))),
+      );
+
+      expect(
+        find.ancestor(
+          of: find.text('Delivery'),
+          matching: find.descendant(
+            of: find.byType(MPCollapsible),
+            matching: find.byType(ClipRRect),
+          ),
+        ),
+        findsOneWidget,
+      );
+    });
   });
 
   group('the panel', () {

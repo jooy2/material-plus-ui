@@ -195,31 +195,46 @@ class _MPCollapsibleState extends State<MPCollapsible> {
         : EdgeInsets.zero;
 
     final double hairline = paint.border?.width ?? 0;
+    final BorderRadius inner = radius - BorderRadius.circular(hairline);
+
+    Widget panel = MPFoldPanel(
+      open: open,
+      keepMounted: widget.keepMounted,
+      padding: padding,
+      textStyle: mpProseText(theme.typescale, size).style(colors.onSurfaceVariant),
+      child: widget.child,
+    );
+
+    // Under a trigger of the caller's own, only the panel is clipped, to the
+    // sheet's lower corners. That trigger sits against the sheet's edges, and
+    // a clip round the whole sheet took away the focus ring it paints outside
+    // itself, on every side.
+    if (widget.triggerBuilder != null) {
+      panel = ClipRRect(
+        borderRadius: BorderRadius.only(
+          bottomLeft: inner.bottomLeft,
+          bottomRight: inner.bottomRight,
+        ),
+        child: panel,
+      );
+    }
+
+    Widget sheet = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[header, panel],
+    );
+
+    // The sheet clips, which is what makes the panel a window rather than
+    // something that spills past the sheet's own corners while it moves, and
+    // what keeps the default header's state layer inside the corners.
+    if (widget.triggerBuilder == null) {
+      sheet = ClipRRect(borderRadius: inner, child: sheet);
+    }
 
     return DecoratedBox(
       decoration: paint.decoration(radius),
-      child: Padding(
-        padding: EdgeInsets.all(hairline),
-        // The sheet clips, which is what makes the panel a window rather than
-        // something that spills past the sheet's own corners while it moves.
-        child: ClipRRect(
-          borderRadius: radius - BorderRadius.circular(hairline),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              header,
-              MPFoldPanel(
-                open: open,
-                keepMounted: widget.keepMounted,
-                padding: padding,
-                textStyle: mpProseText(theme.typescale, size).style(colors.onSurfaceVariant),
-                child: widget.child,
-              ),
-            ],
-          ),
-        ),
-      ),
+      child: Padding(padding: EdgeInsets.all(hairline), child: sheet),
     );
   }
 }
