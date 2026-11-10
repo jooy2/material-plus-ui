@@ -10223,10 +10223,10 @@ const componentTables: Record<string, PropRow[]> = {
     },
     {
       name: 'classNames',
-      type: "MPSlots<'backdrop'>",
+      type: "MPSlots<'backdrop' | 'body'>",
       description: {
-        ko: '`backdrop`은 패널 뒤의 스크림이고, 모달일 때만 그려집니다',
-        en: '`backdrop` is the scrim behind the panel, drawn only on a modal drawer'
+        ko: '`backdrop`은 패널 뒤의 스크림이고, 모달일 때만 그려집니다. `body`는 `children`을 담고 스크롤되는 부분이며, 모달과 standard 모두에 있습니다',
+        en: '`backdrop` is the scrim behind the panel, drawn only on a modal drawer. `body` is the part that scrolls and holds `children`, on a modal drawer and a standard one alike'
       }
     }
   ],
