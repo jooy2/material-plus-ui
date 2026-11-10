@@ -16,6 +16,7 @@ The Flutter package, `material_plus_ui`. The React package keeps its own history
 ### Fixed
 
 - **A field at the top of an `MPDialog` body shows its floated label whole when the body scrolls, and a button at its top or bottom shows its focus ring whole.** The scroll view clips at its edges once what it holds overflows, and its padding sat outside it, so it kept no room inside them. A label that has risen to the border sits half above its field, so the body cut off 6px of it, and it cut off a focus ring at its top, its bottom and its sides. The padding is inside the scroll view now, with room for both, and the gaps around the body give that room back, so nothing on the sheet moves. A ruled body scrolls up to the rule, as it does in React, instead of disappearing one padding short of it.
+- **A field at the top of an `MPDrawer` body shows its floated label whole when the body scrolls.** The body kept 4px inside its scroll view for a focus ring, and a label that has risen to the border rises 6px above its field, so the top 2px were cut off. It now keeps room for the label as well, and the gaps around it give that room back, so nothing on the panel moves.
 - **Two equal `MPConfigValue`s hash alike when their `breakpoints` are in another order.** `==` compared the boundaries by window class, and `hashCode` read them in order, so a value used as a key in a `Map` or a `Set` could miss its equal.
 
 ## 1.13.0 (2026-11-05)

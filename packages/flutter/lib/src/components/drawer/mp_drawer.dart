@@ -68,10 +68,6 @@ const double _closeIcon = 20;
 /// The gap between two buttons in the actions row, React's `gap-2`.
 const double _actionsGap = 8;
 
-/// The room a focus ring needs outside its control, which a scroll view would
-/// otherwise clip: its offset plus its width.
-const double _ringRoom = focusRingOffset + focusRingWidth;
-
 /// A panel attached to one edge of the window.
 ///
 /// ```dart
@@ -494,6 +490,7 @@ class _MPDrawerState extends State<MPDrawer> with SingleTickerProviderStateMixin
     final double pad = mpSheetPad[size]!;
     final double gap = mpSheetGap[size]!;
     final bool dividers = widget.dividers;
+    final EdgeInsets room = mpSheetBodyRoom(theme.typescale, MediaQuery.textScalerOf(context));
     final bool drawClose = widget.showClose ?? floating;
     final bool hasHeader = widget.title != null || widget.description != null;
     final bool hasActions = widget.actions != null && widget.actions!.isNotEmpty;
@@ -551,12 +548,11 @@ class _MPDrawerState extends State<MPDrawer> with SingleTickerProviderStateMixin
         _Section(
           body: true,
           rule: dividers && (hasHeader || drawClose) ? rule : null,
-          // A scroll view clips at its edge and a focus ring is drawn outside
-          // the control that owns it, so a field at the top or the bottom of an
-          // unruled body would lose half its ring. The padding is room for the
-          // ring, and the gaps either side hand the same room back, so nothing
-          // on the panel moves.
-          padding: dividers ? section : section.copyWith(top: _ringRoom, bottom: _ringRoom),
+          // Room for a focus ring and for a floated label at the body's edges,
+          // which the scroll view would otherwise clip. See `mpSheetBodyRoom`.
+          // The gaps either side hand the same room back, so nothing on the
+          // panel moves.
+          padding: dividers ? section : section.copyWith(top: room.top, bottom: room.bottom),
           bleeds: !dividers,
           child: widget.child!,
         ),
@@ -616,6 +612,7 @@ class _MPDrawerState extends State<MPDrawer> with SingleTickerProviderStateMixin
             sections,
             pad: dividers ? 0 : pad,
             gap: dividers ? 0 : gap,
+            room: room,
             fill: fill,
             flexible: fill || ceiling != null,
           );
@@ -662,12 +659,13 @@ class _MPDrawerState extends State<MPDrawer> with SingleTickerProviderStateMixin
   /// The sections stacked with the panel's room round them.
   ///
   /// Spaced by hand rather than with the column's `spacing`, because the body
-  /// carries the room for a focus ring inside its scroll view and the gaps
-  /// either side of it hand that room back.
+  /// carries [room] inside its scroll view, for a focus ring and a floated
+  /// label, and the gaps either side of it hand that room back.
   Widget _layOut(
     List<_Section> sections, {
     required double pad,
     required double gap,
+    required EdgeInsets room,
     required bool fill,
     required bool flexible,
   }) {
@@ -677,7 +675,8 @@ class _MPDrawerState extends State<MPDrawer> with SingleTickerProviderStateMixin
       final _Section current = sections[index];
       final bool bleeds = current.bleeds;
       final bool previousBleeds = index > 0 && sections[index - 1].bleeds;
-      final double before = (index == 0 ? pad : gap) - (bleeds || previousBleeds ? _ringRoom : 0);
+      final double before =
+          (index == 0 ? pad : gap) - (bleeds ? room.top : 0) - (previousBleeds ? room.bottom : 0);
 
       if (before > 0) {
         children.add(SizedBox(height: before));
@@ -691,7 +690,7 @@ class _MPDrawerState extends State<MPDrawer> with SingleTickerProviderStateMixin
     }
 
     if (sections.isNotEmpty) {
-      final double after = pad - (sections.last.bleeds ? _ringRoom : 0);
+      final double after = pad - (sections.last.bleeds ? room.bottom : 0);
 
       if (after > 0) {
         children.add(SizedBox(height: after));
@@ -727,8 +726,8 @@ class _Section {
   /// The hairline above it, or `null` for none.
   final BorderSide? rule;
 
-  /// Whether the band carries the room for a focus ring past its own edges,
-  /// which the gaps either side of it give back.
+  /// Whether the band carries the room for a focus ring and a floated label
+  /// past its own edges, which the gaps either side of it give back.
   final bool bleeds;
 
   /// The band, scrolling when it is the body and the panel has a height to

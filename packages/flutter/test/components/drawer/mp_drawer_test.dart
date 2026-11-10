@@ -5,6 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_plus_ui/src/components/button/mp_button.dart';
 import 'package:material_plus_ui/src/components/config/mp_config_provider.dart';
 import 'package:material_plus_ui/src/components/drawer/mp_drawer.dart';
+import 'package:material_plus_ui/src/components/text_field/mp_text_field.dart';
+import 'package:material_plus_ui/src/internal/scale.dart';
 import 'package:material_plus_ui/src/internal/surface.dart';
 import 'package:material_plus_ui/src/theme/color_scheme.dart';
 import 'package:material_plus_ui/src/theme/tokens.dart';
@@ -761,6 +763,58 @@ void main() {
       await tester.pumpWidget(standard(size: MPSize.lg));
 
       expect(styleOf(tester, 'Navigation').fontSize, 22);
+    });
+
+    for (final MPSize size in MPSize.values) {
+      testWidgets('paints a floated label at the top of its body whole, without moving the field, '
+          'at ${size.name}', (WidgetTester tester) async {
+        // The body kept 4px for a focus ring, which still cut 2px off a label
+        // in the notch once the body scrolled: the label is centred on the
+        // field's top edge and rises half of its 12px above it.
+        await tester.pumpWidget(
+          standard(
+            size: size,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                MPTextField(value: 'Draft', label: const Text('Name'), size: size),
+                const SizedBox(height: 2000),
+              ],
+            ),
+          ),
+        );
+
+        final Rect viewport = tester.getRect(find.byType(SingleChildScrollView));
+
+        expect(tester.getRect(find.text('Name')).top, greaterThanOrEqualTo(viewport.top));
+        // The room is handed back, so the field is still one gap under the
+        // header.
+        expect(
+          tester.getTopLeft(find.byType(MPTextField)).dy -
+              tester.getBottomLeft(find.text('Navigation')).dy,
+          mpSheetGap[size],
+        );
+      });
+    }
+
+    testWidgets('leaves room for a focus ring at the top and the bottom of its body', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        standard(
+          actions: <Widget>[MPButton(onPressed: () {}, child: const Text('Save'))],
+          child: MPButton(onPressed: () {}, child: const Text('Inside')),
+        ),
+      );
+
+      final Rect viewport = tester.getRect(find.byType(SingleChildScrollView));
+      final Rect button = tester.getRect(find.widgetWithText(MPButton, 'Inside'));
+
+      expect(button.top - viewport.top, greaterThanOrEqualTo(focusRingOffset + focusRingWidth));
+      expect(
+        viewport.bottom - button.bottom,
+        greaterThanOrEqualTo(focusRingOffset + focusRingWidth),
+      );
     });
   });
 }
