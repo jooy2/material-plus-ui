@@ -7,6 +7,9 @@
 /// one.
 library;
 
+import 'dart:math' as math;
+
+import 'package:flutter/painting.dart';
 import 'package:material_plus_ui/src/theme/tokens.dart';
 import 'package:material_plus_ui/src/types.dart';
 
@@ -144,3 +147,23 @@ const double focusRingWidth = 2;
 /// MD3's rule: a ring drawn inside a filled button is a ring drawn on top of
 /// the fill it is meant to be distinguishable from.
 const double focusRingOffset = 2;
+
+/// The room a sheet's scrolling body keeps inside its scroll view, above and
+/// below what it holds, for an unruled sheet. The React package's
+/// `SHEET_BODY_ROOM`. The gaps on either side of the body give the same room
+/// back, so nothing on the sheet moves.
+///
+/// A scroll view clips what it holds once it scrolls, and two things a body can
+/// hold are painted past the box of the widget that owns them. A focus ring
+/// sits [focusRingOffset] plus [focusRingWidth] outside its control. A label
+/// floated into a field's notch is centred on the field's top edge, so half of
+/// it rises above the field: 6px at the default `bodySmall`, which is what the
+/// label is set in, and more when the text is scaled up.
+///
+/// The top is whichever of the two is larger. The bottom needs only the ring,
+/// because nothing in a field reaches past its bottom edge.
+EdgeInsets mpSheetBodyRoom(MPTypescale scale, TextScaler scaler) {
+  const double ring = focusRingOffset + focusRingWidth;
+
+  return EdgeInsets.only(top: math.max(ring, scaler.scale(scale.bodySmall.size) / 2), bottom: ring);
+}

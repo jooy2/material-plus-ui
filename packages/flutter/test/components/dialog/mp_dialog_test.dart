@@ -6,7 +6,9 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_plus_ui/src/components/button/mp_button.dart';
 import 'package:material_plus_ui/src/components/dialog/mp_dialog.dart';
+import 'package:material_plus_ui/src/components/text_field/mp_text_field.dart';
 import 'package:material_plus_ui/src/internal/portal.dart';
+import 'package:material_plus_ui/src/internal/scale.dart';
 import 'package:material_plus_ui/src/internal/surface.dart';
 import 'package:material_plus_ui/src/theme/color_scheme.dart';
 import 'package:material_plus_ui/src/theme/tokens.dart';
@@ -424,6 +426,94 @@ void main() {
       await tester.pump();
 
       expect(tester.widget<ScaleTransition>(find.byType(ScaleTransition)).scale.value, 1);
+    });
+  });
+
+  group('the body', () {
+    for (final MPSize size in MPSize.values) {
+      testWidgets(
+        'paints a floated label at its top whole, without moving the field, at ${size.name}',
+        (WidgetTester tester) async {
+          // The scroll view clips once the body overflows it, and a label in
+          // the notch is centred on the field's top edge, so half of it rises
+          // above the field. The body had no room above its content at all.
+          _wideScreen(tester);
+          await _pump(
+            tester,
+            MPDialog(
+              initialOpen: true,
+              size: size,
+              title: const Text('Save template'),
+              description: const Text('Pick a name'),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  MPTextField(value: 'Draft', label: const Text('Name'), size: size),
+                  const SizedBox(height: 2000),
+                ],
+              ),
+            ),
+          );
+
+          final Rect viewport = tester.getRect(find.byType(SingleChildScrollView));
+
+          expect(tester.getRect(find.text('Name')).top, greaterThanOrEqualTo(viewport.top));
+          // The room is handed back, so the field is still one gap under the
+          // header.
+          expect(
+            tester.getTopLeft(find.byType(MPTextField)).dy -
+                tester.getBottomLeft(find.text('Pick a name')).dy,
+            mpSheetGap[size],
+          );
+        },
+      );
+    }
+
+    testWidgets('leaves room for a focus ring at its top and bottom', (WidgetTester tester) async {
+      await _pump(
+        tester,
+        MPDialog(
+          initialOpen: true,
+          title: const Text('Save template'),
+          actions: <Widget>[MPButton(onPressed: () {}, child: const Text('Save'))],
+          child: MPButton(onPressed: () {}, child: const Text('Inside')),
+        ),
+      );
+
+      final Rect viewport = tester.getRect(find.byType(SingleChildScrollView));
+      final Rect button = tester.getRect(find.widgetWithText(MPButton, 'Inside'));
+
+      expect(button.top - viewport.top, greaterThanOrEqualTo(focusRingOffset + focusRingWidth));
+      expect(
+        viewport.bottom - button.bottom,
+        greaterThanOrEqualTo(focusRingOffset + focusRingWidth),
+      );
+    });
+
+    testWidgets('keeps its padding inside the scroll view when it is ruled', (
+      WidgetTester tester,
+    ) async {
+      // Outside it, the view clipped at the edge of what it holds, so a ring
+      // or a floated label at the top was cut once the body scrolled.
+      await _pump(
+        tester,
+        MPDialog(
+          initialOpen: true,
+          dividers: true,
+          title: const Text('Save template'),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              MPTextField(value: 'Draft', label: const Text('Name')),
+              const SizedBox(height: 2000),
+            ],
+          ),
+        ),
+      );
+
+      final Rect viewport = tester.getRect(find.byType(SingleChildScrollView));
+
+      expect(tester.getTopLeft(find.byType(MPTextField)).dy - viewport.top, 24);
     });
   });
 

@@ -496,6 +496,12 @@ class _MPDialogState extends State<MPDialog> with SingleTickerProviderStateMixin
     final EdgeInsets section = widget.dividers
         ? EdgeInsets.all(pad)
         : EdgeInsets.symmetric(horizontal: pad);
+    // Room for a focus ring and for a floated label at the body's edges, which
+    // the scroll view would otherwise clip. See `mpSheetBodyRoom`. A ruled body
+    // carries the full padding inside its scroll view, which is room enough.
+    final EdgeInsets room = widget.dividers
+        ? EdgeInsets.zero
+        : mpSheetBodyRoom(theme.typescale, MediaQuery.textScalerOf(context));
 
     final List<Widget> sections = <Widget>[
       if (hasHeader || withClose)
@@ -513,10 +519,17 @@ class _MPDialogState extends State<MPDialog> with SingleTickerProviderStateMixin
           // last line.
           fit: widget.fullScreen ? FlexFit.tight : FlexFit.loose,
           child: _Section(
-            padding: section,
+            padding: EdgeInsets.zero,
             rule: widget.dividers && (hasHeader || withClose) ? colors.outlineVariant : null,
+            // The padding goes inside the scroll view, as React's goes on the
+            // scroll container itself. Outside it, the view clipped at the
+            // edge of what it holds, and a ring or a floated label there was
+            // cut once the body scrolled, ruled or not.
             child: SingleChildScrollView(
-              child: DefaultTextStyle.merge(style: body.style(), child: widget.child!),
+              child: Padding(
+                padding: section + room,
+                child: DefaultTextStyle.merge(style: body.style(), child: widget.child!),
+              ),
             ),
           ),
         ),
@@ -533,19 +546,22 @@ class _MPDialogState extends State<MPDialog> with SingleTickerProviderStateMixin
           ),
         ),
     ];
+    final int bodyIndex = widget.child == null ? -1 : (hasHeader || withClose ? 1 : 0);
 
     final MPContainerPaint paint = mpElevationPaint(colors, 3);
     final BorderRadius radius = widget.fullScreen
         ? BorderRadius.zero
         : BorderRadius.circular(theme.shapes.extraLarge);
 
-    Widget sheet = Padding(
-      padding: EdgeInsets.symmetric(vertical: widget.dividers ? 0 : pad),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: widget.fullScreen ? MainAxisSize.max : MainAxisSize.min,
-        spacing: widget.dividers ? 0 : gap,
-        children: sections,
+    Widget sheet = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: widget.fullScreen ? MainAxisSize.max : MainAxisSize.min,
+      children: _spaced(
+        sections,
+        bodyIndex: bodyIndex,
+        room: room,
+        pad: widget.dividers ? 0 : pad,
+        gap: widget.dividers ? 0 : gap,
       ),
     );
 
@@ -576,6 +592,46 @@ class _MPDialogState extends State<MPDialog> with SingleTickerProviderStateMixin
             child: sheet,
           )
         : IntrinsicWidth(child: sheet);
+  }
+
+  /// The sections with the sheet's vertical padding and the gaps between them.
+  ///
+  /// Spaced by hand rather than with the column's `spacing`, because the body
+  /// carries [room] inside its scroll view and the gaps either side of it hand
+  /// that room back, as React's negative margin does.
+  List<Widget> _spaced(
+    List<Widget> sections, {
+    required int bodyIndex,
+    required EdgeInsets room,
+    required double pad,
+    required double gap,
+  }) {
+    if (sections.isEmpty) {
+      return <Widget>[if (pad > 0) SizedBox(height: pad * 2)];
+    }
+
+    final List<Widget> children = <Widget>[];
+
+    for (int index = 0; index < sections.length; index += 1) {
+      final double before =
+          (index == 0 ? pad : gap) -
+          (index == bodyIndex ? room.top : 0) -
+          (bodyIndex >= 0 && index == bodyIndex + 1 ? room.bottom : 0);
+
+      if (before > 0) {
+        children.add(SizedBox(height: before));
+      }
+
+      children.add(sections[index]);
+    }
+
+    final double after = pad - (bodyIndex == sections.length - 1 ? room.bottom : 0);
+
+    if (after > 0) {
+      children.add(SizedBox(height: after));
+    }
+
+    return children;
   }
 
   Widget _header(
