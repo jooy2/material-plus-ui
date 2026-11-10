@@ -24,6 +24,8 @@
 
 - **A field at the top of an `MPDrawer` body shows its floated label whole.** The body kept 4px inside its edges for a focus ring, and a label that has risen to the border rises 6px above its field, so the top 2px were cut off. It now keeps room for the label as well, and the gaps around it give that room back, so nothing on the panel moves.
 
+- **An `MPScrollArea` shows a focus ring when the box itself takes the focus.** The box is a tab stop, so it can be scrolled from the keyboard, but it had no ring of its own. The browser's ring sat just outside it, where the area clips, so none of it showed. The ring is now drawn 2px outside the box, where the Flutter package draws it. Firefox before 121 still draws none.
+
 ## 1.13.0 (2026-11-05)
 
 This release comes out of running the library in `examples/electron`, a desktop app now in the repository that puts every component on real screens. A string `shortcut` on a menu row is written in `MPShortcut`'s notation, the one change a project will notice without having met a bug. The rest are fixes from those screens: components that ran past the edge of a phone, a floated field label that wrapped over its border, an `MPTour` card and an `MPTabs` indicator that stayed behind, and shortcuts, dates and times that a right-to-left page reordered.

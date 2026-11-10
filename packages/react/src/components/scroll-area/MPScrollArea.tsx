@@ -139,7 +139,26 @@ export const MPScrollArea = React.forwardRef<HTMLDivElement, MPScrollAreaProps>(
       <ScrollArea.Root
         ref={ref}
         data-mp-size={size}
-        className={['mp-scroll-area relative overflow-hidden', className ?? '']
+        className={[
+          'mp-scroll-area relative overflow-hidden',
+          /*
+           * The ring is the root's, for the viewport's focus.
+           *
+           * The viewport is a tab stop, so a reader with no pointer can scroll
+           * it, and it had no ring of its own: the browser's one-pixel default
+           * sat just outside it and the root's `overflow-hidden` clipped all
+           * four sides of it away, so the focus was there and showed nothing.
+           * The root does not clip its own outline, so the ring goes there, 2px
+           * out, where the Flutter package's sits. `>` keeps it to the
+           * viewport, the one child of the root that takes the focus: a control
+           * inside the content is further down, and draws its own ring.
+           */
+          'outline-mp-secondary outline-none',
+          'has-[>:focus-visible]:outline-2',
+          'has-[>:focus-visible]:outline-offset-2',
+          'has-[>:focus-visible]:outline-solid',
+          className ?? ''
+        ]
           .filter(Boolean)
           .join(' ')}
         style={style}
@@ -155,7 +174,7 @@ export const MPScrollArea = React.forwardRef<HTMLDivElement, MPScrollAreaProps>(
          * is the same box either way; the difference is that this one scrolls.
          */}
         <ScrollArea.Viewport
-          className="mp-scroll-area__viewport size-full overscroll-contain"
+          className="mp-scroll-area__viewport size-full overscroll-contain outline-none"
           style={{ maxHeight: cssLength(maxHeight), height: cssLength(height) }}
         >
           {/*

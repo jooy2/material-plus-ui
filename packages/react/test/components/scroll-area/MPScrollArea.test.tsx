@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { MPScrollArea } from 'material-plus-ui';
+import { userEvent } from 'vitest/browser';
+import { MPButton, MPScrollArea } from 'material-plus-ui';
 import { parkPointer } from '../../support/pointer';
 
 const Tall = () => <div style={{ height: 1200 }}>Long</div>;
@@ -162,5 +163,45 @@ describe('MPScrollArea', () => {
     );
 
     expect(screen.getByTestId('content').element().getBoundingClientRect().width).toBe(300);
+  });
+
+  it('rings the box outside its clip when the viewport takes the focus', async () => {
+    // The viewport is a tab stop, and its ring used to be the browser's, drawn
+    // just outside it and clipped away on all four sides by the root.
+    await render(
+      <MPScrollArea maxHeight={200}>
+        <Tall />
+      </MPScrollArea>
+    );
+
+    await settled();
+    await userEvent.tab();
+
+    const root = document.querySelector('.mp-scroll-area') as HTMLElement;
+    const viewport = document.querySelector('.mp-scroll-area__viewport') as HTMLElement;
+
+    expect(document.activeElement).toBe(viewport);
+    expect(getComputedStyle(viewport).outlineStyle).toBe('none');
+    expect(getComputedStyle(root).outlineStyle).toBe('solid');
+    expect(getComputedStyle(root).outlineWidth).toBe('2px');
+    expect(getComputedStyle(root).outlineOffset).toBe('2px');
+  });
+
+  it('leaves the ring to a control inside it', async () => {
+    const screen = await render(
+      <MPScrollArea maxHeight={200}>
+        <MPButton>Inside</MPButton>
+        <Tall />
+      </MPScrollArea>
+    );
+
+    await settled();
+    await userEvent.tab();
+    await userEvent.tab();
+
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Inside' }).element());
+    expect(
+      getComputedStyle(document.querySelector('.mp-scroll-area') as HTMLElement).outlineStyle
+    ).toBe('none');
   });
 });
