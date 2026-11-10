@@ -12,6 +12,8 @@
 
 - **`MPDialog` takes `classNames.body`**, for the part that scrolls. Its padding, its scrolling and the room it keeps at its edges are its own, and no class on the dialog reached it except through the shape of the markup.
 
+- **`MPDrawer` takes `classNames.body`**, for the part that scrolls, on a modal drawer and on a standard one alike.
+
 ### Changed
 
 - **`MPConfigProvider` with no `dir` reads the direction off the document.** It gave Base UI no direction at all, so on a page with `dir="rtl"` on `<html>` the slider's handle sat one handle-width off its value and the arrow keys of the menus, the select and the slider ran left to right until `dir="rtl"` was also given to the provider. It now passes the document's computed direction to Base UI and follows it when it changes, and still renders no element. A provider nested in one that was given a `dir` keeps that one, and so does one under a Base UI `DirectionProvider` that says `rtl`. A subtree that has to run left to right inside a right-to-left document gives the provider `dir="ltr"`.

@@ -363,6 +363,31 @@ describe('MPDrawer', () => {
       });
     }
 
+    it('takes a class of its own on the part that scrolls, modal or standard', async () => {
+      const screen = await render(
+        <>
+          <MPDrawer open title="Filters" classNames={{ body: 'filters-body' }}>
+            Modal body
+          </MPDrawer>
+          <MPDrawer mode="standard" title="Navigation" classNames={{ body: 'nav-body' }}>
+            Standard body
+          </MPDrawer>
+        </>
+      );
+
+      for (const [text, name] of [
+        ['Modal body', 'filters-body'],
+        ['Standard body', 'nav-body']
+      ]) {
+        const body = screen.getByText(text).element();
+
+        expect(body.classList).toContain(name);
+        expect(getComputedStyle(body).overflowY).toBe('auto');
+        // Added to the body's own classes rather than in place of them.
+        expect(body.classList).toContain('overscroll-contain');
+      }
+    });
+
     it('leaves room for a focus ring at its top and bottom', async () => {
       const screen = await render(
         <MPDrawer open title="Filters" actions={<MPButton>Apply</MPButton>}>

@@ -159,8 +159,12 @@ export interface MPDrawerProps {
    * A class name for a part `className` cannot reach.
    *
    * - `backdrop` — the scrim behind the panel, drawn only on a modal drawer.
+   * - `body` — the part that scrolls, which holds `children`. Its padding, its
+   *   scrolling and the room it keeps at its edges belong to it rather than to
+   *   anything passed in, and a selector against the root could only find it by
+   *   the shape of the markup.
    */
-  classNames?: MPSlots<'backdrop'>;
+  classNames?: MPSlots<'backdrop' | 'body'>;
 }
 
 export type MPDrawerCloseProps = React.ComponentProps<typeof Dialog.Close>;
@@ -484,7 +488,8 @@ export function MPDrawer({
             // which a scroll container would otherwise clip. See
             // `SHEET_BODY_ROOM`. A ruled body carries the sheet's own padding,
             // which is room enough.
-            dividers ? '' : SHEET_BODY_ROOM
+            dividers ? '' : SHEET_BODY_ROOM,
+            classNames?.body ?? ''
           ]
             .filter(Boolean)
             .join(' ')}
