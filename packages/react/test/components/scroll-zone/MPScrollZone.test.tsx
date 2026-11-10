@@ -33,6 +33,39 @@ async function settled(): Promise<void> {
   await vi.waitFor(() => expect(buttons().length).toBeGreaterThan(0));
 }
 
+/** How long the scroll offset has to hold still before the strip counts as stopped. */
+const STILL_MS = 100;
+
+/**
+ * Resolves once the strip has stopped moving.
+ *
+ * A press scrolls smoothly, and the last pixel of the way is the slowest.
+ * Sampled frame by frame towards 208, Firefox spends nine frames between 207
+ * and 208, and Chromium and WebKit one frame each at 207. So "within a pixel of
+ * the target" comes true before the strip gets there, and a reading taken then
+ * is a frame of the animation: that is the 5 WebKit and the 4.77 Firefox
+ * reported on a Linux runner for a child that comes to rest at 4. The same
+ * offset for a tenth of a second is what says the strip has stopped.
+ */
+async function stopped(): Promise<void> {
+  let last = scroller().scrollLeft;
+  let since = performance.now();
+
+  await vi.waitFor(
+    () => {
+      const now = scroller().scrollLeft;
+
+      if (now !== last) {
+        last = now;
+        since = performance.now();
+      }
+
+      expect(performance.now() - since).toBeGreaterThanOrEqual(STILL_MS);
+    },
+    { interval: 16, timeout: 3000 }
+  );
+}
+
 /**
  * Asserts the strip has come to rest on child `index`.
  *
@@ -56,7 +89,13 @@ async function landsOn(index: number): Promise<void> {
   const offset = () =>
     track().children[index].getBoundingClientRect().left - track().getBoundingClientRect().left;
 
-  await vi.waitFor(() => expect(Math.abs(scroller().scrollLeft - offset())).toBeLessThanOrEqual(1));
+  const near = () => expect(Math.abs(scroller().scrollLeft - offset())).toBeLessThanOrEqual(1);
+
+  // Near first, so a strip that has not started moving yet does not count as
+  // stopped, and then still, so what the caller reads next is where it rests.
+  await vi.waitFor(near);
+  await stopped();
+  near();
 }
 
 /**
@@ -281,8 +320,12 @@ describe('MPScrollZone', () => {
     await landsOn(1);
 
     const second = track().children[1];
+    const clear = second.getBoundingClientRect().left - clipEdges(second).left;
 
-    expect(second.getBoundingClientRect().left - clipEdges(second).left).toBeCloseTo(4, 0);
+    // 4px, the focus ring's reach, within the same pixel `landsOn` allows for an
+    // offset snapped to the device pixel grid. Landing flush against the clip
+    // is 0, and that is the defect this is here for.
+    expect(Math.abs(clear - 4)).toBeLessThanOrEqual(1);
   });
 
   it('snaps the children to the leading edge when asked', async () => {
