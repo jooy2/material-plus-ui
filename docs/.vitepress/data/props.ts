@@ -5901,10 +5901,10 @@ const componentTables: Record<string, PropRow[]> = {
     },
     {
       name: 'classNames',
-      type: "MPSlots<'backdrop'>",
+      type: "MPSlots<'backdrop' | 'body'>",
       description: {
-        ko: '`backdrop`은 시트 뒤의 스크림입니다. 시트의 자식이 아니라 형제라서 루트에 건 선택자가 닿지 않습니다',
-        en: '`backdrop` is the scrim behind the sheet. A sibling of it rather than a child, so no selector against the root finds it'
+        ko: '`backdrop`은 시트 뒤의 스크림입니다. 시트의 자식이 아니라 형제라서 루트에 건 선택자가 닿지 않습니다. `body`는 `children`을 담고 스크롤되는 부분입니다. 여백, 스크롤, 가장자리에 남기는 공간이 이 요소의 것입니다',
+        en: '`backdrop` is the scrim behind the sheet. A sibling of it rather than a child, so no selector against the root finds it. `body` is the part that scrolls and holds `children`, and its padding, its scrolling and the room it keeps at its edges are its own'
       }
     }
   ],
