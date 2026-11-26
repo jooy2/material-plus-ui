@@ -73,6 +73,12 @@ Clamped to 2–12. A single box is an `MPTextField`, and past twelve the row sto
 
 `numeric` is the default because that is what a texted code is, and it is also what puts a number pad in front of a phone. Anything the charset rejects is dropped rather than shown, and `onValueInvalid` reports it.
 
+::: fw flutter
+
+With `any`, what a Korean, Japanese or Chinese input method is still composing can run past the last slot, and is cut back to `length` as the composition ends. Nothing past the last slot is drawn, and until the composition ends `onChanged` can report more characters than there are slots. Held to the slots instead, a syllable started in a full row would be turned away while the input method went on composing it, and on Windows the next one would be written over the last slot. The other charsets drop those characters before they reach a slot.
+
+:::
+
 ### onComplete
 
 Fires the moment the last slot is filled — which is the moment to verify the code, rather than waiting for a submit button nobody is going to press. `autoSubmit` goes one step further and submits the [MPForm](./form) the field is in.

@@ -246,6 +246,22 @@ Any `rows` makes the field multiline, that many rows tall. Everything else stays
 
 :::
 
+### maxLength
+
+A Korean syllable, a Japanese reading and a pinyin spelling are written over several keys, and the input method holds them as a composition until the key that ends it. `maxLength` lets a composition run past the limit while it is open and cuts the text back to the limit as it ends. A field that turned those keys away would refuse a reading longer than the room left, even where the characters it turns into would fit: `にほんご` for `日本語` in a field of three. Until the composition ends, the change callback can report more than `maxLength` characters.
+
+::: fw react
+
+That is what the browser does with the native attribute, so there is no prop for it.
+
+:::
+
+::: fw flutter
+
+`maxLengthEnforcement` changes it. `MaxLengthEnforcement.enforced` holds a composition to the limit, for a field that only takes digits or Latin letters: with the default, a keyboard that composes whole words, as Gboard on Android does, lets a word run past the limit until it is finished. Flutter's own `TextField` picks `enforced` on Windows and Android, and on Windows the input method goes on composing a syllable the field turned away, so the next one can take the place of a syllable already in the field.
+
+:::
+
 ### size
 
 Five rungs, and `md` is the specification's: Material defines one size for a text field, the 56px one, so that is what you get by saying nothing. The other four exist because a component library is used in places a design system does not plan for — a filter bar, a table's inline editor, a dense settings page. See [Prop conventions](../../design/prop-conventions#size) for the rule this follows.
@@ -485,6 +501,7 @@ Most of this page is the same in both packages. These are the places where it is
 | `onClick`, `onDoubleClick`, `onContextMenu` | — | Wrap the field in a `GestureDetector` or a `Listener` for the pointer. |
 | The browser's selection handles and context menu | Drawn by the package | On Android a long press selects a word, with handles to drag in the theme's primary colour and a menu of cut, copy, paste, select all and share in the field's language. iOS shows its own system menu. On a desktop a right click opens the same menu, and on the web the browser's menu stays. There is no magnifier. |
 | `resizable` | — | It is CSS's `resize`, which has no Flutter counterpart. |
+| `maxLength`, as the browser enforces it | `maxLength` and `maxLengthEnforcement` | The browser decides what happens to a composition at the limit, and Flutter leaves it to the field. The default is the browser's. |
 | `id` | — | There is no document to point a label at; the label is part of the field's semantics node. |
 | `className`, `style` | — | There is nothing to pass them through to. `focusNode` is offered instead. |
 | `<form>` submit on Enter | `MPForm` submit on Enter | Flutter has no native form, so a single-line field without `onSubmit` submits the [MPForm](./form) around it. |
