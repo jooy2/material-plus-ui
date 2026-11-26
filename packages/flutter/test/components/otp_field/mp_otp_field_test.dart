@@ -437,6 +437,150 @@ void main() {
     }
   });
 
+  // A code is not complete while the input method can still change its last
+  // character, except on Android, where Base UI makes the same exception.
+  group('completing while an input method composes', () {
+    Future<List<String>> pumpRow(WidgetTester tester, {required MPOtpFieldCharset charset}) async {
+      final List<String> completed = <String>[];
+
+      await tester.pumpWidget(
+        host(
+          MPOtpField(
+            label: const Text('Code'),
+            length: 2,
+            charset: charset,
+            onComplete: completed.add,
+          ),
+        ),
+      );
+      await tester.showKeyboard(find.byType(EditableText));
+      await tester.pump();
+
+      return completed;
+    }
+
+    Future<void> send(WidgetTester tester, List<TextEditingValue> values) async {
+      for (final TextEditingValue value in values) {
+        tester.testTextInput.updateEditingValue(value);
+        await tester.pump();
+      }
+    }
+
+    testWidgets('on Windows, waits for the last syllable to be finished', (
+      WidgetTester tester,
+    ) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+
+      try {
+        final List<String> completed = await pumpRow(tester, charset: MPOtpFieldCharset.any);
+
+        await send(tester, <TextEditingValue>[
+          _compositionStarts(''),
+          _composing('ㅎ', 0, 1),
+          _composing('하', 0, 1),
+          _composing('한', 0, 1),
+          _composing('한ㄱ', 1, 2),
+          _composing('한그', 1, 2),
+          _composing('한글', 1, 2),
+        ]);
+
+        expect(completed, isEmpty);
+
+        await send(tester, <TextEditingValue>[_committed('한글')]);
+
+        expect(completed, <String>['한글']);
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
+
+    testWidgets('on macOS, waits for the last syllable to be finished', (
+      WidgetTester tester,
+    ) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+
+      try {
+        final List<String> completed = await pumpRow(tester, charset: MPOtpFieldCharset.any);
+
+        await send(tester, <TextEditingValue>[
+          _composing('ㅎ', 0, 1),
+          _composing('하', 0, 1),
+          _composing('한', 0, 1),
+          _committed('한'),
+          _composing('한ㄱ', 1, 2),
+          _composing('한그', 1, 2),
+          _composing('한글', 1, 2),
+        ]);
+
+        expect(completed, isEmpty);
+
+        await send(tester, <TextEditingValue>[_committed('한글')]);
+
+        expect(completed, <String>['한글']);
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
+
+    testWidgets('on Android, completes as it is composed, and only once', (
+      WidgetTester tester,
+    ) async {
+      // A keyboard that composes every word would otherwise hold the code back
+      // until the field loses the focus.
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+
+      try {
+        final List<String> completed = await pumpRow(tester, charset: MPOtpFieldCharset.alpha);
+
+        await send(tester, <TextEditingValue>[_composing('a', 0, 1), _composing('ab', 0, 2)]);
+
+        expect(completed, <String>['ab']);
+
+        await send(tester, <TextEditingValue>[_committed('ab')]);
+
+        expect(completed, <String>['ab']);
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
+
+    testWidgets('shows a parent that turned the composition down once it ends', (
+      WidgetTester tester,
+    ) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+
+      try {
+        final List<String> changes = <String>[];
+
+        await tester.pumpWidget(
+          host(
+            MPOtpField(
+              label: const Text('Code'),
+              length: 2,
+              charset: MPOtpFieldCharset.any,
+              value: '',
+              onChanged: changes.add,
+            ),
+          ),
+        );
+        await tester.showKeyboard(find.byType(EditableText));
+        await tester.pump();
+
+        await send(tester, <TextEditingValue>[_composing('한', 0, 1)]);
+
+        expect(_editing(tester).text, '한');
+
+        tester.testTextInput.updateEditingValue(_committed('한'));
+        await tester.pumpAndSettle();
+
+        expect(changes, <String>['한', '한']);
+        expect(_editing(tester).text, '');
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
+  });
+
   group('states', () {
     testWidgets('shows an error message and turns every slot over', (WidgetTester tester) async {
       await tester.pumpWidget(

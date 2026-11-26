@@ -164,7 +164,9 @@ class MPOtpField extends StatefulWidget {
   /// The code an uncontrolled field starts with.
   final String? initialValue;
 
-  /// Called on every change. The React build's `onValueChange`.
+  /// Called on every change, each key of a composition included, and once more
+  /// with the committed text as the composition ends. The React build's
+  /// `onValueChange`.
   ///
   /// With [MPOtpFieldCharset.any], a syllable or a word an input method is
   /// still composing can run past the last slot, and is cut back to [length]
@@ -175,6 +177,11 @@ class MPOtpField extends StatefulWidget {
   /// Called whenever a change leaves every slot filled: the moment to verify
   /// the code. A key pressed in a full row changes the last slot, so this is
   /// called again with the new code.
+  ///
+  /// While an input method is still composing the last character, the next key
+  /// can change it, so the code is completed once the composition ends. On
+  /// Android it is completed as it is composed, as the React build's is: some
+  /// Android keyboards leave everything they type composing.
   final ValueChanged<String>? onComplete;
 
   /// Called with what was typed or pasted when it held characters [charset]
@@ -234,7 +241,7 @@ class MPOtpField extends StatefulWidget {
 }
 
 class _MPOtpFieldState extends State<MPOtpField> {
-  late final MPFieldText _text = MPFieldText(value: _current, onCommit: () {});
+  late final MPFieldText _text = MPFieldText(value: _current, onCommit: _onCommit);
   final GlobalKey<EditableTextState> _editor = GlobalKey<EditableTextState>();
   final GlobalKey _row = GlobalKey();
   final ContextMenuController _menu = ContextMenuController();
@@ -259,6 +266,10 @@ class _MPOtpFieldState extends State<MPOtpField> {
   FocusNode? _ownedFocus;
   bool _focused = false;
   bool _hovered = false;
+
+  /// Whether a composition has just ended and the editor has not reported it
+  /// as a change, which it does only when the commit changed the text.
+  bool _committing = false;
 
   FocusNode get _focusNode => widget.focusNode ?? (_ownedFocus ??= FocusNode());
 
@@ -321,7 +332,40 @@ class _MPOtpFieldState extends State<MPOtpField> {
     }
   }
 
+  /// Whether a code waits for the input method to finish its last character
+  /// before it is complete, as Base UI's does everywhere but Android. Some
+  /// Android keyboards leave everything they type composing, and a code that
+  /// waited for them would not complete.
+  bool get _waitsForComposition => defaultTargetPlatform != TargetPlatform.android;
+
+  /// The editor changed its text.
   void _onChanged(String text) {
+    _committing = false;
+    // While an input method is composing, the next key can still change the
+    // last character, so the code is completed when the composition ends.
+    _report(text, complete: !_text.composing || !_waitsForComposition);
+  }
+
+  /// A composition ended.
+  ///
+  /// The editor reports the commit only when it changed the text, and a
+  /// syllable often commits as exactly what was last composed. So it is
+  /// reported here unless the editor reported it, which it does in the same
+  /// turn, after this has been called and before the microtask runs. A parent
+  /// that turned the composing text down hears the committed text either way,
+  /// and a code that waited for the composition is completed. Where nothing
+  /// waited, the code was completed as it was composed.
+  void _onCommit() {
+    _committing = true;
+    mpAfterEdit(() => mounted, () {
+      if (_committing) {
+        _committing = false;
+        _report(_text.controller.text, complete: _waitsForComposition);
+      }
+    });
+  }
+
+  void _report(String text, {required bool complete}) {
     _menu.remove();
 
     if (!_controlled) {
@@ -332,7 +376,7 @@ class _MPOtpFieldState extends State<MPOtpField> {
     widget.onChanged?.call(text);
     _text.answered(() => _current);
 
-    if (text.characters.length == _slots) {
+    if (complete && text.characters.length == _slots) {
       widget.onComplete?.call(text);
 
       if (widget.autoSubmit) {
