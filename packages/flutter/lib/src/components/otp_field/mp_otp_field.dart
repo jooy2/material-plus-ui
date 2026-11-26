@@ -94,7 +94,9 @@ MPTypeRole _slotText(MPTypescale typescale, MPSize size) {
 /// One editor stands behind however many slots, so a paste spreads across them
 /// from wherever the caret was, backspace steps back a box, a press anywhere
 /// lands on the first empty slot, and a phone can offer the code straight from
-/// the message it arrived in. A long press, or a right click with a mouse,
+/// the message it arrived in. Once every slot is filled the ring stays on the
+/// last one, and a key pressed then takes that slot's place, as it does in the
+/// React build. A long press, or a right click with a mouse,
 /// opens a menu with Paste in it, the system's own on iOS: the editor is hidden
 /// behind the boxes, so there is no text for selection handles to hold, and
 /// without the menu a phone would have no way to paste a code it copied.
@@ -170,7 +172,9 @@ class MPOtpField extends StatefulWidget {
   /// than there are slots. Nothing past the last slot is drawn.
   final ValueChanged<String>? onChanged;
 
-  /// Called once every slot is filled: the moment to verify the code.
+  /// Called whenever a change leaves every slot filled: the moment to verify
+  /// the code. A key pressed in a full row changes the last slot, so this is
+  /// called again with the new code.
   final ValueChanged<String>? onComplete;
 
   /// Called with what was typed or pasted when it held characters [charset]
@@ -567,16 +571,17 @@ class _MPOtpFieldState extends State<MPOtpField> {
             obscureText: widget.mask,
             inputFormatters: <TextInputFormatter>[
               _CharsetFormatter(charset: widget.charset, onRejected: widget.onValueInvalid),
+              _LastSlotFormatter(slots: slots),
               LengthLimitingTextInputFormatter(
                 slots,
                 // Only `any` lets what a Korean, Japanese or Chinese input
-                // method composes into the row. Held to the slots, a syllable
-                // started in a full row is turned away while the input method
-                // goes on composing it, and on Windows the next one is written
-                // over the last slot. The other charsets drop those characters
-                // before they get here, with nothing left composing, so the
-                // platform's own choice stands for the digits and Latin letters
-                // they let through.
+                // method composes into the row. Held to the slots, a reading
+                // longer than the slots left is turned away while the input
+                // method goes on composing it, and on Windows the next key
+                // writes over a slot already filled. The other charsets drop
+                // those characters before they get here, with nothing left
+                // composing, so the platform's own choice stands for the
+                // digits and Latin letters they let through.
                 maxLengthEnforcement: widget.charset == MPOtpFieldCharset.any
                     ? MaxLengthEnforcement.truncateAfterCompositionEnds
                     : null,
@@ -688,6 +693,62 @@ class _MPOtpFieldState extends State<MPOtpField> {
   }
 
   Widget? _textOrNull(String? message) => message == null ? null : Text(message);
+}
+
+/// Puts what arrives at the end of a full row in the last slot, as the React
+/// field's last slot takes a key while every slot is filled.
+///
+/// The ring stays on the last slot once the row is full, so that is where the
+/// reader expects the next character to land, and the length limit after this
+/// would turn it away. It reaches only an edit that adds to the end of a full
+/// row with the caret after it: a key, a paste, or a composition an input
+/// method starts there. A composition that takes in text already in the row,
+/// as a reading does while it grows, is left to the limit.
+class _LastSlotFormatter extends TextInputFormatter {
+  const _LastSlotFormatter({required this.slots});
+
+  final int slots;
+
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue before, TextEditingValue after) {
+    final String full = before.text;
+    final TextSelection caret = before.selection;
+    final TextRange composing = after.composing;
+    final bool composes = composing.isValid && !composing.isCollapsed;
+
+    if (full.characters.length != slots ||
+        !caret.isCollapsed ||
+        caret.extentOffset != full.length ||
+        after.text.length <= full.length ||
+        !after.text.startsWith(full) ||
+        after.selection.start < full.length ||
+        (composes && composing.start < full.length)) {
+      return after;
+    }
+
+    final int last = full.characters.last.length;
+    final String text = full.substring(0, full.length - last) + after.text.substring(full.length);
+
+    if (composes) {
+      return TextEditingValue(
+        text: text,
+        selection: TextSelection(
+          baseOffset: after.selection.baseOffset - last,
+          extentOffset: after.selection.extentOffset - last,
+        ),
+        composing: TextRange(start: composing.start - last, end: composing.end - last),
+      );
+    }
+
+    // A paste of more than one character is cut here: the limit would turn
+    // away the whole of an edit that leaves a full row too long.
+    final String kept = text.characters.take(slots).toString();
+
+    return TextEditingValue(
+      text: kept,
+      selection: TextSelection.collapsed(offset: kept.length),
+    );
+  }
 }
 
 /// Drops what the charset refuses, and reports what was attempted.

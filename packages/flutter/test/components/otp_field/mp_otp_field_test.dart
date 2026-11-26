@@ -238,57 +238,51 @@ void main() {
   // starts, and a syllable the Korean input method finishes arriving with the
   // one it starts next.
   group('while an input method composes', () {
-    testWidgets(
-      'with charset any, takes in a syllable started in a full row until it is finished',
-      (WidgetTester tester) async {
-        debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+    testWidgets('with charset any, takes a reading longer than the slots left until it ends', (
+      WidgetTester tester,
+    ) async {
+      // Held to the slots, the row would turn zho away while the input method
+      // went on composing it.
+      debugDefaultTargetPlatformOverride = TargetPlatform.windows;
 
-        try {
-          final List<String> changes = <String>[];
+      try {
+        final List<String> changes = <String>[];
 
-          await tester.pumpWidget(
-            host(
-              MPOtpField(
-                label: const Text('Code'),
-                length: 2,
-                charset: MPOtpFieldCharset.any,
-                onChanged: changes.add,
-              ),
+        await tester.pumpWidget(
+          host(
+            MPOtpField(
+              label: const Text('Code'),
+              length: 4,
+              charset: MPOtpFieldCharset.any,
+              onChanged: changes.add,
             ),
-          );
-          await tester.showKeyboard(find.byType(EditableText));
+          ),
+        );
+        await _type(tester, '12');
+
+        const String reading = 'zhongguo';
+
+        for (final TextEditingValue value in <TextEditingValue>[
+          _compositionStarts('12'),
+          for (int typed = 1; typed <= reading.length; typed++)
+            _composing('12${reading.substring(0, typed)}', 2, 2 + typed),
+          _composing('12中国', 2, 4),
+        ]) {
+          tester.testTextInput.updateEditingValue(value);
           await tester.pump();
 
-          // Held to the slots, the row would go back to 글 being composed while
-          // the input method composes ㅁ, and Windows would write 마 over 글.
-          for (final TextEditingValue value in <TextEditingValue>[
-            _compositionStarts(''),
-            _composing('한', 0, 1),
-            _composing('한글', 1, 2),
-            _composing('한글ㅁ', 2, 3),
-            _composing('한글마', 2, 3),
-          ]) {
-            tester.testTextInput.updateEditingValue(value);
-            await tester.pump();
-
-            expect(_editing(tester), value, reason: 'the input method holds "${value.text}"');
-          }
-
-          // Nothing is drawn past the last slot.
-          expect(find.text('마'), findsNothing);
-
-          tester.testTextInput.updateEditingValue(_committed('한글마'));
-          await tester.pumpAndSettle();
-
-          expect(_editing(tester), _committed('한글'));
-          expect(changes.last, '한글');
-          expect(find.text('한'), findsOneWidget);
-          expect(find.text('글'), findsOneWidget);
-        } finally {
-          debugDefaultTargetPlatformOverride = null;
+          expect(_editing(tester), value, reason: 'the input method holds "${value.text}"');
         }
-      },
-    );
+
+        tester.testTextInput.updateEditingValue(_committed('12中国'));
+        await tester.pumpAndSettle();
+
+        expect(_editing(tester), _committed('12中国'));
+        expect(changes.last, '12中国');
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
 
     testWidgets('with digits, drops a syllable and leaves nothing being composed', (
       WidgetTester tester,
@@ -327,6 +321,120 @@ void main() {
         debugDefaultTargetPlatformOverride = null;
       }
     });
+  });
+
+  group('a full row', () {
+    testWidgets('puts a key pressed in it in the last slot, and completes again', (
+      WidgetTester tester,
+    ) async {
+      final List<String> completed = <String>[];
+
+      await tester.pumpWidget(
+        host(MPOtpField(label: const Text('Code'), length: 4, onComplete: completed.add)),
+      );
+      await _type(tester, '1234');
+
+      tester.testTextInput.enterText('12345');
+      await tester.pump();
+
+      expect(_code(tester), '1235');
+      expect(completed, <String>['1234', '1235']);
+    });
+
+    testWidgets('puts the first character of a paste in the last slot', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(host(const _Parent()));
+      await _type(tester, '1234');
+
+      tester.testTextInput.enterText('123456');
+      await tester.pump();
+
+      expect(tester.state<_ParentState>(find.byType(_Parent)).code, '1235');
+    });
+
+    testWidgets('keeps its last slot when the charset refuses the key', (
+      WidgetTester tester,
+    ) async {
+      final List<String> rejected = <String>[];
+
+      await tester.pumpWidget(host(_Parent(onInvalid: rejected.add)));
+      await _type(tester, '1234');
+
+      tester.testTextInput.enterText('1234a');
+      await tester.pump();
+
+      expect(tester.state<_ParentState>(find.byType(_Parent)).code, '1234');
+      expect(rejected, <String>['1234a']);
+    });
+
+    for (final (TargetPlatform platform, String name) in <(TargetPlatform, String)>[
+      (TargetPlatform.windows, 'Windows'),
+      (TargetPlatform.macOS, 'macOS'),
+    ]) {
+      testWidgets('on $name, composes a syllable started in it in the last slot', (
+        WidgetTester tester,
+      ) async {
+        // The engine is told the composition now covers the last slot, so the
+        // next key the input method sends is written there, as it is in the
+        // React build. Windows finishes 글 and starts ㅁ in one update; macOS
+        // finishes 글 on its own first.
+        debugDefaultTargetPlatformOverride = platform;
+
+        try {
+          final bool windows = platform == TargetPlatform.windows;
+
+          await tester.pumpWidget(
+            host(MPOtpField(label: const Text('Code'), length: 2, charset: MPOtpFieldCharset.any)),
+          );
+          await tester.showKeyboard(find.byType(EditableText));
+          await tester.pump();
+
+          for (final TextEditingValue value in <TextEditingValue>[
+            if (windows) _compositionStarts(''),
+            _composing('한', 0, 1),
+            if (!windows) _committed('한'),
+            _composing('한글', 1, 2),
+            if (!windows) _committed('한글'),
+          ]) {
+            tester.testTextInput.updateEditingValue(value);
+            await tester.pump();
+          }
+
+          tester.testTextInput.log.clear();
+          tester.testTextInput.updateEditingValue(_composing('한글ㅁ', 2, 3));
+          await tester.pump();
+
+          expect(_editing(tester), _composing('한ㅁ', 1, 2));
+
+          final MethodCall sent = tester.testTextInput.log.lastWhere(
+            (MethodCall call) => call.method == 'TextInput.setEditingState',
+          );
+
+          expect(
+            sent.arguments,
+            allOf(
+              containsPair('text', '한ㅁ'),
+              containsPair('composingBase', 1),
+              containsPair('composingExtent', 2),
+            ),
+          );
+
+          tester.testTextInput.updateEditingValue(_composing('한마', 1, 2));
+          await tester.pump();
+
+          expect(_editing(tester), _composing('한마', 1, 2));
+
+          tester.testTextInput.updateEditingValue(_committed('한마'));
+          await tester.pumpAndSettle();
+
+          expect(_editing(tester), _committed('한마'));
+          expect(find.text('마'), findsOneWidget);
+        } finally {
+          debugDefaultTargetPlatformOverride = null;
+        }
+      });
+    }
   });
 
   group('states', () {
