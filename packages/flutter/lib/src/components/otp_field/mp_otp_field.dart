@@ -163,6 +163,11 @@ class MPOtpField extends StatefulWidget {
   final String? initialValue;
 
   /// Called on every change. The React build's `onValueChange`.
+  ///
+  /// With [MPOtpFieldCharset.any], a syllable or a word an input method is
+  /// still composing can run past the last slot, and is cut back to [length]
+  /// as the composition ends, so until then this can report more characters
+  /// than there are slots. Nothing past the last slot is drawn.
   final ValueChanged<String>? onChanged;
 
   /// Called once every slot is filled: the moment to verify the code.
@@ -562,7 +567,20 @@ class _MPOtpFieldState extends State<MPOtpField> {
             obscureText: widget.mask,
             inputFormatters: <TextInputFormatter>[
               _CharsetFormatter(charset: widget.charset, onRejected: widget.onValueInvalid),
-              LengthLimitingTextInputFormatter(slots),
+              LengthLimitingTextInputFormatter(
+                slots,
+                // Only `any` lets what a Korean, Japanese or Chinese input
+                // method composes into the row. Held to the slots, a syllable
+                // started in a full row is turned away while the input method
+                // goes on composing it, and on Windows the next one is written
+                // over the last slot. The other charsets drop those characters
+                // before they get here, with nothing left composing, so the
+                // platform's own choice stands for the digits and Latin letters
+                // they let through.
+                maxLengthEnforcement: widget.charset == MPOtpFieldCharset.any
+                    ? MaxLengthEnforcement.truncateAfterCompositionEnds
+                    : null,
+              ),
             ],
             onChanged: _onChanged,
             style: type.style(colors.onSurface),

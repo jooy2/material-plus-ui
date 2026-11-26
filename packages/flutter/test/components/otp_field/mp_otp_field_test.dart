@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -81,6 +82,38 @@ Future<void> _type(WidgetTester tester, String text) async {
   await tester.pump();
   tester.testTextInput.enterText(text);
   await tester.pump();
+}
+
+/// What an input method has written while a composition is open: the whole
+/// code, with the caret at the end of the part still being composed.
+TextEditingValue _composing(String text, int start, int end) {
+  return TextEditingValue(
+    text: text,
+    selection: TextSelection.collapsed(offset: end),
+    composing: TextRange(start: start, end: end),
+  );
+}
+
+/// What it has written once nothing is being composed.
+TextEditingValue _committed(String text) {
+  return TextEditingValue(
+    text: text,
+    selection: TextSelection.collapsed(offset: text.length),
+  );
+}
+
+/// What the Windows engine sends as a composition starts: the code as it was,
+/// with an empty composition at the caret.
+TextEditingValue _compositionStarts(String text) {
+  return TextEditingValue(
+    text: text,
+    selection: TextSelection.collapsed(offset: text.length),
+    composing: TextRange.collapsed(text.length),
+  );
+}
+
+TextEditingValue _editing(WidgetTester tester) {
+  return tester.state<EditableTextState>(find.byType(EditableText)).widget.controller.value;
 }
 
 void main() {
@@ -198,6 +231,101 @@ void main() {
       await _type(tester, '123456');
 
       expect(tester.state<_ParentState>(find.byType(_Parent)).code, '1234');
+    });
+  });
+
+  // In the order the Windows engine sends them: an empty composition as one
+  // starts, and a syllable the Korean input method finishes arriving with the
+  // one it starts next.
+  group('while an input method composes', () {
+    testWidgets(
+      'with charset any, takes in a syllable started in a full row until it is finished',
+      (WidgetTester tester) async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+
+        try {
+          final List<String> changes = <String>[];
+
+          await tester.pumpWidget(
+            host(
+              MPOtpField(
+                label: const Text('Code'),
+                length: 2,
+                charset: MPOtpFieldCharset.any,
+                onChanged: changes.add,
+              ),
+            ),
+          );
+          await tester.showKeyboard(find.byType(EditableText));
+          await tester.pump();
+
+          // Held to the slots, the row would go back to 글 being composed while
+          // the input method composes ㅁ, and Windows would write 마 over 글.
+          for (final TextEditingValue value in <TextEditingValue>[
+            _compositionStarts(''),
+            _composing('한', 0, 1),
+            _composing('한글', 1, 2),
+            _composing('한글ㅁ', 2, 3),
+            _composing('한글마', 2, 3),
+          ]) {
+            tester.testTextInput.updateEditingValue(value);
+            await tester.pump();
+
+            expect(_editing(tester), value, reason: 'the input method holds "${value.text}"');
+          }
+
+          // Nothing is drawn past the last slot.
+          expect(find.text('마'), findsNothing);
+
+          tester.testTextInput.updateEditingValue(_committed('한글마'));
+          await tester.pumpAndSettle();
+
+          expect(_editing(tester), _committed('한글'));
+          expect(changes.last, '한글');
+          expect(find.text('한'), findsOneWidget);
+          expect(find.text('글'), findsOneWidget);
+        } finally {
+          debugDefaultTargetPlatformOverride = null;
+        }
+      },
+    );
+
+    testWidgets('with digits, drops a syllable and leaves nothing being composed', (
+      WidgetTester tester,
+    ) async {
+      // Why the other charsets keep the platform's own limit: what an input
+      // method composes never gets past the charset, and the row is sent back
+      // with no composition for the next syllable to land on.
+      debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+
+      try {
+        final List<String> rejected = <String>[];
+
+        await tester.pumpWidget(host(_Parent(onInvalid: rejected.add)));
+        await _type(tester, '12');
+        tester.testTextInput.log.clear();
+
+        tester.testTextInput.updateEditingValue(_composing('12ㅁ', 2, 3));
+        await tester.pump();
+
+        expect(_editing(tester), _committed('12'));
+        expect(rejected, <String>['12ㅁ']);
+
+        final MethodCall sent = tester.testTextInput.log.lastWhere(
+          (MethodCall call) => call.method == 'TextInput.setEditingState',
+        );
+
+        expect(
+          sent.arguments,
+          allOf(
+            containsPair('text', '12'),
+            containsPair('composingBase', -1),
+            containsPair('composingExtent', -1),
+          ),
+        );
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
     });
   });
 
