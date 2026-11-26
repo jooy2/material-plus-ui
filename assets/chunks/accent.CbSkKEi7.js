@@ -1,0 +1,1 @@
+function c(n){return{"--_mp-accent":`var(--_mp-color-${n})`,"--_mp-on-accent":`var(--_mp-color-on-${n})`,"--_mp-accent-container":`var(--_mp-color-${n}-container)`,"--_mp-on-accent-container":`var(--_mp-color-on-${n}-container)`}}export{c as a};

@@ -1,0 +1,1 @@
+import{j as s}from"./jsx-runtime.BjG_zV1W.js";import{b as a,M as n}from"./locale.DdayUHHK.js";function c({locale:e,serverLocale:o,children:r}){const t=a(o);return s.jsx(n.Provider,{value:e??t,children:r})}export{c as M};
