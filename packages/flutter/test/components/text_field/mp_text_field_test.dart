@@ -1,5 +1,6 @@
 import 'dart:ui' show Tristate;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -79,6 +80,35 @@ void _commit(WidgetTester tester, String text) {
       text: text,
       selection: TextSelection.collapsed(offset: text.length),
     ),
+  );
+}
+
+/// What an input method has written while a composition is open: the whole
+/// text, with the caret at the end of the part still being composed.
+TextEditingValue _composing(String text, int start, int end) {
+  return TextEditingValue(
+    text: text,
+    selection: TextSelection.collapsed(offset: end),
+    composing: TextRange(start: start, end: end),
+  );
+}
+
+/// What it has written once nothing is being composed.
+TextEditingValue _committed(String text) {
+  return TextEditingValue(
+    text: text,
+    selection: TextSelection.collapsed(offset: text.length),
+  );
+}
+
+/// What the Windows engine sends as a composition starts, before the input
+/// method has written anything into it: the text as it was, with an empty
+/// composition at the caret.
+TextEditingValue _compositionStarts(String text) {
+  return TextEditingValue(
+    text: text,
+    selection: TextSelection.collapsed(offset: text.length),
+    composing: TextRange.collapsed(text.length),
   );
 }
 
@@ -643,6 +673,322 @@ void main() {
         ),
         isEmpty,
       );
+    });
+  });
+
+  // The values are sent in the order the engines send them, as their sources
+  // have it. The Windows engine sends an empty composition as one starts, and a
+  // syllable the Korean input method finishes arrives with the one it starts
+  // next. The macOS engine sends a finished syllable on its own, as text that is
+  // no longer being composed.
+  group('maxLength while an input method composes', () {
+    /// A parent that keeps every change, around a field capped at [maxLength].
+    Widget capped(
+      int maxLength, {
+      MaxLengthEnforcement? enforcement,
+      ValueChanged<String>? onChanged,
+    }) {
+      return _Parent(
+        onChanged: onChanged,
+        build: (String value, ValueChanged<String> changed) {
+          // Left out rather than passed, so the default is what is tested.
+          if (enforcement == null) {
+            return MPTextField(
+              label: const Text('Name'),
+              value: value,
+              onChanged: changed,
+              maxLength: maxLength,
+              fullWidth: true,
+            );
+          }
+
+          return MPTextField(
+            label: const Text('Name'),
+            value: value,
+            onChanged: changed,
+            maxLength: maxLength,
+            maxLengthEnforcement: enforcement,
+            fullWidth: true,
+          );
+        },
+      );
+    }
+
+    Future<void> pumpFocused(WidgetTester tester, Widget field, {String initial = ''}) async {
+      await tester.pumpWidget(host(field, width: 300));
+
+      if (initial.isNotEmpty) {
+        tester.state<_ParentState>(find.byType(_Parent)).reset(initial);
+        await tester.pump();
+      }
+
+      await tester.showKeyboard(find.byType(EditableText));
+      await tester.pump();
+    }
+
+    /// Sends [values] in turn, and checks that the field holds each one just
+    /// as the input method sent it.
+    Future<void> compose(WidgetTester tester, List<TextEditingValue> values) async {
+      for (final TextEditingValue value in values) {
+        tester.testTextInput.updateEditingValue(value);
+        await tester.pump();
+
+        expect(
+          _controllerOf(tester).value,
+          value,
+          reason: 'the input method holds "${value.text}"',
+        );
+      }
+    }
+
+    /// Ends the composition with [text], and lets the parent answer.
+    Future<void> endComposition(WidgetTester tester, String text) async {
+      tester.testTextInput.updateEditingValue(_committed(text));
+      await tester.pumpAndSettle();
+    }
+
+    String parentValue(WidgetTester tester) =>
+        tester.state<_ParentState>(find.byType(_Parent)).value;
+
+    testWidgets('on Windows, takes in a syllable typed past a full field until it is finished', (
+      WidgetTester tester,
+    ) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+
+      try {
+        final List<String> changes = <String>[];
+
+        await pumpFocused(tester, capped(2, onChanged: changes.add));
+
+        // 한글 and then 마. ㄱ and ㅁ cannot join the syllable before them, so
+        // each finishes that syllable and starts the next.
+        await compose(tester, <TextEditingValue>[
+          _compositionStarts(''),
+          _composing('ㅎ', 0, 1),
+          _composing('하', 0, 1),
+          _composing('한', 0, 1),
+          _composing('한ㄱ', 1, 2),
+          _composing('한그', 1, 2),
+          _composing('한글', 1, 2),
+          _composing('한글ㅁ', 2, 3),
+          _composing('한글마', 2, 3),
+        ]);
+        await endComposition(tester, '한글마');
+
+        expect(_controllerOf(tester).value, _committed('한글'));
+        expect(parentValue(tester), '한글');
+        expect(changes, <String>['ㅎ', '하', '한', '한ㄱ', '한그', '한글', '한글ㅁ', '한글마', '한글']);
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
+
+    testWidgets(
+      'on Windows, shows a syllable that splits at the limit whole until it is finished',
+      (WidgetTester tester) async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+
+        try {
+          await pumpFocused(tester, capped(2));
+
+          // ㅏ after 글한 takes the ㄴ off 한 for a syllable of its own, so the
+          // input method finishes 하 and starts 나.
+          await compose(tester, <TextEditingValue>[
+            _compositionStarts(''),
+            _composing('ㄱ', 0, 1),
+            _composing('그', 0, 1),
+            _composing('글', 0, 1),
+            _composing('글ㅎ', 1, 2),
+            _composing('글하', 1, 2),
+            _composing('글한', 1, 2),
+            _composing('글하나', 2, 3),
+          ]);
+          await endComposition(tester, '글하나');
+
+          expect(_controllerOf(tester).value, _committed('글하'));
+          expect(parentValue(tester), '글하');
+        } finally {
+          debugDefaultTargetPlatformOverride = null;
+        }
+      },
+    );
+
+    testWidgets('on Windows, takes in a syllable started in a field already full', (
+      WidgetTester tester,
+    ) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+
+      try {
+        await pumpFocused(tester, capped(2), initial: '한글');
+
+        await compose(tester, <TextEditingValue>[
+          _compositionStarts('한글'),
+          _composing('한글ㅁ', 2, 3),
+          _composing('한글마', 2, 3),
+        ]);
+        await endComposition(tester, '한글마');
+
+        expect(_controllerOf(tester).value, _committed('한글'));
+        expect(parentValue(tester), '한글');
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
+
+    testWidgets('on Windows, held to the limit, turns away a syllable the input method keeps', (
+      WidgetTester tester,
+    ) async {
+      // The field goes back to 글 being composed while the input method composes
+      // ㅁ, and Windows is never told: what the input method sends next is
+      // written over 글.
+      debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+
+      try {
+        await pumpFocused(tester, capped(2, enforcement: MaxLengthEnforcement.enforced));
+
+        await compose(tester, <TextEditingValue>[
+          _compositionStarts(''),
+          _composing('한', 0, 1),
+          _composing('한글', 1, 2),
+        ]);
+
+        tester.testTextInput.updateEditingValue(_composing('한글ㅁ', 2, 3));
+        await tester.pump();
+
+        expect(_controllerOf(tester).value, _composing('한글', 1, 2));
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
+
+    testWidgets('on macOS, turns away a syllable typed past a full field, and says so', (
+      WidgetTester tester,
+    ) async {
+      // A composition the field turns away is sent back as text with nothing
+      // being composed, and the macOS engine then discards what the input method
+      // has marked, so the two keep the same text.
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+
+      try {
+        await pumpFocused(tester, capped(2));
+
+        await compose(tester, <TextEditingValue>[
+          _composing('ㅎ', 0, 1),
+          _composing('하', 0, 1),
+          _composing('한', 0, 1),
+          _committed('한'),
+          _composing('한ㄱ', 1, 2),
+          _composing('한그', 1, 2),
+          _composing('한글', 1, 2),
+          _committed('한글'),
+        ]);
+
+        tester.testTextInput.log.clear();
+        tester.testTextInput.updateEditingValue(_composing('한글ㅁ', 2, 3));
+        await tester.pump();
+
+        expect(_controllerOf(tester).value, _committed('한글'));
+
+        final MethodCall sent = tester.testTextInput.log.lastWhere(
+          (MethodCall call) => call.method == 'TextInput.setEditingState',
+        );
+
+        expect(
+          sent.arguments,
+          allOf(
+            containsPair('text', '한글'),
+            containsPair('composingBase', -1),
+            containsPair('composingExtent', -1),
+          ),
+        );
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
+
+    for (final (TargetPlatform platform, String name) in <(TargetPlatform, String)>[
+      (TargetPlatform.windows, 'Windows'),
+      (TargetPlatform.macOS, 'macOS'),
+    ]) {
+      for (final (String reading, String written) in <(String, String)>[
+        ('zhongguo', '中国'),
+        ('にほんご', '日本語'),
+      ]) {
+        testWidgets('on $name, takes $reading for $written in a field of ${written.length}', (
+          WidgetTester tester,
+        ) async {
+          // The reading is longer than the field, and what it is turned into
+          // fits.
+          debugDefaultTargetPlatformOverride = platform;
+
+          try {
+            await pumpFocused(tester, capped(written.length));
+
+            final bool windows = platform == TargetPlatform.windows;
+
+            await compose(tester, <TextEditingValue>[
+              if (windows) _compositionStarts(''),
+              for (int typed = 1; typed <= reading.length; typed++)
+                _composing(reading.substring(0, typed), 0, typed),
+              // Windows sends the chosen characters while they are still the
+              // composition, and then ends it.
+              if (windows) _composing(written, 0, written.length),
+            ]);
+            await endComposition(tester, written);
+
+            expect(_controllerOf(tester).value, _committed(written));
+            expect(parentValue(tester), written);
+          } finally {
+            debugDefaultTargetPlatformOverride = null;
+          }
+        });
+      }
+    }
+
+    testWidgets('held to the limit, cannot take a reading longer than the field', (
+      WidgetTester tester,
+    ) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+
+      try {
+        await pumpFocused(tester, capped(2, enforcement: MaxLengthEnforcement.enforced));
+
+        await compose(tester, <TextEditingValue>[
+          _compositionStarts(''),
+          _composing('z', 0, 1),
+          _composing('zh', 0, 2),
+        ]);
+
+        tester.testTextInput.updateEditingValue(_composing('zho', 0, 3));
+        await tester.pump();
+
+        expect(_controllerOf(tester).value, _composing('zh', 0, 2));
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
+
+    testWidgets('on Android, lets a word the keyboard composes run past the limit until it ends', (
+      WidgetTester tester,
+    ) async {
+      // The price of the default where a keyboard composes Latin words, as
+      // Gboard does: the word is cut once it is finished.
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+
+      try {
+        await pumpFocused(tester, capped(4));
+
+        await compose(tester, <TextEditingValue>[
+          _composing('hell', 0, 4),
+          _composing('hello', 0, 5),
+        ]);
+        await endComposition(tester, 'hello ');
+
+        expect(_controllerOf(tester).value, _committed('hell'));
+        expect(parentValue(tester), 'hell');
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
     });
   });
 

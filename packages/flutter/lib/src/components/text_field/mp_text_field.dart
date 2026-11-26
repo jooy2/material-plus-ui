@@ -92,6 +92,7 @@ class MPTextField extends StatefulWidget {
     this.errorMessage,
     this.rows,
     this.maxLength,
+    this.maxLengthEnforcement = MaxLengthEnforcement.truncateAfterCompositionEnds,
     this.startIcon,
     this.locale,
     this.passwordLabels,
@@ -188,8 +189,35 @@ class MPTextField extends StatefulWidget {
   /// Makes the field multiline, this many rows tall.
   final int? rows;
 
-  /// Caps the number of characters the field will take.
+  /// Caps the number of characters the field will take, counted as a reader
+  /// sees them: an emoji built from several code points is one.
+  ///
+  /// [maxLengthEnforcement] decides what happens to a syllable an input method
+  /// is still composing when it reaches the cap.
   final int? maxLength;
+
+  /// What [maxLength] does while an input method is composing, as a Korean,
+  /// Japanese or Chinese one does from the first key of a syllable or a word to
+  /// the key that ends it.
+  ///
+  /// The default, [MaxLengthEnforcement.truncateAfterCompositionEnds], lets a
+  /// composition run past the cap while it is open and cuts the text back to
+  /// [maxLength] as it ends. The field and the input method keep the same text,
+  /// and a Japanese reading or a pinyin spelling longer than the room left can
+  /// be typed when what it turns into fits. Until the composition ends,
+  /// [onChanged] can report more than [maxLength] characters. A browser treats
+  /// the React field's `maxLength` the same way.
+  ///
+  /// [MaxLengthEnforcement.enforced] holds a composition to the cap, for a
+  /// field that only ever takes digits or Latin letters: a keyboard that
+  /// composes whole words, as Gboard on Android does, otherwise lets a word run
+  /// past the cap until it is finished. It turns away what an input method is
+  /// still composing, and on Windows the input method goes on composing it, so
+  /// the next syllable can take the place of one already in the field. It is
+  /// what Flutter picks on Windows and Android, and
+  /// [LengthLimitingTextInputFormatter.getDefaultMaxLengthEnforcement] gives
+  /// Flutter's choice for the platform.
+  final MaxLengthEnforcement maxLengthEnforcement;
 
   /// Content placed before the text, usually an icon. It takes
   /// `onSurfaceVariant` and the rung's glyph size from the field.
@@ -589,7 +617,11 @@ class _MPTextFieldState extends State<MPTextField> {
         keyboardType: _keyboard,
         textInputAction: _action,
         inputFormatters: <TextInputFormatter>[
-          if (widget.maxLength != null) LengthLimitingTextInputFormatter(widget.maxLength),
+          if (widget.maxLength != null)
+            LengthLimitingTextInputFormatter(
+              widget.maxLength,
+              maxLengthEnforcement: widget.maxLengthEnforcement,
+            ),
         ],
         maxLines: multiline ? widget.rows : 1,
         minLines: multiline ? widget.rows : null,
