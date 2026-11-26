@@ -248,7 +248,10 @@ class _MPOtpFieldState extends State<MPOtpField> {
   late final MPFormFieldBinding _form = MPFormFieldBinding(
     read: () => _current,
     validate: () {
-      if (widget.readOnly || !widget.required || _current.length >= _slots) {
+      // Counted a character to a slot, as the slots are, rather than in UTF-16
+      // code units: an é written as e and a combining accent is one slot and
+      // two units.
+      if (widget.readOnly || !widget.required || _current.characters.length >= _slots) {
         return null;
       }
 

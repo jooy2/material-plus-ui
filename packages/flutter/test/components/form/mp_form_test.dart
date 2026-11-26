@@ -171,6 +171,36 @@ void main() {
     expect(form.currentState!.submit(), isFalse);
   });
 
+  testWidgets('counts a required code by its characters, not its code units', (
+    WidgetTester tester,
+  ) async {
+    // é written as e and a combining acute accent is one character in one slot
+    // and two UTF-16 code units, so 12é is three characters long and four
+    // units long.
+    final GlobalKey<MPFormState> form = GlobalKey<MPFormState>();
+
+    await tester.pumpWidget(
+      host(
+        width: 400,
+        MPForm(
+          key: form,
+          children: const <Widget>[
+            MPOtpField(
+              name: 'code',
+              label: Text('Code'),
+              length: 4,
+              charset: MPOtpFieldCharset.any,
+              required: true,
+              initialValue: '12e\u0301',
+            ),
+          ],
+        ),
+      ),
+    );
+
+    expect(form.currentState!.submit(), isFalse);
+  });
+
   testWidgets('leaves a disabled field out', (WidgetTester tester) async {
     final GlobalKey<MPFormState> form = GlobalKey<MPFormState>();
     Map<String, Object?>? submitted;
