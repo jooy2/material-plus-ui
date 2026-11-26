@@ -1,7 +1,9 @@
+// The Playwright provider's types, which say what `cdp()` can send.
+/// <reference types="@vitest/browser-playwright" />
 import { useState, type FormEvent } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { userEvent } from 'vitest/browser';
+import { cdp, server, userEvent } from 'vitest/browser';
 import { MPIcon, MPTextField, ICONS } from 'material-plus-ui';
 
 /**
@@ -521,6 +523,160 @@ describe('MPTextField', () => {
       await screen.rerender(<MPTextField value="server value" label="Name" />);
 
       expect(input.value).toBe('server value');
+    });
+  });
+
+  /*
+   * Driven through the browser's own input method rather than synthetic events,
+   * because what is being tested is what the browser does with `maxlength` while
+   * a composition is open: it lets the composition run past the limit and cuts
+   * the text back as it is committed. Chromium alone takes the commands, and the
+   * steps are the ones a Korean input method takes, which ends one syllable and
+   * starts the next on the key that cannot join it.
+   */
+  describe.runIf(server.browser === 'chromium')('maxLength while an input method composes', () => {
+    /** Puts the composition at the caret where the input method has it. */
+    async function compose(text: string) {
+      await cdp().send('Input.imeSetComposition', {
+        text,
+        selectionStart: text.length,
+        selectionEnd: text.length
+      });
+      await tick();
+    }
+
+    /** Ends the composition with [text]. */
+    async function commit(text: string) {
+      await cdp().send('Input.insertText', { text });
+      await tick();
+    }
+
+    /**
+     * Sends each step to the input method, and checks the field shows the whole
+     * of what it holds after each one.
+     */
+    async function steps(input: HTMLInputElement, list: [composed: string, shown: string][]) {
+      for (const [composed, shown] of list) {
+        await compose(composed);
+
+        expect(input.value, `the input method holds "${shown}"`).toBe(shown);
+      }
+    }
+
+    async function renderCapped(maxLength: number, initial = '') {
+      const onChange = vi.fn();
+
+      function Capped() {
+        const [value, setValue] = useState(initial);
+
+        return (
+          <MPTextField
+            label="Name"
+            value={value}
+            maxLength={maxLength}
+            onChange={(next) => {
+              onChange(next);
+              setValue(next);
+            }}
+          />
+        );
+      }
+
+      const screen = await render(<Capped />);
+      const input = screen.getByRole('textbox', { name: 'Name' }).element() as HTMLInputElement;
+
+      input.focus();
+      input.setSelectionRange(input.value.length, input.value.length);
+
+      return { input, onChange };
+    }
+
+    it('takes in a syllable typed past a full field until it is finished', async () => {
+      const { input, onChange } = await renderCapped(2);
+
+      await steps(input, [
+        ['ㅎ', 'ㅎ'],
+        ['하', '하'],
+        ['한', '한']
+      ]);
+      await commit('한');
+      await steps(input, [
+        ['ㄱ', '한ㄱ'],
+        ['그', '한그'],
+        ['글', '한글']
+      ]);
+      await commit('글');
+      await steps(input, [
+        ['ㅁ', '한글ㅁ'],
+        ['마', '한글마']
+      ]);
+
+      // The parent hears the composition past the limit, as the Flutter
+      // field's parent does.
+      expect(onChange).toHaveBeenLastCalledWith('한글마');
+
+      await commit('마');
+
+      expect(input.value).toBe('한글');
+      expect(onChange).toHaveBeenLastCalledWith('한글');
+    });
+
+    it('shows a syllable that splits at the limit whole until it is finished', async () => {
+      const { input, onChange } = await renderCapped(2);
+
+      await steps(input, [
+        ['ㄱ', 'ㄱ'],
+        ['그', '그'],
+        ['글', '글']
+      ]);
+      await commit('글');
+      await steps(input, [
+        ['ㅎ', '글ㅎ'],
+        ['하', '글하'],
+        ['한', '글한']
+      ]);
+      // ㅏ takes the ㄴ off 한 for a syllable of its own: the input method
+      // finishes 하 and starts 나.
+      await commit('하');
+      await steps(input, [['나', '글하나']]);
+      await commit('나');
+
+      expect(input.value).toBe('글하');
+      expect(onChange).toHaveBeenLastCalledWith('글하');
+    });
+
+    it('takes in a syllable started in a field already full', async () => {
+      const { input, onChange } = await renderCapped(2, '한글');
+
+      await steps(input, [
+        ['ㅁ', '한글ㅁ'],
+        ['마', '한글마']
+      ]);
+      await commit('마');
+
+      expect(input.value).toBe('한글');
+      expect(onChange).toHaveBeenLastCalledWith('한글');
+    });
+
+    it.each([
+      ['zhongguo', '中国'],
+      ['にほんご', '日本語']
+    ])('takes %s for %s in a field that fits what it turns into', async (reading, written) => {
+      const { input, onChange } = await renderCapped(written.length);
+
+      await steps(
+        input,
+        Array.from(reading, (_, index): [string, string] => {
+          const typed = reading.slice(0, index + 1);
+
+          return [typed, typed];
+        })
+      );
+      await steps(input, [[written, written]]);
+      await commit(written);
+
+      expect(input.value).toBe(written);
+      expect(onChange).toHaveBeenLastCalledWith(written);
     });
   });
 
