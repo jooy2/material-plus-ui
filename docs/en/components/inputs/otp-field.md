@@ -97,6 +97,8 @@ Once every slot is filled the ring stays on the last one, and a key pressed then
 
 :::
 
+A code is not complete while an input method is still composing its last character, since the next key can still change it, so `onComplete` waits for the composition to end. Android is the exception in both packages: some of its keyboards leave everything they type composing, and a code that waited for them would not complete.
+
 ### errorMessage
 
 There is no separate `error` boolean. The message is what puts the field into its error state, and it re-points every slot's outline, ink and caret at `error` together.
