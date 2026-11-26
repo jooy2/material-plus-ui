@@ -1,6 +1,9 @@
+// The Playwright provider's types, which say what `cdp()` can send.
+/// <reference types="@vitest/browser-playwright" />
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { cdp, server } from 'vitest/browser';
 import { MPOtpField } from 'material-plus-ui';
 import type { MPSize } from 'material-plus-ui';
 
@@ -122,6 +125,49 @@ describe('MPOtpField', () => {
       await screen.getByRole('textbox').first().fill('a1b2');
 
       expect(screen.getByTestId('model').element().textContent).toBe('a1b2');
+    });
+  });
+
+  /*
+   * Driven through Chromium's own input method commands, the only engine that
+   * takes them. The steps are a Korean input method's: it ends one syllable and
+   * starts the next on the key that cannot join it.
+   */
+  describe.runIf(server.browser === 'chromium')('completing while an input method composes', () => {
+    async function compose(text: string) {
+      await cdp().send('Input.imeSetComposition', {
+        text,
+        selectionStart: text.length,
+        selectionEnd: text.length
+      });
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+
+    async function commit(text: string) {
+      await cdp().send('Input.insertText', { text });
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+
+    it('waits for the last syllable to be finished', async () => {
+      const onComplete = vi.fn();
+
+      await render(<MPOtpField label="Code" length={2} charset="any" onComplete={onComplete} />);
+      slots()[0].focus();
+
+      await compose('ㅎ');
+      await compose('하');
+      await compose('한');
+      await commit('한');
+      await compose('ㄱ');
+      await compose('그');
+      await compose('글');
+
+      expect(onComplete).not.toHaveBeenCalled();
+
+      await commit('글');
+
+      expect(onComplete).toHaveBeenCalledTimes(1);
+      expect(onComplete).toHaveBeenCalledWith('한글');
     });
   });
 
